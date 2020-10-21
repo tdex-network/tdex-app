@@ -1,0 +1,7 @@
+{
+  "name": "tdex-app",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
