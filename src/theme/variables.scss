@@ -1,5 +1,33 @@
 /* Ionic Variables and Theming. For more info, please see:
 http://ionicframework.com/docs/theming/ */
+@font-face {
+  font-family: 'DMSans';
+  src: url('../assets/fonts/DMSans-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'DMSans-Bold';
+  src: url('../assets/fonts/DMSans-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'DMMono';
+  src: url('../assets/fonts/DMMono-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'DMMono-Medium';
+  src: url('../assets/fonts/DMMono-Medium.ttf');
+}
+
+
+$main-font: "DMSans";
+$heading-font: "DMSans-Bold";
+$sub-font:"DMMono";
+$sub-heading-font: "DMMono-Medium";
+
+$main-font-size: 14px;
+$sub-font-size: 10px;
 
 /** Ionic CSS Variables **/
 :root {
@@ -181,7 +209,7 @@ http://ionicframework.com/docs/theming/ */
 
     --ion-toolbar-background: #0d0d0d;
 
-    --ion-item-background: #000000;
+    --ion-item-background: #c2c2c2;
 
     --ion-card-background: #1c1c1d;
   }

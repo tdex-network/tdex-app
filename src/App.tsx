@@ -1,8 +1,6 @@
-import React from 'react';
-import { Redirect, Route } from 'react-router-dom';
-import { IonApp, IonRouterOutlet } from '@ionic/react';
+import React, { useEffect, useState, useRef } from 'react';
+import { IonApp } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import Home from './pages/Home';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -21,17 +19,35 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 
 /* Theme variables */
-import './theme/variables.css';
+import './theme/global.scss';
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <Route path="/home" component={Home} exact={true} />
-        <Route exact path="/" render={() => <Redirect to="/home" />} />
-      </IonRouterOutlet>
-    </IonReactRouter>
-  </IonApp>
-);
+import Tabs from './pages/Tabs';
+import Main from './pages/Main';
+
+import { Plugins } from '@capacitor/core';
+import { ScreenOrientation } from '@ionic-native/screen-orientation';
+
+const App: React.FC = () => {
+  const [isAuth, setIsAuth] = useState(false);
+
+  useEffect(() => {
+    const { StatusBar } = Plugins;
+    StatusBar.setBackgroundColor({color: "#333333"});
+
+    ScreenOrientation.lock(ScreenOrientation.ORIENTATIONS.PORTRAIT);
+  }, []);
+
+  return (
+    <IonApp>
+        <IonReactRouter>
+          {isAuth ? (
+            <Tabs />
+          ) : (
+            <Main setIsAuth={setIsAuth}/>
+          )}
+        </IonReactRouter>
+    </IonApp>
+  )
+};
 
 export default App;

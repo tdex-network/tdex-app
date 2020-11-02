@@ -1,0 +1,51 @@
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.sub-button {
+  --background: none;
+  --border: 0;
+  border: 0;
+  height: auto;
+  margin-top: 22px;
+}
+
+.main-button {
+  height: 56px;
+  width: 260px;
+  --background: transparent;
+  --padding-top: 21px;
+  --padding-bottom: 21px;
+  --padding-start: 21px;
+  --padding-end: 21px;
+  border: 2px solid rgb(15, 255, 0);
+  color: rgb(15, 255, 0);
+  &.secondary {
+    border: 2px solid #fff;
+    color: #fff;
+  }
+}
+
+ion-button {
+  border-radius: 35px;
+  --border-radius: 35px;
+  font-size: 14px;
+  position: relative;
+  --background-hover: transparent;
+  --background-focused: transparent;
+  --background-activated: transparent;
+  --background-hover-opacity: 1;
+  text-transform: uppercase;
+}
+
+.button-gradient {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  left: 0;
+}
