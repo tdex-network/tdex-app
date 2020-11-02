@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IonContent, IonButtons, IonHeader, IonButton, IonImg, IonItem, IonInput, IonLabel, IonPage, IonTitle, IonToolbar, useIonViewDidEnter, IonBackButton } from '@ionic/react';
-import { withRouter } from 'react-router';
+import { RouteComponentProps, withRouter } from 'react-router';
 import PageDescription from "../../components/PageDescription";
 
 import classNames from 'classnames';
@@ -9,7 +9,7 @@ import { IconWallet, IconWarning } from '../../components/icons';
 
 import './style.scss';
 
-const RestoreWallet = ({history}:any) => {
+const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [words, setWords] = useState(new Array(12).fill(null));
 
   const handleChangeInput = (e: any, index: number) => {

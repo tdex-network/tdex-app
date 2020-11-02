@@ -1,13 +1,17 @@
 import { IonContent, IonButtons, IonHeader, IonButton, IonImg, IonItem, IonInput, IonLabel, IonPage, IonTitle, IonToolbar, useIonViewDidEnter, IonBackButton } from '@ionic/react';
 import React, { ChangeEvent, useEffect, useRef, useState} from 'react';
 import classNames from 'classnames';
-import { withRouter } from 'react-router';
+import { RouteComponentProps, withRouter } from 'react-router';
 import PageDescription from '../../components/PageDescription';
 import PinInput from '../../components/PinInput';
 import './style.scss';
 import { IconBack, IconCheck } from '../../components/icons';
 
-const Login: React.FC<any> = ({setIsAuth, history}) => {
+interface LoginInterface {
+  setIsAuth: (value: boolean) => void,
+}
+
+const Login: React.FC<LoginInterface & RouteComponentProps> = ({setIsAuth, history}) => {
   const [inputValue, setValue] = useState("");
   const [firstPin, setFirstPin] = useState("");
 

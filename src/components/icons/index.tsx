@@ -8,7 +8,9 @@ interface IconInterface {
 }
 
 export const IconWallet = (props: IconInterface) => (
-  <div {...props} style={{background:'url("../assets/img/btc.svg")'}}></div>
+  <svg width="20" height="20" {...props} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path id="wallet" fill-rule="evenodd" clip-rule="evenodd" d="M13 10.5C12.17 10.5 11.5 9.83 11.5 9C11.5 8.17 12.17 7.5 13 7.5C13.83 7.5 14.5 8.17 14.5 9C14.5 9.83 13.83 10.5 13 10.5ZM10 5C9.45 5 9 5.45 9 6V12C9 12.55 9.45 13 10 13H19V5H10ZM7 13V5C7 3.9 7.89 3 9 3H18V2C18 0.9 17.1 0 16 0H2C0.89 0 0 0.9 0 2V16C0 17.1 0.89 18 2 18H16C17.1 18 18 17.1 18 16V15H9C7.89 15 7 14.1 7 13Z"/>
+  </svg>
 );
 
 export const IconExchange = (props: IconInterface) => (
