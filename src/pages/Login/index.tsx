@@ -1,4 +1,4 @@
-import { IonContent, IonButtons, IonHeader, IonButton, IonImg, IonItem, IonInput, IonLabel, IonPage, IonTitle, IonToolbar, useIonViewDidEnter, IonBackButton } from '@ionic/react';
+import { IonContent, IonHeader, IonButton, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import React, { ChangeEvent, useEffect, useRef, useState} from 'react';
 import classNames from 'classnames';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -33,7 +33,7 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({setIsAuth, histo
       setValue("");
     } else if (firstPin && inputValue && firstPin.localeCompare(inputValue)) {
       setIsAuth(true)
-      history.replace("/");
+      
     } else {
       setFirstPin("");
       setValue("");

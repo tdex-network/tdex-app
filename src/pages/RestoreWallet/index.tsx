@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IonContent, IonButtons, IonHeader, IonButton, IonImg, IonItem, IonInput, IonLabel, IonPage, IonTitle, IonToolbar, useIonViewDidEnter, IonBackButton } from '@ionic/react';
+import { IonContent, IonHeader, IonButton, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import PageDescription from "../../components/PageDescription";
 
@@ -39,7 +39,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
             <p>Paste your 12-word recovery phrase
 in the correct order</p>
           </PageDescription>
-          {console.log(1111)}
+
           <div className="restore-input-wrapper">
             {[...new Array(12).fill(1)].map((item, index) => {
               return (
@@ -55,6 +55,7 @@ in the correct order</p>
               )
             })}
           </div>
+          
           <div className="warning-message">
             <div className="warning-icon">
               <IconWarning />
@@ -63,7 +64,7 @@ in the correct order</p>
 safe place such as safe deposit box</p>
           </div>
           <div className="buttons restore">
-            <IonButton className="main-button">Confirm</IonButton>
+            <IonButton disabled={true} className="main-button">Confirm</IonButton>
           </div>
         </IonContent>
     </IonPage>
