@@ -36,7 +36,8 @@
     "typescript": "3.8.3"
   },
   "scripts": {
-    "start": "ionic serve",
+    "start-web": "ionic serve",
+    "start-android": "ionic capacitor run android",
     "build": "ionic build"
   },
   "eslintConfig": {

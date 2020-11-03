@@ -31,15 +31,22 @@ const App: React.FC = () => {
   const [isAuth, setIsAuth] = useState(false);
 
   useEffect(() => {
-    const { StatusBar } = Plugins;
-    StatusBar.setBackgroundColor({color: "#333333"});
-
-    try {
-      ScreenOrientation.lock(ScreenOrientation.ORIENTATIONS.PORTRAIT);
-    } catch (err) {
-      console.log(err);
+    const setupApp = async () => {
+      try {
+        const { StatusBar } = Plugins;
+        await StatusBar.setBackgroundColor({color: "#333333"});
+      } catch (err) {
+        console.log(err);
+      }
+      
+      try {
+        await ScreenOrientation.lock(ScreenOrientation.ORIENTATIONS.PORTRAIT);
+      } catch (err) {
+        console.log(err);
+      }
     }
-    
+
+    setupApp();
   }, []);
 
   return (
