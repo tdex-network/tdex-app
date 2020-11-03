@@ -34,7 +34,12 @@ const App: React.FC = () => {
     const { StatusBar } = Plugins;
     StatusBar.setBackgroundColor({color: "#333333"});
 
-    ScreenOrientation.lock(ScreenOrientation.ORIENTATIONS.PORTRAIT);
+    try {
+      ScreenOrientation.lock(ScreenOrientation.ORIENTATIONS.PORTRAIT);
+    } catch (err) {
+      console.log(err);
+    }
+    
   }, []);
 
   return (
