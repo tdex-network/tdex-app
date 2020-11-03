@@ -5,7 +5,7 @@ import PageDescription from "../../components/PageDescription";
 
 import classNames from 'classnames';
 
-import { IconWallet, IconWarning } from '../../components/icons';
+import { IconBack, IconWarning } from '../../components/icons';
 
 import './style.scss';
 
@@ -27,7 +27,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
         <IonHeader>
           <IonToolbar className="with-back-button">
               <IonButton onClick={() => {history.goBack()}}>
-                <IconWallet />
+                <IconBack />
               </IonButton>
               <IonTitle>Secret phrase</IonTitle>
           </IonToolbar>
@@ -55,7 +55,7 @@ in the correct order</p>
               )
             })}
           </div>
-          
+
           <div className="warning-message">
             <div className="warning-icon">
               <IconWarning />
