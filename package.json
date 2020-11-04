@@ -28,7 +28,7 @@
     "android": "npx ionic capacitor run android",
     "ios": "npx ionic capacitor run ios",
     "build": "npx ionic build",
-    "lint": "npx eslint 'src/**/*.ts' --quiet --fix"
+    "lint": "npx eslint './src/**/*.ts*'"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -48,6 +48,7 @@
   "devDependencies": {
     "@capacitor/cli": "2.4.2",
     "@ionic/cli": "^6.12.1",
+    "@ionic/eslint-plugin": "0.0.1",
     "@ionic/react-test-utils": "0.0.3",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.4.0",
@@ -64,7 +65,7 @@
     "eslint-plugin-prettier": "^3.1.4",
     "node-sass": "^4.14.1",
     "prettier": "^2.1.2",
-    "react-scripts": "3.4.0",
+    "react-scripts": "4.0.0",
     "typescript": "3.8.3"
   },
   "description": "Mobile app for making trades on TDEX",
