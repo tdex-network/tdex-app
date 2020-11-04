@@ -1,0 +1,82 @@
+@import "../variables.scss";
+
+ion-list {
+  background: transparent !important;
+}
+  
+ion-item {
+  border: 0;
+  --border: 0;
+  background: rgb(51, 51, 51);
+  border-radius: 8px;
+  --color: rgb(255, 255, 255);
+  font-size: 10px;
+  --min-height: auto;
+  --padding-start: 17px;
+  --padding-end: 17px;
+  --padding-top: 17px;
+  --padding-bottom: 17px;
+  --border-style: none;
+  min-height: 64px;
+  &.pending {
+    background: rgb(51, 51, 51);
+  }
+  
+}
+
+ion-item + ion-item {
+  margin-top: 4px;
+}
+
+ion-list-header {
+  color: rgb(102, 102, 102);
+  font-size: 14px;
+  display: inline-block;
+  padding-inline-start: 10px !important;
+  margin-bottom: 3px;
+}
+
+  
+.item-main-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  .item-start {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    .item-name {
+      margin-left: 8px;
+    }
+    img {
+      height: 24px;
+      width: 24px;
+    }
+  }
+  .item-end {
+    display: flex;
+    .first-col {
+      text-align: right;
+      margin-right: 8px;
+    }
+    .second-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+  }
+  .main-row {
+    font-family: "DMSans";
+    font-size: 14px;
+    &.accent {
+      font-size: 10px;
+    }
+  }
+  .sub-row {
+    font-family: "DMMono-Medium";
+    font-size: 10px;
+    color: rgb(198, 198, 198);
+  }
+}
+
