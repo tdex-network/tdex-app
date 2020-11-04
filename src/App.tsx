@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IonApp } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 

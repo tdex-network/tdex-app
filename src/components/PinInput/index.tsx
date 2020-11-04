@@ -1,20 +1,6 @@
-import React, { ChangeEvent, RefObject } from 'react';
+import React, { ChangeEvent } from 'react';
 import classNames from 'classnames';
-import {
-  IonContent,
-  IonButtons,
-  IonHeader,
-  IonButton,
-  IonImg,
-  IonItem,
-  IonInput,
-  IonLabel,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-  useIonViewDidEnter,
-  IonBackButton,
-} from '@ionic/react';
+import { IonItem, IonLabel } from '@ionic/react';
 import './style.scss';
 
 interface PinInput {

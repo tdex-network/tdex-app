@@ -7,7 +7,7 @@ interface IconInterface {
   style?: CSSProperties;
 }
 
-export const IconWallet = (props: IconInterface) => (
+export const IconWallet = (props: IconInterface): any => (
   <svg
     width="20"
     height="20"
@@ -25,7 +25,7 @@ export const IconWallet = (props: IconInterface) => (
   </svg>
 );
 
-export const IconExchange = (props: IconInterface) => (
+export const IconExchange = (props: IconInterface): any => (
   <svg
     width="20"
     height="20"
@@ -41,7 +41,7 @@ export const IconExchange = (props: IconInterface) => (
   </svg>
 );
 
-export const IconSettings = (props: IconInterface) => (
+export const IconSettings = (props: IconInterface): any => (
   <svg
     width="20"
     height="20"
@@ -57,7 +57,7 @@ export const IconSettings = (props: IconInterface) => (
   </svg>
 );
 
-export const IconBack = (props: IconInterface) => (
+export const IconBack = (props: IconInterface): any => (
   <svg
     width="20"
     height="20"
@@ -74,7 +74,7 @@ export const IconBack = (props: IconInterface) => (
   </svg>
 );
 
-export const IconCheck = (props: IconInterface) => (
+export const IconCheck = (props: IconInterface): any => (
   <svg
     width="20"
     height="20"
@@ -87,7 +87,7 @@ export const IconCheck = (props: IconInterface) => (
   </svg>
 );
 
-export const IconWarning = (props: IconInterface) => (
+export const IconWarning = (props: IconInterface): any => (
   <svg
     width="20"
     height="20"
