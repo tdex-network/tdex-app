@@ -28,7 +28,7 @@
     "android": "npx ionic capacitor run android",
     "ios": "npx ionic capacitor run ios",
     "build": "npx ionic build",
-    "lint": "npx eslint './src/**/*.tsx'"
+    "lint": "npx eslint './src/**/*.ts*'"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -65,7 +65,7 @@
     "eslint-plugin-prettier": "^3.1.4",
     "node-sass": "^4.14.1",
     "prettier": "^2.1.2",
-    "react-scripts": "3.4.0",
+    "react-scripts": "4.0.0",
     "typescript": "3.8.3"
   },
   "description": "Mobile app for making trades on TDEX",

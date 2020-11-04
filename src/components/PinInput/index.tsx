@@ -3,13 +3,17 @@ import classNames from 'classnames';
 import { IonItem, IonLabel } from '@ionic/react';
 import './style.scss';
 
-interface PinInput {
+interface PinInputInterface {
   inputValue: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   inputRef: any;
 }
 
-const PinInput: React.FC<PinInput> = ({ inputValue, onChange, inputRef }) => {
+const PinInput: React.FC<PinInputInterface> = ({
+  inputValue,
+  onChange,
+  inputRef,
+}) => {
   return (
     <IonItem lines="none" className="pin-wrapper">
       <IonLabel>
