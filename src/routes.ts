@@ -1,4 +1,4 @@
-import { IconExchange, IconSettings, IconWallet } from "./components/icons"
+import { IconExchange, IconSettings, IconWallet } from './components/icons';
 // import Exchange from "./pages/Exchange"
 // import Operations from "./pages/Operations"
 // import QRScanner from "./pages/QRScanner"
@@ -10,16 +10,16 @@ import { IconExchange, IconSettings, IconWallet } from "./components/icons"
 // import Withdrawal from "./pages/Withdrawal"
 
 export const routerLinks = {
-  wallet: "/wallet",
-  exchange: "/exchange",
-  settings: "/settings",
-  tradeSummary: "/tradesummary",
-  history: "/history",
-  withdrawal: "/withdraw",
-  recieve: "/recieve",
-  qrScanner: "/qrscanner",
-  operations: "/operations"
-}
+  wallet: '/wallet',
+  exchange: '/exchange',
+  settings: '/settings',
+  tradeSummary: '/tradesummary',
+  history: '/history',
+  withdrawal: '/withdraw',
+  recieve: '/recieve',
+  qrScanner: '/qrscanner',
+  operations: '/operations',
+};
 
 // export const ROUTES = [
 //   {
@@ -30,7 +30,7 @@ export const routerLinks = {
 //     path: routerLinks.exchange,
 //     component: Exchange,
 //   },
-//   { 
+//   {
 //     path: routerLinks.settings,
 //     component: Settings,
 //   },
@@ -42,7 +42,7 @@ export const routerLinks = {
 //     path: routerLinks.tradeSummary,
 //     component: TradeSummary,
 //   },
-//   { 
+//   {
 //     path: routerLinks.withdrawal,
 //     component: Withdrawal,
 //   },
@@ -54,7 +54,7 @@ export const routerLinks = {
 //     path: routerLinks.qrScanner,
 //     component: QRScanner,
 //   },
-//   { 
+//   {
 //     path: routerLinks.operations,
 //     component: Operations,
 //   }
@@ -72,5 +72,5 @@ export const TABS = [
   {
     path: routerLinks.settings,
     icon: IconSettings,
-  }
-]
+  },
+];
