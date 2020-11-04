@@ -28,7 +28,7 @@
     "android": "npx ionic capacitor run android",
     "ios": "npx ionic capacitor run ios",
     "build": "npx ionic build",
-    "lint": "npx eslint 'src/**/*.ts' --quiet --fix"
+    "lint": "npx eslint 'src/**/*.tsx' --quiet --fix"
   },
   "eslintConfig": {
     "extends": "react-app"

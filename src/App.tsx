@@ -34,7 +34,7 @@ const App: React.FC = () => {
     const setupApp = async () => {
       try {
         const { StatusBar } = Plugins;
-        await StatusBar.setBackgroundColor({ color: "#333333" });
+        await StatusBar.setBackgroundColor({ color: '#333333' });
       } catch (err) {
         console.log(err);
       }
@@ -44,7 +44,7 @@ const App: React.FC = () => {
       } catch (err) {
         console.log(err);
       }
-    }
+    };
 
     setupApp();
   }, []);
@@ -52,14 +52,10 @@ const App: React.FC = () => {
   return (
     <IonApp>
       <IonReactRouter>
-        {isAuth ? (
-          <></>
-        ) : (
-            <Main setIsAuth={setIsAuth} />
-          )}
+        {isAuth ? <></> : <Main setIsAuth={setIsAuth} />}
       </IonReactRouter>
     </IonApp>
-  )
+  );
 };
 
 export default App;
