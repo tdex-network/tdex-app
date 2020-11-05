@@ -21,6 +21,7 @@ export const routerLinks = {
   qrScanner: "/qrscanner",
   operations: "/operations",
   withdrawalDetails: "/withdrawaldetails"
+  
 }
 
 export const ROUTES = [
