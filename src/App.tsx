@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IonApp } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 
@@ -34,32 +34,28 @@ const App: React.FC = () => {
     const setupApp = async () => {
       try {
         const { StatusBar } = Plugins;
-        await StatusBar.setBackgroundColor({color: "#333333"});
+        await StatusBar.setBackgroundColor({ color: '#333333' });
       } catch (err) {
         console.log(err);
       }
-      
+
       try {
         await ScreenOrientation.lock(ScreenOrientation.ORIENTATIONS.PORTRAIT);
       } catch (err) {
         console.log(err);
       }
-    }
+    };
 
     setupApp();
   }, []);
 
   return (
     <IonApp>
-        <IonReactRouter>
-          {isAuth ? (
-            <></>
-          ) : (
-            <Main setIsAuth={setIsAuth}/>
-          )}
-        </IonReactRouter>
+      <IonReactRouter>
+        {isAuth ? <></> : <Main setIsAuth={setIsAuth} />}
+      </IonReactRouter>
     </IonApp>
-  )
+  );
 };
 
 export default App;
