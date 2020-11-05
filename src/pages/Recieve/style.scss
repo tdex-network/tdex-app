@@ -1,0 +1,37 @@
+.modal-big.recieve {
+  .description-with-icon {
+    margin-top: 56px;
+  }
+  .page-description {
+    p {
+      width: 300px !important;
+    }
+  }
+}
+
+.description-with-icon {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  img {
+    margin-top: 47px;
+    width: 48px;
+    height: 48px;
+  }
+  .page-description {
+    margin-top: 30px;
+    margin-bottom: 28px;
+    p {
+      width: 300px;
+    }
+  }
+}
+
+.qr-code-container {
+    width: 192px;
+    height: 192px;
+    background: #fff;
+    border-radius: 8px;
+    margin: auto;
+    margin-top: 32px;
+}

@@ -1,0 +1,90 @@
+.trade-summary {
+  .buttons {
+    margin-top: 46px;
+  }
+}
+
+.trade-summary-item {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.trade-items {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgb(102, 102, 102);
+}
+
+.trade-divider {
+  font-size: 34px;
+}
+
+.trade-item {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  .name {
+    font-size: 24px;
+    font-family: "DMSans";
+    display: flex;
+    align-items: center;
+    img {
+      margin-right: 8px;
+      min-width: 23px;
+    }
+  }
+  .trade-price {
+    font-family: "DMMono";
+    font-size: 18px;
+    margin-top: 2px;
+  }
+  &.trade-item:nth-child(3) {
+    align-items: flex-end;
+  }
+}
+
+.transaction-info {
+  padding-top: 15px;
+  color: rgb(198, 198, 198);
+  .transaction-info-date {
+    font-size: 10px;
+    font-family: "DMMono-Medium";
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .transaction-info-values {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    & + & {
+      margin-top: 1px;
+    }
+    .transaction-col-name {
+      white-space: nowrap;
+      margin-right: 8px;
+    }
+    .transaction-col-value {
+      word-break: break-all;
+    }
+  }
+}
+
+.transaction-icons {
+  margin: 47px auto 50px;
+  display: flex;
+  justify-content: center;
+  img {
+    width: 47px;
+    height: 47px;
+  }
+  img:nth-child(2) {
+    border-radius: 50%;
+    box-sizing: content-box;
+    margin-left: -23px;
+  }
+}

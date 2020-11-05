@@ -1,0 +1,56 @@
+.pin-label {
+  display: flex;
+}
+
+.total-info {
+  display: flex;
+  justify-content: center;
+  align-self: center;
+}
+
+.diagram {
+  position: absolute;
+  top: 60px;
+}
+
+.header-info {
+  margin: auto;
+  color: #fff;
+  text-align: center;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  &.wallet {
+    margin-top: 80px;
+  }
+  .info-heading {
+    font-family: "DMSans-Bold";
+    color: rgb(102, 102, 102);
+    font-size: 14px;
+    margin-top: 20px;
+    margin-bottom: 2px;
+  }
+
+  .info-amount {
+    font-family: "DMMono";
+    font-size: 30px;
+    line-height: 30px;
+    span {
+      margin-left: 8px;
+      font-size: 14px;
+    }
+  }
+
+  .info-amount-converted {
+    font-family: "DMMono-Medium";
+    font-size: 10px;
+    line-height: 10px;
+    color: rgb(198, 198, 198);
+    margin-top: -2px;
+  }
+}

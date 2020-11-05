@@ -21,11 +21,12 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/global.scss';
 
-// import Tabs from './pages/Tabs';
+import Tabs from './pages/Tabs';
 import Main from './pages/Main';
 
 import { Plugins } from '@capacitor/core';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
+
 
 const App: React.FC = () => {
   const [isAuth, setIsAuth] = useState(false);
@@ -51,9 +52,13 @@ const App: React.FC = () => {
 
   return (
     <IonApp>
-      <IonReactRouter>
-        {isAuth ? <></> : <Main setIsAuth={setIsAuth} />}
-      </IonReactRouter>
+        <IonReactRouter>
+          {isAuth ? (
+            <Tabs />
+          ) : (
+            <Main setIsAuth={setIsAuth}/>
+          )}
+        </IonReactRouter>
     </IonApp>
   );
 };

@@ -1,0 +1,35 @@
+.operations-buttons {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 11px;
+}
+
+.coin-action-button {
+  border: 2px solid #fff;
+  color: #fff;
+  height: 40px !important;
+  max-width: 111px !important;
+  width: 100%;
+  padding: 11px 15px;
+  font-size: 14px !important;
+  &:hover {
+    color: #000 !important;
+    background: linear-gradient(to top, rgb(15, 255, 0), rgb(0, 235, 127)) !important;
+    border-color: transparent;
+    opacity: 1;
+  }
+  & + & {
+    margin-left: 10px;
+  }
+}
+
+.operations {
+  .header-info {
+    margin: 47px 0 50px;
+    img {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 14px;
+    }
+  }
+}

@@ -1,0 +1,32 @@
+ion-tab-bar {
+  --background: #131313;
+  height: 90px;
+
+}
+
+.tab-icon {
+  fill: rgb(102, 102, 102);
+}
+
+.tab-icon.active {
+  fill: #fff;
+}
+
+.indicator {
+  position: absolute;
+  bottom: 26px;
+  width: 4px;
+  height: 4px;
+  background: #31c43e;
+  border-radius: 2px;
+}
+
+.tab-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: -10;
+}
