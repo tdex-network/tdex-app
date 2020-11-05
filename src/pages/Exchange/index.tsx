@@ -1,5 +1,22 @@
-import { IonContent, IonList, IonModal, IonHeader, IonImg, IonItem, IonInput, IonLabel, IonPage, IonTitle, IonToolbar, useIonViewDidEnter, IonListHeader, IonButton, IonButtons, IonBackButton } from '@ionic/react';
-import React, { useEffect, useRef, useState} from 'react';
+import {
+  IonContent,
+  IonList,
+  IonModal,
+  IonHeader,
+  IonImg,
+  IonItem,
+  IonInput,
+  IonLabel,
+  IonPage,
+  IonTitle,
+  IonToolbar,
+  useIonViewDidEnter,
+  IonListHeader,
+  IonButton,
+  IonButtons,
+  IonBackButton,
+} from '@ionic/react';
+import React, { useEffect, useRef, useState } from 'react';
 
 // components
 import { IconSwap, IconSearch, IconClose } from '../../components/icons';
@@ -19,28 +36,31 @@ const Exchange: React.FC = () => {
           <IonTitle>Exchange</IonTitle>
         </IonToolbar>
       </IonHeader>
-        <IonContent className="exchange-content">
-          <div className="exchange">
-            <div className="exchange-divider"><IconSwap /></div>
-            <ExchangeRow setOpenSearch={setOpenSearch}/>
-            <ExchangeRow setOpenSearch={setOpenSearch}/>
+      <IonContent className="exchange-content">
+        <div className="exchange">
+          <div className="exchange-divider">
+            <IconSwap />
           </div>
-          <div className="buttons">
-            <IonButton className="main-button" routerLink="tradeSummary">Confirm</IonButton>
-          </div>
-          <div className="search">
+          <ExchangeRow setOpenSearch={setOpenSearch} />
+          <ExchangeRow setOpenSearch={setOpenSearch} />
+        </div>
+        <div className="buttons">
+          <IonButton className="main-button" routerLink="tradeSummary">
+            Confirm
+          </IonButton>
+        </div>
+        <div className="search">
           <IonModal cssClass="modal-small" isOpen={openSearch}>
             <IonHeader>
-            <div>
+              <div>
                 <label className="search-bar">
                   <IconSearch />
-                  <input  placeholder="Search currency" type="text"/>
+                  <input placeholder="Search currency" type="text" />
                   <IconClose />
                 </label>
               </div>
             </IonHeader>
             <IonContent className="search-content">
-              
               <IonList>
                 <IonItem>
                   <div className="search-item-name">
@@ -48,7 +68,9 @@ const Exchange: React.FC = () => {
                     <p>BTC Bitcoin</p>
                   </div>
                   <div className="search-item-amount">
-                    <p>9,500 <span>EUR</span></p>
+                    <p>
+                      9,500 <span>EUR</span>
+                    </p>
                   </div>
                 </IonItem>
                 <IonItem>
@@ -57,7 +79,9 @@ const Exchange: React.FC = () => {
                     <p>BTC Bitcoin</p>
                   </div>
                   <div className="search-item-amount">
-                    <p>9,500 <span>EUR</span></p>
+                    <p>
+                      9,500 <span>EUR</span>
+                    </p>
                   </div>
                 </IonItem>
                 <IonItem>
@@ -66,7 +90,9 @@ const Exchange: React.FC = () => {
                     <p>BTC Bitcoin</p>
                   </div>
                   <div className="search-item-amount">
-                    <p>9,500 <span>EUR</span></p>
+                    <p>
+                      9,500 <span>EUR</span>
+                    </p>
                   </div>
                 </IonItem>
                 <IonItem>
@@ -75,7 +101,9 @@ const Exchange: React.FC = () => {
                     <p>BTC Bitcoin</p>
                   </div>
                   <div className="search-item-amount">
-                    <p>9,500 <span>EUR</span></p>
+                    <p>
+                      9,500 <span>EUR</span>
+                    </p>
                   </div>
                 </IonItem>
                 <IonItem>
@@ -84,14 +112,16 @@ const Exchange: React.FC = () => {
                     <p>BTC Bitcoin</p>
                   </div>
                   <div className="search-item-amount">
-                    <p>9,500 <span>EUR</span></p>
+                    <p>
+                      9,500 <span>EUR</span>
+                    </p>
                   </div>
                 </IonItem>
               </IonList>
             </IonContent>
           </IonModal>
-          </div>
-        </IonContent>
+        </div>
+      </IonContent>
     </IonPage>
   );
 };

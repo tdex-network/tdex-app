@@ -40,14 +40,13 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
   const onConfirm = () => {
     if (!firstPin) {
       setFirstPin(inputValue);
-      setValue("");
+      setValue('');
     } else {
-
-      setIsAuth(true)
-      history.replace("/");
+      setIsAuth(true);
+      history.replace('/');
     }
-  }
- 
+  };
+
   return (
     <IonPage>
       <div className="gradient-background"></div>

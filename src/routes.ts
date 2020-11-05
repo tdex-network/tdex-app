@@ -1,28 +1,27 @@
-import { IconExchange, IconSettings, IconWallet } from "./components/icons"
-import Exchange from "./pages/Exchange"
-import Operations from "./pages/Operations"
-import QRScanner from "./pages/QRScanner"
-import Recieve from "./pages/Recieve"
-import Settings from "./pages/Settings"
-import TradeHistory from "./pages/TradeHistory"
-import TradeSummary from "./pages/TradeSummary"
-import Wallet from "./pages/Wallet"
-import Withdrawal from "./pages/Withdrawal"
-import WithdrawalDetails from "./pages/WithdrawalDetails"
+import { IconExchange, IconSettings, IconWallet } from './components/icons';
+import Exchange from './pages/Exchange';
+import Operations from './pages/Operations';
+import QRScanner from './pages/QRScanner';
+import Recieve from './pages/Recieve';
+import Settings from './pages/Settings';
+import TradeHistory from './pages/TradeHistory';
+import TradeSummary from './pages/TradeSummary';
+import Wallet from './pages/Wallet';
+import Withdrawal from './pages/Withdrawal';
+import WithdrawalDetails from './pages/WithdrawalDetails';
 
 export const routerLinks = {
-  wallet: "/wallet",
-  exchange: "/exchange",
-  settings: "/settings",
-  tradeSummary: "/tradesummary",
-  history: "/history",
-  withdrawal: "/withdraw",
-  recieve: "/recieve",
-  qrScanner: "/qrscanner",
-  operations: "/operations",
-  withdrawalDetails: "/withdrawaldetails"
-  
-}
+  wallet: '/wallet',
+  exchange: '/exchange',
+  settings: '/settings',
+  tradeSummary: '/tradesummary',
+  history: '/history',
+  withdrawal: '/withdraw',
+  recieve: '/recieve',
+  qrScanner: '/qrscanner',
+  operations: '/operations',
+  withdrawalDetails: '/withdrawaldetails',
+};
 
 export const ROUTES = [
   {
@@ -33,7 +32,7 @@ export const ROUTES = [
     path: routerLinks.exchange,
     component: Exchange,
   },
-  { 
+  {
     path: routerLinks.settings,
     component: Settings,
   },
@@ -45,7 +44,7 @@ export const ROUTES = [
     path: routerLinks.tradeSummary,
     component: TradeSummary,
   },
-  { 
+  {
     path: routerLinks.withdrawal,
     component: Withdrawal,
   },
@@ -57,15 +56,15 @@ export const ROUTES = [
     path: routerLinks.qrScanner,
     component: QRScanner,
   },
-  { 
+  {
     path: routerLinks.operations,
     component: Operations,
   },
   {
     path: routerLinks.withdrawalDetails,
     component: WithdrawalDetails,
-  }
-]
+  },
+];
 
 export const TABS = [
   {
