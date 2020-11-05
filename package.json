@@ -3,33 +3,32 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "@capacitor/core": "2.4.2",
     "@ionic/pwa-elements": "^3.0.1",
-    "@ionic/react": "^5.0.7",
+    "@capacitor/android": "^2.4.2",
+    "@capacitor/core": "2.4.2",
+    "@capacitor/ios": "^2.4.2",
+    "@ionic-native/barcode-scanner": "^5.29.0",
     "@ionic/react-hooks": "0.0.8",
-    "@ionic/react-router": "^5.0.7",
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.4.0",
-    "@testing-library/user-event": "^8.0.3",
-    "@types/jest": "^24.0.25",
-    "@types/node": "^12.12.24",
-    "@types/react": "^16.9.17",
-    "@types/react-dom": "^16.9.4",
-    "@types/react-router": "^5.1.4",
-    "@types/react-router-dom": "^5.1.3",
+    "@ionic-native/core": "^5.29.0",
+    "@ionic-native/screen-orientation": "^5.29.0",
+    "@ionic/react": "^5.0.7",
     "ionicons": "^5.0.0",
+    "@ionic/react-router": "^5.4.1",
+    "classnames": "^2.2.6",
+    "cordova-plugin-screen-orientation": "^3.0.2",
+    "es6-promise-plugin": "^4.2.2",
+    "phonegap-plugin-barcodescanner": "^8.1.0",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
-    "react-router": "^5.1.2",
-    "react-router-dom": "^5.1.2",
-    "react-scripts": "3.4.0",
-    "typescript": "3.8.3"
+    "react-router": "^5.2.0",
+    "react-router-dom": "^5.2.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "serve": "npx ionic serve",
+    "android": "npx ionic capacitor run android",
+    "ios": "npx ionic capacitor run ios",
+    "build": "npx ionic build",
+    "lint": "npx eslint './src/**/*.ts*'"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -47,7 +46,35 @@
     ]
   },
   "devDependencies": {
-    "@capacitor/cli": "2.4.2"
+    "@capacitor/cli": "2.4.2",
+    "@ionic/cli": "^6.12.1",
+    "@ionic/eslint-plugin": "0.0.1",
+    "@ionic/react-test-utils": "0.0.3",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.4.0",
+    "@testing-library/user-event": "^8.0.3",
+    "@types/classnames": "^2.2.11",
+    "@types/node": "^12.12.24",
+    "@types/react": "^16.9.17",
+    "@types/react-dom": "^16.9.4",
+    "@types/react-router": "^5.1.4",
+    "@types/react-router-dom": "^5.1.3",
+    "@typescript-eslint/eslint-plugin": "^4.6.1",
+    "@typescript-eslint/parser": "^4.6.1",
+    "eslint-config-prettier": "^6.15.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "node-sass": "^4.14.1",
+    "prettier": "^2.1.2",
+    "react-scripts": "4.0.0",
+    "typescript": "3.8.3"
   },
-  "description": "An Ionic project"
+  "description": "Mobile app for making trades on TDEX",
+  "prettier": {
+    "printWidth": 80,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "useTabs": false
+  }
 }
