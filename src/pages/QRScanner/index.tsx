@@ -1,18 +1,4 @@
-import {
-  IonContent,
-  IonHeader,
-  IonImg,
-  IonItem,
-  IonInput,
-  IonLabel,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-  useIonViewDidEnter,
-  IonButton,
-  IonRouterOutlet,
-  IonBackButton,
-} from '@ionic/react';
+import { IonContent, IonHeader, IonPage } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { BarcodeScanner } from '@ionic-native/barcode-scanner';
 

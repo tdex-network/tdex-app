@@ -11,7 +11,6 @@ import {
 import React from 'react';
 import { withRouter } from 'react-router';
 import CircleDiagram from '../../components/CircleDiagram';
-import { IconCheck, IconWallet } from '../../components/icons';
 
 //styles
 import './style.scss';

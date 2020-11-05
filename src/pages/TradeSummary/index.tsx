@@ -1,28 +1,16 @@
 import {
   IonPage,
-  IonModal,
-  IonButtons,
   IonTitle,
   IonContent,
-  IonList,
   IonItem,
   IonButton,
   IonToolbar,
   IonHeader,
-  IonTabs,
-  IonTabBar,
-  IonTabButton,
-  IonLabel,
-  IonRouterOutlet,
-  IonIcon,
-  IonListHeader,
 } from '@ionic/react';
-import React, { useState } from 'react';
+import React from 'react';
 import { withRouter } from 'react-router';
-import { IconBack, IconExchange, IconWallet } from '../../components/icons';
-import PageDescription from '../../components/PageDescription';
+import { IconBack, IconExchange } from '../../components/icons';
 import './style.scss';
-import ExchangeRow from '../../components/ExchangeRow';
 
 const TradeSummary: React.FC = ({ history }: any) => {
   return (

@@ -4,26 +4,20 @@ import {
   IonTabs,
   IonTabBar,
   IonTabButton,
-  IonLabel,
   IonRouterOutlet,
-  IonIcon,
 } from '@ionic/react';
-import React, { useEffect, useRef, useState } from 'react';
-import { IonReactRouter } from '@ionic/react-router';
+import React, { useState } from 'react';
 import { Redirect, Route } from 'react-router';
-import { wallet } from 'ionicons/icons';
 import classNames from 'classnames';
 
 //routes
-import { ROUTES, TABS, routerLinks } from '../../routes';
+import { ROUTES, TABS } from '../../routes';
 
 //style
 import './style.scss';
 
 const Tabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
-
-  useEffect(() => {});
 
   const handleChangeTab = (index: number) => {
     console.log(index);

@@ -1,28 +1,15 @@
 import {
   IonContent,
-  IonModal,
-  IonGrid,
-  IonRow,
-  IonBackButton,
-  IonIcon,
-  IonCol,
   IonList,
   IonHeader,
-  IonImg,
   IonItem,
-  IonInput,
-  IonLabel,
   IonPage,
   IonTitle,
   IonToolbar,
-  useIonViewDidEnter,
   IonListHeader,
-  IonButton,
-  IonButtons,
 } from '@ionic/react';
-import React, { useEffect, useRef, useState } from 'react';
-import CircleDiagram from '../../components/CircleDiagram';
-import { IconRightArrow, IconWallet } from '../../components/icons';
+import React from 'react';
+import { IconRightArrow } from '../../components/icons';
 import { withRouter } from 'react-router';
 import './style.scss';
 

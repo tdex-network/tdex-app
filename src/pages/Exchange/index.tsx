@@ -3,20 +3,13 @@ import {
   IonList,
   IonModal,
   IonHeader,
-  IonImg,
   IonItem,
-  IonInput,
-  IonLabel,
   IonPage,
   IonTitle,
   IonToolbar,
-  useIonViewDidEnter,
-  IonListHeader,
   IonButton,
-  IonButtons,
-  IonBackButton,
 } from '@ionic/react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 
 // components
 import { IconSwap, IconSearch, IconClose } from '../../components/icons';

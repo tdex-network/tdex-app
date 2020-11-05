@@ -1,37 +1,23 @@
 import {
   IonPage,
   IonModal,
-  IonButtons,
   IonTitle,
   IonContent,
-  IonList,
   IonItem,
   IonButton,
   IonToolbar,
   IonHeader,
-  IonTabs,
-  IonTabBar,
-  IonTabButton,
   IonLabel,
-  IonRouterOutlet,
-  IonIcon,
-  IonListHeader,
 } from '@ionic/react';
 import React, { useState, useRef, useEffect } from 'react';
 import { withRouter } from 'react-router';
-import {
-  IconBack,
-  IconClose,
-  IconExchange,
-  IconQR,
-} from '../../components/icons';
+import { IconBack, IconClose, IconQR } from '../../components/icons';
 import PageDescription from '../../components/PageDescription';
 import './style.scss';
 import ExchangeRow from '../../components/ExchangeRow';
 import PinInput from '../../components/PinInput';
 
 const Withdrawal: React.FC = ({ history }: any) => {
-  const [openSearch, setOpenSearch] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const inputRef: any = useRef(null);

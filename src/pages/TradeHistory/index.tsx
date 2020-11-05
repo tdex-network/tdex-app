@@ -1,7 +1,5 @@
 import {
   IonPage,
-  IonModal,
-  IonButtons,
   IonTitle,
   IonContent,
   IonList,
@@ -9,22 +7,11 @@ import {
   IonButton,
   IonToolbar,
   IonHeader,
-  IonTabs,
-  IonTabBar,
-  IonTabButton,
-  IonLabel,
-  IonRouterOutlet,
-  IonIcon,
   IonListHeader,
 } from '@ionic/react';
-import React, { useState } from 'react';
+import React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
-import {
-  IconBack,
-  IconCheck,
-  IconExchange,
-  IconWallet,
-} from '../../components/icons';
+import { IconBack } from '../../components/icons';
 import './style.scss';
 
 const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
