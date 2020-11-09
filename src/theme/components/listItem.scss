@@ -36,7 +36,7 @@ ion-list-header {
   margin-bottom: 3px;
 }
 
-  
+
 .item-main-info {
   display: flex;
   align-items: center;
@@ -46,6 +46,7 @@ ion-list-header {
     display: flex;
     align-items: center;
     flex: 1;
+    min-height: 30px;
     .item-name {
       margin-left: 8px;
     }
@@ -77,6 +78,9 @@ ion-list-header {
     font-family: "DMMono-Medium";
     font-size: 10px;
     color: rgb(198, 198, 198);
+  }
+  .completed {
+    color: rgb(15, 255, 0);
   }
 }
 

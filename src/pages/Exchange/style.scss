@@ -1,0 +1,31 @@
+.exchange-header {
+  background: rgb(51, 51, 51);
+}
+
+.exchange {
+  .exchange-coin-container:nth-child(3) {
+    background: transparent;
+  }
+}
+
+.exchange-content {
+  --padding-start: 0;
+  --padding-end: 0;
+}
+
+.exchange-divider {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #000;
+  top: 145px;
+  left: calc(50vw - 17px);
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  svg {
+    fill: rgb(15, 255, 0);
+  }
+}

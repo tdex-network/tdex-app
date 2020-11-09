@@ -41,12 +41,9 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
     if (!firstPin) {
       setFirstPin(inputValue);
       setValue('');
-    } else if (firstPin && inputValue && firstPin.localeCompare(inputValue)) {
-      // setIsAuth(true)
-      // history.replace("/");
     } else {
-      setFirstPin('');
-      setValue('');
+      setIsAuth(true);
+      history.replace('/');
     }
   };
 

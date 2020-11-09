@@ -21,7 +21,7 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/global.scss';
 
-// import Tabs from './pages/Tabs';
+import Tabs from './pages/Tabs';
 import Main from './pages/Main';
 
 import { Plugins } from '@capacitor/core';
@@ -52,7 +52,7 @@ const App: React.FC = () => {
   return (
     <IonApp>
       <IonReactRouter>
-        {isAuth ? <></> : <Main setIsAuth={setIsAuth} />}
+        {isAuth ? <Tabs /> : <Main setIsAuth={setIsAuth} />}
       </IonReactRouter>
     </IonApp>
   );

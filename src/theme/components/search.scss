@@ -44,12 +44,17 @@ ion-modal.modal-small {
   padding: 12px 10px;
   display: flex;
   align-items: center;
-  fill: rgb(198, 198, 198);
+  svg {
+    fill: rgb(198, 198, 198);
+    min-width: 24px;
+    height: 24px;
+  }
   input {
     background: transparent;
     outline: none;
     border: 0;
     width: 100%;
+    height: 24px;
     color: rgb(198, 198, 198);
     margin-left: 8px;
     font-family: $main-font;

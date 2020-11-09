@@ -1,0 +1,25 @@
+.withdrawal-details {
+  .header-info {
+    margin-top: 47px;
+    margin-bottom: 59px;
+    img {
+      height: 48px;
+      width: 48px;
+      margin-bottom: 9px;
+    }
+  }
+  .buttons {
+    margin-top: 48px;
+  }
+  .item-col {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .divider {
+    border-top: 1px solid rgb(102, 102, 102);
+    margin-top: 12px;
+    padding-top: 8px;
+  }
+}
