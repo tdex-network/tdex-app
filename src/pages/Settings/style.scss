@@ -1,5 +1,52 @@
+@import "../../theme/variables";
+
 .settings {
-    .next-icon {
-        margin-top: 12px;
+    --overflow: auto;
+    .item-end {
+        align-items: center;
+    }
+    .green-label {
+        font-family: $main-font;
+        color: $light-green-color;
+        font-size: 14px;
+        line-height: 16px;
+        display: inline-block;
+
+        &.chosen-currency {
+            margin-right: 17px;
+        }
+
+        &.chosen-theme {
+            margin-right: 10px;
+        }
+    }
+
+    .settings-toggle {
+        width: 40px;
+        height: 20px;
+        border: 2px solid #fff;
+        border-radius: 12px;
+        --handle-background: rgb(51, 51, 51);
+        --handle-border: 2px solid #fff;
+        --handle-border-radius: 8px;
+        --handle-box-shadow: 0 0 0 2px #fff;
+        --handle-width: 13px;
+        --handle-height: 13px;
+        --handle-spacing: 4px;
+        --background-checked: rgb(51, 51, 51);
+        --background: rgb(51, 51, 51);
+
+        &.toggle-checked {
+            width: 40px;
+            height: 20px;
+            border: 2px solid #fff;
+            border-radius: 12px;
+            --handle-spacing: 4px;
+            --handle-border: 2px solid #fff;
+            --handle-border-radius: 8px;
+            --handle-box-shadow: 0 0 0 2px #fff;
+            --handle-width: 13px;
+            --handle-height: 13px;
+        }
     }
 }

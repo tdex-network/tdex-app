@@ -37,6 +37,7 @@ ion-list-header {
 }
 
 
+.info-wrapper .item-main-info,
 .item-main-info {
   display: flex;
   align-items: center;
@@ -60,6 +61,9 @@ ion-list-header {
     .first-col {
       text-align: right;
       margin-right: 8px;
+      .main-row {
+        font-family: $sub-heading-font;
+      }
     }
     .second-col {
       display: flex;
@@ -78,9 +82,106 @@ ion-list-header {
     font-family: "DMMono-Medium";
     font-size: 10px;
     color: rgb(198, 198, 198);
+    line-height: 18px;
   }
   .completed {
     color: rgb(15, 255, 0);
   }
 }
 
+.info-wrapper {
+  width: 100%;
+}
+
+.transaction-item {
+  .info-wrapper {
+    width: 100%;
+    .item-main-info {
+      .item-start {
+        .item-name {
+          margin-left: 1px;
+        }
+      }
+      .item-end {
+        display: flex;
+        flex-direction: column;
+        font-family: $sub-heading-font;
+        .amount {
+          display: flex;
+          flex-direction: row;
+          align-items: flex-end;
+          .main-row {
+            font-family: $sub-heading-font;
+
+            &.accent {
+              font-family: $main-font;
+              font-size: 10px;
+              margin-left: 8px;
+            }
+          }
+        }
+        .status {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+
+          ion-icon {
+            font-size: 18px;
+            margin-left: 5px;
+          }
+
+          &.pending {
+            color: #ff0;
+            .three-dots {
+              display: flex;
+              margin-left: 5px;
+              align-items: center;
+              .dot {
+                display: inline-block;
+                -webkit-border-radius: 50%;
+                -moz-border-radius: 50%;
+                border-radius: 50%;
+                width: 3px;
+                height: 3px;
+                background-color: #ff0;
+
+                & + .dot {
+                  margin-left: 3px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    .sub-info {
+      padding-left: 31px;
+      margin-top: 8px;
+      font-family: $sub-heading-font;
+      color: #c6c6c6;
+      .fee-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        ion-label {
+          font-family: $sub-heading-font;
+        }
+      }
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 2px;
+        ion-label {
+          font-family: $sub-heading-font;
+        }
+        ion-text {
+          overflow-wrap: break-word;
+          word-wrap: break-word;
+          hyphens: auto;
+          max-width: 250px;
+          margin-left: 6px;
+        }
+      }
+    }
+  }
+}

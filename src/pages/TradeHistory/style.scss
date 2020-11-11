@@ -1,0 +1,12 @@
+@import "../../theme/variables";
+
+.trade-history {
+  .list-item {
+    &.pending {
+      background-color: rgba(255, 220, 0, 0.15);
+    }
+    &.open {
+      background-color: #444;
+    }
+  }
+}

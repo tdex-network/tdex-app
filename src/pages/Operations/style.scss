@@ -26,7 +26,8 @@
 .operations {
   .header-info {
     margin: 47px 0 50px;
-    img {
+    .img-wrapper {
+      display: flex;
       width: 48px;
       height: 48px;
       margin-bottom: 14px;
