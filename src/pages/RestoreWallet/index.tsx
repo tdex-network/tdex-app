@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -15,17 +15,25 @@ import classNames from 'classnames';
 import { IconBack, IconWarning } from '../../components/icons';
 
 import './style.scss';
+import { useMnemonic } from '../../utils/custom-hooks';
+import { useDispatch } from 'react-redux';
+import { setMnemonic } from '../../redux/actions/walletActions';
+// import { Mnemonic, IdentityType } from 'tdex-sdk';
 
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
-  const [words, setWords] = useState(new Array(12).fill(null));
+  const [mnemonic, setMnemonicWord] = useMnemonic();
+  const [isEmpty, setIsEmpty] = useState(true);
+  const dispatch = useDispatch();
 
-  const handleChangeInput = (e: any, index: number) => {
-    const { value } = e.target;
+  useEffect(() => {
+    const filledMnemonic = mnemonic.filter((item: string) => item);
+    const isMnemonicFilled = filledMnemonic.length === 12;
+    setIsEmpty(!isMnemonicFilled);
+  }, [mnemonic]);
 
-    const copy = words;
-    copy[index] = value;
-    console.log(words);
-    setWords(copy);
+  const handleConfirm = () => {
+    dispatch(setMnemonic(mnemonic.join(' ')));
+    history.push('/setup');
   };
 
   return (
@@ -43,24 +51,27 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
           <IonTitle>Secret phrase</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
+      <IonContent className="restore-wallet">
         <PageDescription title="RestoreWallet">
           <p>Paste your 12-word recovery phrase in the correct order</p>
         </PageDescription>
 
         <div className="restore-input-wrapper">
-          {[...new Array(12).fill(1)].map((item, index) => {
+          {mnemonic.map((item: string, index: number) => {
             return (
               <label
                 className={classNames('restore-input', {
-                  active: words[index],
+                  active: mnemonic[index],
                 })}
               >
                 <div className="input-number">{index + 1}</div>
                 <input
-                  onChange={(e) => handleChangeInput(e, index)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setMnemonicWord(e, index)
+                  }
+                  value={item}
                   type="text"
-                ></input>
+                />
               </label>
             );
           })}
@@ -68,7 +79,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
 
         <div className="warning-message">
           <div className="warning-icon">
-            <IconWarning />
+            <IconWarning width="25px" height="25px" viewBox="0 0 25 25" />
           </div>
           <p className="warning">
             Write your secret phrase and store it in a safe place such as safe
@@ -76,7 +87,11 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
           </p>
         </div>
         <div className="buttons restore">
-          <IonButton disabled={true} className="main-button">
+          <IonButton
+            disabled={isEmpty}
+            onClick={handleConfirm}
+            className="main-button"
+          >
             Confirm
           </IonButton>
         </div>

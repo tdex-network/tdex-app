@@ -6,11 +6,7 @@ import HomeScreen from '../Homescreen';
 import Login from '../Login';
 import RestoreWallet from '../RestoreWallet';
 
-interface MainInterface {
-  setIsAuth: (value: boolean) => void;
-}
-
-const Main: React.FC<MainInterface> = ({ setIsAuth }) => {
+const Main: React.FC = () => {
   return (
     <IonPage>
       <IonContent>
@@ -18,7 +14,11 @@ const Main: React.FC<MainInterface> = ({ setIsAuth }) => {
           <Route path="/homescreen" component={HomeScreen} />
           <Route
             path="/login"
-            component={() => <Login setIsAuth={setIsAuth} />}
+            component={() => <Login />}
+          />
+          <Route
+            path="/setup"
+            component={() => <Login setup />}
           />
           <Route path="/restore" component={RestoreWallet} />
           <Redirect exact from="/" to="/homescreen" />

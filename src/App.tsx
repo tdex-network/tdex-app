@@ -26,9 +26,10 @@ import Main from './pages/Main';
 
 import { Plugins } from '@capacitor/core';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
+import { useSelector } from 'react-redux';
 
 const App: React.FC = () => {
-  const [isAuth, setIsAuth] = useState(false);
+  const isAuth = useSelector((state: any) => state.wallet.isAuth);
 
   useEffect(() => {
     const setupApp = async () => {
@@ -51,9 +52,7 @@ const App: React.FC = () => {
 
   return (
     <IonApp>
-      <IonReactRouter>
-        {isAuth ? <Tabs /> : <Main setIsAuth={setIsAuth} />}
-      </IonReactRouter>
+      <IonReactRouter>{isAuth ? <Tabs /> : <Main />}</IonReactRouter>
     </IonApp>
   );
 };

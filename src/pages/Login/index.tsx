@@ -1,3 +1,9 @@
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
+import { RouteComponentProps, withRouter } from 'react-router';
+import PageDescription from '../../components/PageDescription';
+import PinInput from '../../components/PinInput';
+import './style.scss';
 import {
   IonContent,
   IonHeader,
@@ -6,30 +12,40 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import classNames from 'classnames';
-import { RouteComponentProps, withRouter } from 'react-router';
-import PageDescription from '../../components/PageDescription';
-import PinInput from '../../components/PinInput';
-import './style.scss';
 import { IconBack, IconCheck } from '../../components/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { setIsAuth } from '../../redux/actions/walletActions';
+import { Storage } from '@capacitor/core';
 
 interface LoginInterface {
-  setIsAuth: (value: boolean) => void;
+  setup?: boolean;
 }
 
 const Login: React.FC<LoginInterface & RouteComponentProps> = ({
-  setIsAuth,
   history,
+  setup = false,
 }) => {
+  const dispatch = useDispatch();
+  const mnemonic = useSelector((state: any) => state.wallet.mnemonic);
   const [inputValue, setValue] = useState('');
   const [firstPin, setFirstPin] = useState('');
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [disabled, setDisabled] = useState(true);
 
   const inputRef: any = useRef(null);
 
   useEffect(() => {
     inputRef.current.focus();
   });
+
+  useEffect(() => {
+    setDisabled(
+      !!(
+        inputValue.length < 6 ||
+        (firstPin && (!acceptTerms || firstPin !== inputValue))
+      )
+    );
+  }, [inputValue, acceptTerms, firstPin]);
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -38,12 +54,30 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
   };
 
   const onConfirm = () => {
-    if (!firstPin) {
+    if (!firstPin && setup) {
       setFirstPin(inputValue);
       setValue('');
+    } else if (firstPin) {
+      if (firstPin === inputValue) {
+        Storage.set({
+          key: 'wallet',
+          value: JSON.stringify({
+            pin: inputValue,
+            mnemonic,
+          }),
+        }).then(() => {
+          console.log(
+            JSON.stringify({
+              pin: inputValue,
+              mnemonic,
+            })
+          );
+          dispatch(setIsAuth(true));
+          history.replace('/');
+        });
+      }
     } else {
-      setIsAuth(true);
-      history.replace('/');
+      dispatch(setIsAuth(true));
     }
   };
 
@@ -59,7 +93,7 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
           >
             <IconBack />
           </IonButton>
-          <IonTitle>Login</IonTitle>
+          <IonTitle>SETUP WALLET</IonTitle>
         </IonToolbar>
       </IonHeader>
 
@@ -88,7 +122,14 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
 
         {firstPin && (
           <label className="terms">
-            <input type="checkbox" name="agreement"></input>
+            <input
+              type="checkbox"
+              name="agreement"
+              checked={acceptTerms}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setAcceptTerms(e.target.checked)
+              }
+            ></input>
             <div className="custom-check">
               <div className="check-icon">
                 <IconCheck />
@@ -101,9 +142,9 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
         <div className="buttons login">
           <IonButton
             className={classNames('main-button', {
-              secondary: inputValue.length < 6,
+              secondary: disabled,
             })}
-            disabled={inputValue.length < 6}
+            disabled={disabled}
             onClick={onConfirm}
           >
             Confirm
