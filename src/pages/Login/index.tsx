@@ -70,12 +70,6 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
             mnemonic,
           }),
         }).then(() => {
-          console.log(
-            JSON.stringify({
-              pin: inputValue,
-              mnemonic,
-            })
-          );
           dispatch(setIsAuth(true));
           history.replace('/');
         });
