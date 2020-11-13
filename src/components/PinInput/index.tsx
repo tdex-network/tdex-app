@@ -35,6 +35,7 @@ const PinInput: React.FC<PinInputInterface> = ({
         inputMode="numeric"
         value={inputValue}
         onChange={onChange}
+        type="number"
       />
     </IonItem>
   );

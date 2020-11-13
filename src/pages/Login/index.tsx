@@ -14,7 +14,7 @@ import {
 } from '@ionic/react';
 import { IconBack, IconCheck } from '../../components/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { setIsAuth } from '../../redux/actions/walletActions';
+import { setIsAuth, setMnemonic } from '../../redux/actions/walletActions';
 import { Storage } from '@capacitor/core';
 
 interface LoginInterface {
@@ -53,7 +53,11 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
     setValue(value);
   };
 
-  const onConfirm = () => {
+  const getWallet = async (): Promise<{ value: string }> => {
+    return Storage.get({ key: 'wallet' });
+  };
+
+  const onConfirm = async () => {
     if (!firstPin && setup) {
       setFirstPin(inputValue);
       setValue('');
@@ -77,7 +81,13 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
         });
       }
     } else {
-      dispatch(setIsAuth(true));
+      const wallet: { value: string } = await getWallet();
+      const walletObj = JSON.parse(wallet.value);
+      if (wallet && inputValue === walletObj.pin) {
+        dispatch(setMnemonic(walletObj.mnemonic));
+        dispatch(setIsAuth(true));
+        history.replace('/');
+      }
     }
   };
 
