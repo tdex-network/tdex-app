@@ -7,12 +7,14 @@ interface PinInputInterface {
   inputValue: string;
   onChange: (e: ChangeEvent<HTMLInputElement>) => void;
   inputRef: any;
+  error?: string;
 }
 
 const PinInput: React.FC<PinInputInterface> = ({
   inputValue,
   onChange,
   inputRef,
+  error,
 }) => {
   return (
     <IonItem lines="none" className="pin-wrapper">
@@ -22,6 +24,7 @@ const PinInput: React.FC<PinInputInterface> = ({
             <div
               className={classNames('pin-input', {
                 active: index <= inputValue.length,
+                error,
               })}
             >
               {inputValue[index]}

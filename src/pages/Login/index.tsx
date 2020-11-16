@@ -31,6 +31,7 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
   const [firstPin, setFirstPin] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [disabled, setDisabled] = useState(true);
+  const [error, setError] = useState('');
 
   const inputRef: any = useRef(null);
 
@@ -41,16 +42,18 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
   useEffect(() => {
     setDisabled(
       !!(
+        error ||
         inputValue.length < 6 ||
         (firstPin && (!acceptTerms || firstPin !== inputValue))
       )
     );
-  }, [inputValue, acceptTerms, firstPin]);
+  }, [inputValue, acceptTerms, firstPin, error]);
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
 
-    setValue(value);
+    value.length <= 6 && setValue(value);
+    error && setError('');
   };
 
   const getWallet = async (): Promise<{ value: string }> => {
@@ -73,14 +76,18 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
           dispatch(setIsAuth(true));
           history.replace('/');
         });
+      } else {
+        setError('Wrong pin');
       }
     } else {
       const wallet: { value: string } = await getWallet();
       const walletObj = JSON.parse(wallet.value);
-      if (wallet && inputValue === walletObj.pin) {
+      if (walletObj && inputValue === walletObj.pin) {
         dispatch(setMnemonic(walletObj.mnemonic));
         dispatch(setIsAuth(true));
         history.replace('/');
+      } else {
+        setError('Wrong pin');
       }
     }
   };
@@ -122,6 +129,7 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
           inputRef={inputRef}
           onChange={onChange}
           inputValue={inputValue}
+          error={error}
         />
 
         {firstPin && (
