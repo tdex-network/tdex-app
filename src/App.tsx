@@ -26,6 +26,7 @@ import Main from './pages/Main';
 
 import { Plugins } from '@capacitor/core';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
+import { Mnemonic, IdentityType } from 'tdex-sdk';
 
 const App: React.FC = () => {
   const [isAuth, setIsAuth] = useState(false);
@@ -44,6 +45,19 @@ const App: React.FC = () => {
       } catch (err) {
         console.log(err);
       }
+
+      const identity = new Mnemonic({
+        chain: 'regtest',
+        type: IdentityType.Mnemonic,
+        value: {
+          mnemonic:
+            'sauce wire claw episode congress snake scheme test base debris resemble floor',
+        },
+      });
+      console.log(
+        'Receiving address: ',
+        identity.getNextAddress().confidentialAddress
+      );
     };
 
     setupApp();
