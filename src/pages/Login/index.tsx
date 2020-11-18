@@ -16,6 +16,7 @@ import { IconBack, IconCheck } from '../../components/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { setIsAuth, setMnemonic } from '../../redux/actions/walletActions';
 import { Storage } from '@capacitor/core';
+import * as bip39 from 'bip39';
 
 interface LoginInterface {
   setup?: boolean;
@@ -56,36 +57,32 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
     error && setError('');
   };
 
-  const getWallet = async (): Promise<{ value: string }> => {
-    return Storage.get({ key: 'wallet' });
+  const storeMnemonic = (mnemonic: string) => {
+    Storage.set({
+      key: 'wallet',
+      value: JSON.stringify({
+        pin: inputValue,
+        mnemonic,
+      }),
+    }).then(() => {
+      dispatch(setIsAuth(true));
+      history.replace('/');
+    });
   };
 
   const onConfirm = async () => {
-    if (!firstPin && setup) {
+    if (!firstPin) {
       setFirstPin(inputValue);
       setValue('');
     } else if (firstPin) {
       if (firstPin === inputValue) {
-        Storage.set({
-          key: 'wallet',
-          value: JSON.stringify({
-            pin: inputValue,
-            mnemonic,
-          }),
-        }).then(() => {
-          dispatch(setIsAuth(true));
-          history.replace('/');
-        });
-      } else {
-        setError('Wrong pin');
-      }
-    } else {
-      const wallet: { value: string } = await getWallet();
-      const walletObj = JSON.parse(wallet.value);
-      if (walletObj && inputValue === walletObj.pin) {
-        dispatch(setMnemonic(walletObj.mnemonic));
-        dispatch(setIsAuth(true));
-        history.replace('/');
+        if (!mnemonic) {
+          const newMnemonic = bip39.generateMnemonic();
+          dispatch(setMnemonic(newMnemonic));
+          storeMnemonic(newMnemonic);
+        } else {
+          storeMnemonic(mnemonic);
+        }
       } else {
         setError('Wrong pin');
       }

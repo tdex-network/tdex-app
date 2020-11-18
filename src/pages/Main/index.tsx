@@ -13,7 +13,6 @@ const Main: React.FC = () => {
         <IonRouterOutlet>
           <Route path="/homescreen" component={HomeScreen} />
           <Route path="/login" component={() => <Login />} />
-          <Route path="/setup" component={() => <Login setup />} />
           <Route path="/restore" component={RestoreWallet} />
           <Redirect exact from="/" to="/homescreen" />
         </IonRouterOutlet>

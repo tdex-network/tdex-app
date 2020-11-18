@@ -33,7 +33,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
 
   const handleConfirm = () => {
     dispatch(setMnemonic(mnemonic.join(' ')));
-    history.push('/setup');
+    history.push('/login');
   };
 
   return (

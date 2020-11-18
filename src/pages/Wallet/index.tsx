@@ -61,7 +61,7 @@ const Wallet: React.FC<any> = ({ history }) => {
 
       const getBalances = async () => {
         try {
-          await fetchBalances(
+          return await fetchBalances(
             confidentialAddress,
             blindingPrivateKey,
             'http://localhost:3001'
@@ -69,7 +69,6 @@ const Wallet: React.FC<any> = ({ history }) => {
             setBalances(res);
             return res;
           });
-          return balances;
         } catch (e) {
           console.log(e);
         }

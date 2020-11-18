@@ -25,12 +25,15 @@ import './theme/global.scss';
 import Tabs from './pages/Tabs';
 import Main from './pages/Main';
 
-import { Plugins } from '@capacitor/core';
+import { Plugins, Storage } from '@capacitor/core';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { setIsAuth, setMnemonic } from './redux/actions/walletActions';
+import { push } from 'ionicons/icons';
 
 const App: React.FC = () => {
   const isAuth = useSelector((state: any) => state.wallet.isAuth);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const setupApp = async () => {
@@ -46,9 +49,19 @@ const App: React.FC = () => {
       } catch (err) {
         console.log(err);
       }
-      // const mnemonic = bip39.generateMnemonic();
-      // console.log(mnemonic);
     };
+
+    const getWallet = async (): Promise<{ value: string }> => {
+      return Storage.get({ key: 'wallet' });
+    };
+
+    getWallet().then((wallet) => {
+      const walletObj = JSON.parse(wallet.value);
+      if (walletObj) {
+        dispatch(setMnemonic(walletObj.mnemonic));
+        dispatch(setIsAuth(true));
+      }
+    });
 
     setupApp();
   }, []);
