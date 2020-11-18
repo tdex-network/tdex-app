@@ -8,12 +8,19 @@ import {
   IonToolbar,
   IonListHeader,
 } from '@ionic/react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
 import CircleDiagram from '../../components/CircleDiagram';
 
 //styles
 import './style.scss';
+import {
+  fetchBalances,
+  IdentityType,
+  Mnemonic,
+  walletFromAddresses,
+} from 'tdex-sdk';
+import { useSelector } from 'react-redux';
 
 const data = [
   {
@@ -23,6 +30,60 @@ const data = [
 ];
 
 const Wallet: React.FC<any> = ({ history }) => {
+  const mnemonic = useSelector((state: any) => state.wallet.mnemonic);
+  const [balances, setBalances] = useState();
+  useEffect(() => {
+    try {
+      const identity = new Mnemonic({
+        chain: 'regtest',
+        type: IdentityType.Mnemonic,
+        value: {
+          mnemonic,
+        },
+      });
+      console.log(
+        'Receiving address: ',
+        identity.getNextAddress().confidentialAddress
+      );
+
+      const senderWallet = walletFromAddresses(
+        identity.getAddresses(),
+        'regtest'
+      );
+      console.log(senderWallet);
+      const address = identity.getNextAddress();
+      const { confidentialAddress, blindingPrivateKey } = address;
+
+      console.log(address);
+
+      // Receiving Address and Change address are the same with Identity.PrivateKey
+      const changeAddrAndBlidning = identity.getNextChangeAddress();
+
+      const getBalances = async () => {
+        try {
+          await fetchBalances(
+            confidentialAddress,
+            blindingPrivateKey,
+            'http://localhost:3001'
+          ).then((res: any) => {
+            setBalances(res);
+            return res;
+          });
+          return balances;
+        } catch (e) {
+          console.log(e);
+        }
+      };
+
+      getBalances().then((res: any) => {
+        console.log(res);
+      });
+      // Get the balances grouped by assetHash
+    } catch (e) {
+      history.replace('/');
+    }
+  }, []);
+
   return (
     <IonPage>
       <div className="gradient-background"></div>

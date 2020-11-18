@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { IonApp } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
+import * as bip39 from 'bip39';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -27,7 +28,6 @@ import Main from './pages/Main';
 import { Plugins } from '@capacitor/core';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
 import { useSelector } from 'react-redux';
-import { Mnemonic, IdentityType } from 'tdex-sdk';
 
 const App: React.FC = () => {
   const isAuth = useSelector((state: any) => state.wallet.isAuth);
@@ -46,19 +46,8 @@ const App: React.FC = () => {
       } catch (err) {
         console.log(err);
       }
-
-      const identity = new Mnemonic({
-        chain: 'regtest',
-        type: IdentityType.Mnemonic,
-        value: {
-          mnemonic:
-            'sauce wire claw episode congress snake scheme test base debris resemble floor',
-        },
-      });
-      console.log(
-        'Receiving address: ',
-        identity.getNextAddress().confidentialAddress
-      );
+      // const mnemonic = bip39.generateMnemonic();
+      // console.log(mnemonic);
     };
 
     setupApp();
