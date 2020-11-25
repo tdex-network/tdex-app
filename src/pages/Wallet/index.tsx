@@ -15,12 +15,20 @@ import CircleDiagram from '../../components/CircleDiagram';
 //styles
 import './style.scss';
 import {
+  AddressInterface,
   fetchBalances,
   IdentityType,
   Mnemonic,
-  walletFromAddresses,
 } from 'tdex-sdk';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { Storage } from '@capacitor/core';
+import {
+  getAssets,
+  getCoinsList,
+  setAddress,
+} from '../../redux/actions/walletActions';
+import { explorerUrl } from '../../redux/services/walletService';
+import { CurrencyIcon } from '../../components/icons';
 
 const data = [
   {
@@ -30,116 +38,149 @@ const data = [
 ];
 
 const Wallet: React.FC<any> = ({ history }) => {
-  const mnemonic = useSelector((state: any) => state.wallet.mnemonic);
+  const {
+    mnemonic,
+    address,
+    assets,
+    coinsList,
+    currency,
+    coinsRates,
+  } = useSelector((state: any) => ({
+    mnemonic: state.wallet.mnemonic,
+    address: state.wallet.address,
+    assets: state.wallet.assets,
+    coinsList: state.wallet.coinsList,
+    currency: state.settings.currency,
+    coinsRates: state.wallet.coinsRates,
+  }));
+  const dispatch = useDispatch();
   const [balances, setBalances] = useState();
+
   useEffect(() => {
-    try {
-      const identity = new Mnemonic({
-        chain: 'regtest',
-        type: IdentityType.Mnemonic,
-        value: {
-          mnemonic,
-        },
-      });
-      console.log(
-        'Receiving address: ',
-        identity.getNextAddress().confidentialAddress
-      );
-
-      const senderWallet = walletFromAddresses(
-        identity.getAddresses(),
-        'regtest'
-      );
-      console.log(senderWallet);
-      const address = identity.getNextAddress();
-      const { confidentialAddress, blindingPrivateKey } = address;
-
-      console.log(address);
-
-      // Receiving Address and Change address are the same with Identity.PrivateKey
-      const changeAddrAndBlidning = identity.getNextChangeAddress();
-
-      const getBalances = async () => {
-        try {
-          return await fetchBalances(
-            confidentialAddress,
-            blindingPrivateKey,
-            'http://localhost:3001'
-          ).then((res: any) => {
-            setBalances(res);
-            return res;
-          });
-        } catch (e) {
-          console.log(e);
-        }
-      };
-
-      getBalances().then((res: any) => {
-        console.log(res);
-      });
-      // Get the balances grouped by assetHash
-    } catch (e) {
-      history.replace('/');
+    if (!coinsList) {
+      try {
+        dispatch(getCoinsList());
+      } catch (e) {
+        console.log(e);
+      }
     }
   }, []);
+
+  useEffect(() => {
+    if (!assets && coinsList) {
+      try {
+        const identity = new Mnemonic({
+          chain: 'regtest',
+          type: IdentityType.Mnemonic,
+          value: {
+            mnemonic,
+          },
+        });
+
+        if (!address) {
+          const receivingAddress = identity.getNextAddress();
+          Storage.set({
+            key: 'address',
+            value: JSON.stringify(receivingAddress),
+          }).then(() => {
+            dispatch(setAddress(receivingAddress));
+            getBalances(receivingAddress);
+          });
+        } else {
+          getBalances(address);
+        }
+      } catch (e) {
+        history.replace('/');
+      }
+    }
+  }, [coinsList]);
+
+  const getBalances = async ({
+    confidentialAddress,
+    blindingPrivateKey,
+  }: AddressInterface) => {
+    try {
+      return await fetchBalances(
+        confidentialAddress,
+        blindingPrivateKey,
+        explorerUrl
+      ).then((res: any) => {
+        setBalances(res);
+        dispatch(getAssets(res));
+        console.log(balances);
+        return res;
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const getCoinsEquivalent = (asset: any) => {
+    return coinsRates[asset.ticker.toLowerCase()]
+      ? (
+          Number(asset.amountDisplay) *
+          coinsRates[asset.ticker.toLowerCase()].rate[currency]
+        ).toFixed(2)
+      : false;
+  };
 
   return (
     <IonPage>
       <div className="gradient-background"></div>
-      <IonHeader className="header wallet">
-        <IonToolbar>
-          <IonTitle>Wallet</IonTitle>
-        </IonToolbar>
-        <div className="total-info">
-          <div className="header-info wallet">
-            <p className="info-heading">Total balance</p>
-            <p className="info-amount">
-              10,00<span>BTC</span>
-            </p>
-            <p className="info-amount-converted">114,000,80 EUR</p>
+      <IonContent className="wallet-content">
+        <IonHeader className="header wallet">
+          <IonToolbar>
+            <IonTitle>Wallet</IonTitle>
+          </IonToolbar>
+          <div className="total-info">
+            <div className="header-info wallet">
+              <p className="info-heading">Total balance</p>
+              <p className="info-amount">
+                10,00<span>BTC</span>
+              </p>
+              <p className="info-amount-converted">114,000,80 EUR</p>
+            </div>
+            <CircleDiagram className="diagram" data={data} />
           </div>
-          <CircleDiagram className="diagram" data={data} />
-        </div>
-      </IonHeader>
-      <IonContent>
+        </IonHeader>
         <IonList>
           <IonListHeader>Asset list</IonListHeader>
-          <IonItem
-            onClick={() => {
-              history.push('/operations');
-            }}
-          >
-            <div className="item-main-info">
-              <div className="item-start">asdsad</div>
-              <div>asdsad</div>
-            </div>
-          </IonItem>
-          <IonItem
-            onClick={() => {
-              history.push('/operations');
-            }}
-          >
-            <div className="item-main-info">
-              <div className="item-start">
-                <img src="../assets/img/btc.png" />
-                <div className="item-name">
-                  <div className="main-row">Bitcoin</div>
-                  <div className="sub-row">fsdsa</div>
+          {assets?.map((asset: any) => {
+            const equivalent = getCoinsEquivalent(asset);
+            return (
+              <IonItem
+                key={asset.asset_id}
+                onClick={() => {
+                  history.push('/operations');
+                }}
+              >
+                <div className="item-main-info">
+                  <div className="item-start">
+                    <CurrencyIcon currency={asset.ticker} />
+                    <div className="item-name">
+                      <div className="main-row">{asset.name}</div>
+                    </div>
+                  </div>
+                  <div className="item-end">
+                    <div className="first-col">
+                      <div className="main-row">{asset.amountDisplay}</div>
+                      {equivalent && (
+                        <div className="sub-row">
+                          {getCoinsEquivalent(asset)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="second-col">
+                      <div className="main-row accent">{asset.ticker}</div>
+                      {equivalent && (
+                        <div className="sub-row">{currency.toUpperCase()}</div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="item-end">
-                <div className="first-col">
-                  <div className="main-row">3,00</div>
-                  <div className="sub-row">24,00</div>
-                </div>
-                <div className="second-col">
-                  <div className="main-row accent">BTC</div>
-                  <div className="sub-row">EUR</div>
-                </div>
-              </div>
-            </div>
-            <div className="sub-info"></div>
-          </IonItem>
+              </IonItem>
+            );
+          })}
         </IonList>
       </IonContent>
     </IonPage>

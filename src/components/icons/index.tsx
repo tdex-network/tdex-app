@@ -1,4 +1,6 @@
 import React, { CSSProperties } from 'react';
+import LbtcIcon from '../../assets/img/lbtc.svg';
+import UsdtIcon from '../../assets/img/usdt.svg';
 
 interface IconInterface {
   width?: string;
@@ -343,3 +345,16 @@ export const IconBTC = (props: IconInterface) => (
     </g>
   </svg>
 );
+
+export const CurrencyIcon = ({ currency, ...props }: any) => {
+  switch (currency) {
+    case 'L-BTC':
+      return <img src={LbtcIcon} />;
+    case 'USDT':
+      return <img src={UsdtIcon} />;
+    case 'LCAD':
+      return <img src="../../assets/img/lcad.png" />;
+    default:
+      return <img src={LbtcIcon} />;
+  }
+};

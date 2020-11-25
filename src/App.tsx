@@ -28,8 +28,11 @@ import Main from './pages/Main';
 import { Plugins, Storage } from '@capacitor/core';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
 import { useDispatch, useSelector } from 'react-redux';
-import { setIsAuth, setMnemonic } from './redux/actions/walletActions';
-import { push } from 'ionicons/icons';
+import {
+  setIsAuth,
+  setMnemonic,
+  setAddress,
+} from './redux/actions/walletActions';
 
 const App: React.FC = () => {
   const isAuth = useSelector((state: any) => state.wallet.isAuth);
@@ -55,15 +58,29 @@ const App: React.FC = () => {
       return Storage.get({ key: 'wallet' });
     };
 
+    const getAddress = async (): Promise<{ value: string }> => {
+      return Storage.get({ key: 'address' });
+    };
+
+    setupApp();
+
     getWallet().then((wallet) => {
       const walletObj = JSON.parse(wallet.value);
       if (walletObj) {
-        dispatch(setMnemonic(walletObj.mnemonic));
-        dispatch(setIsAuth(true));
+        getAddress()
+          .then((address) => {
+            const addressObj = JSON.parse(address.value);
+            if (addressObj) {
+              dispatch(setAddress(addressObj));
+            }
+            return address;
+          })
+          .then(() => {
+            dispatch(setMnemonic(walletObj.mnemonic));
+            dispatch(setIsAuth(true));
+          });
       }
     });
-
-    setupApp();
   }, []);
 
   return (
