@@ -57,12 +57,12 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
     error && setError('');
   };
 
-  const storeMnemonic = (mnemonic: string) => {
+  const storeMnemonic = (mnemonicStr: string) => {
     Storage.set({
       key: 'wallet',
       value: JSON.stringify({
         pin: inputValue,
-        mnemonic,
+        mnemonic: mnemonicStr,
       }),
     }).then(() => {
       dispatch(setIsAuth(true));
