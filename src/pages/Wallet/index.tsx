@@ -29,13 +29,20 @@ import {
 } from '../../redux/actions/walletActions';
 import { explorerUrl } from '../../redux/services/walletService';
 import { CurrencyIcon } from '../../components/icons';
+import { mainAssets } from '../../utils/constants';
 
-const data = [
-  {
-    amount: 10,
-    type: 'BTC',
-  },
-];
+interface TransformedAssetsInterface {
+  [key: string]: Array<any>;
+}
+
+interface WalletTotalInterface {
+  [currencyKey: string]: string;
+}
+
+interface DiagramInterface {
+  amount: number;
+  type: string;
+}
 
 const Wallet: React.FC<any> = ({ history }) => {
   const {
@@ -55,6 +62,17 @@ const Wallet: React.FC<any> = ({ history }) => {
   }));
   const dispatch = useDispatch();
   const [balances, setBalances] = useState();
+  const [total, setTotal] = useState<WalletTotalInterface>({
+    lbtc: '0,00',
+    eur: '0,00',
+  });
+  const [transformedAssets, setTransformedAssets] = useState<
+    TransformedAssetsInterface
+  >({
+    mainAssets: [],
+    otherAssets: [],
+  });
+  const [diagramData, setDiagramData] = useState<Array<DiagramInterface>>([]);
 
   useEffect(() => {
     if (!coinsList) {
@@ -94,6 +112,64 @@ const Wallet: React.FC<any> = ({ history }) => {
       }
     }
   }, [coinsList]);
+
+  useEffect(() => {
+    if (assets && assets.length) {
+      let totalAmount = 0;
+      const diagramArray:
+        | ((
+            prevState: DiagramInterface[] | undefined
+          ) => DiagramInterface[] | undefined)
+        | { type: any; amount: number }[]
+        | undefined = [];
+      const assetsObject: {
+        mainAssets: Array<any>;
+        otherAssets: Array<any>;
+      } = {
+        mainAssets: [],
+        otherAssets: [],
+      };
+      mainAssets.forEach((item: string) => {
+        const asset = assets.find(
+          (assetItem: any) => assetItem.ticker.toLowerCase() === item
+        );
+        if (asset) {
+          const priceEquivalent = getCoinsEquivalent(asset);
+          totalAmount += Number(priceEquivalent);
+          assetsObject.mainAssets.push({
+            ...asset,
+            priceEquivalent,
+          });
+          if (priceEquivalent) {
+            diagramArray.push({
+              type: asset.ticker.toUpperCase(),
+              amount: Number(priceEquivalent),
+            });
+          }
+        }
+      });
+      assets.forEach((asset: any) => {
+        if (!mainAssets.includes(asset.ticker.toLowerCase())) {
+          const priceEquivalent = getCoinsEquivalent(asset);
+          totalAmount += Number(priceEquivalent);
+          assetsObject.otherAssets.push({
+            ...asset,
+            priceEquivalent,
+          });
+        }
+      });
+      setTransformedAssets(assetsObject);
+      console.log(coinsRates.lbtc.rate[currency]);
+      console.log(totalAmount);
+      setTotal({
+        lbtc: (totalAmount / coinsRates.lbtc.rate[currency]).toFixed(2),
+        [currency]: totalAmount.toString(),
+      });
+      if (diagramArray.length) {
+        setDiagramData(diagramArray);
+      }
+    }
+  }, [assets]);
 
   const getBalances = async ({
     confidentialAddress,
@@ -136,16 +212,68 @@ const Wallet: React.FC<any> = ({ history }) => {
             <div className="header-info wallet">
               <p className="info-heading">Total balance</p>
               <p className="info-amount">
-                10,00<span>BTC</span>
+                {total?.lbtc}
+                <span>LBTC</span>
               </p>
-              <p className="info-amount-converted">114,000,80 EUR</p>
+              <p className="info-amount-converted">
+                {total ? total[currency] : ''} {currency.toUpperCase()}
+              </p>
             </div>
-            <CircleDiagram className="diagram" data={data} />
+            <CircleDiagram
+              className="diagram"
+              data={diagramData}
+              total={Number(total ? total[currency] : '')}
+            />
           </div>
         </IonHeader>
         <IonList>
-          <IonListHeader>Asset list</IonListHeader>
-          {assets?.map((asset: any) => {
+          {transformedAssets.otherAssets.length ? (
+            <IonListHeader>Asset list</IonListHeader>
+          ) : (
+            ''
+          )}
+          {transformedAssets.mainAssets?.map((asset: any) => {
+            const equivalent = getCoinsEquivalent(asset);
+            return (
+              <IonItem
+                key={asset.asset_id}
+                onClick={() => {
+                  history.push('/operations');
+                }}
+              >
+                <div className="item-main-info">
+                  <div className="item-start">
+                    <CurrencyIcon currency={asset.ticker} />
+                    <div className="item-name">
+                      <div className="main-row">{asset.name}</div>
+                    </div>
+                  </div>
+                  <div className="item-end">
+                    <div className="first-col">
+                      <div className="main-row">{asset.amountDisplay}</div>
+                      {equivalent && (
+                        <div className="sub-row">
+                          {getCoinsEquivalent(asset)}
+                        </div>
+                      )}
+                    </div>
+                    <div className="second-col">
+                      <div className="main-row accent">{asset.ticker}</div>
+                      {equivalent && (
+                        <div className="sub-row">{currency.toUpperCase()}</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </IonItem>
+            );
+          })}
+          {transformedAssets.otherAssets.length ? (
+            <IonListHeader>Other list</IonListHeader>
+          ) : (
+            ''
+          )}
+          {transformedAssets.otherAssets?.map((asset: any) => {
             const equivalent = getCoinsEquivalent(asset);
             return (
               <IonItem

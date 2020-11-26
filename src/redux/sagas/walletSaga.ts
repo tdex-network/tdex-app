@@ -44,15 +44,17 @@ function* getAssetSaga({
       });
       if (asset) {
         coinsArray.push(currentCoin);
+      } else if (currentCoin.symbol === 'btc') {
+        coinsArray.push(currentCoin);
       }
-      if (coinsArray.length === assetArray) break;
+      if (coinsArray.length === assetArray.length) break;
     }
     const coinsIds = coinsArray.reduce((a: string, b: any) => {
       return a ? `${a},${b.id}` : b.id;
     }, '');
     const { data: coinsData } = yield call(getCoinsRequest, '/simple/price', {
       params: {
-        ids: coinsIds,
+        ids: coinsIds.indexOf('bitcoin') < 0 ? `${coinsIds},bitcoin` : coinsIds,
         vs_currencies: currency.toLowerCase(),
       },
     });
