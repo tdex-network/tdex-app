@@ -9,6 +9,7 @@ import TradeSummary from './pages/TradeSummary';
 import Wallet from './pages/Wallet';
 import Withdrawal from './pages/Withdrawal';
 import WithdrawalDetails from './pages/WithdrawalDetails';
+import Account from './pages/Account';
 
 export const routerLinks = {
   wallet: '/wallet',
@@ -19,8 +20,9 @@ export const routerLinks = {
   withdrawal: '/withdraw',
   recieve: '/recieve',
   qrScanner: '/qrscanner',
-  operations: '/operations',
+  operations: '/operations/:asset_id',
   withdrawalDetails: '/withdrawaldetails',
+  account: '/account',
 };
 
 export const ROUTES = [
@@ -63,6 +65,10 @@ export const ROUTES = [
   {
     path: routerLinks.withdrawalDetails,
     component: WithdrawalDetails,
+  },
+  {
+    path: routerLinks.account,
+    component: Account,
   },
 ];
 

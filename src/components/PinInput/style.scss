@@ -1,3 +1,5 @@
+@import "../../theme/variables";
+
 .pin-wrapper {
   --background: none;
   background: none;
@@ -28,6 +30,11 @@
 
     .pin-input.active {
       border-bottom: 2px solid #fff;
+    }
+
+    .pin-input.error {
+      border-color: $error-color;
+      color: $error-color;
     }
 
     .pin-input + .pin-input {

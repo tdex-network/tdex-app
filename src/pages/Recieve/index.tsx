@@ -12,6 +12,7 @@ import React, { useState } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
 import {
   IconBack,
+  IconBTC,
   IconClose,
   IconCopy,
   IconSetup,
@@ -40,7 +41,9 @@ const Recieve: React.FC<RouteComponentProps> = ({ history }) => {
       </IonHeader>
       <IonContent className="recieve">
         <div className="description-with-icon">
-          <img src="../assets/img/btc.png" />
+          <div className="img-wrapper">
+            <IconBTC width="48px" height="48px"></IconBTC>
+          </div>
           <PageDescription align="left" title="Your BTC address">
             <p>
               To provide this address to the person sending you Bitcoin simply

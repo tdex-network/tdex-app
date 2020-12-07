@@ -20,7 +20,6 @@ const Tabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   const handleChangeTab = (index: number) => {
-    console.log(index);
     setActiveTab(index);
   };
 

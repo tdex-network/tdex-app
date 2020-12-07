@@ -9,7 +9,7 @@ import {
 } from '@ionic/react';
 import React from 'react';
 import { withRouter } from 'react-router';
-import { IconBack, IconExchange } from '../../components/icons';
+import { IconBack, IconBTC, IconExchange } from '../../components/icons';
 import './style.scss';
 
 const TradeSummary: React.FC = ({ history }: any) => {
@@ -31,15 +31,21 @@ const TradeSummary: React.FC = ({ history }: any) => {
       </IonHeader>
       <IonContent className="trade-summary">
         <div className="transaction-icons">
-          <img src="../assets/img/btc.png" />
-          <img src="../assets/img/btc.png" />
+          <span className="icon-wrapper large">
+            <IconBTC width="45px" height="45px"></IconBTC>
+          </span>
+          <span className="icon-wrapper large with-border">
+            <IconBTC width="45px" height="45px"></IconBTC>
+          </span>
         </div>
         <IonItem>
           <div className="trade-summary-item">
             <div className="trade-items">
               <div className="trade-item">
                 <div className="name">
-                  <img src="../assets/img/btc.png" />
+                  <span className="icon-wrapper medium">
+                    <IconBTC width="24px" height="24px"></IconBTC>
+                  </span>
                   <p>BTC</p>
                 </div>
                 <p className="trade-price">-1,2323</p>
@@ -49,7 +55,9 @@ const TradeSummary: React.FC = ({ history }: any) => {
               </div>
               <div className="trade-item">
                 <div className="name">
-                  <img src="../assets/img/btc.png" />
+                  <span className="icon-wrapper medium">
+                    <IconBTC width="24px" height="24px"></IconBTC>
+                  </span>
                   <p>BTC</p>
                 </div>
                 <p className="trade-price">+1.202,3</p>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { IonApp } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 
@@ -24,12 +24,18 @@ import './theme/global.scss';
 import Tabs from './pages/Tabs';
 import Main from './pages/Main';
 
-import { Plugins } from '@capacitor/core';
+import { Plugins, Storage } from '@capacitor/core';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
-import { Mnemonic, IdentityType } from 'tdex-sdk';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  setIsAuth,
+  setMnemonic,
+  setAddress,
+} from './redux/actions/walletActions';
 
 const App: React.FC = () => {
-  const [isAuth, setIsAuth] = useState(false);
+  const isAuth = useSelector((state: any) => state.wallet.isAuth);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const setupApp = async () => {
@@ -45,29 +51,40 @@ const App: React.FC = () => {
       } catch (err) {
         console.log(err);
       }
+    };
 
-      const identity = new Mnemonic({
-        chain: 'regtest',
-        type: IdentityType.Mnemonic,
-        value: {
-          mnemonic:
-            'sauce wire claw episode congress snake scheme test base debris resemble floor',
-        },
-      });
-      console.log(
-        'Receiving address: ',
-        identity.getNextAddress().confidentialAddress
-      );
+    const getWallet = async (): Promise<{ value: string }> => {
+      return Storage.get({ key: 'wallet' });
+    };
+
+    const getAddress = async (): Promise<{ value: string }> => {
+      return Storage.get({ key: 'address' });
     };
 
     setupApp();
+
+    getWallet().then((wallet) => {
+      const walletObj = JSON.parse(wallet.value);
+      if (walletObj) {
+        getAddress()
+          .then((address) => {
+            const addressObj = JSON.parse(address.value);
+            if (addressObj) {
+              dispatch(setAddress(addressObj));
+            }
+            return address;
+          })
+          .then(() => {
+            dispatch(setMnemonic(walletObj.mnemonic));
+            dispatch(setIsAuth(true));
+          });
+      }
+    });
   }, []);
 
   return (
     <IonApp>
-      <IonReactRouter>
-        {isAuth ? <Tabs /> : <Main setIsAuth={setIsAuth} />}
-      </IonReactRouter>
+      <IonReactRouter>{isAuth ? <Tabs /> : <Main />}</IonReactRouter>
     </IonApp>
   );
 };
