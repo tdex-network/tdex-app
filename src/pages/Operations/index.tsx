@@ -9,20 +9,18 @@ import {
   IonToolbar,
   IonHeader,
   IonListHeader,
-  IonIcon,
   IonLabel,
   IonText,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { withRouter, RouteComponentProps, useParams } from 'react-router';
 import classNames from 'classnames';
-import { checkmarkOutline } from 'ionicons/icons';
 import { CurrencyIcon, IconBack, TxIcon } from '../../components/icons';
 import './style.scss';
 import { useDispatch, useSelector } from 'react-redux';
 import { explorerUrl } from '../../redux/services/walletService';
 import { getTransactions } from '../../redux/actions/transactionsActions';
-import { TxDisplayInterface, TxStatus } from '../../utils/types';
+import { TxDisplayInterface, TxStatusEnum } from '../../utils/types';
 import { formatPriceString, getCoinsEquivalent } from '../../utils/helpers';
 
 const txTypes = ['deposit', 'withdrawal', 'swap', 'trade'];
@@ -111,30 +109,13 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
     }
   };
 
-  const renderStatus: any = (status: string) => {
-    return status === 'pending' ? (
-      <div className="status pending">
-        PENDING{' '}
-        <span className="three-dots">
-          <span className="dot"></span>
-          <span className="dot"></span>
-          <span className="dot"></span>
-        </span>
-      </div>
-    ) : (
-      <div className="status confirmed">
-        STATUS <IonIcon color="success" icon={checkmarkOutline}></IonIcon>
-      </div>
-    );
-  };
-
   const renderStatusText: any = (status: string) => {
     switch (status) {
-      case TxStatus.Confirmed:
+      case TxStatusEnum.Confirmed:
         return (
           <span className="status-text confirmed">{statusText[status]}</span>
         );
-      case TxStatus.Pending:
+      case TxStatusEnum.Pending:
         return (
           <span className="status-text pending">{statusText[status]}</span>
         );

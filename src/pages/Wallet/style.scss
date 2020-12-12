@@ -16,7 +16,9 @@
 
 .diagram {
   position: absolute;
-  top: 60px;
+  top: 50pt;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .header-info {

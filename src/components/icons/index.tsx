@@ -5,7 +5,7 @@ import BtseIcon from '../../assets/img/btse.svg';
 import LcadIcon from '../../assets/img/lcad.svg';
 import DepositIcon from '../../assets/img/deposit.svg';
 import PlaceholderIcon from '../../assets/img/currency-placeholder.svg';
-import { TxType } from '../../utils/types';
+import { TxTypeEnum } from '../../utils/types';
 
 interface IconInterface {
   width?: string;
@@ -368,9 +368,9 @@ export const CurrencyIcon = ({ currency, ...props }: any) => {
 
 export const TxIcon = ({ type, ...props }: any) => {
   switch (type) {
-    case TxType.Deposit:
+    case TxTypeEnum.Deposit:
       return <img className="deposit" src={DepositIcon} />;
-    case TxType.Withdraw:
+    case TxTypeEnum.Withdraw:
       return <img className="withdraw" src={DepositIcon} />;
     default:
       return <img src={PlaceholderIcon} />;

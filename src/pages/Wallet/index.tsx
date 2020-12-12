@@ -7,6 +7,8 @@ import {
   IonTitle,
   IonToolbar,
   IonListHeader,
+  IonButtons,
+  IonButton,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
@@ -65,7 +67,6 @@ const Wallet: React.FC<any> = ({ history }) => {
     coinsRates: state.wallet.coinsRates,
   }));
   const dispatch = useDispatch();
-  const [balances, setBalances] = useState();
   const [total, setTotal] = useState<WalletTotalInterface>({
     lbtc: { amount: '0,00', priceFormat: '0.00' },
     eur: { amount: '0,00', priceFormat: '0.00' },
@@ -88,6 +89,8 @@ const Wallet: React.FC<any> = ({ history }) => {
 
   useEffect(() => {
     if (!assets && coinsList) {
+      console.log('mnemonic');
+      console.log(mnemonic);
       try {
         const identity = new Mnemonic({
           chain: 'regtest',
@@ -96,9 +99,12 @@ const Wallet: React.FC<any> = ({ history }) => {
             mnemonic,
           },
         });
-
+        console.log('address 123');
+        console.log(identity.getNextAddress().confidentialAddress);
         if (!address) {
           const receivingAddress = identity.getNextAddress();
+          console.log('receivingAddress =>');
+          console.log(receivingAddress);
           Storage.set({
             key: 'address',
             value: JSON.stringify(receivingAddress),
@@ -107,9 +113,13 @@ const Wallet: React.FC<any> = ({ history }) => {
             getBalances(receivingAddress);
           });
         } else {
+          console.log('address =>');
+          console.log(address);
           getBalances(address);
         }
       } catch (e) {
+        console.log('error from wallet');
+        console.log(e);
         history.replace('/');
       }
     }
@@ -203,13 +213,16 @@ const Wallet: React.FC<any> = ({ history }) => {
     confidentialAddress,
     blindingPrivateKey,
   }: AddressInterface) => {
+    console.log('explorerUrl');
+    console.log(explorerUrl);
     try {
       return await fetchBalances(
         confidentialAddress,
         blindingPrivateKey,
         explorerUrl
       ).then((res: any) => {
-        setBalances(res);
+        console.log('res');
+        console.log(res);
         dispatch(getAssets(res));
         return res;
       });
@@ -221,6 +234,12 @@ const Wallet: React.FC<any> = ({ history }) => {
   return (
     <IonPage>
       <div className="gradient-background"></div>
+      <div className="diagram">
+        <CircleDiagram
+          data={diagramData}
+          total={Number(total ? total[currency].amount : '')}
+        />
+      </div>
       <IonContent className="wallet-content">
         <IonHeader className="header wallet">
           <IonToolbar>
@@ -238,13 +257,13 @@ const Wallet: React.FC<any> = ({ history }) => {
                 {currency.toUpperCase()}
               </p>
             </div>
-            <CircleDiagram
-              className="diagram"
-              data={diagramData}
-              total={Number(total ? total[currency].amount : '')}
-            />
           </div>
         </IonHeader>
+        <IonButtons className="operations-buttons">
+          <IonButton className="coin-action-button" routerLink="/recieve">
+            Deposit
+          </IonButton>
+        </IonButtons>
         <IonList>
           {displayAssets.mainAssets.length ? (
             <IonListHeader>Asset list</IonListHeader>

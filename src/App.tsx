@@ -65,6 +65,8 @@ const App: React.FC = () => {
 
     getWallet().then((wallet) => {
       const walletObj = JSON.parse(wallet.value);
+      console.log('walletObj');
+      console.log(walletObj);
       if (walletObj) {
         getAddress()
           .then((address) => {
@@ -72,6 +74,7 @@ const App: React.FC = () => {
             if (addressObj) {
               dispatch(setAddress(addressObj));
             }
+            console.log(address);
             return address;
           })
           .then(() => {

@@ -1,5 +1,5 @@
 import { Assets, defaultPrecision } from './constants';
-import { TxDisplayInterface, TxType } from './types';
+import { TxDisplayInterface, TxTypeEnum } from './types';
 
 export const getEdgeAsset = (asset_id: string) => {
   return Object.values(Assets).find((item: any) => item.assetHash === asset_id);
@@ -42,10 +42,9 @@ export function getDataFromTx(
     asset = '',
     type,
     sign;
-  const fee = '0,5';
   vin.forEach((item) => {
     if (item.prevout.asset && item.prevout.script) {
-      type = TxType.Withdraw;
+      type = TxTypeEnum.Withdraw;
       asset = item.prevout.asset;
       amount = item.prevout.value;
       sign = '-';
@@ -53,7 +52,7 @@ export function getDataFromTx(
   });
   vout.forEach((item) => {
     if (item.asset && item.script) {
-      type = TxType.Deposit;
+      type = TxTypeEnum.Deposit;
       asset = item.asset;
       amount = item.value;
       sign = '+';
@@ -61,7 +60,6 @@ export function getDataFromTx(
   });
   return {
     amount,
-    fee,
     asset,
     type,
     sign,

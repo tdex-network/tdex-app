@@ -8,20 +8,17 @@ import { defaultPrecision } from '../../utils/constants';
 import {
   TxDisplayInterface,
   TxsByAssetsInterface,
-  TxStatus,
+  TxStatusEnum,
 } from '../../utils/types';
 import moment from 'moment';
 
 export const transactionsTransformer = (txs: TxInterface[] | undefined) => {
   const txArray = txs?.map(
     (tx: TxInterface): TxDisplayInterface => {
-      const {
-        asset = '',
-        type = 0,
-        amount = 0,
-        fee = '0,5',
-        sign = '',
-      } = getDataFromTx(tx.vin, tx.vout);
+      const { asset = '', type = 0, amount = 0, sign = '' } = getDataFromTx(
+        tx.vin,
+        tx.vout
+      );
       return {
         txId: tx.txid,
         time: moment(
@@ -32,7 +29,9 @@ export const transactionsTransformer = (txs: TxInterface[] | undefined) => {
           new Date(tx.status.blockTime || '').toLocaleDateString(),
           'DD/MM/YYYY'
         ).format('DD MMM YYYY'),
-        status: tx.status.confirmed ? TxStatus.Confirmed : TxStatus.Pending,
+        status: tx.status.confirmed
+          ? TxStatusEnum.Confirmed
+          : TxStatusEnum.Pending,
         type,
         asset,
         amount,
