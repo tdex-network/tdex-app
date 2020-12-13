@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 //  for local testing
-// export const explorerUrl = 'http://localhost:3001';
+export const explorerUrl = 'http://localhost:3001';
 //  for device testing
-export const explorerUrl = 'http://192.168.0.13:3001';
+// export const explorerUrl = 'http://192.168.0.13:3001';
 // export const explorerUrl = 'https://nigiri.network/liquid/api';
 //  for prod
 // export const explorerUrl = 'https://blockstream.info/liquid/api';
