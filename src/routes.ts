@@ -17,7 +17,7 @@ export const routerLinks = {
   settings: '/settings',
   tradeSummary: '/tradesummary',
   history: '/history',
-  withdrawal: '/withdraw',
+  withdrawal: '/withdraw/:asset_id',
   recieve: '/recieve',
   qrScanner: '/qrscanner',
   operations: '/operations/:asset_id',

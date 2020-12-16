@@ -73,7 +73,6 @@ const Recieve: React.FC<RouteComponentProps> = ({ history }) => {
     if (addressRef) {
       Clipboard.copy(address.confidentialAddress)
         .then((res: any) => {
-          console.log(res);
           setCopied(true);
           setTimeout(() => {
             setCopied(false);

@@ -9,30 +9,22 @@ import {
   IonListHeader,
   IonButtons,
   IonButton,
+  IonRefresher,
+  IonRefresherContent,
+  IonLoading,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { withRouter } from 'react-router';
-import CircleDiagram from '../../components/CircleDiagram';
-
-//styles
-import './style.scss';
-import {
-  AddressInterface,
-  fetchBalances,
-  IdentityType,
-  Mnemonic,
-} from 'tdex-sdk';
 import { useDispatch, useSelector } from 'react-redux';
-import { Storage } from '@capacitor/core';
-import {
-  getAssets,
-  getCoinsList,
-  setAddress,
-} from '../../redux/actions/walletActions';
-import { explorerUrl } from '../../redux/services/walletService';
+import { getBalances } from '../../redux/actions/walletActions';
 import { CurrencyIcon } from '../../components/icons';
 import { mainAssets } from '../../utils/constants';
 import { formatPriceString, getCoinsEquivalent } from '../../utils/helpers';
+import CircleDiagram from '../../components/CircleDiagram';
+import { RefresherEventDetail } from '@ionic/core';
+//styles
+import './style.scss';
+import { chevronDownCircleOutline } from 'ionicons/icons';
 
 interface AssetsDisplayInterface {
   [key: string]: Array<any>;
@@ -51,21 +43,17 @@ interface DiagramInterface {
 }
 
 const Wallet: React.FC<any> = ({ history }) => {
-  const {
-    mnemonic,
-    address,
-    assets,
-    coinsList,
-    currency,
-    coinsRates,
-  } = useSelector((state: any) => ({
-    mnemonic: state.wallet.mnemonic,
-    address: state.wallet.address,
-    assets: state.wallet.assets,
-    coinsList: state.wallet.coinsList,
-    currency: state.settings.currency,
-    coinsRates: state.wallet.coinsRates,
-  }));
+  const { address, assets, currency, coinsRates, loading } = useSelector(
+    (state: any) => ({
+      mnemonic: state.wallet.mnemonic,
+      address: state.wallet.address,
+      assets: state.wallet.assets,
+      coinsList: state.wallet.coinsList,
+      currency: state.settings.currency,
+      coinsRates: state.wallet.coinsRates,
+      loading: state.wallet.loading,
+    })
+  );
   const dispatch = useDispatch();
   const [total, setTotal] = useState<WalletTotalInterface>({
     lbtc: { amount: '0,00', priceFormat: '0.00' },
@@ -78,55 +66,7 @@ const Wallet: React.FC<any> = ({ history }) => {
   const [diagramData, setDiagramData] = useState<Array<DiagramInterface>>([]);
 
   useEffect(() => {
-    if (!coinsList) {
-      try {
-        dispatch(getCoinsList());
-      } catch (e) {
-        console.log(e);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!assets && coinsList) {
-      console.log('mnemonic');
-      console.log(mnemonic);
-      try {
-        const identity = new Mnemonic({
-          chain: 'regtest',
-          type: IdentityType.Mnemonic,
-          value: {
-            mnemonic,
-          },
-        });
-        console.log('address 123');
-        console.log(identity.getNextAddress().confidentialAddress);
-        if (!address) {
-          const receivingAddress = identity.getNextAddress();
-          console.log('receivingAddress =>');
-          console.log(receivingAddress);
-          Storage.set({
-            key: 'address',
-            value: JSON.stringify(receivingAddress),
-          }).then(() => {
-            dispatch(setAddress(receivingAddress));
-            getBalances(receivingAddress);
-          });
-        } else {
-          console.log('address =>');
-          console.log(address);
-          getBalances(address);
-        }
-      } catch (e) {
-        console.log('error from wallet');
-        console.log(e);
-        history.replace('/');
-      }
-    }
-  }, [coinsList]);
-
-  useEffect(() => {
-    if (assets && assets.length) {
+    if (assets && assets.length && coinsRates) {
       let totalAmount = 0;
       const diagramArray:
         | ((
@@ -207,40 +147,35 @@ const Wallet: React.FC<any> = ({ history }) => {
         setDiagramData(diagramArray);
       }
     }
-  }, [assets]);
+  }, [assets, coinsRates]);
 
-  const getBalances = async ({
-    confidentialAddress,
-    blindingPrivateKey,
-  }: AddressInterface) => {
-    console.log('explorerUrl');
-    console.log(explorerUrl);
-    try {
-      return await fetchBalances(
-        confidentialAddress,
-        blindingPrivateKey,
-        explorerUrl
-      ).then((res: any) => {
-        console.log('res');
-        console.log(res);
-        dispatch(getAssets(res));
-        return res;
-      });
-    } catch (e) {
-      console.log(e);
-    }
+  const buttonRefresh = (event: CustomEvent<RefresherEventDetail>) => {
+    dispatch(getBalances(address));
+    setTimeout(() => {
+      event.detail.complete();
+    }, 2000);
   };
-
   return (
     <IonPage>
       <div className="gradient-background"></div>
-      <div className="diagram">
-        <CircleDiagram
-          data={diagramData}
-          total={Number(total ? total[currency].amount : '')}
-        />
-      </div>
+      <IonLoading
+        cssClass="my-custom-class"
+        isOpen={loading}
+        message={'Please wait...'}
+      />
       <IonContent className="wallet-content">
+        <IonRefresher slot="fixed" onIonRefresh={buttonRefresh}>
+          <IonRefresherContent
+            pullingIcon={chevronDownCircleOutline}
+            refreshingSpinner="circles"
+          />
+        </IonRefresher>
+        <div className="diagram">
+          <CircleDiagram
+            data={diagramData}
+            total={Number(total ? total[currency].amount : '')}
+          />
+        </div>
         <IonHeader className="header wallet">
           <IonToolbar>
             <IonTitle>Wallet</IonTitle>
@@ -263,6 +198,9 @@ const Wallet: React.FC<any> = ({ history }) => {
           <IonButton className="coin-action-button" routerLink="/recieve">
             Deposit
           </IonButton>
+          {/*<IonButton className="coin-action-button" onClick={buttonRefresh}>*/}
+          {/*  Refresh*/}
+          {/*</IonButton>*/}
         </IonButtons>
         <IonList>
           {displayAssets.mainAssets.length ? (

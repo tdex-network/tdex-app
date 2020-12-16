@@ -3,6 +3,7 @@ import { BalanceInterface } from '../actionTypes/walletActionTypes';
 import {
   formatPriceString,
   fromSatoshi,
+  getDefaultCoinRate,
   getEdgeAsset,
 } from '../../utils/helpers';
 
@@ -53,5 +54,5 @@ export const coinsTransformer = (
       },
     };
     return obj;
-  }, {});
+  }, getDefaultCoinRate(currency, rates));
 };

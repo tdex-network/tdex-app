@@ -34,7 +34,8 @@
     "react-router-dom": "^5.2.0",
     "redux": "^4.0.5",
     "redux-saga": "^1.1.3",
-    "tdex-sdk": "^1.2.4"
+    "slip77": "vulpemventures/slip77",
+    "tdex-sdk": "^1.2.5"
   },
   "scripts": {
     "serve": "npx ionic serve",

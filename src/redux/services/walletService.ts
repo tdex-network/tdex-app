@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Storage } from '@capacitor/core';
 
 //  for local testing
 export const explorerUrl = 'http://localhost:3001';
@@ -29,4 +30,12 @@ export const getCoinsRequest = (path: string, options?: any) => {
     url: path,
     params: options?.params,
   });
+};
+
+export const getWallet = async (): Promise<{ value: string }> => {
+  return Storage.get({ key: 'wallet' });
+};
+
+export const getAddress = async (): Promise<{ value: string }> => {
+  return Storage.get({ key: 'address' });
 };

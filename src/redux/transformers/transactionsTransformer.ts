@@ -21,14 +21,8 @@ export const transactionsTransformer = (txs: TxInterface[] | undefined) => {
       );
       return {
         txId: tx.txid,
-        time: moment(
-          new Date(tx.status.blockTime || '').toLocaleDateString(),
-          'DD/MM/YYYY hh:mm:ss'
-        ).format('DD MMM YYYY hh:mm:ss'),
-        date: moment(
-          new Date(tx.status.blockTime || '').toLocaleDateString(),
-          'DD/MM/YYYY'
-        ).format('DD MMM YYYY'),
+        time: moment(tx.status.blockTime).format('DD MMM YYYY hh:mm:ss'),
+        date: moment(tx.status.blockTime).format('DD MMM YYYY'),
         status: tx.status.confirmed
           ? TxStatusEnum.Confirmed
           : TxStatusEnum.Pending,

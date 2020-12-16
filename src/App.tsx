@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { IonApp } from '@ionic/react';
+import { IonApp, IonLoading } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 
 /* Core CSS required for Ionic components to work properly */
@@ -24,17 +24,16 @@ import './theme/global.scss';
 import Tabs from './pages/Tabs';
 import Main from './pages/Main';
 
-import { Plugins, Storage } from '@capacitor/core';
+import { Plugins } from '@capacitor/core';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  setIsAuth,
-  setMnemonic,
-  setAddress,
-} from './redux/actions/walletActions';
+import { initApp } from './redux/actions/appActions';
 
 const App: React.FC = () => {
-  const isAuth = useSelector((state: any) => state.wallet.isAuth);
+  const { isAuth, appInit } = useSelector((state: any) => ({
+    isAuth: state.wallet.isAuth,
+    appInit: state.app.appInit,
+  }));
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -53,41 +52,20 @@ const App: React.FC = () => {
       }
     };
 
-    const getWallet = async (): Promise<{ value: string }> => {
-      return Storage.get({ key: 'wallet' });
-    };
-
-    const getAddress = async (): Promise<{ value: string }> => {
-      return Storage.get({ key: 'address' });
-    };
-
     setupApp();
-
-    getWallet().then((wallet) => {
-      const walletObj = JSON.parse(wallet.value);
-      console.log('walletObj');
-      console.log(walletObj);
-      if (walletObj) {
-        getAddress()
-          .then((address) => {
-            const addressObj = JSON.parse(address.value);
-            if (addressObj) {
-              dispatch(setAddress(addressObj));
-            }
-            console.log(address);
-            return address;
-          })
-          .then(() => {
-            dispatch(setMnemonic(walletObj.mnemonic));
-            dispatch(setIsAuth(true));
-          });
-      }
-    });
+    dispatch(initApp());
   }, []);
 
   return (
     <IonApp>
-      <IonReactRouter>{isAuth ? <Tabs /> : <Main />}</IonReactRouter>
+      <IonReactRouter>
+        <IonLoading
+          cssClass="my-custom-class"
+          isOpen={!appInit}
+          message={'Please wait...'}
+        />
+        {isAuth ? <Tabs /> : <Main />}
+      </IonReactRouter>
     </IonApp>
   );
 };

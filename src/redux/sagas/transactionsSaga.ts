@@ -4,6 +4,7 @@ import { fetchAndUnblindTxs } from 'tdex-sdk';
 import {
   GET_TRANSACTIONS,
   setTransactions,
+  setTransactionsLoading,
 } from '../actions/transactionsActions';
 import { transactionsTransformer } from '../transformers/transactionsTransformer';
 
@@ -23,6 +24,7 @@ function* getTransactionsSaga({
       explorerUrl
     );
     yield put(setTransactions(transactionsTransformer(data)));
+    yield put(setTransactionsLoading(false));
   } catch (e) {
     console.log(e);
   }
