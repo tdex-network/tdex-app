@@ -7,20 +7,93 @@ import {
   IonButton,
   IonToolbar,
   IonHeader,
+  IonIcon,
 } from '@ionic/react';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
 import {
   IconBack,
+  IconBTC,
   IconClose,
   IconCopy,
   IconSetup,
 } from '../../components/icons';
 import PageDescription from '../../components/PageDescription';
 import './style.scss';
+import { useSelector } from 'react-redux';
+import { Clipboard } from '@ionic-native/clipboard';
+// import { BarcodeScanner } from '@ionic-native/barcode-scanner';
+// import { Base64 } from '@ionic-native/base64';
+import { QRCodeImg } from '@cheprasov/react-qrcode';
+import { checkmarkOutline } from 'ionicons/icons';
+// import QRCode from 'react-qr-code';
 
 const Recieve: React.FC<RouteComponentProps> = ({ history }) => {
+  const { address } = useSelector((state: any) => ({
+    assets: state.wallet.assets,
+    transactions: state.transactions.data,
+    address: state.wallet.address,
+    coinsRates: state.wallet.coinsRates,
+    currency: state.settings.currency,
+  }));
   const [openModal, setOpenModal] = useState(false);
+  const [copied, setCopied] = useState(false);
+  // const [encodedText, setEncodedText] = useState<any>(false);
+  // const [qrCode, setQRcode] = useState<any>(false);
+  const addressRef: any = useRef(null);
+
+  // const canvasRef: any = useRef(null);
+
+  // useEffect(() => {
+  //   console.log(encodedText);
+  // }, [encodedText]);
+
+  // const generateCode = () => {
+  //   BarcodeScanner.encode(
+  //     BarcodeScanner.Encode.TEXT_TYPE,
+  //     address?.confidentialAddress
+  //   ).then(
+  //     (data) => {
+  //       console.log(data.file);
+  //       console.log(data);
+  //       Base64.encodeFile(data.file).then((base64: any) => {
+  //         console.log('file base64 encoding: ');
+  //         console.log(base64);
+  //         setQRcode(base64);
+  //       });
+  //       //this.setState({ textToEncode: encodedData });
+  //     },
+  //     (err) => {
+  //       console.log(`Error occured : ${err.toString()}`);
+  //     }
+  //   );
+  // };
+
+  const copyAddress = () => {
+    if (addressRef) {
+      Clipboard.copy(address.confidentialAddress)
+        .then((res: any) => {
+          setCopied(true);
+          setTimeout(() => {
+            setCopied(false);
+          }, 5000);
+        })
+        .catch((e: any) => {
+          addressRef.current.select();
+          document.execCommand('copy');
+          setCopied(true);
+          setTimeout(() => {
+            setCopied(false);
+          }, 10000);
+        });
+    }
+  };
+
+  // const scanCode = async () => {
+  //   const data = await BarcodeScanner.scan();
+  //   alert(JSON.stringify(data));
+  //   setEncodedText(data.text);
+  // };
 
   return (
     <IonPage>
@@ -40,7 +113,9 @@ const Recieve: React.FC<RouteComponentProps> = ({ history }) => {
       </IonHeader>
       <IonContent className="recieve">
         <div className="description-with-icon">
-          <img src="../assets/img/btc.png" />
+          <div className="img-wrapper">
+            <IconBTC width="48px" height="48px" />
+          </div>
           <PageDescription align="left" title="Your BTC address">
             <p>
               To provide this address to the person sending you Bitcoin simply
@@ -48,14 +123,51 @@ const Recieve: React.FC<RouteComponentProps> = ({ history }) => {
             </p>
           </PageDescription>
         </div>
-
+        <input
+          type="text"
+          ref={addressRef}
+          value={address?.confidentialAddress}
+          className="hidden-input"
+        />
         <IonItem>
           <div className="item-main-info">
-            <div className="item-start">asdsad</div>
-            <IconCopy width="24" height="24" viewBox="0 0 24 24" fill="#fff" />
+            <div className="item-start conf-addr">
+              {address?.confidentialAddress}
+            </div>
+            <div
+              className="icon-wrapper copy-icon"
+              onClick={() => copyAddress()}
+            >
+              {copied ? (
+                <IonIcon
+                  className="copied-icon"
+                  color="success"
+                  icon={checkmarkOutline}
+                />
+              ) : (
+                <IconCopy
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="#fff"
+                />
+              )}
+            </div>
           </div>
         </IonItem>
-        <div className="qr-code-container"></div>
+        {/*<IonButton onClick={generateCode} color="success">*/}
+        {/*  Create QR*/}
+        {/*</IonButton>*/}
+        {/*<IonButton onClick={scanCode} color="default">*/}
+        {/*  Scan*/}
+        {/*</IonButton>*/}
+        {/*{address && <QRCode value={address.confidentialAddress} />}*/}
+        {/*{address && <img src={qrCode} />}*/}
+        <div className="qr-code-container">
+          {address && (
+            <QRCodeImg value={address.confidentialAddress} size={192} />
+          )}
+        </div>
 
         <IonModal cssClass="modal-big recieve" isOpen={openModal}>
           <div className="gradient-background"></div>

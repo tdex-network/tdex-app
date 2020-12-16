@@ -1,3 +1,10 @@
+.wallet-content {
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  --overflow: auto;
+  position: relative;
+}
+
 .pin-label {
   display: flex;
 }
@@ -10,7 +17,9 @@
 
 .diagram {
   position: absolute;
-  top: 60px;
+  top: 50pt;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .header-info {
@@ -53,4 +62,7 @@
     color: rgb(198, 198, 198);
     margin-top: -2px;
   }
+}
+ion-refresher {
+  z-index: 1;
 }

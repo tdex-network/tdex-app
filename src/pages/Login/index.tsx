@@ -1,3 +1,9 @@
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import classNames from 'classnames';
+import { RouteComponentProps, withRouter } from 'react-router';
+import PageDescription from '../../components/PageDescription';
+import PinInput from '../../components/PinInput';
+import './style.scss';
 import {
   IonContent,
   IonHeader,
@@ -6,24 +12,27 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import classNames from 'classnames';
-import { RouteComponentProps, withRouter } from 'react-router';
-import PageDescription from '../../components/PageDescription';
-import PinInput from '../../components/PinInput';
-import './style.scss';
 import { IconBack, IconCheck } from '../../components/icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { Storage } from '@capacitor/core';
+import * as bip39 from 'bip39';
+import { initApp } from '../../redux/actions/appActions';
 
 interface LoginInterface {
-  setIsAuth: (value: boolean) => void;
+  setup?: boolean;
 }
 
 const Login: React.FC<LoginInterface & RouteComponentProps> = ({
-  setIsAuth,
   history,
+  setup = false,
 }) => {
+  const dispatch = useDispatch();
+  const mnemonic = useSelector((state: any) => state.wallet.mnemonic);
   const [inputValue, setValue] = useState('');
   const [firstPin, setFirstPin] = useState('');
+  const [acceptTerms, setAcceptTerms] = useState(false);
+  const [disabled, setDisabled] = useState(true);
+  const [error, setError] = useState('');
 
   const inputRef: any = useRef(null);
 
@@ -31,19 +40,50 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
     inputRef.current.focus();
   });
 
+  useEffect(() => {
+    setDisabled(
+      !!(
+        error ||
+        inputValue.length < 6 ||
+        (firstPin && (!acceptTerms || firstPin !== inputValue))
+      )
+    );
+  }, [inputValue, acceptTerms, firstPin, error]);
+
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
 
-    setValue(value);
+    value.length <= 6 && setValue(value);
+    error && setError('');
   };
 
-  const onConfirm = () => {
+  const storeMnemonic = (mnemonicStr: string) => {
+    Storage.set({
+      key: 'wallet',
+      value: JSON.stringify({
+        pin: inputValue,
+        mnemonic: mnemonicStr,
+      }),
+    }).then(() => {
+      dispatch(initApp());
+    });
+  };
+
+  const onConfirm = async () => {
     if (!firstPin) {
       setFirstPin(inputValue);
       setValue('');
-    } else {
-      setIsAuth(true);
-      history.replace('/');
+    } else if (firstPin) {
+      if (firstPin === inputValue) {
+        if (!mnemonic) {
+          const newMnemonic = bip39.generateMnemonic();
+          storeMnemonic(newMnemonic);
+        } else {
+          storeMnemonic(mnemonic);
+        }
+      } else {
+        setError('Wrong pin');
+      }
     }
   };
 
@@ -59,7 +99,7 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
           >
             <IconBack />
           </IonButton>
-          <IonTitle>Login</IonTitle>
+          <IonTitle>SETUP WALLET</IonTitle>
         </IonToolbar>
       </IonHeader>
 
@@ -84,11 +124,19 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
           inputRef={inputRef}
           onChange={onChange}
           inputValue={inputValue}
+          error={error}
         />
 
         {firstPin && (
           <label className="terms">
-            <input type="checkbox" name="agreement"></input>
+            <input
+              type="checkbox"
+              name="agreement"
+              checked={acceptTerms}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setAcceptTerms(e.target.checked)
+              }
+            ></input>
             <div className="custom-check">
               <div className="check-icon">
                 <IconCheck />
@@ -101,9 +149,9 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
         <div className="buttons login">
           <IonButton
             className={classNames('main-button', {
-              secondary: inputValue.length < 6,
+              secondary: disabled,
             })}
-            disabled={inputValue.length < 6}
+            disabled={disabled}
             onClick={onConfirm}
           >
             Confirm

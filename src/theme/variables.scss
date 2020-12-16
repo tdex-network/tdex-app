@@ -29,6 +29,10 @@ $sub-heading-font: "DMMono-Medium";
 $main-font-size: 14px;
 $sub-font-size: 10px;
 
+$light-green-color: rgb(15, 255, 0);
+$error-color: rgb(206, 58, 62);
+$pending-color: rgb(255, 255, 0);
+
 /** Ionic CSS Variables **/
 :root {
   /** primary **/
@@ -173,6 +177,8 @@ $sub-font-size: 10px;
     --ion-color-light-contrast-rgb: 255,255,255;
     --ion-color-light-shade: #1e2023;
     --ion-color-light-tint: #383a3e;
+
+    --ion-color-light-green: rgb(15, 255, 0);
   }
 
   /*

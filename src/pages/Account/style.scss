@@ -1,0 +1,33 @@
+@import "../../theme/variables";
+
+.account {
+    --overflow: auto;
+    .item-main-info {
+        align-items:start
+    }
+    .item-start {
+        flex-direction: column;
+        align-items: start;
+        padding: 0 18px 0 8px;
+
+        .main-row {
+            font-family: $heading-font;
+            font-size: 18px;
+            line-height: 24px;
+            margin-bottom: 7px;
+        }
+        .description {
+            font-size: 14px;
+            line-height: 21px;
+            color: #c6c6c6;
+        }
+    }
+    .item-end {
+        align-items: center;
+        padding: 8px 0;
+    }
+    ion-icon {
+        font-size: 24px;
+        align-self: start;
+    }
+}

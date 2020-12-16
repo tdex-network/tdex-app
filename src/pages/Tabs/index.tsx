@@ -20,7 +20,6 @@ const Tabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState(0);
 
   const handleChangeTab = (index: number) => {
-    console.log(index);
     setActiveTab(index);
   };
 
@@ -38,6 +37,9 @@ const Tabs: React.FC = () => {
               />
             ))}
             <Redirect exact from="/" to="/wallet" />
+            <Redirect exact from="/login" to="/wallet" />
+            <Redirect exact from="/homescreen" to="/wallet" />
+            <Redirect exact from="/restore" to="/wallet" />
           </IonRouterOutlet>
           <IonTabBar slot="bottom">
             {TABS.map((item, index) => (

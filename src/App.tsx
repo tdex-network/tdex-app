@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { IonApp } from '@ionic/react';
+import React, { useEffect } from 'react';
+import { IonApp, IonLoading } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 
 /* Core CSS required for Ionic components to work properly */
@@ -26,10 +26,15 @@ import Main from './pages/Main';
 
 import { Plugins } from '@capacitor/core';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
-import { Mnemonic, IdentityType } from 'tdex-sdk';
+import { useDispatch, useSelector } from 'react-redux';
+import { initApp } from './redux/actions/appActions';
 
 const App: React.FC = () => {
-  const [isAuth, setIsAuth] = useState(false);
+  const { isAuth, appInit } = useSelector((state: any) => ({
+    isAuth: state.wallet.isAuth,
+    appInit: state.app.appInit,
+  }));
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const setupApp = async () => {
@@ -45,28 +50,21 @@ const App: React.FC = () => {
       } catch (err) {
         console.log(err);
       }
-
-      const identity = new Mnemonic({
-        chain: 'regtest',
-        type: IdentityType.Mnemonic,
-        value: {
-          mnemonic:
-            'sauce wire claw episode congress snake scheme test base debris resemble floor',
-        },
-      });
-      console.log(
-        'Receiving address: ',
-        identity.getNextAddress().confidentialAddress
-      );
     };
 
     setupApp();
+    dispatch(initApp());
   }, []);
 
   return (
     <IonApp>
       <IonReactRouter>
-        {isAuth ? <Tabs /> : <Main setIsAuth={setIsAuth} />}
+        <IonLoading
+          cssClass="my-custom-class"
+          isOpen={!appInit}
+          message={'Please wait...'}
+        />
+        {isAuth ? <Tabs /> : <Main />}
       </IonReactRouter>
     </IonApp>
   );

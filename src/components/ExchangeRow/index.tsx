@@ -1,6 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
 import './style.scss';
+import { IconBTC } from '../icons';
 
 interface ExchangeRowInterface {
   className?: string;
@@ -15,7 +16,9 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
     <div className={classNames('exchange-coin-container', className)}>
       <div className="exchanger-row">
         <div className="coin-name" onClick={() => setOpenSearch(true)}>
-          <img src="../../assets/img/btc.png" />
+          <span className="icon-wrapper medium">
+            <IconBTC width="24px" height="24px"></IconBTC>
+          </span>
           <p>BTC</p>
         </div>
         <div className="coin-amount">

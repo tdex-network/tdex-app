@@ -32,7 +32,7 @@
     font-family: "DMSans";
     display: flex;
     align-items: center;
-    img {
+    .icon-wrapper {
       margin-right: 8px;
       min-width: 23px;
     }
@@ -78,6 +78,7 @@
   margin: 47px auto 50px;
   display: flex;
   justify-content: center;
+  align-items: center;
   img {
     width: 47px;
     height: 47px;

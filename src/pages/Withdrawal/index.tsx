@@ -10,17 +10,53 @@ import {
   IonLabel,
 } from '@ionic/react';
 import React, { useState, useRef, useEffect } from 'react';
+// import { useParams, withRouter } from 'react-router';
 import { withRouter } from 'react-router';
 import { IconBack, IconClose, IconQR } from '../../components/icons';
 import PageDescription from '../../components/PageDescription';
 import './style.scss';
 import ExchangeRow from '../../components/ExchangeRow';
 import PinInput from '../../components/PinInput';
+// import { useSelector } from 'react-redux';
+// import { formatPriceString, getCoinsEquivalent } from '../../utils/helpers';
 
 const Withdrawal: React.FC = ({ history }: any) => {
   const [openModal, setOpenModal] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const inputRef: any = useRef(null);
+  // const { assets, currency, coinsRates } = useSelector((state: any) => ({
+  //   assets: state.wallet.assets,
+  //   transactions: state.transactions.data,
+  //   address: state.wallet.address,
+  //   coinsRates: state.wallet.coinsRates,
+  //   currency: state.settings.currency,
+  // }));
+  // const [assetData, setAssetData] = useState<any>();
+  // const { asset_id } = useParams();
+
+  // useEffect(() => {
+  //   const fillAssetData = () => {
+  //     const asset = assets.find((item: any) => item.asset_id === asset_id);
+  //     const priceEquivalent = getCoinsEquivalent(
+  //       asset,
+  //       coinsRates,
+  //       asset.amountDisplay,
+  //       currency
+  //     );
+  //     const res = {
+  //       asset_id,
+  //       ticker: asset.ticker,
+  //       amountDisplay: asset.amountDisplay,
+  //       amountDisplayFormatted: asset.amountDisplayFormatted,
+  //       name: asset.name,
+  //       priceEquivalent: priceEquivalent
+  //         ? formatPriceString(priceEquivalent)
+  //         : priceEquivalent,
+  //     };
+  //     setAssetData(res);
+  //   };
+  //   fillAssetData();
+  // }, []);
 
   useEffect(() => {
     if (inputRef.current) {

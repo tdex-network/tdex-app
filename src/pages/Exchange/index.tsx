@@ -12,7 +12,12 @@ import {
 import React, { useState } from 'react';
 
 // components
-import { IconSwap, IconSearch, IconClose } from '../../components/icons';
+import {
+  IconSwap,
+  IconSearch,
+  IconClose,
+  IconBTC,
+} from '../../components/icons';
 import ExchangeRow from '../../components/ExchangeRow';
 
 // styles
@@ -57,7 +62,9 @@ const Exchange: React.FC = () => {
               <IonList>
                 <IonItem>
                   <div className="search-item-name">
-                    <img src="../assets/img/btc.png" />
+                    <span className="icon-wrapper medium">
+                      <IconBTC width="24px" height="24px"></IconBTC>
+                    </span>
                     <p>BTC Bitcoin</p>
                   </div>
                   <div className="search-item-amount">
@@ -68,7 +75,9 @@ const Exchange: React.FC = () => {
                 </IonItem>
                 <IonItem>
                   <div className="search-item-name">
-                    <img src="../assets/img/btc.png" />
+                    <span className="icon-wrapper medium">
+                      <IconBTC width="24px" height="24px"></IconBTC>
+                    </span>
                     <p>BTC Bitcoin</p>
                   </div>
                   <div className="search-item-amount">
@@ -79,7 +88,9 @@ const Exchange: React.FC = () => {
                 </IonItem>
                 <IonItem>
                   <div className="search-item-name">
-                    <img src="../assets/img/btc.png" />
+                    <span className="icon-wrapper medium">
+                      <IconBTC width="24px" height="24px"></IconBTC>
+                    </span>
                     <p>BTC Bitcoin</p>
                   </div>
                   <div className="search-item-amount">
@@ -90,7 +101,9 @@ const Exchange: React.FC = () => {
                 </IonItem>
                 <IonItem>
                   <div className="search-item-name">
-                    <img src="../assets/img/btc.png" />
+                    <span className="icon-wrapper medium">
+                      <IconBTC width="24px" height="24px"></IconBTC>
+                    </span>
                     <p>BTC Bitcoin</p>
                   </div>
                   <div className="search-item-amount">
@@ -101,7 +114,9 @@ const Exchange: React.FC = () => {
                 </IonItem>
                 <IonItem>
                   <div className="search-item-name">
-                    <img src="../assets/img/btc.png" />
+                    <span className="icon-wrapper medium">
+                      <IconBTC width="24px" height="24px"></IconBTC>
+                    </span>
                     <p>BTC Bitcoin</p>
                   </div>
                   <div className="search-item-amount">
