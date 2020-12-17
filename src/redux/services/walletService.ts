@@ -39,3 +39,7 @@ export const getWallet = async (): Promise<{ value: string }> => {
 export const getAddress = async (): Promise<{ value: string }> => {
   return Storage.get({ key: 'address' });
 };
+
+export const restoreWallet = async (identity: any): Promise<any> => {
+  return identity.isRestored();
+};

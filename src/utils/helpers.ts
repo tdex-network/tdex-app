@@ -14,8 +14,20 @@ export const getRandomColor = () => {
   return color;
 };
 
-export function fromSatoshi(x: number, y?: number, fixed?: number): string {
-  return (x / Math.pow(10, y || defaultPrecision)).toFixed(fixed || 2);
+export function fromSatoshiFixed(
+  x: number,
+  y?: number,
+  fixed?: number
+): string {
+  return fromSatoshi(x, y).toFixed(fixed || 2);
+}
+
+export function fromSatoshi(x: number, y?: number): number {
+  return x / Math.pow(10, y || defaultPrecision);
+}
+
+export function toSatoshi(x: number, y?: number): number {
+  return x * Math.pow(10, y || defaultPrecision);
 }
 
 export function formatPriceString(price: string | number): string {
