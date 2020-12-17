@@ -48,10 +48,12 @@ function* doWithdrawSaga({
   payload: { address: string; amount: number; asset: any };
 }) {
   try {
-    const { identity, address } = yield select((state: any) => ({
+    const { identity, address: walletAddress } = yield select((state: any) => ({
       identity: state.wallet.identity,
       address: state.wallet.address,
     }));
+    identity.getNextAddress().confidentialAddress;
+    identity.getNextChangeAddress().confidentialAddress;
     const senderWallet = walletFromAddresses(
       identity.getAddresses(),
       'regtest'
@@ -61,7 +63,9 @@ function* doWithdrawSaga({
 
     // then we fetch all utxos
     const arrayOfArrayOfUtxos = yield all(
-      [address].map((a) => call(fetchUtxos, a.confidentialAddress, explorerUrl))
+      senderWallet.addresses.map((a) =>
+        call(fetchUtxos, a.confidentialAddress, explorerUrl)
+      )
     );
     // Flat them
     const utxos = arrayOfArrayOfUtxos.flat();

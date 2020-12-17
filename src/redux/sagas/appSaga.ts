@@ -33,11 +33,11 @@ function* initAppSaga({ type }: { type: string }) {
         initializeFromRestorer: false, // Scan the blockchain and restore previous addresses
         // restorer: new EsploraIdentityRestorer(explorerUrl),
       });
-      try {
-        yield call(restoreWallet, identity);
-      } catch (e) {
-        console.log(e);
-      }
+      // try {
+      //   yield call(restoreWallet, identity);
+      // } catch (e) {
+      //   console.log(e);
+      // }
       if (addressObj) {
         yield put(setAddress(addressObj));
       } else {

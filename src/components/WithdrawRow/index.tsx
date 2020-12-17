@@ -11,6 +11,9 @@ interface WithdrawRowInterface {
   asset?: any;
   setAmount: any;
   amount: any;
+  residualBalance: any;
+  setResidualBalance: any;
+  checkValidData: any;
 }
 
 const WithdrawRow: React.FC<WithdrawRowInterface> = ({
@@ -19,9 +22,10 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   asset,
   setAmount,
   amount,
+  setResidualBalance,
+  residualBalance,
+  checkValidData,
 }) => {
-  const [residualBalance, setResidualBalance] = useState<any>();
-
   useEffect(() => {
     if (asset && !residualBalance) {
       console.log(fromSatoshi(Number(asset.amount), asset.precision));
@@ -47,6 +51,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
       asset.precision
     );
     setResidualBalance(balance);
+    checkValidData(residualBalance, inputValue);
   };
 
   return (

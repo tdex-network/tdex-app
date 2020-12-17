@@ -34,9 +34,11 @@ const Withdrawal: React.FC = ({ history }: any) => {
   const [openModal, setOpenModal] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [validPin, setValidPin] = useState(false);
+  const [validData, setValidData] = useState(false);
   const [assetData, setAssetData] = useState<any>();
   const [recipientAddress, setRecipientAddress] = useState<any>();
   const [amount, setAmount] = useState<any>();
+  const [residualBalance, setResidualBalance] = useState<any>();
   const inputRef: any = useRef(null);
   const { asset_id } = useParams();
 
@@ -91,6 +93,16 @@ const Withdrawal: React.FC = ({ history }: any) => {
     }
   };
 
+  const checkValidData = (
+    residualBalance: any,
+    amountValue: number,
+    address: string | undefined | null = recipientAddress
+  ) => {
+    setValidData(
+      Boolean(address && Number(amountValue) && Number(residualBalance) >= 0)
+    );
+  };
+
   return (
     <IonPage>
       <div className="gradient-background"></div>
@@ -113,6 +125,9 @@ const Withdrawal: React.FC = ({ history }: any) => {
             asset={assetData}
             setAmount={setAmount}
             amount={amount}
+            residualBalance={residualBalance}
+            setResidualBalance={setResidualBalance}
+            checkValidData={checkValidData}
           />
         )}
         <IonItem className="list-item">
@@ -121,7 +136,10 @@ const Withdrawal: React.FC = ({ history }: any) => {
               <IonInput
                 value={recipientAddress}
                 placeholder="Paste address here or scan QR code"
-                onIonChange={(e) => setRecipientAddress(e.detail.value)}
+                onIonChange={(e) => {
+                  setRecipientAddress(e.detail.value);
+                  checkValidData(residualBalance, amount, e.detail.value);
+                }}
               />
             </div>
             <div className="item-end">
@@ -134,6 +152,7 @@ const Withdrawal: React.FC = ({ history }: any) => {
             onClick={() => {
               setOpenModal(true);
             }}
+            disabled={!validData}
             className="main-button"
           >
             <IonLabel>Confirm</IonLabel>
