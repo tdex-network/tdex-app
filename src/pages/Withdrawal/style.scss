@@ -13,3 +13,11 @@
     margin-top: 46px;
   }
 }
+
+.align-center {
+  display: flex;
+  justify-content: center;
+}
+.cancel-button {
+  --background: transparent;
+}

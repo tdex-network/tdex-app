@@ -31,7 +31,6 @@ const statusText = {
 };
 
 const Operations: React.FC<RouteComponentProps> = ({ history }) => {
-  const dispatch = useDispatch();
   const {
     address,
     assets,
@@ -47,6 +46,7 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
     coinsRates: state.wallet.coinsRates,
     currency: state.settings.currency,
   }));
+  const dispatch = useDispatch();
   const [assetTransactions, setAssetTransactions] = useState<
     Array<TxDisplayInterface> | undefined
   >();
@@ -54,7 +54,14 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   const { asset_id } = useParams();
 
   useEffect(() => {
-    if (assetData && transactions && !assetTransactions) {
+    return () => {
+      setAssetTransactions(undefined);
+      setAssetData(undefined);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (assetData && transactions) {
       const txs = transactions[asset_id].map((tx: TxDisplayInterface) => {
         const priceEquivalent = getCoinsEquivalent(
           assetData,
@@ -72,7 +79,7 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
       });
       setAssetTransactions(txs);
     }
-  }, [transactions, assetTransactions, assetData]);
+  }, [transactions, assetData]);
 
   useEffect(() => {
     const fillAssetData = () => {
@@ -105,10 +112,10 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
         })
       );
     }
-    if (assets?.length && !assetData) {
+    if (assets?.length) {
       fillAssetData();
     }
-  }, [assets]);
+  }, [assets, asset_id]);
 
   const toggleTxOpen = (idx: number) => {
     if (assetTransactions) {
@@ -146,7 +153,7 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
           <IonButton
             style={{ zIndex: 10 }}
             onClick={() => {
-              history.goBack();
+              history.push('/wallet');
             }}
           >
             <IconBack />
@@ -172,7 +179,9 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
           </IonButton>
           <IonButton
             className="coin-action-button"
-            routerLink={`/withdraw/${asset_id}`}
+            onClick={() => {
+              history.push(`/withdraw/${asset_id}`);
+            }}
           >
             Withdraw
           </IonButton>

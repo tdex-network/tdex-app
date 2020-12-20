@@ -5,6 +5,8 @@ export const GET_TRANSACTIONS = 'GET_TRANSACTIONS';
 export const SET_TRANSACTIONS = 'SET_TRANSACTIONS';
 export const SET_TRANSACTIONS_LOADING = 'SET_TRANSACTIONS_LOADING';
 export const DO_WITHDRAW = 'DO_WITHDRAW';
+export const SET_WITHDRAWAL_DETAILS = 'SET_WITHDRAWAL_DETAILS';
+export const SET_WITHDRAWAL_LOADING = 'SET_WITHDRAWAL_LOADING';
 
 export const getTransactions = (
   params: UnblindTxsRequestParams
@@ -43,5 +45,19 @@ export const setTransactionsLoading = (loading: boolean): ActionType => {
   return {
     type: SET_TRANSACTIONS_LOADING,
     payload: loading,
+  };
+};
+
+export const setWithdrawalLoading = (loading: boolean | null): ActionType => {
+  return {
+    type: SET_WITHDRAWAL_LOADING,
+    payload: loading,
+  };
+};
+
+export const setWithdrawalDetails = (details: any): ActionType => {
+  return {
+    type: SET_WITHDRAWAL_DETAILS,
+    payload: details,
   };
 };

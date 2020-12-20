@@ -9,6 +9,7 @@ import {
   IonHeader,
   IonLabel,
   IonInput,
+  IonLoading,
 } from '@ionic/react';
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, withRouter } from 'react-router';
@@ -18,18 +19,24 @@ import PinInput from '../../components/PinInput';
 import { useDispatch, useSelector } from 'react-redux';
 import { formatPriceString, getCoinsEquivalent } from '../../utils/helpers';
 import WithdrawRow from '../../components/WithdrawRow';
-import { doWithdraw } from '../../redux/actions/transactionsActions';
+import {
+  doWithdraw,
+  setWithdrawalLoading,
+} from '../../redux/actions/transactionsActions';
 import './style.scss';
 
 const Withdrawal: React.FC = ({ history }: any) => {
-  const { assets, currency, coinsRates, pin } = useSelector((state: any) => ({
-    assets: state.wallet.assets,
-    transactions: state.transactions.data,
-    address: state.wallet.address,
-    pin: state.wallet.pin,
-    coinsRates: state.wallet.coinsRates,
-    currency: state.settings.currency,
-  }));
+  const { assets, currency, coinsRates, pin, loading } = useSelector(
+    (state: any) => ({
+      assets: state.wallet.assets,
+      transactions: state.transactions.data,
+      address: state.wallet.address,
+      pin: state.wallet.pin,
+      coinsRates: state.wallet.coinsRates,
+      currency: state.settings.currency,
+      loading: state.transactions.withdrawalLoading,
+    })
+  );
   const dispatch = useDispatch();
   const [openModal, setOpenModal] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -65,20 +72,46 @@ const Withdrawal: React.FC = ({ history }: any) => {
       };
       setAssetData(res);
     };
-    if (assets?.length && !assetData) {
+    if (assets?.length) {
       fillAssetData();
     }
-  }, [assets]);
+  }, [assets, asset_id]);
 
   useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.focus();
+    if (openModal) {
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
     }
-  });
+  }, [openModal]);
 
   useEffect(() => {
-    console.log(amount);
-  }, [amount]);
+    if (loading === false) {
+      history.push(`/withdraw/${asset_id}/details`);
+      dispatch(setWithdrawalLoading(null));
+      return () => {
+        setInputValue('');
+        setAmount(undefined);
+        setRecipientAddress('');
+      };
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    clearState();
+  }, [asset_id]);
+
+  const clearState = () => {
+    if (inputValue) {
+      setInputValue('');
+    }
+    if (amount) {
+      setAmount(undefined);
+    }
+    if (recipientAddress) {
+      setRecipientAddress('');
+    }
+  };
 
   const onChange = (e: any) => {
     const { value } = e.target;
@@ -106,6 +139,11 @@ const Withdrawal: React.FC = ({ history }: any) => {
   return (
     <IonPage>
       <div className="gradient-background"></div>
+      <IonLoading
+        cssClass="my-custom-class"
+        isOpen={Boolean(loading)}
+        message={'Please wait...'}
+      />
       <IonHeader>
         <IonToolbar className="with-back-button">
           <IonButton
@@ -158,10 +196,11 @@ const Withdrawal: React.FC = ({ history }: any) => {
             <IonLabel>Confirm</IonLabel>
           </IonButton>
         </div>
-        <div className="buttons">
+        <div className="align-center">
           <IonButton
             onClick={() => {
               history.goBack();
+              clearState();
             }}
             className="cancel-button"
           >
@@ -194,7 +233,6 @@ const Withdrawal: React.FC = ({ history }: any) => {
             />
             <div className="buttons">
               <IonButton
-                routerLink="/withdrawaldetails"
                 onClick={() => {
                   dispatch(doWithdraw(recipientAddress, amount, assetData));
                   setOpenModal(false);

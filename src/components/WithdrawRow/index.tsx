@@ -3,7 +3,13 @@ import classNames from 'classnames';
 import './style.scss';
 import { CurrencyIcon } from '../icons';
 import { IonInput } from '@ionic/react';
-import { fromSatoshi, toSatoshi } from '../../utils/helpers';
+import {
+  formatPriceString,
+  fromSatoshi,
+  getCoinsEquivalent,
+  toSatoshi,
+} from '../../utils/helpers';
+import { useSelector } from 'react-redux';
 
 interface WithdrawRowInterface {
   className?: string;
@@ -26,24 +32,28 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   residualBalance,
   checkValidData,
 }) => {
+  const { currency, coinsRates } = useSelector((state: any) => ({
+    currency: state.settings.currency,
+    coinsRates: state.wallet.coinsRates,
+  }));
+  const [priceEquivalent, setPriceEquivalent] = useState<any>('0');
   useEffect(() => {
     if (asset && !residualBalance) {
-      console.log(fromSatoshi(Number(asset.amount), asset.precision));
       setResidualBalance(
         fromSatoshi(Number(asset.amount), asset.precision).toString()
       );
     }
   }, [asset]);
 
-  useEffect(() => {
-    console.log('residualBalance');
-    console.log(residualBalance);
-  }, [residualBalance]);
-
   const handleAmountChange = (value: string | undefined | null) => {
     let inputValue = value;
     if (!value) {
       inputValue = '0';
+      setPriceEquivalent('0');
+    } else {
+      setPriceEquivalent(
+        getCoinsEquivalent(asset, coinsRates, value, currency)
+      );
     }
     setAmount(value);
     const balance = fromSatoshi(
@@ -83,7 +93,9 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
           </p>
         </div>
         <div>
-          <p>1BTC = 124124 EUR</p>
+          <p>
+            {priceEquivalent} {currency && currency.toUpperCase()}
+          </p>
         </div>
       </div>
     </div>

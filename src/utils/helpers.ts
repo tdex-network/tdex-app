@@ -52,24 +52,62 @@ export function getDataFromTx(
 ): Partial<TxDisplayInterface> {
   let amount = 0,
     asset = '',
-    type,
-    sign;
+    type: any,
+    sign: any,
+    vinAmount: any,
+    voutAmount: any,
+    fee: any;
+  const assets: any = new Set();
+
   vin.forEach((item) => {
     if (item.prevout.asset && item.prevout.script) {
+      assets.add(item.prevout.asset);
+    }
+  });
+
+  vout.forEach((item, idx) => {
+    if (item.asset && item.script) {
+      assets.add(item.asset);
+    } else if (item.asset && !item.script) {
+      fee = item.asset;
+    }
+  });
+  if (fee && assets.size > 1 && assets.has(fee)) {
+    assets.delete(fee);
+  }
+
+  vin.forEach((item) => {
+    if (
+      item.prevout.asset &&
+      item.prevout.script &&
+      assets.has(item.prevout.asset)
+    ) {
+      assets.add(item.prevout.asset);
       type = TxTypeEnum.Withdraw;
       asset = item.prevout.asset;
-      amount = item.prevout.value;
+      vinAmount = vinAmount
+        ? Number(vinAmount) + Number(item.prevout.value)
+        : item.prevout.value;
       sign = '-';
     }
   });
   vout.forEach((item) => {
-    if (item.asset && item.script) {
-      type = TxTypeEnum.Deposit;
-      asset = item.asset;
-      amount = item.value;
-      sign = '+';
+    if (item.asset && item.script && assets.has(item.asset)) {
+      if (item.asset === asset || !asset) {
+        type = type ?? TxTypeEnum.Deposit;
+        asset = item.asset;
+        voutAmount = voutAmount
+          ? Number(voutAmount) + Number(item.value)
+          : item.value;
+        sign = sign ?? '+';
+      }
     }
   });
+  amount = vinAmount
+    ? voutAmount
+      ? vinAmount - voutAmount
+      : vinAmount
+    : voutAmount;
   return {
     amount,
     asset,

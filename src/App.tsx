@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { IonApp, IonLoading } from '@ionic/react';
+import { IonApp, IonLoading, IonPage, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 
 /* Core CSS required for Ionic components to work properly */
@@ -28,6 +28,8 @@ import { Plugins } from '@capacitor/core';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
 import { useDispatch, useSelector } from 'react-redux';
 import { initApp } from './redux/actions/appActions';
+import { ROUTES } from './routes';
+import { Redirect, Route } from 'react-router';
 
 const App: React.FC = () => {
   const { isAuth, appInit } = useSelector((state: any) => ({

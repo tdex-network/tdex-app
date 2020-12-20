@@ -198,9 +198,6 @@ const Wallet: React.FC<any> = ({ history }) => {
           <IonButton className="coin-action-button" routerLink="/recieve">
             Deposit
           </IonButton>
-          {/*<IonButton className="coin-action-button" onClick={buttonRefresh}>*/}
-          {/*  Refresh*/}
-          {/*</IonButton>*/}
         </IonButtons>
         <IonList>
           {displayAssets.mainAssets.length ? (
