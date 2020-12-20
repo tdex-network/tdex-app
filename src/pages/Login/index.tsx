@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Storage } from '@capacitor/core';
 import * as bip39 from 'bip39';
 import { initApp } from '../../redux/actions/appActions';
+import { encrypt } from '../../utils/crypto';
 
 interface LoginInterface {
   setup?: boolean;
@@ -62,7 +63,7 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
       key: 'wallet',
       value: JSON.stringify({
         pin: inputValue,
-        mnemonic: mnemonicStr,
+        mnemonic: encrypt(mnemonicStr, inputValue),
       }),
     }).then(() => {
       dispatch(initApp());

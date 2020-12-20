@@ -10,6 +10,7 @@ import {
 import { getAddress, getWallet } from '../services/walletService';
 import { IdentityType, Mnemonic } from 'tdex-sdk';
 import { Storage } from '@capacitor/core';
+import { decrypt } from '../../utils/crypto';
 
 function* initAppSaga({ type }: { type: string }) {
   try {
@@ -22,7 +23,7 @@ function* initAppSaga({ type }: { type: string }) {
         chain: 'regtest',
         type: IdentityType.Mnemonic,
         value: {
-          mnemonic: walletObj.mnemonic,
+          mnemonic: decrypt(walletObj.mnemonic, walletObj.pin),
         },
       });
       if (addressObj) {
