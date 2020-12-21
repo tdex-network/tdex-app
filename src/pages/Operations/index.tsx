@@ -11,6 +11,7 @@ import {
   IonListHeader,
   IonLabel,
   IonText,
+  IonLoading,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { withRouter, RouteComponentProps, useParams } from 'react-router';
@@ -31,20 +32,47 @@ const statusText = {
 
 const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
-  const { address, assets, transactions, currency, coinsRates } = useSelector(
-    (state: any) => ({
-      assets: state.wallet.assets,
-      transactions: state.transactions.data,
-      address: state.wallet.address,
-      coinsRates: state.wallet.coinsRates,
-      currency: state.settings.currency,
-    })
-  );
+  const {
+    address,
+    assets,
+    transactions,
+    currency,
+    coinsRates,
+    loading,
+  } = useSelector((state: any) => ({
+    assets: state.wallet.assets,
+    transactions: state.transactions.data,
+    loading: state.transactions.loading,
+    address: state.wallet.address,
+    coinsRates: state.wallet.coinsRates,
+    currency: state.settings.currency,
+  }));
   const [assetTransactions, setAssetTransactions] = useState<
     Array<TxDisplayInterface> | undefined
   >();
   const [assetData, setAssetData] = useState<any>();
   const { asset_id } = useParams();
+
+  useEffect(() => {
+    if (assetData && transactions && !assetTransactions) {
+      const txs = transactions[asset_id].map((tx: TxDisplayInterface) => {
+        const priceEquivalent = getCoinsEquivalent(
+          assetData,
+          coinsRates,
+          tx.amountDisplay,
+          currency
+        );
+        return {
+          ...tx,
+          priceEquivalent: priceEquivalent
+            ? formatPriceString(priceEquivalent)
+            : priceEquivalent,
+          ticker: assetData.ticker,
+        };
+      });
+      setAssetTransactions(txs);
+    }
+  }, [transactions, assetTransactions, assetData]);
 
   useEffect(() => {
     const fillAssetData = () => {
@@ -77,29 +105,10 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
         })
       );
     }
-    fillAssetData();
-  }, []);
-
-  useEffect(() => {
-    if (assetData && transactions && !assetTransactions) {
-      const txs = transactions[asset_id].map((tx: TxDisplayInterface) => {
-        const priceEquivalent = getCoinsEquivalent(
-          assetData,
-          coinsRates,
-          tx.amountDisplay,
-          currency
-        );
-        return {
-          ...tx,
-          priceEquivalent: priceEquivalent
-            ? formatPriceString(priceEquivalent)
-            : priceEquivalent,
-          ticker: assetData.ticker,
-        };
-      });
-      setAssetTransactions(txs);
+    if (assets?.length && !assetData) {
+      fillAssetData();
     }
-  }, [transactions, assetTransactions, assetData]);
+  }, [assets]);
 
   const toggleTxOpen = (idx: number) => {
     if (assetTransactions) {
@@ -127,6 +136,11 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage>
       <div className="gradient-background"></div>
+      <IonLoading
+        cssClass="my-custom-class"
+        isOpen={loading}
+        message={'Please wait...'}
+      />
       <IonHeader className="header operations">
         <IonToolbar className="with-back-button">
           <IonButton
@@ -156,7 +170,10 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
           <IonButton className="coin-action-button" routerLink="/recieve">
             Deposit
           </IonButton>
-          <IonButton className="coin-action-button" routerLink="/withdraw">
+          <IonButton
+            className="coin-action-button"
+            routerLink={`/withdraw/${asset_id}`}
+          >
             Withdraw
           </IonButton>
           <IonButton className="coin-action-button" routerLink="/swap">

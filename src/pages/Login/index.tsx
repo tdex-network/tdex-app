@@ -14,9 +14,9 @@ import {
 } from '@ionic/react';
 import { IconBack, IconCheck } from '../../components/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { setIsAuth, setMnemonic } from '../../redux/actions/walletActions';
 import { Storage } from '@capacitor/core';
 import * as bip39 from 'bip39';
+import { initApp } from '../../redux/actions/appActions';
 
 interface LoginInterface {
   setup?: boolean;
@@ -65,8 +65,7 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
         mnemonic: mnemonicStr,
       }),
     }).then(() => {
-      dispatch(setIsAuth(true));
-      history.replace('/');
+      dispatch(initApp());
     });
   };
 
@@ -78,7 +77,6 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
       if (firstPin === inputValue) {
         if (!mnemonic) {
           const newMnemonic = bip39.generateMnemonic();
-          dispatch(setMnemonic(newMnemonic));
           storeMnemonic(newMnemonic);
         } else {
           storeMnemonic(mnemonic);

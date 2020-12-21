@@ -2,6 +2,7 @@
   --padding-top: 10px;
   --padding-bottom: 10px;
   --overflow: auto;
+  position: relative;
 }
 
 .pin-label {
@@ -61,4 +62,7 @@
     color: rgb(198, 198, 198);
     margin-top: -2px;
   }
+}
+ion-refresher {
+  z-index: 1;
 }

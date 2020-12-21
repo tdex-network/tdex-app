@@ -1,5 +1,6 @@
 import { ActionType } from '../../utils/types';
-import { AddressInterface } from 'tdex-sdk';
+import { AddressInterface, IdentityInterface } from 'tdex-sdk';
+import { BalanceInterface } from '../actionTypes/walletActionTypes';
 
 export const SET_MNEMONIC = 'SET_MNEMONIC';
 export const SET_ADDRESS = 'SET_ADDRESS';
@@ -12,6 +13,10 @@ export const SET_ASSETS = 'SET_ASSETS';
 export const GET_COINS_LIST = 'GET_COINS_LIST';
 export const SET_COINS_LIST = 'SET_COINS_LIST';
 export const SET_COINS_RATES = 'SET_COINS_RATES';
+export const GET_BALANCES = 'GET_BALANCES';
+export const SET_BALANCES = 'SET_BALANCES';
+export const SET_IDENTITY = 'SET_IDENTITY';
+export const SET_WALLET_LOADING = 'SET_WALLET_LOADING';
 
 export const setMnemonic = (mnemonic: string): ActionType => {
   return {
@@ -78,6 +83,34 @@ export const setCoinsRates = (coinsRates: any) => {
   return {
     type: SET_COINS_RATES,
     payload: coinsRates,
+  };
+};
+
+export const getBalances = (address: AddressInterface) => {
+  return {
+    type: GET_BALANCES,
+    payload: address,
+  };
+};
+
+export const setBalances = (balances: BalanceInterface) => {
+  return {
+    type: SET_BALANCES,
+    payload: balances,
+  };
+};
+
+export const setIdentity = (identity: IdentityInterface): ActionType => {
+  return {
+    type: SET_IDENTITY,
+    payload: identity,
+  };
+};
+
+export const setWalletLoading = (loading: boolean): ActionType => {
+  return {
+    type: SET_WALLET_LOADING,
+    payload: loading,
   };
 };
 

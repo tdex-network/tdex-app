@@ -78,3 +78,12 @@ export const getCoinsEquivalent = (
       ).toFixed(2)
     : false;
 };
+
+export const getDefaultCoinRate = (currency: string, rates: any) => ({
+  lbtc: {
+    name: 'Liquid Bitcoin',
+    rate: {
+      [currency]: rates['bitcoin'][currency],
+    },
+  },
+});

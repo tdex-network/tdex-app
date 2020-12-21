@@ -21,6 +21,7 @@
 .vscode
 .eslintcache2
 .idea
+.eslintcache
 
 npm-debug.log*
 yarn-debug.log*

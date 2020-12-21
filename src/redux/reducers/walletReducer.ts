@@ -6,9 +6,11 @@ import {
   SET_ASSETS,
   SET_COINS_LIST,
   SET_COINS_RATES,
+  SET_IDENTITY,
   SET_IS_AUTH,
   SET_MNEMONIC,
   SET_PIN,
+  SET_WALLET_LOADING,
 } from '../actions/walletActions';
 
 const initialState = {
@@ -18,6 +20,8 @@ const initialState = {
   address: null,
   coinsList: null,
   coinsRates: null,
+  identity: null,
+  loading: true,
 };
 
 const walletReducer = (state = initialState, action: ActionType) => {
@@ -36,6 +40,10 @@ const walletReducer = (state = initialState, action: ActionType) => {
       return { ...state, coinsList: action.payload };
     case SET_COINS_RATES:
       return { ...state, coinsRates: action.payload };
+    case SET_IDENTITY:
+      return { ...state, identity: action.payload };
+    case SET_WALLET_LOADING:
+      return { ...state, loading: action.payload };
     case CLEAR_PIN:
       return { ...state, pin: '' };
     case CLEAR_WALLET_STATE:
