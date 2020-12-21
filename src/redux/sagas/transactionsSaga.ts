@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 import { UnblindTxsRequestParams } from '../actionTypes/transactionsActionTypes';
 import { takeLatest, call, put, all, select } from 'redux-saga/effects';
 import {
@@ -25,8 +26,8 @@ import {
 } from '../../utils/helpers';
 import moment from 'moment';
 import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
-import { setAssets, setWalletLoading } from '../actions/walletActions';
-import { Assets, defaultPrecision } from '../../utils/constants';
+import { setAssets } from '../actions/walletActions';
+import { Assets, defaultFee } from '../../utils/constants';
 
 function* getTransactionsSaga({
   type,
@@ -58,12 +59,7 @@ function* doWithdrawSaga({
   payload: { address: string; amount: number; asset: any };
 }) {
   try {
-    const {
-      identity,
-      address: walletAddress,
-      assets,
-      transactions,
-    } = yield select((state: any) => ({
+    const { identity, assets, transactions } = yield select((state: any) => ({
       identity: state.wallet.identity,
       address: state.wallet.address,
       assets: state.wallet.assets,
@@ -126,7 +122,9 @@ function* doWithdrawSaga({
     const feeObj = Transaction.fromHex(txHex).outs.find((currentOutput: any) =>
       currentOutput.script.equals(Buffer.alloc(0))
     );
-    const fee = confidential.confidentialValueToSatoshi(feeObj!.value);
+    const fee = feeObj
+      ? confidential.confidentialValueToSatoshi(feeObj.value)
+      : defaultFee;
     const broadcasted = yield call(broadcastTx, txHex);
     console.log(broadcasted);
     const amountInSatoshis = toSatoshi(amount, asset.precision);

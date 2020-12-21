@@ -4,7 +4,6 @@ import './style.scss';
 import { CurrencyIcon } from '../icons';
 import { IonInput } from '@ionic/react';
 import {
-  formatPriceString,
   fromSatoshi,
   getCoinsEquivalent,
   toSatoshi,
