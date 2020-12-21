@@ -11,6 +11,7 @@ import {
   SET_MNEMONIC,
   SET_PIN,
   SET_WALLET_LOADING,
+  SET_ADDRESSES,
 } from '../actions/walletActions';
 
 const initialState = {
@@ -18,6 +19,7 @@ const initialState = {
   pin: '',
   mnemonic: '',
   address: null,
+  addresses: null,
   coinsList: null,
   coinsRates: null,
   identity: null,
@@ -30,6 +32,8 @@ const walletReducer = (state = initialState, action: ActionType) => {
       return { ...state, mnemonic: action.payload };
     case SET_ADDRESS:
       return { ...state, address: action.payload };
+    case SET_ADDRESSES:
+      return { ...state, addresses: action.payload };
     case SET_IS_AUTH:
       return { ...state, isAuth: action.payload };
     case SET_PIN:

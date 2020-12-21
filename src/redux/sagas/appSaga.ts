@@ -6,9 +6,16 @@ import {
   setIsAuth,
   setMnemonic,
   setIdentity,
+  setAddresses,
 } from '../actions/walletActions';
-import { getAddress, getWallet } from '../services/walletService';
-import { IdentityType, Mnemonic } from 'tdex-sdk';
+import {
+  getAddress,
+  getWallet,
+  getAddresses,
+  explorerUrl,
+  restoreWallet,
+} from '../services/walletService';
+import { IdentityType, Mnemonic, EsploraIdentityRestorer } from 'tdex-sdk';
 import { Storage } from '@capacitor/core';
 
 function* initAppSaga({ type }: { type: string }) {
@@ -17,14 +24,33 @@ function* initAppSaga({ type }: { type: string }) {
     const walletObj = JSON.parse(walletData.value);
     if (walletObj) {
       const addressData = yield call(getAddress);
+      const addressesData = yield call(getAddresses);
       const addressObj = JSON.parse(addressData.value);
+      const addressesArray = JSON.parse(addressesData.value);
       const identity = new Mnemonic({
         chain: 'regtest',
         type: IdentityType.Mnemonic,
         value: {
           mnemonic: walletObj.mnemonic,
         },
+        ...(addressesArray
+          ? {}
+          : {
+              initializeFromRestorer: true,
+              restorer: new EsploraIdentityRestorer(explorerUrl),
+            }),
       });
+      if (addressesArray) {
+        yield put(setAddresses(addressesArray));
+      } else {
+        yield call(restoreWallet, identity);
+        const addresses = identity.getAddresses();
+        Storage.set({
+          key: 'addresses',
+          value: JSON.stringify(addresses),
+        });
+        yield put(setAddresses(addresses));
+      }
       if (addressObj) {
         yield put(setAddress(addressObj));
       } else {
