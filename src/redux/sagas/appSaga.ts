@@ -5,10 +5,16 @@ import {
   setAddress,
   setIsAuth,
   setMnemonic,
+  setPin,
   setIdentity,
 } from '../actions/walletActions';
-import { getAddress, getWallet } from '../services/walletService';
-import { IdentityType, Mnemonic } from 'tdex-sdk';
+import {
+  getAddress,
+  getWallet,
+  explorerUrl,
+  restoreWallet,
+} from '../services/walletService';
+import { EsploraIdentityRestorer, IdentityType, Mnemonic } from 'tdex-sdk';
 import { Storage } from '@capacitor/core';
 import { decrypt } from '../../utils/crypto';
 
@@ -25,7 +31,14 @@ function* initAppSaga({ type }: { type: string }) {
         value: {
           mnemonic: decrypt(walletObj.mnemonic, walletObj.pin),
         },
+        initializeFromRestorer: false, // Scan the blockchain and restore previous addresses
+        // restorer: new EsploraIdentityRestorer(explorerUrl),
       });
+      // try {
+      //   yield call(restoreWallet, identity);
+      // } catch (e) {
+      //   console.log(e);
+      // }
       if (addressObj) {
         yield put(setAddress(addressObj));
       } else {
@@ -34,11 +47,12 @@ function* initAppSaga({ type }: { type: string }) {
           key: 'address',
           value: JSON.stringify(receivingAddress),
         });
-        yield put(setIdentity(identity));
         yield put(setAddress(receivingAddress));
       }
+      yield put(setIdentity(identity));
       yield put(setIsAuth(true));
       yield put(setMnemonic(walletObj.mnemonic));
+      yield put(setPin(walletObj.pin));
       yield put(getCoinsList());
     } else {
       yield put(initAppSuccess());

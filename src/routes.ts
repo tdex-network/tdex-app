@@ -17,11 +17,11 @@ export const routerLinks = {
   settings: '/settings',
   tradeSummary: '/tradesummary',
   history: '/history',
+  operations: '/operations/:asset_id',
+  withdrawalDetails: '/withdraw/:asset_id/details',
   withdrawal: '/withdraw/:asset_id',
   recieve: '/recieve',
   qrScanner: '/qrscanner',
-  operations: '/operations/:asset_id',
-  withdrawalDetails: '/withdrawaldetails',
   account: '/account',
 };
 
@@ -76,13 +76,16 @@ export const TABS = [
   {
     path: routerLinks.wallet,
     icon: IconWallet,
+    component: Wallet,
   },
   {
     path: routerLinks.exchange,
     icon: IconExchange,
+    component: Exchange,
   },
   {
     path: routerLinks.settings,
     icon: IconSettings,
+    component: Settings,
   },
 ];
