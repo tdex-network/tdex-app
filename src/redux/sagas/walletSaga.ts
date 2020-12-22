@@ -23,6 +23,7 @@ import {
 } from '../services/walletService';
 import { AddressInterface, fetchBalances } from 'tdex-sdk';
 import { initAppFail, initAppSuccess } from '../actions/appActions';
+import { getBalancesFromArray } from '../../utils/helpers';
 
 function* getBalancesSaga({
   type,
@@ -42,8 +43,9 @@ function* getBalancesSaga({
         )
       )
     );
-    yield put(setBalances(data));
-    yield put(getAssets(data));
+    const balances = getBalancesFromArray(data);
+    yield put(setBalances(balances));
+    yield put(getAssets(balances));
   } catch (e) {
     yield put(initAppFail());
     console.log(e);
@@ -55,22 +57,18 @@ function* getAssetSaga({
   payload,
 }: {
   type: string;
-  payload: BalanceInterface[];
+  payload: BalanceInterface;
 }) {
   try {
     const { currency, coinsList } = yield select((state: any) => ({
       coinsList: state.wallet.coinsList,
       currency: state.settings.currency,
     }));
-    const callArray = payload.flatMap((i) =>
-      Object.keys(i).map((assetId: string) =>
-        call(getAssetsRequest, `/asset/${assetId}`)
-      )
+    const callArray = Object.keys(payload).map((assetId: string) =>
+      call(getAssetsRequest, `/asset/${assetId}`)
     );
     const assetArray = yield all(callArray);
-    const transformedAssets = payload.flatMap((i) =>
-      assetTransformer(assetArray, i)
-    );
+    const transformedAssets = assetTransformer(assetArray, payload);
     const coinsArray = [];
     const withLbtc = transformedAssets.find((assetItem: any) => {
       return assetItem.ticker?.toLowerCase() === 'lbtc';
