@@ -7,6 +7,7 @@ import {
   setMnemonic,
   setIdentity,
   setAddresses,
+  setWalletLoading,
 } from '../actions/walletActions';
 import {
   getAddress,
@@ -18,12 +19,14 @@ import {
 import { IdentityType, Mnemonic, EsploraIdentityRestorer } from 'tdex-sdk';
 import { Storage } from '@capacitor/core';
 import { IdentityRestorerFromState } from '../../utils/identity-restorer';
+import { storageAddresses } from '../../utils/storage-helper';
 
 function* initAppSaga({ type }: { type: string }) {
   try {
     const walletData = yield call(getWallet);
     const walletObj = JSON.parse(walletData.value);
     if (walletObj) {
+      yield put(setWalletLoading(false));
       const addressData = yield call(getAddress);
       const addressesData = yield call(getAddresses);
       const addressObj = JSON.parse(addressData.value);
@@ -54,16 +57,13 @@ function* initAppSaga({ type }: { type: string }) {
         yield put(setAddresses(addressesArray));
       } else {
         const addresses = identity.getAddresses();
-        Storage.set({
-          key: 'addresses',
-          value: JSON.stringify(addresses),
-        });
-        yield put(setAddresses(addresses));
+        storageAddresses(addresses);
       }
       yield put(setIdentity(identity));
       yield put(setIsAuth(true));
       yield put(setMnemonic(walletObj.mnemonic));
       yield put(getCoinsList());
+      yield put(setWalletLoading(true));
     } else {
       yield put(initAppSuccess());
     }

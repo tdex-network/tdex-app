@@ -11,6 +11,7 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
+  IonLoading,
 } from '@ionic/react';
 import { IconBack, IconCheck } from '../../components/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,6 +27,9 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
   history,
   setup = false,
 }) => {
+  const { loading } = useSelector((state: any) => ({
+    loading: state.wallet.loading,
+  }));
   const dispatch = useDispatch();
   const mnemonic = useSelector((state: any) => state.wallet.mnemonic);
   const [inputValue, setValue] = useState('');
@@ -90,6 +94,11 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
   return (
     <IonPage>
       <div className="gradient-background"></div>
+      <IonLoading
+        cssClass="my-custom-class"
+        isOpen={!loading}
+        message={'Please wait...'}
+      />
       <IonHeader>
         <IonToolbar className="with-back-button">
           <IonButton

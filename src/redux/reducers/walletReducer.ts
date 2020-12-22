@@ -19,7 +19,7 @@ const initialState = {
   pin: '',
   mnemonic: '',
   address: null,
-  addresses: null,
+  addresses: [],
   coinsList: null,
   coinsRates: null,
   identity: null,

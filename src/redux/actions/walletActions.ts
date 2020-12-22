@@ -33,7 +33,7 @@ export const setAddress = (address: AddressInterface): ActionType => {
   };
 };
 
-export const setAddresses = (addresses: any): ActionType => {
+export const setAddresses = (addresses: AddressInterface[]): ActionType => {
   return {
     type: SET_ADDRESSES,
     payload: addresses,
