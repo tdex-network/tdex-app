@@ -30,7 +30,6 @@ const Withdrawal: React.FC = ({ history }: any) => {
     (state: any) => ({
       assets: state.wallet.assets,
       transactions: state.transactions.data,
-      address: state.wallet.address,
       pin: state.wallet.pin,
       coinsRates: state.wallet.coinsRates,
       currency: state.settings.currency,
