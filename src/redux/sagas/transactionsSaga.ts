@@ -1,5 +1,4 @@
 /* eslint-disable no-shadow */
-import { UnblindTxsRequestParams } from '../actionTypes/transactionsActionTypes';
 import { takeLatest, call, put, all, select } from 'redux-saga/effects';
 import {
   fetchAndUnblindTxs,
@@ -7,6 +6,7 @@ import {
   fetchUtxos,
   Wallet,
   walletFromAddresses,
+  AddressInterface,
 } from 'tdex-sdk';
 import {
   DO_WITHDRAW,
@@ -31,20 +31,24 @@ import { Assets, defaultFee } from '../../utils/constants';
 
 function* getTransactionsSaga({
   type,
-  payload,
+  payload: addresses,
 }: {
   type: string;
-  payload: UnblindTxsRequestParams;
+  payload: AddressInterface[];
 }) {
-  const { confidentialAddress, privateBlindingKey, explorerUrl } = payload;
   try {
-    const data = yield call(
-      fetchAndUnblindTxs,
-      confidentialAddress,
-      privateBlindingKey,
-      explorerUrl
+    const data = yield all(
+      addresses.map((a) =>
+        call(
+          fetchAndUnblindTxs,
+          a.confidentialAddress,
+          [a.blindingPrivateKey],
+          explorerUrl
+        )
+      )
     );
-    yield put(setTransactions(transactionsTransformer(data)));
+    const flattenData = data.flat();
+    yield put(setTransactions(transactionsTransformer(flattenData)));
     yield put(setTransactionsLoading(false));
   } catch (e) {
     console.log(e);
@@ -61,7 +65,6 @@ function* doWithdrawSaga({
   try {
     const { identity, assets, transactions } = yield select((state: any) => ({
       identity: state.wallet.identity,
-      address: state.wallet.address,
       assets: state.wallet.assets,
       transactions: state.transactions.data,
     }));
