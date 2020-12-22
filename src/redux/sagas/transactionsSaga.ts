@@ -70,12 +70,13 @@ function* doWithdrawSaga({
       transactions: state.transactions.data,
     }));
     yield put(setWithdrawalLoading(true));
+    const addresses = identity.getAddresses();
+    const senderWallet = walletFromAddresses(addresses, 'regtest');
     const nextChangeAddress = identity.getNextChangeAddress()
       .confidentialAddress;
-    const addresses = identity.getAddresses();
-    yield call(storageAddresses, addresses);
-    yield put(setAddresses(addresses));
-    const senderWallet = walletFromAddresses(addresses, 'regtest');
+    const newAddresses = [...addresses, nextChangeAddress];
+    yield call(storageAddresses, newAddresses);
+    yield put(setAddresses(newAddresses));
     // then we fetch all utxos
     const arrayOfArrayOfUtxos = yield all(
       senderWallet.addresses.map((a) =>
