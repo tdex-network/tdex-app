@@ -43,10 +43,10 @@ interface DiagramInterface {
 }
 
 const Wallet: React.FC<any> = ({ history }) => {
-  const { address, assets, currency, coinsRates, loading } = useSelector(
+  const { addresses, assets, currency, coinsRates, loading } = useSelector(
     (state: any) => ({
       mnemonic: state.wallet.mnemonic,
-      address: state.wallet.address,
+      addresses: state.wallet.addresses,
       assets: state.wallet.assets,
       coinsList: state.wallet.coinsList,
       currency: state.settings.currency,
@@ -150,7 +150,7 @@ const Wallet: React.FC<any> = ({ history }) => {
   }, [assets, coinsRates]);
 
   const buttonRefresh = (event: CustomEvent<RefresherEventDetail>) => {
-    dispatch(getBalances(address));
+    dispatch(getBalances(addresses));
     setTimeout(() => {
       event.detail.complete();
     }, 2000);

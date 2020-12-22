@@ -26,17 +26,21 @@ import { initAppFail, initAppSuccess } from '../actions/appActions';
 
 function* getBalancesSaga({
   type,
-  payload: address,
+  payload: addresses,
 }: {
   type: string;
-  payload: AddressInterface;
+  payload: AddressInterface[];
 }) {
   try {
-    const data = yield call(
-      fetchBalances,
-      address.confidentialAddress,
-      address.blindingPrivateKey,
-      explorerUrl
+    const data = yield all(
+      addresses.map((a) =>
+        call(
+          fetchBalances,
+          a.confidentialAddress,
+          a.blindingPrivateKey,
+          explorerUrl
+        )
+      )
     );
     yield put(setBalances(data));
     yield put(getAssets(data));
@@ -51,18 +55,22 @@ function* getAssetSaga({
   payload,
 }: {
   type: string;
-  payload: BalanceInterface;
+  payload: BalanceInterface[];
 }) {
   try {
     const { currency, coinsList } = yield select((state: any) => ({
       coinsList: state.wallet.coinsList,
       currency: state.settings.currency,
     }));
-    const callArray = Object.keys(payload).map((assetId: string) =>
-      call(getAssetsRequest, `/asset/${assetId}`)
+    const callArray = payload.flatMap((i) =>
+      Object.keys(i).map((assetId: string) =>
+        call(getAssetsRequest, `/asset/${assetId}`)
+      )
     );
     const assetArray = yield all(callArray);
-    const transformedAssets = assetTransformer(assetArray, payload);
+    const transformedAssets = payload.flatMap((i) =>
+      assetTransformer(assetArray, i)
+    );
     const coinsArray = [];
     const withLbtc = transformedAssets.find((assetItem: any) => {
       return assetItem.ticker?.toLowerCase() === 'lbtc';
@@ -127,8 +135,8 @@ function* getCoinsListSaga({ type }: { type: string }) {
   try {
     const { data } = yield call(getCoinsRequest, '/coins/list');
     yield put(setCoinsList(data));
-    const address = yield select((state: any) => state.wallet.address);
-    yield put(getBalances(address));
+    const addresses = yield select((state: any) => state.wallet.addresses);
+    yield put(getBalances(addresses));
   } catch (e) {
     console.log(e);
   }

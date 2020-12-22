@@ -94,10 +94,10 @@ export const setCoinsRates = (coinsRates: any) => {
   };
 };
 
-export const getBalances = (address: AddressInterface) => {
+export const getBalances = (addresses: AddressInterface[]) => {
   return {
     type: GET_BALANCES,
-    payload: address,
+    payload: addresses,
   };
 };
 
