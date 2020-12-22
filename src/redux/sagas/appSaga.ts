@@ -59,7 +59,8 @@ function* initAppSaga({ type }: { type: string }) {
         yield put(setAddresses(addressesArray));
       } else {
         const addresses = identity.getAddresses();
-        storageAddresses(addresses);
+        yield call(storageAddresses, addresses);
+        yield put(setAddresses(addresses));
       }
       yield put(setIdentity(identity));
       yield put(setIsAuth(true));
