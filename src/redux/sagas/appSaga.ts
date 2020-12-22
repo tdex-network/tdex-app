@@ -17,6 +17,7 @@ import {
 } from '../services/walletService';
 import { IdentityType, Mnemonic, EsploraIdentityRestorer } from 'tdex-sdk';
 import { Storage } from '@capacitor/core';
+import { IdentityRestorerFromState } from '../../utils/identity-restorer';
 
 function* initAppSaga({ type }: { type: string }) {
   try {
@@ -33,24 +34,12 @@ function* initAppSaga({ type }: { type: string }) {
         value: {
           mnemonic: walletObj.mnemonic,
         },
-        ...(addressesArray
-          ? {}
-          : {
-              initializeFromRestorer: true,
-              restorer: new EsploraIdentityRestorer(explorerUrl),
-            }),
+        initializeFromRestorer: true,
+        restorer: addressesArray
+          ? new IdentityRestorerFromState(addressesArray)
+          : new EsploraIdentityRestorer(explorerUrl),
       });
-      if (addressesArray) {
-        yield put(setAddresses(addressesArray));
-      } else {
-        yield call(restoreWallet, identity);
-        const addresses = identity.getAddresses();
-        Storage.set({
-          key: 'addresses',
-          value: JSON.stringify(addresses),
-        });
-        yield put(setAddresses(addresses));
-      }
+      yield call(restoreWallet, identity);
       if (addressObj) {
         yield put(setAddress(addressObj));
       } else {
@@ -59,9 +48,19 @@ function* initAppSaga({ type }: { type: string }) {
           key: 'address',
           value: JSON.stringify(receivingAddress),
         });
-        yield put(setIdentity(identity));
         yield put(setAddress(receivingAddress));
       }
+      if (addressesArray) {
+        yield put(setAddresses(addressesArray));
+      } else {
+        const addresses = identity.getAddresses();
+        Storage.set({
+          key: 'addresses',
+          value: JSON.stringify(addresses),
+        });
+        yield put(setAddresses(addresses));
+      }
+      yield put(setIdentity(identity));
       yield put(setIsAuth(true));
       yield put(setMnemonic(walletObj.mnemonic));
       yield put(getCoinsList());
