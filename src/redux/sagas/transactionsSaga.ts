@@ -26,8 +26,9 @@ import {
 } from '../../utils/helpers';
 import moment from 'moment';
 import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
-import { setAssets } from '../actions/walletActions';
+import { setAssets, setAddresses } from '../actions/walletActions';
 import { Assets, defaultFee } from '../../utils/constants';
+import { storageAddresses } from '../../utils/storage-helper';
 
 function* getTransactionsSaga({
   type,
@@ -69,15 +70,12 @@ function* doWithdrawSaga({
       transactions: state.transactions.data,
     }));
     yield put(setWithdrawalLoading(true));
-    const nextAddress = identity.getNextAddress().confidentialAddress;
-    identity.getNextChangeAddress().confidentialAddress;
-    const senderWallet = walletFromAddresses(
-      identity.getAddresses(),
-      'regtest'
-    );
-    console.log(senderWallet);
-    console.log(identity.getAddresses());
-
+    const nextChangeAddress = identity.getNextChangeAddress()
+      .confidentialAddress;
+    const addresses = identity.getAddresses();
+    yield call(storageAddresses, addresses);
+    yield put(setAddresses(addresses));
+    const senderWallet = walletFromAddresses(addresses, 'regtest');
     // then we fetch all utxos
     const arrayOfArrayOfUtxos = yield all(
       senderWallet.addresses.map((a) =>
@@ -103,15 +101,13 @@ function* doWithdrawSaga({
     console.log(utxos);
     console.log('Creating and blinding transaction...');
     const tx = senderWallet.createTx();
-    const changeAddress = identity.getNextChangeAddress().confidentialAddress;
-    console.log(changeAddress);
     const unsignedTx = senderWallet.buildTx(
       tx, // empty transaction
       utxos, // enriched unspents
       address, // recipient confidential address
       toSatoshi(amount, asset.precision), // amount to be sent
       asset.asset_id, // nigiri regtest LBTC asset hash
-      nextAddress // change address we own
+      nextChangeAddress // change address we own
     );
     console.log(unsignedTx);
 
