@@ -56,5 +56,6 @@ export const Assets: {
 };
 
 export const defaultPrecision = 8;
+export const defaultFee = 2000;
 
 export const mainAssets = ['lbtc', 'usdt', 'lcad', 'btse'];

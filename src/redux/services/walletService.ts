@@ -2,10 +2,10 @@ import axios from 'axios';
 import { Storage } from '@capacitor/core';
 
 //  for local testing
-export const explorerUrl = 'http://localhost:3001';
+// export const explorerUrl = 'http://localhost:3001';
 //  for device testing
 // export const explorerUrl = 'http://192.168.0.13:3001';
-// export const explorerUrl = 'https://nigiri.network/liquid/api';
+export const explorerUrl = 'https://nigiri.network/liquid/api';
 //  for prod
 // export const explorerUrl = 'https://blockstream.info/liquid/api';
 
@@ -40,10 +40,24 @@ export const getAddress = async (): Promise<{ value: string }> => {
   return Storage.get({ key: 'address' });
 };
 
-export const getAddresses = async (): Promise<{ value: string }> => {
-  return Storage.get({ key: 'addresses' });
-};
-
 export const restoreWallet = async (identity: any): Promise<any> => {
   return identity.isRestored;
+};
+
+export const signTx = async (identity: any, unsignedTx: any): Promise<any> => {
+  return identity.signPset(unsignedTx);
+};
+
+export async function broadcastTx(hex: string): Promise<string> {
+  try {
+    const response = await axios.post(`${explorerUrl}/tx`, hex);
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+}
+
+export const getAddresses = async (): Promise<{ value: string }> => {
+  return Storage.get({ key: 'addresses' });
 };

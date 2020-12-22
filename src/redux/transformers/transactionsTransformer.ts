@@ -1,7 +1,7 @@
 import { TxInterface } from 'tdex-sdk';
 import {
   formatPriceString,
-  fromSatoshi,
+  fromSatoshiFixed,
   getDataFromTx,
 } from '../../utils/helpers';
 import { defaultPrecision } from '../../utils/constants';
@@ -29,11 +29,11 @@ export const transactionsTransformer = (txs: TxInterface[] | undefined) => {
         type,
         asset,
         amount,
-        amountDisplay: fromSatoshi(amount, defaultPrecision),
+        amountDisplay: fromSatoshiFixed(amount, defaultPrecision),
         amountDisplayFormatted: formatPriceString(
-          fromSatoshi(amount, defaultPrecision)
+          fromSatoshiFixed(amount, defaultPrecision)
         ),
-        fee: fromSatoshi(tx.fee, defaultPrecision, 5),
+        fee: fromSatoshiFixed(tx.fee, defaultPrecision, 5),
         open: false,
         sign,
       };

@@ -5,6 +5,7 @@ import {
   setAddress,
   setIsAuth,
   setMnemonic,
+  setPin,
   setIdentity,
   setAddresses,
   setWalletLoading,
@@ -16,10 +17,11 @@ import {
   explorerUrl,
   restoreWallet,
 } from '../services/walletService';
-import { IdentityType, Mnemonic, EsploraIdentityRestorer } from 'tdex-sdk';
-import { Storage } from '@capacitor/core';
 import { IdentityRestorerFromState } from '../../utils/identity-restorer';
 import { storageAddresses } from '../../utils/storage-helper';
+import { EsploraIdentityRestorer, IdentityType, Mnemonic } from 'tdex-sdk';
+import { Storage } from '@capacitor/core';
+import { decrypt } from '../../utils/crypto';
 
 function* initAppSaga({ type }: { type: string }) {
   try {
@@ -35,7 +37,7 @@ function* initAppSaga({ type }: { type: string }) {
         chain: 'regtest',
         type: IdentityType.Mnemonic,
         value: {
-          mnemonic: walletObj.mnemonic,
+          mnemonic: decrypt(walletObj.mnemonic, walletObj.pin),
         },
         initializeFromRestorer: true,
         restorer: addressesArray
@@ -62,6 +64,7 @@ function* initAppSaga({ type }: { type: string }) {
       yield put(setIdentity(identity));
       yield put(setIsAuth(true));
       yield put(setMnemonic(walletObj.mnemonic));
+      yield put(setPin(walletObj.pin));
       yield put(getCoinsList());
       yield put(setWalletLoading(true));
     } else {

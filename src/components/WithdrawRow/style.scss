@@ -1,0 +1,12 @@
+@import "../../theme/variables";
+
+.coin-amount {
+  text-align: end;
+  .amount-input {
+    font-family: $sub-font;
+    color: #fff;
+    &::placeholder {
+      color: #666666;
+    }
+  }
+}
