@@ -195,7 +195,10 @@ const Wallet: React.FC<any> = ({ history }) => {
           </div>
         </IonHeader>
         <IonButtons className="operations-buttons">
-          <IonButton className="coin-action-button" routerLink="/recieve">
+          <IonButton
+            className="coin-action-button ml-auto"
+            routerLink="/recieve"
+          >
             Deposit
           </IonButton>
         </IonButtons>

@@ -7,6 +7,7 @@ export const SET_TRANSACTIONS_LOADING = 'SET_TRANSACTIONS_LOADING';
 export const DO_WITHDRAW = 'DO_WITHDRAW';
 export const SET_WITHDRAWAL_DETAILS = 'SET_WITHDRAWAL_DETAILS';
 export const SET_WITHDRAWAL_LOADING = 'SET_WITHDRAWAL_LOADING';
+export const SET_QR_CODE_ADDRESS = 'SET_QR_CODE_ADDRESS';
 
 export const getTransactions = (
   params: UnblindTxsRequestParams
@@ -59,5 +60,12 @@ export const setWithdrawalDetails = (details: any): ActionType => {
   return {
     type: SET_WITHDRAWAL_DETAILS,
     payload: details,
+  };
+};
+
+export const setQRCodeAddress = (address: string | null): ActionType => {
+  return {
+    type: SET_QR_CODE_ADDRESS,
+    payload: address,
   };
 };

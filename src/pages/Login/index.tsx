@@ -28,7 +28,10 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
   setup = false,
 }) => {
   const dispatch = useDispatch();
-  const mnemonic = useSelector((state: any) => state.wallet.mnemonic);
+  const { mnemonic, isAuth } = useSelector((state: any) => ({
+    mnemonic: state.wallet.mnemonic,
+    isAuth: state.wallet.isAuth,
+  }));
   const [inputValue, setValue] = useState('');
   const [firstPin, setFirstPin] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
@@ -42,6 +45,12 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
   });
 
   useEffect(() => {
+    if (isAuth) {
+      history.push('/wallet');
+    }
+  }, [isAuth]);
+
+  useEffect(() => {
     setDisabled(
       !!(
         error ||
@@ -51,8 +60,8 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
     );
   }, [inputValue, acceptTerms, firstPin, error]);
 
-  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
+  const onChange = (e: CustomEvent<any>) => {
+    const { value } = e.detail;
 
     value.length <= 6 && setValue(value);
     error && setError('');
@@ -62,7 +71,6 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
     Storage.set({
       key: 'wallet',
       value: JSON.stringify({
-        pin: inputValue,
         mnemonic: encrypt(mnemonicStr, inputValue),
       }),
     }).then(() => {
@@ -90,7 +98,7 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
 
   return (
     <IonPage>
-      <div className="gradient-background"></div>
+      <div className="gradient-background" />
       <IonHeader>
         <IonToolbar className="with-back-button">
           <IonButton
@@ -137,7 +145,7 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setAcceptTerms(e.target.checked)
               }
-            ></input>
+            />
             <div className="custom-check">
               <div className="check-icon">
                 <IconCheck />

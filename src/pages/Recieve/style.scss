@@ -8,7 +8,9 @@
     }
   }
 }
-
+.recieve {
+  --overflow: auto;
+}
 .description-with-icon {
   display: flex;
   align-items: center;

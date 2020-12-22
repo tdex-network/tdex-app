@@ -21,10 +21,9 @@ const statusText = {
 };
 
 const WithdrawalDetails: React.FC<RouteComponentProps> = ({ history }) => {
-  const { details, address, coinsRates, assets, currency } = useSelector(
+  const { details, coinsRates, assets, currency } = useSelector(
     (state: any) => ({
       details: state.transactions.withdrawalDetails,
-      address: state.wallet.address,
       coinsRates: state.wallet.coinsRates,
       assets: state.wallet.assets,
       currency: state.settings.currency,

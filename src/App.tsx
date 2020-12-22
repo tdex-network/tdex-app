@@ -27,12 +27,14 @@ import Main from './pages/Main';
 import { Plugins } from '@capacitor/core';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
 import { useDispatch, useSelector } from 'react-redux';
-import { initApp } from './redux/actions/appActions';
+import { initApp, signIn } from './redux/actions/appActions';
+import PinModal from './components/PinModal';
 
 const App: React.FC = () => {
-  const { isAuth, appInit } = useSelector((state: any) => ({
+  const { isAuth, appInit, isSignedUp } = useSelector((state: any) => ({
     isAuth: state.wallet.isAuth,
     appInit: state.app.appInit,
+    isSignedUp: state.app.isSignedUp,
   }));
   const dispatch = useDispatch();
 
@@ -65,6 +67,15 @@ const App: React.FC = () => {
           message={'Please wait...'}
         />
         {isAuth ? <Tabs /> : <Main />}
+        {isSignedUp && !isAuth && (
+          <PinModal
+            openModal={isSignedUp && !isAuth}
+            title={'Set PIN'}
+            onConfirm={() => {
+              dispatch(signIn());
+            }}
+          />
+        )}
       </IonReactRouter>
     </IonApp>
   );

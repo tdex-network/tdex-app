@@ -6,6 +6,12 @@
     .buttons {
       margin-top: 48px;
     }
+  .scan-btn {
+    --background: transparent;
+    .button-native {
+      padding: 0;
+    }
+  }
 }
 
 .modal-big.withdrawal {

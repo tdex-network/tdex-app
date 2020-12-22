@@ -1,6 +1,5 @@
 import {
   IonPage,
-  IonModal,
   IonTitle,
   IonContent,
   IonItem,
@@ -14,39 +13,37 @@ import {
 import React, { useState, useRef, useEffect } from 'react';
 import { useParams, withRouter } from 'react-router';
 import { IconBack, IconClose, IconQR } from '../../components/icons';
-import PageDescription from '../../components/PageDescription';
-import PinInput from '../../components/PinInput';
 import { useDispatch, useSelector } from 'react-redux';
 import { formatPriceString, getCoinsEquivalent } from '../../utils/helpers';
 import WithdrawRow from '../../components/WithdrawRow';
 import {
   doWithdraw,
+  setQRCodeAddress,
   setWithdrawalLoading,
 } from '../../redux/actions/transactionsActions';
 import './style.scss';
+import PinModal from '../../components/PinModal';
 
 const Withdrawal: React.FC = ({ history }: any) => {
-  const { assets, currency, coinsRates, pin, loading } = useSelector(
+  const { assets, currency, coinsRates, loading, qrCodeAddress } = useSelector(
     (state: any) => ({
       assets: state.wallet.assets,
       transactions: state.transactions.data,
       address: state.wallet.address,
-      pin: state.wallet.pin,
       coinsRates: state.wallet.coinsRates,
       currency: state.settings.currency,
       loading: state.transactions.withdrawalLoading,
+      qrCodeAddress: state.transactions.qrCodeAddress,
     })
   );
   const dispatch = useDispatch();
   const [openModal, setOpenModal] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  const [validPin, setValidPin] = useState(false);
   const [validData, setValidData] = useState(false);
   const [assetData, setAssetData] = useState<any>();
   const [recipientAddress, setRecipientAddress] = useState<any>();
   const [amount, setAmount] = useState<any>();
   const [residualBalance, setResidualBalance] = useState<any>();
-  const inputRef: any = useRef(null);
   const { asset_id } = useParams();
 
   useEffect(() => {
@@ -78,12 +75,11 @@ const Withdrawal: React.FC = ({ history }: any) => {
   }, [assets, asset_id]);
 
   useEffect(() => {
-    if (openModal) {
-      if (inputRef.current) {
-        inputRef.current.focus();
-      }
+    if (qrCodeAddress) {
+      setRecipientAddress(qrCodeAddress);
+      dispatch(setQRCodeAddress(null));
     }
-  }, [openModal]);
+  }, [qrCodeAddress]);
 
   useEffect(() => {
     if (loading === false) {
@@ -113,26 +109,15 @@ const Withdrawal: React.FC = ({ history }: any) => {
     }
   };
 
-  const onChange = (e: any) => {
-    const { value } = e.target;
-
-    if (value.length < 7) {
-      if (pin === value) {
-        setValidPin(true);
-      } else {
-        setValidPin(false);
-      }
-      setInputValue(value);
-    }
-  };
-
   const checkValidData = (
-    residualBalance: any,
+    residualBalanceValue: any,
     amountValue: number,
     address: string | undefined | null = recipientAddress
   ) => {
     setValidData(
-      Boolean(address && Number(amountValue) && Number(residualBalance) >= 0)
+      Boolean(
+        address && Number(amountValue) && Number(residualBalanceValue) >= 0
+      )
     );
   };
 
@@ -181,7 +166,12 @@ const Withdrawal: React.FC = ({ history }: any) => {
               />
             </div>
             <div className="item-end">
-              <IconQR fill="#fff" />
+              <IonButton
+                className="scan-btn"
+                onClick={() => history.push('/qrscanner')}
+              >
+                <IconQR fill="#fff" />
+              </IonButton>
             </div>
           </div>
         </IonItem>
@@ -207,45 +197,18 @@ const Withdrawal: React.FC = ({ history }: any) => {
             <IonLabel>Cancel</IonLabel>
           </IonButton>
         </div>
-        <IonModal isOpen={openModal} cssClass="modal-big withdrawal">
-          <div className="gradient-background"></div>
-          <IonHeader>
-            <IonToolbar className="with-back-button">
-              <IonButton
-                style={{ zIndex: 10 }}
-                onClick={() => {
-                  setOpenModal(false);
-                }}
-              >
-                <IconClose />
-              </IonButton>
-              <IonTitle>Withdrawal</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            <PageDescription title="Insert PIN">
-              <p>Insert the numeric password you’ve set at sign in</p>
-            </PageDescription>
-            <PinInput
-              inputRef={inputRef}
-              inputValue={inputValue}
-              onChange={onChange}
-            />
-            <div className="buttons">
-              <IonButton
-                onClick={() => {
-                  dispatch(doWithdraw(recipientAddress, amount, assetData));
-                  setOpenModal(false);
-                }}
-                type="button"
-                disabled={!validPin}
-                className="main-button"
-              >
-                Confirm
-              </IonButton>
-            </div>
-          </IonContent>
-        </IonModal>
+        {openModal && (
+          <PinModal
+            openModal={openModal}
+            title={'Withdrawal'}
+            onConfirm={() => {
+              dispatch(doWithdraw(recipientAddress, amount, assetData));
+              setOpenModal(false);
+            }}
+            withClose
+            setOpenModal={setOpenModal}
+          />
+        )}
       </IonContent>
     </IonPage>
   );

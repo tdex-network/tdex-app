@@ -1,5 +1,6 @@
 import { ActionType } from '../../utils/types';
 import {
+  SET_QR_CODE_ADDRESS,
   SET_TRANSACTIONS,
   SET_TRANSACTIONS_LOADING,
   SET_WITHDRAWAL_DETAILS,
@@ -11,6 +12,7 @@ const initialState = {
   loading: true,
   withdrawalDetails: null,
   withdrawalLoading: null,
+  qrCodeAddress: null,
 };
 
 const transactionsReducer = (state: any = initialState, action: ActionType) => {
@@ -23,6 +25,8 @@ const transactionsReducer = (state: any = initialState, action: ActionType) => {
       return { ...state, withdrawalDetails: action.payload };
     case SET_WITHDRAWAL_LOADING:
       return { ...state, withdrawalLoading: action.payload };
+    case SET_QR_CODE_ADDRESS:
+      return { ...state, qrCodeAddress: action.payload };
     default:
       return state;
   }
