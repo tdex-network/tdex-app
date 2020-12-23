@@ -71,8 +71,8 @@ const App: React.FC = () => {
           <PinModal
             openModal={isSignedUp && !isAuth}
             title={'Set PIN'}
-            onConfirm={() => {
-              dispatch(signIn());
+            onConfirm={(pin: string) => {
+              dispatch(signIn(pin));
             }}
           />
         )}

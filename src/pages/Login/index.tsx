@@ -16,7 +16,7 @@ import { IconBack, IconCheck } from '../../components/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { Storage } from '@capacitor/core';
 import * as bip39 from 'bip39';
-import { initApp } from '../../redux/actions/appActions';
+import { initApp, signIn } from '../../redux/actions/appActions';
 import { encrypt } from '../../utils/crypto';
 
 interface LoginInterface {
@@ -44,11 +44,11 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
     inputRef.current.focus();
   });
 
-  useEffect(() => {
-    if (isAuth) {
-      history.push('/wallet');
-    }
-  }, [isAuth]);
+  // useEffect(() => {
+  //   if (isAuth) {
+  //     history.push('/wallet');
+  //   }
+  // }, [isAuth]);
 
   useEffect(() => {
     setDisabled(
@@ -74,7 +74,7 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
         mnemonic: encrypt(mnemonicStr, inputValue),
       }),
     }).then(() => {
-      dispatch(initApp());
+      dispatch(signIn(inputValue));
     });
   };
 

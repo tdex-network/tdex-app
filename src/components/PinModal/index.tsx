@@ -84,7 +84,7 @@ const PinModal: React.FC<PinModalInterface> = ({
         <PinInput inputRef={inputRef} inputValue={pin} onChange={onPinChange} />
         <div className="buttons">
           <IonButton
-            onClick={() => onConfirm()}
+            onClick={() => onConfirm(pin)}
             type="button"
             disabled={!validPin}
             className="main-button"

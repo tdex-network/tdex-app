@@ -33,7 +33,7 @@ function* initAppSaga({ type }: { type: string }) {
   }
 }
 
-function* signInSaga() {
+function* signInSaga({ type, payload }: { type: string; payload: string }) {
   try {
     const walletData = yield call(getWallet);
     const walletObj = JSON.parse(walletData.value);
@@ -43,7 +43,7 @@ function* signInSaga() {
       chain: 'regtest',
       type: IdentityType.Mnemonic,
       value: {
-        mnemonic: decrypt(walletObj.mnemonic, walletObj.pin),
+        mnemonic: decrypt(walletObj.mnemonic, payload),
       },
       initializeFromRestorer: false, // Scan the blockchain and restore previous addresses
       // restorer: new EsploraIdentityRestorer(explorerUrl),
