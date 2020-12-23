@@ -95,7 +95,6 @@ function* doWithdrawSaga({
     });
 
     const tx = senderWallet.createTx();
-    const changeAddress = identity.getNextChangeAddress().confidentialAddress;
     const unsignedTx = senderWallet.buildTx(
       tx, // empty transaction
       utxos, // enriched unspents

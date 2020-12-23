@@ -10,9 +10,9 @@ import {
   IonInput,
   IonLoading,
 } from '@ionic/react';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, withRouter } from 'react-router';
-import { IconBack, IconClose, IconQR } from '../../components/icons';
+import { IconBack, IconQR } from '../../components/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { formatPriceString, getCoinsEquivalent } from '../../utils/helpers';
 import WithdrawRow from '../../components/WithdrawRow';
