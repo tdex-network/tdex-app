@@ -16,7 +16,7 @@ import { IconBack, IconCheck } from '../../components/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { Storage } from '@capacitor/core';
 import * as bip39 from 'bip39';
-import { initApp, signIn } from '../../redux/actions/appActions';
+import { signIn } from '../../redux/actions/appActions';
 import { encrypt } from '../../utils/crypto';
 
 interface LoginInterface {
@@ -34,6 +34,7 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
   }));
   const [inputValue, setValue] = useState('');
   const [firstPin, setFirstPin] = useState('');
+  const [isStateAuth, setIsStateAuth] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const [error, setError] = useState('');
@@ -44,11 +45,12 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
     inputRef.current.focus();
   });
 
-  // useEffect(() => {
-  //   if (isAuth) {
-  //     history.push('/wallet');
-  //   }
-  // }, [isAuth]);
+  useEffect(() => {
+    if (isAuth && !isStateAuth) {
+      setIsStateAuth(true);
+      history.push('/wallet');
+    }
+  }, [isAuth]);
 
   useEffect(() => {
     setDisabled(
@@ -60,8 +62,8 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
     );
   }, [inputValue, acceptTerms, firstPin, error]);
 
-  const onChange = (e: CustomEvent<any>) => {
-    const { value } = e.detail;
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
 
     value.length <= 6 && setValue(value);
     error && setError('');

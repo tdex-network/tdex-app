@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   IonButton,
   IonContent,
@@ -10,9 +10,9 @@ import {
 import './style.scss';
 import { IconClose } from '../icons';
 import PageDescription from '../PageDescription';
-import PinInput from '../PinInput';
 import { useSelector } from 'react-redux';
 import { decrypt, encrypt } from '../../utils/crypto';
+import PinModalInput from '../PinModalInput';
 
 interface PinModalInterface {
   setOpenModal?: any;
@@ -34,8 +34,12 @@ const PinModal: React.FC<PinModalInterface> = ({
   const [validPin, setValidPin] = useState(false);
   const inputRef: any = useRef(null);
 
+  useEffect(() => {
+    inputRef.current.focus();
+  }, [inputRef]);
+
   const onPinChange = (e: any) => {
-    const { value } = e.detail;
+    const { value } = e.target;
 
     if (value && value.length === 6) {
       let decrypted;
@@ -54,7 +58,7 @@ const PinModal: React.FC<PinModalInterface> = ({
         console.log(err);
       }
     }
-    if (value.length < 7 && value.match(/^\d+$/g)) {
+    if (value.length < 7 && (value.match(/^\d+$/g) || value === '')) {
       setPin(value);
     }
   };
@@ -81,7 +85,11 @@ const PinModal: React.FC<PinModalInterface> = ({
         <PageDescription title="Insert PIN">
           <p>Insert the numeric password you’ve set at sign in</p>
         </PageDescription>
-        <PinInput inputRef={inputRef} inputValue={pin} onChange={onPinChange} />
+        <PinModalInput
+          inputRef={openModal ? inputRef : null}
+          inputValue={pin}
+          onChange={onPinChange}
+        />
         <div className="buttons">
           <IonButton
             onClick={() => onConfirm(pin)}
