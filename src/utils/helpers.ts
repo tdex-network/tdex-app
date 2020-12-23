@@ -1,3 +1,4 @@
+import { BalanceInterface } from '../redux/actionTypes/walletActionTypes';
 import { Assets, defaultPrecision } from './constants';
 import { TxDisplayInterface, TxTypeEnum } from './types';
 
@@ -137,3 +138,13 @@ export const getDefaultCoinRate = (currency: string, rates: any) => ({
     },
   },
 });
+
+export const getBalancesFromArray = (balances: BalanceInterface[]) => {
+  const obj: any = {};
+  balances.forEach((i: any) => {
+    for (const key in i) {
+      obj[key] = Number(obj[key] || 0) + Number(i[key]);
+    }
+  });
+  return obj;
+};

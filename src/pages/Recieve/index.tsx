@@ -8,26 +8,41 @@ import {
   IonHeader,
   IonIcon,
 } from '@ionic/react';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { IconBack, IconBTC, IconCopy } from '../../components/icons';
 import PageDescription from '../../components/PageDescription';
 import './style.scss';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Clipboard } from '@ionic-native/clipboard';
 import { QRCodeImg } from '@cheprasov/react-qrcode';
 import { checkmarkOutline } from 'ionicons/icons';
+import { storageAddresses } from '../../utils/storage-helper';
+import { setAddresses } from '../../redux/actions/walletActions';
 
 const Recieve: React.FC<RouteComponentProps> = ({ history }) => {
-  const { address } = useSelector((state: any) => ({
+  const { identity, addresses } = useSelector((state: any) => ({
     assets: state.wallet.assets,
     transactions: state.transactions.data,
-    address: state.wallet.address,
+    identity: state.wallet.identity,
     coinsRates: state.wallet.coinsRates,
     currency: state.settings.currency,
+    addresses: state.wallet.addresses,
   }));
   const [copied, setCopied] = useState(false);
+  const [address, setAddress] = useState<any>();
+  // const [encodedText, setEncodedText] = useState<any>(false);
+  // const [qrCode, setQRcode] = useState<any>(false);
   const addressRef: any = useRef(null);
+  const dispatch = useDispatch();
+  useEffect(() => {
+    const nextAddress = identity.getNextAddress();
+    setAddress(nextAddress);
+    const data = [...addresses, nextAddress];
+    storageAddresses(data).then(() => {
+      dispatch(setAddresses(data));
+    });
+  }, []);
 
   const copyAddress = () => {
     if (addressRef) {

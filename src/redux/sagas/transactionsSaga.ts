@@ -1,5 +1,4 @@
 /* eslint-disable no-shadow */
-import { UnblindTxsRequestParams } from '../actionTypes/transactionsActionTypes';
 import { takeLatest, call, put, all, select } from 'redux-saga/effects';
 import {
   fetchAndUnblindTxs,
@@ -7,6 +6,7 @@ import {
   fetchUtxos,
   Wallet,
   walletFromAddresses,
+  AddressInterface,
 } from 'tdex-sdk';
 import {
   DO_WITHDRAW,
@@ -26,25 +26,30 @@ import {
 } from '../../utils/helpers';
 import moment from 'moment';
 import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
-import { setAssets } from '../actions/walletActions';
+import { setAssets, setAddresses } from '../actions/walletActions';
 import { Assets, defaultFee } from '../../utils/constants';
+import { storageAddresses } from '../../utils/storage-helper';
 
 function* getTransactionsSaga({
   type,
-  payload,
+  payload: addresses,
 }: {
   type: string;
-  payload: UnblindTxsRequestParams;
+  payload: AddressInterface[];
 }) {
-  const { confidentialAddress, privateBlindingKey, explorerUrl } = payload;
   try {
-    const data = yield call(
-      fetchAndUnblindTxs,
-      confidentialAddress,
-      privateBlindingKey,
-      explorerUrl
+    const data = yield all(
+      addresses.map((a) =>
+        call(
+          fetchAndUnblindTxs,
+          a.confidentialAddress,
+          [a.blindingPrivateKey],
+          explorerUrl
+        )
+      )
     );
-    yield put(setTransactions(transactionsTransformer(data)));
+    const flattenData = data.flat();
+    yield put(setTransactions(transactionsTransformer(flattenData)));
     yield put(setTransactionsLoading(false));
   } catch (e) {
     console.log(e);
@@ -61,18 +66,17 @@ function* doWithdrawSaga({
   try {
     const { identity, assets, transactions } = yield select((state: any) => ({
       identity: state.wallet.identity,
-      address: state.wallet.address,
       assets: state.wallet.assets,
       transactions: state.transactions.data,
     }));
     yield put(setWithdrawalLoading(true));
-    const nextAddress = identity.getNextAddress().confidentialAddress;
-    identity.getNextChangeAddress().confidentialAddress;
-    const senderWallet = walletFromAddresses(
-      identity.getAddresses(),
-      'regtest'
-    );
-
+    const addresses = identity.getAddresses();
+    const senderWallet = walletFromAddresses(addresses, 'regtest');
+    const nextChangeAddress = identity.getNextChangeAddress()
+      .confidentialAddress;
+    const newAddresses = [...addresses, nextChangeAddress];
+    yield call(storageAddresses, newAddresses);
+    yield put(setAddresses(newAddresses));
     // then we fetch all utxos
     const arrayOfArrayOfUtxos = yield all(
       senderWallet.addresses.map((a) =>
@@ -101,7 +105,7 @@ function* doWithdrawSaga({
       address, // recipient confidential address
       toSatoshi(amount, asset.precision), // amount to be sent
       asset.asset_id, // nigiri regtest LBTC asset hash
-      nextAddress // change address we own
+      nextChangeAddress // change address we own
     );
 
     // Now we can sign with identity abstraction

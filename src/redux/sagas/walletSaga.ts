@@ -23,23 +23,29 @@ import {
 } from '../services/walletService';
 import { AddressInterface, fetchBalances } from 'tdex-sdk';
 import { initAppFail, initAppSuccess } from '../actions/appActions';
+import { getBalancesFromArray } from '../../utils/helpers';
 
 function* getBalancesSaga({
   type,
-  payload: address,
+  payload: addresses,
 }: {
   type: string;
-  payload: AddressInterface;
+  payload: AddressInterface[];
 }) {
   try {
-    const data = yield call(
-      fetchBalances,
-      address.confidentialAddress,
-      address.blindingPrivateKey,
-      explorerUrl
+    const data = yield all(
+      addresses.map((a) =>
+        call(
+          fetchBalances,
+          a.confidentialAddress,
+          a.blindingPrivateKey,
+          explorerUrl
+        )
+      )
     );
-    yield put(setBalances(data));
-    yield put(getAssets(data));
+    const balances = getBalancesFromArray(data);
+    yield put(setBalances(balances));
+    yield put(getAssets(balances));
   } catch (e) {
     yield put(initAppFail());
     console.log(e);
@@ -127,8 +133,8 @@ function* getCoinsListSaga({ type }: { type: string }) {
   try {
     const { data } = yield call(getCoinsRequest, '/coins/list');
     yield put(setCoinsList(data));
-    const address = yield select((state: any) => state.wallet.address);
-    yield put(getBalances(address));
+    const addresses = yield select((state: any) => state.wallet.addresses);
+    yield put(getBalances(addresses));
   } catch (e) {
     console.log(e);
   }

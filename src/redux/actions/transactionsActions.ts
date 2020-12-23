@@ -1,5 +1,5 @@
-import { UnblindTxsRequestParams } from '../actionTypes/transactionsActionTypes';
 import { ActionType, TxsByAssetsInterface } from '../../utils/types';
+import { AddressInterface } from 'tdex-sdk';
 
 export const GET_TRANSACTIONS = 'GET_TRANSACTIONS';
 export const SET_TRANSACTIONS = 'SET_TRANSACTIONS';
@@ -9,12 +9,10 @@ export const SET_WITHDRAWAL_DETAILS = 'SET_WITHDRAWAL_DETAILS';
 export const SET_WITHDRAWAL_LOADING = 'SET_WITHDRAWAL_LOADING';
 export const SET_QR_CODE_ADDRESS = 'SET_QR_CODE_ADDRESS';
 
-export const getTransactions = (
-  params: UnblindTxsRequestParams
-): ActionType => {
+export const getTransactions = (addresses: AddressInterface[]): ActionType => {
   return {
     type: GET_TRANSACTIONS,
-    payload: params,
+    payload: addresses,
   };
 };
 

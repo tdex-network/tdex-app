@@ -19,7 +19,6 @@ import classNames from 'classnames';
 import { CurrencyIcon, IconBack, TxIcon } from '../../components/icons';
 import './style.scss';
 import { useDispatch, useSelector } from 'react-redux';
-import { explorerUrl } from '../../redux/services/walletService';
 import { getTransactions } from '../../redux/actions/transactionsActions';
 import { TxDisplayInterface, TxStatusEnum } from '../../utils/types';
 import { formatPriceString, getCoinsEquivalent } from '../../utils/helpers';
@@ -32,7 +31,7 @@ const statusText = {
 
 const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   const {
-    address,
+    addresses,
     assets,
     transactions,
     currency,
@@ -42,7 +41,7 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
     assets: state.wallet.assets,
     transactions: state.transactions.data,
     loading: state.transactions.loading,
-    address: state.wallet.address,
+    addresses: state.wallet.addresses,
     coinsRates: state.wallet.coinsRates,
     currency: state.settings.currency,
   }));
@@ -104,13 +103,7 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
     };
 
     if (assets && !transactions) {
-      dispatch(
-        getTransactions({
-          confidentialAddress: address.confidentialAddress,
-          privateBlindingKey: [address.blindingPrivateKey],
-          explorerUrl,
-        })
-      );
+      dispatch(getTransactions(addresses));
     }
     if (assets?.length) {
       fillAssetData();
@@ -240,9 +233,9 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
                   </div>
                   <div className="info-row">
                     <IonLabel>ADDR</IonLabel>
-                    {address && (
-                      <IonText>{address.confidentialAddress}</IonText>
-                    )}
+                    <IonText>
+                      el1qq08ues6tw9l4eyz5sqam740ualyk07lhdjhwp9vyymss96308576fh8eqcz2z94pn6v7urycntl6qacdl2e75sygqw3dmkf8s
+                    </IonText>
                   </div>
                   <div className="info-row">
                     <IonLabel>TxID</IonLabel>
