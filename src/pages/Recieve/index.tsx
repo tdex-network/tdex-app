@@ -38,36 +38,7 @@ const Recieve: React.FC<RouteComponentProps> = ({ history }) => {
   }));
   const [openModal, setOpenModal] = useState(false);
   const [copied, setCopied] = useState(false);
-  // const [encodedText, setEncodedText] = useState<any>(false);
-  // const [qrCode, setQRcode] = useState<any>(false);
   const addressRef: any = useRef(null);
-
-  // const canvasRef: any = useRef(null);
-
-  // useEffect(() => {
-  //   console.log(encodedText);
-  // }, [encodedText]);
-
-  // const generateCode = () => {
-  //   BarcodeScanner.encode(
-  //     BarcodeScanner.Encode.TEXT_TYPE,
-  //     address?.confidentialAddress
-  //   ).then(
-  //     (data) => {
-  //       console.log(data.file);
-  //       console.log(data);
-  //       Base64.encodeFile(data.file).then((base64: any) => {
-  //         console.log('file base64 encoding: ');
-  //         console.log(base64);
-  //         setQRcode(base64);
-  //       });
-  //       //this.setState({ textToEncode: encodedData });
-  //     },
-  //     (err) => {
-  //       console.log(`Error occured : ${err.toString()}`);
-  //     }
-  //   );
-  // };
 
   const copyAddress = () => {
     if (addressRef) {
@@ -88,12 +59,6 @@ const Recieve: React.FC<RouteComponentProps> = ({ history }) => {
         });
     }
   };
-
-  // const scanCode = async () => {
-  //   const data = await BarcodeScanner.scan();
-  //   alert(JSON.stringify(data));
-  //   setEncodedText(data.text);
-  // };
 
   return (
     <IonPage>
@@ -155,14 +120,6 @@ const Recieve: React.FC<RouteComponentProps> = ({ history }) => {
             </div>
           </div>
         </IonItem>
-        {/*<IonButton onClick={generateCode} color="success">*/}
-        {/*  Create QR*/}
-        {/*</IonButton>*/}
-        {/*<IonButton onClick={scanCode} color="default">*/}
-        {/*  Scan*/}
-        {/*</IonButton>*/}
-        {/*{address && <QRCode value={address.confidentialAddress} />}*/}
-        {/*{address && <img src={qrCode} />}*/}
         <div className="qr-code-container">
           {address && (
             <QRCodeImg value={address.confidentialAddress} size={192} />

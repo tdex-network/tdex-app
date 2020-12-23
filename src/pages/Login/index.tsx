@@ -16,7 +16,7 @@ import { IconBack, IconCheck } from '../../components/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { Storage } from '@capacitor/core';
 import * as bip39 from 'bip39';
-import { initApp } from '../../redux/actions/appActions';
+import { signIn } from '../../redux/actions/appActions';
 import { encrypt } from '../../utils/crypto';
 
 interface LoginInterface {
@@ -28,9 +28,13 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
   setup = false,
 }) => {
   const dispatch = useDispatch();
-  const mnemonic = useSelector((state: any) => state.wallet.mnemonic);
+  const { mnemonic, isAuth } = useSelector((state: any) => ({
+    mnemonic: state.wallet.mnemonic,
+    isAuth: state.wallet.isAuth,
+  }));
   const [inputValue, setValue] = useState('');
   const [firstPin, setFirstPin] = useState('');
+  const [isStateAuth, setIsStateAuth] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [disabled, setDisabled] = useState(true);
   const [error, setError] = useState('');
@@ -40,6 +44,13 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
   useEffect(() => {
     inputRef.current.focus();
   });
+
+  useEffect(() => {
+    if (isAuth && !isStateAuth) {
+      setIsStateAuth(true);
+      history.push('/wallet');
+    }
+  }, [isAuth]);
 
   useEffect(() => {
     setDisabled(
@@ -62,11 +73,10 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
     Storage.set({
       key: 'wallet',
       value: JSON.stringify({
-        pin: inputValue,
         mnemonic: encrypt(mnemonicStr, inputValue),
       }),
     }).then(() => {
-      dispatch(initApp());
+      dispatch(signIn(inputValue));
     });
   };
 
@@ -90,7 +100,7 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
 
   return (
     <IonPage>
-      <div className="gradient-background"></div>
+      <div className="gradient-background" />
       <IonHeader>
         <IonToolbar className="with-back-button">
           <IonButton
@@ -137,7 +147,7 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
               onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 setAcceptTerms(e.target.checked)
               }
-            ></input>
+            />
             <div className="custom-check">
               <div className="check-icon">
                 <IconCheck />

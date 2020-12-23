@@ -1,18 +1,11 @@
 import { IonContent, IonHeader, IonPage } from '@ionic/react';
-import React, { useEffect, useState } from 'react';
-import { BarcodeScanner } from '@ionic-native/barcode-scanner';
+import React, { useState } from 'react';
 
 //style
 import './style.scss';
 
-const QRScanner: React.FC<any> = ({ setIsAuth }) => {
-  const [text, setText] = useState('');
-
-  useEffect(() => {
-    BarcodeScanner.scan().then((data) => {
-      setText(data.text);
-    });
-  }, []);
+const QRScanner: React.FC<any> = () => {
+  const [text] = useState('');
 
   return (
     <IonPage>
