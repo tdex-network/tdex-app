@@ -27,7 +27,6 @@ const QRCodeScanner: React.FC<any> = ({ history }: any) => {
           setWithBg(false);
           QRScanner.show();
           const scanSub = QRScanner.scan().subscribe((text: string) => {
-            console.log('Scanned something', text);
             setWithBg(true);
             dispatch(setQRCodeAddress(text));
             QRScanner.hide(); // hide camera preview

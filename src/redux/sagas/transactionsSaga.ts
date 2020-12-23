@@ -72,8 +72,6 @@ function* doWithdrawSaga({
       identity.getAddresses(),
       'regtest'
     );
-    console.log(senderWallet);
-    console.log(identity.getAddresses());
 
     // then we fetch all utxos
     const arrayOfArrayOfUtxos = yield all(
@@ -96,12 +94,8 @@ function* doWithdrawSaga({
       utxo.prevout = outputs[index];
     });
 
-    console.log('utxos');
-    console.log(utxos);
-    console.log('Creating and blinding transaction...');
     const tx = senderWallet.createTx();
     const changeAddress = identity.getNextChangeAddress().confidentialAddress;
-    console.log(changeAddress);
     const unsignedTx = senderWallet.buildTx(
       tx, // empty transaction
       utxos, // enriched unspents
@@ -110,15 +104,12 @@ function* doWithdrawSaga({
       asset.asset_id, // nigiri regtest LBTC asset hash
       nextAddress // change address we own
     );
-    console.log(unsignedTx);
 
     // Now we can sign with identity abstraction
     const signedTx = yield call(signTx, identity, unsignedTx);
-    console.log(signedTx);
 
     // Finalize and extract tx to be a hex encoeded string ready for broadcast
     const txHex = Wallet.toHex(signedTx);
-    console.log(txHex);
     const feeObj = Transaction.fromHex(txHex).outs.find((currentOutput: any) =>
       currentOutput.script.equals(Buffer.alloc(0))
     );
@@ -126,7 +117,6 @@ function* doWithdrawSaga({
       ? confidential.confidentialValueToSatoshi(feeObj.value)
       : defaultFee;
     const broadcasted = yield call(broadcastTx, txHex);
-    console.log(broadcasted);
     const amountInSatoshis = toSatoshi(amount, asset.precision);
     const withdrawTx = {
       txId: broadcasted,
@@ -187,7 +177,6 @@ function* doWithdrawSaga({
       })
     );
     yield put(setWithdrawalLoading(false));
-    console.log(withdrawTx);
   } catch (e) {
     // yield put(setWithdrawalLoading(false));
     yield put(setWithdrawalLoading(null));

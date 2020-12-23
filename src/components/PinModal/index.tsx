@@ -35,7 +35,9 @@ const PinModal: React.FC<PinModalInterface> = ({
   const inputRef: any = useRef(null);
 
   useEffect(() => {
-    inputRef.current.focus();
+    inputRef.current.getInputElement().then((el: any) => {
+      el.focus();
+    });
   }, [inputRef]);
 
   const onPinChange = (e: any) => {
