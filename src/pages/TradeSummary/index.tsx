@@ -1,3 +1,6 @@
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { withRouter } from 'react-router';
 import {
   IonPage,
   IonTitle,
@@ -7,12 +10,17 @@ import {
   IonToolbar,
   IonHeader,
 } from '@ionic/react';
-import React from 'react';
-import { withRouter } from 'react-router';
-import { IconBack, IconBTC, IconExchange } from '../../components/icons';
+import { CurrencyIcon, IconExchange, IconBack } from '../../components/icons';
+import { formatAmount, formatDate } from '../../utils/helpers';
 import './style.scss';
 
 const TradeSummary: React.FC = ({ history }: any) => {
+  const transactions = useSelector(
+    (state: any) => state.exchange.trade.transactions
+  );
+
+  const transaction = transactions[transactions.length - 1];
+
   return (
     <IonPage>
       <div className="gradient-background"></div>
@@ -32,10 +40,18 @@ const TradeSummary: React.FC = ({ history }: any) => {
       <IonContent className="trade-summary">
         <div className="transaction-icons">
           <span className="icon-wrapper large">
-            <IconBTC width="45px" height="45px"></IconBTC>
+            <CurrencyIcon
+              currency={transaction.sentAsset.ticker}
+              width="45px"
+              height="45px"
+            />
           </span>
           <span className="icon-wrapper large with-border">
-            <IconBTC width="45px" height="45px"></IconBTC>
+            <CurrencyIcon
+              currency={transaction.receivedAsset.ticker}
+              width="45px"
+              height="45px"
+            />
           </span>
         </div>
         <IonItem>
@@ -44,11 +60,17 @@ const TradeSummary: React.FC = ({ history }: any) => {
               <div className="trade-item">
                 <div className="name">
                   <span className="icon-wrapper medium">
-                    <IconBTC width="24px" height="24px"></IconBTC>
+                    <CurrencyIcon
+                      currency={transaction.sentAsset.ticker}
+                      width="24px"
+                      height="24px"
+                    />
                   </span>
-                  <p>BTC</p>
+                  <p>{transaction.sentAsset.ticker}</p>
                 </div>
-                <p className="trade-price">-1,2323</p>
+                <p className="trade-price">
+                  -{formatAmount(transaction.sentAmount)}
+                </p>
               </div>
               <div className="trade-divider">
                 <IconExchange />
@@ -56,29 +78,33 @@ const TradeSummary: React.FC = ({ history }: any) => {
               <div className="trade-item">
                 <div className="name">
                   <span className="icon-wrapper medium">
-                    <IconBTC width="24px" height="24px"></IconBTC>
+                    <CurrencyIcon
+                      currency={transaction.receivedAsset.ticker}
+                      width="24px"
+                      height="24px"
+                    />
                   </span>
-                  <p>BTC</p>
+                  <p>{transaction.receiveAsset}</p>
                 </div>
-                <p className="trade-price">+1.202,3</p>
+                <p className="trade-price">
+                  +{formatAmount(transaction.receivedAmount)}
+                </p>
               </div>
             </div>
             <div className="transaction-info">
               <div className="transaction-info-date">
-                <p>12 Sep 2020 09:24:41</p>
-                <p>0,0005 Fee</p>
+                <p>{formatDate(transaction.createdAt)}</p>
+                <p>{transaction.fee.amount}% Fee</p>
               </div>
               <div className="transaction-info-values">
                 <div className="transaction-col-name">ADDR</div>
                 <div className="transaction-col-value">
-                  8T71hMKw05f96b4dc1gBrLO4ds1f3LMKSX
+                  {transaction.address}
                 </div>
               </div>
               <div className="transaction-info-values">
                 <div className="transaction-col-name">T x ID</div>
-                <div className="transaction-col-value">
-                  84g96f5hy6mu13971563f95f08gh818s3526h7dpv22d1r006hn8563247855690
-                </div>
+                <div className="transaction-col-value">{transaction.txid}</div>
               </div>
             </div>
           </div>

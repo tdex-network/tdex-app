@@ -22,6 +22,7 @@ const PinInput: React.FC<PinInputInterface> = ({
         {[...new Array(6).fill(1)].map((_, index) => {
           return (
             <div
+              key={index}
               className={classNames('pin-input', {
                 active: index <= inputValue.length,
                 error,

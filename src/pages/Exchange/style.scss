@@ -25,7 +25,9 @@
   display: flex;
   justify-content: center;
   align-items: center;
+
   svg {
+    cursor: pointer;
     fill: rgb(15, 255, 0);
   }
 }

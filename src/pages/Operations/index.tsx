@@ -19,7 +19,6 @@ import classNames from 'classnames';
 import { CurrencyIcon, IconBack, TxIcon } from '../../components/icons';
 import './style.scss';
 import { useDispatch, useSelector } from 'react-redux';
-import { explorerUrl } from '../../redux/services/walletService';
 import { getTransactions } from '../../redux/actions/transactionsActions';
 import { TxDisplayInterface, TxStatusEnum } from '../../utils/types';
 import { formatPriceString, getCoinsEquivalent } from '../../utils/helpers';
@@ -101,7 +100,6 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
         getTransactions({
           confidentialAddress: address.confidentialAddress,
           privateBlindingKey: [address.blindingPrivateKey],
-          explorerUrl,
         })
       );
     }

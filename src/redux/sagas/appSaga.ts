@@ -7,9 +7,11 @@ import {
   setMnemonic,
   setIdentity,
 } from '../actions/walletActions';
+import { setProviderEndpoint } from '../actions/exchange/providerActions';
 import { getAddress, getWallet } from '../services/walletService';
 import { IdentityType, Mnemonic } from 'tdex-sdk';
 import { Storage } from '@capacitor/core';
+import { network, provider } from '../config';
 
 function* initAppSaga({ type }: { type: string }) {
   try {
@@ -19,7 +21,7 @@ function* initAppSaga({ type }: { type: string }) {
       const addressData = yield call(getAddress);
       const addressObj = JSON.parse(addressData.value);
       const identity = new Mnemonic({
-        chain: 'regtest',
+        chain: network.chain,
         type: IdentityType.Mnemonic,
         value: {
           mnemonic: walletObj.mnemonic,
@@ -39,6 +41,7 @@ function* initAppSaga({ type }: { type: string }) {
       yield put(setIsAuth(true));
       yield put(setMnemonic(walletObj.mnemonic));
       yield put(getCoinsList());
+      yield put(setProviderEndpoint(provider.endpoint));
     } else {
       yield put(initAppSuccess());
     }

@@ -43,7 +43,7 @@ const Tabs: React.FC = () => {
           </IonRouterOutlet>
           <IonTabBar slot="bottom">
             {TABS.map((item, index) => (
-              <IonTabButton tab={item.path} href={item.path}>
+              <IonTabButton tab={item.path} href={item.path} key={item.path}>
                 <div
                   onClick={() => handleChangeTab(index)}
                   className="tab-content"

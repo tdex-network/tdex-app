@@ -14,8 +14,42 @@ export const getRandomColor = () => {
   return color;
 };
 
-export function fromSatoshi(x: number, y?: number, fixed?: number): string {
+export function toSatoshi(x: number): number {
+  return Math.floor(x * Math.pow(10, 8));
+}
+
+export function fromSatoshi(x: number): number {
+  return Number(
+    (x / Math.pow(10, 8))
+      .toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 8,
+      })
+      .replace(',', '')
+  );
+}
+
+export function fromSatoshiToString(
+  x: number,
+  y?: number,
+  fixed?: number
+): string {
   return (x / Math.pow(10, y || defaultPrecision)).toFixed(fixed || 2);
+}
+
+export function formatAmount(amount: number) {
+  return amount.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 8,
+  });
+}
+
+export function formatDate(date: any) {
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 }
 
 export function formatPriceString(price: string | number): string {

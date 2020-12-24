@@ -81,10 +81,12 @@ const Wallet: React.FC<any> = ({ history }) => {
         mainAssets: [],
         otherAssets: [],
       };
+
       mainAssets.forEach((item: string) => {
         const asset = assets.find(
           (assetItem: any) => assetItem.ticker.toLowerCase() === item
         );
+
         if (asset) {
           const priceEquivalent = getCoinsEquivalent(
             asset,
@@ -92,13 +94,16 @@ const Wallet: React.FC<any> = ({ history }) => {
             asset.amountDisplay,
             currency
           );
+
           totalAmount += Number(priceEquivalent);
+
           assetsObject.mainAssets.push({
             ...asset,
             priceEquivalent: priceEquivalent
               ? formatPriceString(priceEquivalent)
               : priceEquivalent,
           });
+
           if (priceEquivalent) {
             diagramArray.push({
               type: asset.ticker.toUpperCase(),
@@ -107,6 +112,7 @@ const Wallet: React.FC<any> = ({ history }) => {
           }
         }
       });
+
       assets.forEach((asset: any) => {
         if (!mainAssets.includes(asset.ticker.toLowerCase())) {
           const priceEquivalent = getCoinsEquivalent(
@@ -116,12 +122,14 @@ const Wallet: React.FC<any> = ({ history }) => {
             currency
           );
           totalAmount += Number(priceEquivalent);
+
           assetsObject.otherAssets.push({
             ...asset,
             priceEquivalent: priceEquivalent
               ? formatPriceString(priceEquivalent)
               : priceEquivalent,
           });
+
           if (priceEquivalent) {
             diagramArray.push({
               type: asset.ticker.toUpperCase(),
@@ -130,6 +138,7 @@ const Wallet: React.FC<any> = ({ history }) => {
           }
         }
       });
+
       setDisplayAssets(assetsObject);
       setTotal({
         lbtc: {
@@ -155,6 +164,7 @@ const Wallet: React.FC<any> = ({ history }) => {
       event.detail.complete();
     }, 2000);
   };
+
   return (
     <IonPage>
       <div className="gradient-background"></div>

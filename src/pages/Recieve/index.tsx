@@ -127,9 +127,14 @@ const Recieve: React.FC<RouteComponentProps> = ({ history }) => {
           type="text"
           ref={addressRef}
           value={address?.confidentialAddress}
+          readOnly={true}
           className="hidden-input"
         />
         <IonItem>
+          <div
+            // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
+            tabIndex={0}
+          ></div>
           <div className="item-main-info">
             <div className="item-start conf-addr">
               {address?.confidentialAddress}

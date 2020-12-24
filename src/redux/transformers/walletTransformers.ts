@@ -2,7 +2,7 @@ import { defaultPrecision } from '../../utils/constants';
 import { BalanceInterface } from '../actionTypes/walletActionTypes';
 import {
   formatPriceString,
-  fromSatoshi,
+  fromSatoshiToString,
   getDefaultCoinRate,
   getEdgeAsset,
 } from '../../utils/helpers';
@@ -18,9 +18,9 @@ export const assetTransformer = (assets: any, balance: BalanceInterface) => {
         ticker,
         precision: defaultPrecision,
         amount: balance[asset.data.asset_id],
-        amountDisplay: fromSatoshi(balance[asset.data.asset_id]),
+        amountDisplay: fromSatoshiToString(balance[asset.data.asset_id]),
         amountDisplayFormatted: formatPriceString(
-          fromSatoshi(balance[asset.data.asset_id])
+          fromSatoshiToString(balance[asset.data.asset_id])
         ),
       };
     }
@@ -32,9 +32,9 @@ export const assetTransformer = (assets: any, balance: BalanceInterface) => {
       blockHash: status?.block_hash || '',
       precision: precision || defaultPrecision,
       amount: balance[asset_id],
-      amountDisplay: fromSatoshi(balance[asset_id], precision),
+      amountDisplay: fromSatoshiToString(balance[asset_id], precision),
       amountDisplayFormatted: formatPriceString(
-        fromSatoshi(balance[asset_id], precision)
+        fromSatoshiToString(balance[asset_id], precision)
       ),
     };
   });

@@ -1,4 +1,5 @@
 import { takeLatest, call, put, all, select } from 'redux-saga/effects';
+import { network } from '../config';
 import {
   GET_ASSETS,
   GET_BALANCES,
@@ -16,11 +17,7 @@ import {
   assetTransformer,
   coinsTransformer,
 } from '../transformers/walletTransformers';
-import {
-  explorerUrl,
-  getAssetsRequest,
-  getCoinsRequest,
-} from '../services/walletService';
+import { getAssetsRequest, getCoinsRequest } from '../services/walletService';
 import { AddressInterface, fetchBalances } from 'tdex-sdk';
 import { initAppFail, initAppSuccess } from '../actions/appActions';
 
@@ -36,7 +33,7 @@ function* getBalancesSaga({
       fetchBalances,
       address.confidentialAddress,
       address.blindingPrivateKey,
-      explorerUrl
+      network.explorer
     );
     yield put(setBalances(data));
     yield put(getAssets(data));

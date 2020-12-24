@@ -1,19 +1,11 @@
-import axios from 'axios';
 import { Storage } from '@capacitor/core';
+import { network } from '../config';
+import { IdentityType, EsploraIdentityRestorer } from 'tdex-sdk';
+import axios from 'axios';
 
-//  for local testing
-export const explorerUrl = 'http://localhost:3001';
-//  for device testing
-// export const explorerUrl = 'http://192.168.0.13:3001';
-// export const explorerUrl = 'https://nigiri.network/liquid/api';
-//  for prod
-// export const explorerUrl = 'https://blockstream.info/liquid/api';
-
-export const providerUrl = 'https://provider.tdex.network';
 export const coinGeckoUrl = 'https://api.coingecko.com/api/v3';
 
-export const axiosExplorerObject = axios.create({ baseURL: explorerUrl });
-export const axiosProviderObject = axios.create({ baseURL: providerUrl });
+export const axiosExplorerObject = axios.create({ baseURL: network.explorer });
 export const axiosCoinGeckoObject = axios.create({ baseURL: coinGeckoUrl });
 
 export const getAssetsRequest = (path: string, options?: any) => {
@@ -31,6 +23,18 @@ export const getCoinsRequest = (path: string, options?: any) => {
     params: options?.params,
   });
 };
+
+export function getIdentity(seed: string, initializeFromRestorer: boolean) {
+  return {
+    chain: network.chain,
+    type: IdentityType.Mnemonic,
+    value: {
+      mnemonic: seed,
+    },
+    initializeFromRestorer,
+    restorer: new EsploraIdentityRestorer(network.explorer),
+  };
+}
 
 export const getWallet = async (): Promise<{ value: string }> => {
   return Storage.get({ key: 'wallet' });

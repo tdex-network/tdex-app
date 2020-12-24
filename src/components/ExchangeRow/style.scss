@@ -1,39 +1,61 @@
 @import "../../theme/variables.scss";
 
 .exchange-coin-container {
-    position: relative;
-    background: rgb(51, 51, 51);
-    padding: 54px 24px;
-    color: #fff;
-    
-    .exchanger-row {
-      display: flex;
-      justify-content: space-between;
-      &.sub-row {
-        font-family: $sub-heading-font;
-        font-size: $sub-font-size;
-        color: rgb(198, 198, 198);
-      }
-    }
-    .coin-name {
-      font-family: $main-font;
-      font-size: 30px;
-      display: flex;
-      align-items: center;
+  position: relative;
+  background: rgb(51, 51, 51);
+  padding: 54px 24px;
+  color: #fff;
   
-    }
-    .icon-wrapper {
-      width: 24px;
-      height: 24px;
-      margin-right: 8px;
-    }
-    .coin-amount {
-      font-family: $sub-font;
-      font-size: 30px;
-      color: rgb(102, 102, 102);
+  .exchanger-row {
+    display: flex;
+    justify-content: space-between;
+
+    &.sub-row {
+      font-family: $sub-heading-font;
+      font-size: $sub-font-size;
+      color: rgb(198, 198, 198);
     }
   }
-  
-  .exchange-coin-container.transparent {
-    background: transparent;
+
+  .coin-name {
+    cursor: pointer;
+    font-family: $main-font;
+    font-size: 30px;
+    display: flex;
+    align-items: center;
   }
+
+  .icon-wrapper {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+  }
+
+  .coin-amount {
+    --background: none;
+    background: none;
+    --padding-top: 0;
+    --padding-bottom: 0;
+    --padding-start: 0;
+    --padding-end: 0;
+    --inner-padding-end: 0;
+    font-family: $sub-font;
+    font-size: 30px;
+    color: rgb(102, 102, 102);
+
+    &.active {
+      color: #fff;
+    }
+
+    input {
+      opacity: 0;
+      position: absolute;
+      font-size: .1em;
+      z-index: -20;
+    }
+  }
+}
+
+.exchange-coin-container.transparent {
+  background: transparent;
+}
