@@ -65,7 +65,7 @@ function* getAssetSaga({
       explorerUrl: state.settings.explorerUrl,
     }));
     const callArray = Object.keys(payload).map((assetId: string) =>
-      call(getAssetsRequest, explorerUrl, `/asset/${assetId}`)
+      call(getAssetsRequest, `/asset/${assetId}`, explorerUrl)
     );
     const assetArray = yield all(callArray);
     const transformedAssets = assetTransformer(assetArray, payload);

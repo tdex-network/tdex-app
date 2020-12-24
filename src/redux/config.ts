@@ -1,9 +1,11 @@
+import { explorerUrl } from './services/walletService';
+
 let network: any, provider: any;
 
 if (process.env.NODE_ENV == 'development') {
   network = {
     chain: 'regtest',
-    explorer: 'http://127.1:3001',
+    explorer: explorerUrl,
   };
 
   provider = {
