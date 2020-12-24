@@ -42,7 +42,7 @@ const PinModal: React.FC<PinModalInterface> = ({
   });
 
   const onPinChange = (e: any) => {
-    const { value } = e.target;
+    const { value } = e.detail;
 
     if (value && value.length === 6) {
       let decrypted;

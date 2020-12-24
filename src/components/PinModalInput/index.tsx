@@ -28,6 +28,11 @@ const PinModalInput: React.FC<PinModalInputInterface> = ({
                 active: index <= inputValue.length,
                 error,
               })}
+              onClick={() => {
+                inputRef?.current?.getInputElement().then((el: any) => {
+                  el.focus();
+                });
+              }}
             >
               {inputValue[index]}
             </div>

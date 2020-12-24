@@ -18,7 +18,7 @@ import {
 } from '../actions/transactionsActions';
 import { transactionsTransformer } from '../transformers/transactionsTransformer';
 import { confidential, Transaction } from 'liquidjs-lib';
-import { broadcastTx, explorerUrl, signTx } from '../services/walletService';
+import { broadcastTx, signTx } from '../services/walletService';
 import {
   formatPriceString,
   fromSatoshiFixed,
@@ -40,6 +40,9 @@ function* getTransactionsSaga({
   try {
     const blindingPrivateKeys = addresses.map(
       (item: AddressInterface) => item.blindingPrivateKey
+    );
+    const explorerUrl = yield select(
+      (state: any) => state.settings.explorerUrl
     );
     const data = yield all(
       addresses.map((a) =>
@@ -67,11 +70,14 @@ function* doWithdrawSaga({
   payload: { address: string; amount: number; asset: any };
 }) {
   try {
-    const { identity, assets, transactions } = yield select((state: any) => ({
-      identity: state.wallet.identity,
-      assets: state.wallet.assets,
-      transactions: state.transactions.data,
-    }));
+    const { identity, assets, transactions, explorerUrl } = yield select(
+      (state: any) => ({
+        identity: state.wallet.identity,
+        assets: state.wallet.assets,
+        transactions: state.transactions.data,
+        explorerUrl: state.settings.explorerUrl,
+      })
+    );
     yield put(setWithdrawalLoading(true));
     const addresses = identity.getAddresses();
     const senderWallet = walletFromAddresses(addresses, 'regtest');
@@ -121,7 +127,7 @@ function* doWithdrawSaga({
     const fee = feeObj
       ? confidential.confidentialValueToSatoshi(feeObj.value)
       : defaultFee;
-    const broadcasted = yield call(broadcastTx, txHex);
+    const broadcasted = yield call(broadcastTx, txHex, explorerUrl);
     const amountInSatoshis = toSatoshi(amount, asset.precision);
     const withdrawTx = {
       txId: broadcasted,

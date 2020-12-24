@@ -16,11 +16,7 @@ import {
   assetTransformer,
   coinsTransformer,
 } from '../transformers/walletTransformers';
-import {
-  explorerUrl,
-  getAssetsRequest,
-  getCoinsRequest,
-} from '../services/walletService';
+import { getAssetsRequest, getCoinsRequest } from '../services/walletService';
 import { AddressInterface, fetchBalances } from 'tdex-sdk';
 import { initAppFail, initAppSuccess } from '../actions/appActions';
 import { getBalancesFromArray } from '../../utils/helpers';
@@ -33,6 +29,9 @@ function* getBalancesSaga({
   payload: AddressInterface[];
 }) {
   try {
+    const explorerUrl = yield select(
+      (state: any) => state.settings.explorerUrl
+    );
     const data = yield all(
       addresses.map((a) =>
         call(
@@ -60,12 +59,13 @@ function* getAssetSaga({
   payload: BalanceInterface;
 }) {
   try {
-    const { currency, coinsList } = yield select((state: any) => ({
+    const { currency, coinsList, explorerUrl } = yield select((state: any) => ({
       coinsList: state.wallet.coinsList,
       currency: state.settings.currency,
+      explorerUrl: state.settings.explorerUrl,
     }));
     const callArray = Object.keys(payload).map((assetId: string) =>
-      call(getAssetsRequest, `/asset/${assetId}`)
+      call(getAssetsRequest, explorerUrl, `/asset/${assetId}`)
     );
     const assetArray = yield all(callArray);
     const transformedAssets = assetTransformer(assetArray, payload);

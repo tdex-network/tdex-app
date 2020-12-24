@@ -2,6 +2,7 @@ import { BalanceInterface } from '../redux/actionTypes/walletActionTypes';
 import { Assets, defaultPrecision } from './constants';
 import { TxDisplayInterface, TxTypeEnum } from './types';
 import { address as liquidAddress, networks } from 'liquidjs-lib';
+import { network } from '../redux/config';
 
 export const getEdgeAsset = (asset_id: string) => {
   return Object.values(Assets).find((item: any) => item.assetHash === asset_id);
@@ -90,7 +91,7 @@ export function getDataFromTx(
       asset = item.prevout.asset;
       address = liquidAddress.fromOutputScript(
         Buffer.from(item.prevout.script, 'hex'),
-        networks.regtest
+        (networks as any)[network.chain]
       );
       vinAmount = vinAmount
         ? Number(vinAmount) + Number(item.prevout.value)
@@ -105,7 +106,7 @@ export function getDataFromTx(
         asset = item.asset;
         address = liquidAddress.fromOutputScript(
           Buffer.from(item.script, 'hex'),
-          networks.regtest
+          (networks as any)[network.chain]
         );
         voutAmount = voutAmount
           ? Number(voutAmount) + Number(item.value)

@@ -2,22 +2,25 @@ import axios from 'axios';
 import { Storage } from '@capacitor/core';
 
 //  for local testing
-export const explorerUrl = 'http://localhost:3001';
+// export const explorerUrl = 'http://localhost:3001';
 //  for device testing
 // export const explorerUrl = 'http://192.168.0.13:3001';
-// export const explorerUrl = 'https://nigiri.network/liquid/api';
+export const explorerUrl = 'https://nigiri.network/liquid/api';
 //  for prod
 // export const explorerUrl = 'https://blockstream.info/liquid/api';
 
 export const providerUrl = 'https://provider.tdex.network';
 export const coinGeckoUrl = 'https://api.coingecko.com/api/v3';
 
-export const axiosExplorerObject = axios.create({ baseURL: explorerUrl });
 export const axiosProviderObject = axios.create({ baseURL: providerUrl });
 export const axiosCoinGeckoObject = axios.create({ baseURL: coinGeckoUrl });
 
-export const getAssetsRequest = (path: string, options?: any) => {
-  return axiosExplorerObject.request({
+export const getAssetsRequest = (
+  path: string,
+  explorerUrlValue: string,
+  options?: any
+) => {
+  return axios.create({ baseURL: explorerUrlValue }).request({
     method: 'get',
     url: path,
     params: options?.params,
@@ -48,9 +51,12 @@ export const signTx = async (identity: any, unsignedTx: any): Promise<any> => {
   return identity.signPset(unsignedTx);
 };
 
-export async function broadcastTx(hex: string): Promise<string> {
+export async function broadcastTx(
+  hex: string,
+  explorerUrlValue: string
+): Promise<string> {
   try {
-    const response = await axios.post(`${explorerUrl}/tx`, hex);
+    const response = await axios.post(`${explorerUrlValue}/tx`, hex);
     return response.data;
   } catch (err) {
     console.error(err);

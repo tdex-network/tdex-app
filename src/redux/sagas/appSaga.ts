@@ -1,4 +1,4 @@
-import { takeLatest, put, call } from 'redux-saga/effects';
+import { takeLatest, put, call, select } from 'redux-saga/effects';
 import {
   INIT_APP,
   initAppFail,
@@ -19,7 +19,6 @@ import {
   getAddress,
   getWallet,
   getAddresses,
-  explorerUrl,
   restoreWallet,
 } from '../services/walletService';
 import { IdentityRestorerFromState } from '../../utils/identity-restorer';
@@ -47,6 +46,9 @@ function* signInSaga({ type, payload }: { type: string; payload: string }) {
   try {
     const walletData = yield call(getWallet);
     const walletObj = JSON.parse(walletData.value);
+    const explorerUrl = yield select(
+      (state: any) => state.settings.explorerUrl
+    );
     yield put(setWalletLoading(false));
     const addressData = yield call(getAddress);
     const addressesData = yield call(getAddresses);
