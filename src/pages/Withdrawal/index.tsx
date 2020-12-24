@@ -9,6 +9,7 @@ import {
   IonLabel,
   IonInput,
   IonLoading,
+  useIonViewDidLeave,
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { useParams, withRouter } from 'react-router';
@@ -85,17 +86,12 @@ const Withdrawal: React.FC = ({ history }: any) => {
     if (loading === false) {
       history.push(`/withdraw/${asset_id}/details`);
       dispatch(setWithdrawalLoading(null));
-      return () => {
-        setInputValue('');
-        setAmount(undefined);
-        setRecipientAddress('');
-      };
     }
   }, [loading]);
 
-  useEffect(() => {
+  useIonViewDidLeave(() => {
     clearState();
-  }, [asset_id]);
+  });
 
   const clearState = () => {
     if (inputValue) {

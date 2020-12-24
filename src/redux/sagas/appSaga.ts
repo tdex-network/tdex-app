@@ -56,7 +56,7 @@ function* signInSaga({ type, payload }: { type: string; payload: string }) {
       chain: 'regtest',
       type: IdentityType.Mnemonic,
       value: {
-        mnemonic: decrypt(walletObj.mnemonic, walletObj.pin),
+        mnemonic: decrypt(walletObj.mnemonic, payload),
       },
       initializeFromRestorer: true,
       restorer: addressesArray
@@ -84,7 +84,6 @@ function* signInSaga({ type, payload }: { type: string; payload: string }) {
     yield put(setIdentity(identity));
     yield put(setIsAuth(true));
     yield put(setMnemonic(walletObj.mnemonic));
-    yield put(setPin(walletObj.pin));
     yield put(getCoinsList());
     yield put(setWalletLoading(true));
     yield put(setSignedUp(false));

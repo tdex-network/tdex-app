@@ -12,6 +12,8 @@ import {
   IonLabel,
   IonText,
   IonLoading,
+  IonRefresher,
+  IonRefresherContent,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { withRouter, RouteComponentProps, useParams } from 'react-router';
@@ -22,6 +24,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getTransactions } from '../../redux/actions/transactionsActions';
 import { TxDisplayInterface, TxStatusEnum } from '../../utils/types';
 import { formatPriceString, getCoinsEquivalent } from '../../utils/helpers';
+import { chevronDownCircleOutline } from 'ionicons/icons';
+import { RefresherEventDetail } from '@ionic/core';
 
 const txTypes = ['deposit', 'withdrawal', 'swap', 'trade'];
 const statusText = {
@@ -133,6 +137,13 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
     }
   };
 
+  const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
+    dispatch(getTransactions(addresses));
+    setTimeout(() => {
+      event.detail.complete();
+    }, 2000);
+  };
+
   return (
     <IonPage>
       <div className="gradient-background"></div>
@@ -141,49 +152,56 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
         isOpen={loading}
         message={'Please wait...'}
       />
-      <IonHeader className="header operations">
-        <IonToolbar className="with-back-button">
-          <IonButton
-            style={{ zIndex: 10 }}
-            onClick={() => {
-              history.push('/wallet');
-            }}
-          >
-            <IconBack />
-          </IonButton>
-          <IonTitle>{assetData?.name}</IonTitle>
-        </IonToolbar>
-        <div className="header-info">
-          <div className="img-wrapper">
-            {assetData && <CurrencyIcon currency={assetData?.ticker} />}
-          </div>
-          <p className="info-amount">
-            {assetData?.amountDisplayFormatted} <span>{assetData?.ticker}</span>
-          </p>
-          {assetData?.priceEquivalent && (
-            <p className="info-amount-converted">
-              {assetData.priceEquivalent} {currency.toUpperCase()}
-            </p>
-          )}
-        </div>
-        <IonButtons className="operations-buttons">
-          <IonButton className="coin-action-button" routerLink="/recieve">
-            Deposit
-          </IonButton>
-          <IonButton
-            className="coin-action-button"
-            onClick={() => {
-              history.push(`/withdraw/${asset_id}`);
-            }}
-          >
-            Withdraw
-          </IonButton>
-          <IonButton className="coin-action-button" routerLink="/swap">
-            Swap
-          </IonButton>
-        </IonButtons>
-      </IonHeader>
       <IonContent className="operations">
+        <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
+          <IonRefresherContent
+            pullingIcon={chevronDownCircleOutline}
+            refreshingSpinner="circles"
+          />
+        </IonRefresher>
+        <IonHeader className="header operations">
+          <IonToolbar className="with-back-button">
+            <IonButton
+              style={{ zIndex: 10 }}
+              onClick={() => {
+                history.push('/wallet');
+              }}
+            >
+              <IconBack />
+            </IonButton>
+            <IonTitle>{assetData?.name}</IonTitle>
+          </IonToolbar>
+          <div className="header-info">
+            <div className="img-wrapper">
+              {assetData && <CurrencyIcon currency={assetData?.ticker} />}
+            </div>
+            <p className="info-amount">
+              {assetData?.amountDisplayFormatted}{' '}
+              <span>{assetData?.ticker}</span>
+            </p>
+            {assetData?.priceEquivalent && (
+              <p className="info-amount-converted">
+                {assetData.priceEquivalent} {currency.toUpperCase()}
+              </p>
+            )}
+          </div>
+          <IonButtons className="operations-buttons">
+            <IonButton className="coin-action-button" routerLink="/receive">
+              Deposit
+            </IonButton>
+            <IonButton
+              className="coin-action-button"
+              onClick={() => {
+                history.push(`/withdraw/${asset_id}`);
+              }}
+            >
+              Withdraw
+            </IonButton>
+            <IonButton className="coin-action-button" routerLink="/swap">
+              Swap
+            </IonButton>
+          </IonButtons>
+        </IonHeader>
         <IonList>
           <IonListHeader>Transactions</IonListHeader>
           {assetTransactions?.map((tx: any, index: number) => (
@@ -233,9 +251,7 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
                   </div>
                   <div className="info-row">
                     <IonLabel>ADDR</IonLabel>
-                    <IonText>
-                      el1qq08ues6tw9l4eyz5sqam740ualyk07lhdjhwp9vyymss96308576fh8eqcz2z94pn6v7urycntl6qacdl2e75sygqw3dmkf8s
-                    </IonText>
+                    <IonText>{tx.address}</IonText>
                   </div>
                   <div className="info-row">
                     <IonLabel>TxID</IonLabel>

@@ -7,8 +7,9 @@ import {
   IonToolbar,
   IonHeader,
   IonIcon,
+  useIonViewWillEnter,
 } from '@ionic/react';
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { IconBack, IconBTC, IconCopy } from '../../components/icons';
 import PageDescription from '../../components/PageDescription';
@@ -20,7 +21,7 @@ import { checkmarkOutline } from 'ionicons/icons';
 import { storageAddresses } from '../../utils/storage-helper';
 import { setAddresses } from '../../redux/actions/walletActions';
 
-const Recieve: React.FC<RouteComponentProps> = ({ history }) => {
+const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   const { identity, addresses } = useSelector((state: any) => ({
     assets: state.wallet.assets,
     transactions: state.transactions.data,
@@ -31,18 +32,17 @@ const Recieve: React.FC<RouteComponentProps> = ({ history }) => {
   }));
   const [copied, setCopied] = useState(false);
   const [address, setAddress] = useState<any>();
-  // const [encodedText, setEncodedText] = useState<any>(false);
-  // const [qrCode, setQRcode] = useState<any>(false);
   const addressRef: any = useRef(null);
   const dispatch = useDispatch();
-  useEffect(() => {
+
+  useIonViewWillEnter(() => {
     const nextAddress = identity.getNextAddress();
     setAddress(nextAddress);
     const data = [...addresses, nextAddress];
     storageAddresses(data).then(() => {
       dispatch(setAddresses(data));
     });
-  }, []);
+  });
 
   const copyAddress = () => {
     if (addressRef) {
@@ -77,10 +77,10 @@ const Recieve: React.FC<RouteComponentProps> = ({ history }) => {
           >
             <IconBack />
           </IonButton>
-          <IonTitle>Recieve</IonTitle>
+          <IonTitle>Receive</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="recieve">
+      <IonContent className="receive">
         <div className="description-with-icon">
           <div className="img-wrapper">
             <IconBTC width="48px" height="48px" />
@@ -134,4 +134,4 @@ const Recieve: React.FC<RouteComponentProps> = ({ history }) => {
   );
 };
 
-export default withRouter(Recieve);
+export default withRouter(Receive);

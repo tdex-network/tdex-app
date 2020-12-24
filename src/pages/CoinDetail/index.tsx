@@ -26,7 +26,7 @@ const Exchange: React.FC = () => {
         </IonToolbar>
         <IonButtons>
           <IonButton className="coin-action-button" routerLink="/qrscanner">
-            Recieve
+            Receive
           </IonButton>
           <IonButton>Withdraw</IonButton>
           <IonButton>Swap</IonButton>

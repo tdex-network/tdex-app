@@ -11,7 +11,7 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  IonLoading,
+  useIonViewDidEnter,
 } from '@ionic/react';
 import { IconBack, IconCheck } from '../../components/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -42,8 +42,8 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
 
   const inputRef: any = useRef(null);
 
-  useEffect(() => {
-    inputRef.current.focus();
+  useIonViewDidEnter(() => {
+    inputRef?.current?.focus();
   });
 
   useEffect(() => {
@@ -85,6 +85,7 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
     if (!firstPin) {
       setFirstPin(inputValue);
       setValue('');
+      inputRef?.current.focus();
     } else if (firstPin) {
       if (firstPin === inputValue) {
         if (!mnemonic) {

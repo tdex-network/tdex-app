@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
   IonButton,
   IonContent,
@@ -6,6 +6,7 @@ import {
   IonModal,
   IonTitle,
   IonToolbar,
+  useIonViewDidEnter,
 } from '@ionic/react';
 import './style.scss';
 import { IconClose } from '../icons';
@@ -34,11 +35,11 @@ const PinModal: React.FC<PinModalInterface> = ({
   const [validPin, setValidPin] = useState(false);
   const inputRef: any = useRef(null);
 
-  useEffect(() => {
-    inputRef.current.getInputElement().then((el: any) => {
+  useIonViewDidEnter(() => {
+    inputRef?.current?.getInputElement().then((el: any) => {
       el.focus();
     });
-  }, [inputRef]);
+  });
 
   const onPinChange = (e: any) => {
     const { value } = e.target;
@@ -66,8 +67,12 @@ const PinModal: React.FC<PinModalInterface> = ({
   };
 
   return (
-    <IonModal isOpen={openModal} cssClass="modal-big withdrawal">
-      <div className="gradient-background"></div>
+    <IonModal
+      isOpen={openModal}
+      cssClass="modal-big withdrawal"
+      keyboardClose={false}
+    >
+      <div className="gradient-background" />
       <IonHeader>
         <IonToolbar className="with-back-button">
           {withClose && (

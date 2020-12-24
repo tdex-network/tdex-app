@@ -5,8 +5,10 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
+  useIonViewDidEnter,
+  useIonViewDidLeave,
 } from '@ionic/react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { QRScanner, QRScannerStatus } from '@ionic-native/qr-scanner';
 
 //style
@@ -17,20 +19,15 @@ import { withRouter } from 'react-router';
 
 const QRCodeScanner: React.FC<any> = ({ history }: any) => {
   const dispatch = useDispatch();
-  const [withBg, setWithBg] = useState(true);
   const scanner = QRScanner;
 
-  useEffect(() => {
+  useIonViewDidEnter(() => {
     QRScanner.prepare()
       .then((status: QRScannerStatus) => {
         if (status.authorized) {
-          setWithBg(false);
           QRScanner.show();
           const scanSub = QRScanner.scan().subscribe((text: string) => {
-            setWithBg(true);
             dispatch(setQRCodeAddress(text));
-            QRScanner.hide(); // hide camera preview
-            QRScanner.destroy(); // hide camera preview
             scanSub.unsubscribe(); // stop scanning
             history.goBack();
           });
@@ -44,11 +41,15 @@ const QRCodeScanner: React.FC<any> = ({ history }: any) => {
         console.log('Error is', e);
         QRScanner.hide();
       });
-  }, []);
+  });
+
+  useIonViewDidLeave(() => {
+    QRScanner.hide();
+    QRScanner.destroy();
+  });
 
   return (
     <IonPage>
-      {withBg && <div className="gradient-background" />}
       <IonHeader className="semitransparent">
         <IonToolbar className="with-back-button">
           <IonTitle>SCAN QR CODE</IonTitle>

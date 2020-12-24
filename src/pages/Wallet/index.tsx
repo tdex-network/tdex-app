@@ -149,7 +149,7 @@ const Wallet: React.FC<any> = ({ history }) => {
     }
   }, [assets, coinsRates]);
 
-  const buttonRefresh = (event: CustomEvent<RefresherEventDetail>) => {
+  const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
     dispatch(getBalances(addresses));
     setTimeout(() => {
       event.detail.complete();
@@ -164,7 +164,7 @@ const Wallet: React.FC<any> = ({ history }) => {
         message={'Please wait...'}
       />
       <IonContent className="wallet-content">
-        <IonRefresher slot="fixed" onIonRefresh={buttonRefresh}>
+        <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
           <IonRefresherContent
             pullingIcon={chevronDownCircleOutline}
             refreshingSpinner="circles"
@@ -197,7 +197,7 @@ const Wallet: React.FC<any> = ({ history }) => {
         <IonButtons className="operations-buttons">
           <IonButton
             className="coin-action-button ml-auto"
-            routerLink="/recieve"
+            routerLink="/receive"
           >
             Deposit
           </IonButton>

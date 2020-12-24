@@ -38,12 +38,15 @@ function* getTransactionsSaga({
   payload: AddressInterface[];
 }) {
   try {
+    const blindingPrivateKeys = addresses.map(
+      (item: AddressInterface) => item.blindingPrivateKey
+    );
     const data = yield all(
       addresses.map((a) =>
         call(
           fetchAndUnblindTxs,
           a.confidentialAddress,
-          [a.blindingPrivateKey],
+          blindingPrivateKeys,
           explorerUrl
         )
       )
@@ -72,8 +75,7 @@ function* doWithdrawSaga({
     yield put(setWithdrawalLoading(true));
     const addresses = identity.getAddresses();
     const senderWallet = walletFromAddresses(addresses, 'regtest');
-    const nextChangeAddress = identity.getNextChangeAddress()
-      .confidentialAddress;
+    const nextChangeAddress = identity.getNextChangeAddress();
     const newAddresses = [...addresses, nextChangeAddress];
     yield call(storageAddresses, newAddresses);
     yield put(setAddresses(newAddresses));
@@ -105,7 +107,7 @@ function* doWithdrawSaga({
       address, // recipient confidential address
       toSatoshi(amount, asset.precision), // amount to be sent
       asset.asset_id, // nigiri regtest LBTC asset hash
-      nextChangeAddress // change address we own
+      nextChangeAddress.confidentialAddress // change address we own
     );
 
     // Now we can sign with identity abstraction
@@ -181,9 +183,9 @@ function* doWithdrawSaga({
     );
     yield put(setWithdrawalLoading(false));
   } catch (e) {
-    // yield put(setWithdrawalLoading(false));
-    yield put(setWithdrawalLoading(null));
     console.log(e);
+    yield put(setWithdrawalLoading(null));
+    // yield put(setWithdrawalLoading(false));
   }
 }
 

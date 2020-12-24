@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { IonInput, IonItem, IonLabel } from '@ionic/react';
 import './style.scss';
@@ -17,12 +17,6 @@ const PinModalInput: React.FC<PinModalInputInterface> = ({
   inputRef,
   error,
 }) => {
-  useEffect(() => {
-    inputRef?.current.getInputElement().then((el: any) => {
-      el.focus();
-    });
-  });
-
   return (
     <IonItem lines="none" className="pin-wrapper">
       <IonLabel>
@@ -44,15 +38,10 @@ const PinModalInput: React.FC<PinModalInputInterface> = ({
           maxlength={6}
           inputMode="numeric"
           value={inputValue}
-          onIonChange={(e) => onChange(e)}
+          onIonChange={onChange}
           type="number"
           autofocus
           inputmode="numeric"
-          onBlur={() => {
-            inputRef?.current.getInputElement().then((el: any) => {
-              el.focus();
-            });
-          }}
         />
       </IonLabel>
     </IonItem>

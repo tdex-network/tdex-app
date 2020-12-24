@@ -2,7 +2,7 @@ import { IconExchange, IconSettings, IconWallet } from './components/icons';
 import Exchange from './pages/Exchange';
 import Operations from './pages/Operations';
 import QRScanner from './pages/QRScanner';
-import Recieve from './pages/Recieve';
+import Receive from './pages/Receive';
 import Settings from './pages/Settings';
 import TradeHistory from './pages/TradeHistory';
 import TradeSummary from './pages/TradeSummary';
@@ -20,7 +20,7 @@ export const routerLinks = {
   operations: '/operations/:asset_id',
   withdrawalDetails: '/withdraw/:asset_id/details',
   withdrawal: '/withdraw/:asset_id',
-  recieve: '/recieve',
+  receive: '/receive',
   qrScanner: '/qrscanner',
   account: '/account',
 };
@@ -51,8 +51,8 @@ export const ROUTES = [
     component: Withdrawal,
   },
   {
-    path: routerLinks.recieve,
-    component: Recieve,
+    path: routerLinks.receive,
+    component: Receive,
   },
   {
     path: routerLinks.qrScanner,
