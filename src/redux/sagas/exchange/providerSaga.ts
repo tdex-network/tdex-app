@@ -3,8 +3,8 @@ import { TradeType } from 'tdex-sdk';
 import {
   EXECUTE_TRADE,
   SET_PROVIDER_ENDPOINT,
-  setMarkets,
-  setAssets,
+  setProviderMarkets,
+  setProviderAssets,
 } from '../../actions/exchange/providerActions';
 import {
   setSendAsset,
@@ -32,8 +32,8 @@ function* initExchangeSaga() {
     const firstMarket = markets[0];
     const assets = yield call(fetchAssets, marketsToAssetIds(markets));
 
-    yield put(setMarkets(markets));
-    yield put(setAssets(assets));
+    yield put(setProviderMarkets(markets));
+    yield put(setProviderAssets(assets));
 
     if (markets) {
       yield put(setSendAsset(firstMarket?.baseAsset));

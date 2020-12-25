@@ -4,8 +4,6 @@ import { MarketInterface } from 'tdex-sdk';
 export const SET_PROVIDER_ENDPOINT = 'SET_PROVIDER_ENDPOINT';
 export const SET_PROVIDER_MARKETS = 'SET_PROVIDER_MARKETS';
 export const SET_PROVIDER_ASSETS = 'SET_PROVIDER_ASSETS';
-export const GET_MARKETS = 'GET_MARKETS';
-export const GET_PRICE = 'GET_PRICE';
 export const EXECUTE_TRADE = 'EXECUTE_TRADE';
 
 export const setProviderEndpoint = (endpoint: string): ActionType => {
@@ -15,30 +13,19 @@ export const setProviderEndpoint = (endpoint: string): ActionType => {
   };
 };
 
-export const setMarkets = (markets: Array<MarketInterface>): ActionType => {
+export const setProviderMarkets = (
+  markets: Array<MarketInterface>
+): ActionType => {
   return {
     type: SET_PROVIDER_MARKETS,
     payload: markets,
   };
 };
 
-export const setAssets = (assets: any): ActionType => {
+export const setProviderAssets = (assets: any): ActionType => {
   return {
     type: SET_PROVIDER_ASSETS,
     payload: assets,
-  };
-};
-
-export const getMarkets = (): ActionType => {
-  return {
-    type: GET_MARKETS,
-  };
-};
-
-export const getPrice = (market: MarketInterface): ActionType => {
-  return {
-    type: GET_PRICE,
-    payload: market,
   };
 };
 

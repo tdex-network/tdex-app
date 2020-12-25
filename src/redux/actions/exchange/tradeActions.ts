@@ -4,10 +4,10 @@ import { MarketInterface, TradeType } from 'tdex-sdk';
 export const SET_MARKET = 'SET_MARKET';
 export const SET_TRADE_TYPE = 'SET_TRADE_TYPE';
 export const SET_SEND_ASSET = 'SET_SEND_ASSET';
-export const SET_SEND_AMOUNT = 'SET_SEND_AMOUNT';
-export const ESTIMATE_SEND_AMOUNT = 'ESTIMATE_SEND_AMOUNT';
 export const SET_RECEIVE_ASSET = 'SET_RECEIVE_ASSET';
+export const SET_SEND_AMOUNT = 'SET_SEND_AMOUNT';
 export const SET_RECEIVE_AMOUNT = 'SET_RECEIVE_AMOUNT';
+export const ESTIMATE_SEND_AMOUNT = 'ESTIMATE_SEND_AMOUNT';
 export const ESTIMATE_RECEIVE_AMOUNT = 'ESTIMATE_RECEIVE_AMOUNT';
 export const SET_TRADABLE = 'SET_TRADABLE';
 export const SWAP_ASSETS = 'SWAP_ASSETS';
@@ -35,19 +35,6 @@ export const setSendAsset = (baseCurrency: string): ActionType => {
   };
 };
 
-export const setSendAmount = (amount: number): ActionType => {
-  return {
-    type: SET_SEND_AMOUNT,
-    payload: amount,
-  };
-};
-
-export const estimateSendAmount = (): ActionType => {
-  return {
-    type: ESTIMATE_SEND_AMOUNT,
-  };
-};
-
 export const setReceiveAsset = (quoteCurrency: string): ActionType => {
   return {
     type: SET_RECEIVE_ASSET,
@@ -55,10 +42,23 @@ export const setReceiveAsset = (quoteCurrency: string): ActionType => {
   };
 };
 
+export const setSendAmount = (amount: number): ActionType => {
+  return {
+    type: SET_SEND_AMOUNT,
+    payload: amount,
+  };
+};
+
 export const setReceiveAmount = (amount: number): ActionType => {
   return {
     type: SET_RECEIVE_AMOUNT,
     payload: amount,
+  };
+};
+
+export const estimateSendAmount = (): ActionType => {
+  return {
+    type: ESTIMATE_SEND_AMOUNT,
   };
 };
 
