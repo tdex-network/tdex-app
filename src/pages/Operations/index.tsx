@@ -12,6 +12,8 @@ import {
   IonLabel,
   IonText,
   IonLoading,
+  IonRefresher,
+  IonRefresherContent,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { withRouter, RouteComponentProps, useParams } from 'react-router';
@@ -22,6 +24,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getTransactions } from '../../redux/actions/transactionsActions';
 import { TxDisplayInterface, TxStatusEnum } from '../../utils/types';
 import { formatPriceString, getCoinsEquivalent } from '../../utils/helpers';
+import { chevronDownCircleOutline } from 'ionicons/icons';
+import { RefresherEventDetail } from '@ionic/core';
 
 const txTypes = ['deposit', 'withdrawal', 'swap', 'trade'];
 const statusText = {
@@ -30,9 +34,8 @@ const statusText = {
 };
 
 const Operations: React.FC<RouteComponentProps> = ({ history }) => {
-  const dispatch = useDispatch();
   const {
-    address,
+    addresses,
     assets,
     transactions,
     currency,
@@ -42,10 +45,11 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
     assets: state.wallet.assets,
     transactions: state.transactions.data,
     loading: state.transactions.loading,
-    address: state.wallet.address,
+    addresses: state.wallet.addresses,
     coinsRates: state.wallet.coinsRates,
     currency: state.settings.currency,
   }));
+  const dispatch = useDispatch();
   const [assetTransactions, setAssetTransactions] = useState<
     Array<TxDisplayInterface> | undefined
   >();
@@ -53,7 +57,14 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   const { asset_id } = useParams();
 
   useEffect(() => {
-    if (assetData && transactions && !assetTransactions) {
+    return () => {
+      setAssetTransactions(undefined);
+      setAssetData(undefined);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (assetData && transactions) {
       const txs = transactions[asset_id].map((tx: TxDisplayInterface) => {
         const priceEquivalent = getCoinsEquivalent(
           assetData,
@@ -71,7 +82,7 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
       });
       setAssetTransactions(txs);
     }
-  }, [transactions, assetTransactions, assetData]);
+  }, [transactions, assetData]);
 
   useEffect(() => {
     const fillAssetData = () => {
@@ -96,17 +107,12 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
     };
 
     if (assets && !transactions) {
-      dispatch(
-        getTransactions({
-          confidentialAddress: address.confidentialAddress,
-          privateBlindingKey: [address.blindingPrivateKey],
-        })
-      );
+      dispatch(getTransactions(addresses));
     }
-    if (assets?.length && !assetData) {
+    if (assets?.length) {
       fillAssetData();
     }
-  }, [assets]);
+  }, [assets, asset_id]);
 
   const toggleTxOpen = (idx: number) => {
     if (assetTransactions) {
@@ -131,6 +137,13 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
     }
   };
 
+  const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
+    dispatch(getTransactions(addresses));
+    setTimeout(() => {
+      event.detail.complete();
+    }, 2000);
+  };
+
   return (
     <IonPage>
       <div className="gradient-background"></div>
@@ -139,47 +152,56 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
         isOpen={loading}
         message={'Please wait...'}
       />
-      <IonHeader className="header operations">
-        <IonToolbar className="with-back-button">
-          <IonButton
-            style={{ zIndex: 10 }}
-            onClick={() => {
-              history.goBack();
-            }}
-          >
-            <IconBack />
-          </IonButton>
-          <IonTitle>{assetData?.name}</IonTitle>
-        </IonToolbar>
-        <div className="header-info">
-          <div className="img-wrapper">
-            {assetData && <CurrencyIcon currency={assetData?.ticker} />}
-          </div>
-          <p className="info-amount">
-            {assetData?.amountDisplayFormatted} <span>{assetData?.ticker}</span>
-          </p>
-          {assetData?.priceEquivalent && (
-            <p className="info-amount-converted">
-              {assetData.priceEquivalent} {currency.toUpperCase()}
-            </p>
-          )}
-        </div>
-        <IonButtons className="operations-buttons">
-          <IonButton className="coin-action-button" routerLink="/recieve">
-            Deposit
-          </IonButton>
-          <IonButton
-            className="coin-action-button"
-            routerLink={`/withdraw/${asset_id}`}
-          >
-            Withdraw
-          </IonButton>
-          <IonButton className="coin-action-button" routerLink="/swap">
-            Swap
-          </IonButton>
-        </IonButtons>
-      </IonHeader>
       <IonContent className="operations">
+        <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
+          <IonRefresherContent
+            pullingIcon={chevronDownCircleOutline}
+            refreshingSpinner="circles"
+          />
+        </IonRefresher>
+        <IonHeader className="header operations">
+          <IonToolbar className="with-back-button">
+            <IonButton
+              style={{ zIndex: 10 }}
+              onClick={() => {
+                history.push('/wallet');
+              }}
+            >
+              <IconBack />
+            </IonButton>
+            <IonTitle>{assetData?.name}</IonTitle>
+          </IonToolbar>
+          <div className="header-info">
+            <div className="img-wrapper">
+              {assetData && <CurrencyIcon currency={assetData?.ticker} />}
+            </div>
+            <p className="info-amount">
+              {assetData?.amountDisplayFormatted}{' '}
+              <span>{assetData?.ticker}</span>
+            </p>
+            {assetData?.priceEquivalent && (
+              <p className="info-amount-converted">
+                {assetData.priceEquivalent} {currency.toUpperCase()}
+              </p>
+            )}
+          </div>
+          <IonButtons className="operations-buttons">
+            <IonButton className="coin-action-button" routerLink="/receive">
+              Deposit
+            </IonButton>
+            <IonButton
+              className="coin-action-button"
+              onClick={() => {
+                history.push(`/withdraw/${asset_id}`);
+              }}
+            >
+              Withdraw
+            </IonButton>
+            <IonButton className="coin-action-button" routerLink="/swap">
+              Swap
+            </IonButton>
+          </IonButtons>
+        </IonHeader>
         <IonList>
           <IonListHeader>Transactions</IonListHeader>
           {assetTransactions?.map((tx: any, index: number) => (
@@ -229,9 +251,7 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
                   </div>
                   <div className="info-row">
                     <IonLabel>ADDR</IonLabel>
-                    {address && (
-                      <IonText>{address.confidentialAddress}</IonText>
-                    )}
+                    <IonText>{tx.address}</IonText>
                   </div>
                   <div className="info-row">
                     <IonLabel>TxID</IonLabel>

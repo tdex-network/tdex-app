@@ -1,15 +1,25 @@
 import { Storage } from '@capacitor/core';
-import { network } from '../config';
-import { IdentityType, EsploraIdentityRestorer } from 'tdex-sdk';
+import { network, provider } from '../config';
+import {
+  IdentityType,
+  IdentityOpts,
+  Mnemonic,
+  EsploraIdentityRestorer,
+} from 'tdex-sdk';
+import { IdentityRestorerFromState } from '../../utils/identity-restorer';
 import axios from 'axios';
 
 export const coinGeckoUrl = 'https://api.coingecko.com/api/v3';
 
-export const axiosExplorerObject = axios.create({ baseURL: network.explorer });
+export const axiosProviderObject = axios.create({ baseURL: provider.endpoint });
 export const axiosCoinGeckoObject = axios.create({ baseURL: coinGeckoUrl });
 
-export const getAssetsRequest = (path: string, options?: any) => {
-  return axiosExplorerObject.request({
+export const getAssetsRequest = (
+  path: string,
+  explorerUrlValue: string,
+  options?: any
+) => {
+  return axios.create({ baseURL: explorerUrlValue }).request({
     method: 'get',
     url: path,
     params: options?.params,
@@ -24,16 +34,25 @@ export const getCoinsRequest = (path: string, options?: any) => {
   });
 };
 
-export function getIdentity(seed: string, initializeFromRestorer: boolean) {
+export function getIdentityOpts(
+  mnemonic: string,
+  addresses?: Array<any>
+): IdentityOpts {
   return {
     chain: network.chain,
     type: IdentityType.Mnemonic,
     value: {
-      mnemonic: seed,
+      mnemonic,
     },
-    initializeFromRestorer,
-    restorer: new EsploraIdentityRestorer(network.explorer),
+    initializeFromRestorer: true,
+    restorer: addresses
+      ? new IdentityRestorerFromState(addresses)
+      : new EsploraIdentityRestorer(network.explorer),
   };
+}
+
+export function getIdentity(mnemonic: string, addresses?: Array<any>) {
+  return new Mnemonic(getIdentityOpts(mnemonic, addresses));
 }
 
 export const getWallet = async (): Promise<{ value: string }> => {
@@ -43,3 +62,30 @@ export const getWallet = async (): Promise<{ value: string }> => {
 export const getAddress = async (): Promise<{ value: string }> => {
   return Storage.get({ key: 'address' });
 };
+
+export const restoreWallet = async (identity: any): Promise<any> => {
+  return identity.isRestored;
+};
+
+export const signTx = async (identity: any, unsignedTx: any): Promise<any> => {
+  return identity.signPset(unsignedTx);
+};
+
+export async function broadcastTx(
+  hex: string,
+  explorerUrlValue: string
+): Promise<string> {
+  try {
+    const response = await axios.post(`${explorerUrlValue}/tx`, hex);
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+}
+
+export async function getCachedAddresses() {
+  return Storage.get({ key: 'addresses' }).then((response) =>
+    JSON.parse(response.value)
+  );
+}

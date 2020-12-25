@@ -16,7 +16,7 @@ interface TradeInterface {
   amount: number;
   asset: string;
   tradeType: TradeType;
-  identity: IdentityOpts;
+  identityOpts: IdentityOpts;
 }
 
 export async function fetchMarkets(endpoint: string) {
@@ -65,9 +65,9 @@ export async function previewPrice({
   amount,
   asset,
   tradeType,
-  identity,
+  identityOpts,
 }: TradeInterface) {
-  return initTrade(endpoint, market, identity).preview({
+  return initTrade(endpoint, market, identityOpts).preview({
     market,
     tradeType,
     amount: toSatoshi(amount),
@@ -81,9 +81,9 @@ export async function executeTrade({
   amount,
   asset,
   tradeType,
-  identity,
+  identityOpts,
 }: TradeInterface) {
-  const trade = initTrade(endpoint, market, identity);
+  const trade = initTrade(endpoint, market, identityOpts);
   const params = {
     market,
     amount: toSatoshi(amount),
@@ -97,11 +97,11 @@ export async function executeTrade({
 const initTrade = (
   endpoint: string,
   market: MarketInterface,
-  identity: IdentityOpts
+  identityOpts: IdentityOpts
 ) => {
   return new Trade({
     providerUrl: endpoint,
     explorerUrl: network.explorer,
-    identity,
+    identity: identityOpts,
   });
 };

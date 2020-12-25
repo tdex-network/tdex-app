@@ -1,6 +1,7 @@
 import React, { ChangeEvent } from 'react';
 import classNames from 'classnames';
 import { IonItem, IonLabel } from '@ionic/react';
+import { uuid4 } from '@capacitor/core/dist/esm/util';
 import './style.scss';
 
 interface PinInputInterface {
@@ -19,10 +20,10 @@ const PinInput: React.FC<PinInputInterface> = ({
   return (
     <IonItem lines="none" className="pin-wrapper">
       <IonLabel>
-        {[...new Array(6).fill(1)].map((_, index) => {
+        {[...new Array(6).fill('')].map((_, index) => {
           return (
             <div
-              key={index}
+              key={uuid4()}
               className={classNames('pin-input', {
                 active: index <= inputValue.length,
                 error,

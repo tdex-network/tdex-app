@@ -15,11 +15,14 @@ import {
   setReceiveAmount,
   setTradable,
 } from '../../../redux/actions/exchange/tradeActions';
-import { getIdentity } from '../../services/walletService';
 import {
   findMarketByAssets,
   previewPrice,
 } from '../../services/exchange/providerService';
+import {
+  getIdentityOpts,
+  getCachedAddresses,
+} from '../../services/walletService';
 import { ActionType } from '../../../utils/types';
 import { fromSatoshi } from '../../../utils/helpers';
 
@@ -89,7 +92,7 @@ function* selectCounterAssetSaga() {
 function* previewPriceSaga({ type }: ActionType) {
   try {
     const {
-      seed,
+      mnemonic,
       endpoint,
       market,
       sendAsset,
@@ -98,7 +101,7 @@ function* previewPriceSaga({ type }: ActionType) {
       receiveAmount,
       tradeType,
     } = yield select((state: any) => ({
-      seed: state.wallet.mnemonic,
+      mnemonic: state.wallet.mnemonic,
       endpoint: state.exchange.provider.endpoint,
       market: state.exchange.trade.market,
       sendAsset: state.exchange.trade.sendAsset,
@@ -108,7 +111,10 @@ function* previewPriceSaga({ type }: ActionType) {
       tradeType: state.exchange.trade.tradeType,
     }));
 
-    const identity = yield call(getIdentity, seed, false);
+    yield select((state: any) => console.log(state));
+
+    const addresses = yield call(getCachedAddresses);
+    const identityOpts = yield call(getIdentityOpts, mnemonic, addresses);
 
     const { amount, asset, setAmountAction } =
       type == ESTIMATE_RECEIVE_AMOUNT
@@ -132,7 +138,7 @@ function* previewPriceSaga({ type }: ActionType) {
         amount,
         asset,
         tradeType,
-        identity,
+        identityOpts,
       });
 
       estimatedAmount = fromSatoshi(

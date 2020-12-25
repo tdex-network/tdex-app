@@ -89,12 +89,6 @@ const Recieve: React.FC<RouteComponentProps> = ({ history }) => {
     }
   };
 
-  // const scanCode = async () => {
-  //   const data = await BarcodeScanner.scan();
-  //   alert(JSON.stringify(data));
-  //   setEncodedText(data.text);
-  // };
-
   return (
     <IonPage>
       <div className="gradient-background"></div>

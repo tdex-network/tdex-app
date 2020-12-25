@@ -11,7 +11,10 @@ import {
   setReceiveAsset,
   completeTrade,
 } from '../../../redux/actions/exchange/tradeActions';
-import { getIdentity } from '../../services/walletService';
+import {
+  getIdentityOpts,
+  getCachedAddresses,
+} from '../../services/walletService';
 import {
   fetchMarkets,
   fetchAssets,
@@ -43,7 +46,7 @@ function* initExchangeSaga() {
 
 function* executeTradeSaga() {
   const {
-    seed,
+    mnemonic,
     endpoint,
     market,
     sendAmount,
@@ -54,7 +57,7 @@ function* executeTradeSaga() {
     providerAssets,
     blindingPrivateKey,
   } = yield select((state: any) => ({
-    seed: state.wallet.mnemonic,
+    mnemonic: state.wallet.mnemonic,
     endpoint: state.exchange.provider.endpoint,
     market: state.exchange.trade.market,
     sendAmount: state.exchange.trade.sendAmount,
@@ -66,7 +69,8 @@ function* executeTradeSaga() {
     blindingPrivateKey: state.wallet.address.blindingPrivateKey,
   }));
 
-  const identity = yield call(getIdentity, seed, true);
+  const addresses = yield call(getCachedAddresses);
+  const identityOpts = yield call(getIdentityOpts, mnemonic, addresses);
   const amount = tradeType == TradeType.SELL ? sendAmount : receiveAmount;
   const asset = market.baseAsset;
 
@@ -77,7 +81,7 @@ function* executeTradeSaga() {
       amount,
       asset,
       tradeType,
-      identity,
+      identityOpts,
     });
 
     const sendTicker = providerAssets.find((x: any) => x.id == sendAsset)

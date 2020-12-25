@@ -17,7 +17,7 @@
 
 .diagram {
   position: absolute;
-  top: 50pt;
+  top: 65pt;
   left: 50%;
   transform: translateX(-50%);
 }
@@ -65,4 +65,7 @@
 }
 ion-refresher {
   z-index: 1;
+}
+.ml-auto {
+  margin-left: auto!important;
 }

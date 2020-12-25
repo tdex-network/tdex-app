@@ -1,5 +1,4 @@
 import { takeLatest, call, put, all, select } from 'redux-saga/effects';
-import { network } from '../config';
 import {
   GET_ASSETS,
   GET_BALANCES,
@@ -20,23 +19,32 @@ import {
 import { getAssetsRequest, getCoinsRequest } from '../services/walletService';
 import { AddressInterface, fetchBalances } from 'tdex-sdk';
 import { initAppFail, initAppSuccess } from '../actions/appActions';
+import { getBalancesFromArray } from '../../utils/helpers';
 
 function* getBalancesSaga({
   type,
-  payload: address,
+  payload: addresses,
 }: {
   type: string;
-  payload: AddressInterface;
+  payload: AddressInterface[];
 }) {
   try {
-    const data = yield call(
-      fetchBalances,
-      address.confidentialAddress,
-      address.blindingPrivateKey,
-      network.explorer
+    const explorerUrl = yield select(
+      (state: any) => state.settings.explorerUrl
     );
-    yield put(setBalances(data));
-    yield put(getAssets(data));
+    const data = yield all(
+      addresses.map((a) =>
+        call(
+          fetchBalances,
+          a.confidentialAddress,
+          a.blindingPrivateKey,
+          explorerUrl
+        )
+      )
+    );
+    const balances = getBalancesFromArray(data);
+    yield put(setBalances(balances));
+    yield put(getAssets(balances));
   } catch (e) {
     yield put(initAppFail());
     console.log(e);
@@ -51,12 +59,13 @@ function* getAssetSaga({
   payload: BalanceInterface;
 }) {
   try {
-    const { currency, coinsList } = yield select((state: any) => ({
+    const { currency, coinsList, explorerUrl } = yield select((state: any) => ({
       coinsList: state.wallet.coinsList,
       currency: state.settings.currency,
+      explorerUrl: state.settings.explorerUrl,
     }));
     const callArray = Object.keys(payload).map((assetId: string) =>
-      call(getAssetsRequest, `/asset/${assetId}`)
+      call(getAssetsRequest, `/asset/${assetId}`, explorerUrl)
     );
     const assetArray = yield all(callArray);
     const transformedAssets = assetTransformer(assetArray, payload);
@@ -124,8 +133,8 @@ function* getCoinsListSaga({ type }: { type: string }) {
   try {
     const { data } = yield call(getCoinsRequest, '/coins/list');
     yield put(setCoinsList(data));
-    const address = yield select((state: any) => state.wallet.address);
-    yield put(getBalances(address));
+    const addresses = yield select((state: any) => state.wallet.addresses);
+    yield put(getBalances(addresses));
   } catch (e) {
     console.log(e);
   }
