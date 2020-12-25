@@ -16,7 +16,7 @@ const initialState = {
 const searchReducer = (state = initialState, action: ActionType) => {
   switch (action.type) {
     case SHOW_SEARCH:
-      return { ...state, visibility: true, party: action.payload };
+      return { ...state, visibility: true, query: '', party: action.payload };
     case HIDE_SEARCH:
       return { ...state, visibility: false };
     case SET_SEARCH_ASSET_LIST:

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   IonContent,
@@ -11,18 +11,22 @@ import {
   setSendAsset,
   setReceiveAsset,
 } from '../../redux/actions/exchange/tradeActions';
-import { hideSearch } from '../../redux/actions/exchange/searchActions';
+import {
+  hideSearch,
+  searchAsset,
+} from '../../redux/actions/exchange/searchActions';
 import { IconSearch, IconClose, CurrencyIcon } from '../icons';
 import './style.scss';
 
 const ExchangeSearch: React.FC = () => {
   const dispatch = useDispatch();
 
-  const { searchVisibility, searchParty, assets } = useSelector(
+  const { searchVisibility, searchParty, assets, query } = useSelector(
     (state: any) => ({
       searchVisibility: state.exchange.search.visibility,
       searchParty: state.exchange.search.party,
       assets: state.exchange.search.assets,
+      query: state.exchange.search.query,
     })
   );
 
@@ -32,6 +36,10 @@ const ExchangeSearch: React.FC = () => {
     );
 
     dispatch(hideSearch());
+  }
+
+  function search(e: ChangeEvent<HTMLInputElement>) {
+    dispatch(searchAsset(e.target.value));
   }
 
   return (
@@ -45,7 +53,12 @@ const ExchangeSearch: React.FC = () => {
           <div>
             <label className="search-bar">
               <IconSearch />
-              <input placeholder="Search currency" type="text" />
+              <input
+                placeholder="Search currency"
+                type="text"
+                value={query}
+                onChange={search}
+              />
               <IconClose onClick={() => dispatch(hideSearch())} />
             </label>
           </div>
