@@ -1,6 +1,6 @@
 import { takeLatest, call, put, all, select } from 'redux-saga/effects';
 import {
-  GET_ASSETS,
+  GET_WALLET_ASSETS,
   GET_BALANCES,
   GET_COINS_LIST,
   getAssets,
@@ -141,7 +141,7 @@ function* getCoinsListSaga({ type }: { type: string }) {
 }
 
 export function* walletWatcherSaga() {
-  yield takeLatest(GET_ASSETS, getAssetSaga);
+  yield takeLatest(GET_WALLET_ASSETS, getAssetSaga);
   yield takeLatest(GET_COINS_LIST, getCoinsListSaga);
   yield takeLatest(GET_BALANCES, getBalancesSaga);
 }
