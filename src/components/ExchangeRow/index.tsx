@@ -83,18 +83,6 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({ party }) => {
     setDisplayedAmount(focused ? amountInputValue : formatAmount(amount));
   }, [amount, amountInputValue, focused]);
 
-  useEffect(() => {
-    if (focused) {
-      const timer = setTimeout(() => {
-        const counterParty = party == 'send' ? 'receive' : 'send';
-        dispatch(estimatePrice(counterParty));
-      }, ESTIMATE_DELAY);
-
-      clearTimeout(estimateTimer);
-      setEstimateTimer(timer);
-    }
-  }, [focused, amount]);
-
   const onClick = useCallback(() => {
     amountInputRef.current.focus();
   }, []);
@@ -119,7 +107,20 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({ party }) => {
         const setAmountAction =
           party === 'send' ? setSendAmount : setReceiveAmount;
 
+        const setCounterAction =
+          party === 'send' ? setReceiveAmount : setSendAmount;
+
+        const counterParty = party == 'send' ? 'receive' : 'send';
+
+        const timer = setTimeout(() => {
+          dispatch(estimatePrice(counterParty));
+        }, ESTIMATE_DELAY);
+
+        clearTimeout(estimateTimer);
+        setEstimateTimer(timer);
+
         dispatch(setAmountAction(parseFloat(filteredValue)));
+        dispatch(setCounterAction(0));
       }
     },
     [party]
@@ -128,7 +129,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({ party }) => {
   const onFocus = useCallback(() => {
     setAmountInputValue(amount);
     setFocused(true);
-  }, []);
+  }, [amount]);
 
   const onBlur = useCallback(
     (event: any) => {
