@@ -7,7 +7,6 @@ import {
   SET_RECEIVE_ASSET,
   SET_RECEIVE_AMOUNT,
   SWAP_ASSETS,
-  COMPLETE_TRADE,
   RESET_TRADE,
 } from '../../actions/exchange/tradeActions';
 
@@ -18,7 +17,6 @@ const initialState = {
   receiveAsset: null,
   sendAmount: 0,
   receiveAmount: 0,
-  completed: false,
   transactions: [],
 };
 
@@ -43,12 +41,6 @@ const tradeReducer = (state = initialState, action: ActionType) => {
         receiveAsset: state.sendAsset,
         sendAmount: 0,
         receiveAmount: 0,
-      };
-    case COMPLETE_TRADE:
-      return {
-        ...state,
-        transactions: [...state.transactions, action.payload],
-        completed: true,
       };
     case RESET_TRADE:
       return {

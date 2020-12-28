@@ -5,7 +5,10 @@ import {
   swapAssets,
   resetTrade,
 } from '../../redux/actions/exchange/tradeActions';
-import { executeTrade } from '../../redux/actions/exchange/providerActions';
+import {
+  executeTrade,
+  dismissTradeError,
+} from '../../redux/actions/exchange/providerActions';
 import {
   IonContent,
   IonHeader,
@@ -13,6 +16,8 @@ import {
   IonTitle,
   IonToolbar,
   IonButton,
+  IonLoading,
+  IonAlert,
 } from '@ionic/react';
 import { IconSwap } from '../../components/icons';
 import ExchangeRow from '../../components/ExchangeRow';
@@ -23,12 +28,13 @@ import './style.scss';
 const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
 
-  const { market, sendAmount, receiveAmount, completed } = useSelector(
+  const { market, sendAmount, receiveAmount, status, error } = useSelector(
     (state: any) => ({
       market: state.exchange.trade.market,
       sendAmount: state.exchange.trade.sendAmount,
       receiveAmount: state.exchange.trade.receiveAmount,
-      completed: state.exchange.trade.completed,
+      status: state.exchange.provider.status,
+      error: state.exchange.provider.error,
     })
   );
 
@@ -39,11 +45,11 @@ const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   }, [sendAmount, receiveAmount]);
 
   useEffect(() => {
-    if (completed) {
+    if (status == 'completed') {
       dispatch(resetTrade());
       history.push('/tradeSummary');
     }
-  }, [completed]);
+  }, [status]);
 
   const swap = useCallback(() => {
     dispatch(swapAssets());
@@ -53,8 +59,24 @@ const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
     dispatch(executeTrade());
   }, []);
 
+  const dismissError = useCallback(() => {
+    dispatch(dismissTradeError());
+  }, []);
+
   return (
     <IonPage>
+      <IonLoading
+        cssClass="my-custom-class"
+        isOpen={status == 'executing'}
+        message={'Please wait...'}
+      />
+      <IonAlert
+        isOpen={status == 'fail'}
+        onDidDismiss={dismissError}
+        header={'Trade failed'}
+        message={error}
+        buttons={['OK']}
+      />
       <div className="gradient-background"></div>
       <IonHeader className="exchange-header">
         <IonToolbar>

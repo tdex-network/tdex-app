@@ -6,6 +6,9 @@ export const SET_PROVIDER_MARKETS = 'SET_PROVIDER_MARKETS';
 export const SET_PROVIDER_ASSET_IDS = 'SET_PROVIDER_ASSET_IDS';
 export const ESTIMATE_PRICE = 'ESTIMATE_PRICE';
 export const EXECUTE_TRADE = 'EXECUTE_TRADE';
+export const TRADE_SUCCESS = 'TRADE_SUCCESS';
+export const TRADE_FAIL = 'TRADE_FAIL';
+export const DISMISS_TRADE_ERROR = 'DISMISS_TRADE_ERROR';
 
 export const setProviderEndpoint = (endpoint: string): ActionType => {
   return {
@@ -34,6 +37,26 @@ export const estimatePrice = (party: string): ActionType => {
   return {
     type: ESTIMATE_PRICE,
     payload: party,
+  };
+};
+
+export const tradeSuccess = (transaction: any): ActionType => {
+  return {
+    type: TRADE_SUCCESS,
+    payload: transaction,
+  };
+};
+
+export const tradeFail = (error: string): ActionType => {
+  return {
+    type: TRADE_FAIL,
+    payload: error,
+  };
+};
+
+export const dismissTradeError = (): ActionType => {
+  return {
+    type: DISMISS_TRADE_ERROR,
   };
 };
 

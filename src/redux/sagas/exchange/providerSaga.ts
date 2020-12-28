@@ -7,13 +7,14 @@ import {
   EXECUTE_TRADE,
   setProviderMarkets,
   setProviderAssetIds,
+  tradeSuccess,
+  tradeFail,
 } from '../../actions/exchange/providerActions';
 import {
   setSendAsset,
   setReceiveAsset,
   setSendAmount,
   setReceiveAmount,
-  completeTrade,
 } from '../../actions/exchange/tradeActions';
 import { setAssets } from '../../actions/assetsActions';
 import { prepareIdentityOpts } from '../../services/walletService';
@@ -176,9 +177,10 @@ function* executeTradeSaga() {
       createdAt: new Date(),
     };
 
-    yield put(completeTrade(transaction));
+    yield put(tradeSuccess(transaction));
   } catch (error) {
     console.log(error);
+    yield put(tradeFail(error.message));
   }
 }
 
