@@ -45,10 +45,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({ party }) => {
     rates: state.rates,
   }));
 
-  const [asset, setAsset] = useState({
-    ticker: '',
-    name: '',
-  });
+  const [asset, setAsset] = useState({ ticker: '', name: '' });
   const [balance, setBalance] = useState<number>(0);
   const [amount, setAmount] = useState(0);
   const [displayedAmount, setDisplayedAmount] = useState();
@@ -74,6 +71,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({ party }) => {
   }, [
     walletAssets,
     rates,
+    asset,
     assets,
     sendAmount,
     receiveAmount,
