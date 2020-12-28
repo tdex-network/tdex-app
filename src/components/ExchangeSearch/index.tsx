@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   IonContent,
@@ -21,26 +21,35 @@ import './style.scss';
 const ExchangeSearch: React.FC = () => {
   const dispatch = useDispatch();
 
-  const { searchVisibility, searchParty, assets, query } = useSelector(
+  const { searchVisibility, searchParty, assets, query, rates } = useSelector(
     (state: any) => ({
       searchVisibility: state.exchange.search.visibility,
       searchParty: state.exchange.search.party,
       assets: state.exchange.search.assets,
       query: state.exchange.search.query,
+      rates: state.rates,
     })
   );
 
-  function selectAsset(asset: any) {
-    dispatch(
-      searchParty == 'send' ? setSendAsset(asset) : setReceiveAsset(asset)
-    );
+  const search = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+    dispatch(searchAsset(event.target.value));
+  }, []);
 
+  const pick = useCallback(
+    (event) => {
+      const asset = event.currentTarget.dataset.asset;
+      const setAssetAction =
+        searchParty == 'send' ? setSendAsset : setReceiveAsset;
+
+      dispatch(setAssetAction(asset));
+      dispatch(hideSearch());
+    },
+    [searchParty, assets]
+  );
+
+  const close = useCallback(() => {
     dispatch(hideSearch());
-  }
-
-  function search(e: ChangeEvent<HTMLInputElement>) {
-    dispatch(searchAsset(e.target.value));
-  }
+  }, []);
 
   return (
     <div className="search">
@@ -59,7 +68,7 @@ const ExchangeSearch: React.FC = () => {
                 value={query}
                 onChange={search}
               />
-              <IconClose onClick={() => dispatch(hideSearch())} />
+              <IconClose onClick={close} />
             </label>
           </div>
         </IonHeader>
@@ -67,7 +76,7 @@ const ExchangeSearch: React.FC = () => {
           <IonList>
             {assets.map((asset: any) => {
               return (
-                <IonItem key={asset.id} onClick={() => selectAsset(asset.id)}>
+                <IonItem key={asset.id} data-asset={asset.id} onClick={pick}>
                   <div
                     // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
                     tabIndex={0}
@@ -78,12 +87,20 @@ const ExchangeSearch: React.FC = () => {
                     </span>
                     <p>{asset.name}</p>
                   </div>
-                  <div className="search-item-amount">
-                    <p>
-                      <span className="price-equivalent">10</span>
-                      <span>EUR</span>
-                    </p>
-                  </div>
+                  {rates.byCurrency['eur']?.[asset.ticker.toLowerCase()] && (
+                    <div className="search-item-amount">
+                      <p>
+                        <span className="price-equivalent">
+                          {
+                            rates.byCurrency['eur']?.[
+                              asset.ticker.toLowerCase()
+                            ]
+                          }
+                        </span>
+                        <span>EUR</span>
+                      </p>
+                    </div>
+                  )}
                 </IonItem>
               );
             })}

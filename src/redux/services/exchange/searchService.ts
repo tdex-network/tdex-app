@@ -1,8 +1,13 @@
-export function filterAssetsForSearch(assets: any, { query, exclude }: any) {
-  return assets
-    .filter((asset: any) => asset.id != exclude)
-    .filter(
-      (asset: any) =>
-        asset.name.toLowerCase().indexOf(query?.toLowerCase() || '') !== -1
-    );
+export function filterAssetsForSearch(
+  assetsById: any,
+  providerAssetIds: Array<string>,
+  query: string,
+  exclude?: string
+) {
+  return providerAssetIds
+    .map((id) => ({ id, ...assetsById[id] }))
+    .filter((asset) => asset.id != exclude)
+    .filter((asset) => {
+      return asset.name.toLowerCase().includes(query.toLowerCase());
+    });
 }

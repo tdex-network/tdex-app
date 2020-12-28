@@ -7,9 +7,6 @@ export const SET_SEND_ASSET = 'SET_SEND_ASSET';
 export const SET_RECEIVE_ASSET = 'SET_RECEIVE_ASSET';
 export const SET_SEND_AMOUNT = 'SET_SEND_AMOUNT';
 export const SET_RECEIVE_AMOUNT = 'SET_RECEIVE_AMOUNT';
-export const ESTIMATE_SEND_AMOUNT = 'ESTIMATE_SEND_AMOUNT';
-export const ESTIMATE_RECEIVE_AMOUNT = 'ESTIMATE_RECEIVE_AMOUNT';
-export const SET_TRADABLE = 'SET_TRADABLE';
 export const SWAP_ASSETS = 'SWAP_ASSETS';
 export const COMPLETE_TRADE = 'COMPLETE_TRADE';
 export const RESET_TRADE = 'RESET_TRADE';
@@ -53,25 +50,6 @@ export const setReceiveAmount = (amount: number): ActionType => {
   return {
     type: SET_RECEIVE_AMOUNT,
     payload: amount,
-  };
-};
-
-export const estimateSendAmount = (): ActionType => {
-  return {
-    type: ESTIMATE_SEND_AMOUNT,
-  };
-};
-
-export const estimateReceiveAmount = (): ActionType => {
-  return {
-    type: ESTIMATE_RECEIVE_AMOUNT,
-  };
-};
-
-export const setTradable = (tradable: boolean): ActionType => {
-  return {
-    type: SET_TRADABLE,
-    payload: tradable,
   };
 };
 

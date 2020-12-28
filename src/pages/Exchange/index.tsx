@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { RouteComponentProps } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -17,26 +17,26 @@ import {
 import { IconSwap } from '../../components/icons';
 import ExchangeRow from '../../components/ExchangeRow';
 import ExchangeSearch from '../../components/ExchangeSearch';
+import classNames from 'classnames';
 import './style.scss';
 
 const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
 
-  const { providerMarkets, tradable, completed } = useSelector(
+  const { market, sendAmount, receiveAmount, completed } = useSelector(
     (state: any) => ({
-      providerMarkets: state.exchange.provider.markets,
-      tradable: state.exchange.trade.tradable,
+      market: state.exchange.trade.market,
+      sendAmount: state.exchange.trade.sendAmount,
+      receiveAmount: state.exchange.trade.receiveAmount,
       completed: state.exchange.trade.completed,
     })
   );
 
-  function swap() {
-    dispatch(swapAssets());
-  }
+  const [tradable, setTradable] = useState(false);
 
-  function trade() {
-    dispatch(executeTrade());
-  }
+  useEffect(() => {
+    setTradable(sendAmount > 0 && receiveAmount > 0);
+  }, [sendAmount, receiveAmount]);
 
   useEffect(() => {
     if (completed) {
@@ -44,6 +44,14 @@ const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
       history.push('/tradeSummary');
     }
   }, [completed]);
+
+  const swap = useCallback(() => {
+    dispatch(swapAssets());
+  }, []);
+
+  const trade = useCallback(() => {
+    dispatch(executeTrade());
+  }, []);
 
   return (
     <IonPage>
@@ -53,7 +61,7 @@ const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
           <IonTitle>Exchange</IonTitle>
         </IonToolbar>
       </IonHeader>
-      {providerMarkets.length && (
+      {market && (
         <IonContent className="exchange-content">
           <div className="exchange">
             <div className="exchange-divider">
@@ -64,7 +72,9 @@ const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
           </div>
           <div className="buttons">
             <IonButton
-              className="main-button"
+              className={classNames('main-button', {
+                secondary: !tradable,
+              })}
               onClick={trade}
               disabled={!tradable}
             >

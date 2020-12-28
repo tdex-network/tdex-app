@@ -6,7 +6,6 @@ import {
   SET_SEND_AMOUNT,
   SET_RECEIVE_ASSET,
   SET_RECEIVE_AMOUNT,
-  SET_TRADABLE,
   SWAP_ASSETS,
   COMPLETE_TRADE,
   RESET_TRADE,
@@ -15,13 +14,12 @@ import {
 const initialState = {
   market: null,
   tradeType: null,
-  tradable: false,
   sendAsset: null,
   receiveAsset: null,
   sendAmount: 0,
   receiveAmount: 0,
-  transactions: [],
   completed: false,
+  transactions: [],
 };
 
 const tradeReducer = (state = initialState, action: ActionType) => {
@@ -38,15 +36,13 @@ const tradeReducer = (state = initialState, action: ActionType) => {
       return { ...state, receiveAsset: action.payload, receiveAmount: 0 };
     case SET_RECEIVE_AMOUNT:
       return { ...state, receiveAmount: action.payload };
-    case SET_TRADABLE:
-      return { ...state, tradable: action.payload };
     case SWAP_ASSETS:
       return {
         ...state,
         sendAsset: state.receiveAsset,
         receiveAsset: state.sendAsset,
-        sendAmount: state.receiveAmount,
-        receiveAmount: state.sendAmount,
+        sendAmount: 0,
+        receiveAmount: 0,
       };
     case COMPLETE_TRADE:
       return {
@@ -56,13 +52,8 @@ const tradeReducer = (state = initialState, action: ActionType) => {
       };
     case RESET_TRADE:
       return {
-        ...state,
-        completed: false,
-        tradable: false,
-        sendAsset: null,
-        receiveAsset: null,
-        sendAmount: 0,
-        receiveAmount: 0,
+        ...initialState,
+        transactions: state.transactions,
       };
     default:
       return state;

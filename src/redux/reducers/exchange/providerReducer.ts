@@ -2,13 +2,13 @@ import { ActionType } from '../../../utils/types';
 import {
   SET_PROVIDER_ENDPOINT,
   SET_PROVIDER_MARKETS,
-  SET_PROVIDER_ASSETS,
+  SET_PROVIDER_ASSET_IDS,
 } from '../../actions/exchange/providerActions';
 
 const initialState = {
   endpoint: null,
   markets: [],
-  assets: [],
+  assetIds: [],
 };
 
 const providerReducer = (state: any = initialState, action: ActionType) => {
@@ -17,8 +17,8 @@ const providerReducer = (state: any = initialState, action: ActionType) => {
       return { ...state, endpoint: action.payload };
     case SET_PROVIDER_MARKETS:
       return { ...state, markets: action.payload };
-    case SET_PROVIDER_ASSETS:
-      return { ...state, assets: action.payload };
+    case SET_PROVIDER_ASSET_IDS:
+      return { ...state, assetIds: action.payload };
     default:
       return state;
   }

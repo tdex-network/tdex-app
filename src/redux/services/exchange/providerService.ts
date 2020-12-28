@@ -2,13 +2,11 @@ import {
   TraderClient,
   Trade,
   TradeType,
-  networks,
   IdentityOpts,
   MarketInterface,
 } from 'tdex-sdk';
-import { network } from '../../config';
 import { toSatoshi } from '../../../utils/helpers';
-import axios from 'axios';
+import { network } from '../../config';
 
 interface TradeInterface {
   endpoint: string;
@@ -19,33 +17,9 @@ interface TradeInterface {
   identityOpts: IdentityOpts;
 }
 
-export async function fetchMarkets(endpoint: string) {
+export function fetchMarkets(endpoint: string) {
   const client = new TraderClient(endpoint);
   return client.markets();
-}
-
-export async function fetchAssets(assetIds: Array<any>) {
-  const assets = [];
-
-  for (const i in assetIds) {
-    const assetId = assetIds[i];
-    if (assetId === (networks as any)[network.chain].assetHash) {
-      assets.push({
-        id: assetId,
-        name: 'Liquid Bitcoin',
-        ticker: 'LBTC',
-      });
-    } else {
-      const response = await axios.get(`${network.explorer}/asset/${assetId}`);
-      assets.push({
-        id: assetId,
-        name: response.data.name,
-        ticker: response.data.ticker,
-      });
-    }
-  }
-
-  return assets;
 }
 
 export function findMarketByAssets(
@@ -59,7 +33,7 @@ export function findMarketByAssets(
       );
 }
 
-export async function previewPrice({
+export function estimatePrice({
   endpoint,
   market,
   amount,

@@ -1,6 +1,7 @@
 import { Storage } from '@capacitor/core';
 import { network, provider } from '../config';
 import {
+  AddressInterface,
   IdentityType,
   IdentityOpts,
   Mnemonic,
@@ -34,9 +35,9 @@ export const getCoinsRequest = (path: string, options?: any) => {
   });
 };
 
-export function getIdentityOpts(
+export function prepareIdentityOpts(
   mnemonic: string,
-  addresses?: Array<any>
+  addresses?: Array<AddressInterface>
 ): IdentityOpts {
   return {
     chain: network.chain,
@@ -52,7 +53,7 @@ export function getIdentityOpts(
 }
 
 export function getIdentity(mnemonic: string, addresses?: Array<any>) {
-  return new Mnemonic(getIdentityOpts(mnemonic, addresses));
+  return new Mnemonic(prepareIdentityOpts(mnemonic, addresses));
 }
 
 export const getWallet = async (): Promise<{ value: string }> => {

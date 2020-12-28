@@ -1,21 +1,34 @@
-import { takeLatest, put, select } from 'redux-saga/effects';
+import { takeLatest, put, select, call } from 'redux-saga/effects';
 import {
   SHOW_SEARCH,
   SEARCH_ASSET,
   setSearchAssetList,
-} from '../../../redux/actions/exchange/searchActions';
-import { filterAssetsForSearch } from '../../../redux/services/exchange/searchService';
+} from '../../actions/exchange/searchActions';
+import { filterAssetsForSearch } from '../../services/exchange/searchService';
 
 function* makeAssetsListSaga() {
-  const { assets, sendAsset, party, query } = yield select((state: any) => ({
-    assets: state.exchange.provider.assets,
-    sendAsset: state.exchange.trade.sendAsset,
+  const {
+    party,
+    sendAsset,
+    assetsById,
+    providerAssetIds,
+    query,
+  } = yield select((state: any) => ({
     party: state.exchange.search.party,
+    sendAsset: state.exchange.trade.sendAsset,
+    assetsById: state.assets.byId,
+    providerAssetIds: state.exchange.provider.assetIds,
     query: state.exchange.search.query,
   }));
 
   const exclude = party == 'receive' ? sendAsset : null;
-  const filteredAssets = filterAssetsForSearch(assets, { query, exclude });
+  const filteredAssets: any = yield call(
+    filterAssetsForSearch,
+    assetsById,
+    providerAssetIds,
+    query,
+    exclude
+  );
 
   yield put(setSearchAssetList(filteredAssets));
 }
