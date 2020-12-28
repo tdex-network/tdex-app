@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import walletReducer from './reducers/walletReducer';
+import assetsReducer from './reducers/assetsReducer';
 import ratesReducer from './reducers/ratesReducer';
 import searchReducer from './reducers/exchange/searchReducer';
 import tradeReducer from './reducers/exchange/tradeReducer';
@@ -11,6 +12,7 @@ import appReducer from './reducers/appReducer';
 const rootReducer = combineReducers({
   app: appReducer,
   wallet: walletReducer,
+  assets: assetsReducer,
   rates: ratesReducer,
   exchange: combineReducers({
     search: searchReducer,
