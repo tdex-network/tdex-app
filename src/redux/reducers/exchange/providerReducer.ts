@@ -28,11 +28,7 @@ const providerReducer = (state: any = initialState, action: ActionType) => {
     case EXECUTE_TRADE:
       return { ...state, status: 'executing' };
     case TRADE_SUCCESS:
-      return {
-        ...state,
-        transactions: [...state.transactions, action.payload],
-        status: 'complete',
-      };
+      return { ...state, status: 'complete' };
     case TRADE_FAIL:
       return { ...state, error: action.payload, status: 'fail' };
     case DISMISS_TRADE_ERROR:

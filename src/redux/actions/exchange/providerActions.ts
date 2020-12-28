@@ -40,10 +40,9 @@ export const estimatePrice = (party: string): ActionType => {
   };
 };
 
-export const tradeSuccess = (transaction: any): ActionType => {
+export const tradeSuccess = (): ActionType => {
   return {
     type: TRADE_SUCCESS,
-    payload: transaction,
   };
 };
 

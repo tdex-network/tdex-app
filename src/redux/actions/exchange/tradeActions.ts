@@ -9,6 +9,7 @@ export const SET_SEND_AMOUNT = 'SET_SEND_AMOUNT';
 export const SET_RECEIVE_AMOUNT = 'SET_RECEIVE_AMOUNT';
 export const SWAP_ASSETS = 'SWAP_ASSETS';
 export const RESET_TRADE = 'RESET_TRADE';
+export const ADD_TRANSACTION = 'ADD_TRANSACTION';
 
 export const setMarket = (market: MarketInterface): ActionType => {
   return {
@@ -61,5 +62,12 @@ export const swapAssets = (): ActionType => {
 export const resetTrade = (): ActionType => {
   return {
     type: RESET_TRADE,
+  };
+};
+
+export const addTransaction = (transaction: any): ActionType => {
+  return {
+    type: ADD_TRANSACTION,
+    payload: transaction,
   };
 };

@@ -15,9 +15,11 @@ import {
   setReceiveAsset,
   setSendAmount,
   setReceiveAmount,
+  addTransaction,
 } from '../../actions/exchange/tradeActions';
 import { setAssets } from '../../actions/assetsActions';
-import { prepareIdentityOpts } from '../../services/walletService';
+import { setAddresses, getBalances } from '../../actions/walletActions';
+import { prepareIdentityOpts, getIdentity } from '../../services/walletService';
 import {
   fetchMarkets,
   estimatePrice,
@@ -26,6 +28,7 @@ import {
 import { fetchAssets } from '../../services/assetsService';
 import { marketsToAssetIds } from '../../transformers/providerTransformers';
 import { fromSatoshi } from '../../../utils/helpers';
+import { storageAddresses } from '../../../utils/storage-helper';
 
 function* initExchangeSaga() {
   try {
@@ -154,13 +157,23 @@ function* executeTradeSaga() {
       identityOpts,
     });
 
+    const identity = getIdentity(mnemonic, addresses);
+    yield identity.getNextAddress();
+    yield identity.getNextChangeAddress();
+    const addressesAfterTrade = identity.getAddresses();
+
+    console.log(addresses, addressesAfterTrade);
+    yield call(storageAddresses, addressesAfterTrade);
+    yield put(setAddresses(addressesAfterTrade));
+    yield put(getBalances(addressesAfterTrade));
+
     const sendTicker = assets.byId[sendAsset].ticker;
     const receiveTicker = assets.byId[receiveAsset].ticker;
 
     const transaction = {
       txid,
       address: blindingPrivateKey,
-      status: 'complete',
+      status: 'completed',
       sentAmount: sendAmount,
       sentAsset: {
         id: sendAsset,
@@ -177,7 +190,8 @@ function* executeTradeSaga() {
       createdAt: new Date(),
     };
 
-    yield put(tradeSuccess(transaction));
+    yield put(tradeSuccess());
+    yield put(addTransaction(transaction));
   } catch (error) {
     console.log(error);
     yield put(tradeFail(error.message));

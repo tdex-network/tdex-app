@@ -45,7 +45,7 @@ const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   }, [sendAmount, receiveAmount]);
 
   useEffect(() => {
-    if (status == 'completed') {
+    if (status == 'complete') {
       dispatch(resetTrade());
       history.push('/tradeSummary');
     }

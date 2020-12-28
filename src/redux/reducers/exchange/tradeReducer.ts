@@ -8,6 +8,7 @@ import {
   SET_RECEIVE_AMOUNT,
   SWAP_ASSETS,
   RESET_TRADE,
+  ADD_TRANSACTION,
 } from '../../actions/exchange/tradeActions';
 
 const initialState = {
@@ -46,6 +47,11 @@ const tradeReducer = (state = initialState, action: ActionType) => {
       return {
         ...initialState,
         transactions: state.transactions,
+      };
+    case ADD_TRANSACTION:
+      return {
+        ...state,
+        transactions: [...state.transactions, action.payload],
       };
     default:
       return state;
