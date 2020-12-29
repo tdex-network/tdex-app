@@ -4,5 +4,6 @@
     "capacitor": {}
   },
   "type": "react",
-  "id": "87f4ef99"
+  "id": "87f4ef99",
+  "npmClient": "yarn"
 }

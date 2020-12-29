@@ -2,7 +2,7 @@
   "appId": "io.sevenlabs.app",
   "appName": "tdex-app",
   "bundledWebRuntime": false,
-  "npmClient": "npm",
+  "npmClient": "yarn",
   "webDir": "build",
   "plugins": {
     "SplashScreen": {
