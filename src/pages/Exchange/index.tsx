@@ -1,135 +1,111 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { RouteComponentProps } from 'react-router';
+import { useSelector, useDispatch } from 'react-redux';
+import {
+  swapAssets,
+  resetTrade,
+} from '../../redux/actions/exchange/tradeActions';
+import {
+  executeTrade,
+  dismissTradeError,
+} from '../../redux/actions/exchange/providerActions';
 import {
   IonContent,
-  IonList,
-  IonModal,
   IonHeader,
-  IonItem,
   IonPage,
   IonTitle,
   IonToolbar,
   IonButton,
+  IonLoading,
+  IonAlert,
 } from '@ionic/react';
-import React, { useState } from 'react';
-
-// components
-import {
-  IconSwap,
-  IconSearch,
-  IconClose,
-  IconBTC,
-} from '../../components/icons';
+import { IconSwap } from '../../components/icons';
 import ExchangeRow from '../../components/ExchangeRow';
-
-// styles
+import ExchangeSearch from '../../components/ExchangeSearch';
+import classNames from 'classnames';
 import './style.scss';
 
-const Exchange: React.FC = () => {
-  const [openSearch, setOpenSearch] = useState(false);
+const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
+  const dispatch = useDispatch();
+
+  const { market, sendAmount, receiveAmount, status, error } = useSelector(
+    (state: any) => ({
+      market: state.exchange.trade.market,
+      sendAmount: state.exchange.trade.sendAmount,
+      receiveAmount: state.exchange.trade.receiveAmount,
+      status: state.exchange.provider.status,
+      error: state.exchange.provider.error,
+    })
+  );
+
+  const [tradable, setTradable] = useState(false);
+
+  useEffect(() => {
+    setTradable(sendAmount > 0 && receiveAmount > 0);
+  }, [sendAmount, receiveAmount]);
+
+  useEffect(() => {
+    if (status == 'complete') {
+      dispatch(resetTrade());
+      history.push('/tradeSummary');
+    }
+  }, [status]);
+
+  const swap = useCallback(() => {
+    dispatch(swapAssets());
+  }, []);
+
+  const trade = useCallback(() => {
+    dispatch(executeTrade());
+  }, []);
+
+  const dismissError = useCallback(() => {
+    dispatch(dismissTradeError());
+  }, []);
 
   return (
     <IonPage>
+      <IonLoading
+        cssClass="my-custom-class"
+        isOpen={status == 'executing'}
+        message={'Please wait...'}
+      />
+      <IonAlert
+        isOpen={status == 'fail'}
+        onDidDismiss={dismissError}
+        header={'Trade failed'}
+        message={error}
+        buttons={['OK']}
+      />
       <div className="gradient-background"></div>
       <IonHeader className="exchange-header">
         <IonToolbar>
           <IonTitle>Exchange</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="exchange-content">
-        <div className="exchange">
-          <div className="exchange-divider">
-            <IconSwap />
+      {market && (
+        <IonContent className="exchange-content">
+          <div className="exchange">
+            <div className="exchange-divider">
+              <IconSwap onClick={swap} />
+            </div>
+            <ExchangeRow party="send" />
+            <ExchangeRow party="receive" />
           </div>
-          <ExchangeRow setOpenSearch={setOpenSearch} />
-          <ExchangeRow setOpenSearch={setOpenSearch} />
-        </div>
-        <div className="buttons">
-          <IonButton className="main-button" routerLink="tradeSummary">
-            Confirm
-          </IonButton>
-        </div>
-        <div className="search">
-          <IonModal cssClass="modal-small" isOpen={openSearch}>
-            <IonHeader>
-              <div>
-                <label className="search-bar">
-                  <IconSearch />
-                  <input placeholder="Search currency" type="text" />
-                  <IconClose />
-                </label>
-              </div>
-            </IonHeader>
-            <IonContent className="search-content">
-              <IonList>
-                <IonItem>
-                  <div className="search-item-name">
-                    <span className="icon-wrapper medium">
-                      <IconBTC width="24px" height="24px"></IconBTC>
-                    </span>
-                    <p>BTC Bitcoin</p>
-                  </div>
-                  <div className="search-item-amount">
-                    <p>
-                      9,500 <span>EUR</span>
-                    </p>
-                  </div>
-                </IonItem>
-                <IonItem>
-                  <div className="search-item-name">
-                    <span className="icon-wrapper medium">
-                      <IconBTC width="24px" height="24px"></IconBTC>
-                    </span>
-                    <p>BTC Bitcoin</p>
-                  </div>
-                  <div className="search-item-amount">
-                    <p>
-                      9,500 <span>EUR</span>
-                    </p>
-                  </div>
-                </IonItem>
-                <IonItem>
-                  <div className="search-item-name">
-                    <span className="icon-wrapper medium">
-                      <IconBTC width="24px" height="24px"></IconBTC>
-                    </span>
-                    <p>BTC Bitcoin</p>
-                  </div>
-                  <div className="search-item-amount">
-                    <p>
-                      9,500 <span>EUR</span>
-                    </p>
-                  </div>
-                </IonItem>
-                <IonItem>
-                  <div className="search-item-name">
-                    <span className="icon-wrapper medium">
-                      <IconBTC width="24px" height="24px"></IconBTC>
-                    </span>
-                    <p>BTC Bitcoin</p>
-                  </div>
-                  <div className="search-item-amount">
-                    <p>
-                      9,500 <span>EUR</span>
-                    </p>
-                  </div>
-                </IonItem>
-                <IonItem>
-                  <div className="search-item-name">
-                    <span className="icon-wrapper medium">
-                      <IconBTC width="24px" height="24px"></IconBTC>
-                    </span>
-                    <p>BTC Bitcoin</p>
-                  </div>
-                  <div className="search-item-amount">
-                    <p>
-                      9,500 <span>EUR</span>
-                    </p>
-                  </div>
-                </IonItem>
-              </IonList>
-            </IonContent>
-          </IonModal>
-        </div>
-      </IonContent>
+          <div className="buttons">
+            <IonButton
+              className={classNames('main-button', {
+                secondary: !tradable,
+              })}
+              onClick={trade}
+              disabled={!tradable}
+            >
+              Confirm
+            </IonButton>
+          </div>
+          <ExchangeSearch />
+        </IonContent>
+      )}
     </IonPage>
   );
 };

@@ -13,6 +13,7 @@ export enum TxTypeEnum {
 
 export interface TxDisplayInterface {
   asset: string;
+  address: string;
   fee: string;
   txId: string;
   amount: number;

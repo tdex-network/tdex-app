@@ -1,0 +1,34 @@
+@import "../../theme/variables";
+
+.qr-scanner {
+  position: relative;
+  .rect {
+    width: 272pt;
+    height: 272pt;
+    box-sizing: content-box;
+    border-width: calc(50vh - 136pt) calc(50vw - 136pt);
+    border-style: solid;
+    border-color: rgba(0,0,0, .2);
+    position: fixed;
+    left: 0;
+    top: 0;
+    .rect-border {
+      border: 2pt solid #fff;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  }
+  .cancel-btn {
+    --background: transparent;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    color: $light-green-color;
+  }
+}
+.semitransparent {
+  --background: rgba(0,0,0, .2);
+  background: rgba(0,0,0, .2);
+}

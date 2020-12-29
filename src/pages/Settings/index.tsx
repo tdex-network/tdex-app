@@ -8,13 +8,31 @@ import {
   IonToolbar,
   IonListHeader,
   IonToggle,
+  IonModal,
+  IonButton,
+  IonLabel,
+  IonInput,
 } from '@ionic/react';
-import React from 'react';
-import { IconRightArrow } from '../../components/icons';
+import React, { useState } from 'react';
+import { IconClose, IconRightArrow } from '../../components/icons';
 import { withRouter } from 'react-router';
 import './style.scss';
+import PageDescription from '../../components/PageDescription';
+import { setElectrumServer } from '../../redux/actions/settingsActions';
+import { useDispatch, useSelector } from 'react-redux';
 
 const Settings: React.FC<any> = ({ history }) => {
+  const { explorerUrl } = useSelector((state: any) => ({
+    explorerUrl: state.settings.explorerUrl,
+  }));
+  const [showExplorerModal, setShowExplorerModal] = useState(false);
+  const [explorerValue, setExplorerValue] = useState(explorerUrl);
+  const dispatch = useDispatch();
+  const handleExplorerChange = (e: any) => {
+    const { value } = e.detail;
+    setExplorerValue(value);
+  };
+
   return (
     <IonPage>
       <div className="gradient-background"></div>
@@ -32,6 +50,10 @@ const Settings: React.FC<any> = ({ history }) => {
               history.push('/account');
             }}
           >
+            <div
+              // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
+              tabIndex={0}
+            ></div>
             <div className="item-main-info">
               <div className="item-start">
                 <div className="main-row">Account </div>
@@ -53,6 +75,10 @@ const Settings: React.FC<any> = ({ history }) => {
               history.push('/liquidity-provider');
             }}
           >
+            <div
+              // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
+              tabIndex={0}
+            ></div>
             <div className="item-main-info">
               <div className="item-start">
                 <div className="main-row">Manage liquidity provider </div>
@@ -74,6 +100,10 @@ const Settings: React.FC<any> = ({ history }) => {
               history.push('/currency');
             }}
           >
+            <div
+              // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
+              tabIndex={0}
+            ></div>
             <div className="item-main-info">
               <div className="item-start">
                 <div className="main-row">Default currency </div>
@@ -93,9 +123,13 @@ const Settings: React.FC<any> = ({ history }) => {
           <IonItem
             className="list-item"
             onClick={() => {
-              history.push('/electrum');
+              setShowExplorerModal(true);
             }}
           >
+            <div
+              // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
+              tabIndex={0}
+            ></div>
             <div className="item-main-info">
               <div className="item-start">
                 <div className="main-row">Electrum server </div>
@@ -112,6 +146,10 @@ const Settings: React.FC<any> = ({ history }) => {
             </div>
           </IonItem>
           <IonItem className="list-item">
+            <div
+              // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
+              tabIndex={0}
+            ></div>
             <div className="item-main-info">
               <div className="item-start">
                 <div className="main-row">Layout mode </div>
@@ -131,6 +169,10 @@ const Settings: React.FC<any> = ({ history }) => {
               history.push('/faq');
             }}
           >
+            <div
+              // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
+              tabIndex={0}
+            ></div>
             <div className="item-main-info">
               <div className="item-start">
                 <div className="main-row">FAQ </div>
@@ -152,6 +194,10 @@ const Settings: React.FC<any> = ({ history }) => {
               history.push('/terms');
             }}
           >
+            <div
+              // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
+              tabIndex={0}
+            ></div>
             <div className="item-main-info">
               <div className="item-start">
                 <div className="main-row">Terms & Conditions </div>
@@ -168,6 +214,58 @@ const Settings: React.FC<any> = ({ history }) => {
             </div>
           </IonItem>
         </IonList>
+        {showExplorerModal && (
+          <IonModal
+            isOpen={showExplorerModal}
+            cssClass="modal-big withdrawal"
+            keyboardClose={false}
+          >
+            <div className="gradient-background" />
+            <IonHeader>
+              <IonToolbar className="with-back-button">
+                <IonButton
+                  style={{ zIndex: 10 }}
+                  onClick={() => {
+                    setShowExplorerModal(false);
+                  }}
+                >
+                  <IconClose />
+                </IonButton>
+                <IonTitle>Show Mnemonic</IonTitle>
+              </IonToolbar>
+            </IonHeader>
+            <IonContent>
+              <PageDescription title="Secret phrase">
+                <p>Set explorer url for electrum server</p>
+              </PageDescription>
+              <IonInput
+                type="text"
+                value={explorerValue}
+                onIonChange={handleExplorerChange}
+              />
+              <div className="buttons">
+                <IonButton
+                  onClick={() => dispatch(setElectrumServer(explorerValue))}
+                  type="button"
+                  className="main-button"
+                  disabled={!explorerValue || !explorerValue.length}
+                >
+                  Save
+                </IonButton>
+              </div>
+              <div className="align-center">
+                <IonButton
+                  onClick={() => {
+                    setShowExplorerModal(false);
+                  }}
+                  className="cancel-button"
+                >
+                  <IonLabel>Cancel</IonLabel>
+                </IonButton>
+              </div>
+            </IonContent>
+          </IonModal>
+        )}
       </IonContent>
     </IonPage>
   );

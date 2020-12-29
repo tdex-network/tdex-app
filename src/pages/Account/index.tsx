@@ -10,14 +10,56 @@ import {
   IonText,
   IonIcon,
   IonButton,
+  IonModal,
+  IonLabel,
 } from '@ionic/react';
-import React from 'react';
-import { IconBack, IconRightArrow } from '../../components/icons';
+import React, { useRef, useState } from 'react';
+import { IconBack, IconClose, IconRightArrow } from '../../components/icons';
 import { withRouter } from 'react-router';
 import './style.scss';
 import { eye, lockClosed, shieldCheckmark } from 'ionicons/icons';
+import PinModal from '../../components/PinModal';
+import { useSelector } from 'react-redux';
+
+import { decrypt } from '../../utils/crypto';
+import PageDescription from '../../components/PageDescription';
+import { Clipboard } from '@ionic-native/clipboard';
+import NewPinModal from '../../components/NewPinModal';
 
 const Account: React.FC<any> = ({ history }) => {
+  const { mnemonic } = useSelector((state: any) => ({
+    mnemonic: state.wallet.mnemonic,
+  }));
+  const [showNewPinModal, setShowNewPinModal] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [showMnemonicModal, setShowMnemonicModal] = useState(false);
+  const [mnemonicPhrase, setMnemonicPhrase] = useState<string>('');
+  const [copied, setCopied] = useState<boolean>(false);
+  const mnemonicRef: any = useRef(null);
+  const onShowMnemonic = (pin: string) => {
+    setMnemonicPhrase(decrypt(mnemonic, pin));
+    setShowPinModal(false);
+    setShowMnemonicModal(true);
+  };
+  const copyMnemonic = () => {
+    if (mnemonicRef) {
+      Clipboard.copy(mnemonicPhrase)
+        .then((res: any) => {
+          setCopied(true);
+          setTimeout(() => {
+            setCopied(false);
+          }, 5000);
+        })
+        .catch((e: any) => {
+          mnemonicRef.current.select();
+          document.execCommand('copy');
+          setCopied(true);
+          setTimeout(() => {
+            setCopied(false);
+          }, 10000);
+        });
+    }
+  };
   return (
     <IonPage>
       <div className="gradient-background" />
@@ -40,11 +82,11 @@ const Account: React.FC<any> = ({ history }) => {
           <IonItem
             className="list-item"
             onClick={() => {
-              history.push('/set-pin');
+              setShowPinModal(true);
             }}
           >
             <div className="item-main-info">
-              <IonIcon icon={eye}></IonIcon>
+              <IonIcon icon={eye} />
               <div className="item-start">
                 <div className="main-row">Show mnemonic</div>
                 <IonText className="description">
@@ -95,7 +137,7 @@ const Account: React.FC<any> = ({ history }) => {
           <IonItem
             className="list-item"
             onClick={() => {
-              history.push('/set-pin');
+              setShowNewPinModal(true);
             }}
           >
             <div className="item-main-info">
@@ -119,6 +161,73 @@ const Account: React.FC<any> = ({ history }) => {
             </div>
           </IonItem>
         </IonList>
+        {showPinModal && (
+          <PinModal
+            openModal={showPinModal}
+            title={'ENTER PIN'}
+            onConfirm={onShowMnemonic}
+            withClose
+            setOpenModal={setShowPinModal}
+          />
+        )}
+        {showMnemonicModal && (
+          <IonModal
+            isOpen={showMnemonicModal}
+            cssClass="modal-big withdrawal"
+            keyboardClose={false}
+          >
+            <div className="gradient-background" />
+            <IonHeader>
+              <IonToolbar className="with-back-button">
+                <IonButton
+                  style={{ zIndex: 10 }}
+                  onClick={() => {
+                    setShowMnemonicModal(false);
+                  }}
+                >
+                  <IconClose />
+                </IonButton>
+                <IonTitle>Show Mnemonic</IonTitle>
+              </IonToolbar>
+            </IonHeader>
+            <IonContent>
+              <PageDescription title="Secret phrase">
+                <p>{mnemonicPhrase}</p>
+              </PageDescription>
+              <input
+                type="text"
+                ref={mnemonicRef}
+                value={mnemonicPhrase}
+                className="hidden-input"
+              />
+              <div className="buttons">
+                <IonButton
+                  onClick={() => copyMnemonic()}
+                  type="button"
+                  className="main-button"
+                >
+                  {copied ? 'Copied' : 'Copy'}
+                </IonButton>
+              </div>
+              <div className="align-center">
+                <IonButton
+                  onClick={() => {
+                    setShowMnemonicModal(false);
+                  }}
+                  className="cancel-button"
+                >
+                  <IonLabel>Cancel</IonLabel>
+                </IonButton>
+              </div>
+            </IonContent>
+          </IonModal>
+        )}
+        {showNewPinModal && (
+          <NewPinModal
+            setOpenModal={setShowNewPinModal}
+            openModal={showNewPinModal}
+          />
+        )}
       </IonContent>
     </IonPage>
   );

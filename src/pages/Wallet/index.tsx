@@ -43,10 +43,10 @@ interface DiagramInterface {
 }
 
 const Wallet: React.FC<any> = ({ history }) => {
-  const { address, assets, currency, coinsRates, loading } = useSelector(
+  const { addresses, assets, currency, coinsRates, loading } = useSelector(
     (state: any) => ({
       mnemonic: state.wallet.mnemonic,
-      address: state.wallet.address,
+      addresses: state.wallet.addresses,
       assets: state.wallet.assets,
       coinsList: state.wallet.coinsList,
       currency: state.settings.currency,
@@ -81,10 +81,12 @@ const Wallet: React.FC<any> = ({ history }) => {
         mainAssets: [],
         otherAssets: [],
       };
+
       mainAssets.forEach((item: string) => {
         const asset = assets.find(
           (assetItem: any) => assetItem.ticker.toLowerCase() === item
         );
+
         if (asset) {
           const priceEquivalent = getCoinsEquivalent(
             asset,
@@ -92,13 +94,16 @@ const Wallet: React.FC<any> = ({ history }) => {
             asset.amountDisplay,
             currency
           );
+
           totalAmount += Number(priceEquivalent);
+
           assetsObject.mainAssets.push({
             ...asset,
             priceEquivalent: priceEquivalent
               ? formatPriceString(priceEquivalent)
               : priceEquivalent,
           });
+
           if (priceEquivalent) {
             diagramArray.push({
               type: asset.ticker.toUpperCase(),
@@ -107,6 +112,7 @@ const Wallet: React.FC<any> = ({ history }) => {
           }
         }
       });
+
       assets.forEach((asset: any) => {
         if (!mainAssets.includes(asset.ticker.toLowerCase())) {
           const priceEquivalent = getCoinsEquivalent(
@@ -116,12 +122,14 @@ const Wallet: React.FC<any> = ({ history }) => {
             currency
           );
           totalAmount += Number(priceEquivalent);
+
           assetsObject.otherAssets.push({
             ...asset,
             priceEquivalent: priceEquivalent
               ? formatPriceString(priceEquivalent)
               : priceEquivalent,
           });
+
           if (priceEquivalent) {
             diagramArray.push({
               type: asset.ticker.toUpperCase(),
@@ -130,6 +138,7 @@ const Wallet: React.FC<any> = ({ history }) => {
           }
         }
       });
+
       setDisplayAssets(assetsObject);
       setTotal({
         lbtc: {
@@ -149,12 +158,13 @@ const Wallet: React.FC<any> = ({ history }) => {
     }
   }, [assets, coinsRates]);
 
-  const buttonRefresh = (event: CustomEvent<RefresherEventDetail>) => {
-    dispatch(getBalances(address));
+  const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
+    dispatch(getBalances(addresses));
     setTimeout(() => {
       event.detail.complete();
     }, 2000);
   };
+
   return (
     <IonPage>
       <div className="gradient-background"></div>
@@ -164,7 +174,7 @@ const Wallet: React.FC<any> = ({ history }) => {
         message={'Please wait...'}
       />
       <IonContent className="wallet-content">
-        <IonRefresher slot="fixed" onIonRefresh={buttonRefresh}>
+        <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
           <IonRefresherContent
             pullingIcon={chevronDownCircleOutline}
             refreshingSpinner="circles"
@@ -195,12 +205,12 @@ const Wallet: React.FC<any> = ({ history }) => {
           </div>
         </IonHeader>
         <IonButtons className="operations-buttons">
-          <IonButton className="coin-action-button" routerLink="/recieve">
+          <IonButton
+            className="coin-action-button ml-auto"
+            routerLink="/receive"
+          >
             Deposit
           </IonButton>
-          {/*<IonButton className="coin-action-button" onClick={buttonRefresh}>*/}
-          {/*  Refresh*/}
-          {/*</IonButton>*/}
         </IonButtons>
         <IonList>
           {displayAssets.mainAssets.length ? (
