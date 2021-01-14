@@ -19,7 +19,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getBalances } from '../../redux/actions/walletActions';
 import { CurrencyIcon } from '../../components/icons';
 import { mainAssets } from '../../utils/constants';
-import { formatPriceString, getCoinsEquivalent } from '../../utils/helpers';
+import {
+  formatPriceString,
+  getCoinsEquivalent,
+  getRandomColor,
+} from '../../utils/helpers';
 import CircleDiagram from '../../components/CircleDiagram';
 import { RefresherEventDetail } from '@ionic/core';
 //styles
@@ -64,6 +68,7 @@ const Wallet: React.FC<any> = ({ history }) => {
     otherAssets: [],
   });
   const [diagramData, setDiagramData] = useState<Array<DiagramInterface>>([]);
+  const [diagramOtherColors, setDiagramOtherColors] = useState<any>({});
 
   useEffect(() => {
     if (assets && assets.length && coinsRates) {
@@ -74,6 +79,9 @@ const Wallet: React.FC<any> = ({ history }) => {
           ) => DiagramInterface[] | undefined)
         | { type: any; amount: number }[]
         | undefined = [];
+      const otherColors: {
+        [key: string]: string;
+      } = {};
       const assetsObject: {
         mainAssets: Array<any>;
         otherAssets: Array<any>;
@@ -135,6 +143,9 @@ const Wallet: React.FC<any> = ({ history }) => {
               type: asset.ticker.toUpperCase(),
               amount: Number(priceEquivalent),
             });
+            otherColors[asset.ticker.toLowerCase()] =
+              diagramOtherColors[asset.ticker.toLowerCase()] ||
+              getRandomColor();
           }
         }
       });
@@ -155,6 +166,7 @@ const Wallet: React.FC<any> = ({ history }) => {
       if (diagramArray.length) {
         setDiagramData(diagramArray);
       }
+      setDiagramOtherColors(otherColors);
     }
   }, [assets, coinsRates]);
 
@@ -183,6 +195,7 @@ const Wallet: React.FC<any> = ({ history }) => {
         <div className="diagram">
           <CircleDiagram
             data={diagramData}
+            otherColors={diagramOtherColors}
             total={Number(total ? total[currency].amount : '')}
           />
         </div>
