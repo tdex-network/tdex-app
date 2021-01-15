@@ -78,8 +78,11 @@ const CircleDiagram: React.FC<CircleDiagram> = ({
           : start + length;
     };
 
-    const fillColor = (item: any, grad: any) => {
-      if (colors[item.type.toLowerCase()]) {
+    const fillColor = (grad: any, item?: any) => {
+      if (!item) {
+        grad.addColorStop(0, '#CCCCCC');
+        grad.addColorStop(1, '#CCCCCC');
+      } else if (colors[item.type.toLowerCase()]) {
         const [first, second] = colors[item.type.toLowerCase()];
         grad.addColorStop(0, first);
         grad.addColorStop(1, second);
@@ -87,9 +90,6 @@ const CircleDiagram: React.FC<CircleDiagram> = ({
         const color = otherColors[item.type.toLowerCase()];
         grad.addColorStop(0, color);
         grad.addColorStop(1, color);
-      } else {
-        grad.addColorStop(0, '#CCCCCC');
-        grad.addColorStop(1, '#CCCCCC');
       }
     };
 
@@ -117,11 +117,12 @@ const CircleDiagram: React.FC<CircleDiagram> = ({
       data.forEach((item: any, index: number) => {
         const grad = ctx.createLinearGradient(100, 0, 200, 200);
         getElementPosition(item, index, discrepancy);
-        fillColor(item, grad);
+        fillColor(grad, item);
         drawDiagram(grad);
       });
     } else {
       const grad = ctx.createLinearGradient(100, 0, 200, 200);
+      fillColor(grad);
       drawDiagram(grad);
     }
   };

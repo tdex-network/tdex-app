@@ -22,7 +22,7 @@ import { mainAssets } from '../../utils/constants';
 import {
   formatPriceString,
   getCoinsEquivalent,
-  getRandomColor,
+  createColorFromHash,
 } from '../../utils/helpers';
 import CircleDiagram from '../../components/CircleDiagram';
 import { RefresherEventDetail } from '@ionic/core';
@@ -145,7 +145,7 @@ const Wallet: React.FC<any> = ({ history }) => {
             });
             otherColors[asset.ticker.toLowerCase()] =
               diagramOtherColors[asset.ticker.toLowerCase()] ||
-              getRandomColor();
+              createColorFromHash(asset.asset_id);
           }
         }
       });
