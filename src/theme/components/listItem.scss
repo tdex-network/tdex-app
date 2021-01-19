@@ -62,7 +62,7 @@ ion-list-header {
       text-align: right;
       margin-right: 8px;
       .main-row {
-        font-family: $sub-heading-font;
+        font-family: $sub-font;
       }
     }
     .second-col {
@@ -199,5 +199,56 @@ ion-list-header {
   }
   &.pending {
     color: $pending-color;
+  }
+}
+
+.light {
+  .status-text {
+    &.confirmed {
+      color: $green-color;
+    }
+    &.pending {
+      color: $dark-pending-color;
+    }
+  }
+
+  ion-item {
+    --color: rgb(0, 0, 0);
+  }
+  .list-item {
+    background-color: #fff;
+  }
+  .transaction-item {
+    .info-wrapper {
+      .sub-row {
+        color: rgb(144, 144, 144)
+      }
+      .item-main-info {
+        .item-end {
+          .status {
+            &.pending {
+              color: $dark-pending-color;
+              .three-dots {
+                .dot {
+                  background-color: $dark-pending-color;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .info-wrapper .item-main-info,
+  .item-main-info {
+    .sub-row {
+      color: rgb(144, 144, 144)
+    }
+    .item-end {
+      svg {
+        fill: rgb(51, 51, 51);
+      }
+    }
   }
 }

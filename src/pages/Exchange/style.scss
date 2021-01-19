@@ -1,3 +1,5 @@
+@import "../../theme/variables";
+
 .exchange-header {
   background: rgb(51, 51, 51);
 }
@@ -29,5 +31,18 @@
   svg {
     cursor: pointer;
     fill: rgb(15, 255, 0);
+  }
+}
+
+.light {
+  .exchange-header {
+    background: transparent;
+  }
+  .exchange-divider {
+    background: #fff;
+    border: 1px solid #f4f4f4;
+    svg {
+      fill: $green-color;
+    }
   }
 }

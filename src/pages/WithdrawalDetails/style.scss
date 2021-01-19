@@ -28,3 +28,11 @@
     word-break: break-word;
   }
 }
+
+.light {
+  .withdrawal-details {
+    ion-item {
+      --background: #fff;
+    }
+  }
+}

@@ -46,7 +46,11 @@ const TradeSummary: React.FC = ({ history }: any) => {
               height="45px"
             />
           </span>
-          <span className="icon-wrapper large with-border">
+          <span
+            className={`icon-wrapper large with-border ${
+              transaction?.sentAsset?.ticker || 'lbtc'
+            }-icon`}
+          >
             <CurrencyIcon
               currency={transaction.receivedAsset.ticker}
               width="45px"

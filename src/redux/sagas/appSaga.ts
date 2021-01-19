@@ -26,6 +26,7 @@ import { storageAddresses } from '../../utils/storage-helper';
 import { Storage } from '@capacitor/core';
 import { provider } from '../config';
 import { decrypt } from '../../utils/crypto';
+import { restoreTheme } from '../actions/settingsActions';
 
 function* initAppSaga({ type }: { type: string }) {
   try {
@@ -35,6 +36,7 @@ function* initAppSaga({ type }: { type: string }) {
       yield put(setMnemonic(walletObj.mnemonic));
       yield put(setSignedUp(true));
     }
+    yield put(restoreTheme());
     yield put(initAppSuccess());
   } catch (e) {
     yield put(initAppFail());
