@@ -3,7 +3,7 @@ let network: any, provider: any;
 if (process.env.NODE_ENV == 'development') {
   network = {
     chain: 'regtest',
-    explorer: 'http://127.1:3001',
+    explorer: 'http://localhost:3001',
   };
 
   provider = {
