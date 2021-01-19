@@ -60,3 +60,12 @@ ion-modal.modal-small {
     font-family: $main-font;
   }
 }
+
+.light {
+
+  ion-modal.modal-small {
+    .modal-wrapper {
+      background: #f4f4f4;
+    }
+  }
+}

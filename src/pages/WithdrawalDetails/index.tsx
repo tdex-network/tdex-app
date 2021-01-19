@@ -119,7 +119,7 @@ const WithdrawalDetails: React.FC<RouteComponentProps> = ({ history }) => {
             <div className="item-main-info">
               <div className="item-start main-row">Status</div>
               <div className="item-end main-row completed">
-                {renderStatusText(details.status)}
+                {renderStatusText(details?.status)}
               </div>
             </div>
             <div className="item-main-info divider">

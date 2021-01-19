@@ -1,7 +1,6 @@
 ion-tab-bar {
   --background: #131313;
   height: 90px;
-
 }
 
 .tab-icon {
@@ -29,4 +28,19 @@ ion-tab-bar {
   justify-content: center;
   align-items: center;
   z-index: -10;
+}
+
+.light {
+  ion-tab-bar {
+    --background: #ffffff;
+    border-top: 1px solid #f4f4f4;
+  }
+
+  .tab-icon {
+    fill: rgb(0, 0, 0);
+  }
+
+  .tab-icon.active {
+    fill: #000000;
+  }
 }

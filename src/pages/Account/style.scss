@@ -31,3 +31,13 @@
         align-self: start;
     }
 }
+
+.light {
+    .account {
+        .item-start {
+            .description {
+                color: rgb(144, 144, 144);
+            }
+        }
+    }
+}

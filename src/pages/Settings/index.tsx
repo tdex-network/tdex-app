@@ -18,12 +18,16 @@ import { IconClose, IconRightArrow } from '../../components/icons';
 import { withRouter } from 'react-router';
 import './style.scss';
 import PageDescription from '../../components/PageDescription';
-import { setElectrumServer } from '../../redux/actions/settingsActions';
+import {
+  setElectrumServer,
+  storeTheme,
+} from '../../redux/actions/settingsActions';
 import { useDispatch, useSelector } from 'react-redux';
 
 const Settings: React.FC<any> = ({ history }) => {
-  const { explorerUrl } = useSelector((state: any) => ({
+  const { explorerUrl, theme } = useSelector((state: any) => ({
     explorerUrl: state.settings.explorerUrl,
+    theme: state.settings.theme,
   }));
   const [showExplorerModal, setShowExplorerModal] = useState(false);
   const [explorerValue, setExplorerValue] = useState(explorerUrl);
@@ -31,6 +35,12 @@ const Settings: React.FC<any> = ({ history }) => {
   const handleExplorerChange = (e: any) => {
     const { value } = e.detail;
     setExplorerValue(value);
+  };
+
+  const handleThemeChange = (e: any) => {
+    const { checked } = e.detail;
+    const newTheme = checked ? 'dark' : 'light';
+    dispatch(storeTheme(newTheme));
   };
 
   return (
@@ -155,8 +165,12 @@ const Settings: React.FC<any> = ({ history }) => {
                 <div className="main-row">Layout mode </div>
               </div>
               <div className="item-end">
-                <span className="chosen-theme green-label">Dark</span>
-                <IonToggle className="settings-toggle" checked={false} />
+                <span className="chosen-theme green-label">{theme}</span>
+                <IonToggle
+                  className="settings-toggle"
+                  checked={theme === 'dark'}
+                  onIonChange={handleThemeChange}
+                />
               </div>
             </div>
           </IonItem>

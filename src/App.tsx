@@ -31,10 +31,11 @@ import { initApp, signIn } from './redux/actions/appActions';
 import PinModal from './components/PinModal';
 
 const App: React.FC = () => {
-  const { isAuth, appInit, isSignedUp } = useSelector((state: any) => ({
+  const { isAuth, appInit, isSignedUp, theme } = useSelector((state: any) => ({
     isAuth: state.wallet.isAuth,
     appInit: state.app.appInit,
     isSignedUp: state.app.isSignedUp,
+    theme: state.settings.theme,
   }));
   const dispatch = useDispatch();
 
@@ -59,7 +60,7 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <IonApp>
+    <IonApp className={theme}>
       <IonReactRouter>
         <IonLoading
           cssClass="my-custom-class"

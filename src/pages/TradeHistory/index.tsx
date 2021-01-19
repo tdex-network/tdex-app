@@ -69,7 +69,7 @@ const TradeHistory: React.FC<RouteComponentProps> = ({ history }) => {
                   open: true,
                 })}
                 onClick={() => {
-                  history.push('/operations');
+                  history.push(`/operations/${transaction.receivedAsset.id}`);
                 }}
                 key={transaction.txid}
               >
@@ -117,9 +117,7 @@ const TradeHistory: React.FC<RouteComponentProps> = ({ history }) => {
                     <div className="fee-row">
                       <IonLabel>
                         Fee{' '}
-                        <span className="amount">
-                          {transaction.fee.amount}%
-                        </span>
+                        <span className="amount">{transaction.fee.amount}</span>
                       </IonLabel>
                       <IonText>
                         -{formatAmount(transaction.sentAmount)}{' '}

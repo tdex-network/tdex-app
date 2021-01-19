@@ -42,33 +42,6 @@ const Recieve: React.FC<RouteComponentProps> = ({ history }) => {
   // const [qrCode, setQRcode] = useState<any>(false);
   const addressRef: any = useRef(null);
 
-  // const canvasRef: any = useRef(null);
-
-  // useEffect(() => {
-  //   console.log(encodedText);
-  // }, [encodedText]);
-
-  // const generateCode = () => {
-  //   BarcodeScanner.encode(
-  //     BarcodeScanner.Encode.TEXT_TYPE,
-  //     address?.confidentialAddress
-  //   ).then(
-  //     (data) => {
-  //       console.log(data.file);
-  //       console.log(data);
-  //       Base64.encodeFile(data.file).then((base64: any) => {
-  //         console.log('file base64 encoding: ');
-  //         console.log(base64);
-  //         setQRcode(base64);
-  //       });
-  //       //this.setState({ textToEncode: encodedData });
-  //     },
-  //     (err) => {
-  //       console.log(`Error occured : ${err.toString()}`);
-  //     }
-  //   );
-  // };
-
   const copyAddress = () => {
     if (addressRef) {
       Clipboard.copy(address.confidentialAddress)

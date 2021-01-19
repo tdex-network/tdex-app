@@ -69,3 +69,17 @@ ion-refresher {
 .ml-auto {
   margin-left: auto!important;
 }
+
+.light {
+  .header-info {
+    .info-heading {
+      color: rgb(102, 102, 102);
+    }
+    .info-amount {
+      color: #000;
+    }
+    .info-amount-converted {
+      color: rgb(144, 144, 144);
+    }
+  }
+}
