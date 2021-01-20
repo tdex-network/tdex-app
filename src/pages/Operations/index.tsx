@@ -197,7 +197,7 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
             >
               Withdraw
             </IonButton>
-            <IonButton className="coin-action-button" routerLink="/swap">
+            <IonButton className="coin-action-button" routerLink="/exchange">
               Swap
             </IonButton>
           </IonButtons>
