@@ -1,3 +1,5 @@
+@import "../../theme/variables";
+
 .modal-big.receive {
   .description-with-icon {
     margin-top: 56px;
@@ -68,4 +70,23 @@
 .copied-icon {
   width: 24px;
   height: 24px;
+}
+
+.light {
+  .receive {
+    ion-item {
+      background-color: #fff;
+      --background-color: #fff;
+      .copy-icon {
+        svg {
+          fill: #000;
+        }
+      }
+      .copied-icon {
+        svg {
+          fill: $green-color;
+        }
+      }
+    }
+  }
 }

@@ -67,3 +67,41 @@
 .exchange-coin-container.transparent {
   background: transparent;
 }
+
+.light {
+
+  .exchange-coin-container {
+    background: #fff;
+    color: #000;
+
+    .exchanger-row {
+
+      &.sub-row {
+        color: rgb(144, 144, 144);
+      }
+    }
+
+    .icon-wrapper {
+      width: 24px;
+      height: 24px;
+      margin-right: 8px;
+    }
+
+    .coin-amount {
+      --background: none;
+      background: none;
+      --padding-top: 0;
+      --padding-bottom: 0;
+      --padding-start: 0;
+      --padding-end: 0;
+      --inner-padding-end: 0;
+      font-family: $sub-font;
+      font-size: 30px;
+      color: rgb(102, 102, 102);
+
+      &.active {
+        color: #000;
+      }
+    }
+  }
+}

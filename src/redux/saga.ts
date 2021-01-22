@@ -6,6 +6,7 @@ import { providerWatcherSaga } from './sagas/exchange/providerSaga';
 import { tradeWatcherSaga } from './sagas/exchange/tradeSaga';
 import { searchWatcherSaga } from './sagas/exchange/searchSaga';
 import { transactionsWatcherSaga } from './sagas/transactionsSaga';
+import { settingsWatcherSaga } from './sagas/settingsSaga';
 import { appWatcherSaga } from './sagas/appSaga';
 
 export default function* rootSaga() {
@@ -17,6 +18,7 @@ export default function* rootSaga() {
     tradeWatcherSaga(),
     searchWatcherSaga(),
     transactionsWatcherSaga(),
+    settingsWatcherSaga(),
     appWatcherSaga(),
   ]);
 }

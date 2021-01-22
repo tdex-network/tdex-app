@@ -27,3 +27,9 @@
 .cancel-button {
   --background: transparent;
 }
+
+.light {
+  .cancel-button {
+    color: #909090;
+  }
+}

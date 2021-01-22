@@ -1,3 +1,5 @@
+@import "../../theme/variables";
+
 .operations-buttons {
   display: flex;
   justify-content: space-between;
@@ -12,6 +14,15 @@
   width: 100%;
   padding: 11px 15px;
   font-size: 14px !important;
+
+  &.small-button {
+    min-width: 75px!important;
+    width: auto!important;
+    max-width: none!important;
+    height: 27px!important;
+    padding: 5px 10px;
+    font-size: 11px!important;
+  }
   &:hover {
     color: #000 !important;
     background: linear-gradient(to top, rgb(15, 255, 0), rgb(0, 235, 127)) !important;
@@ -56,6 +67,28 @@
       img {
         width: 100%;
         height: 100%;
+      }
+    }
+  }
+}
+
+.light {
+  .coin-action-button {
+    border: 2px solid rgb(144, 144, 144);
+    color: rgb(144, 144, 144);
+    &:hover {
+      color: #fff !important;
+      border-color: transparent;
+      background: linear-gradient(to top, rgb(13, 229, 0), rgb(1, 227, 123)) !important;
+    }
+  }
+  .operations {
+    .list-item {
+      &.open {
+        background-color: #fff;
+        .sub-info {
+          color: #909090;
+        }
       }
     }
   }

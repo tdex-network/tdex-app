@@ -10,6 +10,10 @@
     border-radius: 50%;
     position: relative;
     left: -5px;
+
+    &.lbtc-icon {
+      border: none;
+    }
   }
 
   &.large {
@@ -32,4 +36,12 @@
 
 img.withdraw {
   transform: rotate(180deg);
+}
+
+.light {
+  .icon-wrapper {
+    &.with-border {
+      border-color: #f4f4f4;
+    }
+  }
 }

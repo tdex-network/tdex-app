@@ -89,3 +89,11 @@
     margin-left: -23px;
   }
 }
+
+.light {
+  .trade-summary {
+    ion-item {
+      --background: #fff;
+    }
+  }
+}

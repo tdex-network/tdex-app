@@ -4,8 +4,10 @@ import UsdtIcon from '../../assets/img/usdt.svg';
 import BtseIcon from '../../assets/img/btse.svg';
 import LcadIcon from '../../assets/img/lcad.svg';
 import DepositIcon from '../../assets/img/deposit.svg';
+import DepositIconBlack from '../../assets/img/deposit-black.svg';
 import PlaceholderIcon from '../../assets/img/currency-placeholder.svg';
 import { TxTypeEnum } from '../../utils/types';
+import { useSelector } from 'react-redux';
 
 interface IconInterface {
   width?: string;
@@ -368,11 +370,14 @@ export const CurrencyIcon = ({ currency, ...props }: any) => {
 };
 
 export const TxIcon = ({ type, ...props }: any) => {
+  const theme = useSelector((state: any) => state.settings.theme);
+  const themeIcon = theme === 'light' ? DepositIconBlack : DepositIcon;
+
   switch (type) {
     case TxTypeEnum.Deposit:
-      return <img className="deposit" src={DepositIcon} />;
+      return <img className="deposit" src={themeIcon} />;
     case TxTypeEnum.Withdraw:
-      return <img className="withdraw" src={DepositIcon} />;
+      return <img className="withdraw" src={themeIcon} />;
     default:
       return <img src={PlaceholderIcon} />;
   }

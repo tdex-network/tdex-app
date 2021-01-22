@@ -1,3 +1,4 @@
+@import "../../theme/variables";
 
 .buttons {
   display: flex;
@@ -48,4 +49,11 @@ ion-button {
   bottom: 0;
   top: 0;
   left: 0;
+}
+
+.light {
+  .main-button {
+    border-color:$green-color;
+    color: $green-color;
+  }
 }

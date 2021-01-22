@@ -7,7 +7,6 @@ import {
   IonTitle,
   IonToolbar,
   IonListHeader,
-  IonButtons,
   IonButton,
   IonRefresher,
   IonRefresherContent,
@@ -217,20 +216,17 @@ const Wallet: React.FC<any> = ({ history }) => {
             </div>
           </div>
         </IonHeader>
-        <IonButtons className="operations-buttons">
-          <IonButton
-            className="coin-action-button ml-auto"
-            routerLink="/receive"
-          >
-            Deposit
-          </IonButton>
-        </IonButtons>
         <IonList>
-          {displayAssets.mainAssets.length ? (
-            <IonListHeader>Asset list</IonListHeader>
-          ) : (
-            ''
-          )}
+          <IonListHeader>
+            {displayAssets.mainAssets.length ? 'Asset list' : ''}
+            <IonButton
+              className="coin-action-button ml-auto small-button"
+              routerLink="/receive"
+            >
+              Deposit
+            </IonButton>
+          </IonListHeader>
+
           {displayAssets.mainAssets?.map((asset: any) => {
             return (
               <IonItem
