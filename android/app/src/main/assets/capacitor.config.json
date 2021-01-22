@@ -1,0 +1,13 @@
+{
+  "appId": "io.sevenlabs.app",
+  "appName": "tdex-app",
+  "bundledWebRuntime": false,
+  "npmClient": "yarn",
+  "webDir": "build",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  },
+  "cordova": {}
+}
