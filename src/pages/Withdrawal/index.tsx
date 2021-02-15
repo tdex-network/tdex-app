@@ -36,14 +36,13 @@ const Withdrawal: React.FC = ({ history }: any) => {
     })
   );
   const dispatch = useDispatch();
-  const [openModal, setOpenModal] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const [validData, setValidData] = useState(false);
   const [assetData, setAssetData] = useState<any>();
   const [recipientAddress, setRecipientAddress] = useState<any>();
   const [amount, setAmount] = useState<any>();
   const [residualBalance, setResidualBalance] = useState<any>();
-  const { asset_id } = useParams();
+  const { asset_id } = useParams<{ asset_id: string }>();
 
   useEffect(() => {
     const fillAssetData = () => {
@@ -169,17 +168,7 @@ const Withdrawal: React.FC = ({ history }: any) => {
             </div>
           </div>
         </IonItem>
-        <div className="buttons">
-          <IonButton
-            onClick={() => {
-              setOpenModal(true);
-            }}
-            disabled={!validData}
-            className="main-button"
-          >
-            <IonLabel>Confirm</IonLabel>
-          </IonButton>
-        </div>
+        <div className="buttons"></div>
         <div className="align-center">
           <IonButton
             onClick={() => {
