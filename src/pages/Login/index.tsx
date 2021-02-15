@@ -19,6 +19,7 @@ import { Storage } from '@capacitor/core';
 import * as bip39 from 'bip39';
 import { signIn } from '../../redux/actions/appActions';
 import { encrypt } from '../../utils/crypto';
+import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
 
 interface LoginInterface {
   setup?: boolean;
@@ -71,12 +72,7 @@ const Login: React.FC<LoginInterface & RouteComponentProps> = ({
   };
 
   const storeMnemonic = (mnemonicStr: string) => {
-    Storage.set({
-      key: 'wallet',
-      value: JSON.stringify({
-        mnemonic: encrypt(mnemonicStr, inputValue),
-      }),
-    }).then(() => {
+    setMnemonicInSecureStorage(mnemonicStr).then(() => {
       dispatch(signIn(inputValue));
     });
   };

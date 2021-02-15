@@ -12,7 +12,7 @@
     "@ionic-native/core": "^5.30.0",
     "@ionic-native/qr-scanner": "^5.30.0",
     "@ionic-native/screen-orientation": "^5.29.0",
-    "@ionic-native/secure-storage": "^5.31.1",
+    "@ionic-native/secure-storage-echo": "^5.31.1",
     "@ionic/pwa-elements": "^3.0.1",
     "@ionic/react": "^5.0.7",
     "@ionic/react-hooks": "0.0.8",
@@ -45,6 +45,7 @@
   "scripts": {
     "serve": "npx ionic serve",
     "android": "npx ionic capacitor run android",
+    "android:serve": "npx ionic capacitor run android -l --external --public-host",
     "ios": "npx ionic capacitor run ios",
     "build": "npx ionic build",
     "lint": "npx eslint './src/**/*.ts*'",

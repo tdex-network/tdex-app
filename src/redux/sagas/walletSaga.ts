@@ -64,6 +64,7 @@ function* getAssetSaga({
       currency: state.settings.currency,
       explorerUrl: state.settings.explorerUrl,
     }));
+    console.log(explorerUrl);
     const callArray = Object.keys(payload).map((assetId: string) =>
       call(getAssetsRequest, `/asset/${assetId}`, explorerUrl)
     );

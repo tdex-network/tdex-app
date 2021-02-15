@@ -14,8 +14,6 @@ import PageDescription from '../PageDescription';
 import { useDispatch, useSelector } from 'react-redux';
 import { decrypt, encrypt } from '../../utils/crypto';
 import PinModalInput from '../PinModalInput';
-import { Storage } from '@capacitor/core';
-import { setMnemonic } from '../../redux/actions/walletActions';
 
 interface NewPinModalInterface {
   openModal: boolean;
@@ -99,13 +97,10 @@ const NewPinModal: React.FC<NewPinModalInterface> = ({
         el.focus();
       });
     } else if (oldPinChecked && firstPin) {
-      const newMnemonic = encrypt(mnemonicPhrase, pin);
-      const walletObj = { mnemonic: newMnemonic };
-      Storage.set({
-        key: 'wallet',
-        value: JSON.stringify(walletObj),
-      });
-      dispatch(setMnemonic(newMnemonic));
+      // const newMnemonic = encrypt(mnemonicPhrase, pin);
+      // const newMnemonic = mnemonicPhrase;
+      // setMnemonicInSecureStorage(newMnemonic);
+      // dispatch(setMnemonic(newMnemonic));
       setOpenModal(false);
       setPin('');
       setValidPin(false);
