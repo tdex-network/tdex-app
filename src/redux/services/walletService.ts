@@ -9,6 +9,7 @@ import {
 } from 'tdex-sdk';
 import { IdentityRestorerFromState } from '../../utils/identity-restorer';
 import axios from 'axios';
+import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
 
 export const coinGeckoUrl = 'https://api.coingecko.com/api/v3';
 
@@ -56,8 +57,8 @@ export function getIdentity(mnemonic: string, addresses?: Array<any>) {
   return new Mnemonic(prepareIdentityOpts(mnemonic, addresses));
 }
 
-export const getWallet = async (): Promise<{ value: string }> => {
-  return Storage.get({ key: 'wallet' });
+export const getMnemonic = async (): Promise<string> => {
+  return getMnemonicFromSecureStorage();
 };
 
 export const getAddress = async (): Promise<{ value: string }> => {

@@ -1,3 +1,4 @@
+import { getMnemonic } from './../services/walletService';
 import { takeLatest, put, call } from 'redux-saga/effects';
 import {
   INIT_APP,
@@ -17,7 +18,6 @@ import {
 import { setProviderEndpoint } from '../actions/exchange/providerActions';
 import {
   getAddress,
-  getWallet,
   getCachedAddresses,
   restoreWallet,
   getIdentity,
@@ -25,15 +25,13 @@ import {
 import { storageAddresses } from '../../utils/storage-helper';
 import { Storage } from '@capacitor/core';
 import { provider } from '../config';
-import { decrypt } from '../../utils/crypto';
 import { restoreTheme } from '../actions/settingsActions';
 
 function* initAppSaga({ type }: { type: string }) {
   try {
-    const walletData = yield call(getWallet);
-    const walletObj = JSON.parse(walletData.value);
-    if (walletObj) {
-      yield put(setMnemonic(walletObj.mnemonic));
+    const mnemonic = yield call(getMnemonic);
+    if (mnemonic) {
+      yield put(setMnemonic(mnemonic));
       yield put(setSignedUp(true));
     }
     yield put(restoreTheme());
@@ -47,13 +45,11 @@ function* initAppSaga({ type }: { type: string }) {
 function* signInSaga({ type, payload }: { type: string; payload: string }) {
   try {
     yield put(setWalletLoading(false));
-    const walletData = yield call(getWallet);
-    const walletObj = JSON.parse(walletData.value);
+    const mnemonic = yield call(getMnemonic);
     const addressData = yield call(getAddress);
     const addressObj = JSON.parse(addressData.value);
 
     const addresses = yield call(getCachedAddresses);
-    const mnemonic = yield call(decrypt, walletObj.mnemonic, payload);
     const identity = yield call(getIdentity, mnemonic, addresses);
 
     yield call(restoreWallet, identity);

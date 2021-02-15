@@ -54,7 +54,7 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
     Array<TxDisplayInterface> | undefined
   >();
   const [assetData, setAssetData] = useState<any>();
-  const { asset_id } = useParams();
+  const { asset_id } = useParams<{ asset_id: string }>();
 
   useEffect(() => {
     return () => {

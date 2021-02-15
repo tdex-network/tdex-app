@@ -31,9 +31,8 @@ export const setSignedUp = (signedUp: boolean): ActionType => {
   };
 };
 
-export const signIn = (pin: string): ActionType => {
+export const signIn = (): ActionType => {
   return {
     type: SIGN_IN,
-    payload: pin,
   };
 };

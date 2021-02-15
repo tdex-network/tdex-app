@@ -17,17 +17,20 @@
     "@ionic/react-hooks": "0.0.8",
     "@ionic/react-router": "^5.4.1",
     "axios": "^0.21.0",
+    "capacitor-secure-storage-plugin": "^0.5.0",
     "classnames": "^2.2.6",
     "com-badrit-base64": "^0.2.0",
     "cordova-clipboard": "^1.3.0",
     "cordova-plugin-qrscanner": "^3.0.1",
     "cordova-plugin-screen-orientation": "^3.0.2",
     "es6-promise-plugin": "^4.2.2",
+    "i": "^0.3.6",
     "ionicons": "^5.0.0",
     "jetifier": "^1.6.6",
     "liquidjs": "^9.16.1",
     "liquidjs-lib": "vulpemventures/liquidjs-lib",
     "moment": "^2.29.1",
+    "npm": "^7.5.4",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
     "react-redux": "^7.2.2",
@@ -41,9 +44,12 @@
   "scripts": {
     "serve": "npx ionic serve",
     "android": "npx ionic capacitor run android",
+    "android:serve": "npx ionic capacitor run android -l --external",
     "ios": "npx ionic capacitor run ios",
     "build": "npx ionic build",
-    "lint": "npx eslint './src/**/*.ts*'"
+    "sync": "npx jetify && npx ionic cap sync",
+    "lint": "npx eslint './src/**/*.ts*'",
+    "lint:fix": "npx eslint './src/**/*.ts*' --fix"
   },
   "eslintConfig": {
     "extends": "react-app"

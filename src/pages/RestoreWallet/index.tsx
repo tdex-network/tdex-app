@@ -18,7 +18,8 @@ import './style.scss';
 import { useMnemonic } from '../../utils/custom-hooks';
 import { useDispatch } from 'react-redux';
 import { setMnemonic } from '../../redux/actions/walletActions';
-// import { Mnemonic, IdentityType } from 'tdex-sdk';
+import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
+import { signIn } from '../../redux/actions/appActions';
 
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
@@ -32,8 +33,12 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   }, [mnemonic]);
 
   const handleConfirm = () => {
-    dispatch(setMnemonic(mnemonic.join(' ')));
-    history.push('/login');
+    const restoredMnemonic = mnemonic.join(' ');
+    setMnemonicInSecureStorage(restoredMnemonic).then(() => {
+      dispatch(setMnemonic(restoredMnemonic));
+      dispatch(signIn());
+    });
+    history.push('/wallet');
   };
 
   return (
