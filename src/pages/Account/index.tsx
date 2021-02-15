@@ -17,7 +17,7 @@ import React, { useRef, useState } from 'react';
 import { IconBack, IconClose, IconRightArrow } from '../../components/icons';
 import { withRouter } from 'react-router';
 import './style.scss';
-import { eye, lockClosed, shieldCheckmark, trashOutline } from 'ionicons/icons';
+import { eye, shieldCheckmark, trashOutline } from 'ionicons/icons';
 import { useSelector } from 'react-redux';
 
 import PageDescription from '../../components/PageDescription';

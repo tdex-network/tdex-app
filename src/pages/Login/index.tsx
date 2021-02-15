@@ -72,7 +72,7 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
       </IonHeader>
 
       <IonContent className="login">
-        <PageDescription title="Set security PIN">
+        <PageDescription title="Create your TDEX wallet">
           <p className="task-description">
             Clicking on generate will randomly create a mnemonic of 12 words. It
             will be used as the seed of your wallet and will be stored in the
