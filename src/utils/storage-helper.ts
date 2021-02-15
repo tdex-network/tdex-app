@@ -1,6 +1,9 @@
 import { Storage } from '@capacitor/core';
 import { AddressInterface } from 'tdex-sdk';
-import { SecureStorageEcho } from '@ionic-native/secure-storage-echo';
+import 'capacitor-secure-storage-plugin';
+import { Plugins } from '@capacitor/core';
+
+const { SecureStoragePlugin } = Plugins;
 
 export const storageAddresses = (addresses: AddressInterface[]) => {
   return Storage.set({
