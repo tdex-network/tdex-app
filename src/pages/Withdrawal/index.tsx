@@ -37,6 +37,7 @@ const Withdrawal: React.FC = ({ history }: any) => {
   );
   const dispatch = useDispatch();
   const [inputValue, setInputValue] = useState('');
+  // eslint-disable-next-line
   const [validData, setValidData] = useState(false);
   const [assetData, setAssetData] = useState<any>();
   const [recipientAddress, setRecipientAddress] = useState<any>();
