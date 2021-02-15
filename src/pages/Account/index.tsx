@@ -17,33 +17,24 @@ import React, { useRef, useState } from 'react';
 import { IconBack, IconClose, IconRightArrow } from '../../components/icons';
 import { withRouter } from 'react-router';
 import './style.scss';
-import { eye, lockClosed, shieldCheckmark } from 'ionicons/icons';
-import PinModal from '../../components/PinModal';
+import { eye, lockClosed, shieldCheckmark, trashOutline } from 'ionicons/icons';
 import { useSelector } from 'react-redux';
 
-import { decrypt } from '../../utils/crypto';
 import PageDescription from '../../components/PageDescription';
 import { Clipboard } from '@ionic-native/clipboard';
-import NewPinModal from '../../components/NewPinModal';
+import DeleteMnemonicModal from '../../components/DeleteMnemonicModal';
 
 const Account: React.FC<any> = ({ history }) => {
   const { mnemonic } = useSelector((state: any) => ({
     mnemonic: state.wallet.mnemonic,
   }));
-  const [showNewPinModal, setShowNewPinModal] = useState(false);
-  const [showPinModal, setShowPinModal] = useState(false);
   const [showMnemonicModal, setShowMnemonicModal] = useState(false);
-  const [mnemonicPhrase, setMnemonicPhrase] = useState<string>('');
+  const [showDeleteMnemonicModal, setShowDeleteMnemonicModal] = useState(false);
   const [copied, setCopied] = useState<boolean>(false);
   const mnemonicRef: any = useRef(null);
-  const onShowMnemonic = (pin: string) => {
-    setMnemonicPhrase(decrypt(mnemonic, pin));
-    setShowPinModal(false);
-    setShowMnemonicModal(true);
-  };
   const copyMnemonic = () => {
     if (mnemonicRef) {
-      Clipboard.copy(mnemonicPhrase)
+      Clipboard.copy(mnemonic)
         .then((res: any) => {
           setCopied(true);
           setTimeout(() => {
@@ -60,6 +51,7 @@ const Account: React.FC<any> = ({ history }) => {
         });
     }
   };
+
   return (
     <IonPage>
       <div className="gradient-background" />
@@ -81,17 +73,15 @@ const Account: React.FC<any> = ({ history }) => {
           <IonListHeader>Identity</IonListHeader>
           <IonItem
             className="list-item"
-            onClick={() => {
-              setShowPinModal(true);
-            }}
+            onClick={() => setShowMnemonicModal(true)}
           >
             <div className="item-main-info">
               <IonIcon icon={eye} />
               <div className="item-start">
                 <div className="main-row">Show mnemonic</div>
                 <IonText className="description">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  Display the secret mnemonic stored in your device's secure
+                  storage.
                 </IonText>
               </div>
               <div className="item-end">
@@ -137,16 +127,17 @@ const Account: React.FC<any> = ({ history }) => {
           <IonItem
             className="list-item"
             onClick={() => {
-              setShowNewPinModal(true);
+              setShowDeleteMnemonicModal(true);
             }}
           >
             <div className="item-main-info">
-              <IonIcon icon={lockClosed}></IonIcon>
+              <IonIcon icon={trashOutline}></IonIcon>
               <div className="item-start">
-                <div className="main-row">Set new PIN </div>
+                <div className="main-row">Delete Mnemonic</div>
                 <IonText className="description">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                  Definitively removes your seed from this device. Be extremely
+                  careful, after deletion it will be impossible to retrieve your
+                  key from tdex-app.
                 </IonText>
               </div>
               <div className="item-end">
@@ -161,15 +152,6 @@ const Account: React.FC<any> = ({ history }) => {
             </div>
           </IonItem>
         </IonList>
-        {showPinModal && (
-          <PinModal
-            openModal={showPinModal}
-            title={'ENTER PIN'}
-            onConfirm={onShowMnemonic}
-            withClose
-            setOpenModal={setShowPinModal}
-          />
-        )}
         {showMnemonicModal && (
           <IonModal
             isOpen={showMnemonicModal}
@@ -192,12 +174,12 @@ const Account: React.FC<any> = ({ history }) => {
             </IonHeader>
             <IonContent>
               <PageDescription title="Secret phrase">
-                <p>{mnemonicPhrase}</p>
+                <p>{mnemonic}</p>
               </PageDescription>
               <input
                 type="text"
                 ref={mnemonicRef}
-                value={mnemonicPhrase}
+                value={mnemonic}
                 className="hidden-input"
               />
               <div className="buttons">
@@ -222,12 +204,10 @@ const Account: React.FC<any> = ({ history }) => {
             </IonContent>
           </IonModal>
         )}
-        {showNewPinModal && (
-          <NewPinModal
-            setOpenModal={setShowNewPinModal}
-            openModal={showNewPinModal}
-          />
-        )}
+        <DeleteMnemonicModal
+          setOpenModal={setShowDeleteMnemonicModal}
+          openModal={showDeleteMnemonicModal}
+        />
       </IonContent>
     </IonPage>
   );

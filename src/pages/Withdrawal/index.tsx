@@ -18,12 +18,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { formatPriceString, getCoinsEquivalent } from '../../utils/helpers';
 import WithdrawRow from '../../components/WithdrawRow';
 import {
-  doWithdraw,
   setQRCodeAddress,
   setWithdrawalLoading,
 } from '../../redux/actions/transactionsActions';
 import './style.scss';
-import PinModal from '../../components/PinModal';
 
 const Withdrawal: React.FC = ({ history }: any) => {
   const { assets, currency, coinsRates, loading, qrCodeAddress } = useSelector(
@@ -193,18 +191,6 @@ const Withdrawal: React.FC = ({ history }: any) => {
             <IonLabel>Cancel</IonLabel>
           </IonButton>
         </div>
-        {openModal && (
-          <PinModal
-            openModal={openModal}
-            title={'Withdrawal'}
-            onConfirm={() => {
-              dispatch(doWithdraw(recipientAddress, amount, assetData));
-              setOpenModal(false);
-            }}
-            withClose
-            setOpenModal={setOpenModal}
-          />
-        )}
       </IonContent>
     </IonPage>
   );

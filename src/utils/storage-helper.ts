@@ -11,7 +11,7 @@ export const storageAddresses = (addresses: AddressInterface[]) => {
   });
 };
 
-export const MNEMONIC_KEY = 'tdex-app-secure-storage-mnemonic';
+const MNEMONIC_KEY = 'tdex-app-secure-storage-mnemonic';
 
 export async function setMnemonicInSecureStorage(
   mnemonic: string
@@ -22,4 +22,8 @@ export async function setMnemonicInSecureStorage(
 export async function getMnemonicFromSecureStorage(): Promise<string> {
   const { value } = await SecureStoragePlugin.get({ key: MNEMONIC_KEY });
   return value;
+}
+
+export async function removeMnemonicFromSecureStorage(): Promise<boolean> {
+  return SecureStoragePlugin.remove({ key: MNEMONIC_KEY });
 }

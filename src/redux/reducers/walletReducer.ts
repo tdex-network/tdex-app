@@ -1,6 +1,5 @@
 import { ActionType } from '../../utils/types';
 import {
-  CLEAR_PIN,
   CLEAR_WALLET_STATE,
   SET_ADDRESS,
   SET_WALLET_ASSETS,
@@ -8,7 +7,6 @@ import {
   SET_COINS_RATES,
   SET_IS_AUTH,
   SET_MNEMONIC,
-  SET_PIN,
   SET_WALLET_LOADING,
   SET_ADDRESSES,
 } from '../actions/walletActions';
@@ -34,8 +32,6 @@ const walletReducer = (state = initialState, action: ActionType) => {
       return { ...state, addresses: action.payload };
     case SET_IS_AUTH:
       return { ...state, isAuth: action.payload };
-    case SET_PIN:
-      return { ...state, pin: action.payload };
     case SET_WALLET_ASSETS:
       return { ...state, assets: action.payload };
     case SET_COINS_LIST:
@@ -44,8 +40,6 @@ const walletReducer = (state = initialState, action: ActionType) => {
       return { ...state, coinsRates: action.payload };
     case SET_WALLET_LOADING:
       return { ...state, loading: action.payload };
-    case CLEAR_PIN:
-      return { ...state, pin: '' };
     case CLEAR_WALLET_STATE:
       return { ...initialState };
     default:
