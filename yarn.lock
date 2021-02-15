@@ -1145,6 +1145,13 @@
   dependencies:
     tslib "^1.9.0"
 
+"@capacitor/core@latest":
+  version "2.4.6"
+  resolved "https://registry.yarnpkg.com/@capacitor/core/-/core-2.4.6.tgz#71cc6e23ef37fbb47c3c1736f1dea47302a5e22a"
+  integrity sha512-3KLSMorCELA5RNRXwHOGlRGuxXaxCEYHC29wOUxObicI2mf14hbMJWylt4QBzNmSqh3/ha7u4/CAZMoJUQR/QA==
+  dependencies:
+    tslib "^1.9.0"
+
 "@capacitor/ios@^2.4.2":
   version "2.4.6"
   resolved "https://registry.yarnpkg.com/@capacitor/ios/-/ios-2.4.6.tgz#b46912d7feb3e416a91e20bdba3c7a9a82048cd0"
@@ -1271,13 +1278,6 @@
   version "5.30.0"
   resolved "https://registry.yarnpkg.com/@ionic-native/screen-orientation/-/screen-orientation-5.30.0.tgz#9d8f5aab09b85fc3f321223ce8ef3b58e696495c"
   integrity sha512-z3FNjyrPx6uXb0+g7Ika57+Xu6EB6VEKzHhrpbriIRHbgswOhCfzk26kJGjZHAPyxVVP9w5Own3djaELRaSKyA==
-  dependencies:
-    "@types/cordova" latest
-
-"@ionic-native/secure-storage-echo@^5.31.1":
-  version "5.31.1"
-  resolved "https://registry.yarnpkg.com/@ionic-native/secure-storage-echo/-/secure-storage-echo-5.31.1.tgz#590a67a0fcd90e007caa744339fece8060764b9a"
-  integrity sha512-Vce7Wgz0cmJWJxblyA9PQvEvK3/wWPe7BOdDUtcQObDQyDQpmk1uaifytHcX+6B4rl4isl1tQbHtm09hoQqYSw==
   dependencies:
     "@types/cordova" latest
 
@@ -3958,6 +3958,13 @@ caniuse-lite@^1.0.0, caniuse-lite@^1.0.30000981, caniuse-lite@^1.0.30001109, can
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001177.tgz#2c3b384933aafda03e29ccca7bb3d8c3389e1ece"
   integrity sha512-6Ld7t3ifCL02jTj3MxPMM5wAYjbo4h/TAQGFTgv1inihP1tWnWp8mxxT4ut4JBEHLbpFXEXJJQ119JCJTBkYDw==
 
+capacitor-secure-storage-plugin@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/capacitor-secure-storage-plugin/-/capacitor-secure-storage-plugin-0.5.0.tgz#d83ab888a5fec696b727f87041a59a1f1b3fb4fe"
+  integrity sha512-FLDhzLDg4iURzmZa/0Vn0oP/yvTdfC2aL71+KVEu/W7KcZJces0naSoVp+r46FRhVyGclZgITClLleWpkdZNDw==
+  dependencies:
+    "@capacitor/core" latest
+
 capture-exit@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/capture-exit/-/capture-exit-2.0.0.tgz#fb953bfaebeb781f62898239dabb426d08a509a4"
@@ -4497,11 +4504,6 @@ cordova-plugin-screen-orientation@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/cordova-plugin-screen-orientation/-/cordova-plugin-screen-orientation-3.0.2.tgz#81290a933cfe84d35482cfcb251c931cc7b71931"
   integrity sha512-2w6CMC+HGvbhogJetalwGurL2Fx8DQCCPy3wlSZHN1/W7WoQ5n9ujVozcoKrY4VaagK6bxrPFih+ElkO8Uqfzg==
-
-cordova-plugin-secure-storage-echo@^5.1.1:
-  version "5.1.1"
-  resolved "https://registry.yarnpkg.com/cordova-plugin-secure-storage-echo/-/cordova-plugin-secure-storage-echo-5.1.1.tgz#2d18419d2c05717ef5adb1433d5bc9f0c988b905"
-  integrity sha512-8TLY9ilM/K597vLKCEKwboJ0yjJqdlZAdc4GK67nqjaSbGOBso94uVNXQ6iAvrcXt+rnK1ZOFG3DI/n8S8aj/w==
 
 core-js-compat@^3.6.2, core-js-compat@^3.8.0:
   version "3.8.2"
