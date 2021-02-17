@@ -1,3 +1,4 @@
+import { updateRates } from './../actions/ratesActions';
 import { getIdentity, waitForRestore } from './../services/walletService';
 import { WalletState, outpointToString } from './../reducers/walletReducer';
 import {
@@ -52,6 +53,9 @@ function* updateUtxosState({ type }: { type: string }) {
       yield put(resetUtxos());
       return;
     }
+
+    // dispatch UPDATE_RATES to update prices async
+    yield put(updateRates());
 
     while (!it.done) {
       const utxo = it.value;

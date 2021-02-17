@@ -10,7 +10,6 @@ import {
   IonButton,
   IonRefresher,
   IonRefresherContent,
-  useIonViewDidEnter,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -28,7 +27,6 @@ import {
   fromSatoshiFixed,
 } from '../../utils/helpers';
 import { MAIN_ASSETS } from '../../utils/constants';
-import { getPrice } from '../../redux/services/walletService';
 import CircleDiagram from '../../components/CircleDiagram';
 
 interface WalletProps extends RouteComponentProps {
@@ -36,8 +34,9 @@ interface WalletProps extends RouteComponentProps {
 }
 
 const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
-  const { currency } = useSelector((state: any) => ({
+  const { currency, prices } = useSelector((state: any) => ({
     currency: state.settings.currency,
+    prices: state.rates.prices,
   }));
 
   const [LBTCBalance, setLBTCBalance] = useState<BalanceInterface | undefined>(
@@ -50,7 +49,6 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
   );
 
   const UNKNOWN = -1;
-  const LOADING = -2;
   const [fiats, setFiats] = useState<number[]>([]);
 
   const getFiatValue = (balance: BalanceInterface) => {
@@ -58,6 +56,16 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
     if (balanceIndex < 0) return UNKNOWN;
     return fiats[balanceIndex];
   };
+
+  useEffect(() => {
+    const fiatsValues = balances.map(({ amount, coinGeckoID }) => {
+      if (!coinGeckoID) return UNKNOWN;
+      const p = prices[coinGeckoID];
+      if (!p) return UNKNOWN;
+      return p * fromSatoshi(amount);
+    });
+    setFiats(fiatsValues);
+  }, [prices, balances]);
 
   useEffect(() => {
     const index = balances.findIndex((b) => b.coinGeckoID === 'bitcoin');
@@ -84,32 +92,9 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
     setSecondaryAssets(secondary);
   }, [balances]);
 
-  const refreshFiats = async () => {
-    setFiats(balances.map(() => LOADING));
-    const fiatsValues = [];
-    for (const balance of balances) {
-      if (balance.coinGeckoID) {
-        const price = await getPrice(balance.coinGeckoID, currency);
-        if (price === UNKNOWN) {
-          fiatsValues.push(UNKNOWN);
-        } else {
-          fiatsValues.push(price * fromSatoshi(balance.amount));
-        }
-        continue;
-      }
-      fiatsValues.push(UNKNOWN);
-    }
-    setFiats(fiatsValues);
-  };
-
-  useIonViewDidEnter(() => {
-    refreshFiats();
-  });
-
   const dispatch = useDispatch();
 
   const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
-    refreshFiats();
     dispatch(updateUtxos());
     setTimeout(() => {
       event.detail.complete();
@@ -137,7 +122,7 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
             <div className="header-info wallet">
               <p className="info-heading">Total balance</p>
               <p className="info-amount">
-                {LBTCBalance && fromSatoshiFixed(LBTCBalance.amount)}
+                {LBTCBalance ? fromSatoshiFixed(LBTCBalance.amount) : '0.00'}
                 <span>LBTC</span>
               </p>
               <p className="info-amount-converted">

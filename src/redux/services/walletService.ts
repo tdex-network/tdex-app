@@ -5,37 +5,7 @@ import { IdentityRestorerFromState } from '../../utils/identity-restorer';
 import axios from 'axios';
 import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
 
-const coinGeckoUrl = 'https://api.coingecko.com/api/v3';
 export const axiosProviderObject = axios.create({ baseURL: provider.endpoint });
-export const axiosCoinGeckoObject = axios.create({ baseURL: coinGeckoUrl });
-
-export type CoinGeckoPriceResult = Record<string, Record<string, number>>;
-
-async function getPriceFromCoinGecko(
-  ids: string[],
-  currencies: string[]
-): Promise<CoinGeckoPriceResult> {
-  const { data } = await axiosCoinGeckoObject.get('/simple/price', {
-    params: {
-      ids: ids.join(','),
-      vs_currencies: currencies.join(','),
-    },
-  });
-
-  return data;
-}
-
-export async function getPrice(
-  crypto: string,
-  currency: string
-): Promise<number> {
-  const priceRequestResult = await getPriceFromCoinGecko([crypto], [currency]);
-  const pricesForCrypto = priceRequestResult[crypto];
-  if (!pricesForCrypto) return -1;
-  const priceInCurrency = pricesForCrypto[currency];
-  if (!priceInCurrency) return -1;
-  return priceInCurrency;
-}
 
 export const getAssetsRequest = (
   path: string,

@@ -62,3 +62,4 @@ export const defaultPrecision = 8;
 export const defaultFee = 2000;
 
 export const MAIN_ASSETS = ['lbtc', 'usdt', 'lcad', 'btse'];
+export const ASSETS_PRICE_TO_FEED = ['bitcoin'];
