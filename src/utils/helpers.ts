@@ -1,4 +1,3 @@
-import { BalanceInterface } from '../redux/actionTypes/walletActionTypes';
 import { Assets, defaultPrecision } from './constants';
 import { TxDisplayInterface, TxTypeEnum } from './types';
 import { address as liquidAddress, networks } from 'liquidjs-lib';
@@ -148,4 +147,8 @@ export function groupBy(xs: Array<any>, key: string) {
     (rv[x[key]] = rv[x[key]] || []).push(x);
     return rv;
   }, {});
+}
+
+export function capitalizeFirstLetter(string: string): string {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }

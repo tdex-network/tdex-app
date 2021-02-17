@@ -10,7 +10,7 @@ import {
   IonButton,
   IonRefresher,
   IonRefresherContent,
-  IonLoading,
+  useIonViewDidEnter,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -22,7 +22,11 @@ import './style.scss';
 import { chevronDownCircleOutline } from 'ionicons/icons';
 import { updateUtxos } from '../../redux/actions/walletActions';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { fromSatoshi, toSatoshi } from '../../utils/helpers';
+import {
+  capitalizeFirstLetter,
+  fromSatoshi,
+  fromSatoshiFixed,
+} from '../../utils/helpers';
 import { MAIN_ASSETS } from '../../utils/constants';
 import { getPrice } from '../../redux/services/walletService';
 import CircleDiagram from '../../components/CircleDiagram';
@@ -89,17 +93,18 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
         if (price === UNKNOWN) {
           fiatsValues.push(UNKNOWN);
         } else {
-          fiatsValues.push(price * toSatoshi(balance.amount));
+          fiatsValues.push(price * fromSatoshi(balance.amount));
         }
         continue;
       }
       fiatsValues.push(UNKNOWN);
     }
+    setFiats(fiatsValues);
   };
 
-  useEffect(() => {
+  useIonViewDidEnter(() => {
     refreshFiats();
-  }, [balances, currency]);
+  });
 
   const dispatch = useDispatch();
 
@@ -132,13 +137,15 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
             <div className="header-info wallet">
               <p className="info-heading">Total balance</p>
               <p className="info-amount">
-                {LBTCBalance && fromSatoshi(LBTCBalance.amount)}
+                {LBTCBalance && fromSatoshiFixed(LBTCBalance.amount)}
                 <span>LBTC</span>
               </p>
               <p className="info-amount-converted">
-                {LBTCBalance && fiats[LBTCBalanceIndex]
-                  ? `${fiats[LBTCBalanceIndex]} ${currency.toUpperCase()}`
-                  : 'loading...'}{' '}
+                {LBTCBalance && fiats[LBTCBalanceIndex] > 0
+                  ? `${fiats[LBTCBalanceIndex]?.toFixed(
+                      2
+                    )} ${currency.toUpperCase()}`
+                  : 'loading...'}
               </p>
             </div>
           </div>
@@ -168,21 +175,23 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
                     <CurrencyIcon currency={balance.ticker} />
                     <div className="item-name">
                       <div className="main-row">
-                        {balance.coinGeckoID || 'unknown'}
+                        {balance.coinGeckoID
+                          ? capitalizeFirstLetter(balance.coinGeckoID)
+                          : 'Unknow'}
                       </div>
                     </div>
                   </div>
                   <div className="item-end">
                     <div className="first-col">
                       <div className="main-row">
-                        {fromSatoshi(balance.amount)}
+                        {fromSatoshiFixed(balance.amount)}
                       </div>
                       <div className="sub-row">
                         {fiatValue < 0
                           ? fiatValue === UNKNOWN
                             ? 'unknown'
                             : 'loading'
-                          : fiatValue}
+                          : fiatValue?.toFixed(2)}
                       </div>
                     </div>
                     <div className="second-col">
@@ -215,28 +224,26 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
                     <CurrencyIcon currency={balance.ticker} />
                     <div className="item-name">
                       <div className="main-row">
-                        {balance.coinGeckoID || 'unknown'}
+                        {`Asset ${balance.ticker}`}
                       </div>
                     </div>
                   </div>
                   <div className="item-end">
                     <div className="first-col">
                       <div className="main-row">
-                        {fromSatoshi(balance.amount)}
+                        {fromSatoshiFixed(balance.amount)}
                       </div>
                       <div className="sub-row">
                         {fiatValue < 0
                           ? fiatValue === UNKNOWN
-                            ? 'unknown'
+                            ? '??'
                             : 'loading'
-                          : fiatValue}
+                          : fiatValue?.toFixed(2)}
                       </div>
                     </div>
                     <div className="second-col">
                       <div className="main-row accent">{balance.ticker}</div>
-                      {fiatValue > 0 && (
-                        <div className="sub-row">{currency.toUpperCase()}</div>
-                      )}
+                      <div className="sub-row">{currency.toUpperCase()}</div>
                     </div>
                   </div>
                 </div>
