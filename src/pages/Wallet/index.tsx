@@ -32,9 +32,8 @@ interface WalletProps extends RouteComponentProps {
 }
 
 const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
-  const { currency, loading } = useSelector((state: any) => ({
+  const { currency } = useSelector((state: any) => ({
     currency: state.settings.currency,
-    loading: state.wallet.loading,
   }));
 
   const [LBTCBalance, setLBTCBalance] = useState<BalanceInterface | undefined>(
@@ -69,7 +68,7 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
     const main = [];
     const secondary = [];
     for (const balance of balances) {
-      if (MAIN_ASSETS.includes(balance.ticker)) {
+      if (MAIN_ASSETS.includes(balance.ticker.toLowerCase())) {
         main.push(balance);
         continue;
       }
@@ -81,28 +80,31 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
     setSecondaryAssets(secondary);
   }, [balances]);
 
-  useEffect(() => {
-    (async function () {
-      setFiats(balances.map(() => LOADING));
-      const fiatsValues = [];
-      for (const balance of balances) {
-        if (balance.coinGeckoID) {
-          const price = await getPrice(balance.coinGeckoID, currency);
-          if (price === UNKNOWN) {
-            fiatsValues.push(UNKNOWN);
-          } else {
-            fiatsValues.push(price * toSatoshi(balance.amount));
-          }
-          continue;
+  const refreshFiats = async () => {
+    setFiats(balances.map(() => LOADING));
+    const fiatsValues = [];
+    for (const balance of balances) {
+      if (balance.coinGeckoID) {
+        const price = await getPrice(balance.coinGeckoID, currency);
+        if (price === UNKNOWN) {
+          fiatsValues.push(UNKNOWN);
+        } else {
+          fiatsValues.push(price * toSatoshi(balance.amount));
         }
-        fiatsValues.push(UNKNOWN);
+        continue;
       }
-    })();
+      fiatsValues.push(UNKNOWN);
+    }
+  };
+
+  useEffect(() => {
+    refreshFiats();
   }, [balances, currency]);
 
   const dispatch = useDispatch();
 
   const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
+    refreshFiats();
     dispatch(updateUtxos());
     setTimeout(() => {
       event.detail.complete();
@@ -112,11 +114,6 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
   return (
     <IonPage>
       <div className="gradient-background"></div>
-      {/* <IonLoading
-        cssClass="my-custom-class"
-        isOpen={loading}
-        message={'Please wait...'}
-      /> */}
       <IonContent className="wallet-content">
         <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
           <IonRefresherContent

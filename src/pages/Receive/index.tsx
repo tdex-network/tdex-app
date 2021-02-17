@@ -7,8 +7,9 @@ import {
   IonToolbar,
   IonHeader,
   IonIcon,
+  useIonViewWillEnter,
 } from '@ionic/react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { IconBack, IconBTC, IconCopy } from '../../components/icons';
 import PageDescription from '../../components/PageDescription';
@@ -20,20 +21,23 @@ import { checkmarkOutline } from 'ionicons/icons';
 import { getIdentity } from '../../redux/services/walletService';
 import { setAddresses } from '../../redux/actions/walletActions';
 import { Mnemonic } from 'ldk';
+import { AddressInterface } from 'tdex-sdk';
 
 const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   const [copied, setCopied] = useState(false);
-  const [address, setAddress] = useState<any>();
+  const [address, setAddress] = useState<AddressInterface>();
   const addressRef: any = useRef(null);
   const dispatch = useDispatch();
 
-  getIdentity().then((identity: Mnemonic) => {
-    setAddress(identity.getNextAddress());
-    dispatch(setAddresses(identity.getAddresses()));
+  useIonViewWillEnter(() => {
+    getIdentity().then((identity: Mnemonic) => {
+      setAddress(identity.getNextAddress());
+      dispatch(setAddresses(identity.getAddresses()));
+    });
   });
 
   const copyAddress = () => {
-    if (addressRef) {
+    if (address) {
       Clipboard.copy(address.confidentialAddress)
         .then((res: any) => {
           setCopied(true);

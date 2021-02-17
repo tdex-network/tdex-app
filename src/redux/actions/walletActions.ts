@@ -11,6 +11,13 @@ export const SET_ADDRESSES = 'SET_ADDRESSES';
 export const UPDATE_UTXOS = 'UPDATE_UTXOS';
 export const SET_UTXO = 'SET_UTXO';
 export const DELETE_UTXO = 'DELETE_UTXO';
+export const RESET_UTXOS = 'RESET_UTXOS';
+
+export const resetUtxos = (): ActionType => {
+  return {
+    type: RESET_UTXOS,
+  };
+};
 
 export const updateUtxos = (): ActionType => {
   return {

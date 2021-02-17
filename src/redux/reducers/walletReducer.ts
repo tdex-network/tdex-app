@@ -1,3 +1,4 @@
+import { RESET_UTXOS } from './../actions/walletActions';
 import { Assets } from './../../utils/constants';
 import { AddressInterface, UtxoInterface, Outpoint, isBlindedUtxo } from 'ldk';
 import { ActionType } from '../../utils/types';
@@ -19,7 +20,7 @@ export interface WalletState {
   loading: boolean;
   address?: AddressInterface;
   addresses: AddressInterface[];
-  utxos: Map<Outpoint, UtxoInterface>;
+  utxos: Record<string, UtxoInterface>;
 }
 
 const initialState: WalletState = {
@@ -27,7 +28,7 @@ const initialState: WalletState = {
   loading: true,
   address: undefined,
   addresses: [],
-  utxos: new Map<Outpoint, UtxoInterface>(),
+  utxos: {},
 };
 
 function walletReducer(state = initialState, action: ActionType): WalletState {
@@ -43,30 +44,40 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
     case CLEAR_WALLET_STATE:
       return { ...initialState };
     case SET_UTXO:
-      return {
-        ...state,
-        utxos: state.utxos.set(action.payload, action.payload),
-      };
+      return addUtxoInState(state, action.payload);
     case DELETE_UTXO:
       return deleteUtxoInState(state, action.payload);
+    case RESET_UTXOS:
+      return { ...state, utxos: {} };
     default:
       return state;
   }
 }
 
+export function outpointToString(outpoint: Outpoint): string {
+  return `${outpoint.txid}:${outpoint.vout}`;
+}
+
+const addUtxoInState = (state: WalletState, utxo: UtxoInterface) => {
+  const newUtxosMap = { ...state.utxos };
+  newUtxosMap[outpointToString(utxo)] = utxo;
+  return { ...state, utxos: newUtxosMap };
+};
+
 const deleteUtxoInState = (
   state: WalletState,
   outpoint: Outpoint
 ): WalletState => {
-  const utxosMap = state.utxos;
-  utxosMap.delete(outpoint);
-  return { ...state, utxos: utxosMap };
+  const newUtxosMap = { ...state.utxos };
+  delete newUtxosMap[outpointToString(outpoint)];
+  return { ...state, utxos: newUtxosMap };
 };
 
 const utxosMapSelector = ({ wallet }: { wallet: WalletState }) => wallet.utxos;
 const allUtxosSelector = createSelector(utxosMapSelector, (utxosMap) =>
-  Array.from(utxosMap.values())
+  Array.from(Object.values(utxosMap))
 );
+
 export const balancesSelector = createSelector(
   allUtxosSelector,
   (utxos: UtxoInterface[]) => balancesFromUtxos(utxos)
