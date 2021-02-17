@@ -31,8 +31,10 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
 
   useIonViewWillEnter(() => {
     getIdentity().then((identity: Mnemonic) => {
-      setAddress(identity.getNextAddress());
-      dispatch(setAddresses(identity.getAddresses()));
+      identity.isRestored.then(() => {
+        setAddress(identity.getNextAddress());
+        dispatch(setAddresses(identity.getAddresses()));
+      });
     });
   });
 
