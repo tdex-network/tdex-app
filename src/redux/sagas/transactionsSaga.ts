@@ -75,19 +75,14 @@ function* doWithdrawSaga({
   payload: { address: string; amount: number; asset: any };
 }) {
   try {
-    const {
-      assets,
-      transactions,
-      explorerUrl,
-      mnemonic,
-      addresses,
-    } = yield select((state: any) => ({
-      assets: state.wallet.assets,
-      transactions: state.transactions.data,
-      explorerUrl: state.settings.explorerUrl,
-      mnemonic: state.wallet.mnemonic,
-      addresses: state.wallet.addresses,
-    }));
+    const { assets, transactions, explorerUrl, addresses } = yield select(
+      (state: any) => ({
+        assets: state.wallet.assets,
+        transactions: state.transactions.data,
+        explorerUrl: state.settings.explorerUrl,
+        addresses: state.wallet.addresses,
+      })
+    );
 
     const identity = yield call(getIdentity);
 

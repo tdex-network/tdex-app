@@ -24,17 +24,11 @@ import {
 import './style.scss';
 
 const Withdrawal: React.FC = ({ history }: any) => {
-  const { assets, currency, coinsRates, loading, qrCodeAddress } = useSelector(
-    (state: any) => ({
-      assets: state.wallet.assets,
-      transactions: state.transactions.data,
-      address: state.wallet.address,
-      coinsRates: state.wallet.coinsRates,
-      currency: state.settings.currency,
-      loading: state.transactions.withdrawalLoading,
-      qrCodeAddress: state.transactions.qrCodeAddress,
-    })
-  );
+  const { assets, loading, qrCodeAddress } = useSelector((state: any) => ({
+    assets: state.wallet.assets,
+    loading: state.transactions.withdrawalLoading,
+    qrCodeAddress: state.transactions.qrCodeAddress,
+  }));
   const dispatch = useDispatch();
   const [inputValue, setInputValue] = useState('');
   // eslint-disable-next-line

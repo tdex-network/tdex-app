@@ -27,9 +27,8 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   residualBalance,
   checkValidData,
 }) => {
-  const { currency, coinsRates } = useSelector((state: any) => ({
+  const { currency } = useSelector((state: any) => ({
     currency: state.settings.currency,
-    coinsRates: state.wallet.coinsRates,
   }));
   const [priceEquivalent, setPriceEquivalent] = useState<any>('0');
   useEffect(() => {

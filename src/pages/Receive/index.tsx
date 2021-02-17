@@ -9,7 +9,7 @@ import {
   IonIcon,
   useIonViewWillEnter,
 } from '@ionic/react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { IconBack, IconBTC, IconCopy } from '../../components/icons';
 import PageDescription from '../../components/PageDescription';

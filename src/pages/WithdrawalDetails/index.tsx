@@ -21,14 +21,10 @@ const statusText = {
 };
 
 const WithdrawalDetails: React.FC<RouteComponentProps> = ({ history }) => {
-  const { details, coinsRates, assets, currency } = useSelector(
-    (state: any) => ({
-      details: state.transactions.withdrawalDetails,
-      coinsRates: state.wallet.coinsRates,
-      assets: state.wallet.assets,
-      currency: state.settings.currency,
-    })
-  );
+  const { details, assets } = useSelector((state: any) => ({
+    details: state.transactions.withdrawalDetails,
+    assets: state.wallet.assets,
+  }));
   const [assetData, setAssetData] = useState<any>();
   const { asset_id } = useParams();
 

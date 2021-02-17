@@ -5,13 +5,12 @@ import {
   IonButton,
   useIonViewWillEnter,
 } from '@ionic/react';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { RouteComponentProps } from 'react-router';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import './style.scss';
 import { signIn } from '../../redux/actions/appActions';
-import { Mnemonic } from 'ldk';
 import { getIdentity } from '../../redux/services/walletService';
 
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {

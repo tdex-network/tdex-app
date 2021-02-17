@@ -34,21 +34,15 @@ const statusText = {
 };
 
 const Operations: React.FC<RouteComponentProps> = ({ history }) => {
-  const {
-    addresses,
-    assets,
-    transactions,
-    currency,
-    coinsRates,
-    loading,
-  } = useSelector((state: any) => ({
-    assets: state.wallet.assets,
-    transactions: state.transactions.data,
-    loading: state.transactions.loading,
-    addresses: state.wallet.addresses,
-    coinsRates: state.wallet.coinsRates,
-    currency: state.settings.currency,
-  }));
+  const { addresses, assets, transactions, currency, loading } = useSelector(
+    (state: any) => ({
+      assets: state.wallet.assets,
+      transactions: state.transactions.data,
+      loading: state.transactions.loading,
+      addresses: state.wallet.addresses,
+      currency: state.settings.currency,
+    })
+  );
   const dispatch = useDispatch();
   const [assetTransactions, setAssetTransactions] = useState<
     Array<TxDisplayInterface> | undefined
