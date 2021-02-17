@@ -27,6 +27,7 @@
     "i": "^0.3.6",
     "ionicons": "^5.0.0",
     "jetifier": "^1.6.6",
+    "ldk": "^0.2.1",
     "liquidjs": "^9.16.1",
     "liquidjs-lib": "vulpemventures/liquidjs-lib",
     "moment": "^2.29.1",
@@ -38,6 +39,7 @@
     "react-router-dom": "^5.2.0",
     "redux": "^4.0.5",
     "redux-saga": "^1.1.3",
+    "reselect": "^4.0.0",
     "slip77": "vulpemventures/slip77",
     "tdex-sdk": "^1.2.5"
   },
