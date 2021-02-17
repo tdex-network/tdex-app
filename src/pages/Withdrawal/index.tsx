@@ -15,7 +15,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, withRouter } from 'react-router';
 import { IconBack, IconQR } from '../../components/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { formatPriceString, getCoinsEquivalent } from '../../utils/helpers';
+import { formatPriceString } from '../../utils/helpers';
 import WithdrawRow from '../../components/WithdrawRow';
 import {
   setQRCodeAddress,
@@ -48,12 +48,8 @@ const Withdrawal: React.FC = ({ history }: any) => {
   useEffect(() => {
     const fillAssetData = () => {
       const asset = assets.find((item: any) => item.asset_id === asset_id);
-      const priceEquivalent = getCoinsEquivalent(
-        asset,
-        coinsRates,
-        asset.amountDisplay,
-        currency
-      );
+      // TODO handle price
+      const priceEquivalent = 10;
       const res = {
         asset_id,
         ticker: asset.ticker,

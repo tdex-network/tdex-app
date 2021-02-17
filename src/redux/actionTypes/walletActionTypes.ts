@@ -1,3 +1,6 @@
 export interface BalanceInterface {
-  [key: string]: number;
+  asset: string;
+  amount: number;
+  ticker: string;
+  coinGeckoID?: string;
 }

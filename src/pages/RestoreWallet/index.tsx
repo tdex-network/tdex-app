@@ -17,7 +17,6 @@ import { IconBack, IconWarning } from '../../components/icons';
 import './style.scss';
 import { useMnemonic } from '../../utils/custom-hooks';
 import { useDispatch } from 'react-redux';
-import { setMnemonic } from '../../redux/actions/walletActions';
 import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
 import { signIn } from '../../redux/actions/appActions';
 
@@ -35,7 +34,6 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const handleConfirm = () => {
     const restoredMnemonic = mnemonic.join(' ');
     setMnemonicInSecureStorage(restoredMnemonic).then(() => {
-      dispatch(setMnemonic(restoredMnemonic));
       dispatch(signIn());
     });
     history.push('/wallet');

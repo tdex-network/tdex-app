@@ -1,6 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import './style.scss';
 import classNames from 'classnames';
+import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import { createColorFromHash } from '../../utils/helpers';
 
 const colors: {
   [key: string]: [string, string];
@@ -12,21 +14,13 @@ const colors: {
 };
 
 export interface CircleDiagram {
-  data: any;
+  data: Array<BalanceInterface>;
   className?: string;
-  width?: number;
-  total: number;
-  height?: number;
-  otherColors: any;
 }
 
-const CircleDiagram: React.FC<CircleDiagram> = ({
-  className,
-  data,
-  total,
-  otherColors,
-}) => {
+const CircleDiagram: React.FC<CircleDiagram> = ({ className, data }) => {
   const canvasRef: any = useRef(null);
+  const total = data.reduce((acc, balance) => acc + balance.amount, 0);
 
   const renderCircle = () => {
     const ctx = canvasRef.current.getContext('2d');
@@ -42,7 +36,7 @@ const CircleDiagram: React.FC<CircleDiagram> = ({
 
     const checkSmallElements = () => {
       const marginsSum = data.length * 0.2;
-      data.forEach((item: any, index: number) => {
+      data.forEach((item: BalanceInterface, index: number) => {
         const part = item.amount / total;
         const realLength = part * (2 * Math.PI - marginsSum);
         if (part * 100 < minWidthPercent) {
@@ -55,11 +49,7 @@ const CircleDiagram: React.FC<CircleDiagram> = ({
       });
     };
 
-    const getElementPosition = (
-      item: any,
-      index: number,
-      discrepancy: number
-    ) => {
+    const getElementPosition = (index: number, discrepancy: number) => {
       if (index === 0) {
         start = shift + 0.1;
       } else if (index === data.length - 1) {
@@ -78,16 +68,16 @@ const CircleDiagram: React.FC<CircleDiagram> = ({
           : start + length;
     };
 
-    const fillColor = (grad: any, item?: any) => {
+    const fillColor = (grad: any, item?: BalanceInterface) => {
       if (!item) {
         grad.addColorStop(0, '#CCCCCC');
         grad.addColorStop(1, '#CCCCCC');
-      } else if (colors[item.type.toLowerCase()]) {
-        const [first, second] = colors[item.type.toLowerCase()];
+      } else if (colors[item.ticker.toLowerCase()]) {
+        const [first, second] = colors[item.ticker.toLowerCase()];
         grad.addColorStop(0, first);
         grad.addColorStop(1, second);
-      } else if (otherColors[item.type.toLowerCase()]) {
-        const color = otherColors[item.type.toLowerCase()];
+      } else {
+        const color = createColorFromHash(item.asset);
         grad.addColorStop(0, color);
         grad.addColorStop(1, color);
       }
@@ -114,9 +104,9 @@ const CircleDiagram: React.FC<CircleDiagram> = ({
       const discrepancy =
         (minimalCount * minWidth - minimalWidthSum) /
         (data.length - minimalCount);
-      data.forEach((item: any, index: number) => {
+      data.forEach((item, index: number) => {
         const grad = ctx.createLinearGradient(100, 0, 200, 200);
-        getElementPosition(item, index, discrepancy);
+        getElementPosition(index, discrepancy);
         fillColor(grad, item);
         drawDiagram(grad);
       });

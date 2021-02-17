@@ -7,40 +7,29 @@ import {
   IonToolbar,
   IonHeader,
   IonIcon,
-  useIonViewWillEnter,
 } from '@ionic/react';
 import React, { useRef, useState } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { IconBack, IconBTC, IconCopy } from '../../components/icons';
 import PageDescription from '../../components/PageDescription';
 import './style.scss';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Clipboard } from '@ionic-native/clipboard';
 import { QRCodeImg } from '@cheprasov/react-qrcode';
 import { checkmarkOutline } from 'ionicons/icons';
-import { storageAddresses } from '../../utils/storage-helper';
-import { setAddresses } from '../../redux/actions/walletActions';
 import { getIdentity } from '../../redux/services/walletService';
+import { setAddresses } from '../../redux/actions/walletActions';
+import { Mnemonic } from 'ldk';
 
 const Receive: React.FC<RouteComponentProps> = ({ history }) => {
-  const { mnemonic, addresses } = useSelector((state: any) => ({
-    mnemonic: state.wallet.mnemonic,
-    addresses: state.wallet.addresses,
-  }));
-
-  const identity = getIdentity(mnemonic, addresses);
   const [copied, setCopied] = useState(false);
   const [address, setAddress] = useState<any>();
   const addressRef: any = useRef(null);
   const dispatch = useDispatch();
 
-  useIonViewWillEnter(() => {
-    const nextAddress = identity.getNextAddress();
-    setAddress(nextAddress);
-    const data = [...addresses, nextAddress];
-    storageAddresses(data).then(() => {
-      dispatch(setAddresses(data));
-    });
+  getIdentity().then((identity: Mnemonic) => {
+    setAddress(identity.getNextAddress());
+    dispatch(setAddresses(identity.getAddresses()));
   });
 
   const copyAddress = () => {

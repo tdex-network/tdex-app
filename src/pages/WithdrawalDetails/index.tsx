@@ -12,7 +12,7 @@ import { withRouter, RouteComponentProps, useParams } from 'react-router';
 import { CurrencyIcon, IconBack } from '../../components/icons';
 import './style.scss';
 import { useSelector } from 'react-redux';
-import { formatPriceString, getCoinsEquivalent } from '../../utils/helpers';
+import { formatPriceString } from '../../utils/helpers';
 import { TxStatusEnum } from '../../utils/types';
 
 const statusText = {
@@ -41,12 +41,8 @@ const WithdrawalDetails: React.FC<RouteComponentProps> = ({ history }) => {
   useEffect(() => {
     const fillAssetData = () => {
       const asset = assets.find((item: any) => item.asset_id === asset_id);
-      const priceEquivalent = getCoinsEquivalent(
-        asset,
-        coinsRates,
-        asset.amountDisplay,
-        currency
-      );
+      // TODO handle price
+      const priceEquivalent = 10;
       const res = {
         asset_id,
         ticker: asset.ticker,

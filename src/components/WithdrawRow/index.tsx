@@ -3,11 +3,7 @@ import classNames from 'classnames';
 import './style.scss';
 import { CurrencyIcon } from '../icons';
 import { IonInput } from '@ionic/react';
-import {
-  fromSatoshi,
-  getCoinsEquivalent,
-  toSatoshi,
-} from '../../utils/helpers';
+import { fromSatoshi, toSatoshi } from '../../utils/helpers';
 import { useSelector } from 'react-redux';
 
 interface WithdrawRowInterface {
@@ -50,9 +46,8 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
       inputValue = '0';
       setPriceEquivalent('0');
     } else {
-      setPriceEquivalent(
-        getCoinsEquivalent(asset, coinsRates, value, currency)
-      );
+      // TODO handle price
+      setPriceEquivalent(10);
     }
     setAmount(value);
     const balance = fromSatoshi(

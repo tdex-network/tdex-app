@@ -23,7 +23,7 @@ import './style.scss';
 import { useDispatch, useSelector } from 'react-redux';
 import { getTransactions } from '../../redux/actions/transactionsActions';
 import { TxDisplayInterface, TxStatusEnum } from '../../utils/types';
-import { formatPriceString, getCoinsEquivalent } from '../../utils/helpers';
+import { formatPriceString } from '../../utils/helpers';
 import { chevronDownCircleOutline } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
 
@@ -66,12 +66,8 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   useEffect(() => {
     if (assetData && transactions) {
       const txs = transactions[asset_id].map((tx: TxDisplayInterface) => {
-        const priceEquivalent = getCoinsEquivalent(
-          assetData,
-          coinsRates,
-          tx.amountDisplay,
-          currency
-        );
+        // TODO price
+        const priceEquivalent = 10;
         return {
           ...tx,
           priceEquivalent: priceEquivalent
@@ -87,12 +83,8 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   useEffect(() => {
     const fillAssetData = () => {
       const asset = assets.find((item: any) => item.asset_id === asset_id);
-      const priceEquivalent = getCoinsEquivalent(
-        asset,
-        coinsRates,
-        asset.amountDisplay,
-        currency
-      );
+      // TODO price
+      const priceEquivalent = 10;
       const res = {
         asset_id,
         ticker: asset.ticker,

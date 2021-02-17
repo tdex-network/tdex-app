@@ -7,9 +7,9 @@ import { network } from '../redux/config';
 export const getEdgeAsset = (asset_id: string) => {
   return Object.values(Assets).find((item: any) => item.assetHash === asset_id);
 };
-export const createColorFromHash = (id: string): any => {
+export const createColorFromHash = (id: string): string => {
   let hash = 0;
-  if (id.length === 0) return hash;
+  if (id.length === 0) throw Error('id length must be > 0');
   for (let i = 0; i < id.length; i++) {
     hash = id.charCodeAt(i) + ((hash << 5) - hash);
   }
@@ -143,34 +143,9 @@ export function getDataFromTx(
   };
 }
 
-export const getCoinsEquivalent = (
-  asset: any,
-  coinsRates: any,
-  amount: any,
-  currency: string
-) => {
-  return coinsRates[asset.ticker.toLowerCase()]
-    ? (
-        Number(amount) * coinsRates[asset.ticker.toLowerCase()].rate[currency]
-      ).toFixed(2)
-    : false;
-};
-
-export const getDefaultCoinRate = (currency: string, rates: any) => ({
-  lbtc: {
-    name: 'Liquid Bitcoin',
-    rate: {
-      [currency]: rates['bitcoin'][currency],
-    },
-  },
-});
-
-export const getBalancesFromArray = (balances: BalanceInterface[]) => {
-  const obj: any = {};
-  balances.forEach((i: any) => {
-    for (const key in i) {
-      obj[key] = Number(obj[key] || 0) + Number(i[key]);
-    }
-  });
-  return obj;
-};
+export function groupBy(xs: Array<any>, key: string) {
+  return xs.reduce(function (rv, x) {
+    (rv[x[key]] = rv[x[key]] || []).push(x);
+    return rv;
+  }, {});
+}

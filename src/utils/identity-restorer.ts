@@ -1,6 +1,14 @@
-import { AddressInterface, IdentityRestorerInterface } from 'tdex-sdk';
+import {
+  AddressInterface,
+  EsploraIdentityRestorer,
+  IdentityRestorerInterface,
+} from 'ldk';
+import { network } from '../redux/config';
 
 export class IdentityRestorerFromState implements IdentityRestorerInterface {
+  static esploraIdentityRestorer = new EsploraIdentityRestorer(
+    network.explorer
+  );
   private cachedAddresses: string[];
 
   constructor(addresses: AddressInterface[]) {
@@ -8,7 +16,11 @@ export class IdentityRestorerFromState implements IdentityRestorerInterface {
   }
 
   async addressHasBeenUsed(address: string): Promise<boolean> {
-    return this.cachedAddresses.includes(address);
+    const addressInCache = this.cachedAddresses.includes(address);
+    if (addressInCache) return true;
+    return IdentityRestorerFromState.esploraIdentityRestorer.addressHasBeenUsed(
+      address
+    );
   }
 
   async addressesHaveBeenUsed(addresses: string[]): Promise<boolean[]> {
