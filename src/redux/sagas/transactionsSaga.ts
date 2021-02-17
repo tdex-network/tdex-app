@@ -30,7 +30,7 @@ import {
 } from '../../utils/helpers';
 import moment from 'moment';
 import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
-import { setAssets, setAddresses } from '../actions/walletActions';
+import { setAddresses } from '../actions/walletActions';
 import { Assets, defaultFee } from '../../utils/constants';
 import { storageAddresses } from '../../utils/storage-helper';
 import { network } from '../config';
@@ -89,7 +89,7 @@ function* doWithdrawSaga({
       addresses: state.wallet.addresses,
     }));
 
-    const identity = getIdentity(mnemonic, addresses);
+    const identity = yield call(getIdentity);
 
     yield put(setWithdrawalLoading(true));
     const senderWallet = walletFromAddresses(addresses, network.chain);
@@ -190,7 +190,6 @@ function* doWithdrawSaga({
       ...transactions,
       [asset.asset_id]: [withdrawTx, ...transactions[asset.asset_id]],
     };
-    yield put(setAssets(newAssets));
     yield put(setTransactions(newTransactions));
     yield put(
       setWithdrawalDetails({
