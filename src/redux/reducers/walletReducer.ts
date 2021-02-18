@@ -74,7 +74,7 @@ const deleteUtxoInState = (
 };
 
 const utxosMapSelector = ({ wallet }: { wallet: WalletState }) => wallet.utxos;
-const allUtxosSelector = createSelector(utxosMapSelector, (utxosMap) =>
+export const allUtxosSelector = createSelector(utxosMapSelector, (utxosMap) =>
   Array.from(Object.values(utxosMap))
 );
 

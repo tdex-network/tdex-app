@@ -21,7 +21,6 @@ import classNames from 'classnames';
 import { CurrencyIcon, IconBack, TxIcon } from '../../components/icons';
 import './style.scss';
 import { useDispatch, useSelector } from 'react-redux';
-import { getTransactions } from '../../redux/actions/transactionsActions';
 import { TxDisplayInterface, TxStatusEnum } from '../../utils/types';
 import { formatPriceString } from '../../utils/helpers';
 import { chevronDownCircleOutline } from 'ionicons/icons';
@@ -92,9 +91,6 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
       setAssetData(res);
     };
 
-    if (assets && !transactions) {
-      dispatch(getTransactions(addresses));
-    }
     if (assets?.length) {
       fillAssetData();
     }
@@ -124,7 +120,6 @@ const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   };
 
   const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
-    dispatch(getTransactions(addresses));
     setTimeout(() => {
       event.detail.complete();
     }, 2000);

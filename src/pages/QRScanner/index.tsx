@@ -14,7 +14,6 @@ import { QRScanner, QRScannerStatus } from '@ionic-native/qr-scanner';
 //style
 import './style.scss';
 import { useDispatch } from 'react-redux';
-import { setQRCodeAddress } from '../../redux/actions/transactionsActions';
 import { withRouter } from 'react-router';
 
 const QRCodeScanner: React.FC<any> = ({ history }: any) => {
@@ -27,7 +26,6 @@ const QRCodeScanner: React.FC<any> = ({ history }: any) => {
         if (status.authorized) {
           QRScanner.show();
           const scanSub = QRScanner.scan().subscribe((text: string) => {
-            dispatch(setQRCodeAddress(text));
             scanSub.unsubscribe(); // stop scanning
             history.goBack();
           });
