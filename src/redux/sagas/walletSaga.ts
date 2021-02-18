@@ -17,7 +17,6 @@ import {
   fetchAndUnblindUtxosGenerator,
 } from 'ldk';
 import { storageAddresses } from '../../utils/storage-helper';
-import { network } from '../config';
 
 function* persistAddresses({
   type,
@@ -39,10 +38,12 @@ function* updateUtxosState({ type }: { type: string }) {
 
     const identity: Mnemonic = yield call(getIdentity);
     yield call(waitForRestore, identity);
+    const explorerUrl = yield select(({ settings }) => settings.explorerUrl);
 
     const utxoGen = fetchAndUnblindUtxosGenerator(
       identity.getAddresses(),
-      network.explorer
+      explorerUrl,
+      (utxo: UtxoInterface) => actualUtxos[outpointToString(utxo)] != undefined
     );
     const next = () => utxoGen.next();
 
@@ -81,5 +82,4 @@ function* updateUtxosState({ type }: { type: string }) {
 export function* walletWatcherSaga() {
   yield takeLatest(SET_ADDRESSES, persistAddresses);
   yield takeLatest(UPDATE_UTXOS, updateUtxosState);
-  // yield takeLatest(GET_WALLET_ASSETS, getAssetSaga);
 }

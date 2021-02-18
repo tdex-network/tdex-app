@@ -7,7 +7,7 @@ import Settings from './pages/Settings';
 import TradeHistory from './pages/TradeHistory';
 import TradeSummary from './pages/TradeSummary';
 import Wallet from './redux/containers/walletContainer';
-import Withdrawal from './pages/Withdrawal';
+import Withdrawal from './redux/containers/withdrawalContainer';
 import WithdrawalDetails from './pages/WithdrawalDetails';
 import Account from './pages/Account';
 

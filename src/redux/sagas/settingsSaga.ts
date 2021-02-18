@@ -15,7 +15,7 @@ function* storeThemeSaga({ payload }: ActionType) {
     yield call(setThemeToStorage, payload);
     yield put(setTheme(payload));
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 }
 
