@@ -39,7 +39,7 @@ function* updateTransactions({ type }: { type: string }) {
       addresses,
       identityBlindKeyGetter,
       explorerUrl,
-      (tx) => actualTxs[tx.txid] != undefined
+      (tx) => tx.status.confirmed && actualTxs[tx.txid] != undefined
     );
     const next = () => txsGen.next();
     let it: IteratorResult<TxInterface, number> = yield call(next);

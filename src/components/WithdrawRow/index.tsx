@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './style.scss';
 import { CurrencyIcon } from '../icons';
 import { IonInput } from '@ionic/react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import { fromSatoshi } from '../../utils/helpers';
+import { updateRates } from '../../redux/actions/ratesActions';
 
 interface WithdrawRowInterface {
   balance: BalanceInterface;
@@ -21,9 +23,15 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   const [inputAmount, setInputAmount] = useState(0);
   const [fiat, setFiat] = useState<number | string>('??');
 
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(updateRates());
+  }, []);
+
   const reset = () => {
     setInputAmount(0);
-    setResidualBalance(balance.amount);
+    setResidualBalance(fromSatoshi(balance.amount));
     if (price) setFiat(0);
     onAmountChange(undefined);
   };
@@ -36,7 +44,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
 
     const val = parseFloat(value);
     setInputAmount(val);
-    setResidualBalance(balance.amount - val);
+    setResidualBalance(fromSatoshi(balance.amount) - val);
     if (price) setFiat(val * price);
     onAmountChange(val);
   };
@@ -50,12 +58,14 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
           </span>
           <p>{balance.ticker.toUpperCase()}</p>
         </div>
-        <div className="coin-amount">
+        <div className="ion-text-end">
           <IonInput
             type="number"
-            value={inputAmount}
-            placeholder="0"
+            value={inputAmount || ''}
+            placeholder="0.00"
             className="amount-input"
+            autofocus={true}
+            required={true}
             onIonChange={(e) => handleAmountChange(e.detail.value)}
           />
         </div>

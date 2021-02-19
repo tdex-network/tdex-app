@@ -3,6 +3,7 @@ import {
   formatPriceString,
   fromSatoshiFixed,
   getDataFromTx,
+  groupBy,
 } from '../../utils/helpers';
 import { defaultPrecision } from '../../utils/constants';
 import {
@@ -43,14 +44,6 @@ export const transactionsTransformer = (txs: TxInterface[] | undefined) => {
       };
     }
   );
-  return txArray?.reduce(
-    (
-      res: TxsByAssetsInterface,
-      tx: TxDisplayInterface
-    ): TxsByAssetsInterface => {
-      res[tx.asset] = res[tx.asset] ? [...res[tx.asset], tx] : [tx];
-      return res;
-    },
-    {}
-  );
+  if (!txArray) return {};
+  return groupBy(txArray, 'asset');
 };

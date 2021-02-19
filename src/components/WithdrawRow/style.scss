@@ -1,12 +1,15 @@
-@import "../../theme/variables";
+@import '../../theme/variables';
 
-.coin-amount {
-  text-align: end;
-  .amount-input {
-    font-family: $sub-font;
-    color: #fff;
-    &::placeholder {
-      color: #666666;
-    }
+.amount-input {
+  font-family: $sub-font;
+  color: #fff;
+  &::placeholder {
+    color: #666666;
   }
+}
+
+.exchanger-row {
+  flex: 1;
+  flex-direction: row;
+  justify-content: space-between;
 }

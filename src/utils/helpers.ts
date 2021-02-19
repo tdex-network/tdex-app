@@ -102,10 +102,14 @@ export function getDataFromTx(
       assets.add(item.prevout.asset);
       type = TxTypeEnum.Withdraw;
       asset = item.prevout.asset;
-      address = liquidAddress.fromOutputScript(
-        Buffer.from(item.prevout.script, 'hex'),
-        (networks as any)[network.chain]
-      );
+      try {
+        address = liquidAddress.fromOutputScript(
+          Buffer.from(item.prevout.script, 'hex'),
+          (networks as any)[network.chain]
+        );
+      } catch (e) {
+        address = 'unknown';
+      }
       vinAmount = vinAmount
         ? Number(vinAmount) + Number(item.prevout.value)
         : item.prevout.value;

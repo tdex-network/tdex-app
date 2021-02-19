@@ -9,7 +9,7 @@ import {
   deleteUtxo,
   resetUtxos,
 } from './../actions/walletActions';
-import { takeLatest, call, put, select } from 'redux-saga/effects';
+import { takeLatest, call, put, select, delay } from 'redux-saga/effects';
 import {
   AddressInterface,
   UtxoInterface,
@@ -26,6 +26,7 @@ function* persistAddresses({
   payload: AddressInterface[];
 }) {
   yield call(storageAddresses, payload);
+  yield delay(3000);
   yield put(updateUtxos());
 }
 
@@ -68,7 +69,7 @@ function* updateUtxosState({ type }: { type: string }) {
     }
 
     // delete spent utxos
-    for (const outpoint of Object.keys(actualUtxos.keys)) {
+    for (const outpoint of Object.keys(actualUtxos)) {
       if (outpoint && !newOutpoints.includes(outpoint)) {
         const [txid, vout] = outpoint.split(':');
         yield put(deleteUtxo({ txid, vout: parseInt(vout) }));

@@ -25,9 +25,8 @@ import { formatPriceString, fromSatoshi } from '../../utils/helpers';
 import { chevronDownCircleOutline } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { updateUtxos } from '../../redux/actions/walletActions';
-import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
 import { updateTransactions } from '../../redux/actions/transactionsActions';
+import { updateRates } from '../../redux/actions/ratesActions';
 
 const txTypes = ['deposit', 'withdrawal', 'swap', 'trade'];
 const statusText = {
@@ -38,18 +37,19 @@ const statusText = {
 interface OperationsProps extends RouteComponentProps {
   balances: BalanceInterface[];
   prices: Record<string, number>;
+  transactionsByAsset: Record<string, TxDisplayInterface[]>;
 }
 
 const Operations: React.FC<OperationsProps> = ({
   balances,
   prices,
+  transactionsByAsset,
   history,
 }) => {
   const { asset_id } = useParams<{ asset_id: string }>();
   const [balance, setBalance] = useState<BalanceInterface>();
   const [fiat, setFiat] = useState<number>();
   const currency = useSelector((state: any) => state.settings.currency);
-  const transactionsByAsset = useSelector(transactionsByAssetSelector);
   const [transactionsToDisplay, setTransactionsToDisplay] = useState<
     TxDisplayInterface[]
   >([]);
@@ -69,7 +69,7 @@ const Operations: React.FC<OperationsProps> = ({
     }
 
     setFiat(undefined);
-  }, [prices]);
+  }, [prices, balances]);
 
   // effect to select the balance
   useEffect(() => {
@@ -146,7 +146,7 @@ const Operations: React.FC<OperationsProps> = ({
               {balance && <CurrencyIcon currency={balance?.ticker} />}
             </div>
             <p className="info-amount">
-              {balance && fromSatoshi(balance?.amount).toFixed(2)}{' '}
+              {balance && fromSatoshi(balance?.amount).toFixed(2)}
               <span>{balance?.ticker}</span>
             </p>
             <p className="info-amount-converted">

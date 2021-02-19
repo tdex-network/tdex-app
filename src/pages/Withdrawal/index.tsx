@@ -49,13 +49,8 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
   const [amount, setAmount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [recipientAddress, setRecipientAddress] = useState<string>('');
-  const [identity, setIdentity] = useState<Mnemonic>();
 
   const dispatch = useDispatch();
-
-  useIonViewDidEnter(() => {
-    getIdentity().then((mnemonic) => setIdentity(mnemonic));
-  });
 
   const onAmountChange = (newAmount: number | undefined) => {
     setAmount(newAmount || 0);
@@ -69,61 +64,70 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
   };
 
   const onClickConfirm = async () => {
-    if (!isValid()) return;
-    setLoading(true);
+    try {
+      if (!isValid()) return;
+      setLoading(true);
+      const identity = await getIdentity();
 
-    const wallet = walletFromCoins(utxos, network.chain);
-    const psetBase64 = wallet.createTx();
-    const recipient: RecipientInterface = {
-      address: recipientAddress,
-      asset: balance!.asset,
-      value: toSatoshi(amount),
-    };
+      const wallet = walletFromCoins(utxos, network.chain);
+      const psetBase64 = wallet.createTx();
+      const recipient: RecipientInterface = {
+        address: recipientAddress,
+        asset: balance!.asset,
+        value: toSatoshi(amount),
+      };
 
-    if (!identity) {
-      // TODO return an error toast
+      if (!identity) {
+        // TODO return an error toast
+        setLoading(false);
+        return;
+      }
+      await identity.isRestored;
+
+      const withdrawPset = wallet.buildTx(
+        psetBase64,
+        [recipient],
+        greedyCoinSelector(),
+        (_: string) => identity.getNextChangeAddress().confidentialAddress,
+        true
+      );
+
+      const recipientData = address.fromConfidential(recipientAddress);
+      const recipientScript = address.toOutputScript(
+        recipientData.unconfidentialAddress
+      );
+      const outputsToBlind: number[] = [];
+      const blindKeyMap = new Map<number, string>();
+      // blind all the outputs except fee
+      psetToUnsignedTx(withdrawPset).outs.forEach((out, index) => {
+        if (out.script.length === 0) return;
+        outputsToBlind.push(index);
+        if (out.script.equals(recipientScript))
+          blindKeyMap.set(index, recipientData.blindingKey.toString('hex'));
+      });
+
+      const blindedPset = await identity.blindPset(
+        withdrawPset,
+        outputsToBlind,
+        blindKeyMap
+      );
+
+      const signedPset = await identity.signPset(blindedPset);
+      console.log(Psbt.fromBase64(signedPset).validateSignaturesOfAllInputs());
+      const pset = Psbt.fromBase64(signedPset);
+      const txHex = Psbt.fromBase64(signedPset)
+        .finalizeAllInputs()
+        .extractTransaction()
+        .toHex();
+
+      const txID = await broadcastTx(txHex, explorerURL);
+      console.log(txID);
+      dispatch(setAddresses(identity.getAddresses()));
+    } catch (err) {
+      console.error(err);
+    } finally {
       setLoading(false);
-      return;
     }
-    await identity.isRestored;
-
-    const withdrawPset = wallet.buildTx(
-      psetBase64,
-      [recipient],
-      greedyCoinSelector(),
-      (_: string) => identity.getNextChangeAddress().confidentialAddress,
-      true
-    );
-
-    const recipientData = address.fromConfidential(recipientAddress);
-    const recipientScript = address.toOutputScript(
-      recipientData.unconfidentialAddress
-    );
-    const outputsToBlind: number[] = [];
-    const blindKeyMap = new Map<number, string>();
-    // blind all the outputs except fee
-    psetToUnsignedTx(withdrawPset).outs.forEach((out, index) => {
-      if (out.script.length === 0) return;
-      outputsToBlind.push(index);
-      if (out.script.equals(recipientScript))
-        blindKeyMap.set(index, recipientData.blindingKey.toString('hex'));
-    });
-
-    const blindedPset = await identity.blindPset(
-      withdrawPset,
-      outputsToBlind,
-      blindKeyMap
-    );
-
-    const signedPset = await identity.signPset(blindedPset);
-    const txHex = Psbt.fromBase64(signedPset)
-      .finalizeAllInputs()
-      .extractTransaction()
-      .toHex();
-
-    await broadcastTx(txHex, explorerURL);
-    dispatch(setAddresses(identity.getAddresses()));
-    setLoading(false);
   };
 
   // effect to select the balance of withdrawal
@@ -210,7 +214,11 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
         </IonItem>
         <div className="buttons">
           <div className="align-center">
-            <IonButton onClick={() => onClickConfirm()} disabled={isValid()}>
+            <IonButton
+              className="main-button"
+              onClick={() => onClickConfirm()}
+              disabled={!isValid()}
+            >
               <IonLabel>CONFIRM</IonLabel>
             </IonButton>
           </div>

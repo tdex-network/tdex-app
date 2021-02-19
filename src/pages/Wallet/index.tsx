@@ -100,6 +100,7 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
   const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
     dispatch(updateUtxos());
     dispatch(updateRates());
+    dispatch(updateTransactions());
     setTimeout(() => {
       event.detail.complete();
     }, 2000);
@@ -109,6 +110,7 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
     dispatch(updateUtxos());
     dispatch(updateRates());
     dispatch(updateTransactions());
+    // dispatch(updateTransactions());
   }, []);
 
   return (

@@ -8484,9 +8484,9 @@ last-call-webpack-plugin@^3.0.0:
     webpack-sources "^1.1.0"
 
 ldk@^0.2.1:
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/ldk/-/ldk-0.2.3.tgz#48c7828c32abbcc541b2ea08d7f2c6505e97957d"
-  integrity sha512-007/CTmmwNoO+MIgbzMN8nLeRlRtqO3/nO7ddd4ps0sbAyO3xJ6nxOB/LEZGKvMtDVaORPzUJViMF9fMPAPeHA==
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/ldk/-/ldk-0.2.4.tgz#6ea587c608a3ea80fee679da4c828145195a10fb"
+  integrity sha512-f2nhtQwLvloejB4YQoz0thXfLeMvhjSS5+Hcyd8vHOcsMaULfFXpuMhWght/e/46KYLBbtSewqDLYMTv5rcung==
   dependencies:
     axios "^0.21.1"
     bip32 "^2.0.6"
