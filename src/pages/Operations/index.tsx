@@ -26,7 +26,6 @@ import { chevronDownCircleOutline } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { updateTransactions } from '../../redux/actions/transactionsActions';
-import { updateRates } from '../../redux/actions/ratesActions';
 
 const txTypes = ['deposit', 'withdrawal', 'swap', 'trade'];
 const statusText = {

@@ -6,11 +6,7 @@ import {
   groupBy,
 } from '../../utils/helpers';
 import { defaultPrecision } from '../../utils/constants';
-import {
-  TxDisplayInterface,
-  TxsByAssetsInterface,
-  TxStatusEnum,
-} from '../../utils/types';
+import { TxDisplayInterface, TxStatusEnum } from '../../utils/types';
 import moment from 'moment';
 
 export const transactionsTransformer = (txs: TxInterface[] | undefined) => {

@@ -10,7 +10,6 @@ import {
   IonButton,
   IonRefresher,
   IonRefresherContent,
-  useIonViewDidEnter,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';

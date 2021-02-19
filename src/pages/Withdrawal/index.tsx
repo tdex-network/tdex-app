@@ -9,7 +9,6 @@ import {
   IonLabel,
   IonInput,
   IonLoading,
-  useIonViewDidEnter,
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
@@ -21,7 +20,6 @@ import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import {
   address,
   greedyCoinSelector,
-  Mnemonic,
   psetToUnsignedTx,
   RecipientInterface,
   walletFromCoins,
@@ -113,8 +111,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
       );
 
       const signedPset = await identity.signPset(blindedPset);
-      console.log(Psbt.fromBase64(signedPset).validateSignaturesOfAllInputs());
-      const pset = Psbt.fromBase64(signedPset);
       const txHex = Psbt.fromBase64(signedPset)
         .finalizeAllInputs()
         .extractTransaction()
