@@ -20,10 +20,15 @@ function* updateTransactions({ type }: { type: string }) {
 
     const identity: Mnemonic = yield call(getIdentity);
     yield call(waitForRestore, identity);
+    const blindPrivKeys = identity
+      .getAddresses()
+      .map((a) => a.blindingPrivateKey);
 
     const identityBlindKeyGetter: BlindingKeyGetter = (script: string) => {
       try {
-        return identity.getBlindingPrivateKey(script);
+        const k = identity.getBlindingPrivateKey(script);
+        if (blindPrivKeys.includes(k)) return k;
+        return undefined;
       } catch (_) {
         return undefined;
       }
@@ -33,7 +38,8 @@ function* updateTransactions({ type }: { type: string }) {
     const txsGen = fetchAndUnblindTxsGenerator(
       addresses,
       identityBlindKeyGetter,
-      explorerUrl
+      explorerUrl,
+      (tx) => actualTxs[tx.txid] != undefined
     );
     const next = () => txsGen.next();
     let it: IteratorResult<TxInterface, number> = yield call(next);

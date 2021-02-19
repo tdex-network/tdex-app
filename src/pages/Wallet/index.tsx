@@ -10,6 +10,7 @@ import {
   IonButton,
   IonRefresher,
   IonRefresherContent,
+  useIonViewDidEnter,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -28,6 +29,8 @@ import {
 } from '../../utils/helpers';
 import { MAIN_ASSETS } from '../../utils/constants';
 import CircleDiagram from '../../components/CircleDiagram';
+import { updateRates } from '../../redux/actions/ratesActions';
+import { updateTransactions } from '../../redux/actions/transactionsActions';
 
 interface WalletProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -96,10 +99,17 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
 
   const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
     dispatch(updateUtxos());
+    dispatch(updateRates());
     setTimeout(() => {
       event.detail.complete();
     }, 2000);
   };
+
+  useEffect(() => {
+    dispatch(updateUtxos());
+    dispatch(updateRates());
+    dispatch(updateTransactions());
+  }, []);
 
   return (
     <IonPage>

@@ -15,10 +15,10 @@ import classNames from 'classnames';
 import { IconBack, IconWarning } from '../../components/icons';
 
 import './style.scss';
-import { useMnemonic } from '../../utils/custom-hooks';
 import { useDispatch } from 'react-redux';
 import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
 import { signIn } from '../../redux/actions/appActions';
+import { useMnemonic } from '../../utils/custom-hooks';
 
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();

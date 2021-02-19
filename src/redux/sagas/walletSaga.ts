@@ -31,6 +31,9 @@ function* persistAddresses({
 
 function* updateUtxosState({ type }: { type: string }) {
   try {
+    // dispatch UPDATE_RATES to update prices async
+    yield put(updateRates());
+
     const actualUtxos: Record<string, UtxoInterface> = yield select(
       ({ wallet }: { wallet: WalletState }) => wallet.utxos
     );
@@ -54,9 +57,6 @@ function* updateUtxosState({ type }: { type: string }) {
       yield put(resetUtxos());
       return;
     }
-
-    // dispatch UPDATE_RATES to update prices async
-    yield put(updateRates());
 
     while (!it.done) {
       const utxo = it.value;

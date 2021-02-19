@@ -137,12 +137,12 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
   // effect for fiat equivalent
   useEffect(() => {
     if (balance && balance.coinGeckoID) {
-      const price = prices[balance.coinGeckoID];
-      if (!price) {
+      const p = prices[balance.coinGeckoID];
+      if (!p) {
         setPrice(undefined);
         return;
       }
-      setPrice(price);
+      setPrice(p);
       return;
     }
 
@@ -150,9 +150,10 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
   }, [prices]);
 
   useEffect(() => {
-    if (loading === false) {
-      history.push(`/withdraw/${asset_id}/details`);
-    }
+    // TODO manage withdraw details
+    // if (loading === false) {
+    //   history.push(`/withdraw/${asset_id}/details`);
+    // }
   }, [loading]);
 
   return (

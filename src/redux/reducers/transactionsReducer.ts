@@ -1,6 +1,8 @@
 import { TxInterface } from 'ldk';
+import { createSelector } from 'reselect';
 import { ActionType } from '../../utils/types';
 import { SET_TRANSACTION } from '../actions/transactionsActions';
+import { transactionsTransformer } from '../transformers/transactionsTransformer';
 
 interface TransactionState {
   // record txid ---> tx
@@ -28,5 +30,18 @@ function addTransactionInState(
   txs[tx.txid] = tx;
   return { ...state, txs };
 }
+
+const transactionsSelector = ({
+  transactions,
+}: {
+  transactions: TransactionState;
+}) => transactions.txs;
+export const transactionsByAssetSelector = createSelector(
+  transactionsSelector,
+  (txs) => {
+    const allTxs = Object.values(txs);
+    return transactionsTransformer(allTxs);
+  }
+);
 
 export default transactionsReducer;

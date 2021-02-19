@@ -1,4 +1,4 @@
-import { TxInterface } from 'tdex-sdk';
+import { TxInterface } from 'ldk';
 import {
   formatPriceString,
   fromSatoshiFixed,

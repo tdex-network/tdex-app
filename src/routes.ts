@@ -1,6 +1,6 @@
 import { IconExchange, IconSettings, IconWallet } from './components/icons';
 import Exchange from './pages/Exchange';
-import Operations from './pages/Operations';
+import Operations from './redux/containers/operationsContainer';
 import QRScanner from './pages/QRScanner';
 import Receive from './pages/Receive';
 import Settings from './pages/Settings';
