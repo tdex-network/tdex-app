@@ -17,10 +17,10 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: install
-        run: npm install
+        run: yarn install
 
       - name: lint
-        run: npm run lint
+        run: yarn lint
 
       - name: build
-        run: npm run build
+        run: yarn build

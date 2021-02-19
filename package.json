@@ -48,7 +48,7 @@
     "android": "npx ionic capacitor run android",
     "android:serve": "npx ionic capacitor run android -l --external",
     "ios": "npx ionic capacitor run ios",
-    "build": "npx ionic build",
+    "build": "npx ionic build --verbose",
     "sync": "npx jetify && npx ionic cap sync",
     "lint": "npx eslint './src/**/*.ts*'",
     "lint:fix": "npx eslint './src/**/*.ts*' --fix"
