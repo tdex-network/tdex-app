@@ -20,8 +20,7 @@ import { QRCodeImg } from '@cheprasov/react-qrcode';
 import { checkmarkOutline } from 'ionicons/icons';
 import { getIdentity } from '../../redux/services/walletService';
 import { setAddresses } from '../../redux/actions/walletActions';
-import { Mnemonic } from 'ldk';
-import { AddressInterface } from 'tdex-sdk';
+import { Mnemonic, AddressInterface } from 'ldk';
 
 const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   const [copied, setCopied] = useState(false);

@@ -1,5 +1,5 @@
 import { Storage, Plugins } from '@capacitor/core';
-import { AddressInterface } from 'tdex-sdk';
+import { AddressInterface } from 'ldk';
 import 'capacitor-secure-storage-plugin';
 
 const { SecureStoragePlugin } = Plugins;
