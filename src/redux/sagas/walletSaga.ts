@@ -9,14 +9,14 @@ import {
   deleteUtxo,
   resetUtxos,
 } from './../actions/walletActions';
-import { takeLatest, call, put, select, delay } from 'redux-saga/effects';
+import { takeLatest, call, put, select, delay, all } from 'redux-saga/effects';
 import {
   AddressInterface,
   UtxoInterface,
   Mnemonic,
   fetchAndUnblindUtxosGenerator,
 } from 'ldk';
-import { storageAddresses } from '../../utils/storage-helper';
+import { getAddresses, storageAddresses } from '../../utils/storage-helper';
 
 function* persistAddresses({
   type,
@@ -32,51 +32,59 @@ function* persistAddresses({
 
 function* updateUtxosState({ type }: { type: string }) {
   try {
-    // dispatch UPDATE_RATES to update prices async
+    const [addresses, utxos, explorerURL]: [
+      AddressInterface[],
+      Record<string, UtxoInterface>,
+      string
+    ] = yield all([
+      call(getAddresses),
+      select(({ wallet }: { wallet: WalletState }) => wallet.utxos),
+      select(({ settings }) => settings.explorerUrl),
+    ]);
     yield put(updateRates());
-
-    const currentUtxos: Record<string, UtxoInterface> = yield select(
-      ({ wallet }: { wallet: WalletState }) => wallet.utxos
-    );
-    const newOutpoints: string[] = [];
-
-    const identity: Mnemonic = yield call(getIdentity);
-    yield call(waitForRestore, identity);
-    const explorerUrl = yield select(({ settings }) => settings.explorerUrl);
-
-    const utxoGen = fetchAndUnblindUtxosGenerator(
-      identity.getAddresses(),
-      explorerUrl,
-      (utxo: UtxoInterface) => currentUtxos[outpointToString(utxo)] != undefined
-    );
-    const next = () => utxoGen.next();
-
-    let it: IteratorResult<UtxoInterface, number> = yield call(next);
-
-    // if done = true it means that we do not find any utxos
-    if (it.done) {
-      yield put(resetUtxos());
-      return;
-    }
-
-    while (!it.done) {
-      const utxo = it.value;
-      newOutpoints.push(outpointToString({ txid: utxo.txid, vout: utxo.vout }));
-      if (!currentUtxos[outpointToString(utxo)]) {
-        yield put(setUtxo(utxo));
-      }
-      it = yield call(next);
-    }
-
-    // delete spent utxos
-    for (const outpoint of Object.keys(currentUtxos)) {
-      if (outpoint && !newOutpoints.includes(outpoint)) {
-        const [txid, vout] = outpoint.split(':');
-        yield put(deleteUtxo({ txid, vout: parseInt(vout) }));
-      }
-    }
+    yield call(fetchAndUpdateUtxos, addresses, utxos, explorerURL);
   } catch (error) {
     console.error(error);
+  }
+}
+
+export function* fetchAndUpdateUtxos(
+  addresses: AddressInterface[],
+  currentUtxos: Record<string, UtxoInterface>,
+  explorerUrl: string
+) {
+  const newOutpoints: string[] = [];
+
+  const utxoGen = fetchAndUnblindUtxosGenerator(
+    addresses,
+    explorerUrl,
+    (utxo: UtxoInterface) => currentUtxos[outpointToString(utxo)] != undefined
+  );
+  const next = () => utxoGen.next();
+
+  let it: IteratorResult<UtxoInterface, number> = yield call(next);
+
+  // if done = true it means that we do not find any utxos
+  if (it.done) {
+    yield put(resetUtxos());
+    return;
+  }
+
+  while (!it.done) {
+    const utxo = it.value;
+    newOutpoints.push(outpointToString({ txid: utxo.txid, vout: utxo.vout }));
+    if (!currentUtxos[outpointToString(utxo)]) {
+      yield put(setUtxo(utxo));
+    }
+    it = yield call(next);
+  }
+
+  // delete spent utxos
+  for (const outpoint of Object.keys(currentUtxos)) {
+    if (outpoint && !newOutpoints.includes(outpoint)) {
+      const [txid, vout] = outpoint.split(':');
+      yield put(deleteUtxo({ txid, vout: parseInt(vout) }));
+    }
   }
 }
 
