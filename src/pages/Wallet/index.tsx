@@ -13,7 +13,7 @@ import {
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { CurrencyIcon } from '../../components/icons';
 import { RefresherEventDetail } from '@ionic/core';
 //styles
@@ -30,28 +30,31 @@ import { MAIN_ASSETS } from '../../utils/constants';
 import CircleDiagram from '../../components/CircleDiagram';
 import { updateRates } from '../../redux/actions/ratesActions';
 import { updateTransactions } from '../../redux/actions/transactionsActions';
+import { ActionType } from '../../utils/types';
 
 interface WalletProps extends RouteComponentProps {
   balances: BalanceInterface[];
+  currency: string;
+  prices: Record<string, number>;
+  dispatch: (action: ActionType) => void;
 }
 
-const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
-  const { currency, prices } = useSelector((state: any) => ({
-    currency: state.settings.currency,
-    prices: state.rates.prices,
-  }));
-
-  const [LBTCBalance, setLBTCBalance] = useState<BalanceInterface | undefined>(
-    undefined
-  );
+const Wallet: React.FC<WalletProps> = ({
+  balances,
+  prices,
+  currency,
+  history,
+  dispatch,
+}) => {
+  const [LBTCBalance, setLBTCBalance] = useState<BalanceInterface>();
   const [LBTCBalanceIndex, setLBTCBalanceIndex] = useState(-1);
   const [mainAssets, setMainAssets] = useState<BalanceInterface[]>([]);
+  const [fiats, setFiats] = useState<number[]>([]);
   const [secondaryAssets, setSecondaryAssets] = useState<BalanceInterface[]>(
     []
   );
 
   const UNKNOWN = -1;
-  const [fiats, setFiats] = useState<number[]>([]);
 
   const getFiatValue = (balance: BalanceInterface) => {
     const balanceIndex = balances.findIndex((b) => b.ticker === balance.ticker);
@@ -94,22 +97,21 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
     setSecondaryAssets(secondary);
   }, [balances]);
 
-  const dispatch = useDispatch();
-
-  const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
+  const refreshUpdate = async () => {
     dispatch(updateUtxos());
     dispatch(updateRates());
     dispatch(updateTransactions());
+  };
+
+  const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
+    refreshUpdate();
     setTimeout(() => {
       event.detail.complete();
     }, 2000);
   };
 
   useEffect(() => {
-    dispatch(updateUtxos());
-    dispatch(updateRates());
-    dispatch(updateTransactions());
-    // dispatch(updateTransactions());
+    refreshUpdate();
   }, []);
 
   return (
@@ -132,7 +134,7 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
           <div className="total-info">
             <div className="header-info wallet">
               <p className="info-heading">Total balance</p>
-              <p className="info-amount">
+              <p className="info-amount" aria-label="main-balance">
                 {LBTCBalance ? fromSatoshiFixed(LBTCBalance.amount) : '0.00'}
                 <span>LBTC</span>
               </p>
@@ -161,6 +163,7 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
             const fiatValue = getFiatValue(balance);
             return (
               <IonItem
+                aria-label={balance.ticker}
                 key={balance.asset}
                 onClick={() => {
                   history.push(`/operations/${balance.asset}`);
@@ -170,7 +173,10 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
                   <div className="item-start">
                     <CurrencyIcon currency={balance.ticker} />
                     <div className="item-name">
-                      <div className="main-row">
+                      <div
+                        className="main-row"
+                        aria-label={`${balance.ticker}-asset`}
+                      >
                         {balance.coinGeckoID
                           ? capitalizeFirstLetter(balance.coinGeckoID)
                           : 'Unknow'}
@@ -179,7 +185,10 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
                   </div>
                   <div className="item-end">
                     <div className="first-col">
-                      <div className="main-row">
+                      <div
+                        className="main-row"
+                        aria-label={`${balance.ticker}-amount`}
+                      >
                         {fromSatoshiFixed(balance.amount)}
                       </div>
                       <div className="sub-row">
@@ -211,6 +220,7 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
             return (
               <IonItem
                 key={balance.asset}
+                aria-label={balance.ticker}
                 onClick={() => {
                   history.push(`/operations/${balance.asset}`);
                 }}
@@ -219,14 +229,20 @@ const Wallet: React.FC<WalletProps> = ({ balances, history }) => {
                   <div className="item-start">
                     <CurrencyIcon currency={balance.ticker} />
                     <div className="item-name">
-                      <div className="main-row">
+                      <div
+                        className="main-row"
+                        aria-label={`${balance.ticker}-asset`}
+                      >
                         {`Asset ${balance.ticker}`}
                       </div>
                     </div>
                   </div>
                   <div className="item-end">
                     <div className="first-col">
-                      <div className="main-row">
+                      <div
+                        className="main-row"
+                        aria-label={`${balance.ticker}-amount`}
+                      >
                         {fromSatoshiFixed(balance.amount)}
                       </div>
                       <div className="sub-row">

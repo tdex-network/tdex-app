@@ -35,7 +35,7 @@ function* updateUtxosState({ type }: { type: string }) {
     // dispatch UPDATE_RATES to update prices async
     yield put(updateRates());
 
-    const actualUtxos: Record<string, UtxoInterface> = yield select(
+    const currentUtxos: Record<string, UtxoInterface> = yield select(
       ({ wallet }: { wallet: WalletState }) => wallet.utxos
     );
     const newOutpoints: string[] = [];
@@ -47,7 +47,7 @@ function* updateUtxosState({ type }: { type: string }) {
     const utxoGen = fetchAndUnblindUtxosGenerator(
       identity.getAddresses(),
       explorerUrl,
-      (utxo: UtxoInterface) => actualUtxos[outpointToString(utxo)] != undefined
+      (utxo: UtxoInterface) => currentUtxos[outpointToString(utxo)] != undefined
     );
     const next = () => utxoGen.next();
 
@@ -62,14 +62,14 @@ function* updateUtxosState({ type }: { type: string }) {
     while (!it.done) {
       const utxo = it.value;
       newOutpoints.push(outpointToString({ txid: utxo.txid, vout: utxo.vout }));
-      if (!actualUtxos[outpointToString(utxo)]) {
+      if (!currentUtxos[outpointToString(utxo)]) {
         yield put(setUtxo(utxo));
       }
       it = yield call(next);
     }
 
     // delete spent utxos
-    for (const outpoint of Object.keys(actualUtxos)) {
+    for (const outpoint of Object.keys(currentUtxos)) {
       if (outpoint && !newOutpoints.includes(outpoint)) {
         const [txid, vout] = outpoint.split(':');
         yield put(deleteUtxo({ txid, vout: parseInt(vout) }));

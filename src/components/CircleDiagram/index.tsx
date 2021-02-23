@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import './style.scss';
 import classNames from 'classnames';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
@@ -19,107 +19,109 @@ export interface CircleDiagram {
 }
 
 const CircleDiagram: React.FC<CircleDiagram> = ({ className, data }) => {
-  const canvasRef: any = useRef(null);
+  const canvasRef = useRef<any>(null);
   const total = data.reduce((acc, balance) => acc + balance.amount, 0);
 
   const renderCircle = () => {
-    const ctx = canvasRef.current.getContext('2d');
-    ctx.clearRect(0, 0, 240, 240);
+    if (canvasRef && canvasRef.current) {
+      const ctx = canvasRef.current.getContext('2d');
+      ctx.clearRect(0, 0, 240, 240);
 
-    const shift = -0.5 * Math.PI;
-    const minWidthPercent = 3.382042540702776;
-    const minWidth = 0.0125;
-    const lengthList: number[] = [];
-    let length: number, start: number, end: number;
-    let minimalCount = 0;
-    let minimalWidthSum = 0;
+      const shift = -0.5 * Math.PI;
+      const minWidthPercent = 3.382042540702776;
+      const minWidth = 0.0125;
+      const lengthList: number[] = [];
+      let length: number, start: number, end: number;
+      let minimalCount = 0;
+      let minimalWidthSum = 0;
 
-    const checkSmallElements = () => {
-      const marginsSum = data.length * 0.2;
-      data.forEach((item: BalanceInterface, index: number) => {
-        const part = item.amount / total;
-        const realLength = part * (2 * Math.PI - marginsSum);
-        if (part * 100 < minWidthPercent) {
-          minimalCount++;
-          minimalWidthSum += realLength;
-          lengthList.push(minWidth);
+      const checkSmallElements = () => {
+        const marginsSum = data.length * 0.2;
+        data.forEach((item: BalanceInterface, index: number) => {
+          const part = item.amount / total;
+          const realLength = part * (2 * Math.PI - marginsSum);
+          if (part * 100 < minWidthPercent) {
+            minimalCount++;
+            minimalWidthSum += realLength;
+            lengthList.push(minWidth);
+          } else {
+            lengthList.push(realLength);
+          }
+        });
+      };
+
+      const getElementPosition = (index: number, discrepancy: number) => {
+        if (index === 0) {
+          start = shift + 0.1;
+        } else if (index === data.length - 1) {
+          start = start + length + 0.2;
         } else {
-          lengthList.push(realLength);
+          start = start + length + 0.2;
         }
-      });
-    };
 
-    const getElementPosition = (index: number, discrepancy: number) => {
-      if (index === 0) {
-        start = shift + 0.1;
-      } else if (index === data.length - 1) {
-        start = start + length + 0.2;
+        length =
+          lengthList[index] > minWidthPercent / 100
+            ? lengthList[index] - discrepancy
+            : lengthList[index];
+        end =
+          start + length > 2 * Math.PI + shift
+            ? 2 * Math.PI + shift - 0.1
+            : start + length;
+      };
+
+      const fillColor = (grad: any, item?: BalanceInterface) => {
+        if (!item) {
+          grad.addColorStop(0, '#CCCCCC');
+          grad.addColorStop(1, '#CCCCCC');
+        } else if (colors[item.ticker.toLowerCase()]) {
+          const [first, second] = colors[item.ticker.toLowerCase()];
+          grad.addColorStop(0, first);
+          grad.addColorStop(1, second);
+        } else {
+          const color = createColorFromHash(item.asset);
+          grad.addColorStop(0, color);
+          grad.addColorStop(1, color);
+        }
+      };
+
+      const drawDiagram = (grad: any) => {
+        const withData = data.length;
+        ctx.beginPath();
+        ctx.arc(
+          120,
+          120,
+          110,
+          withData ? start : -0.5 * Math.PI,
+          withData ? end : 2 * Math.PI
+        );
+        ctx.lineWidth = 17;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = grad;
+        ctx.stroke();
+      };
+
+      if (data.length) {
+        checkSmallElements();
+        const discrepancy =
+          (minimalCount * minWidth - minimalWidthSum) /
+          (data.length - minimalCount);
+        data.forEach((item, index: number) => {
+          const grad = ctx.createLinearGradient(100, 0, 200, 200);
+          getElementPosition(index, discrepancy);
+          fillColor(grad, item);
+          drawDiagram(grad);
+        });
       } else {
-        start = start + length + 0.2;
-      }
-
-      length =
-        lengthList[index] > minWidthPercent / 100
-          ? lengthList[index] - discrepancy
-          : lengthList[index];
-      end =
-        start + length > 2 * Math.PI + shift
-          ? 2 * Math.PI + shift - 0.1
-          : start + length;
-    };
-
-    const fillColor = (grad: any, item?: BalanceInterface) => {
-      if (!item) {
-        grad.addColorStop(0, '#CCCCCC');
-        grad.addColorStop(1, '#CCCCCC');
-      } else if (colors[item.ticker.toLowerCase()]) {
-        const [first, second] = colors[item.ticker.toLowerCase()];
-        grad.addColorStop(0, first);
-        grad.addColorStop(1, second);
-      } else {
-        const color = createColorFromHash(item.asset);
-        grad.addColorStop(0, color);
-        grad.addColorStop(1, color);
-      }
-    };
-
-    const drawDiagram = (grad: any) => {
-      const withData = data.length;
-      ctx.beginPath();
-      ctx.arc(
-        120,
-        120,
-        110,
-        withData ? start : -0.5 * Math.PI,
-        withData ? end : 2 * Math.PI
-      );
-      ctx.lineWidth = 17;
-      ctx.lineCap = 'round';
-      ctx.strokeStyle = grad;
-      ctx.stroke();
-    };
-
-    if (data.length) {
-      checkSmallElements();
-      const discrepancy =
-        (minimalCount * minWidth - minimalWidthSum) /
-        (data.length - minimalCount);
-      data.forEach((item, index: number) => {
         const grad = ctx.createLinearGradient(100, 0, 200, 200);
-        getElementPosition(index, discrepancy);
-        fillColor(grad, item);
+        fillColor(grad);
         drawDiagram(grad);
-      });
-    } else {
-      const grad = ctx.createLinearGradient(100, 0, 200, 200);
-      fillColor(grad);
-      drawDiagram(grad);
+      }
     }
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     renderCircle();
-  });
+  }, []);
 
   return (
     <canvas

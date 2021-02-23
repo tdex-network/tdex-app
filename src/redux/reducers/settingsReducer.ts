@@ -2,7 +2,13 @@ import { ActionType } from '../../utils/types';
 import { SET_ELECTRUM_SERVER, SET_THEME } from '../actions/settingsActions';
 import { network } from '../config';
 
-const initialState = {
+export interface SettingsState {
+  currency: string;
+  explorerUrl: string;
+  theme: string;
+}
+
+const initialState: SettingsState = {
   currency: 'eur',
   explorerUrl: network.explorer,
   theme: 'dark',
