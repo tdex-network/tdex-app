@@ -51,7 +51,8 @@
     "build": "npx ionic build --verbose",
     "sync": "npx jetify && npx ionic cap sync",
     "lint": "npx eslint './src/**/*.ts*'",
-    "lint:fix": "npx eslint './src/**/*.ts*' --fix"
+    "lint:fix": "npx eslint './src/**/*.ts*' --fix",
+    "test": "npx jest"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -97,7 +98,6 @@
     "jest-canvas-mock": "^2.3.1",
     "node-sass": "^4.14.1",
     "prettier": "^2.1.2",
-    "react-test-renderer": "^17.0.1",
     "redux-devtools-extension": "^2.13.8",
     "tdex-react-scripts": "^4.0.0-tdex",
     "ts-jest": "^26.5.1",
