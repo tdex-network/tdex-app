@@ -48,7 +48,7 @@
     "android": "npx ionic capacitor run android",
     "android:serve": "npx ionic capacitor run android -l --external",
     "ios": "npx ionic capacitor run ios",
-    "build": "yarn sync && npx ionic build --no-source-map --engine=android",
+    "build:android": "npx ionic capacitor build android --no-open",
     "sync": "npx jetify && npx ionic cap sync",
     "lint": "npx eslint './src/**/*.ts*'",
     "lint:fix": "npx eslint './src/**/*.ts*' --fix",

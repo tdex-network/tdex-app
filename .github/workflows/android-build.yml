@@ -29,4 +29,4 @@ jobs:
         uses: bahmutov/npm-install@v1
 
       - name: Build
-        run: yarn build
+        run: yarn sync && yarn build:android
