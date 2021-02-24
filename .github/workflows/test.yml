@@ -1,4 +1,4 @@
-name: CI
+name: Test
 on:
   push:
     branches: [master]
@@ -8,6 +8,7 @@ on:
 jobs:
   build:
     # The type of runner that the job will run on
+    name: Lint & Test
     runs-on: ubuntu-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -29,6 +30,3 @@ jobs:
 
       - name: test
         run: yarn test --ci --maxWorkers=2
-
-      - name: build
-        run: yarn build
