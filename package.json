@@ -52,7 +52,8 @@
     "sync": "npx jetify && npx ionic cap sync",
     "lint": "npx eslint './src/**/*.ts*'",
     "lint:fix": "npx eslint './src/**/*.ts*' --fix",
-    "test": "BABEL_ENV=test npx jest"
+    "test": "BABEL_ENV=test npx jest",
+    "build:web": "npx ionic build"
   },
   "eslintConfig": {
     "extends": "react-app"
