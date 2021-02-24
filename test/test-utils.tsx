@@ -32,7 +32,7 @@ export async function faucet(address: string): Promise<string> {
       throw new Error('faucet network error: ' + status);
     }
     const { txId } = data;
-    await sleep(2000);
+    await sleep(5000);
     return txId;
   } catch (e) {
     console.error(e);
