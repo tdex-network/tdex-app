@@ -28,5 +28,8 @@ jobs:
       - name: Install deps and build (with cache)
         uses: bahmutov/npm-install@v1
 
+      - name: Enable Capacitor
+        run: npx ionic integrations enable
+      
       - name: Build
         run: yarn sync && yarn build:android
