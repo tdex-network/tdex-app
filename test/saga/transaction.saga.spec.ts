@@ -11,6 +11,7 @@ describe('Transaction saga', () => {
     describe('fetchAndUpdateTxs', () => {
         let txid: string;
         beforeAll(async () => {
+            await sleep(5000)
             txid = await faucet(firstAddress.confidentialAddress)
         })
 

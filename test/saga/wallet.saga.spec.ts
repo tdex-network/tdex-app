@@ -12,6 +12,7 @@ describe('wallet saga', () => {
     describe('fetchAndUpdateUtxos', () => {
         let utxo: UtxoInterface;
         beforeAll(async () => {
+            await sleep(5000)
             const txid = await faucet(firstAddress.confidentialAddress)
             utxo = (await fetchAndUnblindUtxos([firstAddress], APIURL, (utxo) => utxo.txid !== txid))[0]
         })
