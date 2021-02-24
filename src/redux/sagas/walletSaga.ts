@@ -70,8 +70,8 @@ export function* fetchAndUpdateUtxos(
 
   while (!it.done) {
     const utxo = it.value;
+    newOutpoints.push(outpointToString(utxo));
     if (!currentUtxos[outpointToString(utxo)]) {
-      newOutpoints.push(outpointToString({ txid: utxo.txid, vout: utxo.vout }));
       yield put(setUtxo(utxo));
     }
     it = yield call(next);

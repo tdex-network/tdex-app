@@ -26,9 +26,9 @@ describe('wallet saga', () => {
             expect(put.payload.action.type).toEqual(SET_UTXO)
         })
 
-        test('should delete existing utxo', async () => {
+        test('should delete existing utxo if spent', async () => {
             const current: Record<string, UtxoInterface> = {}
-            current[outpointToString(utxo)] = utxo
+            current['fakeTxid:8'] = utxo
             const gen = fetchAndUpdateUtxos([firstAddress], current, APIURL)
 
             let next = gen.next();
@@ -44,7 +44,7 @@ describe('wallet saga', () => {
             }
 
             expect(next.value.payload.action.type).toEqual(DELETE_UTXO)
-            expect(outpointToString(next.value.payload.action.payload)).toEqual(outpointToString(utxo))
+            expect(outpointToString(next.value.payload.action.payload)).toEqual('fakeTxid:8')
         })
 
         test('should reset utxos if no utxos are discovered', async () => {

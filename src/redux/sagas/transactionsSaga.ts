@@ -1,60 +1,79 @@
 import {
   BlindingKeyGetter,
-  Mnemonic,
   TxInterface,
   fetchAndUnblindTxsGenerator,
+  address,
+  AddressInterface,
 } from 'ldk';
-import { takeLatest, call, put, select } from 'redux-saga/effects';
-import { getIdentity, waitForRestore } from '../services/walletService';
+import { takeLatest, call, put, select, all } from 'redux-saga/effects';
 import {
   setTransaction,
   UPDATE_TRANSACTIONS,
 } from '../actions/transactionsActions';
+import { getAddresses } from '../../utils/storage-helper';
 
 function* updateTransactions({ type }: { type: string }) {
   try {
-    const actualTxs: Record<string, TxInterface> = yield select(
-      ({ transactions }) => transactions.txs
-    );
-    const explorerUrl = yield select(({ settings }) => settings.explorerUrl);
+    const [addresses, txs, explorerURL]: [
+      AddressInterface[],
+      Record<string, TxInterface>,
+      string
+    ] = yield all([
+      call(getAddresses),
+      select(({ transactions }) => transactions.txs),
+      select(({ settings }) => settings.explorerUrl),
+    ]);
 
-    const identity: Mnemonic = yield call(getIdentity);
-    yield call(waitForRestore, identity);
-    const blindPrivKeys = identity
-      .getAddresses()
-      .map((a) => a.blindingPrivateKey);
-
-    const identityBlindKeyGetter: BlindingKeyGetter = (script: string) => {
-      try {
-        const k = identity.getBlindingPrivateKey(script);
-        if (blindPrivKeys.includes(k)) return k;
-        return undefined;
-      } catch (_) {
-        return undefined;
-      }
-    };
-
-    const addresses = identity.getAddresses().map((a) => a.confidentialAddress);
-    const txsGen = fetchAndUnblindTxsGenerator(
-      addresses,
-      identityBlindKeyGetter,
-      explorerUrl,
-      (tx) => tx.status.confirmed && actualTxs[tx.txid] != undefined
-    );
-    const next = () => txsGen.next();
-    let it: IteratorResult<TxInterface, number> = yield call(next);
-
-    if (it.done) {
-      return;
-    }
-
-    while (!it.done) {
-      const tx = it.value;
-      yield put(setTransaction(tx));
-      it = yield call(next);
-    }
+    yield call(fetchAndUpdateTxs, addresses, txs, explorerURL);
   } catch (e) {
     console.error(e);
+  }
+}
+
+export function* fetchAndUpdateTxs(
+  addressesInterfaces: AddressInterface[],
+  currentTxs: Record<string, TxInterface>,
+  explorerUrl: string
+) {
+  const addresses: string[] = [];
+  const scriptToBlindingPrivKey: Record<string, string> = {};
+
+  for (const addrI of addressesInterfaces) {
+    addresses.push(addrI.confidentialAddress);
+    if (addrI.blindingPrivateKey.length > 0) {
+      const script = address
+        .toOutputScript(addrI.confidentialAddress)
+        .toString('hex');
+      scriptToBlindingPrivKey[script] = addrI.blindingPrivateKey;
+    }
+  }
+
+  const identityBlindKeyGetter: BlindingKeyGetter = (script: string) => {
+    try {
+      return scriptToBlindingPrivKey[script];
+    } catch (_) {
+      return undefined;
+    }
+  };
+
+  const txsGen = fetchAndUnblindTxsGenerator(
+    addresses,
+    identityBlindKeyGetter,
+    explorerUrl,
+    (tx) =>
+      currentTxs[tx.txid] != undefined && currentTxs[tx.txid].status.confirmed
+  );
+  const next = () => txsGen.next();
+  let it: IteratorResult<TxInterface, number> = yield call(next);
+
+  if (it.done) {
+    return;
+  }
+
+  while (!it.done) {
+    const tx = it.value;
+    yield put(setTransaction(tx));
+    it = yield call(next);
   }
 }
 
