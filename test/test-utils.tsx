@@ -32,7 +32,7 @@ export async function faucet(address: string): Promise<string> {
       throw new Error('faucet network error: ' + status);
     }
     const { txId } = data;
-    sleep(5000);
+    await sleep(2000);
     return txId;
   } catch (e) {
     console.error(e);
@@ -52,6 +52,6 @@ export const privKeyIdentity = new PrivateKey({
 
 export const firstAddress = privKeyIdentity.getNextAddress();
 
-async function sleep(ms: number) {
+export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }

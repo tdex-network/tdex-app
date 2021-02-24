@@ -1,7 +1,7 @@
 import { AddressInterface, TxInterface } from 'ldk';
 import { ActionType } from './../../src/utils/types';
 import { CallEffect, PutEffect } from 'redux-saga/effects';
-import { faucet, firstAddress, APIURL } from '../test-utils';
+import { faucet, firstAddress, APIURL, sleep } from '../test-utils';
 import { fetchAndUpdateTxs } from '../../src/redux/sagas/transactionsSaga';
 import { SET_TRANSACTION } from '../../src/redux/actions/transactionsActions';
 

@@ -2,7 +2,7 @@ import { fetchAndUnblindUtxos, UtxoInterface } from 'ldk';
 import { ActionType } from './../../src/utils/types';
 import { CallEffect, PutEffect } from 'redux-saga/effects';
 import { fetchAndUpdateUtxos } from '../../src/redux/sagas/walletSaga';
-import { faucet, firstAddress, APIURL } from '../test-utils';
+import { faucet, firstAddress, APIURL, sleep } from '../test-utils';
 import { SET_UTXO, DELETE_UTXO, RESET_UTXOS } from '../../src/redux/actions/walletActions';
 import { outpointToString } from '../../src/redux/reducers/walletReducer';
 
