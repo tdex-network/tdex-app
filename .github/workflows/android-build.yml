@@ -29,7 +29,7 @@ jobs:
         uses: bahmutov/npm-install@v1
 
       - name: Enable Capacitor
-        run: npx ionic integrations enable
+        run: npx ionic integrations enable capacitor
       
       - name: Build
         run: yarn sync && yarn build:android
