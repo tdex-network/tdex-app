@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import './style.scss';
 import classNames from 'classnames';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
@@ -117,7 +117,7 @@ const CircleDiagram: React.FC<CircleDiagram> = ({ className, data }) => {
     }
   };
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     renderCircle();
   }, []);
 

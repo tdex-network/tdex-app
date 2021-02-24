@@ -1,5 +1,4 @@
 import { updateRates } from './../actions/ratesActions';
-import { getIdentity, waitForRestore } from './../services/walletService';
 import { WalletState, outpointToString } from './../reducers/walletReducer';
 import {
   SET_ADDRESSES,
@@ -13,7 +12,6 @@ import { takeLatest, call, put, select, delay, all } from 'redux-saga/effects';
 import {
   AddressInterface,
   UtxoInterface,
-  Mnemonic,
   fetchAndUnblindUtxosGenerator,
 } from 'ldk';
 import { getAddresses, storageAddresses } from '../../utils/storage-helper';
@@ -72,8 +70,8 @@ export function* fetchAndUpdateUtxos(
 
   while (!it.done) {
     const utxo = it.value;
-    newOutpoints.push(outpointToString({ txid: utxo.txid, vout: utxo.vout }));
     if (!currentUtxos[outpointToString(utxo)]) {
+      newOutpoints.push(outpointToString({ txid: utxo.txid, vout: utxo.vout }));
       yield put(setUtxo(utxo));
     }
     it = yield call(next);
