@@ -70,6 +70,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
       <PinModal
         open={modalOpen === 'first'}
         title="Set your secret PIN"
+        description="Enter a 6-digit secret PIN to secure your wallet's seed."
         onConfirm={onFirstPinConfirm}
         onClose={() => {
           setModalOpen(undefined);
@@ -79,6 +80,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
       <PinModal
         open={modalOpen === 'second'}
         title="Repeat your secret PIN"
+        description="Confirm your secret PIN."
         onConfirm={onSecondPinConfirm}
         onClose={cancelSecondModal}
       />

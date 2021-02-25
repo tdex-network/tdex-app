@@ -10,7 +10,6 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  useIonViewDidEnter,
 } from '@ionic/react';
 import { IconBack, IconCheck } from '../../components/icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -68,6 +67,7 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
       <PinModal
         open={modalOpen === 'first'}
         title="Set your secret PIN"
+        description="Enter a 6-digit secret PIN to secure your wallet's seed."
         onConfirm={onFirstPinConfirm}
         onClose={() => {
           setModalOpen(undefined);
@@ -77,6 +77,7 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
       <PinModal
         open={modalOpen === 'second'}
         title="Repeat your secret PIN"
+        description="Confirm your secret PIN."
         onConfirm={onSecondPinConfirm}
         onClose={cancelSecondModal}
       />

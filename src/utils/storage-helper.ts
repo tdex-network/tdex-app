@@ -31,6 +31,11 @@ export async function getAddresses(): Promise<AddressInterface[]> {
 // hardcoded key for secure storage
 const MNEMONIC_KEY = 'tdex-app-mnemonic';
 
+export async function changePin(currentPIN: string, newPIN: string) {
+  const mnemonic = await removeMnemonicFromSecureStorage(currentPIN);
+  await setMnemonicInSecureStorage(mnemonic, newPIN);
+}
+
 /**
  * encrypt with pin + store in secure storage.
  * @param mnemonic the mnemonic to store
@@ -59,7 +64,6 @@ export async function getMnemonicFromSecureStorage(
 ): Promise<string> {
   const { value } = await SecureStoragePlugin.get({ key: MNEMONIC_KEY });
   const encryptedData: Encrypted = JSON.parse(value);
-  console.log(encryptedData, pin);
   return decrypt(encryptedData, pin);
 }
 
@@ -72,8 +76,12 @@ export async function mnemonicInSecureStorage(): Promise<boolean> {
   }
 }
 
-export async function removeMnemonicFromSecureStorage(): Promise<boolean> {
-  return SecureStoragePlugin.remove({ key: MNEMONIC_KEY });
+export async function removeMnemonicFromSecureStorage(
+  pin: string
+): Promise<string> {
+  const mnemonic = await getMnemonicFromSecureStorage(pin); // will throw an error if the pin can't decrypt the mnemonic
+  await SecureStoragePlugin.remove({ key: MNEMONIC_KEY });
+  return mnemonic;
 }
 
 export async function getIdentity(pin: string): Promise<Mnemonic> {

@@ -13,27 +13,34 @@ import {
   IonModal,
   IonLabel,
 } from '@ionic/react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { IconBack, IconClose, IconRightArrow } from '../../components/icons';
-import { withRouter } from 'react-router';
+import { RouteComponentProps, useParams, withRouter } from 'react-router';
 import './style.scss';
-import { eye, shieldCheckmark, trashOutline } from 'ionicons/icons';
-import { useSelector } from 'react-redux';
+import { eye, lockOpen, shieldCheckmark, trashOutline } from 'ionicons/icons';
 
 import PageDescription from '../../components/PageDescription';
 import { Clipboard } from '@ionic-native/clipboard';
 import DeleteMnemonicModal from '../../components/DeleteMnemonicModal';
+import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
+import ChangePinModals from '../../components/ChangePinModals';
 
-const Account: React.FC<any> = ({ history }) => {
-  const { mnemonic } = useSelector((state: any) => ({
-    mnemonic: state.wallet.mnemonic,
-  }));
+const Account: React.FC<RouteComponentProps> = ({ history }) => {
+  const { pin } = useParams<{ pin: string }>();
+  const [mnemonic, setMnemonic] = useState<string>();
+
+  useEffect(() => {
+    getMnemonicFromSecureStorage(pin).then(setMnemonic).catch(console.error);
+  }, [pin]);
+
   const [showMnemonicModal, setShowMnemonicModal] = useState(false);
   const [showDeleteMnemonicModal, setShowDeleteMnemonicModal] = useState(false);
+  const [showChangePinModal, setShowChangePinModal] = useState(false);
+
   const [copied, setCopied] = useState<boolean>(false);
   const mnemonicRef: any = useRef(null);
   const copyMnemonic = () => {
-    if (mnemonicRef) {
+    if (mnemonicRef && mnemonic) {
       Clipboard.copy(mnemonic)
         .then((res: any) => {
           setCopied(true);
@@ -127,6 +134,31 @@ const Account: React.FC<any> = ({ history }) => {
           <IonItem
             className="list-item"
             onClick={() => {
+              setShowChangePinModal(true);
+            }}
+          >
+            <div className="item-main-info">
+              <IonIcon icon={lockOpen}></IonIcon>
+              <div className="item-start">
+                <div className="main-row">Change PIN</div>
+                <IonText className="description">
+                  Change the secure PIN using to encrypt your wallet's seed.
+                </IonText>
+              </div>
+              <div className="item-end">
+                <IconRightArrow
+                  className="next-icon"
+                  fill="#fff"
+                  width="7"
+                  height="12"
+                  viewBox="0 0 7 12"
+                />
+              </div>
+            </div>
+          </IonItem>
+          <IonItem
+            className="list-item"
+            onClick={() => {
               setShowDeleteMnemonicModal(true);
             }}
           >
@@ -152,6 +184,14 @@ const Account: React.FC<any> = ({ history }) => {
             </div>
           </IonItem>
         </IonList>
+        {showChangePinModal && (
+          <ChangePinModals
+            open={showChangePinModal}
+            onClose={() => setShowChangePinModal(false)}
+            onDeleted={() => setShowChangePinModal(false)}
+          />
+        )}
+
         {showMnemonicModal && (
           <IonModal
             isOpen={showMnemonicModal}
@@ -205,7 +245,11 @@ const Account: React.FC<any> = ({ history }) => {
           </IonModal>
         )}
         <DeleteMnemonicModal
-          setOpenModal={setShowDeleteMnemonicModal}
+          pin={pin}
+          close={() => {
+            setShowDeleteMnemonicModal(false);
+          }}
+          onConfirm={() => history.push('/homescreen')}
           openModal={showDeleteMnemonicModal}
         />
       </IonContent>

@@ -49,6 +49,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
       <PinModal
         open={pinModalIsOpen}
         title="Enter your secret PIN"
+        description="Unlock your wallet."
         onConfirm={onConfirmPinModal}
         onClose={() => setPinModalIsOpen(false)}
       />

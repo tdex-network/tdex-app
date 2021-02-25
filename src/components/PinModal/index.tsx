@@ -15,12 +15,14 @@ import PinInput from '../PinInput';
 interface PinModalProps {
   open: boolean;
   title: string;
+  description: string;
   onConfirm: (pin: string) => void;
   onClose?: () => void;
 }
 
 const PinModal: React.FC<PinModalProps> = ({
   title,
+  description,
   onClose,
   open,
   onConfirm,
@@ -42,12 +44,12 @@ const PinModal: React.FC<PinModalProps> = ({
               <IconClose />
             </IonButton>
           )}
-          <IonTitle>{title}</IonTitle>
+          <IonTitle>Insert PIN</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <PageDescription title="Insert PIN">
-          <p>Insert the numeric password you’ve set at sign in</p>
+        <PageDescription title={title}>
+          <p>{description}</p>
         </PageDescription>
         <PinInput onPin={(pin: string) => setPin(pin)} />
         <div className="buttons">
