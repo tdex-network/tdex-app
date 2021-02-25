@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState } from 'react';
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { IonInput, IonItem, IonLabel } from '@ionic/react';
 import { uuid4 } from '@capacitor/core/dist/esm/util';
@@ -9,7 +9,15 @@ interface PinInputProps {
   error?: string;
 }
 
+const length6Array = new Array(6).fill(0);
+
 const PinInput: React.FC<PinInputProps> = ({ onPin, error }) => {
+  const inputRef = useRef<any>(null);
+
+  useEffect(() => {
+    setTimeout(() => inputRef.current.setFocus(), 100);
+  });
+
   const [pin, setPin] = useState('');
   const onNewPin = (newPin: string | null | undefined) => {
     if (!newPin) {
@@ -24,21 +32,20 @@ const PinInput: React.FC<PinInputProps> = ({ onPin, error }) => {
   return (
     <IonItem lines="none" className="pin-wrapper">
       <IonLabel>
-        {[...new Array(6).fill('')].map((_, index) => {
-          return (
-            <div
-              key={uuid4()}
-              className={classNames('pin-input', {
-                active: index <= pin.length,
-                error,
-              })}
-            >
-              {pin[index]}
-            </div>
-          );
-        })}
+        {length6Array.map((_, index) => (
+          <div
+            key={uuid4()}
+            className={classNames('pin-input', {
+              active: index <= pin.length,
+              error,
+            })}
+          >
+            {pin[index]}
+          </div>
+        ))}
       </IonLabel>
       <IonInput
+        ref={inputRef}
         maxlength={6}
         inputMode="numeric"
         value={pin}

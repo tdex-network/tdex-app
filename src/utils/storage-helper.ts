@@ -35,7 +35,10 @@ export async function setMnemonicInSecureStorage(
   mnemonic: string,
   pin: string
 ): Promise<boolean> {
+  const exists = await mnemonicInSecureStorage();
+  if (exists) throw Error('You will erase an existing mnemonic');
   const encryptedData = await encrypt(mnemonic, pin);
+  console.log(encryptedData, pin);
   return SecureStoragePlugin.set({
     key: MNEMONIC_KEY,
     value: JSON.stringify(encryptedData),
@@ -51,6 +54,7 @@ export async function getMnemonicFromSecureStorage(
 ): Promise<string> {
   const { value } = await SecureStoragePlugin.get({ key: MNEMONIC_KEY });
   const encryptedData: Encrypted = JSON.parse(value);
+  console.log(encryptedData, pin);
   return decrypt(encryptedData, pin);
 }
 

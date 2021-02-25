@@ -27,7 +27,8 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   const onConfirmPinModal = (pin: string) => {
     getIdentity(pin)
       .then(() => {
-        dispatch(signIn());
+        setPinModalIsOpen(false);
+        dispatch(signIn(pin));
         history.push('/wallet');
       })
       .catch(console.error);

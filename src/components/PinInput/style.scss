@@ -1,4 +1,4 @@
-@import "../../theme/variables";
+@import '../../theme/variables';
 
 .pin-wrapper {
   --background: none;
@@ -8,10 +8,10 @@
   --padding-start: 0;
   --padding-end: 0;
   --inner-padding-end: 0;
-  input, ion-input {
+  ion-input {
     opacity: 0;
     position: absolute;
-    z-index: -20;
+    // z-index: -20;
   }
   ion-label {
     margin: 0;

@@ -34,7 +34,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const handleConfirm = () => {
     const restoredMnemonic = mnemonic.join(' ');
     setMnemonicInSecureStorage(restoredMnemonic, '123456').then(() => {
-      dispatch(signIn());
+      dispatch(signIn('111'));
     });
     history.push('/wallet');
   };

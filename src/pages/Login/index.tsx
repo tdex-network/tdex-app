@@ -17,11 +17,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import * as bip39 from 'bip39';
 import { signIn } from '../../redux/actions/appActions';
 import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
+import PinModal from '../../components/PinModal';
 
 const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
   const isAuth = useSelector((state: any) => state.wallet.isAuth);
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
+  const [pin, setPin] = useState<string>();
 
   useEffect(() => {
     if (isAuth) {
@@ -30,13 +33,53 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
   }, [isAuth]);
 
   const onConfirm = async () => {
-    const newMnemonic = bip39.generateMnemonic();
     // setMnemonicInSecureStorage(newMnemonic);
-    dispatch(signIn());
+    if (acceptTerms) setModalOpen('first');
+  };
+
+  const onFirstPinConfirm = (newPin: string) => {
+    setPin(newPin);
+    setModalOpen('second');
+  };
+
+  const onSecondPinConfirm = (newPin: string) => {
+    if (newPin === pin) {
+      const generatedMnemonic = bip39.generateMnemonic();
+      setMnemonicInSecureStorage(generatedMnemonic, pin)
+        .then((isStored) => {
+          if (!isStored) throw new Error('unknow error for secure storage');
+          dispatch(signIn(pin));
+        })
+        .catch(console.error);
+      return;
+    }
+
+    // TODO handle error correctly in PinModal
+    console.error('pin do not match');
+  };
+
+  const cancelSecondModal = () => {
+    setPin(undefined);
+    setModalOpen('first');
   };
 
   return (
     <IonPage>
+      <PinModal
+        open={modalOpen === 'first'}
+        title="Set your secret PIN"
+        onConfirm={onFirstPinConfirm}
+        onClose={() => {
+          setModalOpen(undefined);
+          history.goBack();
+        }}
+      />
+      <PinModal
+        open={modalOpen === 'second'}
+        title="Repeat your secret PIN"
+        onConfirm={onSecondPinConfirm}
+        onClose={cancelSecondModal}
+      />
       <div className="gradient-background" />
       <IonHeader>
         <IonToolbar className="with-back-button">

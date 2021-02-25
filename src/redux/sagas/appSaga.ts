@@ -30,10 +30,10 @@ function* initAppSaga() {
   }
 }
 
-function* signInSaga() {
+function* signInSaga({ type, payload }: { type: string; payload: string }) {
   try {
     yield put(setWalletLoading(false));
-    const identity: Mnemonic = yield call(getIdentity, '1235');
+    const identity: Mnemonic = yield call(getIdentity, payload);
     yield call(waitForRestore, identity);
     const addresses = identity.getAddresses();
     yield put(setAddresses(addresses));
