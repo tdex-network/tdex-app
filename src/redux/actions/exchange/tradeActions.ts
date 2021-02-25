@@ -1,5 +1,5 @@
 import { ActionType } from '../../../utils/types';
-import { MarketInterface, TradeType } from 'tdex-sdk';
+// import { MarketInterface, TradeType } from 'tdex-sdk';
 
 export const SET_MARKET = 'SET_MARKET';
 export const SET_TRADE_TYPE = 'SET_TRADE_TYPE';
@@ -11,19 +11,19 @@ export const SWAP_ASSETS = 'SWAP_ASSETS';
 export const RESET_TRADE = 'RESET_TRADE';
 export const ADD_TRANSACTION = 'ADD_TRANSACTION';
 
-export const setMarket = (market: MarketInterface): ActionType => {
-  return {
-    type: SET_MARKET,
-    payload: market,
-  };
-};
+// export const setMarket = (market: MarketInterface): ActionType => {
+//   return {
+//     type: SET_MARKET,
+//     payload: market,
+//   };
+// };
 
-export const setTradeType = (tradeType: TradeType): ActionType => {
-  return {
-    type: SET_TRADE_TYPE,
-    payload: tradeType,
-  };
-};
+// export const setTradeType = (tradeType: TradeType): ActionType => {
+//   return {
+//     type: SET_TRADE_TYPE,
+//     payload: tradeType,
+//   };
+// };
 
 export const setSendAsset = (baseCurrency: string): ActionType => {
   return {

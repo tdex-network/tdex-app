@@ -1,7 +1,6 @@
 import { ActionType } from '../../utils/types';
 import { AddressInterface, Outpoint, UtxoInterface } from 'ldk';
 
-export const SET_ADDRESS = 'SET_ADDRESS';
 export const SET_IS_AUTH = 'SET_IS_AUTH';
 export const CLEAR_WALLET_STATE = 'CLEAR_WALLET_STATE';
 export const GET_BALANCES = 'GET_BALANCES';
@@ -36,13 +35,6 @@ export const deleteUtxo = (outpoint: Outpoint): ActionType => {
   return {
     type: DELETE_UTXO,
     payload: outpoint,
-  };
-};
-
-export const setAddress = (address: AddressInterface): ActionType => {
-  return {
-    type: SET_ADDRESS,
-    payload: address,
   };
 };
 

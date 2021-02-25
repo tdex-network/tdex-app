@@ -4,7 +4,6 @@ import { AddressInterface, UtxoInterface, Outpoint, isBlindedUtxo } from 'ldk';
 import { ActionType } from '../../utils/types';
 import {
   CLEAR_WALLET_STATE,
-  SET_ADDRESS,
   SET_IS_AUTH,
   SET_WALLET_LOADING,
   SET_ADDRESSES,
@@ -18,7 +17,6 @@ import { BalanceInterface } from '../actionTypes/walletActionTypes';
 export interface WalletState {
   isAuth: boolean;
   loading: boolean;
-  address?: AddressInterface;
   addresses: AddressInterface[];
   utxos: Record<string, UtxoInterface>;
 }
@@ -26,15 +24,12 @@ export interface WalletState {
 const initialState: WalletState = {
   isAuth: false,
   loading: true,
-  address: undefined,
   addresses: [],
   utxos: {},
 };
 
 function walletReducer(state = initialState, action: ActionType): WalletState {
   switch (action.type) {
-    case SET_ADDRESS:
-      return { ...state, address: action.payload };
     case SET_ADDRESSES:
       return { ...state, addresses: action.payload };
     case SET_IS_AUTH:
