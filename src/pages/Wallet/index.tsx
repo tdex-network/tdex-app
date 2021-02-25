@@ -10,180 +10,113 @@ import {
   IonButton,
   IonRefresher,
   IonRefresherContent,
-  IonLoading,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-import { withRouter } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
-import { getBalances } from '../../redux/actions/walletActions';
+import { RouteComponentProps, withRouter } from 'react-router';
+import { useDispatch } from 'react-redux';
 import { CurrencyIcon } from '../../components/icons';
-import { mainAssets } from '../../utils/constants';
-import {
-  formatPriceString,
-  getCoinsEquivalent,
-  createColorFromHash,
-} from '../../utils/helpers';
-import CircleDiagram from '../../components/CircleDiagram';
 import { RefresherEventDetail } from '@ionic/core';
 //styles
 import './style.scss';
 import { chevronDownCircleOutline } from 'ionicons/icons';
+import { updateUtxos } from '../../redux/actions/walletActions';
+import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import {
+  capitalizeFirstLetter,
+  fromSatoshi,
+  fromSatoshiFixed,
+} from '../../utils/helpers';
+import { MAIN_ASSETS } from '../../utils/constants';
+import CircleDiagram from '../../components/CircleDiagram';
+import { updateRates } from '../../redux/actions/ratesActions';
+import { updateTransactions } from '../../redux/actions/transactionsActions';
+import { ActionType } from '../../utils/types';
 
-interface AssetsDisplayInterface {
-  [key: string]: Array<any>;
+interface WalletProps extends RouteComponentProps {
+  balances: BalanceInterface[];
+  currency: string;
+  prices: Record<string, number>;
+  dispatch: (action: ActionType) => void;
 }
 
-interface WalletTotalInterface {
-  [currencyKey: string]: {
-    amount: string;
-    priceFormat: string;
-  };
-}
-
-interface DiagramInterface {
-  amount: number;
-  type: string;
-}
-
-const Wallet: React.FC<any> = ({ history }) => {
-  const { addresses, assets, currency, coinsRates, loading } = useSelector(
-    (state: any) => ({
-      mnemonic: state.wallet.mnemonic,
-      addresses: state.wallet.addresses,
-      assets: state.wallet.assets,
-      coinsList: state.wallet.coinsList,
-      currency: state.settings.currency,
-      coinsRates: state.wallet.coinsRates,
-      loading: state.wallet.loading,
-    })
+const Wallet: React.FC<WalletProps> = ({
+  balances,
+  prices,
+  currency,
+  history,
+  dispatch,
+}) => {
+  const [LBTCBalance, setLBTCBalance] = useState<BalanceInterface>();
+  const [LBTCBalanceIndex, setLBTCBalanceIndex] = useState(-1);
+  const [mainAssets, setMainAssets] = useState<BalanceInterface[]>([]);
+  const [fiats, setFiats] = useState<number[]>([]);
+  const [secondaryAssets, setSecondaryAssets] = useState<BalanceInterface[]>(
+    []
   );
-  const dispatch = useDispatch();
-  const [total, setTotal] = useState<WalletTotalInterface>({
-    lbtc: { amount: '0,00', priceFormat: '0.00' },
-    eur: { amount: '0,00', priceFormat: '0.00' },
-  });
-  const [displayAssets, setDisplayAssets] = useState<AssetsDisplayInterface>({
-    mainAssets: [],
-    otherAssets: [],
-  });
-  const [diagramData, setDiagramData] = useState<Array<DiagramInterface>>([]);
-  const [diagramOtherColors, setDiagramOtherColors] = useState<any>({});
+
+  const UNKNOWN = -1;
+
+  const getFiatValue = (balance: BalanceInterface) => {
+    const balanceIndex = balances.findIndex((b) => b.ticker === balance.ticker);
+    if (balanceIndex < 0) return UNKNOWN;
+    return fiats[balanceIndex];
+  };
 
   useEffect(() => {
-    if (assets && assets.length && coinsRates) {
-      let totalAmount = 0;
-      const diagramArray:
-        | ((
-            prevState: DiagramInterface[] | undefined
-          ) => DiagramInterface[] | undefined)
-        | { type: any; amount: number }[]
-        | undefined = [];
-      const otherColors: {
-        [key: string]: string;
-      } = {};
-      const assetsObject: {
-        mainAssets: Array<any>;
-        otherAssets: Array<any>;
-      } = {
-        mainAssets: [],
-        otherAssets: [],
-      };
+    const fiatsValues = balances.map(({ amount, coinGeckoID }) => {
+      if (!coinGeckoID) return UNKNOWN;
+      const p = prices[coinGeckoID];
+      if (!p) return UNKNOWN;
+      return p * fromSatoshi(amount);
+    });
+    setFiats(fiatsValues);
+  }, [prices, balances]);
 
-      mainAssets.forEach((item: string) => {
-        const asset = assets.find(
-          (assetItem: any) => assetItem.ticker.toLowerCase() === item
-        );
-
-        if (asset) {
-          const priceEquivalent = getCoinsEquivalent(
-            asset,
-            coinsRates,
-            asset.amountDisplay,
-            currency
-          );
-
-          totalAmount += Number(priceEquivalent);
-
-          assetsObject.mainAssets.push({
-            ...asset,
-            priceEquivalent: priceEquivalent
-              ? formatPriceString(priceEquivalent)
-              : priceEquivalent,
-          });
-
-          if (priceEquivalent) {
-            diagramArray.push({
-              type: asset.ticker.toUpperCase(),
-              amount: Number(priceEquivalent),
-            });
-          }
-        }
-      });
-
-      assets.forEach((asset: any) => {
-        if (!mainAssets.includes(asset.ticker.toLowerCase())) {
-          const priceEquivalent = getCoinsEquivalent(
-            asset,
-            coinsRates,
-            asset.amountDisplay,
-            currency
-          );
-          totalAmount += Number(priceEquivalent);
-
-          assetsObject.otherAssets.push({
-            ...asset,
-            priceEquivalent: priceEquivalent
-              ? formatPriceString(priceEquivalent)
-              : priceEquivalent,
-          });
-
-          if (priceEquivalent) {
-            diagramArray.push({
-              type: asset.ticker.toUpperCase(),
-              amount: Number(priceEquivalent),
-            });
-            otherColors[asset.ticker.toLowerCase()] =
-              diagramOtherColors[asset.ticker.toLowerCase()] ||
-              createColorFromHash(asset.asset_id);
-          }
-        }
-      });
-
-      setDisplayAssets(assetsObject);
-      setTotal({
-        lbtc: {
-          amount: (totalAmount / coinsRates.lbtc.rate[currency]).toFixed(2),
-          priceFormat: formatPriceString(
-            (totalAmount / coinsRates.lbtc.rate[currency]).toFixed(2)
-          ),
-        },
-        [currency]: {
-          amount: totalAmount.toFixed(2),
-          priceFormat: formatPriceString(totalAmount.toFixed(2)),
-        },
-      });
-      if (diagramArray.length) {
-        setDiagramData(diagramArray);
-      }
-      setDiagramOtherColors(otherColors);
+  useEffect(() => {
+    const index = balances.findIndex((b) => b.coinGeckoID === 'bitcoin');
+    if (index < 0) {
+      setLBTCBalance(undefined);
+      setLBTCBalanceIndex(-1);
     }
-  }, [assets, coinsRates]);
+
+    setLBTCBalanceIndex(index);
+    setLBTCBalance(balances[index]);
+
+    const main = [];
+    const secondary = [];
+    for (const balance of balances) {
+      if (MAIN_ASSETS.includes(balance.ticker.toLowerCase())) {
+        main.push(balance);
+        continue;
+      }
+
+      secondary.push(balance);
+    }
+
+    setMainAssets(main);
+    setSecondaryAssets(secondary);
+  }, [balances]);
+
+  const refreshUpdate = async () => {
+    dispatch(updateUtxos());
+    dispatch(updateRates());
+    dispatch(updateTransactions());
+  };
 
   const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
-    dispatch(getBalances(addresses));
+    refreshUpdate();
     setTimeout(() => {
       event.detail.complete();
     }, 2000);
   };
 
+  useEffect(() => {
+    refreshUpdate();
+  }, []);
+
   return (
     <IonPage>
       <div className="gradient-background"></div>
-      <IonLoading
-        cssClass="my-custom-class"
-        isOpen={loading}
-        message={'Please wait...'}
-      />
       <IonContent className="wallet-content">
         <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
           <IonRefresherContent
@@ -192,11 +125,7 @@ const Wallet: React.FC<any> = ({ history }) => {
           />
         </IonRefresher>
         <div className="diagram">
-          <CircleDiagram
-            data={diagramData}
-            otherColors={diagramOtherColors}
-            total={Number(total ? total[currency].amount : '')}
-          />
+          <CircleDiagram data={balances} />
         </div>
         <IonHeader className="header wallet">
           <IonToolbar>
@@ -205,20 +134,23 @@ const Wallet: React.FC<any> = ({ history }) => {
           <div className="total-info">
             <div className="header-info wallet">
               <p className="info-heading">Total balance</p>
-              <p className="info-amount">
-                {total?.lbtc.priceFormat}
+              <p className="info-amount" aria-label="main-balance">
+                {LBTCBalance ? fromSatoshiFixed(LBTCBalance.amount) : '0.00'}
                 <span>LBTC</span>
               </p>
               <p className="info-amount-converted">
-                {total ? total[currency].priceFormat : ''}{' '}
-                {currency.toUpperCase()}
+                {LBTCBalance && fiats[LBTCBalanceIndex] > 0
+                  ? `${fiats[LBTCBalanceIndex]?.toFixed(
+                      2
+                    )} ${currency.toUpperCase()}`
+                  : 'loading...'}
               </p>
             </div>
           </div>
         </IonHeader>
         <IonList>
           <IonListHeader>
-            {displayAssets.mainAssets.length ? 'Asset list' : ''}
+            Asset list
             <IonButton
               className="coin-action-button ml-auto small-button"
               routerLink="/receive"
@@ -227,33 +159,49 @@ const Wallet: React.FC<any> = ({ history }) => {
             </IonButton>
           </IonListHeader>
 
-          {displayAssets.mainAssets?.map((asset: any) => {
+          {mainAssets.map((balance: BalanceInterface) => {
+            const fiatValue = getFiatValue(balance);
             return (
               <IonItem
-                key={asset.asset_id}
+                aria-label={balance.ticker}
+                key={balance.asset}
                 onClick={() => {
-                  history.push(`/operations/${asset.asset_id}`);
+                  history.push(`/operations/${balance.asset}`);
                 }}
               >
                 <div className="item-main-info">
                   <div className="item-start">
-                    <CurrencyIcon currency={asset.ticker} />
+                    <CurrencyIcon currency={balance.ticker} />
                     <div className="item-name">
-                      <div className="main-row">{asset.name}</div>
+                      <div
+                        className="main-row"
+                        aria-label={`${balance.ticker}-asset`}
+                      >
+                        {balance.coinGeckoID
+                          ? capitalizeFirstLetter(balance.coinGeckoID)
+                          : 'Unknow'}
+                      </div>
                     </div>
                   </div>
                   <div className="item-end">
                     <div className="first-col">
-                      <div className="main-row">
-                        {asset.amountDisplayFormatted}
+                      <div
+                        className="main-row"
+                        aria-label={`${balance.ticker}-amount`}
+                      >
+                        {fromSatoshiFixed(balance.amount)}
                       </div>
-                      {asset.priceEquivalent && (
-                        <div className="sub-row">{asset.priceEquivalent}</div>
-                      )}
+                      <div className="sub-row">
+                        {fiatValue < 0
+                          ? fiatValue === UNKNOWN
+                            ? 'unknown'
+                            : 'loading'
+                          : fiatValue?.toFixed(2)}
+                      </div>
                     </div>
                     <div className="second-col">
-                      <div className="main-row accent">{asset.ticker}</div>
-                      {asset.priceEquivalent && (
+                      <div className="main-row accent">{balance.ticker}</div>
+                      {fiatValue > 0 && (
                         <div className="sub-row">{currency.toUpperCase()}</div>
                       )}
                     </div>
@@ -262,40 +210,52 @@ const Wallet: React.FC<any> = ({ history }) => {
               </IonItem>
             );
           })}
-          {displayAssets.otherAssets.length ? (
+          {secondaryAssets.length ? (
             <IonListHeader>Other list</IonListHeader>
           ) : (
             ''
           )}
-          {displayAssets.otherAssets?.map((asset: any) => {
+          {secondaryAssets.map((balance: BalanceInterface) => {
+            const fiatValue = getFiatValue(balance);
             return (
               <IonItem
-                key={asset.asset_id}
+                key={balance.asset}
+                aria-label={balance.ticker}
                 onClick={() => {
-                  history.push(`/operations/${asset.asset_id}`);
+                  history.push(`/operations/${balance.asset}`);
                 }}
               >
                 <div className="item-main-info">
                   <div className="item-start">
-                    <CurrencyIcon currency={asset.ticker} />
+                    <CurrencyIcon currency={balance.ticker} />
                     <div className="item-name">
-                      <div className="main-row">{asset.name}</div>
+                      <div
+                        className="main-row"
+                        aria-label={`${balance.ticker}-asset`}
+                      >
+                        {`Asset ${balance.ticker}`}
+                      </div>
                     </div>
                   </div>
                   <div className="item-end">
                     <div className="first-col">
-                      <div className="main-row">
-                        {asset.amountDisplayFormatted}
+                      <div
+                        className="main-row"
+                        aria-label={`${balance.ticker}-amount`}
+                      >
+                        {fromSatoshiFixed(balance.amount)}
                       </div>
-                      {asset.priceEquivalent && (
-                        <div className="sub-row">{asset.priceEquivalent}</div>
-                      )}
+                      <div className="sub-row">
+                        {fiatValue < 0
+                          ? fiatValue === UNKNOWN
+                            ? '??'
+                            : 'loading'
+                          : fiatValue?.toFixed(2)}
+                      </div>
                     </div>
                     <div className="second-col">
-                      <div className="main-row accent">{asset.ticker}</div>
-                      {asset.priceEquivalent && (
-                        <div className="sub-row">{currency.toUpperCase()}</div>
-                      )}
+                      <div className="main-row accent">{balance.ticker}</div>
+                      <div className="sub-row">{currency.toUpperCase()}</div>
                     </div>
                   </div>
                 </div>

@@ -9,6 +9,7 @@ export interface Network {
   assetHash: string;
   name: string;
   ticker: string;
+  coinGeckoID?: string;
   confidentialPrefix: number;
 }
 
@@ -33,6 +34,7 @@ export const Assets: {
     confidentialPrefix: 4,
     name: 'Liquid Bitcoin',
     ticker: 'LBTC',
+    coinGeckoID: 'bitcoin',
     assetHash:
       '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225',
   },
@@ -50,6 +52,7 @@ export const Assets: {
     confidentialPrefix: 12,
     name: 'Liquid Bitcoin',
     ticker: 'LBTC',
+    coinGeckoID: 'bitcoin',
     assetHash:
       '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d',
   },
@@ -58,4 +61,5 @@ export const Assets: {
 export const defaultPrecision = 8;
 export const defaultFee = 2000;
 
-export const mainAssets = ['lbtc', 'usdt', 'lcad', 'btse'];
+export const MAIN_ASSETS = ['lbtc', 'usdt', 'lcad', 'btse'];
+export const ASSETS_PRICE_TO_FEED = ['bitcoin'];

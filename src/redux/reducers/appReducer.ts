@@ -5,12 +5,17 @@ import {
   SET_SIGNED_UP,
 } from '../actions/appActions';
 
-const initialState = {
+export interface AppState {
+  appInit: boolean;
+  isSignedUp: boolean;
+}
+
+const initialState: AppState = {
   appInit: false,
   isSignedUp: false,
 };
 
-const appReducer = (state = initialState, action: ActionType) => {
+function appReducer(state = initialState, action: ActionType): AppState {
   switch (action.type) {
     case INIT_APP_SUCCESS:
     case INIT_APP_FAIL:
@@ -26,6 +31,6 @@ const appReducer = (state = initialState, action: ActionType) => {
     default:
       return state;
   }
-};
+}
 
 export default appReducer;

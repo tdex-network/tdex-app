@@ -1,32 +1,40 @@
 import { ActionType } from '../../utils/types';
-import { AddressInterface } from 'tdex-sdk';
-import { BalanceInterface } from '../actionTypes/walletActionTypes';
+import { AddressInterface, Outpoint, UtxoInterface } from 'ldk';
 
-export const SET_MNEMONIC = 'SET_MNEMONIC';
-export const SET_ADDRESS = 'SET_ADDRESS';
 export const SET_IS_AUTH = 'SET_IS_AUTH';
 export const CLEAR_WALLET_STATE = 'CLEAR_WALLET_STATE';
-export const GET_WALLET_ASSETS = 'GET_WALLET_ASSETS';
-export const SET_WALLET_ASSETS = 'SET_WALLET_ASSETS';
-export const GET_COINS_LIST = 'GET_COINS_LIST';
-export const SET_COINS_LIST = 'SET_COINS_LIST';
-export const SET_COINS_RATES = 'SET_COINS_RATES';
 export const GET_BALANCES = 'GET_BALANCES';
 export const SET_BALANCES = 'SET_BALANCES';
 export const SET_WALLET_LOADING = 'SET_WALLET_LOADING';
 export const SET_ADDRESSES = 'SET_ADDRESSES';
+export const UPDATE_UTXOS = 'UPDATE_UTXOS';
+export const SET_UTXO = 'SET_UTXO';
+export const DELETE_UTXO = 'DELETE_UTXO';
+export const RESET_UTXOS = 'RESET_UTXOS';
 
-export const setMnemonic = (mnemonic: string): ActionType => {
+export const resetUtxos = (): ActionType => {
   return {
-    type: SET_MNEMONIC,
-    payload: mnemonic,
+    type: RESET_UTXOS,
   };
 };
 
-export const setAddress = (address: AddressInterface): ActionType => {
+export const updateUtxos = (): ActionType => {
   return {
-    type: SET_ADDRESS,
-    payload: address,
+    type: UPDATE_UTXOS,
+  };
+};
+
+export const setUtxo = (utxo: UtxoInterface): ActionType => {
+  return {
+    type: SET_UTXO,
+    payload: utxo,
+  };
+};
+
+export const deleteUtxo = (outpoint: Outpoint): ActionType => {
+  return {
+    type: DELETE_UTXO,
+    payload: outpoint,
   };
 };
 
@@ -41,54 +49,6 @@ export const setIsAuth = (isAuth: boolean): ActionType => {
   return {
     type: SET_IS_AUTH,
     payload: isAuth,
-  };
-};
-
-export const getAssets = (balances: any) => {
-  return {
-    type: GET_WALLET_ASSETS,
-    payload: balances,
-  };
-};
-
-export const setAssets = (assets: any) => {
-  return {
-    type: SET_WALLET_ASSETS,
-    payload: assets,
-  };
-};
-
-export const getCoinsList = () => {
-  return {
-    type: GET_COINS_LIST,
-  };
-};
-
-export const setCoinsList = (coinsList: any) => {
-  return {
-    type: SET_COINS_LIST,
-    payload: coinsList,
-  };
-};
-
-export const setCoinsRates = (coinsRates: any) => {
-  return {
-    type: SET_COINS_RATES,
-    payload: coinsRates,
-  };
-};
-
-export const getBalances = (addresses: AddressInterface[]) => {
-  return {
-    type: GET_BALANCES,
-    payload: addresses,
-  };
-};
-
-export const setBalances = (balances: BalanceInterface) => {
-  return {
-    type: SET_BALANCES,
-    payload: balances,
   };
 };
 

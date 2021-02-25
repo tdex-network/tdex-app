@@ -1,13 +1,13 @@
 import { IconExchange, IconSettings, IconWallet } from './components/icons';
 import Exchange from './pages/Exchange';
-import Operations from './pages/Operations';
+import Operations from './redux/containers/operationsContainer';
 import QRScanner from './pages/QRScanner';
 import Receive from './pages/Receive';
 import Settings from './pages/Settings';
 import TradeHistory from './pages/TradeHistory';
 import TradeSummary from './pages/TradeSummary';
-import Wallet from './pages/Wallet';
-import Withdrawal from './pages/Withdrawal';
+import Wallet from './redux/containers/walletContainer';
+import Withdrawal from './redux/containers/withdrawalContainer';
 import WithdrawalDetails from './pages/WithdrawalDetails';
 import Account from './pages/Account';
 

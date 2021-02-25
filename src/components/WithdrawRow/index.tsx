@@ -1,86 +1,72 @@
 import React, { useEffect, useState } from 'react';
-import classNames from 'classnames';
 import './style.scss';
 import { CurrencyIcon } from '../icons';
 import { IonInput } from '@ionic/react';
-import {
-  fromSatoshi,
-  getCoinsEquivalent,
-  toSatoshi,
-} from '../../utils/helpers';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import { fromSatoshi } from '../../utils/helpers';
+import { updateRates } from '../../redux/actions/ratesActions';
 
 interface WithdrawRowInterface {
-  className?: string;
-  setOpenSearch?: any;
-  asset?: any;
-  setAmount: any;
-  amount: any;
-  residualBalance: any;
-  setResidualBalance: any;
-  checkValidData: any;
+  balance: BalanceInterface;
+  price: number | undefined;
+  onAmountChange: (amount: number | undefined) => void;
 }
 
 const WithdrawRow: React.FC<WithdrawRowInterface> = ({
-  className,
-  setOpenSearch,
-  asset,
-  setAmount,
-  amount,
-  setResidualBalance,
-  residualBalance,
-  checkValidData,
+  balance,
+  price,
+  onAmountChange,
 }) => {
-  const { currency, coinsRates } = useSelector((state: any) => ({
-    currency: state.settings.currency,
-    coinsRates: state.wallet.coinsRates,
-  }));
-  const [priceEquivalent, setPriceEquivalent] = useState<any>('0');
+  const currency = useSelector((state: any) => state.settings.currency);
+  const [residualBalance, setResidualBalance] = useState(balance.amount);
+  const [inputAmount, setInputAmount] = useState(0);
+  const [fiat, setFiat] = useState<number | string>('??');
+
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    if (asset && !residualBalance) {
-      setResidualBalance(
-        fromSatoshi(Number(asset.amount), asset.precision).toString()
-      );
-    }
-  }, [asset]);
+    dispatch(updateRates());
+  }, []);
+
+  const reset = () => {
+    setInputAmount(0);
+    setResidualBalance(fromSatoshi(balance.amount));
+    if (price) setFiat(0);
+    onAmountChange(undefined);
+  };
 
   const handleAmountChange = (value: string | undefined | null) => {
-    let inputValue = value;
     if (!value) {
-      inputValue = '0';
-      setPriceEquivalent('0');
-    } else {
-      setPriceEquivalent(
-        getCoinsEquivalent(asset, coinsRates, value, currency)
-      );
+      reset();
+      return;
     }
-    setAmount(value);
-    const balance = fromSatoshi(
-      Number(asset.amount) - toSatoshi(Number(inputValue), asset.precision),
-      asset.precision
-    );
-    setResidualBalance(balance);
-    checkValidData(residualBalance, inputValue);
+
+    const val = parseFloat(value);
+    setInputAmount(val);
+    setResidualBalance(fromSatoshi(balance.amount) - val);
+    if (price) setFiat(val * price);
+    onAmountChange(val);
   };
 
   return (
-    <div className={classNames('exchange-coin-container', className)}>
+    <div className="exchange-coin-container">
       <div className="exchanger-row">
-        <div className="coin-name" onClick={() => setOpenSearch(true)}>
+        <div className="coin-name">
           <span className="icon-wrapper medium">
-            <CurrencyIcon currency={asset?.ticker} />
+            <CurrencyIcon currency={balance.ticker} />
           </span>
-          <p>{asset?.ticker.toUpperCase()}</p>
+          <p>{balance.ticker.toUpperCase()}</p>
         </div>
-        <div className="coin-amount">
+        <div className="ion-text-end">
           <IonInput
             type="number"
-            value={amount}
-            placeholder="0"
+            value={inputAmount || ''}
+            placeholder="0.00"
             className="amount-input"
-            onIonChange={(e) => {
-              handleAmountChange(e.detail.value);
-            }}
+            autofocus={true}
+            required={true}
+            onIonChange={(e) => handleAmountChange(e.detail.value)}
           />
         </div>
       </div>
@@ -88,12 +74,12 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
         <div>
           <p>
             Residual balance: {residualBalance ? residualBalance : ''}{' '}
-            {asset?.ticker.toUpperCase()}{' '}
+            {balance.ticker.toUpperCase()}{' '}
           </p>
         </div>
         <div>
           <p>
-            {priceEquivalent} {currency && currency.toUpperCase()}
+            {fiat} {currency && currency.toUpperCase()}
           </p>
         </div>
       </div>

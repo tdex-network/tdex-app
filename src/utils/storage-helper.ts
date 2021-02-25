@@ -1,5 +1,6 @@
 import { Storage, Plugins } from '@capacitor/core';
-import { AddressInterface } from 'tdex-sdk';
+import { AddressInterface } from 'ldk';
+
 import 'capacitor-secure-storage-plugin';
 
 const { SecureStoragePlugin } = Plugins;
@@ -10,6 +11,14 @@ export const storageAddresses = (addresses: AddressInterface[]) => {
     value: JSON.stringify(addresses),
   });
 };
+
+export async function getAddresses(): Promise<AddressInterface[]> {
+  const { value } = await Storage.get({
+    key: 'addresses',
+  });
+
+  return JSON.parse(value);
+}
 
 const MNEMONIC_KEY = 'tdex-app-secure-storage-mnemonic';
 

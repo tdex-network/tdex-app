@@ -1,15 +1,12 @@
-import { TxInterface } from 'tdex-sdk';
+import { TxInterface } from 'ldk';
 import {
   formatPriceString,
   fromSatoshiFixed,
   getDataFromTx,
+  groupBy,
 } from '../../utils/helpers';
 import { defaultPrecision } from '../../utils/constants';
-import {
-  TxDisplayInterface,
-  TxsByAssetsInterface,
-  TxStatusEnum,
-} from '../../utils/types';
+import { TxDisplayInterface, TxStatusEnum } from '../../utils/types';
 import moment from 'moment';
 
 export const transactionsTransformer = (txs: TxInterface[] | undefined) => {
@@ -43,14 +40,6 @@ export const transactionsTransformer = (txs: TxInterface[] | undefined) => {
       };
     }
   );
-  return txArray?.reduce(
-    (
-      res: TxsByAssetsInterface,
-      tx: TxDisplayInterface
-    ): TxsByAssetsInterface => {
-      res[tx.asset] = res[tx.asset] ? [...res[tx.asset], tx] : [tx];
-      return res;
-    },
-    {}
-  );
+  if (!txArray) return {};
+  return groupBy(txArray, 'asset');
 };

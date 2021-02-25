@@ -9,111 +9,152 @@ import {
   IonLabel,
   IonInput,
   IonLoading,
-  useIonViewDidLeave,
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
-import { useParams, withRouter } from 'react-router';
+import { RouteComponentProps, useParams, withRouter } from 'react-router';
 import { IconBack, IconQR } from '../../components/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { formatPriceString, getCoinsEquivalent } from '../../utils/helpers';
 import WithdrawRow from '../../components/WithdrawRow';
-import {
-  setQRCodeAddress,
-  setWithdrawalLoading,
-} from '../../redux/actions/transactionsActions';
 import './style.scss';
+import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import {
+  address,
+  greedyCoinSelector,
+  psetToUnsignedTx,
+  RecipientInterface,
+  walletFromCoins,
+} from 'ldk';
+import { broadcastTx, getIdentity } from '../../redux/services/walletService';
+import { allUtxosSelector } from '../../redux/reducers/walletReducer';
+import { network } from '../../redux/config';
+import { toSatoshi } from '../../utils/helpers';
+import { setAddresses } from '../../redux/actions/walletActions';
+import { Psbt } from 'liquidjs-lib';
 
-const Withdrawal: React.FC = ({ history }: any) => {
-  const { assets, currency, coinsRates, loading, qrCodeAddress } = useSelector(
-    (state: any) => ({
-      assets: state.wallet.assets,
-      transactions: state.transactions.data,
-      address: state.wallet.address,
-      coinsRates: state.wallet.coinsRates,
-      currency: state.settings.currency,
-      loading: state.transactions.withdrawalLoading,
-      qrCodeAddress: state.transactions.qrCodeAddress,
-    })
-  );
-  const dispatch = useDispatch();
-  const [inputValue, setInputValue] = useState('');
-  // eslint-disable-next-line
-  const [validData, setValidData] = useState(false);
-  const [assetData, setAssetData] = useState<any>();
-  const [recipientAddress, setRecipientAddress] = useState<any>();
-  const [amount, setAmount] = useState<any>();
-  const [residualBalance, setResidualBalance] = useState<any>();
+interface WithdrawalProps extends RouteComponentProps {
+  balances: BalanceInterface[];
+}
+
+const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
+  // route parameter asset_id
   const { asset_id } = useParams<{ asset_id: string }>();
+  const prices = useSelector((state: any) => state.rates.prices);
+  const utxos = useSelector(allUtxosSelector);
+  const explorerURL = useSelector((state: any) => state.settings.explorerUrl);
 
-  useEffect(() => {
-    const fillAssetData = () => {
-      const asset = assets.find((item: any) => item.asset_id === asset_id);
-      const priceEquivalent = getCoinsEquivalent(
-        asset,
-        coinsRates,
-        asset.amountDisplay,
-        currency
-      );
-      const res = {
-        asset_id,
-        ticker: asset.ticker,
-        amount: asset.amount,
-        amountDisplay: asset.amountDisplay,
-        amountDisplayFormatted: asset.amountDisplayFormatted,
-        name: asset.name,
-        precision: asset.precision,
-        priceEquivalent: priceEquivalent
-          ? formatPriceString(priceEquivalent)
-          : priceEquivalent,
+  const [balance, setBalance] = useState<BalanceInterface>();
+  const [price, setPrice] = useState<number>();
+  const [amount, setAmount] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [recipientAddress, setRecipientAddress] = useState<string>('');
+
+  const dispatch = useDispatch();
+
+  const onAmountChange = (newAmount: number | undefined) => {
+    setAmount(newAmount || 0);
+  };
+
+  const isValid = (): boolean => {
+    if (!balance || amount <= 0) return false;
+    if (amount > balance.amount) return false;
+    if (recipientAddress === '') return false;
+    return true;
+  };
+
+  const onClickConfirm = async () => {
+    try {
+      if (!isValid()) return;
+      setLoading(true);
+      const identity = await getIdentity();
+
+      const wallet = walletFromCoins(utxos, network.chain);
+      const psetBase64 = wallet.createTx();
+      const recipient: RecipientInterface = {
+        address: recipientAddress,
+        asset: balance!.asset,
+        value: toSatoshi(amount),
       };
-      setAssetData(res);
-    };
-    if (assets?.length) {
-      fillAssetData();
+
+      if (!identity) {
+        // TODO return an error toast
+        setLoading(false);
+        return;
+      }
+      await identity.isRestored;
+
+      const withdrawPset = wallet.buildTx(
+        psetBase64,
+        [recipient],
+        greedyCoinSelector(),
+        (_: string) => identity.getNextChangeAddress().confidentialAddress,
+        true
+      );
+
+      const recipientData = address.fromConfidential(recipientAddress);
+      const recipientScript = address.toOutputScript(
+        recipientData.unconfidentialAddress
+      );
+      const outputsToBlind: number[] = [];
+      const blindKeyMap = new Map<number, string>();
+      // blind all the outputs except fee
+      psetToUnsignedTx(withdrawPset).outs.forEach((out, index) => {
+        if (out.script.length === 0) return;
+        outputsToBlind.push(index);
+        if (out.script.equals(recipientScript))
+          blindKeyMap.set(index, recipientData.blindingKey.toString('hex'));
+      });
+
+      const blindedPset = await identity.blindPset(
+        withdrawPset,
+        outputsToBlind,
+        blindKeyMap
+      );
+
+      const signedPset = await identity.signPset(blindedPset);
+      const txHex = Psbt.fromBase64(signedPset)
+        .finalizeAllInputs()
+        .extractTransaction()
+        .toHex();
+
+      const txID = await broadcastTx(txHex, explorerURL);
+      console.log(txID);
+      dispatch(setAddresses(identity.getAddresses()));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-  }, [assets, asset_id]);
+  };
+
+  // effect to select the balance of withdrawal
+  useEffect(() => {
+    const balanceSelected = balances.find((bal) => bal.asset === asset_id);
+    if (balanceSelected) {
+      setBalance(balanceSelected);
+    }
+  }, [balances]);
+
+  // effect for fiat equivalent
+  useEffect(() => {
+    if (balance && balance.coinGeckoID) {
+      const p = prices[balance.coinGeckoID];
+      if (!p) {
+        setPrice(undefined);
+        return;
+      }
+      setPrice(p);
+      return;
+    }
+
+    setPrice(undefined);
+  }, [prices]);
 
   useEffect(() => {
-    if (qrCodeAddress) {
-      setRecipientAddress(qrCodeAddress);
-      dispatch(setQRCodeAddress(null));
-    }
-  }, [qrCodeAddress]);
-
-  useEffect(() => {
-    if (loading === false) {
-      history.push(`/withdraw/${asset_id}/details`);
-      dispatch(setWithdrawalLoading(null));
-    }
+    // TODO manage withdraw details
+    // if (loading === false) {
+    //   history.push(`/withdraw/${asset_id}/details`);
+    // }
   }, [loading]);
-
-  useIonViewDidLeave(() => {
-    clearState();
-  });
-
-  const clearState = () => {
-    if (inputValue) {
-      setInputValue('');
-    }
-    if (amount) {
-      setAmount(undefined);
-    }
-    if (recipientAddress) {
-      setRecipientAddress('');
-    }
-  };
-
-  const checkValidData = (
-    residualBalanceValue: any,
-    amountValue: number,
-    address: string | undefined | null = recipientAddress
-  ) => {
-    setValidData(
-      Boolean(
-        address && Number(amountValue) && Number(residualBalanceValue) >= 0
-      )
-    );
-  };
 
   return (
     <IonPage>
@@ -133,18 +174,17 @@ const Withdrawal: React.FC = ({ history }: any) => {
           >
             <IconBack />
           </IonButton>
-          <IonTitle>{assetData?.ticker.toUpperCase()} Withdrawal</IonTitle>
+          <IonTitle>
+            {balance ? balance.ticker.toUpperCase() : ''} Withdrawal
+          </IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="withdrawal">
-        {assetData && (
+        {balance && (
           <WithdrawRow
-            asset={assetData}
-            setAmount={setAmount}
-            amount={amount}
-            residualBalance={residualBalance}
-            setResidualBalance={setResidualBalance}
-            checkValidData={checkValidData}
+            balance={balance}
+            price={price}
+            onAmountChange={onAmountChange}
           />
         )}
         <IonItem className="list-item">
@@ -154,8 +194,7 @@ const Withdrawal: React.FC = ({ history }: any) => {
                 value={recipientAddress}
                 placeholder="Paste address here or scan QR code"
                 onIonChange={(e) => {
-                  setRecipientAddress(e.detail.value);
-                  checkValidData(residualBalance, amount, e.detail.value);
+                  setRecipientAddress(e.detail.value || '');
                 }}
               />
             </div>
@@ -169,17 +208,26 @@ const Withdrawal: React.FC = ({ history }: any) => {
             </div>
           </div>
         </IonItem>
-        <div className="buttons"></div>
-        <div className="align-center">
-          <IonButton
-            onClick={() => {
-              history.goBack();
-              clearState();
-            }}
-            className="cancel-button"
-          >
-            <IonLabel>Cancel</IonLabel>
-          </IonButton>
+        <div className="buttons">
+          <div className="align-center">
+            <IonButton
+              className="main-button"
+              onClick={() => onClickConfirm()}
+              disabled={!isValid()}
+            >
+              <IonLabel>CONFIRM</IonLabel>
+            </IonButton>
+          </div>
+          <div className="align-center">
+            <IonButton
+              onClick={() => {
+                history.goBack();
+              }}
+              className="cancel-button"
+            >
+              <IonLabel>CANCEL</IonLabel>
+            </IonButton>
+          </div>
         </div>
       </IonContent>
     </IonPage>

@@ -1,32 +1,15 @@
-import { RatesInterface } from '../actionTypes/ratesActionTypes';
-
-export const GET_RATES = 'GET_RATES';
+export const UPDATE_RATES = 'GET_RATES';
 export const SET_RATES = 'SET_RATES';
-export const CACHE_COINGECKO_COINS = 'CACHE_COINGECKO_COINS';
 
-export const getCoinRates = (
-  tickers: Array<string>,
-  currencies: Array<string>
-) => {
+export const updateRates = () => {
   return {
-    type: GET_RATES,
-    payload: {
-      tickers,
-      currencies,
-    },
+    type: UPDATE_RATES,
   };
 };
 
-export const setRates = (rates: RatesInterface) => {
+export const setRates = (rates: Record<string, number>) => {
   return {
     type: SET_RATES,
     payload: rates,
-  };
-};
-
-export const cacheCoingeckoCoins = (coingeckoCache: any) => {
-  return {
-    type: CACHE_COINGECKO_COINS,
-    payload: coingeckoCache,
   };
 };

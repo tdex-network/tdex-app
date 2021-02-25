@@ -1,24 +1,27 @@
-import { IonContent, IonLabel, IonPage, IonButton } from '@ionic/react';
-import React, { useEffect } from 'react';
+import {
+  IonContent,
+  IonLabel,
+  IonPage,
+  IonButton,
+  useIonViewWillEnter,
+} from '@ionic/react';
+import React from 'react';
 import { RouteComponentProps } from 'react-router';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 import './style.scss';
 import { signIn } from '../../redux/actions/appActions';
+import { getIdentity } from '../../redux/services/walletService';
 
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
-  const { mnemonic } = useSelector((state: any) => ({
-    mnemonic: state.wallet.mnemonic,
-  }));
-
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    if (mnemonic && mnemonic !== '') {
+  useIonViewWillEnter(() => {
+    getIdentity().then(() => {
       dispatch(signIn());
       history.push('/wallet');
-    }
-  }, [mnemonic]);
+    });
+  });
 
   return (
     <IonPage>

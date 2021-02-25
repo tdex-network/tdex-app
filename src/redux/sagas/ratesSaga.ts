@@ -1,25 +1,28 @@
+import {
+  CoinGeckoPriceResult,
+  getPriceFromCoinGecko,
+} from './../services/ratesService';
+import { ASSETS_PRICE_TO_FEED } from './../../utils/constants';
+import { UPDATE_RATES } from './../actions/ratesActions';
 import { takeLatest, call, put, select } from 'redux-saga/effects';
 import { ActionType } from '../../utils/types';
-import {
-  GET_RATES,
-  cacheCoingeckoCoins,
-  setRates,
-} from '../actions/ratesActions';
-import { fetchCoinList, fetchRates } from '../services/ratesService';
+import { setRates } from '../actions/ratesActions';
 
-function* getRatesSaga({ payload }: ActionType) {
-  let coins = yield select((state: any) => state.rates.coingeckoCache);
-
-  if (!coins) {
-    coins = yield call(fetchCoinList);
-    yield put(cacheCoingeckoCoins(coins));
+function* fetchRates({ type }: ActionType) {
+  const currency = yield select((state: any) => state.settings.currency);
+  const coinGeckoResult: CoinGeckoPriceResult = yield call(
+    getPriceFromCoinGecko,
+    ASSETS_PRICE_TO_FEED,
+    [currency]
+  );
+  const rates: Record<string, number> = {};
+  for (const crypto of Object.keys(coinGeckoResult)) {
+    rates[crypto] = coinGeckoResult[crypto][currency];
   }
 
-  const { tickers, currencies } = payload;
-  const rates = yield call(fetchRates, tickers, currencies, coins);
   yield put(setRates(rates));
 }
 
 export function* ratesWatcherSaga() {
-  yield takeLatest(GET_RATES, getRatesSaga);
+  yield takeLatest(UPDATE_RATES, fetchRates);
 }
