@@ -2,6 +2,7 @@ import { Storage, Plugins } from '@capacitor/core';
 import { AddressInterface } from 'ldk';
 
 import 'capacitor-secure-storage-plugin';
+import { decrypt, encrypt, Encrypted } from './crypto';
 
 const { SecureStoragePlugin } = Plugins;
 
@@ -20,17 +21,30 @@ export async function getAddresses(): Promise<AddressInterface[]> {
   return JSON.parse(value);
 }
 
-const MNEMONIC_KEY = 'tdex-app-secure-storage-mnemonic';
+// hardcoded key for secure storage
+const MNEMONIC_KEY = 'tdex-app-mnemonic';
 
+/**
+ * encrypt with pin + store in secure storage.
+ * @param mnemonic the mnemonic to store
+ * @param pin the password pin
+ */
 export async function setMnemonicInSecureStorage(
-  mnemonic: string
+  mnemonic: string,
+  pin: string,
 ): Promise<boolean> {
-  return SecureStoragePlugin.set({ key: MNEMONIC_KEY, value: mnemonic });
+  const encryptedData = await encrypt(mnemonic, pin)
+  return SecureStoragePlugin.set({ key: MNEMONIC_KEY, value: JSON.stringify(encryptedData) });
 }
 
-export async function getMnemonicFromSecureStorage(): Promise<string> {
+/**
+ * get mnemonic encrypted in secure storage + decrypt it using PIN
+ * @param pin password pin
+ */
+export async function getMnemonicFromSecureStorage(pin: string): Promise<string> {
   const { value } = await SecureStoragePlugin.get({ key: MNEMONIC_KEY });
-  return value;
+  const encryptedData: Encrypted = JSON.parse(value)
+  return decrypt(encryptedData, pin)
 }
 
 export async function removeMnemonicFromSecureStorage(): Promise<boolean> {
