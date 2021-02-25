@@ -9,10 +9,13 @@ export class IdentityRestorerFromState implements IdentityRestorerInterface {
   static esploraIdentityRestorer = new EsploraIdentityRestorer(
     network.explorer
   );
-  private cachedAddresses: string[];
+  private cachedAddresses: string[] = [];
 
   constructor(addresses: AddressInterface[]) {
-    this.cachedAddresses = addresses.map((addrI) => addrI.confidentialAddress);
+    if (addresses !== null)
+      this.cachedAddresses = addresses.map(
+        (addrI) => addrI.confidentialAddress
+      );
   }
 
   async addressHasBeenUsed(address: string): Promise<boolean> {

@@ -15,7 +15,11 @@ const PinInput: React.FC<PinInputProps> = ({ onPin, error }) => {
   const inputRef = useRef<any>(null);
 
   useEffect(() => {
-    setTimeout(() => inputRef.current.setFocus(), 100);
+    setTimeout(() => {
+      if (inputRef && inputRef.current) {
+        inputRef.current.setFocus();
+      }
+    }, 100);
   });
 
   const [pin, setPin] = useState('');

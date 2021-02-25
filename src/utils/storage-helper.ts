@@ -16,11 +16,16 @@ export const storageAddresses = (addresses: AddressInterface[]) => {
 };
 
 export async function getAddresses(): Promise<AddressInterface[]> {
-  const { value } = await Storage.get({
-    key: 'addresses',
-  });
+  try {
+    const { value } = await Storage.get({
+      key: 'addresses',
+    });
 
-  return JSON.parse(value);
+    return JSON.parse(value);
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
 }
 
 // hardcoded key for secure storage
@@ -90,6 +95,6 @@ function prepareIdentityOpts(
       mnemonic,
     },
     initializeFromRestorer: true,
-    restorer: new IdentityRestorerFromState(addresses),
+    restorer: new IdentityRestorerFromState(addresses || []),
   };
 }

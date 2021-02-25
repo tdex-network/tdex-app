@@ -19,9 +19,12 @@ import { useDispatch } from 'react-redux';
 import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
 import { signIn } from '../../redux/actions/appActions';
 import { useMnemonic } from '../../utils/custom-hooks';
+import PinModal from '../../components/PinModal';
 
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
+  const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
+  const [pin, setPin] = useState<string>();
   const [isEmpty, setIsEmpty] = useState(true);
   const dispatch = useDispatch();
 
@@ -32,15 +35,53 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   }, [mnemonic]);
 
   const handleConfirm = () => {
-    const restoredMnemonic = mnemonic.join(' ');
-    setMnemonicInSecureStorage(restoredMnemonic, '123456').then(() => {
-      dispatch(signIn('111'));
-    });
-    history.push('/wallet');
+    // TODO check mnemonic validity
+    setModalOpen('first');
+  };
+
+  const onFirstPinConfirm = (newPin: string) => {
+    setPin(newPin);
+    setModalOpen('second');
+  };
+
+  const onSecondPinConfirm = (newPin: string) => {
+    if (newPin === pin) {
+      const restoredMnemonic = mnemonic.join(' ');
+      setMnemonicInSecureStorage(restoredMnemonic, pin)
+        .then((isStored) => {
+          if (!isStored) throw new Error('unknow error for secure storage');
+          dispatch(signIn(pin));
+        })
+        .catch(console.error);
+      return;
+    }
+
+    // TODO handle error correctly in PinModal
+    console.error('pin do not match');
+  };
+
+  const cancelSecondModal = () => {
+    setPin(undefined);
+    setModalOpen('first');
   };
 
   return (
     <IonPage>
+      <PinModal
+        open={modalOpen === 'first'}
+        title="Set your secret PIN"
+        onConfirm={onFirstPinConfirm}
+        onClose={() => {
+          setModalOpen(undefined);
+          history.goBack();
+        }}
+      />
+      <PinModal
+        open={modalOpen === 'second'}
+        title="Repeat your secret PIN"
+        onConfirm={onSecondPinConfirm}
+        onClose={cancelSecondModal}
+      />
       <div className="gradient-background"></div>
       <IonHeader>
         <IonToolbar className="with-back-button">
@@ -63,6 +104,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
           {mnemonic.map((item: string, index: number) => {
             return (
               <label
+                key={index}
                 className={classNames('restore-input', {
                   active: mnemonic[index],
                 })}
