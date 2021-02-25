@@ -119,7 +119,7 @@ const CircleDiagram: React.FC<CircleDiagram> = ({ className, data }) => {
 
   useEffect(() => {
     renderCircle();
-  }, []);
+  }, [data]);
 
   return (
     <canvas

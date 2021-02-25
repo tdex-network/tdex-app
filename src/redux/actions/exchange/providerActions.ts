@@ -1,5 +1,4 @@
 import { ActionType } from '../../../utils/types';
-import { MarketInterface } from 'tdex-sdk';
 
 export const SET_PROVIDER_ENDPOINT = 'SET_PROVIDER_ENDPOINT';
 export const SET_PROVIDER_MARKETS = 'SET_PROVIDER_MARKETS';
@@ -17,14 +16,14 @@ export const setProviderEndpoint = (endpoint: string): ActionType => {
   };
 };
 
-export const setProviderMarkets = (
-  markets: Array<MarketInterface>
-): ActionType => {
-  return {
-    type: SET_PROVIDER_MARKETS,
-    payload: markets,
-  };
-};
+// export const setProviderMarkets = (
+//   markets: Array<MarketInterface>
+// ): ActionType => {
+//   return {
+//     type: SET_PROVIDER_MARKETS,
+//     payload: markets,
+//   };
+// };
 
 export const setProviderAssetIds = (assetIds: any): ActionType => {
   return {
