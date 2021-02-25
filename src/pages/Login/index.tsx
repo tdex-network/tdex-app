@@ -20,16 +20,8 @@ import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
 
 const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
-  const { isAuth } = useSelector((state: any) => ({
-    isAuth: state.wallet.isAuth,
-  }));
+  const isAuth = useSelector((state: any) => state.wallet.isAuth);
   const [acceptTerms, setAcceptTerms] = useState(false);
-
-  const inputRef: any = useRef(null);
-
-  useIonViewDidEnter(() => {
-    inputRef?.current?.focus();
-  });
 
   useEffect(() => {
     if (isAuth) {
@@ -39,7 +31,7 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
 
   const onConfirm = async () => {
     const newMnemonic = bip39.generateMnemonic();
-    setMnemonicInSecureStorage(newMnemonic);
+    // setMnemonicInSecureStorage(newMnemonic);
     dispatch(signIn());
   };
 

@@ -1,22 +1,22 @@
 import { scrypt } from 'scrypt-js';
 import * as crypto from 'crypto';
 
-export const N = 16384
-export const r = 8
-export const p = 1
-export const klen = 32
+export const N = 16384;
+export const r = 8;
+export const p = 1;
+export const klen = 32;
 
 export interface Encrypted {
-  data: string,
-  options: ScryptOptions,
+  data: string;
+  options: ScryptOptions;
 }
 
 export interface ScryptOptions {
-  salt: string,
-  N: number,
-  r: number,
-  p: number
-  klen: number,
+  salt: string;
+  N: number;
+  r: number;
+  p: number;
+  klen: number;
 }
 
 function defaultScryptOptions(): ScryptOptions {
@@ -26,15 +26,23 @@ function defaultScryptOptions(): ScryptOptions {
     p: 1,
     klen: 32,
     // TODO
-    salt: 'randomSalt'
-  }
+    salt: 'randomSalt',
+  };
 }
 
 const iv = Buffer.alloc(16, 0);
 
-export async function encrypt(payload: string, password: string): Promise<Encrypted> {
-  const options = defaultScryptOptions()
-  const passwordDerived = await passwordToKey(password, options)
+/**
+ * encrypt data using scrypt + aes128-cbc
+ * @param payload
+ * @param password
+ */
+export async function encrypt(
+  payload: string,
+  password: string
+): Promise<Encrypted> {
+  const options = defaultScryptOptions();
+  const passwordDerived = await passwordToKey(password, options);
 
   const hash = crypto.createHash('sha1').update(passwordDerived);
 
@@ -45,12 +53,15 @@ export async function encrypt(payload: string, password: string): Promise<Encryp
 
   return {
     data: encrypted,
-    options
+    options,
   };
 }
 
-export async function decrypt(encryptedData: Encrypted, password: string): Promise<string> {
-  const passwordDerived = await passwordToKey(password, encryptedData.options)
+export async function decrypt(
+  encryptedData: Encrypted,
+  password: string
+): Promise<string> {
+  const passwordDerived = await passwordToKey(password, encryptedData.options);
   const hash = crypto.createHash('sha1').update(passwordDerived);
 
   const secret = hash.digest().slice(0, 16);
@@ -61,12 +72,22 @@ export async function decrypt(encryptedData: Encrypted, password: string): Promi
   return decrypted;
 }
 
-async function passwordToKey(password: string, options: ScryptOptions): Promise<Uint8Array> {
+async function passwordToKey(
+  password: string,
+  options: ScryptOptions
+): Promise<Uint8Array> {
   // TODO random generation for salt
-  const salt = 'notforprodsalt'
-  return scrypt(prepareForScrypt(password), prepareForScrypt(salt), 16384, 8, 1, 32)
+  const salt = 'notforprodsalt';
+  return scrypt(
+    prepareForScrypt(password),
+    prepareForScrypt(salt),
+    16384,
+    8,
+    1,
+    32
+  );
 }
 
 function prepareForScrypt(str: string): Uint8Array {
-  return Buffer.from(str.normalize('NFKD'))
+  return Buffer.from(str.normalize('NFKD'));
 }

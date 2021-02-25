@@ -3,28 +3,54 @@ import {
   IonLabel,
   IonPage,
   IonButton,
-  useIonViewWillEnter,
+  useIonViewDidEnter,
+  IonLoading,
 } from '@ionic/react';
-import React from 'react';
+import React, { useState } from 'react';
 import { RouteComponentProps } from 'react-router';
 import { useDispatch } from 'react-redux';
 
 import './style.scss';
 import { signIn } from '../../redux/actions/appActions';
-import { getIdentity } from '../../redux/services/walletService';
+import PinModal from '../../components/PinModal';
+import {
+  getIdentity,
+  mnemonicInSecureStorage,
+} from '../../utils/storage-helper';
 
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
+  const [pinModalIsOpen, setPinModalIsOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   const dispatch = useDispatch();
 
-  useIonViewWillEnter(() => {
-    getIdentity().then(() => {
-      dispatch(signIn());
-      history.push('/wallet');
-    });
+  const onConfirmPinModal = (pin: string) => {
+    getIdentity(pin)
+      .then(() => {
+        dispatch(signIn());
+        history.push('/wallet');
+      })
+      .catch(console.error);
+  };
+
+  useIonViewDidEnter(() => {
+    mnemonicInSecureStorage()
+      .then((mnemonicExists: boolean) => {
+        if (mnemonicExists) setPinModalIsOpen(true);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
   });
 
   return (
     <IonPage>
+      <IonLoading isOpen={loading} message="Searching mnemonic..." />
+      <PinModal
+        open={pinModalIsOpen}
+        title="Enter your secret PIN"
+        onConfirm={onConfirmPinModal}
+        onClose={() => setPinModalIsOpen(false)}
+      />
       <div className="gradient-background"></div>
       <IonContent>
         <div className="main-page-wrapper">

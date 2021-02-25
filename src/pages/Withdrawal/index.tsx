@@ -24,12 +24,13 @@ import {
   RecipientInterface,
   walletFromCoins,
 } from 'ldk';
-import { broadcastTx, getIdentity } from '../../redux/services/walletService';
+import { broadcastTx } from '../../redux/services/walletService';
 import { allUtxosSelector } from '../../redux/reducers/walletReducer';
 import { network } from '../../redux/config';
 import { toSatoshi } from '../../utils/helpers';
 import { setAddresses } from '../../redux/actions/walletActions';
 import { Psbt } from 'liquidjs-lib';
+import { getIdentity } from '../../utils/storage-helper';
 
 interface WithdrawalProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -65,7 +66,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
     try {
       if (!isValid()) return;
       setLoading(true);
-      const identity = await getIdentity();
+      const identity = await getIdentity('1235');
 
       const wallet = walletFromCoins(utxos, network.chain);
       const psetBase64 = wallet.createTx();

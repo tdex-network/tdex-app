@@ -13,10 +13,10 @@ import {
   setWalletLoading,
 } from '../actions/walletActions';
 import { setProviderEndpoint } from '../actions/exchange/providerActions';
-import { getIdentity } from '../services/walletService';
 import { provider } from '../config';
 import { restoreTheme } from '../actions/settingsActions';
 import { Mnemonic } from 'ldk';
+import { getIdentity } from '../../utils/storage-helper';
 
 function* initAppSaga() {
   try {
@@ -33,7 +33,7 @@ function* initAppSaga() {
 function* signInSaga() {
   try {
     yield put(setWalletLoading(false));
-    const identity: Mnemonic = yield call(getIdentity);
+    const identity: Mnemonic = yield call(getIdentity, '1235');
     yield call(waitForRestore, identity);
     const addresses = identity.getAddresses();
     yield put(setAddresses(addresses));

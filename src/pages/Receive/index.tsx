@@ -18,7 +18,6 @@ import { useDispatch } from 'react-redux';
 import { Clipboard } from '@ionic-native/clipboard';
 import { QRCodeImg } from '@cheprasov/react-qrcode';
 import { checkmarkOutline } from 'ionicons/icons';
-import { getIdentity } from '../../redux/services/walletService';
 import { setAddresses } from '../../redux/actions/walletActions';
 import { Mnemonic, AddressInterface } from 'ldk';
 
@@ -28,14 +27,14 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   const addressRef: any = useRef(null);
   const dispatch = useDispatch();
 
-  useIonViewWillEnter(() => {
-    getIdentity().then((identity: Mnemonic) => {
-      identity.isRestored.then(() => {
-        setAddress(identity.getNextAddress());
-        dispatch(setAddresses(identity.getAddresses()));
-      });
-    });
-  });
+  // useIonViewWillEnter(() => {
+  //   getIdentity().then((identity: Mnemonic) => {
+  //     identity.isRestored.then(() => {
+  //       setAddress(identity.getNextAddress());
+  //       dispatch(setAddresses(identity.getAddresses()));
+  //     });
+  //   });
+  // });
 
   const copyAddress = () => {
     if (address) {
