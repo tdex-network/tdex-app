@@ -28,7 +28,10 @@ const PinInput: React.FC<PinInputProps> = ({ onPin, error, onReset }) => {
       setPin('');
       return;
     }
-
+    if (newPin.length > 6) {
+      setPin(newPin.slice(6));
+      return;
+    }
     if (pin.length === 6 && newPin.length === 5) onReset();
 
     setPin(newPin);
@@ -52,7 +55,6 @@ const PinInput: React.FC<PinInputProps> = ({ onPin, error, onReset }) => {
       </IonLabel>
       <IonInput
         ref={inputRef}
-        maxlength={6}
         inputMode="numeric"
         value={pin}
         autofocus={true}

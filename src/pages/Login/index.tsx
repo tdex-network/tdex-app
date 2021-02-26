@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import classNames from 'classnames';
 import { RouteComponentProps, withRouter } from 'react-router';
 import PageDescription from '../../components/PageDescription';
@@ -10,9 +10,10 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
+  IonLoading,
 } from '@ionic/react';
 import { IconBack, IconCheck } from '../../components/icons';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import * as bip39 from 'bip39';
 import { signIn } from '../../redux/actions/appActions';
 import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
@@ -20,20 +21,13 @@ import PinModal from '../../components/PinModal';
 
 const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
-  const isAuth = useSelector((state: any) => state.wallet.isAuth);
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [pin, setPin] = useState<string>();
   const [pinError, setPinError] = useState<string>();
 
-  useEffect(() => {
-    if (isAuth) {
-      history.push('/wallet');
-    }
-  }, [isAuth]);
-
   const onConfirm = async () => {
-    // setMnemonicInSecureStorage(newMnemonic);
     if (acceptTerms) setModalOpen('first');
   };
 
@@ -44,21 +38,25 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
 
   const onSecondPinConfirm = (newPin: string) => {
     if (newPin === pin) {
+      setLoading(true);
       const generatedMnemonic = bip39.generateMnemonic();
       setMnemonicInSecureStorage(generatedMnemonic, pin)
         .then((isStored) => {
           if (!isStored) throw new Error('unknow error for secure storage');
           dispatch(signIn(pin));
+          history.push('/wallet');
         })
         .catch((e) => {
           setPinError(e);
           console.error(e);
-        });
+        })
+        .finally(() => setLoading(false));
       return;
     }
 
     // TODO handle error correctly in PinModal
     console.error('pin do not match');
+    setPinError('pin do not match');
   };
 
   const cancelSecondModal = () => {
@@ -68,6 +66,7 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
 
   return (
     <IonPage>
+      <IonLoading isOpen={loading} />
       <PinModal
         error={pinError}
         onReset={() => setPinError(undefined)}

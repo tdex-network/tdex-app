@@ -25,9 +25,19 @@ function defaultScryptOptions(): ScryptOptions {
     r: 8,
     p: 1,
     klen: 32,
-    // TODO
-    salt: 'randomSalt',
+    salt: randomSalt(32),
   };
+}
+
+function randomSalt(length: number): string {
+  let result = '';
+  const characters =
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
 }
 
 const iv = Buffer.alloc(16, 0);
@@ -76,15 +86,13 @@ async function passwordToKey(
   password: string,
   options: ScryptOptions
 ): Promise<Uint8Array> {
-  // TODO random generation for salt
-  const salt = 'notforprodsalt';
   return scrypt(
     prepareForScrypt(password),
-    prepareForScrypt(salt),
-    16384,
-    8,
-    1,
-    32
+    prepareForScrypt(options.salt),
+    options.N,
+    options.r,
+    options.p,
+    options.klen
   );
 }
 
