@@ -32,6 +32,10 @@ import { setAddresses } from '../../redux/actions/walletActions';
 import { Psbt } from 'liquidjs-lib';
 import { getIdentity } from '../../utils/storage-helper';
 import PinModal from '../../components/PinModal';
+import {
+  addErrorToast,
+  addSuccessToast,
+} from '../../redux/actions/toastActions';
 
 interface WithdrawalProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -120,13 +124,21 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
         .extractTransaction()
         .toHex();
 
-      const txID = await broadcastTx(txHex, explorerURL);
-      console.log(txID);
+      // TODO what should be done with txID ? displayed ?
+      await broadcastTx(txHex, explorerURL);
+      dispatch(
+        addSuccessToast(
+          `Transaction broadcasted. ${amount} ${balance?.ticker} sent.`
+        )
+      );
       dispatch(setAddresses(identity.getAddresses()));
       setModalOpen(false);
     } catch (err) {
       setPinError(err);
       console.error(err);
+      dispatch(
+        addErrorToast('An error occurs while sending withdraw transaction.')
+      );
     } finally {
       setLoading(false);
     }

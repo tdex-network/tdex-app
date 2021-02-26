@@ -58,6 +58,7 @@ const Operations: React.FC<OperationsProps> = ({
   // effect for fiat equivalent
   useEffect(() => {
     if (balance && balance.coinGeckoID) {
+      dispatch(updateTransactions());
       const p = prices[balance.coinGeckoID];
       if (!p) {
         setFiat(undefined);

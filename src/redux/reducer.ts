@@ -8,6 +8,7 @@ import providerReducer from './reducers/exchange/providerReducer';
 import settingsReducer from './reducers/settingsReducer';
 import transactionsReducer from './reducers/transactionsReducer';
 import appReducer from './reducers/appReducer';
+import toastReducer from './reducers/toastReducer';
 
 const rootReducer = combineReducers({
   app: appReducer,
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   }),
   settings: settingsReducer,
   transactions: transactionsReducer,
+  toasts: toastReducer,
 });
 
 export default rootReducer;

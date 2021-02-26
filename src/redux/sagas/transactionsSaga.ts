@@ -11,6 +11,7 @@ import {
   UPDATE_TRANSACTIONS,
 } from '../actions/transactionsActions';
 import { getAddresses } from '../../utils/storage-helper';
+import { addErrorToast } from '../actions/toastActions';
 
 function* updateTransactions({ type }: { type: string }) {
   try {
@@ -27,6 +28,9 @@ function* updateTransactions({ type }: { type: string }) {
     yield call(fetchAndUpdateTxs, addresses, txs, explorerURL);
   } catch (e) {
     console.error(e);
+    yield put(
+      addErrorToast('An error occurs while trying to fetch transactions.')
+    );
   }
 }
 
