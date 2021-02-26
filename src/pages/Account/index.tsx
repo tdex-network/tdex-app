@@ -188,7 +188,10 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
           <ChangePinModals
             open={showChangePinModal}
             onClose={() => setShowChangePinModal(false)}
-            onDeleted={() => setShowChangePinModal(false)}
+            onDeleted={() => {
+              setShowChangePinModal(false);
+              history.push('/homescreen');
+            }}
           />
         )}
 

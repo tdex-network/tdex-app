@@ -7,7 +7,8 @@ import {
   IonToolbar,
   IonHeader,
   IonIcon,
-  useIonViewWillEnter,
+  useIonViewDidEnter,
+  IonLoading,
 } from '@ionic/react';
 import React, { useRef, useState } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
@@ -20,21 +21,20 @@ import { QRCodeImg } from '@cheprasov/react-qrcode';
 import { checkmarkOutline } from 'ionicons/icons';
 import { setAddresses } from '../../redux/actions/walletActions';
 import { Mnemonic, AddressInterface } from 'ldk';
+import { getIdentity } from '../../utils/storage-helper';
+import PinModal from '../../components/PinModal';
 
 const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   const [copied, setCopied] = useState(false);
   const [address, setAddress] = useState<AddressInterface>();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const addressRef: any = useRef(null);
   const dispatch = useDispatch();
 
-  // useIonViewWillEnter(() => {
-  //   getIdentity().then((identity: Mnemonic) => {
-  //     identity.isRestored.then(() => {
-  //       setAddress(identity.getNextAddress());
-  //       dispatch(setAddresses(identity.getAddresses()));
-  //     });
-  //   });
-  // });
+  useIonViewDidEnter(() => {
+    setModalOpen(true);
+  });
 
   const copyAddress = () => {
     if (address) {
@@ -56,8 +56,36 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
     }
   };
 
+  const onPinConfirm = (pin: string) => {
+    setModalOpen(false);
+    setLoading(true);
+    getIdentity(pin)
+      .then((identity: Mnemonic) => {
+        identity.isRestored.then(() => {
+          setAddress(identity.getNextAddress());
+          dispatch(setAddresses(identity.getAddresses()));
+        });
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  };
+
   return (
     <IonPage>
+      <PinModal
+        open={modalOpen}
+        title="Unlock your seed"
+        description={`Enter your secret PIN.`}
+        onConfirm={onPinConfirm}
+        onClose={() => {
+          setModalOpen(false);
+        }}
+      />
+      <IonLoading
+        cssClass="my-custom-class"
+        isOpen={loading}
+        message={'Please wait...'}
+      />
       <div className="gradient-background"></div>
       <IonHeader>
         <IonToolbar className="with-back-button">

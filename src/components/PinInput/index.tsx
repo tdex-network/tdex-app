@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { IonInput, IonItem, IonLabel } from '@ionic/react';
 import { uuid4 } from '@capacitor/core/dist/esm/util';

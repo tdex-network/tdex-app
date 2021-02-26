@@ -13,7 +13,6 @@ import {
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { useDispatch } from 'react-redux';
 import { CurrencyIcon } from '../../components/icons';
 import { RefresherEventDetail } from '@ionic/core';
 //styles

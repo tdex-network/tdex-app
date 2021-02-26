@@ -9,6 +9,7 @@ export class IdentityRestorerFromState implements IdentityRestorerInterface {
   static esploraIdentityRestorer = new EsploraIdentityRestorer(
     network.explorer
   );
+
   private cachedAddresses: string[] = [];
 
   constructor(addresses: AddressInterface[]) {

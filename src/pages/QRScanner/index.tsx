@@ -13,11 +13,9 @@ import { QRScanner, QRScannerStatus } from '@ionic-native/qr-scanner';
 
 //style
 import './style.scss';
-import { useDispatch } from 'react-redux';
 import { withRouter } from 'react-router';
 
 const QRCodeScanner: React.FC<any> = ({ history }: any) => {
-  const dispatch = useDispatch();
   const scanner = QRScanner;
 
   useIonViewDidEnter(() => {

@@ -1,3 +1,4 @@
+import { ActionType } from './../../utils/types';
 import { waitForRestore } from './../services/walletService';
 import { takeLatest, put, call } from 'redux-saga/effects';
 import {
@@ -30,10 +31,10 @@ function* initAppSaga() {
   }
 }
 
-function* signInSaga({ type, payload }: { type: string; payload: string }) {
+function* signInSaga(action: ActionType) {
   try {
     yield put(setWalletLoading(false));
-    const identity: Mnemonic = yield call(getIdentity, payload);
+    const identity: Mnemonic = yield call(getIdentity, action.payload);
     yield call(waitForRestore, identity);
     const addresses = identity.getAddresses();
     yield put(setAddresses(addresses));

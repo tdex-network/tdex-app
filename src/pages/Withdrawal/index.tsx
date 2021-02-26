@@ -31,6 +31,7 @@ import { toSatoshi } from '../../utils/helpers';
 import { setAddresses } from '../../redux/actions/walletActions';
 import { Psbt } from 'liquidjs-lib';
 import { getIdentity } from '../../utils/storage-helper';
+import PinModal from '../../components/PinModal';
 
 interface WithdrawalProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -48,6 +49,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
   const [amount, setAmount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [recipientAddress, setRecipientAddress] = useState<string>('');
+  const [modalOpen, setModalOpen] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -62,17 +64,17 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
     return true;
   };
 
-  const onClickConfirm = async () => {
+  const createTxAndBroadcast = async (pin: string) => {
     try {
       if (!isValid()) return;
       setLoading(true);
-      const identity = await getIdentity('1235');
+      const identity = await getIdentity(pin);
 
       const wallet = walletFromCoins(utxos, network.chain);
       const psetBase64 = wallet.createTx();
       const recipient: RecipientInterface = {
         address: recipientAddress,
-        asset: balance!.asset,
+        asset: balance?.asset || '',
         value: toSatoshi(amount),
       };
 
@@ -150,6 +152,12 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
     setPrice(undefined);
   }, [prices]);
 
+  const onPinConfirm = (pin: string) => {
+    if (!isValid()) return;
+    setModalOpen(false);
+    createTxAndBroadcast(pin);
+  };
+
   useEffect(() => {
     // TODO manage withdraw details
     // if (loading === false) {
@@ -159,10 +167,19 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
 
   return (
     <IonPage>
+      <PinModal
+        open={modalOpen}
+        title="Unlock your seed"
+        description={`Enter your secret PIN to send ${amount} ${balance?.ticker}.`}
+        onConfirm={onPinConfirm}
+        onClose={() => {
+          setModalOpen(false);
+        }}
+      />
       <div className="gradient-background"></div>
       <IonLoading
         cssClass="my-custom-class"
-        isOpen={Boolean(loading)}
+        isOpen={loading}
         message={'Please wait...'}
       />
       <IonHeader>
@@ -213,7 +230,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
           <div className="align-center">
             <IonButton
               className="main-button"
-              onClick={() => onClickConfirm()}
+              onClick={() => setModalOpen(true)}
               disabled={!isValid()}
             >
               <IonLabel>CONFIRM</IonLabel>

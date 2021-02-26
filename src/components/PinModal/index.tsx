@@ -51,7 +51,7 @@ const PinModal: React.FC<PinModalProps> = ({
         <PageDescription title={title}>
           <p>{description}</p>
         </PageDescription>
-        <PinInput onPin={(pin: string) => setPin(pin)} />
+        <PinInput onPin={(p: string) => setPin(p)} />
         <div className="buttons">
           <IonButton
             onClick={() => {
