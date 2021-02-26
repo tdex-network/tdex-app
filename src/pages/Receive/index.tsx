@@ -7,7 +7,6 @@ import {
   IonToolbar,
   IonHeader,
   IonIcon,
-  useIonViewDidEnter,
   IonLoading,
 } from '@ionic/react';
 import React, { useRef, useState } from 'react';
@@ -27,14 +26,11 @@ import PinModal from '../../components/PinModal';
 const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   const [copied, setCopied] = useState(false);
   const [address, setAddress] = useState<AddressInterface>();
-  const [modalOpen, setModalOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [pinError, setPinError] = useState<string>();
   const addressRef: any = useRef(null);
   const dispatch = useDispatch();
-
-  useIonViewDidEnter(() => {
-    setModalOpen(true);
-  });
 
   const copyAddress = () => {
     if (address) {
@@ -57,29 +53,38 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   };
 
   const onPinConfirm = (pin: string) => {
-    setModalOpen(false);
     setLoading(true);
     getIdentity(pin)
       .then((identity: Mnemonic) => {
         identity.isRestored.then(() => {
           setAddress(identity.getNextAddress());
           dispatch(setAddresses(identity.getAddresses()));
+          setModalOpen(false);
         });
       })
-      .catch(console.error)
+      .catch((e) => {
+        setPinError(e);
+        console.error(e);
+      })
       .finally(() => setLoading(false));
   };
 
   return (
     <IonPage>
       <PinModal
+        error={pinError}
+        onReset={() => setPinError(undefined)}
         open={modalOpen}
         title="Unlock your seed"
         description={`Enter your secret PIN.`}
         onConfirm={onPinConfirm}
-        onClose={() => {
-          setModalOpen(false);
-        }}
+        onClose={
+          address
+            ? () => {
+                setModalOpen(false);
+              }
+            : undefined
+        }
       />
       <IonLoading
         cssClass="my-custom-class"

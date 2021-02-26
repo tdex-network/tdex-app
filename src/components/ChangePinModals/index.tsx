@@ -15,6 +15,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
 }) => {
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [pin, setPin] = useState('');
+  const [pinError, setPinError] = useState<string>();
 
   useEffect(() => {
     if (!modalOpen && open) {
@@ -28,12 +29,18 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
   }, [open]);
 
   const onFirstPinConfirm = (firstPin: string) => {
+    setPinError(undefined);
     setPin(firstPin);
     setModalOpen('second');
   };
 
   const onSecondPinConfirm = (secondPin: string) => {
-    changePin(pin, secondPin).then(onDeleted).catch(console.error);
+    changePin(pin, secondPin)
+      .then(onDeleted)
+      .catch((e) => {
+        setPinError(e);
+        console.error(e);
+      });
   };
 
   return (
@@ -44,6 +51,8 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
         description="Enter your current PIN."
         onConfirm={onFirstPinConfirm}
         onClose={onClose}
+        error={pinError}
+        onReset={() => setPinError(undefined)}
       />
       <PinModal
         open={modalOpen === 'second'}
@@ -51,6 +60,8 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
         description="Set up the new PIN."
         onConfirm={onSecondPinConfirm}
         onClose={onClose}
+        error={pinError}
+        onReset={() => setPinError(undefined)}
       />
     </div>
   );

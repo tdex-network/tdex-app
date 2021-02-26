@@ -25,6 +25,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [pin, setPin] = useState<string>();
+  const [pinError, setPinError] = useState<string>();
   const [isEmpty, setIsEmpty] = useState(true);
   const dispatch = useDispatch();
 
@@ -52,12 +53,17 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
           if (!isStored) throw new Error('unknow error for secure storage');
           dispatch(signIn(pin));
         })
-        .catch(console.error);
+        .catch((e) => {
+          console.error(e);
+          setPinError(e);
+        });
       return;
     }
 
     // TODO handle error correctly in PinModal
-    console.error('pin do not match');
+    const errorMsg = 'pin do not match!';
+    console.error(errorMsg);
+    setPinError(errorMsg);
   };
 
   const cancelSecondModal = () => {
@@ -68,6 +74,8 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage>
       <PinModal
+        error={pinError}
+        onReset={() => setPinError(undefined)}
         open={modalOpen === 'first'}
         title="Set your secret PIN"
         description="Enter a 6-digit secret PIN to secure your wallet's seed."
@@ -78,6 +86,8 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
         }}
       />
       <PinModal
+        error={pinError}
+        onReset={() => setPinError(undefined)}
         open={modalOpen === 'second'}
         title="Repeat your secret PIN"
         description="Confirm your secret PIN."

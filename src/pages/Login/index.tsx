@@ -24,6 +24,7 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [pin, setPin] = useState<string>();
+  const [pinError, setPinError] = useState<string>();
 
   useEffect(() => {
     if (isAuth) {
@@ -49,7 +50,10 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
           if (!isStored) throw new Error('unknow error for secure storage');
           dispatch(signIn(pin));
         })
-        .catch(console.error);
+        .catch((e) => {
+          setPinError(e);
+          console.error(e);
+        });
       return;
     }
 
@@ -65,6 +69,8 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage>
       <PinModal
+        error={pinError}
+        onReset={() => setPinError(undefined)}
         open={modalOpen === 'first'}
         title="Set your secret PIN"
         description="Enter a 6-digit secret PIN to secure your wallet's seed."
@@ -75,6 +81,8 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
         }}
       />
       <PinModal
+        error={pinError}
+        onReset={() => setPinError(undefined)}
         open={modalOpen === 'second'}
         title="Repeat your secret PIN"
         description="Confirm your secret PIN."

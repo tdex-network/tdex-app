@@ -21,6 +21,7 @@ import {
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   const [pinModalIsOpen, setPinModalIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [pinError, setPinError] = useState<string>();
 
   const dispatch = useDispatch();
 
@@ -31,7 +32,10 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
         dispatch(signIn(pin));
         history.push('/wallet');
       })
-      .catch(console.error);
+      .catch((e) => {
+        console.error(e);
+        setPinError(e);
+      });
   };
 
   useIonViewDidEnter(() => {
@@ -51,7 +55,8 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
         title="Enter your secret PIN"
         description="Unlock your wallet."
         onConfirm={onConfirmPinModal}
-        onClose={() => setPinModalIsOpen(false)}
+        onReset={() => setPinError(undefined)}
+        error={pinError}
       />
       <div className="gradient-background"></div>
       <IonContent>

@@ -50,6 +50,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [recipientAddress, setRecipientAddress] = useState<string>('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [pinError, setPinError] = useState<string>();
 
   const dispatch = useDispatch();
 
@@ -122,7 +123,9 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
       const txID = await broadcastTx(txHex, explorerURL);
       console.log(txID);
       dispatch(setAddresses(identity.getAddresses()));
+      setModalOpen(false);
     } catch (err) {
+      setPinError(err);
       console.error(err);
     } finally {
       setLoading(false);
@@ -154,7 +157,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
 
   const onPinConfirm = (pin: string) => {
     if (!isValid()) return;
-    setModalOpen(false);
     createTxAndBroadcast(pin);
   };
 
@@ -168,6 +170,8 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
   return (
     <IonPage>
       <PinModal
+        error={pinError}
+        onReset={() => setPinError(undefined)}
         open={modalOpen}
         title="Unlock your seed"
         description={`Enter your secret PIN to send ${amount} ${balance?.ticker}.`}
