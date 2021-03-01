@@ -12,19 +12,19 @@ export enum TxTypeEnum {
 }
 
 export interface TxDisplayInterface {
-  asset: string;
-  address: string;
-  fee: string;
-  txId: string;
-  amount: number;
   type: TxTypeEnum;
+  fee: number;
+  txId: string;
   time: string;
   date: string;
-  status: string;
-  amountDisplay: string;
-  amountDisplayFormatted: string;
-  open: boolean;
-  sign: string;
+  status: TxStatusEnum;
+  transfers: Transfer[];
+}
+
+export interface Transfer {
+  asset: string;
+  // amount > 0 = received & amount < 0 = sent
+  amount: number;
 }
 
 export enum TxStatusEnum {

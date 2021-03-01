@@ -1,8 +1,8 @@
-import { TxInterface } from 'ldk';
 import { createSelector } from 'reselect';
+import { TxInterface, AddressInterface, address } from 'ldk';
 import { ActionType } from '../../utils/types';
 import { SET_TRANSACTION } from '../actions/transactionsActions';
-import { transactionsTransformer } from '../transformers/transactionsTransformer';
+import { toDisplayTransaction } from '../transformers/transactionsTransformer';
 
 interface TransactionState {
   // record txid ---> tx
@@ -35,13 +35,22 @@ const transactionsSelector = ({
   transactions,
 }: {
   transactions: TransactionState;
-}) => transactions.txs;
-export const transactionsByAssetSelector = createSelector(
+}) => Object.values(transactions.txs);
+
+export const transactionsToDisplaySelector = createSelector(
   transactionsSelector,
-  (txs) => {
-    const allTxs = Object.values(txs);
-    return transactionsTransformer(allTxs);
+  (state: any) => state.wallet.addresses,
+  (txs: TxInterface[], addresses: AddressInterface[]) => {
+    const scripts = addresses.map((a) =>
+      address.toOutputScript(a.confidentialAddress).toString('hex')
+    );
+    return txs.map((tx) => toDisplayTransaction(tx, scripts));
   }
 );
+
+export const transactionsByAssetSelector = (asset: string) => (state: any) => {
+  const txs = transactionsToDisplaySelector(state);
+  return txs.filter((tx) => tx.transfers.map((t) => t.asset).includes(asset));
+};
 
 export default transactionsReducer;

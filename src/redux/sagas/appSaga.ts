@@ -1,5 +1,7 @@
+import { setPublicKeys } from './../actions/walletActions';
+import { ActionType } from './../../utils/types';
 import { waitForRestore } from './../services/walletService';
-import { takeLatest, put, call } from 'redux-saga/effects';
+import { takeLatest, put, call, all } from 'redux-saga/effects';
 import {
   INIT_APP,
   initAppFail,
@@ -7,16 +9,12 @@ import {
   setSignedUp,
   SIGN_IN,
 } from '../actions/appActions';
-import {
-  setAddresses,
-  setIsAuth,
-  setWalletLoading,
-} from '../actions/walletActions';
+import { setAddresses, setIsAuth } from '../actions/walletActions';
 import { setProviderEndpoint } from '../actions/exchange/providerActions';
-import { getIdentity } from '../services/walletService';
 import { provider } from '../config';
 import { restoreTheme } from '../actions/settingsActions';
 import { Mnemonic } from 'ldk';
+import { getIdentity } from '../../utils/storage-helper';
 
 function* initAppSaga() {
   try {
@@ -30,17 +28,18 @@ function* initAppSaga() {
   }
 }
 
-function* signInSaga() {
+function* signInSaga(action: ActionType) {
   try {
-    yield put(setWalletLoading(false));
-    const identity: Mnemonic = yield call(getIdentity);
-    yield call(waitForRestore, identity);
+    const identity: Mnemonic = yield call(getIdentity, action.payload);
+    yield all([call(waitForRestore, identity), put(setPublicKeys(identity))]);
+
     const addresses = identity.getAddresses();
     yield put(setAddresses(addresses));
 
-    yield put(setIsAuth(true));
-    yield put(setWalletLoading(true));
-    yield put(setProviderEndpoint(provider.endpoint));
+    yield all([
+      put(setIsAuth(true)),
+      put(setProviderEndpoint(provider.endpoint)),
+    ]);
   } catch (e) {
     yield put(initAppFail());
     console.error(e);

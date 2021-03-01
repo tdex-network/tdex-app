@@ -38,7 +38,7 @@
     margin-top: 80px;
   }
   .info-heading {
-    font-family: "DMSans-Bold";
+    font-family: 'DMSans-Bold';
     color: rgb(102, 102, 102);
     font-size: 14px;
     margin-top: 20px;
@@ -46,8 +46,8 @@
   }
 
   .info-amount {
-    font-family: "DMMono";
-    font-size: 30px;
+    font-family: 'DMMono';
+    font-size: 20px;
     line-height: 30px;
     span {
       margin-left: 8px;
@@ -56,7 +56,7 @@
   }
 
   .info-amount-converted {
-    font-family: "DMMono-Medium";
+    font-family: 'DMMono-Medium';
     font-size: 10px;
     line-height: 10px;
     color: rgb(198, 198, 198);
@@ -67,7 +67,7 @@ ion-refresher {
   z-index: 1;
 }
 .ml-auto {
-  margin-left: auto!important;
+  margin-left: auto !important;
 }
 
 .light {

@@ -1,16 +1,22 @@
 import { ActionType } from '../../utils/types';
-import { AddressInterface, Outpoint, UtxoInterface } from 'ldk';
+import { AddressInterface, Mnemonic, Outpoint, UtxoInterface } from 'ldk';
 
 export const SET_IS_AUTH = 'SET_IS_AUTH';
 export const CLEAR_WALLET_STATE = 'CLEAR_WALLET_STATE';
-export const GET_BALANCES = 'GET_BALANCES';
 export const SET_BALANCES = 'SET_BALANCES';
-export const SET_WALLET_LOADING = 'SET_WALLET_LOADING';
 export const SET_ADDRESSES = 'SET_ADDRESSES';
 export const UPDATE_UTXOS = 'UPDATE_UTXOS';
 export const SET_UTXO = 'SET_UTXO';
 export const DELETE_UTXO = 'DELETE_UTXO';
 export const RESET_UTXOS = 'RESET_UTXOS';
+export const SET_PUBLIC_KEYS = 'SET_PUBLIC_KEYS';
+
+export const setPublicKeys = (mnemonic: Mnemonic) => {
+  return {
+    type: SET_PUBLIC_KEYS,
+    payload: mnemonic,
+  };
+};
 
 export const resetUtxos = (): ActionType => {
   return {
@@ -49,13 +55,6 @@ export const setIsAuth = (isAuth: boolean): ActionType => {
   return {
     type: SET_IS_AUTH,
     payload: isAuth,
-  };
-};
-
-export const setWalletLoading = (loading: boolean): ActionType => {
-  return {
-    type: SET_WALLET_LOADING,
-    payload: loading,
   };
 };
 

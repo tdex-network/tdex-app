@@ -15,6 +15,7 @@ import {
   fetchAndUnblindUtxosGenerator,
 } from 'ldk';
 import { getAddresses, storageAddresses } from '../../utils/storage-helper';
+import { addErrorToast } from '../actions/toastActions';
 
 function* persistAddresses({
   type,
@@ -43,6 +44,7 @@ function* updateUtxosState({ type }: { type: string }) {
     yield call(fetchAndUpdateUtxos, addresses, utxos, explorerURL);
   } catch (error) {
     console.error(error);
+    yield put(addErrorToast('An error occurs while trying to fetch UTXOs.'));
   }
 }
 

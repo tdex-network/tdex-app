@@ -24,12 +24,18 @@ import {
   RecipientInterface,
   walletFromCoins,
 } from 'ldk';
-import { broadcastTx, getIdentity } from '../../redux/services/walletService';
+import { broadcastTx } from '../../redux/services/walletService';
 import { allUtxosSelector } from '../../redux/reducers/walletReducer';
 import { network } from '../../redux/config';
 import { toSatoshi } from '../../utils/helpers';
 import { setAddresses } from '../../redux/actions/walletActions';
 import { Psbt } from 'liquidjs-lib';
+import { getIdentity } from '../../utils/storage-helper';
+import PinModal from '../../components/PinModal';
+import {
+  addErrorToast,
+  addSuccessToast,
+} from '../../redux/actions/toastActions';
 
 interface WithdrawalProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -38,15 +44,19 @@ interface WithdrawalProps extends RouteComponentProps {
 const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
   // route parameter asset_id
   const { asset_id } = useParams<{ asset_id: string }>();
+
+  // selectors for balance & rates
   const prices = useSelector((state: any) => state.rates.prices);
   const utxos = useSelector(allUtxosSelector);
   const explorerURL = useSelector((state: any) => state.settings.explorerUrl);
 
+  // UI state
   const [balance, setBalance] = useState<BalanceInterface>();
   const [price, setPrice] = useState<number>();
   const [amount, setAmount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [recipientAddress, setRecipientAddress] = useState<string>('');
+  const [modalOpen, setModalOpen] = useState(false);
 
   const dispatch = useDispatch();
 
@@ -61,25 +71,21 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
     return true;
   };
 
-  const onClickConfirm = async () => {
+  const createTxAndBroadcast = async (pin: string) => {
     try {
       if (!isValid()) return;
       setLoading(true);
-      const identity = await getIdentity();
+      const getIdentityPromise = getIdentity(pin);
 
       const wallet = walletFromCoins(utxos, network.chain);
       const psetBase64 = wallet.createTx();
       const recipient: RecipientInterface = {
         address: recipientAddress,
-        asset: balance!.asset,
+        asset: balance?.asset || '',
         value: toSatoshi(amount),
       };
 
-      if (!identity) {
-        // TODO return an error toast
-        setLoading(false);
-        return;
-      }
+      const identity = await getIdentityPromise;
       await identity.isRestored;
 
       const withdrawPset = wallet.buildTx(
@@ -116,11 +122,20 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
         .extractTransaction()
         .toHex();
 
-      const txID = await broadcastTx(txHex, explorerURL);
-      console.log(txID);
+      // TODO what should be done with txID ? displayed ?
+      await broadcastTx(txHex, explorerURL);
+      dispatch(
+        addSuccessToast(
+          `Transaction broadcasted. ${amount} ${balance?.ticker} sent.`
+        )
+      );
       dispatch(setAddresses(identity.getAddresses()));
+      setModalOpen(false);
     } catch (err) {
       console.error(err);
+      dispatch(
+        addErrorToast('An error occurs while sending withdraw transaction.')
+      );
     } finally {
       setLoading(false);
     }
@@ -149,6 +164,11 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
     setPrice(undefined);
   }, [prices]);
 
+  const onPinConfirm = (pin: string) => {
+    if (!isValid()) return;
+    createTxAndBroadcast(pin);
+  };
+
   useEffect(() => {
     // TODO manage withdraw details
     // if (loading === false) {
@@ -158,10 +178,19 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
 
   return (
     <IonPage>
+      <PinModal
+        open={modalOpen}
+        title="Unlock your seed"
+        description={`Enter your secret PIN to send ${amount} ${balance?.ticker}.`}
+        onConfirm={onPinConfirm}
+        onClose={() => {
+          setModalOpen(false);
+        }}
+      />
       <div className="gradient-background"></div>
       <IonLoading
         cssClass="my-custom-class"
-        isOpen={Boolean(loading)}
+        isOpen={loading}
         message={'Please wait...'}
       />
       <IonHeader>
@@ -212,7 +241,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
           <div className="align-center">
             <IonButton
               className="main-button"
-              onClick={() => onClickConfirm()}
+              onClick={() => setModalOpen(true)}
               disabled={!isValid()}
             >
               <IonLabel>CONFIRM</IonLabel>

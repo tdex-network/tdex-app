@@ -28,6 +28,7 @@ import { Plugins } from '@capacitor/core';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
 import { useDispatch, useSelector } from 'react-redux';
 import { initApp } from './redux/actions/appActions';
+import Toasts from './redux/containers/toastsContainer';
 
 const App: React.FC = () => {
   const { isAuth, appInit, theme } = useSelector((state: any) => ({
@@ -66,6 +67,7 @@ const App: React.FC = () => {
           message={'Please wait...'}
         />
         {isAuth ? <Tabs /> : <Main />}
+        <Toasts />
       </IonReactRouter>
     </IonApp>
   );

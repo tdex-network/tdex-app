@@ -12,21 +12,25 @@ import { IconClose } from '../icons';
 import PageDescription from '../PageDescription';
 import { removeMnemonicFromSecureStorage } from '../../utils/storage-helper';
 
-interface NewPinModalInterface {
+interface DeleteMnemonicModalProps {
   openModal: boolean;
-  setOpenModal: any;
+  onConfirm: () => void;
+  close: () => void;
+  pin: string;
 }
 
-const DeleteMnemonicModal: React.FC<NewPinModalInterface> = ({
+const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({
   openModal,
-  setOpenModal,
+  onConfirm,
+  close,
+  pin,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   const deleteMnemonic = async () => {
     setIsLoading(true);
-    const success = await removeMnemonicFromSecureStorage();
+    const success = await removeMnemonicFromSecureStorage(pin);
     if (!success) {
       setErrorMsg(
         'Error: your key has not been deleted. Please contact support.'
@@ -35,7 +39,7 @@ const DeleteMnemonicModal: React.FC<NewPinModalInterface> = ({
       return;
     }
     setIsLoading(false);
-    setOpenModal(false);
+    onConfirm();
   };
 
   return (
@@ -47,12 +51,7 @@ const DeleteMnemonicModal: React.FC<NewPinModalInterface> = ({
       <div className="gradient-background" />
       <IonHeader>
         <IonToolbar className="with-back-button">
-          <IonButton
-            style={{ zIndex: 10 }}
-            onClick={() => {
-              setOpenModal(false);
-            }}
-          >
+          <IonButton style={{ zIndex: 10 }} onClick={close}>
             <IconClose />
           </IonButton>
           <IonTitle>CLEAR MY KEY</IonTitle>

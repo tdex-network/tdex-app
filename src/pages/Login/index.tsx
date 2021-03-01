@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import classNames from 'classnames';
 import { RouteComponentProps, withRouter } from 'react-router';
 import PageDescription from '../../components/PageDescription';
@@ -10,41 +10,87 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  useIonViewDidEnter,
+  IonLoading,
 } from '@ionic/react';
 import { IconBack, IconCheck } from '../../components/icons';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import * as bip39 from 'bip39';
 import { signIn } from '../../redux/actions/appActions';
 import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
+import PinModal from '../../components/PinModal';
+import {
+  addErrorToast,
+  addSuccessToast,
+} from '../../redux/actions/toastActions';
 
 const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
-  const { isAuth } = useSelector((state: any) => ({
-    isAuth: state.wallet.isAuth,
-  }));
   const [acceptTerms, setAcceptTerms] = useState(false);
-
-  const inputRef: any = useRef(null);
-
-  useIonViewDidEnter(() => {
-    inputRef?.current?.focus();
-  });
-
-  useEffect(() => {
-    if (isAuth) {
-      history.push('/wallet');
-    }
-  }, [isAuth]);
+  const [loading, setLoading] = useState(false);
+  const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
+  const [pin, setPin] = useState<string>();
 
   const onConfirm = async () => {
-    const newMnemonic = bip39.generateMnemonic();
-    setMnemonicInSecureStorage(newMnemonic);
-    dispatch(signIn());
+    if (acceptTerms) setModalOpen('first');
+  };
+
+  const onFirstPinConfirm = (newPin: string) => {
+    setPin(newPin);
+    setModalOpen('second');
+  };
+
+  const onError = (e: string) => {
+    dispatch(addErrorToast(e));
+    console.error(e);
+    setModalOpen(undefined);
+    setPin(undefined);
+  };
+
+  const onSecondPinConfirm = (newPin: string) => {
+    if (newPin === pin) {
+      setLoading(true);
+      const generatedMnemonic = bip39.generateMnemonic();
+      setMnemonicInSecureStorage(generatedMnemonic, pin)
+        .then((isStored) => {
+          if (!isStored) throw new Error('unknow error for secure storage');
+          dispatch(
+            addSuccessToast('Mnemonic generated and encrypted with your PIN.')
+          );
+          dispatch(signIn(pin));
+          history.push('/wallet');
+        })
+        .catch(onError)
+        .finally(() => setLoading(false));
+      return;
+    }
+    onError('PINs do not match.');
+  };
+
+  const cancelSecondModal = () => {
+    setPin(undefined);
+    setModalOpen('first');
   };
 
   return (
     <IonPage>
+      <IonLoading isOpen={loading} />
+      <PinModal
+        open={modalOpen === 'first'}
+        title="Set your secret PIN"
+        description="Enter a 6-digit secret PIN to secure your wallet's seed."
+        onConfirm={onFirstPinConfirm}
+        onClose={() => {
+          setModalOpen(undefined);
+          history.goBack();
+        }}
+      />
+      <PinModal
+        open={modalOpen === 'second'}
+        title="Repeat your secret PIN"
+        description="Confirm your secret PIN."
+        onConfirm={onSecondPinConfirm}
+        onClose={cancelSecondModal}
+      />
       <div className="gradient-background" />
       <IonHeader>
         <IonToolbar className="with-back-button">

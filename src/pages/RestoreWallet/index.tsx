@@ -6,6 +6,7 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
+  IonLoading,
 } from '@ionic/react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import PageDescription from '../../components/PageDescription';
@@ -19,10 +20,18 @@ import { useDispatch } from 'react-redux';
 import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
 import { signIn } from '../../redux/actions/appActions';
 import { useMnemonic } from '../../utils/custom-hooks';
+import PinModal from '../../components/PinModal';
+import {
+  addErrorToast,
+  addSuccessToast,
+} from '../../redux/actions/toastActions';
 
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
+  const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
+  const [pin, setPin] = useState<string>();
   const [isEmpty, setIsEmpty] = useState(true);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -32,15 +41,68 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   }, [mnemonic]);
 
   const handleConfirm = () => {
-    const restoredMnemonic = mnemonic.join(' ');
-    setMnemonicInSecureStorage(restoredMnemonic).then(() => {
-      dispatch(signIn());
-    });
-    history.push('/wallet');
+    // TODO check mnemonic validity
+    setModalOpen('first');
+  };
+
+  const onFirstPinConfirm = (newPin: string) => {
+    setPin(newPin);
+    setModalOpen('second');
+  };
+
+  const onError = (e: string) => {
+    dispatch(addErrorToast(e));
+    console.error(e);
+    setModalOpen(undefined);
+    setPin(undefined);
+  };
+
+  const onSecondPinConfirm = (newPin: string) => {
+    if (newPin === pin) {
+      setLoading(true);
+      const restoredMnemonic = mnemonic.join(' ');
+      setMnemonicInSecureStorage(restoredMnemonic, pin)
+        .then((isStored) => {
+          if (!isStored) throw new Error('unknow error for secure storage');
+          dispatch(
+            addSuccessToast('Mnemonic generated and encrypted with your PIN.')
+          );
+          dispatch(signIn(pin));
+          history.push('/wallet');
+        })
+        .catch(onError)
+        .finally(() => setLoading(false));
+      return;
+    }
+
+    onError('PINs do not match.');
+  };
+
+  const cancelSecondModal = () => {
+    setPin(undefined);
+    setModalOpen('first');
   };
 
   return (
     <IonPage>
+      <IonLoading isOpen={loading} />
+      <PinModal
+        open={modalOpen === 'first'}
+        title="Set your secret PIN"
+        description="Enter a 6-digit secret PIN to secure your wallet's seed."
+        onConfirm={onFirstPinConfirm}
+        onClose={() => {
+          setModalOpen(undefined);
+          history.goBack();
+        }}
+      />
+      <PinModal
+        open={modalOpen === 'second'}
+        title="Repeat your secret PIN"
+        description="Confirm your secret PIN."
+        onConfirm={onSecondPinConfirm}
+        onClose={cancelSecondModal}
+      />
       <div className="gradient-background"></div>
       <IonHeader>
         <IonToolbar className="with-back-button">
@@ -63,6 +125,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
           {mnemonic.map((item: string, index: number) => {
             return (
               <label
+                key={index}
                 className={classNames('restore-input', {
                   active: mnemonic[index],
                 })}

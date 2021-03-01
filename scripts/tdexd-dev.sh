@@ -17,6 +17,8 @@ addressmarket=$($tdex depositmarket | jq -r '.addresses[0]')
 nigiri faucet --liquid $addressmarket
 shitcoin=$(nigiri mint $addressmarket 100 | grep '^asset: ' | cut -d ':' -f 2 | tr -d ' ')
 
+sleep 3
+
 $tdex config set base_asset 5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225
 $tdex config set quote_asset $shitcoin
 $tdex open

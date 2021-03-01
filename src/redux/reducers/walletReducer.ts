@@ -1,11 +1,16 @@
-import { RESET_UTXOS } from './../actions/walletActions';
+import { RESET_UTXOS, SET_PUBLIC_KEYS } from './../actions/walletActions';
 import { Assets } from './../../utils/constants';
-import { AddressInterface, UtxoInterface, Outpoint, isBlindedUtxo } from 'ldk';
+import {
+  AddressInterface,
+  UtxoInterface,
+  Outpoint,
+  isBlindedUtxo,
+  Mnemonic,
+} from 'ldk';
 import { ActionType } from '../../utils/types';
 import {
   CLEAR_WALLET_STATE,
   SET_IS_AUTH,
-  SET_WALLET_LOADING,
   SET_ADDRESSES,
   SET_UTXO,
   DELETE_UTXO,
@@ -16,16 +21,18 @@ import { BalanceInterface } from '../actionTypes/walletActionTypes';
 
 export interface WalletState {
   isAuth: boolean;
-  loading: boolean;
   addresses: AddressInterface[];
   utxos: Record<string, UtxoInterface>;
+  masterPubKey: string;
+  masterBlindKey: string;
 }
 
 const initialState: WalletState = {
   isAuth: false,
-  loading: true,
   addresses: [],
   utxos: {},
+  masterPubKey: '',
+  masterBlindKey: '',
 };
 
 function walletReducer(state = initialState, action: ActionType): WalletState {
@@ -34,8 +41,6 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
       return { ...state, addresses: action.payload };
     case SET_IS_AUTH:
       return { ...state, isAuth: action.payload };
-    case SET_WALLET_LOADING:
-      return { ...state, loading: action.payload };
     case CLEAR_WALLET_STATE:
       return { ...initialState };
     case SET_UTXO:
@@ -44,6 +49,12 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
       return deleteUtxoInState(state, action.payload);
     case RESET_UTXOS:
       return { ...state, utxos: {} };
+    case SET_PUBLIC_KEYS:
+      return {
+        ...state,
+        masterBlindKey: (action.payload as Mnemonic).masterBlindingKey,
+        masterPubKey: (action.payload as Mnemonic).masterPublicKey,
+      };
     default:
       return state;
   }
@@ -73,6 +84,9 @@ export const allUtxosSelector = createSelector(utxosMapSelector, (utxosMap) =>
   Array.from(Object.values(utxosMap))
 );
 
+/**
+ * Meomized selector for balance (computed from utxos)
+ */
 export const balancesSelector = createSelector(
   allUtxosSelector,
   (utxos: UtxoInterface[]) => balancesFromUtxos(utxos)
@@ -89,7 +103,7 @@ function balancesFromUtxos(utxos: UtxoInterface[]): BalanceInterface[] {
     const utxosForAsset = utxosGroupedByAsset[asset];
     const amount = sumUtxos(utxosForAsset);
 
-    let ticker: string = asset.slice(0, 4);
+    let ticker: string = asset.slice(0, 4).toUpperCase();
     let coinGeckoID = undefined;
     const assetData = Object.values(Assets).find((a) => a.assetHash === asset);
     if (assetData) {

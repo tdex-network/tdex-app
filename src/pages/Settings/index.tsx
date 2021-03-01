@@ -23,6 +23,9 @@ import {
   storeTheme,
 } from '../../redux/actions/settingsActions';
 import { useDispatch, useSelector } from 'react-redux';
+import PinModal from '../../components/PinModal';
+import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
+import { addErrorToast } from '../../redux/actions/toastActions';
 
 const Settings: React.FC<any> = ({ history }) => {
   const { explorerUrl, theme } = useSelector((state: any) => ({
@@ -31,6 +34,8 @@ const Settings: React.FC<any> = ({ history }) => {
   }));
   const [showExplorerModal, setShowExplorerModal] = useState(false);
   const [explorerValue, setExplorerValue] = useState(explorerUrl);
+  const [modalOpen, setModalOpen] = useState(false);
+
   const dispatch = useDispatch();
   const handleExplorerChange = (e: any) => {
     const { value } = e.detail;
@@ -43,8 +48,29 @@ const Settings: React.FC<any> = ({ history }) => {
     dispatch(storeTheme(newTheme));
   };
 
+  const onPinConfirm = (pin: string) => {
+    getMnemonicFromSecureStorage(pin)
+      .then(() => {
+        history.push(`/account/${pin}`);
+        setModalOpen(false);
+      })
+      .catch((e) => {
+        dispatch(addErrorToast(e));
+        console.error(e);
+      });
+  };
+
   return (
     <IonPage>
+      <PinModal
+        open={modalOpen}
+        title="Unlock your seed"
+        description="Enter your secret PIN to unlock your wallet."
+        onConfirm={onPinConfirm}
+        onClose={() => {
+          setModalOpen(false);
+        }}
+      />
       <div className="gradient-background"></div>
       <IonHeader>
         <IonToolbar>
@@ -57,7 +83,7 @@ const Settings: React.FC<any> = ({ history }) => {
           <IonItem
             className="list-item"
             onClick={() => {
-              history.push('/account');
+              setModalOpen(true);
             }}
           >
             <div

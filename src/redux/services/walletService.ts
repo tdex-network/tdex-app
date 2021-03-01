@@ -1,9 +1,7 @@
 import { Storage } from '@capacitor/core';
-import { network, provider } from '../config';
-import { AddressInterface, IdentityType, IdentityOpts, Mnemonic } from 'ldk';
-import { IdentityRestorerFromState } from '../../utils/identity-restorer';
+import { provider } from '../config';
+import { Mnemonic } from 'ldk';
 import axios from 'axios';
-import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
 
 export const axiosProviderObject = axios.create({ baseURL: provider.endpoint });
 
@@ -18,29 +16,6 @@ export const getAssetsRequest = (
     params: options?.params,
   });
 };
-
-function prepareIdentityOpts(
-  mnemonic: string,
-  addresses: Array<AddressInterface>
-): IdentityOpts {
-  return {
-    chain: network.chain,
-    type: IdentityType.Mnemonic,
-    value: {
-      mnemonic,
-    },
-    initializeFromRestorer: true,
-    restorer: new IdentityRestorerFromState(addresses),
-  };
-}
-
-export async function getIdentity(): Promise<Mnemonic> {
-  const [mnemonic, cachedAddresses] = await Promise.all([
-    getMnemonicFromSecureStorage(),
-    getCachedAddresses(),
-  ]);
-  return new Mnemonic(prepareIdentityOpts(mnemonic, cachedAddresses));
-}
 
 export const getAddress = async (): Promise<{ value: string }> => {
   return Storage.get({ key: 'address' });
@@ -65,10 +40,4 @@ export async function broadcastTx(
     console.error(err);
     throw err;
   }
-}
-
-async function getCachedAddresses(): Promise<AddressInterface[]> {
-  const addressesAsJSON = (await Storage.get({ key: 'addresses' })).value;
-  if (!addressesAsJSON) return [];
-  return JSON.parse(addressesAsJSON);
 }

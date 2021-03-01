@@ -1,4 +1,4 @@
-@import "../../theme/variables";
+@import '../../theme/variables';
 
 .operations-buttons {
   display: flex;
@@ -16,16 +16,20 @@
   font-size: 14px !important;
 
   &.small-button {
-    min-width: 75px!important;
-    width: auto!important;
-    max-width: none!important;
-    height: 27px!important;
+    min-width: 75px !important;
+    width: auto !important;
+    max-width: none !important;
+    height: 27px !important;
     padding: 5px 10px;
-    font-size: 11px!important;
+    font-size: 11px !important;
   }
   &:hover {
     color: #000 !important;
-    background: linear-gradient(to top, rgb(15, 255, 0), rgb(0, 235, 127)) !important;
+    background: linear-gradient(
+      to top,
+      rgb(15, 255, 0),
+      rgb(0, 235, 127)
+    ) !important;
     border-color: transparent;
     opacity: 1;
   }
@@ -46,6 +50,7 @@
     }
   }
   .list-item {
+    transition: all 0.2s ease-in-out;
     &.pending {
       background-color: rgba(255, 220, 0, 0.15);
     }
@@ -79,7 +84,11 @@
     &:hover {
       color: #fff !important;
       border-color: transparent;
-      background: linear-gradient(to top, rgb(13, 229, 0), rgb(1, 227, 123)) !important;
+      background: linear-gradient(
+        to top,
+        rgb(13, 229, 0),
+        rgb(1, 227, 123)
+      ) !important;
     }
   }
   .operations {

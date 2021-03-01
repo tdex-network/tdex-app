@@ -13,7 +13,6 @@ import {
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { useDispatch } from 'react-redux';
 import { CurrencyIcon } from '../../components/icons';
 import { RefresherEventDetail } from '@ionic/core';
 //styles
@@ -135,7 +134,9 @@ const Wallet: React.FC<WalletProps> = ({
             <div className="header-info wallet">
               <p className="info-heading">Total balance</p>
               <p className="info-amount" aria-label="main-balance">
-                {LBTCBalance ? fromSatoshiFixed(LBTCBalance.amount) : '0.00'}
+                {LBTCBalance
+                  ? fromSatoshiFixed(LBTCBalance.amount, 8, 8)
+                  : '0.00'}
                 <span>LBTC</span>
               </p>
               <p className="info-amount-converted">
@@ -189,7 +190,7 @@ const Wallet: React.FC<WalletProps> = ({
                         className="main-row"
                         aria-label={`${balance.ticker}-amount`}
                       >
-                        {fromSatoshiFixed(balance.amount)}
+                        {fromSatoshiFixed(balance.amount, 8, 8)}
                       </div>
                       <div className="sub-row">
                         {fiatValue < 0
@@ -246,16 +247,14 @@ const Wallet: React.FC<WalletProps> = ({
                         {fromSatoshiFixed(balance.amount)}
                       </div>
                       <div className="sub-row">
-                        {fiatValue < 0
-                          ? fiatValue === UNKNOWN
-                            ? '??'
-                            : 'loading'
-                          : fiatValue?.toFixed(2)}
+                        {fiatValue > 0 && fiatValue.toFixed(2)}
                       </div>
                     </div>
                     <div className="second-col">
                       <div className="main-row accent">{balance.ticker}</div>
-                      <div className="sub-row">{currency.toUpperCase()}</div>
+                      {fiatValue > 0 && (
+                        <div className="sub-row">{currency.toUpperCase()}</div>
+                      )}
                     </div>
                   </div>
                 </div>
