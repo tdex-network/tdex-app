@@ -10,31 +10,54 @@ import {
   IonSpinner,
   IonLoading,
 } from '@ionic/react';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { IconBack, IconBTC, IconCopy } from '../../components/icons';
 import PageDescription from '../../components/PageDescription';
 import './style.scss';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Clipboard } from '@ionic-native/clipboard';
 import { QRCodeImg } from '@cheprasov/react-qrcode';
 import { checkmarkOutline } from 'ionicons/icons';
 import { setAddresses } from '../../redux/actions/walletActions';
-import { Mnemonic, AddressInterface } from 'ldk';
-import { getIdentity } from '../../utils/storage-helper';
-import PinModal from '../../components/PinModal';
+import {
+  AddressInterface,
+  IdentityOpts,
+  IdentityType,
+  MasterPublicKey,
+} from 'ldk';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
+import { WalletState } from '../../redux/reducers/walletReducer';
+import { network } from '../../redux/config';
+import { IdentityRestorerFromState } from '../../utils/identity-restorer';
 
 const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   const [copied, setCopied] = useState(false);
   const [address, setAddress] = useState<AddressInterface>();
-  const [modalOpen, setModalOpen] = useState(true);
   const [loading, setLoading] = useState(false);
   const addressRef: any = useRef(null);
   const dispatch = useDispatch();
+
+  // select data for MasterPubKey identity
+  const masterPubKeyOpts: IdentityOpts = useSelector(
+    ({ wallet }: { wallet: WalletState }) => {
+      return {
+        chain: network.chain,
+        type: IdentityType.MasterPublicKey,
+        value: {
+          masterBlindingKey: wallet.masterBlindKey,
+          masterPublicKey: wallet.masterPubKey,
+        },
+        initializeFromRestorer: true,
+        restorer: new IdentityRestorerFromState(wallet.addresses),
+      };
+    }
+  );
+
+  useEffect(() => generateAndSetAddress(), []);
 
   const copyAddress = () => {
     if (address) {
@@ -60,23 +83,22 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
     }
   };
 
-  const onPinConfirm = (pin: string) => {
+  const generateAndSetAddress = () => {
     setLoading(true);
-    getIdentity(pin)
-      .then((identity: Mnemonic) => {
-        identity.isRestored.then(() => {
-          setAddress(identity.getNextAddress());
-          setModalOpen(false);
-          setLoading(false);
-          dispatch(setAddresses(identity.getAddresses()));
-          dispatch(addSuccessToast('New address added to your account.'));
-        });
+    const masterPublicKey: MasterPublicKey = new MasterPublicKey(
+      masterPubKeyOpts
+    );
+    masterPublicKey.isRestored
+      .then(() => {
+        setAddress(masterPublicKey.getNextAddress());
+        setLoading(false);
+        dispatch(setAddresses(masterPublicKey.getAddresses()));
+        dispatch(addSuccessToast('New address added to your account.'));
       })
       .catch((e) => {
         dispatch(
           addErrorToast('Error during address generation. Please retry.')
         );
-        setModalOpen(true);
         console.error(e);
       });
   };
@@ -84,19 +106,6 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage>
       <IonLoading isOpen={loading} />
-      <PinModal
-        open={modalOpen}
-        title="Unlock your seed"
-        description={`Enter your secret PIN.`}
-        onConfirm={onPinConfirm}
-        onClose={
-          address
-            ? () => {
-                setModalOpen(false);
-              }
-            : undefined
-        }
-      />
       <div className="gradient-background"></div>
       <IonHeader>
         <IonToolbar className="with-back-button">
@@ -126,6 +135,7 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
         {address ? (
           <div>
             <input
+              readOnly
               type="text"
               ref={addressRef}
               value={address?.confidentialAddress}

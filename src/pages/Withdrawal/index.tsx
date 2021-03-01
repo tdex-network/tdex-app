@@ -44,10 +44,13 @@ interface WithdrawalProps extends RouteComponentProps {
 const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
   // route parameter asset_id
   const { asset_id } = useParams<{ asset_id: string }>();
+
+  // selectors for balance & rates
   const prices = useSelector((state: any) => state.rates.prices);
   const utxos = useSelector(allUtxosSelector);
   const explorerURL = useSelector((state: any) => state.settings.explorerUrl);
 
+  // UI state
   const [balance, setBalance] = useState<BalanceInterface>();
   const [price, setPrice] = useState<number>();
   const [amount, setAmount] = useState<number>(0);
