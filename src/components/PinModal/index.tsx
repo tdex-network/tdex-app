@@ -3,9 +3,7 @@ import {
   IonButton,
   IonContent,
   IonHeader,
-  IonIcon,
   IonModal,
-  IonText,
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
@@ -13,7 +11,8 @@ import './style.scss';
 import { IconClose } from '../icons';
 import PageDescription from '../PageDescription';
 import PinInput from '../PinInput';
-import { warning } from 'ionicons/icons';
+import { useDispatch } from 'react-redux';
+import { addErrorToast } from '../../redux/actions/toastActions';
 
 interface PinModalProps {
   open: boolean;
@@ -21,8 +20,6 @@ interface PinModalProps {
   description: string;
   onConfirm: (pin: string) => void;
   onClose?: () => void;
-  error?: string;
-  onReset: () => void;
 }
 
 const PinModal: React.FC<PinModalProps> = ({
@@ -31,11 +28,10 @@ const PinModal: React.FC<PinModalProps> = ({
   onClose,
   open,
   onConfirm,
-  error,
-  onReset,
 }) => {
   const validRegexp = new RegExp('\\d{6}');
   const [pin, setPin] = useState('');
+  const dispatch = useDispatch();
 
   return (
     <IonModal
@@ -58,24 +54,12 @@ const PinModal: React.FC<PinModalProps> = ({
         <PageDescription title={title}>
           <p>{description}</p>
         </PageDescription>
-        <PinInput
-          error={error}
-          onPin={(p: string) => setPin(p)}
-          onReset={onReset}
-        />
-        {error && (
-          <IonText color="danger" className="error-msg">
-            <p>
-              <IonIcon icon={warning}></IonIcon>
-              {' ' + error}
-            </p>
-          </IonText>
-        )}
-
+        <PinInput onPin={(p: string) => setPin(p)} />
         <div className="buttons">
           <IonButton
             onClick={() => {
               if (validRegexp.test(pin)) onConfirm(pin);
+              else dispatch(addErrorToast('PIN must contain 6 digits.'));
             }}
             type="button"
             disabled={!validRegexp.test(pin)}

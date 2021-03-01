@@ -17,25 +17,36 @@ import {
   getIdentity,
   mnemonicInSecureStorage,
 } from '../../utils/storage-helper';
+import {
+  addErrorToast,
+  addSuccessToast,
+} from '../../redux/actions/toastActions';
 
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   const [pinModalIsOpen, setPinModalIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [pinError, setPinError] = useState<string>();
+  const [loadingMessage, setLoadingMessage] = useState(
+    'Searching mnemonic in secure storage...'
+  );
 
   const dispatch = useDispatch();
 
   const onConfirmPinModal = (pin: string) => {
+    setPinModalIsOpen(false);
+    setLoadingMessage('Try to decrypt your seed...');
+    setLoading(true);
     getIdentity(pin)
       .then(() => {
-        setPinModalIsOpen(false);
+        dispatch(addSuccessToast('Your wallet has been unlocked.'));
         dispatch(signIn(pin));
         history.push('/wallet');
       })
       .catch((e) => {
         console.error(e);
-        setPinError(e);
-      });
+        dispatch(addErrorToast('Error: bad PIN. Please retry.'));
+        setTimeout(() => setPinModalIsOpen(true), 800);
+      })
+      .finally(() => setLoading(false));
   };
 
   useIonViewDidEnter(() => {
@@ -49,14 +60,12 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
 
   return (
     <IonPage>
-      <IonLoading isOpen={loading} message="Searching mnemonic..." />
+      <IonLoading isOpen={loading} message={loadingMessage} />
       <PinModal
         open={pinModalIsOpen}
         title="Enter your secret PIN"
         description="Unlock your wallet."
         onConfirm={onConfirmPinModal}
-        onReset={() => setPinError(undefined)}
-        error={pinError}
       />
       <div className="gradient-background"></div>
       <IonContent>

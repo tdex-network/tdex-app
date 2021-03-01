@@ -5,13 +5,11 @@ import './style.scss';
 
 interface PinInputProps {
   onPin: (newPin: string) => void;
-  onReset: () => void;
-  error?: string;
 }
 
 const length6Array = new Array(6).fill(0);
 
-const PinInput: React.FC<PinInputProps> = ({ onPin, error, onReset }) => {
+const PinInput: React.FC<PinInputProps> = ({ onPin }) => {
   const inputRef = useRef<any>(null);
 
   useEffect(() => {
@@ -32,7 +30,6 @@ const PinInput: React.FC<PinInputProps> = ({ onPin, error, onReset }) => {
       setPin(newPin.slice(6));
       return;
     }
-    if (pin.length === 6 && newPin.length === 5) onReset();
 
     setPin(newPin);
     if (newPin.length === 6) onPin(newPin);
@@ -46,7 +43,6 @@ const PinInput: React.FC<PinInputProps> = ({ onPin, error, onReset }) => {
             key={index}
             className={classNames('pin-input', {
               active: index <= pin.length,
-              error: pin.length === 6 && error,
             })}
           >
             {pin[index]}

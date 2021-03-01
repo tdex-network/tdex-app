@@ -6,6 +6,7 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
+  IonLoading,
 } from '@ionic/react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import PageDescription from '../../components/PageDescription';
@@ -20,13 +21,17 @@ import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
 import { signIn } from '../../redux/actions/appActions';
 import { useMnemonic } from '../../utils/custom-hooks';
 import PinModal from '../../components/PinModal';
+import {
+  addErrorToast,
+  addSuccessToast,
+} from '../../redux/actions/toastActions';
 
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [pin, setPin] = useState<string>();
-  const [pinError, setPinError] = useState<string>();
   const [isEmpty, setIsEmpty] = useState(true);
+  const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -45,25 +50,32 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
     setModalOpen('second');
   };
 
+  const onError = (e: string) => {
+    dispatch(addErrorToast(e));
+    console.error(e);
+    setModalOpen(undefined);
+    setPin(undefined);
+  };
+
   const onSecondPinConfirm = (newPin: string) => {
     if (newPin === pin) {
+      setLoading(true);
       const restoredMnemonic = mnemonic.join(' ');
       setMnemonicInSecureStorage(restoredMnemonic, pin)
         .then((isStored) => {
           if (!isStored) throw new Error('unknow error for secure storage');
+          dispatch(
+            addSuccessToast('Mnemonic generated and encrypted with your PIN.')
+          );
           dispatch(signIn(pin));
+          history.push('/wallet');
         })
-        .catch((e) => {
-          console.error(e);
-          setPinError(e);
-        });
+        .catch(onError)
+        .finally(() => setLoading(false));
       return;
     }
 
-    // TODO handle error correctly in PinModal
-    const errorMsg = 'pin do not match!';
-    console.error(errorMsg);
-    setPinError(errorMsg);
+    onError('PINs do not match.');
   };
 
   const cancelSecondModal = () => {
@@ -73,9 +85,8 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
 
   return (
     <IonPage>
+      <IonLoading isOpen={loading} />
       <PinModal
-        error={pinError}
-        onReset={() => setPinError(undefined)}
         open={modalOpen === 'first'}
         title="Set your secret PIN"
         description="Enter a 6-digit secret PIN to secure your wallet's seed."
@@ -86,8 +97,6 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
         }}
       />
       <PinModal
-        error={pinError}
-        onReset={() => setPinError(undefined)}
         open={modalOpen === 'second'}
         title="Repeat your secret PIN"
         description="Confirm your secret PIN."

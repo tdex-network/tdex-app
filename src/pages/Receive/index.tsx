@@ -8,6 +8,7 @@ import {
   IonHeader,
   IonIcon,
   IonSpinner,
+  IonLoading,
 } from '@ionic/react';
 import React, { useRef, useState } from 'react';
 import { withRouter, RouteComponentProps } from 'react-router';
@@ -31,7 +32,7 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   const [copied, setCopied] = useState(false);
   const [address, setAddress] = useState<AddressInterface>();
   const [modalOpen, setModalOpen] = useState(true);
-  const [pinError, setPinError] = useState<string>();
+  const [loading, setLoading] = useState(false);
   const addressRef: any = useRef(null);
   const dispatch = useDispatch();
 
@@ -46,40 +47,44 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
           }, 5000);
         })
         .catch((e: any) => {
-          addressRef.current.select();
-          document.execCommand('copy');
-          setCopied(true);
-          dispatch(addSuccessToast('Address copied.'));
-          setTimeout(() => {
-            setCopied(false);
-          }, 10000);
+          if (addressRef && addressRef.current) {
+            addressRef.current.select();
+            document.execCommand('copy');
+            setCopied(true);
+            dispatch(addSuccessToast('Address copied.'));
+            setTimeout(() => {
+              setCopied(false);
+            }, 10000);
+          }
         });
     }
   };
 
   const onPinConfirm = (pin: string) => {
+    setLoading(true);
     getIdentity(pin)
       .then((identity: Mnemonic) => {
-        setModalOpen(false);
         identity.isRestored.then(() => {
           setAddress(identity.getNextAddress());
+          setModalOpen(false);
+          setLoading(false);
           dispatch(setAddresses(identity.getAddresses()));
           dispatch(addSuccessToast('New address added to your account.'));
         });
       })
       .catch((e) => {
-        setPinError(e);
-        console.error(e);
-        dispatch(addErrorToast('Error during address generation.'));
+        dispatch(
+          addErrorToast('Error during address generation. Please retry.')
+        );
         setModalOpen(true);
+        console.error(e);
       });
   };
 
   return (
     <IonPage>
+      <IonLoading isOpen={loading} />
       <PinModal
-        error={pinError}
-        onReset={() => setPinError(undefined)}
         open={modalOpen}
         title="Unlock your seed"
         description={`Enter your secret PIN.`}

@@ -13,6 +13,7 @@ const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast }) => {
     <div>
       {toasts.map((toast: ToastOpts) => (
         <IonToast
+          key={toast.ID}
           isOpen={true}
           color={toastColor(toast.type)}
           duration={toastDuration(toast.type)}

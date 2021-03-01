@@ -54,7 +54,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [recipientAddress, setRecipientAddress] = useState<string>('');
   const [modalOpen, setModalOpen] = useState(false);
-  const [pinError, setPinError] = useState<string>();
 
   const dispatch = useDispatch();
 
@@ -73,7 +72,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
     try {
       if (!isValid()) return;
       setLoading(true);
-      const identity = await getIdentity(pin);
+      const getIdentityPromise = getIdentity(pin);
 
       const wallet = walletFromCoins(utxos, network.chain);
       const psetBase64 = wallet.createTx();
@@ -83,11 +82,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
         value: toSatoshi(amount),
       };
 
-      if (!identity) {
-        // TODO return an error toast
-        setLoading(false);
-        return;
-      }
+      const identity = await getIdentityPromise;
       await identity.isRestored;
 
       const withdrawPset = wallet.buildTx(
@@ -134,7 +129,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
       dispatch(setAddresses(identity.getAddresses()));
       setModalOpen(false);
     } catch (err) {
-      setPinError(err);
       console.error(err);
       dispatch(
         addErrorToast('An error occurs while sending withdraw transaction.')
@@ -182,8 +176,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
   return (
     <IonPage>
       <PinModal
-        error={pinError}
-        onReset={() => setPinError(undefined)}
         open={modalOpen}
         title="Unlock your seed"
         description={`Enter your secret PIN to send ${amount} ${balance?.ticker}.`}

@@ -25,6 +25,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import PinModal from '../../components/PinModal';
 import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
+import { addErrorToast } from '../../redux/actions/toastActions';
 
 const Settings: React.FC<any> = ({ history }) => {
   const { explorerUrl, theme } = useSelector((state: any) => ({
@@ -34,7 +35,6 @@ const Settings: React.FC<any> = ({ history }) => {
   const [showExplorerModal, setShowExplorerModal] = useState(false);
   const [explorerValue, setExplorerValue] = useState(explorerUrl);
   const [modalOpen, setModalOpen] = useState(false);
-  const [pinError, setPinError] = useState<string>();
 
   const dispatch = useDispatch();
   const handleExplorerChange = (e: any) => {
@@ -55,7 +55,7 @@ const Settings: React.FC<any> = ({ history }) => {
         setModalOpen(false);
       })
       .catch((e) => {
-        setPinError(e);
+        dispatch(addErrorToast(e));
         console.error(e);
       });
   };
@@ -63,8 +63,6 @@ const Settings: React.FC<any> = ({ history }) => {
   return (
     <IonPage>
       <PinModal
-        error={pinError}
-        onReset={() => setPinError(undefined)}
         open={modalOpen}
         title="Unlock your seed"
         description="Enter your secret PIN to unlock your wallet."

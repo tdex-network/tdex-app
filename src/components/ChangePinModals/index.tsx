@@ -1,6 +1,15 @@
+import { IonLoading } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import PinModal from '../../components/PinModal';
-import { changePin } from '../../utils/storage-helper';
+import {
+  addErrorToast,
+  addSuccessToast,
+} from '../../redux/actions/toastActions';
+import {
+  changePin,
+  getMnemonicFromSecureStorage,
+} from '../../utils/storage-helper';
 
 interface ChangePinModalsProps {
   open: boolean;
@@ -14,8 +23,16 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
   onClose,
 }) => {
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
+  const [loading, setLoading] = useState(false);
   const [pin, setPin] = useState('');
-  const [pinError, setPinError] = useState<string>();
+  const dispatch = useDispatch();
+
+  const onError = (e: any) => {
+    console.error(e);
+    dispatch(addErrorToast(e));
+    setPin('');
+    onClose();
+  };
 
   useEffect(() => {
     if (!modalOpen && open) {
@@ -29,30 +46,36 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
   }, [open]);
 
   const onFirstPinConfirm = (firstPin: string) => {
-    setPinError(undefined);
-    setPin(firstPin);
-    setModalOpen('second');
+    setLoading(true);
+    getMnemonicFromSecureStorage(firstPin)
+      .then(() => {
+        setPin(firstPin);
+        setModalOpen('second');
+      })
+      .catch(onError)
+      .finally(() => setLoading(false));
   };
 
   const onSecondPinConfirm = (secondPin: string) => {
+    setLoading(true);
     changePin(pin, secondPin)
-      .then(onDeleted)
-      .catch((e) => {
-        setPinError(e);
-        console.error(e);
-      });
+      .then(() => {
+        dispatch(addSuccessToast('PIN has been changed.'));
+        onDeleted();
+      })
+      .catch(onError)
+      .finally(() => setLoading(false));
   };
 
   return (
     <div>
+      <IonLoading isOpen={loading} />
       <PinModal
         open={modalOpen === 'first'}
         title="Unlock wallet"
         description="Enter your current PIN."
         onConfirm={onFirstPinConfirm}
         onClose={onClose}
-        error={pinError}
-        onReset={() => setPinError(undefined)}
       />
       <PinModal
         open={modalOpen === 'second'}
@@ -60,8 +83,6 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
         description="Set up the new PIN."
         onConfirm={onSecondPinConfirm}
         onClose={onClose}
-        error={pinError}
-        onReset={() => setPinError(undefined)}
       />
     </div>
   );

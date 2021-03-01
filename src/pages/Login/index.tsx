@@ -18,6 +18,10 @@ import * as bip39 from 'bip39';
 import { signIn } from '../../redux/actions/appActions';
 import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
 import PinModal from '../../components/PinModal';
+import {
+  addErrorToast,
+  addSuccessToast,
+} from '../../redux/actions/toastActions';
 
 const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
@@ -25,7 +29,6 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [pin, setPin] = useState<string>();
-  const [pinError, setPinError] = useState<string>();
 
   const onConfirm = async () => {
     if (acceptTerms) setModalOpen('first');
@@ -36,6 +39,13 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
     setModalOpen('second');
   };
 
+  const onError = (e: string) => {
+    dispatch(addErrorToast(e));
+    console.error(e);
+    setModalOpen(undefined);
+    setPin(undefined);
+  };
+
   const onSecondPinConfirm = (newPin: string) => {
     if (newPin === pin) {
       setLoading(true);
@@ -43,20 +53,17 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
       setMnemonicInSecureStorage(generatedMnemonic, pin)
         .then((isStored) => {
           if (!isStored) throw new Error('unknow error for secure storage');
+          dispatch(
+            addSuccessToast('Mnemonic generated and encrypted with your PIN.')
+          );
           dispatch(signIn(pin));
           history.push('/wallet');
         })
-        .catch((e) => {
-          setPinError(e);
-          console.error(e);
-        })
+        .catch(onError)
         .finally(() => setLoading(false));
       return;
     }
-
-    // TODO handle error correctly in PinModal
-    console.error('pin do not match');
-    setPinError('pin do not match');
+    onError('PINs do not match.');
   };
 
   const cancelSecondModal = () => {
@@ -68,8 +75,6 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
     <IonPage>
       <IonLoading isOpen={loading} />
       <PinModal
-        error={pinError}
-        onReset={() => setPinError(undefined)}
         open={modalOpen === 'first'}
         title="Set your secret PIN"
         description="Enter a 6-digit secret PIN to secure your wallet's seed."
@@ -80,8 +85,6 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
         }}
       />
       <PinModal
-        error={pinError}
-        onReset={() => setPinError(undefined)}
         open={modalOpen === 'second'}
         title="Repeat your secret PIN"
         description="Confirm your secret PIN."
