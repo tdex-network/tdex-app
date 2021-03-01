@@ -1,7 +1,4 @@
 import { Assets, defaultPrecision } from './constants';
-import { TxDisplayInterface, TxTypeEnum } from './types';
-import { address as liquidAddress, networks } from 'liquidjs-lib';
-import { network } from '../redux/config';
 
 export const getEdgeAsset = (asset_id: string) => {
   return Object.values(Assets).find((item: any) => item.assetHash === asset_id);
@@ -60,90 +57,6 @@ export function formatPriceString(price: string | number): string {
         : `${ch}${res}`;
     }, '') + `,${decimals.replace('0.', '')}`
   );
-}
-
-export function getDataFromTx(
-  vin: Array<any>,
-  vout: Array<any>
-): Partial<TxDisplayInterface> {
-  let amount = 0,
-    asset = '',
-    address = '',
-    type: any,
-    sign: any,
-    vinAmount: any,
-    voutAmount: any,
-    fee: any;
-  const assets: any = new Set();
-
-  vin.forEach((item) => {
-    if (item.prevout.asset && item.prevout.script) {
-      assets.add(item.prevout.asset);
-    }
-  });
-
-  vout.forEach((item, idx) => {
-    if (item.asset && item.script) {
-      assets.add(item.asset);
-    } else if (item.asset && !item.script) {
-      fee = item.asset;
-    }
-  });
-  if (fee && assets.size > 1 && assets.has(fee)) {
-    assets.delete(fee);
-  }
-
-  vin.forEach((item) => {
-    if (
-      item.prevout.asset &&
-      item.prevout.script &&
-      assets.has(item.prevout.asset)
-    ) {
-      assets.add(item.prevout.asset);
-      type = TxTypeEnum.Withdraw;
-      asset = item.prevout.asset;
-      try {
-        address = liquidAddress.fromOutputScript(
-          Buffer.from(item.prevout.script, 'hex'),
-          (networks as any)[network.chain]
-        );
-      } catch (e) {
-        address = 'unknown';
-      }
-      vinAmount = vinAmount
-        ? Number(vinAmount) + Number(item.prevout.value)
-        : item.prevout.value;
-      sign = '-';
-    }
-  });
-  vout.forEach((item) => {
-    if (item.asset && item.script && assets.has(item.asset)) {
-      if (item.asset === asset || !asset) {
-        type = type ?? TxTypeEnum.Deposit;
-        asset = item.asset;
-        address = liquidAddress.fromOutputScript(
-          Buffer.from(item.script, 'hex'),
-          (networks as any)[network.chain]
-        );
-        voutAmount = voutAmount
-          ? Number(voutAmount) + Number(item.value)
-          : item.value;
-        sign = sign ?? '+';
-      }
-    }
-  });
-  amount = vinAmount
-    ? voutAmount
-      ? vinAmount - voutAmount
-      : vinAmount
-    : voutAmount;
-  return {
-    amount,
-    asset,
-    address,
-    type,
-    sign,
-  };
 }
 
 export function groupBy(xs: Array<any>, key: string) {

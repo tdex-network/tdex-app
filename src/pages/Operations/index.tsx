@@ -13,6 +13,7 @@ import {
   IonText,
   IonRefresher,
   IonRefresherContent,
+  IonIcon,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { withRouter, RouteComponentProps, useParams } from 'react-router';
@@ -21,55 +22,39 @@ import { CurrencyIcon, IconBack, TxIcon } from '../../components/icons';
 import './style.scss';
 import { useDispatch, useSelector } from 'react-redux';
 import { TxDisplayInterface, TxStatusEnum } from '../../utils/types';
-import { formatPriceString, fromSatoshi } from '../../utils/helpers';
-import { chevronDownCircleOutline } from 'ionicons/icons';
+import { fromSatoshi } from '../../utils/helpers';
+import { checkmarkSharp, chevronDownCircleOutline } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { updateTransactions } from '../../redux/actions/transactionsActions';
+import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
 
 const txTypes = ['deposit', 'withdrawal', 'swap', 'trade'];
 const statusText = {
-  confirmed: 'completed',
+  confirmed: 'confirmed',
   pending: 'pending',
 };
 
 interface OperationsProps extends RouteComponentProps {
   balances: BalanceInterface[];
   prices: Record<string, number>;
-  transactionsByAsset: Record<string, TxDisplayInterface[]>;
 }
 
 const Operations: React.FC<OperationsProps> = ({
   balances,
   prices,
-  transactionsByAsset,
   history,
 }) => {
   const { asset_id } = useParams<{ asset_id: string }>();
   const [balance, setBalance] = useState<BalanceInterface>();
-  const [fiat, setFiat] = useState<number>();
+  const [opened, setOpened] = useState<string[]>([]);
+
   const currency = useSelector((state: any) => state.settings.currency);
-  const [transactionsToDisplay, setTransactionsToDisplay] = useState<
-    TxDisplayInterface[]
-  >([]);
+  const transactionsToDisplay = useSelector(
+    transactionsByAssetSelector(asset_id)
+  );
 
   const dispatch = useDispatch();
-
-  // effect for fiat equivalent
-  useEffect(() => {
-    if (balance && balance.coinGeckoID) {
-      dispatch(updateTransactions());
-      const p = prices[balance.coinGeckoID];
-      if (!p) {
-        setFiat(undefined);
-        return;
-      }
-      setFiat(p * fromSatoshi(balance.amount));
-      return;
-    }
-
-    setFiat(undefined);
-  }, [prices, balances]);
 
   // effect to select the balance
   useEffect(() => {
@@ -79,34 +64,25 @@ const Operations: React.FC<OperationsProps> = ({
     }
   }, [balances]);
 
-  useEffect(() => {
-    if (balance && transactionsByAsset && transactionsByAsset[asset_id]) {
-      const txs = transactionsByAsset[asset_id].map(
-        (tx: TxDisplayInterface) => {
-          let priceEquivalent = '??';
-          if (prices && balance.coinGeckoID && prices[balance.coinGeckoID]) {
-            priceEquivalent = formatPriceString(
-              prices[balance.coinGeckoID] * fromSatoshi(tx.amount)
-            );
-          }
-
-          return {
-            ...tx,
-            priceEquivalent,
-            ticker: balance.ticker,
-          };
-        }
-      );
-
-      setTransactionsToDisplay(txs);
+  const open = (txID: string) => setOpened([...opened, txID]);
+  const close = (txID: string) => setOpened(opened.filter((id) => id !== txID));
+  const isOpen = (txID: string) => opened.includes(txID);
+  const onclickTx = (txID: string) => {
+    if (isOpen(txID)) {
+      close(txID);
+      return;
     }
-  }, [transactionsByAsset, balance, prices]);
+    open(txID);
+  };
 
   const renderStatusText: any = (status: string) => {
     switch (status) {
       case TxStatusEnum.Confirmed:
         return (
-          <span className="status-text confirmed">{statusText[status]}</span>
+          <span className="status-text confirmed">
+            <IonIcon icon={checkmarkSharp} />
+            {' ' + statusText[status]}
+          </span>
         );
       case TxStatusEnum.Pending:
         return (
@@ -146,12 +122,17 @@ const Operations: React.FC<OperationsProps> = ({
               {balance && <CurrencyIcon currency={balance?.ticker} />}
             </div>
             <p className="info-amount">
-              {balance && fromSatoshi(balance?.amount).toFixed(2)}
+              {balance && fromSatoshi(balance?.amount).toFixed(8)}
               <span>{balance?.ticker}</span>
             </p>
-            <p className="info-amount-converted">
-              {fiat || '??'} {currency.toUpperCase()}
-            </p>
+            {balance && balance.coinGeckoID && prices[balance.coinGeckoID] && (
+              <p className="info-amount-converted">
+                {(
+                  fromSatoshi(balance.amount) * prices[balance.coinGeckoID]
+                ).toFixed(2)}{' '}
+                {currency.toUpperCase()}
+              </p>
+            )}
           </div>
           <IonButtons className="operations-buttons">
             <IonButton className="coin-action-button" routerLink="/receive">
@@ -172,64 +153,70 @@ const Operations: React.FC<OperationsProps> = ({
         </IonHeader>
         <IonList>
           <IonListHeader>Transactions</IonListHeader>
-          {transactionsToDisplay.map((tx: any, index: number) => (
-            <IonItem
-              key={index}
-              // onClick={() => toggleTxOpen(index)}
-              className={classNames('list-item transaction-item', {
-                open: tx.open,
-              })}
-            >
-              <div className="info-wrapper">
-                <div className="item-main-info">
-                  <div className="item-start">
-                    <div className="icon-wrapper">
-                      <TxIcon type={tx.type} />
+          {balance &&
+            transactionsToDisplay.map(
+              (tx: TxDisplayInterface, index: number) => {
+                const transfer = tx.transfers.find((t) => t.asset === asset_id);
+                return (
+                  <IonItem
+                    onClick={() => onclickTx(tx.txId)}
+                    key={index}
+                    className={classNames('list-item transaction-item', {
+                      open: isOpen(tx.txId),
+                    })}
+                  >
+                    <div className="info-wrapper">
+                      <div className="item-main-info">
+                        <div className="item-start">
+                          <div className="icon-wrapper">
+                            <TxIcon type={tx.type} />
+                          </div>
+                          <div className="item-name">
+                            <div className="main-row">
+                              {`${balance.ticker} ${txTypes[tx.type - 1]}`}
+                            </div>
+                            <div className="sub-row">
+                              {isOpen(tx.txId) ? tx.time : tx.date}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="item-end">
+                          <div className="amount">
+                            <div className="main-row">
+                              {transfer ? fromSatoshi(transfer.amount) : '0.00'}
+                            </div>
+                            <div className="main-row accent">
+                              {balance.ticker}
+                            </div>
+                          </div>
+                          {transfer && balance.coinGeckoID && (
+                            <div className="sub-row ta-end">
+                              {(
+                                fromSatoshi(transfer.amount) *
+                                prices[balance.coinGeckoID]
+                              ).toFixed(2)}{' '}
+                              {currency.toUpperCase()}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="sub-info">
+                        <div className="fee-row">
+                          <IonLabel>
+                            Fee <span className="amount">{tx.fee} LBTC</span>
+                          </IonLabel>
+                          <IonText>{renderStatusText(tx.status)}</IonText>
+                        </div>
+                        <div className="info-row">
+                          <IonLabel>TxID</IonLabel>
+                          <IonText>{tx.txId}</IonText>
+                        </div>
+                      </div>
                     </div>
-                    <div className="item-name">
-                      <div className="main-row">
-                        {tx.ticker} {txTypes[tx.type - 1]}
-                      </div>
-                      <div className="sub-row">
-                        {tx.open ? tx.time : tx.date}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="item-end">
-                    <div className="amount">
-                      <div className="main-row">
-                        {tx.sign}
-                        {tx.amountDisplayFormatted}
-                      </div>
-                      <div className="main-row accent">{tx.ticker}</div>
-                    </div>
-                    {tx.priceEquivalent && (
-                      <div className="sub-row ta-end">
-                        {tx.sign}
-                        {tx.priceEquivalent} {currency.toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="sub-info">
-                  <div className="fee-row">
-                    <IonLabel>
-                      Fee <span className="amount">{tx.fee}</span>
-                    </IonLabel>
-                    <IonText>{renderStatusText(tx.status)}</IonText>
-                  </div>
-                  <div className="info-row">
-                    <IonLabel>ADDR</IonLabel>
-                    <IonText>{tx.address}</IonText>
-                  </div>
-                  <div className="info-row">
-                    <IonLabel>TxID</IonLabel>
-                    <IonText>{tx.txId}</IonText>
-                  </div>
-                </div>
-              </div>
-            </IonItem>
-          ))}
+                  </IonItem>
+                );
+              }
+            )}
         </IonList>
       </IonContent>
     </IonPage>
