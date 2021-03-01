@@ -89,8 +89,12 @@ export function toDisplayTransaction(
   const transfers = getTransfers(tx.vin, tx.vout, walletScripts);
   return {
     txId: tx.txid,
-    time: moment(tx.status.blockTime).format('DD MMM YYYY hh:mm:ss'),
-    date: moment(tx.status.blockTime).format('DD MMM YYYY'),
+    time: tx.status.blockTime
+      ? moment(tx.status.blockTime * 1000).format('DD MMM YYYY hh:mm:ss')
+      : 'unknow',
+    date: tx.status.blockTime
+      ? moment(tx.status.blockTime * 1000).format('DD MMM YYYY')
+      : 'unknow',
     status: tx.status.confirmed ? TxStatusEnum.Confirmed : TxStatusEnum.Pending,
     fee: tx.fee,
     transfers,

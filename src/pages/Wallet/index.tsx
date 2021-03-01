@@ -134,7 +134,9 @@ const Wallet: React.FC<WalletProps> = ({
             <div className="header-info wallet">
               <p className="info-heading">Total balance</p>
               <p className="info-amount" aria-label="main-balance">
-                {LBTCBalance ? fromSatoshiFixed(LBTCBalance.amount) : '0.00'}
+                {LBTCBalance
+                  ? fromSatoshiFixed(LBTCBalance.amount, 8, 8)
+                  : '0.00'}
                 <span>LBTC</span>
               </p>
               <p className="info-amount-converted">

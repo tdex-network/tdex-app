@@ -203,13 +203,15 @@ const Operations: React.FC<OperationsProps> = ({
                       <div className="sub-info">
                         <div className="fee-row">
                           <IonLabel>
-                            Fee <span className="amount">{tx.fee} LBTC</span>
+                            Fee{' '}
+                            <span className="amount">
+                              {fromSatoshi(tx.fee).toFixed(8)} LBTC
+                            </span>
                           </IonLabel>
                           <IonText>{renderStatusText(tx.status)}</IonText>
                         </div>
-                        <div className="info-row">
-                          <IonLabel>TxID</IonLabel>
-                          <IonText>{tx.txId}</IonText>
+                        <div className="info-row ion-text-wrap">
+                          TxID {tx.txId}
                         </div>
                       </div>
                     </div>
