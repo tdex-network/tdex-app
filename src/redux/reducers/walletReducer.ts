@@ -103,7 +103,7 @@ function balancesFromUtxos(utxos: UtxoInterface[]): BalanceInterface[] {
     const utxosForAsset = utxosGroupedByAsset[asset];
     const amount = sumUtxos(utxosForAsset);
 
-    let ticker: string = asset.slice(0, 4);
+    let ticker: string = asset.slice(0, 4).toUpperCase();
     let coinGeckoID = undefined;
     const assetData = Object.values(Assets).find((a) => a.assetHash === asset);
     if (assetData) {
