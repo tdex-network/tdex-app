@@ -33,7 +33,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
 
   const onConfirmPinModal = (pin: string) => {
     setPinModalIsOpen(false);
-    setLoadingMessage('Try to decrypt your seed...');
+    setLoadingMessage('Unlocking wallet...');
     setLoading(true);
     getIdentity(pin)
       .then(() => {

@@ -19,9 +19,11 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   onAmountChange,
 }) => {
   const currency = useSelector((state: any) => state.settings.currency);
-  const [residualBalance, setResidualBalance] = useState(balance.amount);
+  const [residualBalance, setResidualBalance] = useState<string>(
+    fromSatoshi(balance.amount).toFixed(8)
+  );
   const [inputAmount, setInputAmount] = useState(0);
-  const [fiat, setFiat] = useState<number | string>('??');
+  const [fiat, setFiat] = useState<string>('0.00');
 
   const dispatch = useDispatch();
 
@@ -31,8 +33,8 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
 
   const reset = () => {
     setInputAmount(0);
-    setResidualBalance(fromSatoshi(balance.amount));
-    if (price) setFiat(0);
+    setResidualBalance(fromSatoshi(balance.amount).toFixed(8));
+    if (price) setFiat('0.00');
     onAmountChange(undefined);
   };
 
@@ -43,9 +45,10 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
     }
 
     const val = parseFloat(value);
+    const residualAmount = fromSatoshi(balance.amount) - val;
     setInputAmount(val);
-    setResidualBalance(fromSatoshi(balance.amount) - val);
-    if (price) setFiat(val * price);
+    setResidualBalance(residualAmount.toFixed(8));
+    if (price) setFiat((val * price).toFixed(2));
     onAmountChange(val);
   };
 
@@ -78,9 +81,11 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
           </p>
         </div>
         <div>
-          <p>
-            {fiat} {currency && currency.toUpperCase()}
-          </p>
+          {price && (
+            <p>
+              {fiat} {currency && currency.toUpperCase()}
+            </p>
+          )}
         </div>
       </div>
     </div>
