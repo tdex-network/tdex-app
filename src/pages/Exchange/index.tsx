@@ -124,13 +124,16 @@ const Exchange: React.FC<ExchangeProps> = ({
       );
 
       dispatch(setAddresses(identityAddresses));
-      setTimeout(() => dispatch(addSuccessToast(txid)), 200);
-      dispatch(updateUtxos());
-      dispatch(updateTransactions());
+      addSuccessToast('Trade successfully computed');
+      setTimeout(() => {
+        dispatch(updateUtxos());
+        dispatch(updateTransactions());
+        history.push(`/tradesummary/${txid}`);
+      }, 2000);
     } catch (e) {
       dispatch(addErrorToast(e));
     } finally {
-      setLoading(false);
+      setTimeout(() => setLoading(false), 1500);
     }
   };
 

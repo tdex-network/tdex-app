@@ -29,7 +29,7 @@
   flex: 1;
   .name {
     font-size: 24px;
-    font-family: "DMSans";
+    font-family: 'DMSans';
     display: flex;
     align-items: center;
     .icon-wrapper {
@@ -38,7 +38,7 @@
     }
   }
   .trade-price {
-    font-family: "DMMono";
+    font-family: 'DMMono';
     font-size: 18px;
     margin-top: 2px;
   }
@@ -52,7 +52,7 @@
   color: rgb(198, 198, 198);
   .transaction-info-date {
     font-size: 10px;
-    font-family: "DMMono-Medium";
+    font-family: 'DMMono-Medium';
     display: flex;
     justify-content: space-between;
     margin-bottom: 8px;
@@ -96,4 +96,8 @@
       --background: #fff;
     }
   }
+}
+
+.second {
+  transform: translate(-15px) rotate(25deg) scale(1.1);
 }

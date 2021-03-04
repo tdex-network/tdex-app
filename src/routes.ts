@@ -15,7 +15,7 @@ export const routerLinks = {
   wallet: '/wallet',
   exchange: '/exchange',
   settings: '/settings',
-  tradeSummary: '/tradesummary',
+  tradeSummary: '/tradesummary/:txid',
   history: '/history',
   operations: '/operations/:asset_id',
   withdrawalDetails: '/withdraw/:asset_id/details',
