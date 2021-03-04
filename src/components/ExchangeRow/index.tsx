@@ -6,16 +6,8 @@ import { AssetWithTicker } from '../../redux/reducers/tdexReducer';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { fromSatoshi } from '../../utils/helpers';
 import { IonIcon, IonInput, IonSpinner } from '@ionic/react';
-import { useDispatch } from 'react-redux';
-import { addErrorToast } from '../../redux/actions/toastActions';
 import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
-import {
-  arrowDown,
-  arrowUp,
-  caretDown,
-  searchCircle,
-  searchSharp,
-} from 'ionicons/icons';
+import { caretDown, searchSharp } from 'ionicons/icons';
 
 interface ExchangeRowInterface {
   asset: AssetWithTicker;
@@ -42,10 +34,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   assets,
   setAsset,
 }) => {
-  const dispatch = useDispatch();
-
   const [balanceAmount, setBalanceAmount] = useState<number>();
-  const [isFocused, setIsFocused] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -86,10 +75,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
                   onChangeAmount(e.detail.value);
                 }
               }}
-              onIonFocus={(e) => setIsFocused(e.detail.returnValue)}
               readonly={readonly}
-              // onFocus={onFocus}
-              // onBlur={onBlur}
             />
           </div>
         </div>

@@ -12,6 +12,7 @@ import {
   IonAlert,
   IonText,
   IonIcon,
+  useIonViewWillEnter,
 } from '@ionic/react';
 import ExchangeRow from '../../redux/containers/exchangeRowCointainer';
 import classNames from 'classnames';
@@ -61,7 +62,15 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  useIonViewWillEnter(() => {
+    if (balances.length === 0 || markets.length === 0) {
+      dispatch(addErrorToast('no markets available'));
+      history.goBack();
+    }
+  });
+
   useEffect(() => {
+    if (balances.length === 0 || markets.length === 0) return;
     setTrades(allTrades(markets, assetSent.asset, assetReceived.asset));
   }, [assetSent, assetReceived, markets]);
 
@@ -83,11 +92,17 @@ const Exchange: React.FC<ExchangeProps> = ({
       return;
     }
 
+    if (parseFloat(newSentAmount) === 0) {
+      setSentAmount(newSentAmount);
+      setReceivedAmount(newSentAmount);
+      return;
+    }
+
     if (!assetSent) return;
     try {
       setIsUpdating(true);
       setSentAmount(amountGuard(newSentAmount));
-      const { amount, asset, trade } = await bestPrice(
+      const { amount, asset, trade: bestTrade } = await bestPrice(
         {
           amount: parseFloat(newSentAmount),
           asset: assetSent.asset,
@@ -96,7 +111,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       );
       // TODO check asset
       setReceivedAmount(amountGuard(fromSatoshiFixed(amount, 8, 8)));
-      setTrade(trade);
+      setTrade(bestTrade);
     } catch (e) {
       console.error(e);
       dispatch(addErrorToast(e.message || e));
@@ -140,15 +155,17 @@ const Exchange: React.FC<ExchangeProps> = ({
   return (
     <IonPage>
       <IonLoading isOpen={loading} />
-      <PinModal
-        open={modalOpen}
-        title="Unlock your seed"
-        description={`Enter your secret PIN to send ${sentAmount} ${assetSent.ticker} and receive ${receivedAmount} ${assetReceived.ticker}.`}
-        onConfirm={onPinConfirm}
-        onClose={() => {
-          setModalOpen(false);
-        }}
-      />
+      {assetSent && assetReceived && balances.length > 0 && markets.length > 0 && (
+        <PinModal
+          open={modalOpen}
+          title="Unlock your seed"
+          description={`Enter your secret PIN to send ${sentAmount} ${assetSent.ticker} and receive ${receivedAmount} ${assetReceived.ticker}.`}
+          onConfirm={onPinConfirm}
+          onClose={() => {
+            setModalOpen(false);
+          }}
+        />
+      )}
       <IonLoading
         cssClass="my-custom-class"
         isOpen={status == 'executing'}
@@ -166,7 +183,7 @@ const Exchange: React.FC<ExchangeProps> = ({
           <IonTitle>Exchange</IonTitle>
         </IonToolbar>
       </IonHeader>
-      {assetSent && assetReceived && (
+      {assetSent && assetReceived && balances.length > 0 && markets.length > 0 && (
         <IonContent className="exchange-content">
           <div className="exchange">
             <ExchangeRow

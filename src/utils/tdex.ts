@@ -1,5 +1,4 @@
 import { AddressInterface, IdentityOpts } from 'ldk';
-import { nextTick } from 'process';
 import { Trade, TraderClient, TradeType } from 'tdex-sdk';
 import { TDEXTrade, TDEXMarket } from './../redux/actionTypes/tdexActionTypes';
 import { toSatoshi } from './helpers';

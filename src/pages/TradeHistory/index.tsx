@@ -13,7 +13,6 @@ import {
   IonIcon,
   IonLabel,
   IonText,
-  IonVirtualScroll,
 } from '@ionic/react';
 import { IconBack, CurrencyIcon } from '../../components/icons';
 import { checkmarkOutline } from 'ionicons/icons';
@@ -72,8 +71,12 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
               (t) => t.amount > 0
             );
 
-            const tickerSent = tickerFromAssetHash(transferSent!.asset);
-            const tickerReceived = tickerFromAssetHash(transferReceived!.asset);
+            if (!transferReceived || !transferSent) {
+              return <IonItem key={transaction.txId}></IonItem>;
+            }
+
+            const tickerSent = tickerFromAssetHash(transferSent.asset);
+            const tickerReceived = tickerFromAssetHash(transferReceived.asset);
             return (
               <IonItem
                 className={classNames('list-item transaction-item', {
@@ -109,7 +112,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
                     <div className="item-end">
                       <div className="amount">
                         <div className="main-row">
-                          +{fromSatoshiFixed(transferReceived!.amount, 8, 8)}
+                          +{fromSatoshiFixed(transferReceived.amount, 8, 8)}
                         </div>
                         <div className="main-row accent">{tickerReceived}</div>
                       </div>
@@ -123,7 +126,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
                         <span className="amount">{transaction.fee} LBTC</span>
                       </IonLabel>
                       <IonText>
-                        {fromSatoshiFixed(transferSent!.amount)}{' '}
+                        {fromSatoshiFixed(transferSent.amount)}{' '}
                         <span className="currency">{' ' + tickerSent}</span>
                       </IonText>
                     </div>

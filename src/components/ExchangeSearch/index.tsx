@@ -1,5 +1,4 @@
-import React, { ChangeEvent, useCallback, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useState } from 'react';
 import {
   IonContent,
   IonList,
@@ -9,7 +8,7 @@ import {
   IonInput,
   IonIcon,
 } from '@ionic/react';
-import { IconSearch, IconClose, CurrencyIcon } from '../icons';
+import { CurrencyIcon } from '../icons';
 import './style.scss';
 import { AssetWithTicker } from '../../redux/reducers/tdexReducer';
 import { closeSharp, searchSharp } from 'ionicons/icons';

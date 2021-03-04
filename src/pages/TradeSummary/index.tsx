@@ -11,7 +11,7 @@ import {
   IonHeader,
   IonIcon,
 } from '@ionic/react';
-import { CurrencyIcon, IconExchange, IconBack } from '../../components/icons';
+import { CurrencyIcon, IconBack } from '../../components/icons';
 import './style.scss';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { tickerFromAssetHash } from '../../redux/reducers/walletReducer';

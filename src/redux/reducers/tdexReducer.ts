@@ -1,9 +1,5 @@
 import { Assets } from './../../utils/constants';
-import {
-  TDEXMarket,
-  TDEXProvider,
-  TDEXTrade,
-} from '../actionTypes/tdexActionTypes';
+import { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
 import { ActionType } from '../../utils/types';
 import { ADD_PROVIDER, SET_MARKETS } from '../actions/tdexActions';
 
