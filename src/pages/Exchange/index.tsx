@@ -224,6 +224,9 @@ const Exchange: React.FC<ExchangeProps> = ({
             >
               Confirm
             </IonButton>
+            <IonButton routerLink="/history" className="main-button secondary">
+              Go to trade history
+            </IonButton>
             {trade && (
               <IonText className="trade-info" color="light">
                 Market provided by:{' '}

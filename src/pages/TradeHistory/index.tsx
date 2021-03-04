@@ -1,5 +1,4 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { RouteComponentProps, withRouter } from 'react-router';
 import {
   IonPage,
@@ -14,18 +13,21 @@ import {
   IonIcon,
   IonLabel,
   IonText,
+  IonVirtualScroll,
 } from '@ionic/react';
 import { IconBack, CurrencyIcon } from '../../components/icons';
 import { checkmarkOutline } from 'ionicons/icons';
-import { formatAmount, formatDate } from '../../utils/helpers';
+import { fromSatoshiFixed } from '../../utils/helpers';
 import classNames from 'classnames';
 import './style.scss';
+import { TxDisplayInterface } from '../../utils/types';
+import { tickerFromAssetHash } from '../../redux/reducers/walletReducer';
 
-const TradeHistory: React.FC<RouteComponentProps> = ({ history }) => {
-  const transactions = useSelector(
-    (state: any) => state.exchange.trade.transactions
-  );
+interface TradeHistoryProps extends RouteComponentProps {
+  swaps: TxDisplayInterface[];
+}
 
+const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
   const renderStatus: any = (status: string) => {
     return status === 'pending' ? (
       <div className="status pending">
@@ -59,19 +61,28 @@ const TradeHistory: React.FC<RouteComponentProps> = ({ history }) => {
           <IonTitle>Trade history</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="trade-history">
+      <IonContent scrollY={true} className="trade-history">
         <IonList>
           <IonListHeader>Today</IonListHeader>
-          {transactions.map((transaction: any) => {
+          {swaps.map((transaction: TxDisplayInterface) => {
+            const transferSent = transaction.transfers.find(
+              (t) => t.amount < 0
+            );
+            const transferReceived = transaction.transfers.find(
+              (t) => t.amount > 0
+            );
+
+            const tickerSent = tickerFromAssetHash(transferSent!.asset);
+            const tickerReceived = tickerFromAssetHash(transferReceived!.asset);
             return (
               <IonItem
                 className={classNames('list-item transaction-item', {
                   open: true,
                 })}
                 onClick={() => {
-                  history.push(`/operations/${transaction.receivedAsset.id}`);
+                  history.push(`/tradesummary/${transaction.txId}`);
                 }}
-                key={transaction.txid}
+                key={transaction.txId}
               >
                 <div
                   // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
@@ -82,33 +93,25 @@ const TradeHistory: React.FC<RouteComponentProps> = ({ history }) => {
                     <div className="item-start">
                       <div className="swap-images">
                         <span className="icon-wrapper">
-                          <CurrencyIcon
-                            currency={transaction.sentAsset.ticker}
-                          />
+                          <CurrencyIcon currency={tickerSent} />
                         </span>
                         <span className="icon-wrapper with-border">
-                          <CurrencyIcon
-                            currency={transaction.receivedAsset.ticker}
-                          />
+                          <CurrencyIcon currency={tickerReceived} />
                         </span>
                       </div>
                       <div className="item-name">
                         <div className="main-row">
-                          {`${transaction.sentAsset.ticker} / ${transaction.receivedAsset.ticker}`}
+                          {`${tickerSent} / ${tickerReceived}`}
                         </div>
-                        <div className="sub-row">
-                          {formatDate(transaction.createdAt)}
-                        </div>
+                        <div className="sub-row">{transaction.date}</div>
                       </div>
                     </div>
                     <div className="item-end">
                       <div className="amount">
                         <div className="main-row">
-                          +{formatAmount(transaction.receivedAmount)}
+                          +{fromSatoshiFixed(transferReceived!.amount, 8, 8)}
                         </div>
-                        <div className="main-row accent">
-                          {transaction.receiveAsset}
-                        </div>
+                        <div className="main-row accent">{tickerReceived}</div>
                       </div>
                       {renderStatus(transaction.status)}
                     </div>
@@ -117,22 +120,16 @@ const TradeHistory: React.FC<RouteComponentProps> = ({ history }) => {
                     <div className="fee-row">
                       <IonLabel>
                         Fee{' '}
-                        <span className="amount">{transaction.fee.amount}</span>
+                        <span className="amount">{transaction.fee} LBTC</span>
                       </IonLabel>
                       <IonText>
-                        -{formatAmount(transaction.sentAmount)}{' '}
-                        <span className="currency">
-                          {transaction.sentAsset.ticker}
-                        </span>
+                        {fromSatoshiFixed(transferSent!.amount)}{' '}
+                        <span className="currency">{' ' + tickerSent}</span>
                       </IonText>
                     </div>
                     <div className="info-row">
-                      <IonLabel>ADDR</IonLabel>
-                      <IonText>{transaction.address}</IonText>
-                    </div>
-                    <div className="info-row">
                       <IonLabel>TxID</IonLabel>
-                      <IonText>{transaction.txid}</IonText>
+                      <IonText>{transaction.txId}</IonText>
                     </div>
                   </div>
                 </div>

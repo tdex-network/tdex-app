@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 import { TxInterface, AddressInterface, address } from 'ldk';
-import { ActionType } from '../../utils/types';
+import { ActionType, TxDisplayInterface, TxTypeEnum } from '../../utils/types';
 import { SET_TRANSACTION } from '../actions/transactionsActions';
 import { toDisplayTransaction } from '../transformers/transactionsTransformer';
 
@@ -57,5 +57,10 @@ export const transactionSelector = (txID: string) => (state: any) => {
   const txs = transactionsToDisplaySelector(state);
   return txs.find((tx) => tx.txId === txID);
 };
+
+export const tradeTransactionsSelector = createSelector(
+  transactionsToDisplaySelector,
+  (txs: TxDisplayInterface[]) => txs.filter((tx) => tx.type === TxTypeEnum.Swap)
+);
 
 export default transactionsReducer;

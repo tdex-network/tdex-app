@@ -74,7 +74,15 @@ export function txTypeFromTransfer(transfers: Transfer[]) {
     }
   }
 
-  return TxTypeEnum.Swap;
+  if (
+    transfers.length >= 2 &&
+    transfers.find((t) => t.amount < 0) &&
+    transfers.find((t) => t.amount > 0)
+  ) {
+    return TxTypeEnum.Swap;
+  }
+
+  return TxTypeEnum.Exchange;
 }
 
 /**

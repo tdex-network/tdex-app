@@ -44,18 +44,14 @@ const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
             <div className="transaction-icons">
               <span className="icon-wrapper large">
                 <CurrencyIcon
-                  currency={tickerFromAssetHash(
-                    transaction?.transfers[0].asset
-                  )}
+                  currency={tickerFromAssetHash(transaction.transfers[0].asset)}
                   width="45px"
                   height="45px"
                 />
               </span>
               <span className="icon-wrapper large second">
                 <CurrencyIcon
-                  currency={tickerFromAssetHash(
-                    transaction?.transfers[1].asset
-                  )}
+                  currency={tickerFromAssetHash(transaction.transfers[1].asset)}
                   width="45px"
                   height="45px"
                 />
@@ -69,14 +65,14 @@ const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
                       <span className="icon-wrapper medium">
                         <CurrencyIcon
                           currency={tickerFromAssetHash(
-                            transaction?.transfers[0].asset
+                            transaction.transfers[0].asset
                           )}
                           width="24px"
                           height="24px"
                         />
                       </span>
                       <p>
-                        {tickerFromAssetHash(transaction?.transfers[0].asset)}
+                        {tickerFromAssetHash(transaction.transfers[0].asset)}
                       </p>
                     </div>
                     <p className="trade-price">
@@ -91,14 +87,14 @@ const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
                       <span className="icon-wrapper medium">
                         <CurrencyIcon
                           currency={tickerFromAssetHash(
-                            transaction?.transfers[1].asset
+                            transaction.transfers[1].asset
                           )}
                           width="24px"
                           height="24px"
                         />
                       </span>
                       <p>
-                        {tickerFromAssetHash(transaction?.transfers[1].asset)}
+                        {tickerFromAssetHash(transaction.transfers[1].asset)}
                       </p>
                     </div>
                     <p className="trade-price">
