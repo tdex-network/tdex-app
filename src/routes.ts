@@ -1,5 +1,5 @@
 import { IconExchange, IconSettings, IconWallet } from './components/icons';
-import Exchange from './pages/Exchange';
+import Exchange from './redux/containers/exchangeContainer';
 import Operations from './redux/containers/operationsContainer';
 import QRScanner from './pages/QRScanner';
 import Receive from './pages/Receive';

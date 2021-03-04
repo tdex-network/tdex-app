@@ -1,3 +1,4 @@
+import { updateMarkets } from './../actions/tdexActions';
 import { setPublicKeys } from './../actions/walletActions';
 import { ActionType } from './../../utils/types';
 import { waitForRestore } from './../services/walletService';
@@ -10,8 +11,6 @@ import {
   SIGN_IN,
 } from '../actions/appActions';
 import { setAddresses, setIsAuth } from '../actions/walletActions';
-import { setProviderEndpoint } from '../actions/exchange/providerActions';
-import { provider } from '../config';
 import { restoreTheme } from '../actions/settingsActions';
 import { Mnemonic } from 'ldk';
 import { getIdentity } from '../../utils/storage-helper';
@@ -36,10 +35,8 @@ function* signInSaga(action: ActionType) {
     const addresses = identity.getAddresses();
     yield put(setAddresses(addresses));
 
-    yield all([
-      put(setIsAuth(true)),
-      put(setProviderEndpoint(provider.endpoint)),
-    ]);
+    yield all([put(setIsAuth(true))]);
+    yield put(updateMarkets());
   } catch (e) {
     yield put(initAppFail());
     console.error(e);

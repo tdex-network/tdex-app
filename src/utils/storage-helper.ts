@@ -84,11 +84,17 @@ export async function removeMnemonicFromSecureStorage(
 }
 
 export async function getIdentity(pin: string): Promise<Mnemonic> {
+  const opts = await getIdentityOpts(pin);
+  return new Mnemonic(opts);
+}
+
+export async function getIdentityOpts(pin: string): Promise<IdentityOpts> {
   const [mnemonic, cachedAddresses] = await Promise.all([
     getMnemonicFromSecureStorage(pin),
     getAddresses(),
   ]);
-  return new Mnemonic(prepareIdentityOpts(mnemonic, cachedAddresses));
+
+  return prepareIdentityOpts(mnemonic, cachedAddresses);
 }
 
 function prepareIdentityOpts(

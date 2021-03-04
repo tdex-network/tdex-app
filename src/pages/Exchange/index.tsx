@@ -1,14 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { RouteComponentProps } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
-import {
-  swapAssets,
-  resetTrade,
-} from '../../redux/actions/exchange/tradeActions';
-import {
-  executeTrade,
-  dismissTradeError,
-} from '../../redux/actions/exchange/providerActions';
 import {
   IonContent,
   IonHeader,
@@ -18,53 +10,142 @@ import {
   IonButton,
   IonLoading,
   IonAlert,
+  IonText,
+  IonIcon,
 } from '@ionic/react';
-import { IconSwap } from '../../components/icons';
-import ExchangeRow from '../../components/ExchangeRow';
-import ExchangeSearch from '../../components/ExchangeSearch';
+import ExchangeRow from '../../redux/containers/exchangeRowCointainer';
 import classNames from 'classnames';
 import './style.scss';
+import {
+  AssetWithTicker,
+  tradablesAssetsSelector,
+} from '../../redux/reducers/tdexReducer';
+import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import { allTrades, bestPrice, makeTrade } from '../../utils/tdex';
+import { amountGuard, fromSatoshiFixed, toSatoshi } from '../../utils/helpers';
+import {
+  addErrorToast,
+  addSuccessToast,
+} from '../../redux/actions/toastActions';
+import PinModal from '../../components/PinModal';
+import { getIdentityOpts } from '../../utils/storage-helper';
+import { setAddresses, updateUtxos } from '../../redux/actions/walletActions';
+import { updateTransactions } from '../../redux/actions/transactionsActions';
+import { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
+import { swapVerticalOutline } from 'ionicons/icons';
 
-const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
+interface ExchangeProps extends RouteComponentProps {
+  balances: BalanceInterface[];
+  explorerUrl: string;
+  markets: TDEXMarket[];
+}
+
+const Exchange: React.FC<ExchangeProps> = ({
+  history,
+  balances,
+  explorerUrl,
+  markets,
+}) => {
   const dispatch = useDispatch();
 
-  const { market, sendAmount, receiveAmount, status, error } = useSelector(
-    (state: any) => ({
-      market: state.exchange.trade.market,
-      sendAmount: state.exchange.trade.sendAmount,
-      receiveAmount: state.exchange.trade.receiveAmount,
-      status: state.exchange.provider.status,
-      error: state.exchange.provider.error,
-    })
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [assetSent, setAssetSent] = useState<AssetWithTicker>(balances[0]);
+  const tradableAssets = useSelector(tradablesAssetsSelector(assetSent.asset));
+  const [assetReceived, setAssetReceived] = useState<AssetWithTicker>(
+    tradableAssets[0]
   );
-
-  const [tradable, setTradable] = useState(false);
+  const [trades, setTrades] = useState<TDEXTrade[]>([]);
+  const [trade, setTrade] = useState<TDEXTrade>();
+  const [sentAmount, setSentAmount] = useState<string>();
+  const [receivedAmount, setReceivedAmount] = useState<string>();
+  const [modalOpen, setModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    setTradable(sendAmount > 0 && receiveAmount > 0);
-  }, [sendAmount, receiveAmount]);
+    setTrades(allTrades(markets, assetSent.asset, assetReceived.asset));
+  }, [assetSent, assetReceived, markets]);
 
-  useEffect(() => {
-    if (status == 'complete') {
-      dispatch(resetTrade());
-      history.push('/tradeSummary');
+  const onChangeReceived = async (
+    newReceivedAmount: string | null | undefined
+  ) => {
+    if (!newReceivedAmount) {
+      setSentAmount('');
+      setReceivedAmount('');
+      return;
     }
-  }, [status]);
+    setReceivedAmount(amountGuard(parseFloat(newReceivedAmount).toFixed(8)));
+  };
 
-  const swap = useCallback(() => {
-    dispatch(swapAssets());
-  }, []);
+  const onChangeSent = async (newSentAmount: string | null | undefined) => {
+    if (!newSentAmount) {
+      setSentAmount('');
+      setReceivedAmount('');
+      return;
+    }
 
-  const trade = useCallback(() => {
-    dispatch(executeTrade());
-  }, []);
+    if (!assetSent) return;
+    try {
+      setIsUpdating(true);
+      setSentAmount(amountGuard(newSentAmount));
+      const { amount, asset, trade } = await bestPrice(
+        {
+          amount: parseFloat(newSentAmount),
+          asset: assetSent.asset,
+        },
+        trades
+      );
+      // TODO check asset
+      setReceivedAmount(amountGuard(fromSatoshiFixed(amount, 8, 8)));
+      setTrade(trade);
+    } catch (e) {
+      console.error(e);
+      dispatch(addErrorToast(e.message || e));
+      setReceivedAmount('');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
-  const dismissError = useCallback(() => {
-    dispatch(dismissTradeError());
-  }, []);
+  const onConfirm = () => {
+    setModalOpen(true);
+  };
+
+  const onPinConfirm = async (pin: string) => {
+    try {
+      setModalOpen(false);
+      setLoading(true);
+      const identityOpts = await getIdentityOpts(pin);
+      if (!trade) return;
+      const { txid, identityAddresses } = await makeTrade(
+        trade,
+        { amount: toSatoshi(parseFloat(sentAmount!)), asset: assetSent.asset },
+        explorerUrl,
+        identityOpts
+      );
+
+      dispatch(setAddresses(identityAddresses));
+      setTimeout(() => dispatch(addSuccessToast(txid)), 200);
+      dispatch(updateUtxos());
+      dispatch(updateTransactions());
+    } catch (e) {
+      dispatch(addErrorToast(e));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <IonPage>
+      <IonLoading isOpen={loading} />
+      <PinModal
+        open={modalOpen}
+        title="Unlock your seed"
+        description={`Enter your secret PIN to send ${sentAmount} ${assetSent.ticker} and receive ${receivedAmount} ${assetReceived.ticker}.`}
+        onConfirm={onPinConfirm}
+        onClose={() => {
+          setModalOpen(false);
+        }}
+      />
       <IonLoading
         cssClass="my-custom-class"
         isOpen={status == 'executing'}
@@ -72,9 +153,8 @@ const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
       />
       <IonAlert
         isOpen={status == 'fail'}
-        onDidDismiss={dismissError}
+        // onDidDismiss={dismissError}
         header={'Trade failed'}
-        message={error}
         buttons={['OK']}
       />
       <div className="gradient-background"></div>
@@ -83,27 +163,73 @@ const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
           <IonTitle>Exchange</IonTitle>
         </IonToolbar>
       </IonHeader>
-      {market && (
+      {assetSent && assetReceived && (
         <IonContent className="exchange-content">
           <div className="exchange">
-            <div className="exchange-divider">
-              <IconSwap onClick={swap} />
+            <ExchangeRow
+              asset={assetSent}
+              amount={sentAmount}
+              onChangeAmount={onChangeSent}
+              readonly={false}
+              isUpdating={false}
+              assets={balances}
+              setAsset={setAssetSent}
+            />
+            <div
+              className={classNames([
+                'exchange-divider',
+                {
+                  disabled: !balances
+                    .map((b) => b.asset)
+                    .includes(assetReceived.asset),
+                },
+              ])}
+              onClick={() => {
+                if (!balances.map((b) => b.asset).includes(assetReceived.asset))
+                  return;
+
+                const firstAsset = { ...assetSent };
+                setAssetSent(assetReceived);
+                setAssetReceived(firstAsset);
+              }}
+            >
+              <IonIcon className="swap-btn" icon={swapVerticalOutline} />
             </div>
-            <ExchangeRow party="send" />
-            <ExchangeRow party="receive" />
+            <ExchangeRow
+              asset={assetReceived}
+              amount={receivedAmount}
+              onChangeAmount={onChangeReceived}
+              readonly={true}
+              isUpdating={isUpdating}
+              assets={tradableAssets}
+              setAsset={setAssetReceived}
+            />
           </div>
           <div className="buttons">
             <IonButton
               className={classNames('main-button', {
-                secondary: !tradable,
+                secondary: false,
               })}
-              onClick={trade}
-              disabled={!tradable}
+              onClick={onConfirm}
+              disabled={
+                !assetSent ||
+                !assetReceived ||
+                !sentAmount ||
+                !receivedAmount ||
+                loading
+              }
             >
               Confirm
             </IonButton>
+            {trade && (
+              <IonText className="trade-info" color="light">
+                Market provided by:{' '}
+                <span className="provider-info">
+                  {` ${trade.market.provider.name} - ${trade.market.provider.endpoint}`}
+                </span>
+              </IonText>
+            )}
           </div>
-          <ExchangeSearch />
         </IonContent>
       )}
     </IonPage>

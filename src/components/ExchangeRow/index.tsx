@@ -1,182 +1,129 @@
-import React, {
-  useEffect,
-  useState,
-  useCallback,
-  useRef,
-  ChangeEvent,
-} from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
-import {
-  setSendAmount,
-  setReceiveAmount,
-} from '../../redux/actions/exchange/tradeActions';
-import { estimatePrice } from '../../redux/actions/exchange/providerActions';
-import { showSearch } from '../../redux/actions/exchange/searchActions';
 import { CurrencyIcon } from '../icons';
-import { formatAmount, fromSatoshi } from '../../utils/helpers';
 import './style.scss';
+import { AssetWithTicker } from '../../redux/reducers/tdexReducer';
+import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import { fromSatoshi } from '../../utils/helpers';
+import { IonIcon, IonInput, IonSpinner } from '@ionic/react';
+import { useDispatch } from 'react-redux';
+import { addErrorToast } from '../../redux/actions/toastActions';
+import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
+import {
+  arrowDown,
+  arrowUp,
+  caretDown,
+  searchCircle,
+  searchSharp,
+} from 'ionicons/icons';
 
 interface ExchangeRowInterface {
-  party: string;
+  asset: AssetWithTicker;
+  balances: BalanceInterface[];
+  prices: Record<string, number>;
+  currency: string;
+  amount?: string;
+  onChangeAmount: (newAmount: string | null | undefined) => Promise<void>;
+  readonly: boolean;
+  isUpdating: boolean;
+  assets: AssetWithTicker[];
+  setAsset: (newAsset: AssetWithTicker) => void;
 }
 
-const ExchangeRow: React.FC<ExchangeRowInterface> = ({ party }) => {
-  const AMOUNT_FORMAT = /^\d{1,6}(\.\d{0,8})?$/;
-  const ESTIMATE_DELAY = 300;
-
+const ExchangeRow: React.FC<ExchangeRowInterface> = ({
+  asset,
+  prices,
+  balances,
+  amount,
+  onChangeAmount,
+  currency,
+  readonly,
+  isUpdating,
+  assets,
+  setAsset,
+}) => {
   const dispatch = useDispatch();
 
-  const {
-    assets,
-    walletAssets,
-    sendAsset,
-    receiveAsset,
-    sendAmount,
-    receiveAmount,
-    rates,
-  } = useSelector((state: any) => ({
-    assets: state.assets,
-    walletAssets: state.wallet.assets,
-    sendAsset: state.exchange.trade.sendAsset,
-    receiveAsset: state.exchange.trade.receiveAsset,
-    sendAmount: state.exchange.trade.sendAmount,
-    receiveAmount: state.exchange.trade.receiveAmount,
-    rates: state.rates,
-  }));
-
-  const [asset, setAsset] = useState({ ticker: '', name: '' });
-  const [balance, setBalance] = useState<number>(0);
-  const [amount, setAmount] = useState(0);
-  const [displayedAmount, setDisplayedAmount] = useState();
-  const [priceEquivalent, setPriceEquivalent] = useState();
-  const [amountInputValue, setAmountInputValue] = useState<any>('0');
-  const [focused, setFocused] = useState(false);
-  const [estimateTimer, setEstimateTimer] = useState<any>();
-
-  const amountInputRef: any = useRef(null);
+  const [balanceAmount, setBalanceAmount] = useState<number>();
+  const [isFocused, setIsFocused] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
-    const assetId = party == 'send' ? sendAsset : receiveAsset;
-    setAsset(assets.byId[assetId]);
-
-    setBalance(
-      fromSatoshi(
-        walletAssets?.find((x: any) => x.asset_id === assetId)?.amount || 0
-      )
-    );
-
-    setAmount(party == 'send' ? sendAmount : receiveAmount);
-    setPriceEquivalent(rates.byCurrency['eur']?.[asset.ticker.toLowerCase()]);
-  }, [
-    walletAssets,
-    rates,
-    asset,
-    assets,
-    sendAmount,
-    receiveAmount,
-    sendAsset,
-    receiveAsset,
-  ]);
-
-  useEffect(() => {
-    setDisplayedAmount(focused ? amountInputValue : formatAmount(amount));
-  }, [amount, amountInputValue, focused]);
-
-  const onClick = useCallback(() => {
-    amountInputRef.current.focus();
-  }, []);
-
-  const onChange = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const filteredValue = event.target.value
-        // empty amount
-        .replace(/^$/, '0')
-        // non-numeric charatcets
-        .replace(/[^\d.]/, '')
-        // leading zeros for decimal
-        .replace(/^0+\./, '0.')
-        // leading zeros for integer
-        .replace(/^0+(\d)/, '$1')
-        // multiple dots
-        .replace(/(\..*)\./, '$1');
-
-      setAmountInputValue(filteredValue);
-
-      if (AMOUNT_FORMAT.test(filteredValue)) {
-        const setAmountAction =
-          party === 'send' ? setSendAmount : setReceiveAmount;
-
-        const setCounterAction =
-          party === 'send' ? setReceiveAmount : setSendAmount;
-
-        const counterParty = party == 'send' ? 'receive' : 'send';
-
-        const timer = setTimeout(() => {
-          dispatch(estimatePrice(counterParty));
-        }, ESTIMATE_DELAY);
-
-        clearTimeout(estimateTimer);
-        setEstimateTimer(timer);
-
-        dispatch(setAmountAction(parseFloat(filteredValue)));
-        dispatch(setCounterAction(0));
-      }
-    },
-    [party]
-  );
-
-  const onFocus = useCallback(() => {
-    setAmountInputValue(amount);
-    setFocused(true);
-  }, [amount]);
-
-  const onBlur = useCallback(
-    (event: any) => {
-      setAmountInputValue(amount);
-      setFocused(false);
-    },
-    [amount]
-  );
+    setBalanceAmount(balances.find((b) => b.asset === asset.asset)?.amount);
+  }, [balances, asset]);
 
   return (
     <div className="exchange-coin-container">
       <div className="exchanger-row">
-        <div className="coin-name" onClick={() => dispatch(showSearch(party))}>
+        <div
+          className="coin-name"
+          onClick={() => {
+            setIsSearchOpen(true);
+            console.log('llll');
+          }}
+        >
           <span className="icon-wrapper medium">
-            <CurrencyIcon currency={asset.ticker || 'undefined'} />
+            <CurrencyIcon currency={asset.ticker} />
           </span>
           <p>{asset.ticker}</p>
+          <IonIcon
+            className="icon"
+            icon={isSearchOpen ? searchSharp : caretDown}
+          />
         </div>
         <div
           className={classNames('coin-amount', {
-            active: focused || amount > 0,
+            active: amount,
           })}
-          onClick={onClick}
         >
-          <p>{displayedAmount}</p>
-          <input
-            inputMode="decimal"
-            ref={amountInputRef}
-            value={amountInputValue}
-            onChange={onChange}
-            onFocus={onFocus}
-            onBlur={onBlur}
-          />
+          <div className="ion-text-end">
+            <IonInput
+              type="number"
+              value={amount}
+              placeholder="0.00"
+              onIonChange={(e) => {
+                if (!isUpdating) {
+                  onChangeAmount(e.detail.value);
+                }
+              }}
+              onIonFocus={(e) => setIsFocused(e.detail.returnValue)}
+              readonly={readonly}
+              // onFocus={onFocus}
+              // onBlur={onBlur}
+            />
+          </div>
         </div>
       </div>
       <div className="exchanger-row sub-row">
         <div>
-          <p>{`Total balance: ${balance} ${asset.ticker}`}</p>
+          {balanceAmount && (
+            <p>{`Total balance: ${fromSatoshi(balanceAmount).toFixed(8)} ${
+              asset.ticker
+            }`}</p>
+          )}
         </div>
-        {priceEquivalent && (
+        {amount && asset.coinGeckoID && prices[asset.coinGeckoID] && (
           <div>
             <p>
-              1 {asset.ticker} = {priceEquivalent} EUR
+              {(parseFloat(amount) * prices[asset.coinGeckoID]).toFixed(2)}{' '}
+              {currency.toUpperCase()}
             </p>
           </div>
         )}
       </div>
+      <div
+        className={classNames('spinner', 'ion-text-end', {
+          visible: isUpdating,
+        })}
+      >
+        <IonSpinner color="light" name="dots" />
+      </div>
+      <ExchangeSearch
+        assets={assets}
+        setAsset={setAsset}
+        isOpen={isSearchOpen}
+        close={() => setIsSearchOpen(false)}
+      />
     </div>
   );
 };

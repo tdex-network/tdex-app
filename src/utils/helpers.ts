@@ -69,3 +69,10 @@ export function groupBy(xs: Array<any>, key: string) {
 export function capitalizeFirstLetter(string: string): string {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+export function amountGuard(amount: string): string {
+  // TODO handle precision & max amount for altcoins ?
+  const regexp = new RegExp('\\d{0,8}(\\.)?\\d{0,8}');
+  const results = regexp.exec(amount);
+  return results && results.length > 0 ? results[0] : '';
+}
