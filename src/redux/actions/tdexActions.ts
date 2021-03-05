@@ -4,11 +4,16 @@ import { ActionType } from '../../utils/types';
 export const ADD_PROVIDER = 'ADD_PROVIDER_ENDPOINT';
 export const DELETE_PROVIDER = 'DELETE_PROVIDER';
 export const UPDATE_MARKETS = 'UPDATE_MARKETS';
-export const SET_MARKETS = 'SET_MARKETS';
+export const ADD_MARKETS = 'ADD_MARKETS';
+export const CLEAR_MARKETS = 'CLEAR_MARKETS';
 
-export const setMarkets = (markets: TDEXMarket[]): ActionType => {
+export const clearMarkets = (): ActionType => ({
+  type: CLEAR_MARKETS,
+});
+
+export const addMarkets = (markets: TDEXMarket[]): ActionType => {
   return {
-    type: SET_MARKETS,
+    type: ADD_MARKETS,
     payload: markets,
   };
 };

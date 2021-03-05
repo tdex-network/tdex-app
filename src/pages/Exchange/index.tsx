@@ -162,12 +162,6 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   return (
     <IonPage>
-      <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
-        <IonRefresherContent
-          pullingIcon={chevronDownCircleOutline}
-          refreshingSpinner="circles"
-        />
-      </IonRefresher>
       <IonLoading isOpen={loading} />
       {assetSent && assetReceived && balances.length > 0 && markets.length > 0 && (
         <PinModal
@@ -188,6 +182,12 @@ const Exchange: React.FC<ExchangeProps> = ({
       </IonHeader>
       {assetSent && assetReceived && balances.length > 0 && markets.length > 0 && (
         <IonContent className="exchange-content">
+          <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
+            <IonRefresherContent
+              pullingIcon={chevronDownCircleOutline}
+              refreshingSpinner="circles"
+            />
+          </IonRefresher>
           <div className="exchange">
             <ExchangeRow
               asset={assetSent}

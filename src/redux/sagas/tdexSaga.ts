@@ -1,35 +1,59 @@
+import { clearMarkets } from './../actions/tdexActions';
 import { TDEXState } from '../reducers/tdexReducer';
 import {
+  addMarkets,
   ADD_PROVIDER,
-  setMarkets,
-  updateMarkets,
   UPDATE_MARKETS,
 } from '../actions/tdexActions';
-import { put, takeLatest, select, call, all } from 'redux-saga/effects';
+import { put, takeLatest, select, call } from 'redux-saga/effects';
 import { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
 import { TraderClient, MarketInterface } from 'tdex-sdk';
 import { addErrorToast } from '../actions/toastActions';
 
 function* updateMarketsWithProvidersEndpoints() {
+  const providers: TDEXProvider[] = yield select(
+    ({ tdex }: { tdex: TDEXState }) => tdex.providers
+  );
+
+  let hasBeenReset = false;
+  for (const provider of providers) {
+    try {
+      const markets: TDEXMarket[] = yield call(
+        getMarketsFromProvider,
+        provider
+      );
+      if (markets.length > 0) {
+        if (!hasBeenReset) {
+          yield put(clearMarkets());
+          hasBeenReset = true;
+        }
+        yield put(addMarkets(markets));
+      }
+    } catch (e) {
+      yield put(addErrorToast(e.message || e));
+    }
+  }
+}
+
+function* fetchMarkets({
+  type,
+  payload,
+}: {
+  type: string;
+  payload: TDEXProvider;
+}) {
   try {
-    const providers: TDEXProvider[] = yield select(
-      ({ tdex }: { tdex: TDEXState }) => tdex.providers
-    );
-    const markets = ((yield all(
-      providers.map((provider) => call(getMarketsFromProvider, provider))
-    )) as TDEXMarket[][]).flat();
-    yield put(setMarkets(markets));
+    const markets = yield call(getMarketsFromProvider, payload);
+    if (markets.length > 0) {
+      yield put(addMarkets(markets));
+    }
   } catch (e) {
     yield put(addErrorToast(e.message || e));
   }
 }
 
-function* putUpdateMarkets() {
-  yield put(updateMarkets());
-}
-
 export function* tdexWatcherSaga() {
-  yield takeLatest(ADD_PROVIDER, putUpdateMarkets);
+  yield takeLatest(ADD_PROVIDER, fetchMarkets);
   yield takeLatest(UPDATE_MARKETS, updateMarketsWithProvidersEndpoints);
 }
 
