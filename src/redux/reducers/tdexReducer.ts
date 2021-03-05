@@ -10,9 +10,7 @@ export interface TDEXState {
 }
 
 const initialState: TDEXState = {
-  providers: [
-    { id: -1, name: 'regtest-dev', endpoint: 'http://localhost:9945' },
-  ],
+  providers: [],
   markets: [],
 };
 
