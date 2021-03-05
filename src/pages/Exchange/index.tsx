@@ -203,7 +203,11 @@ const Exchange: React.FC<ExchangeProps> = ({
               readonly={false}
               isUpdating={false}
               assets={balances}
-              setAsset={setAssetSent}
+              setAsset={(asset) => {
+                if (asset.asset === assetReceived.asset)
+                  setAssetReceived(assetSent);
+                setAssetSent(asset);
+              }}
             />
             <div
               className={classNames([
@@ -232,7 +236,11 @@ const Exchange: React.FC<ExchangeProps> = ({
               readonly={true}
               isUpdating={isUpdating}
               assets={tradableAssets}
-              setAsset={setAssetReceived}
+              setAsset={(asset) => {
+                if (asset.asset === assetSent.asset)
+                  setAssetSent(assetReceived);
+                setAssetReceived(asset);
+              }}
             />
           </div>
           <div className="buttons">
