@@ -1,5 +1,9 @@
 import { SIGN_IN } from './../actions/appActions';
-import { addProvider, clearMarkets } from './../actions/tdexActions';
+import {
+  addProvider,
+  clearMarkets,
+  DELETE_PROVIDER,
+} from './../actions/tdexActions';
 import { TDEXState } from '../reducers/tdexReducer';
 import {
   addMarkets,
@@ -78,6 +82,7 @@ function* persistProviders() {
 
 export function* tdexWatcherSaga() {
   yield takeLatest(ADD_PROVIDER, persistProviders);
+  yield takeLatest(DELETE_PROVIDER, persistProviders);
   yield takeLatest(ADD_PROVIDER, fetchMarkets);
   yield takeLatest(UPDATE_MARKETS, updateMarketsWithProvidersEndpoints);
   yield takeLatest(SIGN_IN, restoreProviders);

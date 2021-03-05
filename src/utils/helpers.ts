@@ -1,3 +1,4 @@
+import { fetchTxHex } from 'ldk';
 import { Assets, defaultPrecision } from './constants';
 
 export const getEdgeAsset = (asset_id: string) => {
@@ -75,4 +76,21 @@ export function amountGuard(amount: string): string {
   const regexp = new RegExp('\\d{0,8}(\\.)?\\d{0,8}');
   const results = regexp.exec(amount);
   return results && results.length > 0 ? results[0] : '';
+}
+
+export async function waitForTx(txid: string, explorerURL: string) {
+  let go = true;
+  while (go) {
+    try {
+      await fetchTxHex(txid, explorerURL);
+      go = false;
+    } catch (_) {
+      await sleep(300);
+      continue;
+    }
+  }
+}
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

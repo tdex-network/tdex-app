@@ -30,6 +30,7 @@ import {
   fromSatoshi,
   fromSatoshiFixed,
   toSatoshi,
+  waitForTx,
 } from '../../utils/helpers';
 import {
   addErrorToast,
@@ -146,11 +147,12 @@ const Exchange: React.FC<ExchangeProps> = ({
       );
 
       dispatch(setAddresses(identityAddresses));
+      await waitForTx(txid, explorerUrl);
       addSuccessToast('Trade successfully computed');
+      dispatch(update());
       setTimeout(() => {
-        dispatch(update());
         history.push(`/tradesummary/${txid}`);
-      }, 2000);
+      });
     } catch (e) {
       dispatch(addErrorToast(e));
     } finally {
