@@ -24,6 +24,9 @@ export async function bestPrice(
         }>).value
     );
 
+  if (results.length === 0)
+    throw new Error('Unable to preview price from providers.');
+
   const sorted = results.sort((p0, p1) => p0.amount - p1.amount);
   return sorted[0];
 }

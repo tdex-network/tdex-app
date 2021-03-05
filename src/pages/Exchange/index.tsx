@@ -75,6 +75,9 @@ const Exchange: React.FC<ExchangeProps> = ({
       dispatch(addErrorToast('no markets available'));
       history.goBack();
     }
+
+    setSentAmount(undefined);
+    setReceivedAmount(undefined);
   });
 
   useEffect(() => {
@@ -100,13 +103,17 @@ const Exchange: React.FC<ExchangeProps> = ({
       return;
     }
 
-    if (parseFloat(newSentAmount) === 0) {
+    if (parseFloat(newSentAmount) <= 0) {
       setSentAmount(newSentAmount);
       setReceivedAmount(newSentAmount);
       return;
     }
 
-    if (!assetSent) return;
+    if (!assetSent || trades.length === 0) return;
+    updateReceivedAmount(newSentAmount);
+  };
+
+  const updateReceivedAmount = async (newSentAmount: string) => {
     try {
       setIsUpdating(true);
       setSentAmount(amountGuard(newSentAmount));
