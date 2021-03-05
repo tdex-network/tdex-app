@@ -9,13 +9,15 @@ import {
   IonToolbar,
   IonButton,
   IonLoading,
-  IonAlert,
   IonText,
   IonIcon,
   useIonViewWillEnter,
+  IonRefresher,
+  IonRefresherContent,
 } from '@ionic/react';
 import ExchangeRow from '../../redux/containers/exchangeRowCointainer';
 import classNames from 'classnames';
+import { RefresherEventDetail } from '@ionic/core';
 import './style.scss';
 import {
   AssetWithTicker,
@@ -30,10 +32,10 @@ import {
 } from '../../redux/actions/toastActions';
 import PinModal from '../../components/PinModal';
 import { getIdentityOpts } from '../../utils/storage-helper';
-import { setAddresses, updateUtxos } from '../../redux/actions/walletActions';
-import { updateTransactions } from '../../redux/actions/transactionsActions';
+import { setAddresses } from '../../redux/actions/walletActions';
 import { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
-import { swapVerticalOutline } from 'ionicons/icons';
+import { chevronDownCircleOutline, swapVerticalOutline } from 'ionicons/icons';
+import { update } from '../../redux/actions/appActions';
 
 interface ExchangeProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -141,8 +143,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       dispatch(setAddresses(identityAddresses));
       addSuccessToast('Trade successfully computed');
       setTimeout(() => {
-        dispatch(updateUtxos());
-        dispatch(updateTransactions());
+        dispatch(update());
         history.push(`/tradesummary/${txid}`);
       }, 2000);
     } catch (e) {
@@ -152,8 +153,21 @@ const Exchange: React.FC<ExchangeProps> = ({
     }
   };
 
+  const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
+    dispatch(update());
+    setTimeout(() => {
+      event.detail.complete();
+    }, 2000);
+  };
+
   return (
     <IonPage>
+      <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
+        <IonRefresherContent
+          pullingIcon={chevronDownCircleOutline}
+          refreshingSpinner="circles"
+        />
+      </IonRefresher>
       <IonLoading isOpen={loading} />
       {assetSent && assetReceived && balances.length > 0 && markets.length > 0 && (
         <PinModal
@@ -166,17 +180,6 @@ const Exchange: React.FC<ExchangeProps> = ({
           }}
         />
       )}
-      <IonLoading
-        cssClass="my-custom-class"
-        isOpen={status == 'executing'}
-        message={'Please wait...'}
-      />
-      <IonAlert
-        isOpen={status == 'fail'}
-        // onDidDismiss={dismissError}
-        header={'Trade failed'}
-        buttons={['OK']}
-      />
       <div className="gradient-background"></div>
       <IonHeader className="exchange-header">
         <IonToolbar>

@@ -5,6 +5,13 @@ export const INIT_APP_SUCCESS = 'INIT_APP_SUCCESS';
 export const INIT_APP_FAIL = 'INIT_APP_FAIL';
 export const SET_SIGNED_UP = 'SET_SIGNED_UP';
 export const SIGN_IN = 'SIGN_IN';
+export const UPDATE = 'UPDATE';
+
+export const update = (): ActionType => {
+  return {
+    type: UPDATE,
+  };
+};
 
 export const initApp = (): ActionType => {
   return {

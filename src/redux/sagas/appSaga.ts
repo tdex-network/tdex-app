@@ -1,5 +1,5 @@
 import { updateMarkets } from './../actions/tdexActions';
-import { setPublicKeys } from './../actions/walletActions';
+import { setPublicKeys, updateUtxos } from './../actions/walletActions';
 import { ActionType } from './../../utils/types';
 import { waitForRestore } from './../services/walletService';
 import { takeLatest, put, call, all } from 'redux-saga/effects';
@@ -9,11 +9,14 @@ import {
   initAppSuccess,
   setSignedUp,
   SIGN_IN,
+  UPDATE,
 } from '../actions/appActions';
 import { setAddresses, setIsAuth } from '../actions/walletActions';
 import { restoreTheme } from '../actions/settingsActions';
 import { Mnemonic } from 'ldk';
 import { getIdentity } from '../../utils/storage-helper';
+import { updateTransactions } from '../actions/transactionsActions';
+import { updateRates } from '../actions/ratesActions';
 
 function* initAppSaga() {
   try {
@@ -43,7 +46,17 @@ function* signInSaga(action: ActionType) {
   }
 }
 
+function* updateState() {
+  yield all([
+    put(updateMarkets()),
+    put(updateTransactions()),
+    put(updateRates()),
+    put(updateUtxos()),
+  ]);
+}
+
 export function* appWatcherSaga() {
   yield takeLatest(INIT_APP, initAppSaga);
   yield takeLatest(SIGN_IN, signInSaga);
+  yield takeLatest(UPDATE, updateState);
 }

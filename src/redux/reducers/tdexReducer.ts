@@ -1,7 +1,11 @@
 import { Assets } from './../../utils/constants';
 import { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
 import { ActionType } from '../../utils/types';
-import { ADD_PROVIDER, SET_MARKETS } from '../actions/tdexActions';
+import {
+  ADD_PROVIDER,
+  DELETE_PROVIDER,
+  SET_MARKETS,
+} from '../actions/tdexActions';
 
 export interface TDEXState {
   providers: TDEXProvider[];
@@ -19,6 +23,11 @@ const TDEXReducer = (state: TDEXState = initialState, action: ActionType) => {
       return { ...state, providers: [...state.providers, action.payload] };
     case SET_MARKETS:
       return { ...state, markets: action.payload };
+    case DELETE_PROVIDER:
+      return {
+        ...state,
+        providers: state.providers.filter((p) => p.id !== action.payload.id),
+      };
     default:
       return state;
   }

@@ -10,6 +10,7 @@ import Wallet from './redux/containers/walletContainer';
 import Withdrawal from './redux/containers/withdrawalContainer';
 import WithdrawalDetails from './pages/WithdrawalDetails';
 import Account from './pages/Account';
+import LiquidityProviders from './redux/containers/liquidityProvidersContainer';
 
 export const routerLinks = {
   wallet: '/wallet',
@@ -23,6 +24,7 @@ export const routerLinks = {
   receive: '/receive',
   qrScanner: '/qrscanner',
   account: '/account/:pin',
+  liquidityProvider: '/liquidity-provider',
 };
 
 export const ROUTES = [
@@ -69,6 +71,10 @@ export const ROUTES = [
   {
     path: routerLinks.account,
     component: Account,
+  },
+  {
+    path: routerLinks.liquidityProvider,
+    component: LiquidityProviders,
   },
 ];
 
