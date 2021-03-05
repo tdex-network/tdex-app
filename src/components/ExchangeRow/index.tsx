@@ -48,7 +48,6 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           className="coin-name"
           onClick={() => {
             setIsSearchOpen(true);
-            console.log('llll');
           }}
         >
           <span className="icon-wrapper medium">

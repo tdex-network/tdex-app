@@ -25,7 +25,12 @@ import {
 } from '../../redux/reducers/tdexReducer';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { allTrades, bestPrice, makeTrade } from '../../utils/tdex';
-import { amountGuard, fromSatoshiFixed, toSatoshi } from '../../utils/helpers';
+import {
+  amountGuard,
+  fromSatoshi,
+  fromSatoshiFixed,
+  toSatoshi,
+} from '../../utils/helpers';
 import {
   addErrorToast,
   addSuccessToast,
@@ -239,7 +244,9 @@ const Exchange: React.FC<ExchangeProps> = ({
                 !assetReceived ||
                 !sentAmount ||
                 !receivedAmount ||
-                loading
+                loading ||
+                (balances.find((b) => b.asset === assetSent.asset)?.amount ||
+                  -1) < toSatoshi(parseFloat(sentAmount))
               }
             >
               Confirm
