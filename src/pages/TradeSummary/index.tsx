@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
 import {
@@ -10,6 +10,7 @@ import {
   IonToolbar,
   IonHeader,
   IonIcon,
+  IonSpinner,
 } from '@ionic/react';
 import { CurrencyIcon, IconBack } from '../../components/icons';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
@@ -23,9 +24,21 @@ const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();
   const transaction = useSelector(transactionSelector(txid));
+  const [intervalUpdater, setIntervalUpdater] = useState<NodeJS.Timeout>();
 
   useEffect(() => {
-    dispatch(update());
+    setIntervalUpdater(
+      setInterval(() => {
+        dispatch(update());
+      }, 3000)
+    );
+  }, []);
+
+  useEffect(() => {
+    if (transaction && intervalUpdater) {
+      clearInterval(intervalUpdater);
+      setIntervalUpdater(undefined);
+    }
   }, [transaction]);
 
   return (
@@ -45,7 +58,7 @@ const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="trade-summary">
-        {transaction && (
+        {transaction ? (
           <div>
             <div className="transaction-icons">
               <span className="icon-wrapper large">
@@ -128,6 +141,10 @@ const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
                 Go to trade history
               </IonButton>
             </div>
+          </div>
+        ) : (
+          <div className="align-center">
+            <IonSpinner color="light" />
           </div>
         )}
       </IonContent>
