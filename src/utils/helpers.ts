@@ -1,4 +1,4 @@
-import { fetchTxHex, fetchUtxos } from 'ldk';
+import { fetchTxHex } from 'ldk';
 import { tickerFromAssetHash } from '../redux/reducers/walletReducer';
 import { Assets, defaultPrecision } from './constants';
 
@@ -84,10 +84,10 @@ export async function waitForTx(txid: string, explorerURL: string) {
   let go = true;
   while (go) {
     try {
-      const tx = await fetchTxHex(txid, explorerURL);
+      await fetchTxHex(txid, explorerURL);
       go = false;
     } catch (_) {
-      await sleep(300);
+      await sleep(800);
       continue;
     }
   }

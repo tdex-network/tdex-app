@@ -1,8 +1,13 @@
 import { Assets } from './constants';
 import { AddressInterface, IdentityOpts } from 'ldk';
 import { Trade, TraderClient, TradeType } from 'tdex-sdk';
-import { TDEXTrade, TDEXMarket } from './../redux/actionTypes/tdexActionTypes';
+import {
+  TDEXTrade,
+  TDEXMarket,
+  TDEXProvider,
+} from './../redux/actionTypes/tdexActionTypes';
 import { toSatoshi } from './helpers';
+import axios from 'axios';
 
 export interface AssetWithTicker {
   asset: string;
@@ -158,4 +163,14 @@ export function getTradablesAssets(
   }
 
   return results;
+}
+
+const TDexRegistryURL =
+  'https://raw.githubusercontent.com/TDex-network/tdex-registry/master/registry.json';
+
+export async function getProvidersFromTDexRegistry(): Promise<TDEXProvider[]> {
+  const providers: TDEXProvider[] = JSON.parse(
+    (await axios.get(TDexRegistryURL)).data
+  );
+  return providers;
 }
