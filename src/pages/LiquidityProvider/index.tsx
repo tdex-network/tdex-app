@@ -7,7 +7,6 @@ import {
   IonIcon,
   IonInput,
   IonItem,
-  IonItemSliding,
   IonLabel,
   IonList,
   IonListHeader,
@@ -22,11 +21,8 @@ import { TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
 import { trash } from 'ionicons/icons';
 import './style.scss';
 import { useDispatch } from 'react-redux';
-import {
-  addProvider,
-  deleteProvider,
-  updateMarkets,
-} from '../../redux/actions/tdexActions';
+import { addProvider, deleteProvider } from '../../redux/actions/tdexActions';
+import { update } from '../../redux/actions/appActions';
 
 interface LiquidityProvidersProps extends RouteComponentProps {
   providers: TDEXProvider[];
@@ -53,7 +49,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
       handler: () => {
         if (providerToDelete) {
           dispatch(deleteProvider(providerToDelete));
-          dispatch(updateMarkets());
+          dispatch(update());
         }
       },
     },

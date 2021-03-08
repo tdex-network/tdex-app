@@ -13,7 +13,7 @@ import {
 import { put, takeLatest, select, call, delay } from 'redux-saga/effects';
 import { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
 import { TraderClient, MarketInterface } from 'tdex-sdk';
-import { addErrorToast, addSuccessToast } from '../actions/toastActions';
+import { addErrorToast } from '../actions/toastActions';
 import {
   getProvidersFromStorage,
   setProvidersInStorage,
@@ -24,24 +24,22 @@ function* updateMarketsWithProvidersEndpoints() {
     ({ tdex }: { tdex: TDEXState }) => tdex.providers
   );
 
-  let hasBeenReset = false;
+  const newMarkets: TDEXMarket[] = [];
   for (const provider of providers) {
     try {
       const markets: TDEXMarket[] = yield call(
         getMarketsFromProvider,
         provider
       );
-      if (markets.length > 0) {
-        if (!hasBeenReset) {
-          yield put(clearMarkets());
-          hasBeenReset = true;
-        }
-        yield put(addMarkets(markets));
-      }
+
+      newMarkets.push(...markets);
     } catch (e) {
       yield put(addErrorToast(e.message || e));
     }
   }
+
+  yield put(clearMarkets());
+  yield put(addMarkets(newMarkets));
 }
 
 function* fetchMarkets({

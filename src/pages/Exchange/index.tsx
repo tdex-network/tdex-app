@@ -27,13 +27,7 @@ import {
   makeTrade,
   getTradablesAssets,
 } from '../../utils/tdex';
-import {
-  amountGuard,
-  fromSatoshiFixed,
-  toSatoshi,
-  waitForTx,
-  sleep,
-} from '../../utils/helpers';
+import { amountGuard, fromSatoshiFixed, toSatoshi } from '../../utils/helpers';
 import {
   addErrorToast,
   addSuccessToast,

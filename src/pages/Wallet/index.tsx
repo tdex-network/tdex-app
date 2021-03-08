@@ -131,13 +131,13 @@ const Wallet: React.FC<WalletProps> = ({
                   : '0.00'}
                 <span>LBTC</span>
               </p>
-              <p className="info-amount-converted">
-                {LBTCBalance && fiats[LBTCBalanceIndex] > 0
-                  ? `${fiats[LBTCBalanceIndex]?.toFixed(
-                      2
-                    )} ${currency.toUpperCase()}`
-                  : 'loading...'}
-              </p>
+              {LBTCBalance && fiats[LBTCBalanceIndex] > 0 && (
+                <p className="info-amount-converted">
+                  {`${fiats[LBTCBalanceIndex]?.toFixed(
+                    2
+                  )} ${currency.toUpperCase()}`}
+                </p>
+              )}
             </div>
           </div>
         </IonHeader>
