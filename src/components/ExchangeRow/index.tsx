@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { CurrencyIcon } from '../icons';
 import './style.scss';
-import { AssetWithTicker } from '../../redux/reducers/tdexReducer';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { fromSatoshi } from '../../utils/helpers';
 import { IonIcon, IonInput, IonSpinner } from '@ionic/react';
 import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
 import { caretDown, searchSharp } from 'ionicons/icons';
+import { AssetWithTicker } from '../../utils/tdex';
 
 interface ExchangeRowInterface {
   asset: AssetWithTicker;
@@ -16,10 +16,10 @@ interface ExchangeRowInterface {
   currency: string;
   amount?: string;
   onChangeAmount: (newAmount: string | null | undefined) => Promise<void>;
-  readonly: boolean;
   isUpdating: boolean;
   assets: AssetWithTicker[];
   setAsset: (newAsset: AssetWithTicker) => void;
+  setFocused: () => void;
 }
 
 const ExchangeRow: React.FC<ExchangeRowInterface> = ({
@@ -29,10 +29,10 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   amount,
   onChangeAmount,
   currency,
-  readonly,
   isUpdating,
   assets,
   setAsset,
+  setFocused,
 }) => {
   const [balanceAmount, setBalanceAmount] = useState<number>();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -74,7 +74,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
                   onChangeAmount(e.detail.value);
                 }
               }}
-              readonly={readonly}
+              onIonFocus={(e) => setFocused()}
+              disabled={isUpdating}
             />
           </div>
         </div>

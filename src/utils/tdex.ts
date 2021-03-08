@@ -1,7 +1,14 @@
+import { Assets } from './constants';
 import { AddressInterface, IdentityOpts } from 'ldk';
 import { Trade, TraderClient, TradeType } from 'tdex-sdk';
 import { TDEXTrade, TDEXMarket } from './../redux/actionTypes/tdexActionTypes';
 import { toSatoshi } from './helpers';
+
+export interface AssetWithTicker {
+  asset: string;
+  ticker: string;
+  coinGeckoID?: string;
+}
 
 export async function bestPrice(
   known: { amount: number; asset: string },
@@ -100,4 +107,45 @@ export function allTrades(
   }
 
   return trades;
+}
+
+const assetsData = Object.values(Assets);
+
+export function getTradablesAssets(
+  markets: TDEXMarket[],
+  sentAsset: string
+): AssetWithTicker[] {
+  const results: AssetWithTicker[] = [];
+
+  for (const market of markets) {
+    if (
+      sentAsset === market.baseAsset &&
+      !results.map((r) => r.asset).includes(market.quoteAsset)
+    ) {
+      results.push({
+        asset: market.quoteAsset,
+        ticker:
+          assetsData.find((a) => a.assetHash === market.quoteAsset)?.ticker ||
+          market.quoteAsset.slice(0, 4).toUpperCase(),
+        coinGeckoID: assetsData.find((a) => a.assetHash === market.quoteAsset)
+          ?.coinGeckoID,
+      });
+    }
+
+    if (
+      sentAsset === market.quoteAsset &&
+      !results.map((r) => r.asset).includes(market.baseAsset)
+    ) {
+      results.push({
+        asset: market.baseAsset,
+        ticker:
+          assetsData.find((a) => a.assetHash === market.baseAsset)?.ticker ||
+          market.baseAsset.slice(0, 4).toUpperCase(),
+        coinGeckoID: assetsData.find((a) => a.assetHash === market.baseAsset)
+          ?.coinGeckoID,
+      });
+    }
+  }
+
+  return results;
 }

@@ -126,7 +126,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
                         <span className="amount">{transaction.fee} LBTC</span>
                       </IonLabel>
                       <IonText>
-                        {fromSatoshiFixed(transferSent.amount)}{' '}
+                        {fromSatoshiFixed(transferSent.amount, 8, 8)}{' '}
                         <span className="currency">{' ' + tickerSent}</span>
                       </IonText>
                     </div>

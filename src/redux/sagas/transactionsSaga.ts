@@ -10,7 +10,7 @@ import {
   setTransaction,
   UPDATE_TRANSACTIONS,
 } from '../actions/transactionsActions';
-import { addErrorToast } from '../actions/toastActions';
+import { addErrorToast, addSuccessToast } from '../actions/toastActions';
 import { getAddressesFromStorage } from '../../utils/storage-helper';
 
 function* updateTransactions({ type }: { type: string }) {

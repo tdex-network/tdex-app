@@ -10,8 +10,8 @@ import {
 } from '@ionic/react';
 import { CurrencyIcon } from '../icons';
 import './style.scss';
-import { AssetWithTicker } from '../../redux/reducers/tdexReducer';
 import { closeSharp, searchSharp } from 'ionicons/icons';
+import { AssetWithTicker } from '../../utils/tdex';
 
 interface ExchangeSearchProps {
   prices: Record<string, number>;

@@ -14,20 +14,22 @@ import {
   useIonViewWillEnter,
   IonRefresher,
   IonRefresherContent,
+  useIonViewDidEnter,
 } from '@ionic/react';
 import ExchangeRow from '../../redux/containers/exchangeRowCointainer';
 import classNames from 'classnames';
 import { RefresherEventDetail } from '@ionic/core';
 import './style.scss';
-import {
-  AssetWithTicker,
-  tradablesAssetsSelector,
-} from '../../redux/reducers/tdexReducer';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { allTrades, bestPrice, makeTrade } from '../../utils/tdex';
+import {
+  allTrades,
+  AssetWithTicker,
+  bestPrice,
+  makeTrade,
+  getTradablesAssets,
+} from '../../utils/tdex';
 import {
   amountGuard,
-  fromSatoshi,
   fromSatoshiFixed,
   toSatoshi,
   waitForTx,
@@ -42,6 +44,7 @@ import { setAddresses } from '../../redux/actions/walletActions';
 import { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import { chevronDownCircleOutline, swapVerticalOutline } from 'ionicons/icons';
 import { update } from '../../redux/actions/appActions';
+import { fetchAndUnblindTxs } from 'ldk';
 
 interface ExchangeProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -57,9 +60,11 @@ const Exchange: React.FC<ExchangeProps> = ({
 }) => {
   const dispatch = useDispatch();
 
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [assetSent, setAssetSent] = useState<AssetWithTicker>(balances[0]);
-  const tradableAssets = useSelector(tradablesAssetsSelector(assetSent.asset));
+  const [isSentUpdating, setIsSentUpdating] = useState(false);
+  const [isReceivedUpdating, setIsReceivedUpdating] = useState(false);
+  const [focused, setFocused] = useState<'sent' | 'received'>('sent');
+  const [assetSent, setAssetSent] = useState<AssetWithTicker>();
+  const [tradableAssets, setTradableAssets] = useState<AssetWithTicker[]>([]);
   const [assetReceived, setAssetReceived] = useState<AssetWithTicker>(
     tradableAssets[0]
   );
@@ -70,20 +75,45 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useIonViewWillEnter(() => {
-    if (balances.length === 0 || markets.length === 0) {
+  useIonViewDidEnter(() => {
+    if (balances.length === 0) {
+      dispatch(addErrorToast('need founds to trade'));
+      history.goBack();
+      return;
+    }
+
+    if (markets.length === 0) {
       dispatch(addErrorToast('no markets available'));
       history.goBack();
+      return;
     }
+
+    console.log(1);
+    setAssetSent(balances[0]);
 
     setSentAmount(undefined);
     setReceivedAmount(undefined);
   });
 
   useEffect(() => {
-    if (balances.length === 0 || markets.length === 0) return;
+    if (
+      balances.length === 0 ||
+      markets.length === 0 ||
+      !assetSent ||
+      !assetReceived
+    )
+      return;
     setTrades(allTrades(markets, assetSent.asset, assetReceived.asset));
   }, [assetSent, assetReceived, markets]);
+
+  useEffect(() => {
+    if (!assetSent) return;
+    const tradable = getTradablesAssets(markets, assetSent.asset);
+    setTradableAssets(tradable);
+    if (!assetReceived) {
+      setAssetReceived(tradable[0]);
+    }
+  }, [assetSent, markets]);
 
   const onChangeReceived = async (
     newReceivedAmount: string | null | undefined
@@ -93,7 +123,10 @@ const Exchange: React.FC<ExchangeProps> = ({
       setReceivedAmount('');
       return;
     }
-    setReceivedAmount(amountGuard(parseFloat(newReceivedAmount).toFixed(8)));
+
+    setReceivedAmount(amountGuard(newReceivedAmount));
+    if (!assetReceived || trades.length === 0) return;
+    updateSentAmount(newReceivedAmount);
   };
 
   const onChangeSent = async (newSentAmount: string | null | undefined) => {
@@ -109,17 +142,20 @@ const Exchange: React.FC<ExchangeProps> = ({
       return;
     }
 
+    setSentAmount(amountGuard(newSentAmount));
     if (!assetSent || trades.length === 0) return;
     updateReceivedAmount(newSentAmount);
   };
 
+  // if sent input field is focused, it is used to asynchornously update the received amount
   const updateReceivedAmount = async (newSentAmount: string) => {
+    if (focused !== 'sent') return;
+    if (!assetSent) return;
     try {
-      setIsUpdating(true);
-      setSentAmount(amountGuard(newSentAmount));
+      setIsReceivedUpdating(true);
       const { amount, asset, trade: bestTrade } = await bestPrice(
         {
-          amount: parseFloat(newSentAmount),
+          amount: parseFloat(amountGuard(newSentAmount)),
           asset: assetSent.asset,
         },
         trades
@@ -132,15 +168,40 @@ const Exchange: React.FC<ExchangeProps> = ({
       dispatch(addErrorToast(e.message || e));
       setReceivedAmount('');
     } finally {
-      setIsUpdating(false);
+      setIsReceivedUpdating(false);
     }
   };
 
-  const onConfirm = () => {
-    setModalOpen(true);
+  // if received input field is focused, it is used to asynchronously update the sent amount
+  const updateSentAmount = async (newReceivedAmount: string) => {
+    if (focused !== 'received') return;
+    if (!assetReceived) return;
+    try {
+      setIsSentUpdating(true);
+      const { amount, asset, trade: bestTrade } = await bestPrice(
+        {
+          amount: parseFloat(amountGuard(newReceivedAmount)),
+          asset: assetReceived.asset,
+        },
+        trades
+      );
+      // TODO check asset
+      setSentAmount(amountGuard(fromSatoshiFixed(amount, 8, 8)));
+      setTrade(bestTrade);
+    } catch (e) {
+      console.error(e);
+      dispatch(addErrorToast(e.message || e));
+      setReceivedAmount('');
+    } finally {
+      setIsSentUpdating(false);
+    }
   };
 
+  const onConfirm = () => setModalOpen(true);
+
+  // make and broadcast trade, then push to trade summary page
   const onPinConfirm = async (pin: string) => {
+    if (!assetSent) return;
     try {
       setModalOpen(false);
       setLoading(true);
@@ -154,12 +215,9 @@ const Exchange: React.FC<ExchangeProps> = ({
       );
 
       dispatch(setAddresses(identityAddresses));
-      await waitForTx(txid, explorerUrl);
-      addSuccessToast('Trade successfully computed');
       dispatch(update());
-      setTimeout(() => {
-        history.push(`/tradesummary/${txid}`);
-      });
+      addSuccessToast('Trade successfully computed');
+      history.push(`/tradesummary/${txid}`);
     } catch (e) {
       dispatch(addErrorToast(e));
     } finally {
@@ -167,6 +225,7 @@ const Exchange: React.FC<ExchangeProps> = ({
     }
   };
 
+  // update action on refresh
   const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
     dispatch(update());
     setTimeout(() => {
@@ -194,7 +253,7 @@ const Exchange: React.FC<ExchangeProps> = ({
           <IonTitle>Exchange</IonTitle>
         </IonToolbar>
       </IonHeader>
-      {assetSent && assetReceived && balances.length > 0 && markets.length > 0 && (
+      {assetSent && balances.length > 0 && markets.length > 0 && (
         <IonContent className="exchange-content">
           <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
             <IonRefresherContent
@@ -207,26 +266,29 @@ const Exchange: React.FC<ExchangeProps> = ({
               asset={assetSent}
               amount={sentAmount}
               onChangeAmount={onChangeSent}
-              readonly={false}
-              isUpdating={false}
+              isUpdating={isSentUpdating}
               assets={balances}
               setAsset={(asset) => {
-                if (asset.asset === assetReceived.asset)
+                if (assetReceived && asset.asset === assetReceived.asset)
                   setAssetReceived(assetSent);
                 setAssetSent(asset);
               }}
+              setFocused={() => setFocused('sent')}
             />
             <div
               className={classNames([
                 'exchange-divider',
                 {
-                  disabled: !balances
-                    .map((b) => b.asset)
-                    .includes(assetReceived.asset),
+                  disabled:
+                    !assetReceived ||
+                    !balances.map((b) => b.asset).includes(assetReceived.asset),
                 },
               ])}
               onClick={() => {
-                if (!balances.map((b) => b.asset).includes(assetReceived.asset))
+                if (
+                  !assetReceived ||
+                  !balances.map((b) => b.asset).includes(assetReceived.asset)
+                )
                   return;
 
                 const firstAsset = { ...assetSent };
@@ -236,19 +298,21 @@ const Exchange: React.FC<ExchangeProps> = ({
             >
               <IonIcon className="swap-btn" icon={swapVerticalOutline} />
             </div>
-            <ExchangeRow
-              asset={assetReceived}
-              amount={receivedAmount}
-              onChangeAmount={onChangeReceived}
-              readonly={true}
-              isUpdating={isUpdating}
-              assets={tradableAssets}
-              setAsset={(asset) => {
-                if (asset.asset === assetSent.asset)
-                  setAssetSent(assetReceived);
-                setAssetReceived(asset);
-              }}
-            />
+            {assetReceived && (
+              <ExchangeRow
+                asset={assetReceived}
+                amount={receivedAmount}
+                onChangeAmount={onChangeReceived}
+                isUpdating={isReceivedUpdating}
+                assets={tradableAssets}
+                setAsset={(asset) => {
+                  if (asset.asset === assetSent.asset)
+                    setAssetSent(assetReceived);
+                  setAssetReceived(asset);
+                }}
+                setFocused={() => setFocused('received')}
+              />
+            )}
           </div>
           <div className="buttons">
             <IonButton

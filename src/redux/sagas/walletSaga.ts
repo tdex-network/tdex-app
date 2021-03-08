@@ -14,7 +14,7 @@ import {
   UtxoInterface,
   fetchAndUnblindUtxosGenerator,
 } from 'ldk';
-import { addErrorToast } from '../actions/toastActions';
+import { addErrorToast, addSuccessToast } from '../actions/toastActions';
 import {
   getAddressesFromStorage,
   setAddressesInStorage,
@@ -73,10 +73,13 @@ export function* fetchAndUpdateUtxos(
     return;
   }
 
+  let utxoUpdatedCount = 0;
+
   while (!it.done) {
     const utxo = it.value;
     newOutpoints.push(outpointToString(utxo));
     if (!currentUtxos[outpointToString(utxo)]) {
+      utxoUpdatedCount++;
       yield put(setUtxo(utxo));
     }
     it = yield call(next);
@@ -86,8 +89,13 @@ export function* fetchAndUpdateUtxos(
   for (const outpoint of Object.keys(currentUtxos)) {
     if (outpoint && !newOutpoints.includes(outpoint)) {
       const [txid, vout] = outpoint.split(':');
+      utxoUpdatedCount++;
       yield put(deleteUtxo({ txid, vout: parseInt(vout) }));
     }
+  }
+
+  if (utxoUpdatedCount > 0) {
+    yield put(addSuccessToast(`${utxoUpdatedCount} utxos updated`));
   }
 }
 

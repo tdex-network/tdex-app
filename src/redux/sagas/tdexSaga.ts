@@ -13,7 +13,7 @@ import {
 import { put, takeLatest, select, call, delay } from 'redux-saga/effects';
 import { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
 import { TraderClient, MarketInterface } from 'tdex-sdk';
-import { addErrorToast } from '../actions/toastActions';
+import { addErrorToast, addSuccessToast } from '../actions/toastActions';
 import {
   getProvidersFromStorage,
   setProvidersInStorage,
