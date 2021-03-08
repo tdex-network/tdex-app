@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps } from 'react-router';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import {
   IonContent,
   IonHeader,
@@ -11,7 +11,6 @@ import {
   IonLoading,
   IonText,
   IonIcon,
-  useIonViewWillEnter,
   IonRefresher,
   IonRefresherContent,
   useIonViewDidEnter,
@@ -33,6 +32,7 @@ import {
   fromSatoshiFixed,
   toSatoshi,
   waitForTx,
+  sleep,
 } from '../../utils/helpers';
 import {
   addErrorToast,
@@ -44,7 +44,6 @@ import { setAddresses } from '../../redux/actions/walletActions';
 import { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import { chevronDownCircleOutline, swapVerticalOutline } from 'ionicons/icons';
 import { update } from '../../redux/actions/appActions';
-import { fetchAndUnblindTxs } from 'ldk';
 
 interface ExchangeProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -124,6 +123,12 @@ const Exchange: React.FC<ExchangeProps> = ({
       return;
     }
 
+    if (parseFloat(newReceivedAmount) <= 0) {
+      setSentAmount('0');
+      setReceivedAmount(newReceivedAmount);
+      return;
+    }
+
     setReceivedAmount(amountGuard(newReceivedAmount));
     if (!assetReceived || trades.length === 0) return;
     updateSentAmount(newReceivedAmount);
@@ -138,7 +143,7 @@ const Exchange: React.FC<ExchangeProps> = ({
 
     if (parseFloat(newSentAmount) <= 0) {
       setSentAmount(newSentAmount);
-      setReceivedAmount(newSentAmount);
+      setReceivedAmount('0');
       return;
     }
 
@@ -215,13 +220,16 @@ const Exchange: React.FC<ExchangeProps> = ({
       );
 
       dispatch(setAddresses(identityAddresses));
+      await waitForTx(txid, explorerUrl);
       dispatch(update());
+      await sleep(1000);
       addSuccessToast('Trade successfully computed');
       history.push(`/tradesummary/${txid}`);
     } catch (e) {
-      dispatch(addErrorToast(e));
+      console.error(e);
+      dispatch(addErrorToast(e.message || e));
     } finally {
-      setTimeout(() => setLoading(false), 1500);
+      setLoading(false);
     }
   };
 

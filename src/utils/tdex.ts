@@ -42,6 +42,16 @@ async function calculatePrice(
   known: { amount: number; asset: string },
   trade: TDEXTrade
 ): Promise<{ amount: number; asset: string }> {
+  if (known.amount <= 0) {
+    return {
+      amount: 0,
+      asset:
+        trade.market.baseAsset === known.asset
+          ? trade.market.quoteAsset
+          : trade.market.baseAsset,
+    };
+  }
+
   const client = new TraderClient(trade.market.provider.endpoint);
   const response = await client.marketPrice(
     trade.market,

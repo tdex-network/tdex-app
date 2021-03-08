@@ -1,5 +1,5 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
 import {
   IonPage,
@@ -12,15 +12,21 @@ import {
   IonIcon,
 } from '@ionic/react';
 import { CurrencyIcon, IconBack } from '../../components/icons';
-import './style.scss';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { tickerFromAssetHash } from '../../redux/reducers/walletReducer';
 import { fromSatoshiFixed } from '../../utils/helpers';
 import { swapHorizontal } from 'ionicons/icons';
+import './style.scss';
+import { update } from '../../redux/actions/appActions';
 
 const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
+  const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();
   const transaction = useSelector(transactionSelector(txid));
+
+  useEffect(() => {
+    dispatch(update());
+  }, [transaction]);
 
   return (
     <IonPage>
