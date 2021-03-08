@@ -64,9 +64,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [focused, setFocused] = useState<'sent' | 'received'>('sent');
   const [assetSent, setAssetSent] = useState<AssetWithTicker>();
   const [tradableAssets, setTradableAssets] = useState<AssetWithTicker[]>([]);
-  const [assetReceived, setAssetReceived] = useState<AssetWithTicker>(
-    tradableAssets[0]
-  );
+  const [assetReceived, setAssetReceived] = useState<AssetWithTicker>();
   const [trades, setTrades] = useState<TDEXTrade[]>([]);
   const [trade, setTrade] = useState<TDEXTrade>();
   const [sentAmount, setSentAmount] = useState<string>();
@@ -220,9 +218,10 @@ const Exchange: React.FC<ExchangeProps> = ({
       );
 
       dispatch(setAddresses(identityAddresses));
-      await waitForTx(txid, explorerUrl);
       dispatch(update());
-      await sleep(1000);
+      setTimeout(() => {
+        dispatch(update());
+      }, 3000);
       addSuccessToast('Trade successfully computed');
       history.push(`/tradesummary/${txid}`);
     } catch (e) {

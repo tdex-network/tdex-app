@@ -10,7 +10,7 @@ import {
   IonToolbar,
   IonHeader,
   IonIcon,
-  IonSpinner,
+  IonLoading,
 } from '@ionic/react';
 import { CurrencyIcon, IconBack } from '../../components/icons';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
@@ -30,7 +30,7 @@ const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
     setIntervalUpdater(
       setInterval(() => {
         dispatch(update());
-      }, 3000)
+      }, 10000)
     );
   }, []);
 
@@ -143,9 +143,7 @@ const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
             </div>
           </div>
         ) : (
-          <div className="align-center">
-            <IonSpinner color="light" />
-          </div>
+          <IonLoading isOpen={true} message="loading..." />
         )}
       </IonContent>
     </IonPage>
