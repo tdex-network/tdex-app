@@ -169,8 +169,5 @@ const TDexRegistryURL =
   'https://raw.githubusercontent.com/TDex-network/tdex-registry/master/registry.json';
 
 export async function getProvidersFromTDexRegistry(): Promise<TDEXProvider[]> {
-  const providers: TDEXProvider[] = JSON.parse(
-    (await axios.get(TDexRegistryURL)).data
-  );
-  return providers;
+  return (await axios.get(TDexRegistryURL)).data;
 }

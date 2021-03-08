@@ -26,7 +26,6 @@ import { fromSatoshi } from '../../utils/helpers';
 import { checkmarkSharp, chevronDownCircleOutline } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { updateTransactions } from '../../redux/actions/transactionsActions';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
 import { update } from '../../redux/actions/appActions';
 

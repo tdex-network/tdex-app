@@ -13,7 +13,7 @@ import {
   IonIcon,
   IonRefresher,
   IonRefresherContent,
-  useIonViewDidEnter,
+  useIonViewWillEnter,
 } from '@ionic/react';
 import ExchangeRow from '../../redux/containers/exchangeRowCointainer';
 import classNames from 'classnames';
@@ -66,7 +66,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  useIonViewDidEnter(() => {
+  useIonViewWillEnter(() => {
     if (balances.length === 0) {
       dispatch(addErrorToast('need founds to trade'));
       history.goBack();
@@ -79,7 +79,6 @@ const Exchange: React.FC<ExchangeProps> = ({
       return;
     }
 
-    console.log(1);
     setAssetSent(balances[0]);
 
     setSentAmount(undefined);
