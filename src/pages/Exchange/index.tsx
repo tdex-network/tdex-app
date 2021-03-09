@@ -84,7 +84,6 @@ const Exchange: React.FC<ExchangeProps> = ({
     }
 
     setAssetSent(balances[0]);
-
     setSentAmount(undefined);
     setReceivedAmount(undefined);
   });
@@ -104,9 +103,7 @@ const Exchange: React.FC<ExchangeProps> = ({
     if (!assetSent) return;
     const tradable = getTradablesAssets(markets, assetSent.asset);
     setTradableAssets(tradable);
-    if (!assetReceived) {
-      setAssetReceived(tradable[0]);
-    }
+    setAssetReceived(tradable[0]);
   }, [assetSent, markets]);
 
   const onChangeReceived = async (
