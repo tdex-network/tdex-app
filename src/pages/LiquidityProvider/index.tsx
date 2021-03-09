@@ -86,7 +86,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
               <IonItem key={index}>
                 <div slot="start">
                   <h3>{provider.name}</h3>
-                  <p>Endpoint: {provider.endpoint}</p>
+                  <p>{provider.endpoint}</p>
                 </div>
                 <div slot="end">
                   <IonButton
