@@ -47,11 +47,12 @@
     "android:serve": "npx ionic capacitor run android -l --external",
     "ios": "npx ionic capacitor run ios",
     "build:android": "npx ionic capacitor build android --no-open",
+    "build:ios": "npx ionic capacitor build ios --no-open",
     "sync": "npx jetify && npx ionic cap sync",
     "lint": "npx eslint './src/**/*.ts*'",
     "lint:fix": "npx eslint './src/**/*.ts*' --fix",
     "test": "BABEL_ENV=test npx jest",
-    "build:web": "npx ionic build"
+    "build": "npx ionic build"
   },
   "eslintConfig": {
     "extends": "react-app"
