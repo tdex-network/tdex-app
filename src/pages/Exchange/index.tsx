@@ -156,7 +156,9 @@ const Exchange: React.FC<ExchangeProps> = ({
         },
         trades
       );
-      // TODO check asset
+      if (asset !== assetReceived?.asset) {
+        throw new Error('Wrong preview asset');
+      }
       setReceivedAmount(amountGuard(fromSatoshiFixed(amount, 8, 8)));
       setTrade(bestTrade);
     } catch (e) {
@@ -181,7 +183,11 @@ const Exchange: React.FC<ExchangeProps> = ({
         },
         trades
       );
-      // TODO check asset
+
+      if (asset !== assetSent?.asset) {
+        throw new Error('Wrong preview asset');
+      }
+
       setSentAmount(amountGuard(fromSatoshiFixed(amount, 8, 8)));
       setTrade(bestTrade);
     } catch (e) {
@@ -205,7 +211,10 @@ const Exchange: React.FC<ExchangeProps> = ({
       if (!trade) return;
       const { txid, identityAddresses } = await makeTrade(
         trade,
-        { amount: toSatoshi(parseFloat(sentAmount!)), asset: assetSent.asset },
+        {
+          amount: toSatoshi(parseFloat(sentAmount || '0')),
+          asset: assetSent.asset,
+        },
         explorerUrl,
         identityOpts
       );
