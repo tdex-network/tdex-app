@@ -86,7 +86,7 @@ const Exchange: React.FC<ExchangeProps> = ({
     setAssetSent(balances[0]);
     setSentAmount(undefined);
     setReceivedAmount(undefined);
-  });
+  }, [balances, markets]);
 
   useEffect(() => {
     if (
