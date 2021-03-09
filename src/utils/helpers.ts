@@ -28,7 +28,10 @@ export function fromSatoshiFixed(
   y?: number,
   fixed?: number
 ): string {
-  return fromSatoshi(x, y).toFixed(fixed || 2);
+  return Number(fromSatoshi(x, y).toFixed(fixed || 2)).toLocaleString(
+    undefined,
+    { minimumFractionDigits: 2, maximumFractionDigits: fixed || 2 }
+  );
 }
 
 export function formatAmount(amount: number) {
