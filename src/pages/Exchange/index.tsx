@@ -27,7 +27,11 @@ import {
   makeTrade,
   getTradablesAssets,
 } from '../../utils/tdex';
-import { amountGuard, fromSatoshiFixed, toSatoshi } from '../../utils/helpers';
+import {
+  fromSatoshiFixed,
+  toSatoshi,
+  validAmountString,
+} from '../../utils/helpers';
 import {
   addErrorToast,
   addSuccessToast,
@@ -199,6 +203,14 @@ const Exchange: React.FC<ExchangeProps> = ({
     }
   };
 
+  const sentAmountGreaterThanBalance = () => {
+    const balanceAmount = balances.find((b) => b.asset === assetSent?.asset)
+      ?.amount;
+    if (!balanceAmount || !sentAmount) return false;
+    const amountAsSats = toSatoshi(parseFloat(sentAmount));
+    return amountAsSats > balanceAmount;
+  };
+
   const onConfirm = () => setModalOpen(true);
 
   // make and broadcast trade, then push to trade summary page
@@ -225,7 +237,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         dispatch(update());
       }, 3000);
       addSuccessToast('Trade successfully computed');
-      history.push(`/tradesummary/${txid}`);
+      history.replace(`/tradesummary/${txid}`);
     } catch (e) {
       console.error(e);
       dispatch(addErrorToast(e.message || e));
@@ -332,13 +344,10 @@ const Exchange: React.FC<ExchangeProps> = ({
               disabled={
                 !assetSent ||
                 !assetReceived ||
-                !sentAmount ||
-                !receivedAmount ||
                 loading ||
-                !amountGuard(sentAmount) ||
-                !amountGuard(receivedAmount) ||
-                (balances.find((b) => b.asset === assetSent.asset)?.amount ||
-                  -1) < toSatoshi(parseFloat(sentAmount))
+                !validAmountString(sentAmount) ||
+                !validAmountString(receivedAmount) ||
+                sentAmountGreaterThanBalance()
               }
             >
               Confirm
