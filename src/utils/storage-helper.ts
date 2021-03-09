@@ -5,31 +5,46 @@ import 'capacitor-secure-storage-plugin';
 import { decrypt, encrypt, Encrypted } from './crypto';
 import { network } from '../redux/config';
 import { IdentityRestorerFromState } from './identity-restorer';
+import { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 
 const { SecureStoragePlugin } = Plugins;
 
-export const storageAddresses = (addresses: AddressInterface[]) => {
-  return Storage.set({
-    key: 'addresses',
-    value: JSON.stringify(addresses),
-  });
-};
+const MNEMONIC_KEY = 'tdex-app-mnemonic';
+const ADDRESSES_KEY = 'tdex-app-addresses';
+const PROVIDERS_KEY = 'tdex-app-providers';
 
-export async function getAddresses(): Promise<AddressInterface[]> {
+async function getFromStorage<T>(key: string, defaultValue: T): Promise<T> {
   try {
-    const { value } = await Storage.get({
-      key: 'addresses',
-    });
-
-    return JSON.parse(value);
+    const { value } = await Storage.get({ key });
+    if (!value) return defaultValue;
+    return JSON.parse(value) as T;
   } catch (error) {
     console.error(error);
-    return [];
+    return defaultValue;
   }
 }
 
-// hardcoded key for secure storage
-const MNEMONIC_KEY = 'tdex-app-mnemonic';
+export function setProvidersInStorage(providers: TDEXProvider[]) {
+  return Storage.set({
+    key: PROVIDERS_KEY,
+    value: JSON.stringify(providers),
+  });
+}
+
+export async function getProvidersFromStorage(): Promise<TDEXProvider[]> {
+  return getFromStorage<TDEXProvider[]>(PROVIDERS_KEY, []);
+}
+
+export function setAddressesInStorage(addresses: AddressInterface[]) {
+  return Storage.set({
+    key: ADDRESSES_KEY,
+    value: JSON.stringify(addresses),
+  });
+}
+
+export async function getAddressesFromStorage(): Promise<AddressInterface[]> {
+  return getFromStorage<AddressInterface[]>(ADDRESSES_KEY, []);
+}
 
 export async function changePin(currentPIN: string, newPIN: string) {
   const mnemonic = await removeMnemonicFromSecureStorage(currentPIN);
@@ -84,11 +99,17 @@ export async function removeMnemonicFromSecureStorage(
 }
 
 export async function getIdentity(pin: string): Promise<Mnemonic> {
+  const opts = await getIdentityOpts(pin);
+  return new Mnemonic(opts);
+}
+
+export async function getIdentityOpts(pin: string): Promise<IdentityOpts> {
   const [mnemonic, cachedAddresses] = await Promise.all([
     getMnemonicFromSecureStorage(pin),
-    getAddresses(),
+    getAddressesFromStorage(),
   ]);
-  return new Mnemonic(prepareIdentityOpts(mnemonic, cachedAddresses));
+
+  return prepareIdentityOpts(mnemonic, cachedAddresses);
 }
 
 function prepareIdentityOpts(

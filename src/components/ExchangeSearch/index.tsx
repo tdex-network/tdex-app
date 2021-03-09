@@ -1,109 +1,98 @@
-import React, { ChangeEvent, useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useState } from 'react';
 import {
   IonContent,
   IonList,
   IonModal,
   IonHeader,
   IonItem,
+  IonInput,
+  IonIcon,
 } from '@ionic/react';
-import {
-  setSendAsset,
-  setReceiveAsset,
-} from '../../redux/actions/exchange/tradeActions';
-import {
-  hideSearch,
-  searchAsset,
-} from '../../redux/actions/exchange/searchActions';
-import { IconSearch, IconClose, CurrencyIcon } from '../icons';
+import { CurrencyIcon } from '../icons';
 import './style.scss';
+import { closeSharp, searchSharp } from 'ionicons/icons';
+import { AssetWithTicker } from '../../utils/tdex';
 
-const ExchangeSearch: React.FC = () => {
-  const dispatch = useDispatch();
+interface ExchangeSearchProps {
+  prices: Record<string, number>;
+  assets: AssetWithTicker[];
+  setAsset: (newAsset: AssetWithTicker) => void;
+  isOpen: boolean;
+  close: () => void;
+  currency: string;
+}
 
-  const { searchVisibility, searchParty, assets, query, rates } = useSelector(
-    (state: any) => ({
-      searchVisibility: state.exchange.search.visibility,
-      searchParty: state.exchange.search.party,
-      assets: state.exchange.search.assets,
-      query: state.exchange.search.query,
-      rates: state.rates,
-    })
-  );
-
-  const search = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    dispatch(searchAsset(event.target.value));
-  }, []);
-
-  const pick = useCallback(
-    (event) => {
-      const asset = event.currentTarget.dataset.asset;
-      const setAssetAction =
-        searchParty == 'send' ? setSendAsset : setReceiveAsset;
-
-      dispatch(setAssetAction(asset));
-      dispatch(hideSearch());
-    },
-    [searchParty, assets]
-  );
-
-  const close = useCallback(() => {
-    dispatch(hideSearch());
-  }, []);
+const ExchangeSearch: React.FC<ExchangeSearchProps> = ({
+  prices,
+  assets,
+  setAsset,
+  isOpen,
+  close,
+  currency,
+}) => {
+  const [searchString, setSearchString] = useState('');
 
   return (
     <div className="search">
-      <IonModal
-        cssClass="modal-small"
-        onDidDismiss={() => dispatch(hideSearch())}
-        isOpen={searchVisibility}
-      >
+      <IonModal cssClass="modal-small" isOpen={isOpen} onDidDismiss={close}>
         <IonHeader>
           <div>
             <label className="search-bar">
-              <IconSearch />
-              <input
+              <IonIcon icon={searchSharp} color="light" onClick={close} />
+              <IonInput
+                color="light"
                 placeholder="Search currency"
                 type="text"
-                value={query}
-                onChange={search}
+                value={searchString}
+                onIonChange={(e) => setSearchString(e.detail.value || '')}
               />
-              <IconClose onClick={close} />
+              <IonIcon icon={closeSharp} color="light" onClick={close} />
             </label>
           </div>
         </IonHeader>
         <IonContent className="search-content">
           <IonList>
-            {assets.map((asset: any) => {
-              return (
-                <IonItem key={asset.id} data-asset={asset.id} onClick={pick}>
-                  <div
-                    // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
-                    tabIndex={0}
-                  ></div>
-                  <div className="search-item-name">
-                    <span className="icon-wrapper medium">
-                      <CurrencyIcon currency={asset.ticker} />
-                    </span>
-                    <p>{asset.name}</p>
-                  </div>
-                  {rates.byCurrency['eur']?.[asset.ticker.toLowerCase()] && (
-                    <div className="search-item-amount">
-                      <p>
-                        <span className="price-equivalent">
-                          {
-                            rates.byCurrency['eur']?.[
-                              asset.ticker.toLowerCase()
-                            ]
-                          }
-                        </span>
-                        <span>EUR</span>
-                      </p>
+            {assets
+              .filter(
+                (asset: AssetWithTicker) =>
+                  asset.asset.includes(searchString) ||
+                  asset.ticker.includes(searchString) ||
+                  asset.coinGeckoID?.includes(searchString)
+              )
+              .map((asset: AssetWithTicker, index: number) => {
+                return (
+                  <IonItem
+                    key={index}
+                    data-asset={index}
+                    onClick={() => {
+                      setAsset(asset);
+                      close();
+                    }}
+                  >
+                    <div
+                      // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
+                      tabIndex={0}
+                    ></div>
+                    <div className="search-item-name">
+                      <span className="icon-wrapper medium">
+                        <CurrencyIcon currency={asset.ticker} />
+                      </span>
+                      <p>{asset.ticker}</p>
                     </div>
-                  )}
-                </IonItem>
-              );
-            })}
+                    {
+                      <div className="search-item-amount">
+                        <p>
+                          <span className="price-equivalent">
+                            {(asset.coinGeckoID && prices[asset.coinGeckoID]) ||
+                              '?'}
+                          </span>
+                          <span>{currency.toUpperCase()}</span>
+                        </p>
+                      </div>
+                    }
+                  </IonItem>
+                );
+              })}
           </IonList>
         </IonContent>
       </IonModal>

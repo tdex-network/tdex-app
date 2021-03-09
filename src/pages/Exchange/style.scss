@@ -1,4 +1,4 @@
-@import "../../theme/variables";
+@import '../../theme/variables';
 
 .exchange-header {
   background: rgb(51, 51, 51);
@@ -16,21 +16,29 @@
 }
 
 .exchange-divider {
+  transition: all 800ms ease-in-out;
   position: absolute;
   width: 32px;
   height: 32px;
   border-radius: 50%;
   background: #000;
-  top: 145px;
+  top: 170px;
   left: calc(50vw - 17px);
   z-index: 2;
   display: flex;
   justify-content: center;
   align-items: center;
 
-  svg {
-    cursor: pointer;
-    fill: rgb(15, 255, 0);
+  &.disabled {
+    opacity: 0.65;
+    .swap-btn {
+      color: rgb(255, 255, 255);
+    }
+  }
+
+  .swap-btn {
+    font-size: 18px;
+    color: rgb(15, 255, 0);
   }
 }
 
@@ -41,8 +49,16 @@
   .exchange-divider {
     background: #fff;
     border: 1px solid #f4f4f4;
-    svg {
-      fill: $green-color;
-    }
+  }
+}
+
+.trade-info {
+  margin-top: 2%;
+  font-size: small;
+  color: rgba(245, 245, 245, 0.774);
+
+  .provider-info {
+    font-style: italic;
+    font-weight: 800;
   }
 }

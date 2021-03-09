@@ -103,14 +103,17 @@ function balancesFromUtxos(utxos: UtxoInterface[]): BalanceInterface[] {
     const utxosForAsset = utxosGroupedByAsset[asset];
     const amount = sumUtxos(utxosForAsset);
 
-    let ticker: string = asset.slice(0, 4).toUpperCase();
     let coinGeckoID = undefined;
     const assetData = Object.values(Assets).find((a) => a.assetHash === asset);
     if (assetData) {
-      ticker = assetData.ticker;
       coinGeckoID = assetData.coinGeckoID;
     }
-    balances.push({ asset, amount, ticker, coinGeckoID });
+    balances.push({
+      asset,
+      amount,
+      ticker: tickerFromAssetHash(asset),
+      coinGeckoID,
+    });
   }
 
   return balances;
@@ -124,6 +127,14 @@ function sumUtxos(utxos: UtxoInterface[]): number {
     }
   }
   return sum;
+}
+
+export function tickerFromAssetHash(assetHash: string): string {
+  const assetData = Object.values(Assets).find(
+    (a) => a.assetHash === assetHash
+  );
+  if (assetData) return assetData.ticker;
+  return assetHash.slice(0, 4).toUpperCase();
 }
 
 export default walletReducer;

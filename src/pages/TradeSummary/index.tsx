@@ -1,6 +1,6 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { withRouter } from 'react-router';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { RouteComponentProps, useParams, withRouter } from 'react-router';
 import {
   IonPage,
   IonTitle,
@@ -9,17 +9,37 @@ import {
   IonButton,
   IonToolbar,
   IonHeader,
+  IonIcon,
+  IonLoading,
 } from '@ionic/react';
-import { CurrencyIcon, IconExchange, IconBack } from '../../components/icons';
-import { formatAmount, formatDate } from '../../utils/helpers';
+import { CurrencyIcon, IconBack } from '../../components/icons';
+import { transactionSelector } from '../../redux/reducers/transactionsReducer';
+import { tickerFromAssetHash } from '../../redux/reducers/walletReducer';
+import { fromSatoshiFixed } from '../../utils/helpers';
+import { swapHorizontal } from 'ionicons/icons';
 import './style.scss';
+import { update } from '../../redux/actions/appActions';
 
-const TradeSummary: React.FC = ({ history }: any) => {
-  const transactions = useSelector(
-    (state: any) => state.exchange.trade.transactions
-  );
+const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
+  const dispatch = useDispatch();
+  const { txid } = useParams<{ txid: string }>();
+  const transaction = useSelector(transactionSelector(txid));
+  const [intervalUpdater, setIntervalUpdater] = useState<NodeJS.Timeout>();
 
-  const transaction = transactions[transactions.length - 1];
+  useEffect(() => {
+    setIntervalUpdater(
+      setInterval(() => {
+        dispatch(update());
+      }, 10000)
+    );
+  }, []);
+
+  useEffect(() => {
+    if (transaction && intervalUpdater) {
+      clearInterval(intervalUpdater);
+      setIntervalUpdater(undefined);
+    }
+  }, [transaction]);
 
   return (
     <IonPage>
@@ -38,86 +58,93 @@ const TradeSummary: React.FC = ({ history }: any) => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="trade-summary">
-        <div className="transaction-icons">
-          <span className="icon-wrapper large">
-            <CurrencyIcon
-              currency={transaction.sentAsset.ticker}
-              width="45px"
-              height="45px"
-            />
-          </span>
-          <span
-            className={`icon-wrapper large with-border ${
-              transaction?.sentAsset?.ticker || 'lbtc'
-            }-icon`}
-          >
-            <CurrencyIcon
-              currency={transaction.receivedAsset.ticker}
-              width="45px"
-              height="45px"
-            />
-          </span>
-        </div>
-        <IonItem>
-          <div className="trade-summary-item">
-            <div className="trade-items">
-              <div className="trade-item">
-                <div className="name">
-                  <span className="icon-wrapper medium">
-                    <CurrencyIcon
-                      currency={transaction.sentAsset.ticker}
-                      width="24px"
-                      height="24px"
-                    />
-                  </span>
-                  <p>{transaction.sentAsset.ticker}</p>
-                </div>
-                <p className="trade-price">
-                  -{formatAmount(transaction.sentAmount)}
-                </p>
-              </div>
-              <div className="trade-divider">
-                <IconExchange />
-              </div>
-              <div className="trade-item">
-                <div className="name">
-                  <span className="icon-wrapper medium">
-                    <CurrencyIcon
-                      currency={transaction.receivedAsset.ticker}
-                      width="24px"
-                      height="24px"
-                    />
-                  </span>
-                  <p>{transaction.receiveAsset}</p>
-                </div>
-                <p className="trade-price">
-                  +{formatAmount(transaction.receivedAmount)}
-                </p>
-              </div>
+        {transaction ? (
+          <div>
+            <div className="transaction-icons">
+              <span className="icon-wrapper large">
+                <CurrencyIcon
+                  currency={tickerFromAssetHash(transaction.transfers[0].asset)}
+                  width="45px"
+                  height="45px"
+                />
+              </span>
+              <span className="icon-wrapper large second">
+                <CurrencyIcon
+                  currency={tickerFromAssetHash(transaction.transfers[1].asset)}
+                  width="45px"
+                  height="45px"
+                />
+              </span>
             </div>
-            <div className="transaction-info">
-              <div className="transaction-info-date">
-                <p>{formatDate(transaction.createdAt)}</p>
-                <p>{transaction.fee.amount}% Fee</p>
-              </div>
-              <div className="transaction-info-values">
-                <div className="transaction-col-name">ADDR</div>
-                <div className="transaction-col-value">
-                  {transaction.address}
+            <IonItem>
+              <div className="trade-summary-item">
+                <div className="trade-items">
+                  <div className="trade-item">
+                    <div className="name">
+                      <span className="icon-wrapper medium">
+                        <CurrencyIcon
+                          currency={tickerFromAssetHash(
+                            transaction.transfers[0].asset
+                          )}
+                          width="24px"
+                          height="24px"
+                        />
+                      </span>
+                      <p>
+                        {tickerFromAssetHash(transaction.transfers[0].asset)}
+                      </p>
+                    </div>
+                    <p className="trade-price">
+                      {fromSatoshiFixed(transaction.transfers[0].amount, 8, 8)}
+                    </p>
+                  </div>
+                  <div className="trade-divider">
+                    <IonIcon icon={swapHorizontal} />
+                  </div>
+                  <div className="trade-item">
+                    <div className="name">
+                      <span className="icon-wrapper medium">
+                        <CurrencyIcon
+                          currency={tickerFromAssetHash(
+                            transaction.transfers[1].asset
+                          )}
+                          width="24px"
+                          height="24px"
+                        />
+                      </span>
+                      <p>
+                        {tickerFromAssetHash(transaction.transfers[1].asset)}
+                      </p>
+                    </div>
+                    <p className="trade-price">
+                      +{fromSatoshiFixed(transaction.transfers[1].amount, 8, 8)}
+                    </p>
+                  </div>
+                </div>
+                <div className="transaction-info">
+                  <div className="transaction-info-date">
+                    <p>{transaction.date}</p>
+                    <p>{fromSatoshiFixed(transaction.fee, 8, 8)} Fee</p>
+                  </div>
+                  <div className="transaction-info-values">
+                    <div className="transaction-col-name">Tx ID</div>
+                    <div className="transaction-col-value">{txid}</div>
+                  </div>
                 </div>
               </div>
-              <div className="transaction-info-values">
-                <div className="transaction-col-name">T x ID</div>
-                <div className="transaction-col-value">{transaction.txid}</div>
-              </div>
+            </IonItem>
+            <div className="buttons">
+              <IonButton
+                routerLink="/history"
+                className="main-button secondary"
+              >
+                Go to trade history
+              </IonButton>
             </div>
           </div>
-        </IonItem>
-        <div className="buttons">
-          <IonButton routerLink="/history" className="main-button secondary">
-            Go to trade history
-          </IonButton>
-        </div>
+        ) : (
+          <IonLoading isOpen={true} message="loading..." />
+        )}
       </IonContent>
     </IonPage>
   );

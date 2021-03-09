@@ -10,8 +10,8 @@ import {
   setTransaction,
   UPDATE_TRANSACTIONS,
 } from '../actions/transactionsActions';
-import { getAddresses } from '../../utils/storage-helper';
 import { addErrorToast } from '../actions/toastActions';
+import { getAddressesFromStorage } from '../../utils/storage-helper';
 
 function* updateTransactions({ type }: { type: string }) {
   try {
@@ -20,7 +20,7 @@ function* updateTransactions({ type }: { type: string }) {
       Record<string, TxInterface>,
       string
     ] = yield all([
-      call(getAddresses),
+      call(getAddressesFromStorage),
       select(({ transactions }) => transactions.txs),
       select(({ settings }) => settings.explorerUrl),
     ]);

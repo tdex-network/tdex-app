@@ -14,8 +14,11 @@ import {
   UtxoInterface,
   fetchAndUnblindUtxosGenerator,
 } from 'ldk';
-import { getAddresses, storageAddresses } from '../../utils/storage-helper';
 import { addErrorToast } from '../actions/toastActions';
+import {
+  getAddressesFromStorage,
+  setAddressesInStorage,
+} from '../../utils/storage-helper';
 
 function* persistAddresses({
   type,
@@ -24,8 +27,8 @@ function* persistAddresses({
   type: string;
   payload: AddressInterface[];
 }) {
-  yield call(storageAddresses, payload);
-  yield delay(3000);
+  yield call(setAddressesInStorage, payload);
+  yield delay(1000);
   yield put(updateUtxos());
 }
 
@@ -36,7 +39,7 @@ function* updateUtxosState({ type }: { type: string }) {
       Record<string, UtxoInterface>,
       string
     ] = yield all([
-      call(getAddresses),
+      call(getAddressesFromStorage),
       select(({ wallet }: { wallet: WalletState }) => wallet.utxos),
       select(({ settings }) => settings.explorerUrl),
     ]);
@@ -70,10 +73,13 @@ export function* fetchAndUpdateUtxos(
     return;
   }
 
+  let utxoUpdatedCount = 0;
+
   while (!it.done) {
     const utxo = it.value;
     newOutpoints.push(outpointToString(utxo));
     if (!currentUtxos[outpointToString(utxo)]) {
+      utxoUpdatedCount++;
       yield put(setUtxo(utxo));
     }
     it = yield call(next);
@@ -83,8 +89,13 @@ export function* fetchAndUpdateUtxos(
   for (const outpoint of Object.keys(currentUtxos)) {
     if (outpoint && !newOutpoints.includes(outpoint)) {
       const [txid, vout] = outpoint.split(':');
+      utxoUpdatedCount++;
       yield put(deleteUtxo({ txid, vout: parseInt(vout) }));
     }
+  }
+
+  if (utxoUpdatedCount > 0) {
+    console.debug(`${utxoUpdatedCount} utxos updated`);
   }
 }
 

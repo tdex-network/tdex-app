@@ -18,7 +18,6 @@ import { RefresherEventDetail } from '@ionic/core';
 //styles
 import './style.scss';
 import { chevronDownCircleOutline } from 'ionicons/icons';
-import { updateUtxos } from '../../redux/actions/walletActions';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import {
   capitalizeFirstLetter,
@@ -27,9 +26,8 @@ import {
 } from '../../utils/helpers';
 import { MAIN_ASSETS } from '../../utils/constants';
 import CircleDiagram from '../../components/CircleDiagram';
-import { updateRates } from '../../redux/actions/ratesActions';
-import { updateTransactions } from '../../redux/actions/transactionsActions';
 import { ActionType } from '../../utils/types';
+import { update } from '../../redux/actions/appActions';
 
 interface WalletProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -96,21 +94,15 @@ const Wallet: React.FC<WalletProps> = ({
     setSecondaryAssets(secondary);
   }, [balances]);
 
-  const refreshUpdate = async () => {
-    dispatch(updateUtxos());
-    dispatch(updateRates());
-    dispatch(updateTransactions());
-  };
-
   const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
-    refreshUpdate();
+    dispatch(update());
     setTimeout(() => {
       event.detail.complete();
     }, 2000);
   };
 
   useEffect(() => {
-    refreshUpdate();
+    dispatch(update());
   }, []);
 
   return (
@@ -139,13 +131,13 @@ const Wallet: React.FC<WalletProps> = ({
                   : '0.00'}
                 <span>LBTC</span>
               </p>
-              <p className="info-amount-converted">
-                {LBTCBalance && fiats[LBTCBalanceIndex] > 0
-                  ? `${fiats[LBTCBalanceIndex]?.toFixed(
-                      2
-                    )} ${currency.toUpperCase()}`
-                  : 'loading...'}
-              </p>
+              {LBTCBalance && fiats[LBTCBalanceIndex] > 0 && (
+                <p className="info-amount-converted">
+                  {`${fiats[LBTCBalanceIndex]?.toFixed(
+                    2
+                  )} ${currency.toUpperCase()}`}
+                </p>
+              )}
             </div>
           </div>
         </IonHeader>

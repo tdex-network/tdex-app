@@ -1,3 +1,5 @@
+import { fetchTxHex } from 'ldk';
+import { tickerFromAssetHash } from '../redux/reducers/walletReducer';
 import { Assets, defaultPrecision } from './constants';
 
 export const getEdgeAsset = (asset_id: string) => {
@@ -6,8 +8,9 @@ export const getEdgeAsset = (asset_id: string) => {
 export const createColorFromHash = (id: string): string => {
   let hash = 0;
   if (id.length === 0) throw Error('id length must be > 0');
-  for (let i = 0; i < id.length; i++) {
-    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  const ticker = tickerFromAssetHash(id);
+  for (let i = 0; i < ticker.length; i++) {
+    hash = ticker.charCodeAt(i) + ((hash << 5) - hash);
   }
   return `hsl(${hash % 360}, 70%, 50%)`;
 };
@@ -68,4 +71,41 @@ export function groupBy(xs: Array<any>, key: string) {
 
 export function capitalizeFirstLetter(string: string): string {
   return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+/**
+ * Util function to check the validity of string amount
+ * @param amount the string to check
+ */
+export function validAmountString(amount?: string): boolean {
+  if (!amount) return false;
+  return amountGuard(amount);
+}
+
+function amountGuard(amount: string): boolean {
+  // TODO handle precision & max amount for altcoins ?
+  const regexp = new RegExp('^\\d{0,8}(\\.\\d{0,8})?$');
+  return regexp.test(amount);
+}
+
+/**
+ * Use esplora server to fetchTxHex
+ * @param txid
+ * @param explorerURL
+ */
+export async function waitForTx(txid: string, explorerURL: string) {
+  let go = true;
+  while (go) {
+    try {
+      await fetchTxHex(txid, explorerURL);
+      go = false;
+    } catch (_) {
+      await sleep(800);
+      continue;
+    }
+  }
+}
+
+export async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

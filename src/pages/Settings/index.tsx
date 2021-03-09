@@ -15,7 +15,7 @@ import {
 } from '@ionic/react';
 import React, { useState } from 'react';
 import { IconClose, IconRightArrow } from '../../components/icons';
-import { withRouter } from 'react-router';
+import { RouteComponentProps, withRouter } from 'react-router';
 import './style.scss';
 import PageDescription from '../../components/PageDescription';
 import {
@@ -27,7 +27,7 @@ import PinModal from '../../components/PinModal';
 import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
 import { addErrorToast } from '../../redux/actions/toastActions';
 
-const Settings: React.FC<any> = ({ history }) => {
+const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   const { explorerUrl, theme } = useSelector((state: any) => ({
     explorerUrl: state.settings.explorerUrl,
     theme: state.settings.theme,

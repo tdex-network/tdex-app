@@ -26,8 +26,8 @@ import { fromSatoshi } from '../../utils/helpers';
 import { checkmarkSharp, chevronDownCircleOutline } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { updateTransactions } from '../../redux/actions/transactionsActions';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
+import { update } from '../../redux/actions/appActions';
 
 const txTypes = ['deposit', 'withdrawal', 'swap', 'trade'];
 const statusText = {
@@ -94,7 +94,7 @@ const Operations: React.FC<OperationsProps> = ({
   };
 
   const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
-    dispatch(updateTransactions());
+    dispatch(update());
     setTimeout(() => {
       event.detail.complete();
     }, 2000);
@@ -107,6 +107,7 @@ const Operations: React.FC<OperationsProps> = ({
         <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
           <IonRefresherContent
             pullingIcon={chevronDownCircleOutline}
+            color="light"
             refreshingSpinner="circles"
           />
         </IonRefresher>

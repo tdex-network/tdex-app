@@ -1,4 +1,5 @@
-import { setPublicKeys } from './../actions/walletActions';
+import { updateMarkets } from './../actions/tdexActions';
+import { setPublicKeys, updateUtxos } from './../actions/walletActions';
 import { ActionType } from './../../utils/types';
 import { waitForRestore } from './../services/walletService';
 import { takeLatest, put, call, all } from 'redux-saga/effects';
@@ -8,13 +9,14 @@ import {
   initAppSuccess,
   setSignedUp,
   SIGN_IN,
+  UPDATE,
 } from '../actions/appActions';
 import { setAddresses, setIsAuth } from '../actions/walletActions';
-import { setProviderEndpoint } from '../actions/exchange/providerActions';
-import { provider } from '../config';
 import { restoreTheme } from '../actions/settingsActions';
 import { Mnemonic } from 'ldk';
 import { getIdentity } from '../../utils/storage-helper';
+import { updateTransactions } from '../actions/transactionsActions';
+import { updateRates } from '../actions/ratesActions';
 
 function* initAppSaga() {
   try {
@@ -36,17 +38,25 @@ function* signInSaga(action: ActionType) {
     const addresses = identity.getAddresses();
     yield put(setAddresses(addresses));
 
-    yield all([
-      put(setIsAuth(true)),
-      put(setProviderEndpoint(provider.endpoint)),
-    ]);
+    yield all([put(setIsAuth(true))]);
+    yield put(updateMarkets());
   } catch (e) {
     yield put(initAppFail());
     console.error(e);
   }
 }
 
+function* updateState() {
+  yield all([
+    put(updateMarkets()),
+    put(updateTransactions()),
+    put(updateRates()),
+    put(updateUtxos()),
+  ]);
+}
+
 export function* appWatcherSaga() {
   yield takeLatest(INIT_APP, initAppSaga);
   yield takeLatest(SIGN_IN, signInSaga);
+  yield takeLatest(UPDATE, updateState);
 }
