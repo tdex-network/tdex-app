@@ -120,7 +120,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       return;
     }
 
-    setReceivedAmount(amountGuard(newReceivedAmount));
+    setReceivedAmount(newReceivedAmount);
     if (!assetReceived || trades.length === 0) return;
     updateSentAmount(newReceivedAmount);
   };
@@ -138,7 +138,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       return;
     }
 
-    setSentAmount(amountGuard(newSentAmount));
+    setSentAmount(newSentAmount);
     if (!assetSent || trades.length === 0) return;
     updateReceivedAmount(newSentAmount);
   };
@@ -151,7 +151,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       setIsReceivedUpdating(true);
       const { amount, asset, trade: bestTrade } = await bestPrice(
         {
-          amount: parseFloat(amountGuard(newSentAmount)),
+          amount: parseFloat(newSentAmount),
           asset: assetSent.asset,
         },
         trades
@@ -159,7 +159,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       if (asset !== assetReceived?.asset) {
         throw new Error('Wrong preview asset');
       }
-      setReceivedAmount(amountGuard(fromSatoshiFixed(amount, 8, 8)));
+      setReceivedAmount(fromSatoshiFixed(amount, 8, 8));
       setTrade(bestTrade);
     } catch (e) {
       console.error(e);
@@ -178,7 +178,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       setIsSentUpdating(true);
       const { amount, asset, trade: bestTrade } = await bestPrice(
         {
-          amount: parseFloat(amountGuard(newReceivedAmount)),
+          amount: parseFloat(newReceivedAmount),
           asset: assetReceived.asset,
         },
         trades
@@ -188,7 +188,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         throw new Error('Wrong preview asset');
       }
 
-      setSentAmount(amountGuard(fromSatoshiFixed(amount, 8, 8)));
+      setSentAmount(fromSatoshiFixed(amount, 8, 8));
       setTrade(bestTrade);
     } catch (e) {
       console.error(e);
@@ -335,6 +335,8 @@ const Exchange: React.FC<ExchangeProps> = ({
                 !sentAmount ||
                 !receivedAmount ||
                 loading ||
+                !amountGuard(sentAmount) ||
+                !amountGuard(receivedAmount) ||
                 (balances.find((b) => b.asset === assetSent.asset)?.amount ||
                   -1) < toSatoshi(parseFloat(sentAmount))
               }

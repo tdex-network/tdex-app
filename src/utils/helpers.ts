@@ -73,11 +73,10 @@ export function capitalizeFirstLetter(string: string): string {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-export function amountGuard(amount: string): string {
+export function amountGuard(amount: string): boolean {
   // TODO handle precision & max amount for altcoins ?
-  const regexp = new RegExp('\\d{0,8}(\\.)?\\d{0,8}');
-  const results = regexp.exec(amount);
-  return results && results.length > 0 ? results[0] : '';
+  const regexp = new RegExp('^\\d{0,8}(\\.\\d{0,8})?$');
+  return regexp.test(amount);
 }
 
 export async function waitForTx(txid: string, explorerURL: string) {

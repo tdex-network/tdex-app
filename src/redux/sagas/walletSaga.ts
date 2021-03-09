@@ -14,7 +14,7 @@ import {
   UtxoInterface,
   fetchAndUnblindUtxosGenerator,
 } from 'ldk';
-import { addErrorToast, addSuccessToast } from '../actions/toastActions';
+import { addErrorToast } from '../actions/toastActions';
 import {
   getAddressesFromStorage,
   setAddressesInStorage,
@@ -95,7 +95,7 @@ export function* fetchAndUpdateUtxos(
   }
 
   if (utxoUpdatedCount > 0) {
-    yield put(addSuccessToast(`${utxoUpdatedCount} utxos updated`));
+    console.debug(`${utxoUpdatedCount} utxos updated`);
   }
 }
 

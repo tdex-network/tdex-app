@@ -110,5 +110,5 @@ async function getMarketsFromProvider(p: TDEXProvider): Promise<TDEXMarket[]> {
   const client = new TraderClient(p.endpoint);
   const markets: MarketInterface[] = await client.markets();
 
-  return markets.map((market) => ({ ...market, provider }));
+  return markets.map((market) => ({ ...market, provider: p }));
 }
