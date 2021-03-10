@@ -5,3 +5,33 @@
   width: 100%;
   margin-top: 5%;
 }
+
+.provider-name {
+  font-size: 14px;
+}
+
+.provider-endpoint {
+  font-size: 10px;
+}
+
+.provider {
+  overflow: scroll;
+  white-space: nowrap;
+  @media (max-width: 375px) {
+    max-width: 200px;
+  }
+  @media (max-width: 450px) {
+    .provider-name {
+      font-size: 12px;
+    }
+
+    .provider-endpoint {
+      font-size: 8px;
+    }
+  }
+}
+
+.button-delete {
+  position: absolute;
+  right: 5px;
+}

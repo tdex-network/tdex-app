@@ -29,6 +29,9 @@
   flex: 1;
   .name {
     font-size: 24px;
+    @media (max-width: 350px) {
+      font-size: medium;
+    }
     font-family: 'DMSans';
     display: flex;
     align-items: center;
@@ -40,6 +43,9 @@
   .trade-price {
     font-family: 'DMMono';
     font-size: 18px;
+    @media (max-width: 350px) {
+      font-size: small;
+    }
     margin-top: 2px;
   }
   &.trade-item:nth-child(3) {
