@@ -75,7 +75,7 @@
 }
 
 .transaction-icons {
-  margin: 47px auto 50px;
+  margin: 47px auto 30px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -100,4 +100,18 @@
 
 .second {
   transform: translate(-15px) rotate(25deg) scale(1.1);
+}
+
+.tx-loader {
+  font-size: small;
+  margin-top: 1%;
+  transition: all 1s ease;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  &.visible {
+    opacity: 1;
+  }
 }
