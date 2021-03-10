@@ -1,4 +1,4 @@
-@import "../../theme/variables";
+@import '../../theme/variables';
 
 .modal-big.receive {
   .description-with-icon {
@@ -55,8 +55,7 @@
 }
 
 .conf-addr.item-start {
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: scroll;
   white-space: nowrap;
   line-height: 30px;
   display: block;

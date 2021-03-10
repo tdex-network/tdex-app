@@ -1,8 +1,11 @@
 @import '../../theme/variables';
 
+$breakpoint-small-device: 700px;
+
 .buttons {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
   width: 100%;
 }
@@ -15,9 +18,21 @@
   margin-top: 22px;
 }
 
+@media (max-height: $breakpoint-small-device) {
+  .main-button {
+    height: 48px;
+    width: 140px;
+  }
+}
+
+@media (min-height: $breakpoint-small-device) {
+  .main-button {
+    height: 56px;
+    width: 260px;
+  }
+}
+
 .main-button {
-  height: 56px;
-  width: 260px;
   --background: transparent;
   --padding-top: 21px;
   --padding-bottom: 21px;

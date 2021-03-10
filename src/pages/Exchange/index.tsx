@@ -350,7 +350,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               Confirm
             </IonButton>
             <IonButton routerLink="/history" className="main-button secondary">
-              Go to trade history
+              Trade history
             </IonButton>
             {trade && (
               <IonText className="trade-info" color="light">
