@@ -22,7 +22,7 @@ import { CurrencyIcon, IconBack, TxIcon } from '../../components/icons';
 import './style.scss';
 import { useDispatch, useSelector } from 'react-redux';
 import { TxDisplayInterface, TxStatusEnum } from '../../utils/types';
-import { fromSatoshi } from '../../utils/helpers';
+import { fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
 import { checkmarkSharp, chevronDownCircleOutline } from 'ionicons/icons';
 import { RefresherEventDetail } from '@ionic/core';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
@@ -123,7 +123,7 @@ const Operations: React.FC<OperationsProps> = ({
               {balance && <CurrencyIcon currency={balance?.ticker} />}
             </div>
             <p className="info-amount">
-              {balance && fromSatoshi(balance?.amount).toFixed(8)}
+              {balance && fromSatoshiFixed(balance?.amount, 8, 8)}
               <span>{balance?.ticker}</span>
             </p>
             {balance && balance.coinGeckoID && prices[balance.coinGeckoID] && (
