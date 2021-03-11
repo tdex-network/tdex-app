@@ -7,6 +7,7 @@
     "@capacitor/core": "2.4.2",
     "@capacitor/ios": "^2.4.2",
     "@cheprasov/react-qrcode": "^1.0.1",
+    "@dutchconcepts/capacitor-barcode-scanner": "^1.1.1",
     "@ionic-native/base64": "^5.30.0",
     "@ionic-native/clipboard": "^5.30.0",
     "@ionic-native/core": "^5.30.0",
