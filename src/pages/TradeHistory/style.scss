@@ -1,4 +1,4 @@
-@import "../../theme/variables";
+@import '../../theme/variables';
 
 .trade-history {
   .list-item {
@@ -32,4 +32,10 @@
       }
     }
   }
+}
+
+.no-swaps {
+  height: 100%;
+  text-align: center;
+  padding: 20%;
 }

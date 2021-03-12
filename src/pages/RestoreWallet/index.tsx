@@ -25,6 +25,7 @@ import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
+import * as bip39 from 'bip39';
 
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
@@ -41,7 +42,10 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   }, [mnemonic]);
 
   const handleConfirm = () => {
-    // TODO check mnemonic validity
+    if (!bip39.validateMnemonic(mnemonic.join(' '))) {
+      dispatch(addErrorToast('Invalid BIP39 mnemonic'));
+      return;
+    }
     setModalOpen('first');
   };
 
@@ -133,7 +137,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
                 <div className="input-number">{index + 1}</div>
                 <input
                   onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setMnemonicWord(e, index)
+                    setMnemonicWord(e.target.value, index)
                   }
                   value={item}
                   type="text"

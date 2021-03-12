@@ -2,18 +2,21 @@
 
 .operations-buttons {
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
-  padding: 0 11px;
 }
 
 .coin-action-button {
   border: 2px solid #fff;
   color: #fff;
   height: 40px !important;
-  max-width: 111px !important;
   width: 100%;
   padding: 11px 15px;
   font-size: 14px !important;
+  @media (max-width: 400px) {
+    width: 100px !important;
+    font-size: 12px !important;
+  }
 
   &.small-button {
     min-width: 75px !important;
@@ -39,7 +42,6 @@
 }
 
 .operations {
-  --overflow: auto;
   .header-info {
     margin: 47px 0 50px;
     .img-wrapper {

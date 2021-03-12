@@ -205,7 +205,7 @@ const TradeSummary: React.FC<
                 routerLink="/history"
                 className="main-button secondary"
               >
-                Go to trade history
+                Trade history
               </IonButton>
             </div>
           </div>
