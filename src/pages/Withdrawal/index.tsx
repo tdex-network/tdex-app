@@ -9,6 +9,7 @@ import {
   IonLabel,
   IonInput,
   IonLoading,
+  useIonViewDidEnter,
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
@@ -37,11 +38,16 @@ import {
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 
-interface WithdrawalProps extends RouteComponentProps {
+interface WithdrawalProps
+  extends RouteComponentProps<any, any, { address: string; amount: number }> {
   balances: BalanceInterface[];
 }
 
-const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
+const Withdrawal: React.FC<WithdrawalProps> = ({
+  balances,
+  history,
+  location,
+}) => {
   // route parameter asset_id
   const { asset_id } = useParams<{ asset_id: string }>();
 
@@ -164,6 +170,14 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
     setPrice(undefined);
   }, [prices]);
 
+  useEffect(() => {
+    console.log(location.state);
+    if (location.state) {
+      setRecipientAddress(location.state.address);
+      setAmount(location.state.amount);
+    }
+  }, [location]);
+
   const onPinConfirm = (pin: string) => {
     if (!isValid()) return;
     createTxAndBroadcast(pin);
@@ -211,6 +225,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
       <IonContent className="withdrawal">
         {balance && (
           <WithdrawRow
+            inputAmount={amount}
             balance={balance}
             price={price}
             onAmountChange={onAmountChange}
@@ -230,7 +245,12 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ balances, history }) => {
             <div className="item-end">
               <IonButton
                 className="scan-btn"
-                onClick={() => history.push('/qrscanner')}
+                onClick={() =>
+                  history.replace(`/qrscanner/${asset_id}`, {
+                    amount,
+                    address: '',
+                  })
+                }
               >
                 <IconQR fill="#fff" />
               </IonButton>

@@ -11,7 +11,7 @@ import {
   IonLoading,
 } from '@ionic/react';
 import React, { useEffect, useRef, useState } from 'react';
-import { withRouter, RouteComponentProps } from 'react-router';
+import { withRouter, RouteComponentProps, useParams } from 'react-router';
 import { IconBack, IconBTC, IconCopy } from '../../components/icons';
 import PageDescription from '../../components/PageDescription';
 import './style.scss';

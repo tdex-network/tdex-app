@@ -22,7 +22,7 @@ export const routerLinks = {
   withdrawalDetails: '/withdraw/:asset_id/details',
   withdrawal: '/withdraw/:asset_id',
   receive: '/receive',
-  qrScanner: '/qrscanner',
+  qrScanner: '/qrscanner/:asset_id',
   account: '/account/:pin',
   liquidityProvider: '/liquidity-provider',
 };
