@@ -10,10 +10,6 @@
     <param name="android-package" value="com.verso.cordova.clipboard.Clipboard"/>
   </feature>
 
-  <feature name="QRScanner">
-    <param name="android-package" value="com.bitpay.cordova.qrscanner.QRScanner"/>
-  </feature>
-
   <feature name="CDVOrientation">
     <param name="android-package" value="cordova.plugins.screenorientation.CDVOrientation"/>
   </feature>
