@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
-import classNames from 'classnames';
 import {
   IonPage,
   IonTitle,
@@ -12,8 +11,8 @@ import {
   IonHeader,
   IonIcon,
   IonLoading,
-  IonSpinner,
   useIonViewDidLeave,
+  IonSkeletonText,
 } from '@ionic/react';
 import { CurrencyIcon, IconBack } from '../../components/icons';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
@@ -182,12 +181,18 @@ const TradeSummary: React.FC<
                   </div>
                 </div>
                 <div className="transaction-info">
-                  {transaction && (
-                    <div className="transaction-info-date">
-                      <p>{transaction.date}</p>
+                  <div className="transaction-info-date">
+                    {transaction ? (
+                      <p>{transaction.time}</p>
+                    ) : (
+                      <IonSkeletonText animated style={{ width: '30%' }} />
+                    )}
+                    {transaction ? (
                       <p>{fromSatoshiFixed(transaction.fee, 8, 8)} Fee</p>
-                    </div>
-                  )}
+                    ) : (
+                      <IonSkeletonText animated style={{ width: '15%' }} />
+                    )}
+                  </div>
                   <div className="transaction-info-values">
                     <div className="transaction-col-name">Tx ID</div>
                     <div className="transaction-col-value">{txid}</div>
@@ -195,13 +200,6 @@ const TradeSummary: React.FC<
                 </div>
               </div>
             </IonItem>
-            <div
-              className={classNames(['tx-loader', { visible: !transaction }])}
-            >
-              <div>
-                <IonSpinner name="crescent" color="light" />
-              </div>
-            </div>
             <div className="buttons">
               <IonButton
                 routerLink="/history"
