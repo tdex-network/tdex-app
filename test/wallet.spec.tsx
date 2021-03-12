@@ -32,7 +32,7 @@ describe('wallet component', () => {
       />
     );
 
-    expect(getByLabelText('main-balance')).toHaveTextContent('1.00000000LBTC');
+    expect(getByLabelText('main-balance')).toHaveTextContent('1.00LBTC');
 
     for (const balance of balances) {
       expect(getByLabelText(balance.ticker)).toBeInTheDocument();

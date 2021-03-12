@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { IonApp, IonLoading } from '@ionic/react';
+import { IonApp, IonLoading, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 
 /* Core CSS required for Ionic components to work properly */
@@ -22,13 +22,16 @@ import '@ionic/react/css/display.css';
 import './theme/global.scss';
 
 import Tabs from './pages/Tabs';
-import Main from './pages/Main';
 
 import { Plugins } from '@capacitor/core';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
 import { useDispatch, useSelector } from 'react-redux';
 import { initApp } from './redux/actions/appActions';
 import Toasts from './redux/containers/toastsContainer';
+import { Redirect, Route } from 'react-router';
+import Homescreen from './pages/Homescreen';
+import Login from './pages/Login';
+import RestoreWallet from './pages/RestoreWallet';
 
 const App: React.FC = () => {
   const { isAuth, appInit, theme } = useSelector((state: any) => ({
@@ -66,7 +69,19 @@ const App: React.FC = () => {
           isOpen={!appInit}
           message={'Please wait...'}
         />
-        {isAuth ? <Tabs /> : <Main />}
+        {/* RouterOutlet will render depending on path */}
+        {isAuth ? (
+          <Tabs />
+        ) : (
+          <IonRouterOutlet>
+            <Redirect exact from="/" to="/homescreen" />
+            <Route path="/homescreen" component={Homescreen} />
+            <Route path="/login" component={Login} />
+            <Route path="/restore" component={RestoreWallet} />
+          </IonRouterOutlet>
+        )}
+
+        {/* Toasts component displays toasts from redux state */}
         <Toasts />
       </IonReactRouter>
     </IonApp>

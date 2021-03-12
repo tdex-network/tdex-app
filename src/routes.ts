@@ -80,16 +80,19 @@ export const ROUTES = [
 
 export const TABS = [
   {
+    name: 'wallet',
     path: routerLinks.wallet,
     icon: IconWallet,
     component: Wallet,
   },
   {
+    name: 'exchange',
     path: routerLinks.exchange,
     icon: IconExchange,
     component: Exchange,
   },
   {
+    name: 'settings',
     path: routerLinks.settings,
     icon: IconSettings,
     component: Settings,

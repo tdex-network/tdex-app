@@ -3,6 +3,9 @@
 .exchange-coin-container {
   position: relative;
   background: rgb(51, 51, 51);
+  @media (max-height: 700px) {
+    padding: 32px 24px;
+  }
   padding: 54px 24px;
   color: #fff;
 
@@ -43,6 +46,9 @@
     --inner-padding-end: 0;
     font-family: $sub-font;
     font-size: 30px;
+    @media (max-height: 700px) {
+      font-size: 16px;
+    }
     color: rgb(102, 102, 102);
 
     &.active {

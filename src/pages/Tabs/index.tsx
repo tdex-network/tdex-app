@@ -6,8 +6,8 @@ import {
   IonTabButton,
   IonRouterOutlet,
 } from '@ionic/react';
-import React, { useState } from 'react';
-import { Redirect, Route } from 'react-router';
+import React from 'react';
+import { Redirect, Route, RouteComponentProps, withRouter } from 'react-router';
 import classNames from 'classnames';
 
 //routes
@@ -16,11 +16,20 @@ import { ROUTES, TABS } from '../../routes';
 //style
 import './style.scss';
 
-const Tabs: React.FC = () => {
-  const [activeTab, setActiveTab] = useState(0);
+const ROUTES_SORTED_BY_TAB: Record<string, string[]> = {
+  wallet: ['wallet', 'operations', 'qrscanner', 'receive', 'withdraw'],
+  exchange: ['exchange', 'tradesummary', 'history'],
+  settings: ['settings', 'account', 'liquidity-provider'],
+};
 
-  const handleChangeTab = (index: number) => {
-    setActiveTab(index);
+const Tabs: React.FC<RouteComponentProps> = (history) => {
+  const isActive = (name: string) => {
+    const routes = ROUTES_SORTED_BY_TAB[name];
+    for (const routeName of routes) {
+      if (history.location.pathname.includes(routeName)) return true;
+    }
+
+    return false;
   };
 
   return (
@@ -48,16 +57,13 @@ const Tabs: React.FC = () => {
                 href={`${item.path}/`}
                 key={item.path}
               >
-                <div
-                  onClick={() => handleChangeTab(index)}
-                  className="tab-content"
-                >
+                <div className="tab-content">
                   <item.icon
                     className={classNames('tab-icon', {
-                      active: activeTab === index,
+                      active: isActive(item.name),
                     })}
                   />
-                  {activeTab === index && <span className="indicator"></span>}
+                  {isActive(item.name) && <span className="indicator"></span>}
                 </div>
               </IonTabButton>
             ))}
@@ -68,4 +74,4 @@ const Tabs: React.FC = () => {
   );
 };
 
-export default Tabs;
+export default withRouter(Tabs);
