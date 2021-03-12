@@ -10,7 +10,7 @@
     }
   }
   .buttons {
-    margin-top: 48px;
+    margin-top: 10px;
   }
   .item-col {
     display: flex;
@@ -35,4 +35,12 @@
       --background: #fff;
     }
   }
+}
+
+.item-start {
+  margin-right: 2%;
+}
+
+.custom-skeleton {
+  width: 100px;
 }

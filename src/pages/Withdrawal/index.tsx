@@ -9,7 +9,6 @@ import {
   IonLabel,
   IonInput,
   IonLoading,
-  useIonViewDidEnter,
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
@@ -37,9 +36,14 @@ import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
+import { update } from '../../redux/actions/appActions';
 
 interface WithdrawalProps
-  extends RouteComponentProps<any, any, { address: string; amount: number }> {
+  extends RouteComponentProps<
+    any,
+    any,
+    { address: string; amount: number; asset: string }
+  > {
   balances: BalanceInterface[];
 }
 
@@ -129,14 +133,20 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         .toHex();
 
       // TODO what should be done with txID ? displayed ?
-      await broadcastTx(txHex, explorerURL);
+      const txid = await broadcastTx(txHex, explorerURL);
       dispatch(
         addSuccessToast(
           `Transaction broadcasted. ${amount} ${balance?.ticker} sent.`
         )
       );
       dispatch(setAddresses(identity.getAddresses()));
+      dispatch(update());
       setModalOpen(false);
+      history.push(`/withdraw/${txid}/details`, {
+        address: recipientAddress,
+        amount,
+        asset: asset_id,
+      });
     } catch (err) {
       console.error(err);
       dispatch(
@@ -171,7 +181,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   }, [prices]);
 
   useEffect(() => {
-    console.log(location.state);
     if (location.state) {
       setRecipientAddress(location.state.address);
       setAmount(location.state.amount);
@@ -182,13 +191,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     if (!isValid()) return;
     createTxAndBroadcast(pin);
   };
-
-  useEffect(() => {
-    // TODO manage withdraw details
-    // if (loading === false) {
-    //   history.push(`/withdraw/${asset_id}/details`);
-    // }
-  }, [loading]);
 
   return (
     <IonPage>
@@ -249,6 +251,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
                   history.replace(`/qrscanner/${asset_id}`, {
                     amount,
                     address: '',
+                    asset: asset_id,
                   })
                 }
               >

@@ -129,7 +129,8 @@ function sumUtxos(utxos: UtxoInterface[]): number {
   return sum;
 }
 
-export function tickerFromAssetHash(assetHash: string): string {
+export function tickerFromAssetHash(assetHash?: string): string {
+  if (!assetHash) return '';
   const assetData = Object.values(Assets).find(
     (a) => a.assetHash === assetHash
   );

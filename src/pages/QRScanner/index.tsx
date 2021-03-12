@@ -2,25 +2,22 @@ import {
   IonButton,
   IonContent,
   IonHeader,
-  IonModal,
   IonPage,
   IonTitle,
   IonToolbar,
   useIonViewDidEnter,
   useIonViewWillLeave,
 } from '@ionic/react';
-import React, { useEffect } from 'react';
-
-//style
+import React from 'react';
 import { Plugins } from '@capacitor/core';
 import { useDispatch } from 'react-redux';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
+import { RouteComponentProps, useParams, withRouter } from 'react-router';
 
 import './style.scss';
-import { RouteComponentProps, useParams, withRouter } from 'react-router';
 
 const { BarcodeScanner } = Plugins;
 
