@@ -45,6 +45,7 @@
     "android": "npx ionic capacitor run android",
     "android:serve": "npx ionic capacitor run android -l --external",
     "ios": "npx ionic capacitor run ios",
+    "ios:serve": "ionic capacitor run ios -l --external",
     "build:android": "npx ionic capacitor build android --no-open",
     "build:ios": "npx ionic capacitor build ios --no-open",
     "sync": "npx jetify && npx ionic cap sync",
