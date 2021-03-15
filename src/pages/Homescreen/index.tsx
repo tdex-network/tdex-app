@@ -9,8 +9,6 @@ import {
 import React, { useState } from 'react';
 import { RouteComponentProps } from 'react-router';
 import { useDispatch } from 'react-redux';
-
-import './style.scss';
 import { signIn } from '../../redux/actions/appActions';
 import PinModal from '../../components/PinModal';
 import {
@@ -21,6 +19,8 @@ import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
+
+import './style.scss';
 
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   const [pinModalIsOpen, setPinModalIsOpen] = useState(false);
