@@ -141,7 +141,7 @@ const Wallet: React.FC<WalletProps> = ({
             </div>
           </div>
         </IonHeader>
-        <IonList>
+        <IonList scroll-y={true}>
           <IonListHeader>
             Asset list
             <IonButton

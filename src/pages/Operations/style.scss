@@ -42,6 +42,11 @@
 }
 
 .operations {
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  --overflow: auto;
+  position: relative;
+
   .header-info {
     margin: 47px 0 50px;
     .img-wrapper {
