@@ -16,7 +16,7 @@ import PinModal from '../../components/PinModal';
 import {
   getIdentity,
   mnemonicInSecureStorage,
-} from '../../utils/storage-helper';
+} from '../../utils/storage/storage-helper';
 import {
   addErrorToast,
   addSuccessToast,

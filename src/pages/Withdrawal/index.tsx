@@ -30,7 +30,7 @@ import { network } from '../../redux/config';
 import { toSatoshi } from '../../utils/helpers';
 import { setAddresses } from '../../redux/actions/walletActions';
 import { Psbt } from 'liquidjs-lib';
-import { getIdentity } from '../../utils/storage-helper';
+import { getIdentity } from '../../utils/storage/storage-helper';
 import PinModal from '../../components/PinModal';
 import {
   addErrorToast,

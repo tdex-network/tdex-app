@@ -9,7 +9,7 @@ import {
 import {
   changePin,
   getMnemonicFromSecureStorage,
-} from '../../utils/storage-helper';
+} from '../../utils/storage/storage-helper';
 
 interface ChangePinModalsProps {
   open: boolean;

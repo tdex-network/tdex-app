@@ -2,10 +2,10 @@ import { Storage, Plugins } from '@capacitor/core';
 import { AddressInterface, IdentityOpts, IdentityType, Mnemonic } from 'ldk';
 
 import 'capacitor-secure-storage-plugin';
-import { decrypt, encrypt, Encrypted } from './crypto';
-import { network } from '../redux/config';
-import { IdentityRestorerFromState } from './identity-restorer';
-import { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
+import { decrypt, encrypt, Encrypted } from '../crypto';
+import { network } from '../../redux/config';
+import { IdentityRestorerFromState } from '../identity-restorer';
+import { TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
 
 const { SecureStoragePlugin } = Plugins;
 

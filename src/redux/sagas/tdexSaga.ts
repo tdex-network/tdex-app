@@ -17,7 +17,7 @@ import { addErrorToast } from '../actions/toastActions';
 import {
   getProvidersFromStorage,
   setProvidersInStorage,
-} from '../../utils/storage-helper';
+} from '../../utils/storage/storage-helper';
 import { getProvidersFromTDexRegistry } from '../../utils/tdex';
 import { provider } from '../config';
 

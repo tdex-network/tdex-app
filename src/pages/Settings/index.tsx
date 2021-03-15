@@ -24,7 +24,7 @@ import {
 } from '../../redux/actions/settingsActions';
 import { useDispatch, useSelector } from 'react-redux';
 import PinModal from '../../components/PinModal';
-import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
+import { getMnemonicFromSecureStorage } from '../../utils/storage/storage-helper';
 import { addErrorToast } from '../../redux/actions/toastActions';
 
 const Settings: React.FC<RouteComponentProps> = ({ history }) => {

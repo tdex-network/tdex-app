@@ -14,7 +14,7 @@ import {
 import { setAddresses, setIsAuth } from '../actions/walletActions';
 import { restoreTheme } from '../actions/settingsActions';
 import { Mnemonic } from 'ldk';
-import { getIdentity } from '../../utils/storage-helper';
+import { getIdentity } from '../../utils/storage/storage-helper';
 import { updateTransactions } from '../actions/transactionsActions';
 import { updateRates } from '../actions/ratesActions';
 
