@@ -28,6 +28,7 @@ import { RefresherEventDetail } from '@ionic/core';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
 import { update } from '../../redux/actions/appActions';
+import { LBTC_TICKER } from '../../utils/constants';
 
 const txTypes = ['deposit', 'withdrawal', 'swap', 'trade'];
 const statusText = {
@@ -206,7 +207,7 @@ const Operations: React.FC<OperationsProps> = ({
                           <IonLabel>
                             Fee{' '}
                             <span className="amount">
-                              {fromSatoshi(tx.fee).toFixed(8)} LBTC
+                              {fromSatoshi(tx.fee).toFixed(8)} {LBTC_TICKER}
                             </span>
                           </IonLabel>
                           <IonText>{renderStatusText(tx.status)}</IonText>

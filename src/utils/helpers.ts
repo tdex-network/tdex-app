@@ -1,10 +1,7 @@
 import { fetchTxHex } from 'ldk';
 import { tickerFromAssetHash } from '../redux/reducers/walletReducer';
-import { Assets, defaultPrecision } from './constants';
+import { defaultPrecision } from './constants';
 
-export const getEdgeAsset = (asset_id: string) => {
-  return Object.values(Assets).find((item: any) => item.assetHash === asset_id);
-};
 export const createColorFromHash = (id: string): string => {
   let hash = 0;
   if (id.length === 0) throw Error('id length must be > 0');

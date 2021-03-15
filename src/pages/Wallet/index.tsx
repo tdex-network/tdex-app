@@ -24,7 +24,7 @@ import {
   fromSatoshi,
   fromSatoshiFixed,
 } from '../../utils/helpers';
-import { MAIN_ASSETS } from '../../utils/constants';
+import { getMainAsset, LBTC_TICKER } from '../../utils/constants';
 import CircleDiagram from '../../components/CircleDiagram';
 import { ActionType } from '../../utils/types';
 import { update } from '../../redux/actions/appActions';
@@ -82,7 +82,7 @@ const Wallet: React.FC<WalletProps> = ({
     const main = [];
     const secondary = [];
     for (const balance of balances) {
-      if (MAIN_ASSETS.includes(balance.ticker.toLowerCase())) {
+      if (getMainAsset(balance.asset)) {
         main.push(balance);
         continue;
       }
@@ -129,7 +129,7 @@ const Wallet: React.FC<WalletProps> = ({
                 {LBTCBalance
                   ? fromSatoshiFixed(LBTCBalance.amount, 8, 8)
                   : '0.00'}
-                <span>LBTC</span>
+                <span>{LBTC_TICKER}</span>
               </p>
               {LBTCBalance && fiats[LBTCBalanceIndex] > 0 && (
                 <p className="info-amount-converted">
@@ -194,7 +194,7 @@ const Wallet: React.FC<WalletProps> = ({
                     </div>
                     <div className="second-col">
                       <div className="main-row accent">{balance.ticker}</div>
-                      {fiatValue > 0 && (
+                      {fiatValue >= 0 && (
                         <div className="sub-row">{currency.toUpperCase()}</div>
                       )}
                     </div>
