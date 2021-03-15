@@ -34,12 +34,6 @@ end
 platform :android do
   # Android Lanes 🤖
   desc 'Build the Android application for Release.'
-  lane :build-debug do
-    gradle(task: 'clean', project_dir: 'android/')
-    gradle(task: 'app:assemble', build_type: 'Debug', project_dir: 'android/')
-  end
-
-  desc 'Build the Android application for Release.'
   lane :build do
     gradle(task: 'clean', project_dir: 'android/')
     gradle(task: 'app:assemble', build_type: 'Release', project_dir: 'android/')
