@@ -61,7 +61,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
           <IonTitle>Trade history</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent scrollY={true} className="trade-history">
+      <IonContent className="trade-history">
         {swaps.length > 0 ? (
           <IonList>
             <IonListHeader>Today</IonListHeader>

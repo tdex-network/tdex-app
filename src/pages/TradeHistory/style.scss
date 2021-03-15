@@ -1,6 +1,10 @@
 @import '../../theme/variables';
 
 .trade-history {
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  --overflow: auto;
+  position: relative;
   .list-item {
     &.pending {
       background-color: rgba(255, 220, 0, 0.15);

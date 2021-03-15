@@ -116,7 +116,7 @@ const Wallet: React.FC<WalletProps> = ({
           />
         </IonRefresher>
         <div className="diagram">
-          <CircleDiagram data={balances} />
+          <CircleDiagram data={balances.filter((b) => b.amount > 0)} />
         </div>
         <IonHeader className="header wallet">
           <IonToolbar>

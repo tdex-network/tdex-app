@@ -1,10 +1,12 @@
 import { fetchTxHex } from 'ldk';
 import { tickerFromAssetHash } from '../redux/reducers/walletReducer';
-import { defaultPrecision } from './constants';
+import { defaultPrecision, getColor } from './constants';
 
 export const createColorFromHash = (id: string): string => {
   let hash = 0;
   if (id.length === 0) throw Error('id length must be > 0');
+  const color = getColor(id);
+  if (color) return color;
   const ticker = tickerFromAssetHash(id);
   for (let i = 0; i < ticker.length; i++) {
     hash = ticker.charCodeAt(i) + ((hash << 5) - hash);
