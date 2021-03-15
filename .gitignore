@@ -28,3 +28,7 @@ yarn-error.log*
 
 # tdex daemon
 /tdexd
+
+# ios
+*.ipa
+*.dSYM.zip

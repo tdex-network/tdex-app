@@ -1,0 +1,49 @@
+fastlane_version '2.102.0'
+
+desc 'Various checks for git branch'
+lane :git_check do
+  ensure_git_branch
+  ensure_git_status_clean
+  git_pull
+end
+
+platform :ios do
+   # iOS Lanes 🍏
+  desc 'Fetch certificates and provisioning profiles'
+  lane :certificates do
+    match(type: 'development', readonly: true)
+    match(type: 'appstore', readonly: true)
+  end
+
+  desc 'Build the iOS application.'
+  lane :build do
+    certificates
+    gym(scheme: 'App', workspace: "./ios/App/App.xcworkspace", include_bitcode: false)
+  end
+  
+  desc 'Ship to Testflight.'
+  lane :beta do
+    git_check
+    build
+    increment_build_number_in_plist(scheme: 'App', xcodeproj: "./ios/App/App.xcodeproj")
+    pilot
+  end
+
+end
+
+platform :android do
+  # Android Lanes 🤖
+  desc 'Build the Android application.'
+  lane :build do
+    gradle(task: 'clean', project_dir: 'android/')
+    gradle(task: 'app:assemble', build_type: 'Release', project_dir: 'android/')
+  end
+  
+  desc 'Ship to Playstore Beta.'
+  lane :beta do
+    git_check
+    build
+    gradle(task: 'incrementVersionCode', project_dir: 'android/')
+    supply(track: 'beta', track_promote_to: 'beta')
+  end
+end
