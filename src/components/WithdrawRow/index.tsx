@@ -11,18 +11,19 @@ interface WithdrawRowInterface {
   balance: BalanceInterface;
   price: number | undefined;
   onAmountChange: (amount: number | undefined) => void;
+  inputAmount: number;
 }
 
 const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   balance,
   price,
   onAmountChange,
+  inputAmount,
 }) => {
   const currency = useSelector((state: any) => state.settings.currency);
   const [residualBalance, setResidualBalance] = useState<string>(
     fromSatoshi(balance.amount).toFixed(8)
   );
-  const [inputAmount, setInputAmount] = useState(0);
   const [fiat, setFiat] = useState<string>('0.00');
 
   const dispatch = useDispatch();
@@ -32,7 +33,6 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   }, []);
 
   const reset = () => {
-    setInputAmount(0);
     setResidualBalance(fromSatoshi(balance.amount).toFixed(8));
     if (price) setFiat('0.00');
     onAmountChange(undefined);
@@ -46,7 +46,6 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
 
     const val = parseFloat(value);
     const residualAmount = fromSatoshi(balance.amount) - val;
-    setInputAmount(val);
     setResidualBalance(residualAmount.toFixed(8));
     if (price) setFiat((val * price).toFixed(2));
     onAmountChange(val);

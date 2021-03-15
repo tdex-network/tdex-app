@@ -19,10 +19,10 @@ export const routerLinks = {
   tradeSummary: '/tradesummary/:txid',
   history: '/history',
   operations: '/operations/:asset_id',
-  withdrawalDetails: '/withdraw/:asset_id/details',
+  withdrawalDetails: '/withdraw/:txid/details',
   withdrawal: '/withdraw/:asset_id',
   receive: '/receive',
-  qrScanner: '/qrscanner',
+  qrScanner: '/qrscanner/:asset_id',
   account: '/account/:pin',
   liquidityProvider: '/liquidity-provider',
 };

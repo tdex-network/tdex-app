@@ -6,56 +6,67 @@ import {
   IonButton,
   IonToolbar,
   IonHeader,
+  useIonViewDidLeave,
+  IonSkeletonText,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { withRouter, RouteComponentProps, useParams } from 'react-router';
 import { CurrencyIcon, IconBack } from '../../components/icons';
-import './style.scss';
-import { useSelector } from 'react-redux';
-import { formatPriceString } from '../../utils/helpers';
+import { useDispatch, useSelector } from 'react-redux';
 import { TxStatusEnum } from '../../utils/types';
+import { transactionSelector } from '../../redux/reducers/transactionsReducer';
+import { update } from '../../redux/actions/appActions';
+import { tickerFromAssetHash } from '../../redux/reducers/walletReducer';
+
+import './style.scss';
+import { Clipboard } from '@ionic-native/clipboard';
+import { addSuccessToast } from '../../redux/actions/toastActions';
 
 const statusText = {
   confirmed: 'completed',
   pending: 'pending',
 };
 
-const WithdrawalDetails: React.FC<RouteComponentProps> = ({ history }) => {
-  const { details, assets } = useSelector((state: any) => ({
-    details: state.transactions.withdrawalDetails,
-    assets: state.wallet.assets,
-  }));
-  const [assetData, setAssetData] = useState<any>();
-  const { asset_id } = useParams();
+interface WithdrawalDetailsLocationState {
+  address: string;
+  asset: string;
+  amount: number;
+}
+
+const WithdrawalDetails: React.FC<
+  RouteComponentProps<any, any, WithdrawalDetailsLocationState>
+> = ({ history, location }) => {
+  const dispatch = useDispatch();
+  const { txid } = useParams<{ txid: string }>();
+  const transaction = useSelector(transactionSelector(txid));
+  const [intervalUpdater, setIntervalUpdater] = useState<NodeJS.Timeout>();
+
+  const [
+    locationState,
+    setLocationState,
+  ] = useState<WithdrawalDetailsLocationState>();
 
   useEffect(() => {
-    if (!details) {
-      history.push(`/withdraw/${asset_id}`);
+    if (location.state) {
+      setLocationState(location.state);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    if (!transaction) {
+      setIntervalUpdater(
+        setInterval(() => {
+          dispatch(update());
+        }, 10000)
+      );
     }
   }, []);
 
-  useEffect(() => {
-    const fillAssetData = () => {
-      const asset = assets.find((item: any) => item.asset_id === asset_id);
-      // TODO handle price
-      const priceEquivalent = 10;
-      const res = {
-        asset_id,
-        ticker: asset.ticker,
-        amountDisplay: asset.amountDisplay,
-        amountDisplayFormatted: asset.amountDisplayFormatted,
-        name: asset.name,
-        priceEquivalent: priceEquivalent
-          ? formatPriceString(priceEquivalent)
-          : priceEquivalent,
-      };
-      setAssetData(res);
-    };
-
-    if (assets?.length && !assetData) {
-      fillAssetData();
+  useIonViewDidLeave(() => {
+    if (intervalUpdater) {
+      clearInterval(intervalUpdater);
     }
-  }, [assets]);
+  });
 
   const renderStatusText: any = (status: string) => {
     switch (status) {
@@ -71,6 +82,12 @@ const WithdrawalDetails: React.FC<RouteComponentProps> = ({ history }) => {
         return <span className="status-text pending" />;
     }
   };
+
+  const ticker = () => tickerFromAssetHash(locationState?.asset);
+
+  const Skeleton = () => (
+    <IonSkeletonText className="custom-skeleton" animated />
+  );
 
   return (
     <IonPage>
@@ -90,52 +107,72 @@ const WithdrawalDetails: React.FC<RouteComponentProps> = ({ history }) => {
       </IonHeader>
       <IonContent className="withdrawal-details">
         <div className="header-info">
-          {assetData && (
-            <CurrencyIcon currency={assetData?.ticker.toUpperCase()} />
-          )}
-          <p className="info-amount">
-            {assetData?.amountDisplayFormatted}{' '}
-            {assetData && <span>{assetData?.ticker.toUpperCase()}</span>}
-          </p>
+          {<CurrencyIcon currency={ticker()} />}
+          <p className="info-amount">{`${ticker()} WITHDRAW`}</p>
         </div>
         <IonItem>
           <div className="item-col">
             <div className="item-main-info">
               <div className="item-start main-row">Amount</div>
               <div className="item-end main-row">
-                {details?.sign}
-                {details?.amountDisplayFormatted}{' '}
-                {assetData && assetData?.ticker.toUpperCase()}
+                {`-${
+                  locationState?.amount ? locationState.amount : '?'
+                } ${ticker()}`}
               </div>
             </div>
             <div className="item-main-info">
               <div className="item-start main-row">Status</div>
               <div className="item-end main-row completed">
-                {renderStatusText(details?.status)}
+                {transaction ? (
+                  renderStatusText(transaction?.status)
+                ) : (
+                  <Skeleton />
+                )}
               </div>
             </div>
-            <div className="item-main-info divider">
-              <div className="item-start main-row">Date</div>
-              <div className="item-end sub-row">{details?.time}</div>
+            <div
+              className="item-main-info divider"
+              onClick={() => {
+                Clipboard.copy(txid);
+                dispatch(addSuccessToast('TxID copied!'));
+              }}
+            >
+              <div className="item-start main-row">TxID</div>
+              <div className="item-end sub-row">{txid}</div>
+            </div>
+            <div
+              className="item-main-info"
+              onClick={() => {
+                if (!locationState) return;
+                Clipboard.copy(locationState.address);
+                dispatch(addSuccessToast('Address copied!'));
+              }}
+            >
+              <div className="item-start main-row">Address</div>
+              <div className="item-end sub-row">
+                {locationState?.address || ''}
+              </div>
+            </div>
+            <div className="item-main-info">
+              <div className="item-start main-row">Time</div>
+              <div className="item-end sub-row">
+                {transaction ? transaction.time : <Skeleton />}
+              </div>
             </div>
             <div className="item-main-info">
               <div className="item-start main-row">Fee</div>
-              <div className="item-end sub-row">{details?.fee}</div>
-            </div>
-            <div className="item-main-info">
-              <div className="item-start main-row">Address</div>
-              <div className="item-end sub-row address-row">
-                {details?.recipientAddress}
+              <div className="item-end sub-row">
+                {transaction ? transaction.fee : <Skeleton />}
               </div>
             </div>
           </div>
         </IonItem>
         <div className="buttons">
           <IonButton
-            routerLink={`/operations/${asset_id}`}
+            routerLink={`/operations/${locationState?.asset}`}
             className="main-button secondary"
           >
-            Back to {assetData && assetData?.ticker.toUpperCase()} Wallet
+            History
           </IonButton>
         </div>
       </IonContent>

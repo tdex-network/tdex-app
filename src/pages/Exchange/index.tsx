@@ -367,15 +367,17 @@ const Exchange: React.FC<ExchangeProps> = ({
             <IonButton routerLink="/history" className="main-button secondary">
               Trade history
             </IonButton>
-            {trade && (
+          </div>
+          {trade && (
+            <div className="market-provider">
               <IonText className="trade-info" color="light">
                 Market provided by:{' '}
                 <span className="provider-info">
                   {` ${trade.market.provider.name} - ${trade.market.provider.endpoint}`}
                 </span>
               </IonText>
-            )}
-          </div>
+            </div>
+          )}
         </IonContent>
       )}
     </IonPage>
