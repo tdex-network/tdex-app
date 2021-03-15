@@ -56,13 +56,17 @@
   }
 }
 
-.trade-info {
-  margin-top: 2%;
-  font-size: small;
-  color: rgba(245, 245, 245, 0.774);
+.market-provider {
+  text-align: center;
+  .trade-info {
+    margin-top: 2%;
+    text-align: center;
+    font-size: small;
+    color: rgba(245, 245, 245, 0.774);
 
-  .provider-info {
-    font-style: italic;
-    font-weight: 800;
+    .provider-info {
+      font-style: italic;
+      font-weight: 500;
+    }
   }
 }

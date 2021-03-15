@@ -1,34 +1,37 @@
-@import "../../theme/variables";
+@import '../../theme/variables';
 
 .qr-scanner {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 80vh;
+  margin: 0;
+
   .rect {
-    width: 272pt;
-    height: 272pt;
-    box-sizing: content-box;
-    border-width: calc(50vh - 136pt) calc(50vw - 136pt);
-    border-style: solid;
-    border-color: rgba(0,0,0, .2);
-    position: fixed;
-    left: 0;
-    top: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50vh;
+    width: 50vh;
     .rect-border {
-      border: 2pt solid #fff;
+      background-color: rgba(255, 255, 255, 0);
+      border: 1px solid rgba(255, 255, 255, 0.692);
+      border-radius: 2px;
       display: block;
-      width: 100%;
-      height: 100%;
+      width: 80%;
+      height: 80%;
     }
   }
+
+  .btn-container {
+    text-align: center;
+  }
+
   .cancel-btn {
     --background: transparent;
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
     color: $light-green-color;
   }
 }
 .semitransparent {
-  --background: rgba(0,0,0, .2);
-  background: rgba(0,0,0, .2);
+  background: transparent;
 }

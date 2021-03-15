@@ -6,42 +6,59 @@ import {
   IonTitle,
   IonToolbar,
   useIonViewDidEnter,
-  useIonViewDidLeave,
+  useIonViewWillLeave,
 } from '@ionic/react';
 import React from 'react';
-import { QRScanner, QRScannerStatus } from '@ionic-native/qr-scanner';
+import { Plugins } from '@capacitor/core';
+import { useDispatch } from 'react-redux';
+import {
+  addErrorToast,
+  addSuccessToast,
+} from '../../redux/actions/toastActions';
+import { RouteComponentProps, useParams, withRouter } from 'react-router';
 
-//style
 import './style.scss';
-import { withRouter } from 'react-router';
 
-const QRCodeScanner: React.FC<any> = ({ history }: any) => {
-  const scanner = QRScanner;
+const { BarcodeScanner } = Plugins;
+
+const QRCodeScanner: React.FC<
+  RouteComponentProps<any, any, { address: string; amount: number }>
+> = ({ history, location }) => {
+  const dispatch = useDispatch();
+  // route parameter asset_id
+  const { asset_id } = useParams<{ asset_id: string }>();
+
+  const stopScan = () => {
+    BarcodeScanner.showBackground();
+    BarcodeScanner.stopScan();
+  };
 
   useIonViewDidEnter(() => {
-    QRScanner.prepare()
-      .then((status: QRScannerStatus) => {
-        if (status.authorized) {
-          QRScanner.show();
-          const scanSub = QRScanner.scan().subscribe((text: string) => {
-            scanSub.unsubscribe(); // stop scanning
-            history.goBack();
-          });
-        } else if (status.denied) {
-          scanner.openSettings();
-        } else {
-          scanner.openSettings();
-        }
+    BarcodeScanner.hideBackground();
+    document.body.style.background = 'transparent';
+    BarcodeScanner.checkPermission({ force: true })
+      .then(({ granted }: { granted: boolean }) => {
+        if (!granted) throw new Error('CAMERA permission not granted.');
+        BarcodeScanner.startScan().then((result: any) => {
+          if (result.hasContent) {
+            console.debug('scanned: ', result.content);
+            history.replace(`/withdraw/${asset_id}`, {
+              address: result.content,
+              amount: location.state.amount,
+            });
+            dispatch(addSuccessToast('Address scanned!'));
+            stopScan();
+          }
+        });
       })
       .catch((e: any) => {
-        console.log('Error is', e);
-        QRScanner.hide();
+        console.error(e);
+        dispatch(addErrorToast(e));
       });
   });
 
-  useIonViewDidLeave(() => {
-    QRScanner.hide();
-    QRScanner.destroy();
+  useIonViewWillLeave(() => {
+    stopScan();
   });
 
   return (
@@ -51,13 +68,25 @@ const QRCodeScanner: React.FC<any> = ({ history }: any) => {
           <IonTitle>SCAN QR CODE</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="qr-scanner">
-        <div className="rect">
-          <div className="rect-border" />
+      <IonContent className="content">
+        <div className="qr-scanner">
+          <div className="rect">
+            <div className="rect-border" />
+          </div>
+          <div className="btn-container">
+            <IonButton
+              onClick={() =>
+                history.replace(`/withdraw/${asset_id}`, {
+                  ...location.state,
+                  amount: location.state.amount,
+                })
+              }
+              className="cancel-btn"
+            >
+              CLOSE
+            </IonButton>
+          </div>
         </div>
-        <IonButton onClick={() => history.goBack()} className="cancel-btn">
-          CLOSE
-        </IonButton>
       </IonContent>
     </IonPage>
   );

@@ -42,6 +42,7 @@ import { setAddresses } from '../../redux/actions/walletActions';
 import { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import { chevronDownCircleOutline, swapVerticalOutline } from 'ionicons/icons';
 import { update } from '../../redux/actions/appActions';
+import { PreviewData } from '../TradeSummary';
 
 interface ExchangeProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -238,7 +239,21 @@ const Exchange: React.FC<ExchangeProps> = ({
         dispatch(update());
       }, 3000);
       addSuccessToast('Trade successfully computed');
-      history.replace(`/tradesummary/${txid}`);
+      const preview: PreviewData = {
+        sent: {
+          ticker: assetSent.ticker,
+          amount:
+            '-' +
+            (Number(sentAmount).toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+            }) || '0.00'),
+        },
+        received: {
+          ticker: assetReceived?.ticker || 'unknown',
+          amount: receivedAmount || '0.00',
+        },
+      };
+      history.replace(`/tradesummary/${txid}`, { preview });
     } catch (e) {
       console.error(e);
       dispatch(addErrorToast(e.message || e));
@@ -356,15 +371,17 @@ const Exchange: React.FC<ExchangeProps> = ({
             <IonButton routerLink="/history" className="main-button secondary">
               Trade history
             </IonButton>
-            {trade && (
+          </div>
+          {trade && (
+            <div className="market-provider">
               <IonText className="trade-info" color="light">
                 Market provided by:{' '}
                 <span className="provider-info">
                   {` ${trade.market.provider.name} - ${trade.market.provider.endpoint}`}
                 </span>
               </IonText>
-            )}
-          </div>
+            </div>
+          )}
         </IonContent>
       )}
     </IonPage>

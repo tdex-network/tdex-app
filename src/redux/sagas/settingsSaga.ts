@@ -25,7 +25,7 @@ function* restoreThemeSaga(action: ActionType) {
     const theme = data.value || 'dark';
     yield put(setTheme(theme));
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 }
 
