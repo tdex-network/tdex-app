@@ -35,17 +35,20 @@ const QRCodeScanner: React.FC<
 
   useIonViewDidEnter(() => {
     BarcodeScanner.hideBackground();
-    BarcodeScanner.startScan()
-      .then((result: any) => {
-        if (result.hasContent) {
-          console.debug('scanned: ', result.content);
-          history.replace(`/withdraw/${asset_id}`, {
-            address: result.content,
-            amount: location.state.amount,
-          });
-          dispatch(addSuccessToast('Address scanned!'));
-          stopScan();
-        }
+    BarcodeScanner.checkPermission({ force: true })
+      .then(({ granted }: { granted: boolean }) => {
+        if (!granted) throw new Error('CAMERA permission not granted.');
+        BarcodeScanner.startScan().then((result: any) => {
+          if (result.hasContent) {
+            console.debug('scanned: ', result.content);
+            history.replace(`/withdraw/${asset_id}`, {
+              address: result.content,
+              amount: location.state.amount,
+            });
+            dispatch(addSuccessToast('Address scanned!'));
+            stopScan();
+          }
+        });
       })
       .catch((e: any) => {
         console.error(e);
