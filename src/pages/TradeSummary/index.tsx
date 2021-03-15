@@ -17,8 +17,8 @@ import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { tickerFromAssetHash } from '../../redux/reducers/walletReducer';
 import { fromSatoshiFixed } from '../../utils/helpers';
 import { swapHorizontal } from 'ionicons/icons';
-import './style.scss';
 import { update } from '../../redux/actions/appActions';
+import './style.scss';
 
 const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();

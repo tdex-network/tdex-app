@@ -144,6 +144,8 @@ const Exchange: React.FC<ExchangeProps> = ({
     updateReceivedAmount(newSentAmount);
   };
 
+  const onErrorGetPrice = (e: string) => dispatch(addErrorToast(e));
+
   // if sent input field is focused, it is used to asynchornously update the received amount
   const updateReceivedAmount = async (newSentAmount: string) => {
     if (focused !== 'sent') return;
@@ -155,7 +157,8 @@ const Exchange: React.FC<ExchangeProps> = ({
           amount: parseFloat(newSentAmount),
           asset: assetSent.asset,
         },
-        trades
+        trades,
+        onErrorGetPrice
       );
       if (asset !== assetReceived?.asset) {
         throw new Error('Wrong preview asset');
@@ -182,7 +185,8 @@ const Exchange: React.FC<ExchangeProps> = ({
           amount: parseFloat(newReceivedAmount),
           asset: assetReceived.asset,
         },
-        trades
+        trades,
+        onErrorGetPrice
       );
 
       if (asset !== assetSent?.asset) {
