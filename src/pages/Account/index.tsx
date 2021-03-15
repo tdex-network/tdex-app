@@ -24,6 +24,7 @@ import { Clipboard } from '@ionic-native/clipboard';
 import DeleteMnemonicModal from '../../components/DeleteMnemonicModal';
 import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
 import ChangePinModals from '../../components/ChangePinModals';
+import ShowMnemonic from '../../components/ShowMnemonic';
 
 const Account: React.FC<RouteComponentProps> = ({ history }) => {
   const { pin } = useParams<{ pin: string }>();
@@ -217,7 +218,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
             </IonHeader>
             <IonContent>
               <PageDescription title="Secret phrase">
-                <p>{mnemonic}</p>
+                <ShowMnemonic mnemonic={mnemonic || ''} />
               </PageDescription>
               <input
                 type="text"
