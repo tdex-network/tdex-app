@@ -32,3 +32,6 @@ yarn-error.log*
 # ios
 *.ipa
 *.dSYM.zip
+
+# fastlane
+report.xml
