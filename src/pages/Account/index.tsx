@@ -22,7 +22,7 @@ import { eye, lockOpen, shieldCheckmark, trashOutline } from 'ionicons/icons';
 import PageDescription from '../../components/PageDescription';
 import { Clipboard } from '@ionic-native/clipboard';
 import DeleteMnemonicModal from '../../components/DeleteMnemonicModal';
-import { getMnemonicFromSecureStorage } from '../../utils/storage/storage-helper';
+import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
 import ChangePinModals from '../../components/ChangePinModals';
 
 const Account: React.FC<RouteComponentProps> = ({ history }) => {

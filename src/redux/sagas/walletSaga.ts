@@ -18,7 +18,7 @@ import { addErrorToast } from '../actions/toastActions';
 import {
   getAddressesFromStorage,
   setAddressesInStorage,
-} from '../../utils/storage/storage-helper';
+} from '../../utils/storage-helper';
 
 function* persistAddresses({
   type,

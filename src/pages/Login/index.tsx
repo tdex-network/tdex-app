@@ -16,7 +16,7 @@ import { IconBack, IconCheck } from '../../components/icons';
 import { useDispatch } from 'react-redux';
 import * as bip39 from 'bip39';
 import { signIn } from '../../redux/actions/appActions';
-import { setMnemonicInSecureStorage } from '../../utils/storage/storage-helper';
+import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
 import PinModal from '../../components/PinModal';
 import {
   addErrorToast,

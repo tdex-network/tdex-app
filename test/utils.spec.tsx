@@ -1,7 +1,7 @@
 import {
   getMnemonicFromSecureStorage,
   setMnemonicInSecureStorage,
-} from '../src/utils/storage/storage-helper';
+} from '../src/utils/storage-helper';
 
 describe('storage helpers', () => {
   describe('secure storage and crypto', () => {

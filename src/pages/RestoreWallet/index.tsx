@@ -17,7 +17,7 @@ import { IconBack, IconWarning } from '../../components/icons';
 
 import './style.scss';
 import { useDispatch } from 'react-redux';
-import { setMnemonicInSecureStorage } from '../../utils/storage/storage-helper';
+import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
 import { signIn } from '../../redux/actions/appActions';
 import { useMnemonic } from '../../utils/custom-hooks';
 import PinModal from '../../components/PinModal';

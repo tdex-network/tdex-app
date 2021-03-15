@@ -37,7 +37,7 @@ import {
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import PinModal from '../../components/PinModal';
-import { getIdentityOpts } from '../../utils/storage/storage-helper';
+import { getIdentityOpts } from '../../utils/storage-helper';
 import { setAddresses } from '../../redux/actions/walletActions';
 import { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import { chevronDownCircleOutline, swapVerticalOutline } from 'ionicons/icons';

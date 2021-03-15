@@ -10,7 +10,7 @@ import {
 import './style.scss';
 import { IconClose } from '../icons';
 import PageDescription from '../PageDescription';
-import { removeMnemonicFromSecureStorage } from '../../utils/storage/storage-helper';
+import { removeMnemonicFromSecureStorage } from '../../utils/storage-helper';
 
 interface DeleteMnemonicModalProps {
   openModal: boolean;
