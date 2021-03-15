@@ -17,12 +17,15 @@ export interface AssetWithTicker {
 
 export async function bestPrice(
   known: { amount: number; asset: string },
-  trades: TDEXTrade[]
+  trades: TDEXTrade[],
+  onError: (e: string) => void
 ): Promise<{ amount: number; asset: string; trade: TDEXTrade }> {
   if (trades.length === 0) throw new Error('trades array should not be empty');
 
   const toPrice = async (trade: TDEXTrade) =>
-    calculatePrice(known, trade).then((res) => ({ ...res, trade }));
+    calculatePrice(known, trade)
+      .then((res) => ({ ...res, trade }))
+      .catch(onError);
   const pricesPromises = trades.map(toPrice);
 
   const results = (await Promise.allSettled(pricesPromises))
