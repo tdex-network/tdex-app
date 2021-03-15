@@ -11,27 +11,49 @@ import {
   IonHeader,
   IonIcon,
   IonLoading,
+  useIonViewDidLeave,
+  IonSkeletonText,
 } from '@ionic/react';
 import { CurrencyIcon, IconBack } from '../../components/icons';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { tickerFromAssetHash } from '../../redux/reducers/walletReducer';
 import { fromSatoshiFixed } from '../../utils/helpers';
 import { swapHorizontal } from 'ionicons/icons';
-import './style.scss';
 import { update } from '../../redux/actions/appActions';
+import './style.scss';
 
-const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
+export interface PreviewData {
+  sent: {
+    ticker: string;
+    amount: string;
+  };
+  received: {
+    ticker: string;
+    amount: string;
+  };
+}
+
+interface TradeSummaryLocationState {
+  preview?: PreviewData;
+}
+
+const TradeSummary: React.FC<
+  RouteComponentProps<any, any, TradeSummaryLocationState>
+> = ({ history, location }) => {
+  const preview = location.state?.preview;
   const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();
   const transaction = useSelector(transactionSelector(txid));
   const [intervalUpdater, setIntervalUpdater] = useState<NodeJS.Timeout>();
 
   useEffect(() => {
-    setIntervalUpdater(
-      setInterval(() => {
-        dispatch(update());
-      }, 10000)
-    );
+    if (!transaction) {
+      setIntervalUpdater(
+        setInterval(() => {
+          dispatch(update());
+        }, 10000)
+      );
+    }
   }, []);
 
   useEffect(() => {
@@ -40,6 +62,46 @@ const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
       setIntervalUpdater(undefined);
     }
   }, [transaction]);
+
+  useIonViewDidLeave(() => {
+    if (intervalUpdater) {
+      clearInterval(intervalUpdater);
+    }
+  });
+
+  const SentCurrencyIcon: React.FC<{ width: string; height: string }> = ({
+    width,
+    height,
+  }) => {
+    return (
+      <CurrencyIcon
+        currency={
+          transaction
+            ? tickerFromAssetHash(transaction.transfers[0].asset)
+            : preview?.sent.ticker
+        }
+        width={width}
+        height={height}
+      />
+    );
+  };
+
+  const ReceiveCurrencyIcon: React.FC<{ width: string; height: string }> = ({
+    width,
+    height,
+  }) => {
+    return (
+      <CurrencyIcon
+        currency={
+          transaction
+            ? tickerFromAssetHash(transaction.transfers[1].asset)
+            : preview?.received.ticker
+        }
+        width={width}
+        height={height}
+      />
+    );
+  };
 
   return (
     <IonPage>
@@ -58,22 +120,14 @@ const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="trade-summary">
-        {transaction ? (
+        {transaction || preview ? (
           <div>
             <div className="transaction-icons">
               <span className="icon-wrapper large">
-                <CurrencyIcon
-                  currency={tickerFromAssetHash(transaction.transfers[0].asset)}
-                  width="45px"
-                  height="45px"
-                />
+                <SentCurrencyIcon width="45px" height="45px" />
               </span>
               <span className="icon-wrapper large second">
-                <CurrencyIcon
-                  currency={tickerFromAssetHash(transaction.transfers[1].asset)}
-                  width="45px"
-                  height="45px"
-                />
+                <ReceiveCurrencyIcon width="45px" height="45px" />
               </span>
             </div>
             <IonItem>
@@ -82,20 +136,22 @@ const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
                   <div className="trade-item">
                     <div className="name">
                       <span className="icon-wrapper medium">
-                        <CurrencyIcon
-                          currency={tickerFromAssetHash(
-                            transaction.transfers[0].asset
-                          )}
-                          width="24px"
-                          height="24px"
-                        />
+                        <SentCurrencyIcon width="24px" height="24px" />
                       </span>
                       <p>
-                        {tickerFromAssetHash(transaction.transfers[0].asset)}
+                        {transaction
+                          ? tickerFromAssetHash(transaction.transfers[0].asset)
+                          : preview?.sent.ticker}
                       </p>
                     </div>
                     <p className="trade-price">
-                      {fromSatoshiFixed(transaction.transfers[0].amount, 8, 8)}
+                      {transaction
+                        ? fromSatoshiFixed(
+                            transaction.transfers[0].amount,
+                            8,
+                            8
+                          )
+                        : preview?.sent.amount}
                     </p>
                   </div>
                   <div className="trade-divider">
@@ -104,27 +160,38 @@ const TradeSummary: React.FC<RouteComponentProps> = ({ history }) => {
                   <div className="trade-item">
                     <div className="name">
                       <span className="icon-wrapper medium">
-                        <CurrencyIcon
-                          currency={tickerFromAssetHash(
-                            transaction.transfers[1].asset
-                          )}
-                          width="24px"
-                          height="24px"
-                        />
+                        <ReceiveCurrencyIcon width="24px" height="24px" />
                       </span>
                       <p>
-                        {tickerFromAssetHash(transaction.transfers[1].asset)}
+                        {transaction
+                          ? tickerFromAssetHash(transaction.transfers[1].asset)
+                          : preview?.received.ticker}
                       </p>
                     </div>
                     <p className="trade-price">
-                      +{fromSatoshiFixed(transaction.transfers[1].amount, 8, 8)}
+                      +
+                      {transaction
+                        ? fromSatoshiFixed(
+                            transaction.transfers[1].amount,
+                            8,
+                            8
+                          )
+                        : preview?.received.amount}
                     </p>
                   </div>
                 </div>
                 <div className="transaction-info">
                   <div className="transaction-info-date">
-                    <p>{transaction.date}</p>
-                    <p>{fromSatoshiFixed(transaction.fee, 8, 8)} Fee</p>
+                    {transaction ? (
+                      <p>{transaction.time}</p>
+                    ) : (
+                      <IonSkeletonText animated style={{ width: '30%' }} />
+                    )}
+                    {transaction ? (
+                      <p>{fromSatoshiFixed(transaction.fee, 8, 8)} Fee</p>
+                    ) : (
+                      <IonSkeletonText animated style={{ width: '15%' }} />
+                    )}
                   </div>
                   <div className="transaction-info-values">
                     <div className="transaction-col-name">Tx ID</div>
