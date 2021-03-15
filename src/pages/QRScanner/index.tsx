@@ -35,6 +35,7 @@ const QRCodeScanner: React.FC<
 
   useIonViewDidEnter(() => {
     BarcodeScanner.hideBackground();
+    document.body.style.background = 'transparent';
     BarcodeScanner.checkPermission({ force: true })
       .then(({ granted }: { granted: boolean }) => {
         if (!granted) throw new Error('CAMERA permission not granted.');
