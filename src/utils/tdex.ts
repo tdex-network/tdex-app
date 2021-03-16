@@ -1,4 +1,3 @@
-import { Assets } from './constants';
 import { AddressInterface, IdentityOpts } from 'ldk';
 import { Trade, TraderClient, TradeType } from 'tdex-sdk';
 import {
@@ -8,6 +7,7 @@ import {
 } from './../redux/actionTypes/tdexActionTypes';
 import { toSatoshi } from './helpers';
 import axios from 'axios';
+import { getMainAsset } from './constants';
 
 export interface AssetWithTicker {
   asset: string;
@@ -17,12 +17,15 @@ export interface AssetWithTicker {
 
 export async function bestPrice(
   known: { amount: number; asset: string },
-  trades: TDEXTrade[]
+  trades: TDEXTrade[],
+  onError: (e: string) => void
 ): Promise<{ amount: number; asset: string; trade: TDEXTrade }> {
   if (trades.length === 0) throw new Error('trades array should not be empty');
 
   const toPrice = async (trade: TDEXTrade) =>
-    calculatePrice(known, trade).then((res) => ({ ...res, trade }));
+    calculatePrice(known, trade)
+      .then((res) => ({ ...res, trade }))
+      .catch(onError);
   const pricesPromises = trades.map(toPrice);
 
   const results = (await Promise.allSettled(pricesPromises))
@@ -124,8 +127,11 @@ export function allTrades(
   return trades;
 }
 
-const assetsData = Object.values(Assets);
-
+/**
+ * Filter a set of markets using asset to sent.
+ * @param markets
+ * @param sentAsset
+ */
 export function getTradablesAssets(
   markets: TDEXMarket[],
   sentAsset: string
@@ -137,13 +143,16 @@ export function getTradablesAssets(
       sentAsset === market.baseAsset &&
       !results.map((r) => r.asset).includes(market.quoteAsset)
     ) {
+      const mainAsset = getMainAsset(market.quoteAsset);
+      const ticker = mainAsset
+        ? mainAsset.ticker
+        : market.quoteAsset.slice(0, 4).toUpperCase();
+      const coinGeckoID = mainAsset?.coinGeckoID;
+
       results.push({
         asset: market.quoteAsset,
-        ticker:
-          assetsData.find((a) => a.assetHash === market.quoteAsset)?.ticker ||
-          market.quoteAsset.slice(0, 4).toUpperCase(),
-        coinGeckoID: assetsData.find((a) => a.assetHash === market.quoteAsset)
-          ?.coinGeckoID,
+        ticker,
+        coinGeckoID,
       });
     }
 
@@ -151,13 +160,16 @@ export function getTradablesAssets(
       sentAsset === market.quoteAsset &&
       !results.map((r) => r.asset).includes(market.baseAsset)
     ) {
+      const mainAsset = getMainAsset(market.baseAsset);
+      const ticker = mainAsset
+        ? mainAsset.ticker
+        : market.baseAsset.slice(0, 4).toUpperCase();
+      const coinGeckoID = mainAsset?.coinGeckoID;
+
       results.push({
         asset: market.baseAsset,
-        ticker:
-          assetsData.find((a) => a.assetHash === market.baseAsset)?.ticker ||
-          market.baseAsset.slice(0, 4).toUpperCase(),
-        coinGeckoID: assetsData.find((a) => a.assetHash === market.baseAsset)
-          ?.coinGeckoID,
+        ticker,
+        coinGeckoID,
       });
     }
   }

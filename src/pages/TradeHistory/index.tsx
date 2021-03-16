@@ -21,6 +21,7 @@ import classNames from 'classnames';
 import { TxDisplayInterface } from '../../utils/types';
 import { tickerFromAssetHash } from '../../redux/reducers/walletReducer';
 import './style.scss';
+import { LBTC_TICKER } from '../../utils/constants';
 
 interface TradeHistoryProps extends RouteComponentProps {
   swaps: TxDisplayInterface[];
@@ -60,7 +61,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
           <IonTitle>Trade history</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent scrollY={true} className="trade-history">
+      <IonContent className="trade-history">
         {swaps.length > 0 ? (
           <IonList>
             <IonListHeader>Today</IonListHeader>
@@ -128,7 +129,9 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
                       <div className="fee-row">
                         <IonLabel>
                           Fee{' '}
-                          <span className="amount">{transaction.fee} LBTC</span>
+                          <span className="amount">
+                            {transaction.fee} {LBTC_TICKER}
+                          </span>
                         </IonLabel>
                         <IonText>
                           {fromSatoshiFixed(transferSent.amount, 8, 8)}{' '}

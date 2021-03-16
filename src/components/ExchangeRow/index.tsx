@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { CurrencyIcon } from '../icons';
-import './style.scss';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { fromSatoshi } from '../../utils/helpers';
+import { fromSatoshiFixed } from '../../utils/helpers';
 import { IonIcon, IonInput, IonSpinner } from '@ionic/react';
 import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
 import { caretDown, searchSharp } from 'ionicons/icons';
 import { AssetWithTicker } from '../../utils/tdex';
+
+import './style.scss';
 
 interface ExchangeRowInterface {
   asset: AssetWithTicker;
@@ -82,11 +83,9 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       </div>
       <div className="exchanger-row sub-row">
         <div>
-          {balanceAmount && (
-            <p>{`Total balance: ${fromSatoshi(balanceAmount).toFixed(8)} ${
-              asset.ticker
-            }`}</p>
-          )}
+          <p>{`Total balance: ${fromSatoshiFixed(balanceAmount || 0, 8, 8)} ${
+            asset.ticker
+          }`}</p>
         </div>
         {amount && asset.coinGeckoID && prices[asset.coinGeckoID] && (
           <div>

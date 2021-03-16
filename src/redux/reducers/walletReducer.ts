@@ -1,5 +1,5 @@
+import { transactionsAssets } from './transactionsReducer';
 import { RESET_UTXOS, SET_PUBLIC_KEYS } from './../actions/walletActions';
-import { Assets } from './../../utils/constants';
 import {
   AddressInterface,
   UtxoInterface,
@@ -18,6 +18,7 @@ import {
 import { createSelector } from 'reselect';
 import { groupBy } from '../../utils/helpers';
 import { BalanceInterface } from '../actionTypes/walletActionTypes';
+import { getMainAsset } from '../../utils/constants';
 
 export interface WalletState {
   isAuth: boolean;
@@ -89,9 +90,27 @@ export const allUtxosSelector = createSelector(utxosMapSelector, (utxosMap) =>
  */
 export const balancesSelector = createSelector(
   allUtxosSelector,
-  (utxos: UtxoInterface[]) => balancesFromUtxos(utxos)
+  transactionsAssets,
+  (utxos: UtxoInterface[], txsAssets: string[]) => {
+    const balances = balancesFromUtxos(utxos);
+    const balancesAssets = balances.map((b) => b.asset);
+
+    for (const asset of txsAssets) {
+      if (balancesAssets.includes(asset)) continue;
+      // include a 'zero' balance if the user has previous transactions.
+      balances.push({
+        asset,
+        amount: 0,
+        ticker: tickerFromAssetHash(asset),
+        coinGeckoID: getMainAsset(asset)?.coinGeckoID,
+      });
+    }
+
+    return balances;
+  }
 );
 
+// compute balances value from a set of utxos
 function balancesFromUtxos(utxos: UtxoInterface[]): BalanceInterface[] {
   const balances: BalanceInterface[] = [];
   const utxosGroupedByAsset: Record<string, UtxoInterface[]> = groupBy(
@@ -103,11 +122,7 @@ function balancesFromUtxos(utxos: UtxoInterface[]): BalanceInterface[] {
     const utxosForAsset = utxosGroupedByAsset[asset];
     const amount = sumUtxos(utxosForAsset);
 
-    let coinGeckoID = undefined;
-    const assetData = Object.values(Assets).find((a) => a.assetHash === asset);
-    if (assetData) {
-      coinGeckoID = assetData.coinGeckoID;
-    }
+    const coinGeckoID = getMainAsset(asset)?.coinGeckoID;
     balances.push({
       asset,
       amount,
@@ -131,10 +146,8 @@ function sumUtxos(utxos: UtxoInterface[]): number {
 
 export function tickerFromAssetHash(assetHash?: string): string {
   if (!assetHash) return '';
-  const assetData = Object.values(Assets).find(
-    (a) => a.assetHash === assetHash
-  );
-  if (assetData) return assetData.ticker;
+  const mainAsset = getMainAsset(assetHash);
+  if (mainAsset) return mainAsset.ticker;
   return assetHash.slice(0, 4).toUpperCase();
 }
 
