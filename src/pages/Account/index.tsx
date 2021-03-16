@@ -25,8 +25,12 @@ import DeleteMnemonicModal from '../../components/DeleteMnemonicModal';
 import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
 import ChangePinModals from '../../components/ChangePinModals';
 import ShowMnemonic from '../../components/ShowMnemonic';
+import { useDispatch } from 'react-redux';
+import { setSignedUp } from '../../redux/actions/appActions';
+import { setIsAuth } from '../../redux/actions/walletActions';
 
 const Account: React.FC<RouteComponentProps> = ({ history }) => {
+  const dispatch = useDispatch();
   const { pin } = useParams<{ pin: string }>();
   const [mnemonic, setMnemonic] = useState<string>();
 
@@ -253,7 +257,11 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
           close={() => {
             setShowDeleteMnemonicModal(false);
           }}
-          onConfirm={() => history.replace('/homescreen')}
+          onConfirm={() => {
+            dispatch(setSignedUp(false));
+            dispatch(setIsAuth(false));
+            history.replace('/homescreen');
+          }}
           openModal={showDeleteMnemonicModal}
         />
       </IonContent>
