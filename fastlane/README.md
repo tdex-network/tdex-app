@@ -43,6 +43,11 @@ Ship to Testflight.
 ----
 
 ## Android
+### android apk
+```
+fastlane android apk
+```
+Build the Android application for Debug.
 ### android build
 ```
 fastlane android build

@@ -11,28 +11,43 @@ platform :ios do
    # iOS Lanes 🍏
   desc 'Fetch certificates and provisioning profiles'
   lane :certificates do
-    match(type: 'development', readonly: true)
-    match(type: 'appstore', readonly: true)
+    match(app_identifier: 'io.sevenlabs.app', type: 'development', readonly: true)
+    match(app_identifier: 'io.sevenlabs.app', type: 'appstore', readonly: true)
   end
 
   desc 'Build the iOS application.'
   lane :build do
     certificates
-    gym(scheme: 'App', workspace: "./ios/App/App.xcworkspace", include_bitcode: false)
+    gym(
+      scheme: 'App', 
+      workspace: "./ios/App/App.xcworkspace", 
+      include_bitcode: false
+    )
   end
   
   desc 'Ship to Testflight.'
   lane :beta do
     git_check
     build
-    increment_build_number(scheme: 'App', xcodeproj: "./ios/App/App.xcodeproj")
-    pilot
+    increment_build_number(
+      build_number: latest_testflight_build_number(app_identifier: 'io.sevenlabs.app') + 1,
+      xcodeproj: "./ios/App/App.xcodeproj"
+    )
+    pilot(
+      app_identifier: 'io.sevenlabs.app'
+    )
   end
 
 end
 
 platform :android do
   # Android Lanes 🤖
+  desc 'Build the Android application for Debug.'
+  lane :apk do
+    gradle(task: 'clean', project_dir: 'android/')
+    gradle(task: 'app:assemble', build_type: 'Debug', project_dir: 'android/')
+  end
+
   desc 'Build the Android application for Release.'
   lane :build do
     gradle(task: 'clean', project_dir: 'android/')
