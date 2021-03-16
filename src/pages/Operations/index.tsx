@@ -11,24 +11,22 @@ import {
   IonListHeader,
   IonLabel,
   IonText,
-  IonRefresher,
-  IonRefresherContent,
   IonIcon,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { withRouter, RouteComponentProps, useParams } from 'react-router';
 import classNames from 'classnames';
 import { CurrencyIcon, IconBack, TxIcon } from '../../components/icons';
-import './style.scss';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { TxDisplayInterface, TxStatusEnum } from '../../utils/types';
 import { fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
-import { checkmarkSharp, chevronDownCircleOutline } from 'ionicons/icons';
-import { RefresherEventDetail } from '@ionic/core';
+import { checkmarkSharp } from 'ionicons/icons';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
-import { update } from '../../redux/actions/appActions';
 import { LBTC_TICKER } from '../../utils/constants';
+import Refresher from '../../components/Refresher';
+
+import './style.scss';
 
 const txTypes = ['deposit', 'withdrawal', 'swap', 'trade'];
 const statusText = {
@@ -54,8 +52,6 @@ const Operations: React.FC<OperationsProps> = ({
   const transactionsToDisplay = useSelector(
     transactionsByAssetSelector(asset_id)
   );
-
-  const dispatch = useDispatch();
 
   // effect to select the balance
   useEffect(() => {
@@ -94,24 +90,11 @@ const Operations: React.FC<OperationsProps> = ({
     }
   };
 
-  const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
-    dispatch(update());
-    setTimeout(() => {
-      event.detail.complete();
-    }, 2000);
-  };
-
   return (
     <IonPage>
       <div className="gradient-background"></div>
       <IonContent className="operations">
-        <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
-          <IonRefresherContent
-            pullingIcon={chevronDownCircleOutline}
-            color="light"
-            refreshingSpinner="circles"
-          />
-        </IonRefresher>
+        <Refresher />
         <IonHeader className="header operations">
           <IonToolbar className="with-back-button">
             <IonButton style={{ zIndex: 10 }} onClick={() => history.goBack()}>

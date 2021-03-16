@@ -253,7 +253,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
           close={() => {
             setShowDeleteMnemonicModal(false);
           }}
-          onConfirm={() => history.push('/homescreen')}
+          onConfirm={() => history.replace('/homescreen')}
           openModal={showDeleteMnemonicModal}
         />
       </IonContent>

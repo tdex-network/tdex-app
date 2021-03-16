@@ -8,16 +8,10 @@ import {
   IonToolbar,
   IonListHeader,
   IonButton,
-  IonRefresher,
-  IonRefresherContent,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { CurrencyIcon } from '../../components/icons';
-import { RefresherEventDetail } from '@ionic/core';
-//styles
-import './style.scss';
-import { chevronDownCircleOutline } from 'ionicons/icons';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import {
   capitalizeFirstLetter,
@@ -28,6 +22,9 @@ import { getMainAsset, LBTC_TICKER } from '../../utils/constants';
 import CircleDiagram from '../../components/CircleDiagram';
 import { ActionType } from '../../utils/types';
 import { update } from '../../redux/actions/appActions';
+import Refresher from '../../components/Refresher';
+
+import './style.scss';
 
 interface WalletProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -94,13 +91,6 @@ const Wallet: React.FC<WalletProps> = ({
     setSecondaryAssets(secondary);
   }, [balances]);
 
-  const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
-    dispatch(update());
-    setTimeout(() => {
-      event.detail.complete();
-    }, 2000);
-  };
-
   useEffect(() => {
     dispatch(update());
   }, []);
@@ -109,12 +99,7 @@ const Wallet: React.FC<WalletProps> = ({
     <IonPage>
       <div className="gradient-background"></div>
       <IonContent className="wallet-content">
-        <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
-          <IonRefresherContent
-            pullingIcon={chevronDownCircleOutline}
-            refreshingSpinner="circles"
-          />
-        </IonRefresher>
+        <Refresher />
         <div className="diagram">
           <CircleDiagram data={balances.filter((b) => b.amount > 0)} />
         </div>

@@ -11,13 +11,10 @@ import {
   IonLoading,
   IonText,
   IonIcon,
-  IonRefresher,
-  IonRefresherContent,
   useIonViewWillEnter,
 } from '@ionic/react';
 import ExchangeRow from '../../redux/containers/exchangeRowCointainer';
 import classNames from 'classnames';
-import { RefresherEventDetail } from '@ionic/core';
 import './style.scss';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import {
@@ -40,9 +37,10 @@ import PinModal from '../../components/PinModal';
 import { getIdentityOpts } from '../../utils/storage-helper';
 import { setAddresses } from '../../redux/actions/walletActions';
 import { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
-import { chevronDownCircleOutline, swapVerticalOutline } from 'ionicons/icons';
+import { swapVerticalOutline } from 'ionicons/icons';
 import { update } from '../../redux/actions/appActions';
 import { PreviewData } from '../TradeSummary';
+import Refresher from '../../components/Refresher';
 
 interface ExchangeProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -262,14 +260,6 @@ const Exchange: React.FC<ExchangeProps> = ({
     }
   };
 
-  // update action on refresh
-  const onRefresh = (event: CustomEvent<RefresherEventDetail>) => {
-    dispatch(update());
-    setTimeout(() => {
-      event.detail.complete();
-    }, 2000);
-  };
-
   return (
     <IonPage>
       <IonLoading isOpen={loading} />
@@ -292,12 +282,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       </IonHeader>
       {assetSent && balances.length > 0 && markets.length > 0 && (
         <IonContent className="exchange-content">
-          <IonRefresher slot="fixed" onIonRefresh={onRefresh}>
-            <IonRefresherContent
-              pullingIcon={chevronDownCircleOutline}
-              refreshingSpinner="circles"
-            />
-          </IonRefresher>
+          <Refresher />
           <div className="exchange">
             <ExchangeRow
               asset={assetSent}
@@ -368,7 +353,10 @@ const Exchange: React.FC<ExchangeProps> = ({
             >
               Confirm
             </IonButton>
-            <IonButton routerLink="/history" className="main-button secondary">
+            <IonButton
+              routerLink="/history"
+              className="main-button secondary no-border"
+            >
               Trade history
             </IonButton>
           </div>

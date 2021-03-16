@@ -44,6 +44,10 @@ $breakpoint-small-device: 700px;
     border: 2px solid #fff;
     color: #fff;
   }
+
+  &.no-border {
+    border: none;
+  }
 }
 
 ion-button {
