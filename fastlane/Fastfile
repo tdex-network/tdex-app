@@ -25,7 +25,7 @@ platform :ios do
   lane :beta do
     git_check
     build
-    increment_build_number_in_plist(scheme: 'App', xcodeproj: "./ios/App/App.xcodeproj")
+    increment_build_number(scheme: 'App', xcodeproj: "./ios/App/App.xcodeproj")
     pilot
   end
 

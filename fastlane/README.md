@@ -47,7 +47,7 @@ Ship to Testflight.
 ```
 fastlane android build
 ```
-Build the Android application.
+Build the Android application for Release.
 ### android beta
 ```
 fastlane android beta
