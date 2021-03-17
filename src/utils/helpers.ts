@@ -86,7 +86,7 @@ export function validAmountString(amount?: string): boolean {
 
 function amountGuard(amount: string): boolean {
   // TODO handle precision & max amount for altcoins ?
-  const regexp = new RegExp('^\\d{0,8}(\\.\\d{0,8})?$');
+  const regexp = new RegExp('^\\d{0,8}((\\.|,)\\d{0,8})?$');
   return regexp.test(amount);
 }
 

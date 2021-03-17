@@ -114,7 +114,12 @@ const Exchange: React.FC<ExchangeProps> = ({
       return;
     }
 
-    if (parseFloat(newReceivedAmount) <= 0) {
+    if (newReceivedAmount === '.') {
+      setReceivedAmount(newReceivedAmount);
+      return;
+    }
+
+    if (parseFloat(newReceivedAmount) < 0) {
       setSentAmount('0');
       setReceivedAmount(newReceivedAmount);
       return;
@@ -132,7 +137,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       return;
     }
 
-    if (parseFloat(newSentAmount) <= 0) {
+    if (parseFloat(newSentAmount) < 0) {
       setSentAmount(newSentAmount);
       setReceivedAmount('0');
       return;
