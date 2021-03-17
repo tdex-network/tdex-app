@@ -37,7 +37,7 @@ import {
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import { update } from '../../redux/actions/appActions';
-import { onPressKeyEventCloseKeyboard } from '../../utils/keyboard';
+import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 
 interface WithdrawalProps
   extends RouteComponentProps<
@@ -240,7 +240,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
               <IonInput
                 inputmode="text"
                 enterkeyhint="done"
-                onKeyDown={onPressKeyEventCloseKeyboard}
+                onKeyDown={onPressEnterKeyCloseKeyboard}
                 value={recipientAddress}
                 placeholder="Paste address here or scan QR code"
                 onIonChange={(e) => {

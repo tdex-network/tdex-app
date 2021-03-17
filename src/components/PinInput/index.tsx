@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { IonInput, IonItem, IonLabel } from '@ionic/react';
 import './style.scss';
-import { onPressKeyEvent } from '../../utils/keyboard';
+import { onPressEnterKeyFactory } from '../../utils/keyboard';
 
 interface PinInputProps {
   onPin: (newPin: string) => void;
@@ -54,7 +54,7 @@ const PinInput: React.FC<PinInputProps> = ({ onPin, on6digits }) => {
       <IonInput
         ref={inputRef}
         enterkeyhint="done"
-        onKeyDown={onPressKeyEvent(() => on6digits())}
+        onKeyDown={onPressEnterKeyFactory(() => on6digits())}
         inputmode="numeric"
         type="password"
         clearOnEdit={true}

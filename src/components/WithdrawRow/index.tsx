@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { fromSatoshi } from '../../utils/helpers';
 import { updateRates } from '../../redux/actions/ratesActions';
-import { onPressKeyEventCloseKeyboard } from '../../utils/keyboard';
+import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 
 interface WithdrawRowInterface {
   balance: BalanceInterface;
@@ -69,7 +69,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
             className="amount-input"
             autofocus={true}
             onIonChange={(e) => handleAmountChange(e.detail.value)}
-            onKeyDown={onPressKeyEventCloseKeyboard}
+            onKeyDown={onPressEnterKeyCloseKeyboard}
             enterkeyhint="done"
           />
         </div>

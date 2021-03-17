@@ -23,7 +23,7 @@ import {
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import * as bip39 from 'bip39';
-import { onPressKeyEvent } from '../../utils/keyboard';
+import { onPressEnterKeyFactory } from '../../utils/keyboard';
 import './style.scss';
 
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
@@ -140,7 +140,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
                 <IonInput
                   ref={refs[index]}
                   className="input-word"
-                  onKeyDown={onPressKeyEvent(() => setFocus(index + 1))}
+                  onKeyDown={onPressEnterKeyFactory(() => setFocus(index + 1))}
                   onIonChange={(e) =>
                     setMnemonicWord(e.detail.value || '', index)
                   }

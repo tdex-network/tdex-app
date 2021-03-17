@@ -6,7 +6,7 @@ const { Keyboard } = Plugins;
  * this using to handle EnterButton in keyboards (should be coupled with onKeyDown)
  * @param action a function to launch if the enter button is pressed
  */
-export function onPressKeyEvent(
+export function onPressEnterKeyFactory(
   action: () => void
 ): (e: React.KeyboardEvent<HTMLIonInputElement>) => void {
   return function (e: React.KeyboardEvent<HTMLIonInputElement>) {
@@ -20,8 +20,8 @@ export function onPressKeyEvent(
  * a custom onPressKeyEvent using to close keyboard.
  * @param e
  */
-export function onPressKeyEventCloseKeyboard(
+export function onPressEnterKeyCloseKeyboard(
   e: React.KeyboardEvent<HTMLIonInputElement>
 ) {
-  return onPressKeyEvent(() => Keyboard.hide())(e);
+  return onPressEnterKeyFactory(() => Keyboard.hide())(e);
 }
