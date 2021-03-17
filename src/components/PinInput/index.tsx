@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { IonInput, IonItem, IonLabel } from '@ionic/react';
-import './style.scss';
 import { onPressEnterKeyFactory } from '../../utils/keyboard';
+import './style.scss';
 
 interface PinInputProps {
   onPin: (newPin: string) => void;
@@ -19,7 +19,7 @@ const PinInput: React.FC<PinInputProps> = ({ onPin, on6digits }) => {
       if (inputRef && inputRef.current) {
         inputRef.current.setFocus();
       }
-    }, 100);
+    }, 500);
   });
 
   const [pin, setPin] = useState('');
@@ -59,7 +59,6 @@ const PinInput: React.FC<PinInputProps> = ({ onPin, on6digits }) => {
         type="password"
         clearOnEdit={true}
         value={pin}
-        autofocus={true}
         required={true}
         onIonChange={(e) => onNewPin(e.detail.value)}
       />

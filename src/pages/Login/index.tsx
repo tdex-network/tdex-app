@@ -11,6 +11,7 @@ import {
   IonTitle,
   IonToolbar,
   IonLoading,
+  IonModal,
 } from '@ionic/react';
 import { IconBack, IconCheck } from '../../components/icons';
 import { useDispatch } from 'react-redux';
@@ -22,6 +23,7 @@ import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
+import ShowMnemonic from '../../components/ShowMnemonic';
 
 const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
@@ -29,9 +31,19 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [pin, setPin] = useState<string>();
+  const [backupModalOpen, setBackupModalOpen] = useState(false);
+  const [mnemonic, setMnemonic] = useState('');
 
-  const onConfirm = async () => {
-    if (acceptTerms) setModalOpen('first');
+  const onConfirm = () => {
+    if (acceptTerms) {
+      setMnemonic(bip39.generateMnemonic());
+      setBackupModalOpen(true);
+    }
+  };
+
+  const onBackupDone = () => {
+    setBackupModalOpen(false);
+    if (mnemonic) setModalOpen('first');
   };
 
   const onFirstPinConfirm = (newPin: string) => {
@@ -49,8 +61,7 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const onSecondPinConfirm = (newPin: string) => {
     if (newPin === pin) {
       setLoading(true);
-      const generatedMnemonic = bip39.generateMnemonic();
-      setMnemonicInSecureStorage(generatedMnemonic, pin)
+      setMnemonicInSecureStorage(mnemonic, pin)
         .then((isStored) => {
           if (!isStored) throw new Error('unknow error for secure storage');
           dispatch(
@@ -141,6 +152,26 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
             Confirm
           </IonButton>
         </div>
+
+        <IonModal isOpen={backupModalOpen}>
+          <div className="gradient-background" />
+          <IonHeader>
+            <IonToolbar className="with-back-button">
+              <IonTitle>Backup your seed</IonTitle>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <div className="backup-content">
+              <p>Never share your mnemonic</p>
+              <ShowMnemonic mnemonic={mnemonic} />
+              <div className="buttons">
+                <IonButton className="main-button" onClick={onBackupDone}>
+                  OK
+                </IonButton>
+              </div>
+            </div>
+          </IonContent>
+        </IonModal>
       </IonContent>
     </IonPage>
   );
