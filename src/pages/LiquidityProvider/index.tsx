@@ -138,7 +138,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
                   required
                   value={newProviderName}
                   onIonChange={(e) => setNewProviderName(e.detail.value || '')}
-                  type="text"
+                  inputmode="text"
                   placeholder="name the provider to add"
                 />
               </IonItem>
@@ -150,7 +150,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
                   onIonChange={(e) =>
                     setNewProviderEndpoint(e.detail.value || '')
                   }
-                  type="url"
+                  inputmode="url"
                   placeholder="i.e http://localhost:9945"
                 />
               </IonItem>

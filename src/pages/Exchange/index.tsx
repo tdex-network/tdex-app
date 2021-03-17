@@ -167,7 +167,6 @@ const Exchange: React.FC<ExchangeProps> = ({
     } catch (e) {
       console.error(e);
       dispatch(addErrorToast(e.message || e));
-      setReceivedAmount('');
     } finally {
       setIsReceivedUpdating(false);
     }
@@ -197,7 +196,6 @@ const Exchange: React.FC<ExchangeProps> = ({
     } catch (e) {
       console.error(e);
       dispatch(addErrorToast(e.message || e));
-      setReceivedAmount('');
     } finally {
       setIsSentUpdating(false);
     }

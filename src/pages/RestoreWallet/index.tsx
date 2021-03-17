@@ -7,6 +7,7 @@ import {
   IonTitle,
   IonToolbar,
   IonLoading,
+  IonInput,
 } from '@ionic/react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import PageDescription from '../../components/PageDescription';
@@ -19,13 +20,14 @@ import './style.scss';
 import { useDispatch } from 'react-redux';
 import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
 import { signIn } from '../../redux/actions/appActions';
-import { useMnemonic } from '../../utils/custom-hooks';
+import { useFocus, useMnemonic } from '../../utils/custom-hooks';
 import PinModal from '../../components/PinModal';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import * as bip39 from 'bip39';
+import { onPressKeyEvent } from '../../utils/keyboard';
 
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
@@ -48,6 +50,9 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
     }
     setModalOpen('first');
   };
+
+  // use for keyboard tricks
+  const [refs, setFocus] = useFocus(12, handleConfirm);
 
   const onFirstPinConfirm = (newPin: string) => {
     setPin(newPin);
@@ -135,12 +140,16 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
                 })}
               >
                 <div className="input-number">{index + 1}</div>
-                <input
-                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                    setMnemonicWord(e.target.value, index)
+                <IonInput
+                  ref={refs[index]}
+                  className="input-word"
+                  onKeyDown={onPressKeyEvent(() => setFocus(index + 1))}
+                  onIonChange={(e) =>
+                    setMnemonicWord(e.detail.value || '', index)
                   }
                   value={item}
                   type="text"
+                  enterkeyhint={index === refs.length - 1 ? 'done' : 'next'}
                 />
               </label>
             );

@@ -40,9 +40,9 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({
             <label className="search-bar">
               <IonIcon icon={searchSharp} color="light" onClick={close} />
               <IonInput
+                inputMode="search"
                 color="light"
                 placeholder="Search currency"
-                type="text"
                 value={searchString}
                 onIonChange={(e) => setSearchString(e.detail.value || '')}
               />

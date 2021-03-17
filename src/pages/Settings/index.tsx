@@ -279,7 +279,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
                 <p>Set explorer url for electrum server</p>
               </PageDescription>
               <IonInput
-                type="text"
+                inputmode="text"
                 value={explorerValue}
                 onIonChange={handleExplorerChange}
               />

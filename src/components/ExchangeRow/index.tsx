@@ -9,6 +9,7 @@ import { caretDown, searchSharp } from 'ionicons/icons';
 import { AssetWithTicker } from '../../utils/tdex';
 
 import './style.scss';
+import { onPressKeyEventCloseKeyboard } from '../../utils/keyboard';
 
 interface ExchangeRowInterface {
   asset: AssetWithTicker;
@@ -67,7 +68,9 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         >
           <div className="ion-text-end">
             <IonInput
-              type="number"
+              enterkeyhint="done"
+              onKeyDown={onPressKeyEventCloseKeyboard}
+              inputmode="decimal"
               value={amount}
               placeholder="0.00"
               onIonChange={(e) => {
