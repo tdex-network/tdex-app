@@ -37,10 +37,7 @@ import {
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import { update } from '../../redux/actions/appActions';
-import {
-  onPressKeyEvent,
-  onPressKeyEventCloseKeyboard,
-} from '../../utils/keyboard';
+import { onPressKeyEventCloseKeyboard } from '../../utils/keyboard';
 
 interface WithdrawalProps
   extends RouteComponentProps<

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -11,12 +11,8 @@ import {
 } from '@ionic/react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import PageDescription from '../../components/PageDescription';
-
 import classNames from 'classnames';
-
 import { IconBack, IconWarning } from '../../components/icons';
-
-import './style.scss';
 import { useDispatch } from 'react-redux';
 import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
 import { signIn } from '../../redux/actions/appActions';
@@ -28,6 +24,7 @@ import {
 } from '../../redux/actions/toastActions';
 import * as bip39 from 'bip39';
 import { onPressKeyEvent } from '../../utils/keyboard';
+import './style.scss';
 
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
