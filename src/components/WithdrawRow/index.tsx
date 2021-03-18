@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import './style.scss';
 import { CurrencyIcon } from '../icons';
-import { IonInput } from '@ionic/react';
+import { IonInput, useIonViewDidEnter, useIonViewDidLeave } from '@ionic/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { fromSatoshi } from '../../utils/helpers';
 import { updateRates } from '../../redux/actions/ratesActions';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
+import { Plugins } from '@capacitor/core';
+
+const { Keyboard } = Plugins;
 
 interface WithdrawRowInterface {
   balance: BalanceInterface;
@@ -28,6 +31,14 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   const [fiat, setFiat] = useState<string>('0.00');
 
   const dispatch = useDispatch();
+
+  useIonViewDidEnter(() => {
+    Keyboard.setAccessoryBarVisible({ isVisible: true });
+  });
+
+  useIonViewDidLeave(() => {
+    Keyboard.setAccessoryBarVisible({ isVisible: false });
+  });
 
   useEffect(() => {
     dispatch(updateRates());

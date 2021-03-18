@@ -3,13 +3,20 @@ import classNames from 'classnames';
 import { CurrencyIcon } from '../icons';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { fromSatoshiFixed } from '../../utils/helpers';
-import { IonIcon, IonInput, IonSpinner } from '@ionic/react';
+import {
+  IonIcon,
+  IonInput,
+  IonSpinner,
+  useIonViewDidEnter,
+  useIonViewDidLeave,
+} from '@ionic/react';
 import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
 import { caretDown, searchSharp } from 'ionicons/icons';
 import { AssetWithTicker } from '../../utils/tdex';
 
 import './style.scss';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
+import { Plugins } from '@capacitor/core';
 
 interface ExchangeRowInterface {
   asset: AssetWithTicker;
@@ -23,6 +30,8 @@ interface ExchangeRowInterface {
   setAsset: (newAsset: AssetWithTicker) => void;
   setFocused: () => void;
 }
+
+const { Keyboard } = Plugins;
 
 const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   asset,
@@ -38,6 +47,14 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
 }) => {
   const [balanceAmount, setBalanceAmount] = useState<number>();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  useIonViewDidEnter(() => {
+    Keyboard.setAccessoryBarVisible({ isVisible: true });
+  });
+
+  useIonViewDidLeave(() => {
+    Keyboard.setAccessoryBarVisible({ isVisible: false });
+  });
 
   useEffect(() => {
     setBalanceAmount(balances.find((b) => b.asset === asset.asset)?.amount);
