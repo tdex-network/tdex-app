@@ -11,7 +11,6 @@ import {
   IonTitle,
   IonToolbar,
   IonLoading,
-  IonModal,
 } from '@ionic/react';
 import { IconBack, IconCheck } from '../../components/icons';
 import { useDispatch } from 'react-redux';
@@ -23,7 +22,7 @@ import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import ShowMnemonic from '../../components/ShowMnemonic';
+import BackupModal from '../../redux/containers/backupModalContainer';
 
 const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
@@ -32,7 +31,7 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [pin, setPin] = useState<string>();
   const [backupModalOpen, setBackupModalOpen] = useState(false);
-  const [mnemonic, setMnemonic] = useState('');
+  const [mnemonic, setMnemonic] = useState<string>();
 
   const onConfirm = () => {
     if (acceptTerms) {
@@ -59,6 +58,7 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
   };
 
   const onSecondPinConfirm = (newPin: string) => {
+    if (!mnemonic) throw Error('mnemonic should be generated.');
     if (newPin === pin) {
       setLoading(true);
       setMnemonicInSecureStorage(mnemonic, pin)
@@ -152,26 +152,15 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
             Confirm
           </IonButton>
         </div>
-
-        <IonModal isOpen={backupModalOpen}>
-          <div className="gradient-background" />
-          <IonHeader>
-            <IonToolbar className="with-back-button">
-              <IonTitle>Backup your seed</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-          <IonContent>
-            <div className="backup-content">
-              <p>Never share your mnemonic</p>
-              <ShowMnemonic mnemonic={mnemonic} />
-              <div className="buttons">
-                <IonButton className="main-button" onClick={onBackupDone}>
-                  OK
-                </IonButton>
-              </div>
-            </div>
-          </IonContent>
-        </IonModal>
+        {mnemonic && (
+          <BackupModal
+            isOpen={backupModalOpen}
+            mnemonic={mnemonic}
+            onClose={(_: 'done' | 'skipped') => {
+              onBackupDone();
+            }}
+          />
+        )}
       </IonContent>
     </IonPage>
   );

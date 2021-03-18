@@ -15,7 +15,7 @@ import classNames from 'classnames';
 import { IconBack, IconWarning } from '../../components/icons';
 import { useDispatch } from 'react-redux';
 import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
-import { signIn } from '../../redux/actions/appActions';
+import { setBackupDone, signIn } from '../../redux/actions/appActions';
 import { useFocus, useMnemonic } from '../../utils/custom-hooks';
 import PinModal from '../../components/PinModal';
 import {
@@ -74,6 +74,8 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
             addSuccessToast('Mnemonic generated and encrypted with your PIN.')
           );
           dispatch(signIn(pin));
+          // we don't need to ask backup if the mnemonic is restored
+          dispatch(setBackupDone());
           history.push('/wallet');
         })
         .catch(onError)
