@@ -13298,10 +13298,9 @@ tdex-react-scripts@^4.0.0-tdex:
   optionalDependencies:
     fsevents "^2.1.3"
 
-tdex-sdk@^1.3.2:
+"tdex-sdk@https://github.com/louisinger/tdex-sdk.git#improve-trade":
   version "1.3.2"
-  resolved "https://registry.yarnpkg.com/tdex-sdk/-/tdex-sdk-1.3.2.tgz#e1556c09dc61105173237fb73497eb36f08dd590"
-  integrity sha512-zECjsntFxxt6/aNIOlYHvRD0hDwMjl8eQfggYyqyfSq8dyd50wSVvBzrglqRvl365hHde0R68L20jUSMZujP6g==
+  resolved "https://github.com/louisinger/tdex-sdk.git#629cdfb7cfa0a73b508c7f843bb9aeeb71dc88f3"
   dependencies:
     "@grpc/grpc-js" "^1.0.4"
     "@types/google-protobuf" "^3.7.2"
