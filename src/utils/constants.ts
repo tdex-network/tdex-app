@@ -15,6 +15,7 @@ export interface AssetConfig {
   // assetHash should be unique /!\
   assetHash: string;
   color: string;
+  precision: number;
 }
 
 export const MAIN_ASSETS: AssetConfig[] = [
@@ -24,6 +25,7 @@ export const MAIN_ASSETS: AssetConfig[] = [
     assetHash:
       '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225',
     color: LBTC_COLOR,
+    precision: 8,
   },
   {
     coinGeckoID: LBTC_COINGECKOID,
@@ -31,6 +33,7 @@ export const MAIN_ASSETS: AssetConfig[] = [
     assetHash:
       '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d',
     color: LBTC_COLOR,
+    precision: 8,
   },
   {
     coinGeckoID: USDT_COINGECKOID,
@@ -38,6 +41,7 @@ export const MAIN_ASSETS: AssetConfig[] = [
     assetHash:
       'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2',
     color: USDT_COLOR,
+    precision: 2,
   },
 ];
 
