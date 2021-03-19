@@ -35,12 +35,15 @@ async function getAssetData(
   explorerURL: string
 ): Promise<{ precision: number; ticker: string }> {
   try {
-    const { precision, ticker } = (await axios.get(`${explorerURL}`)).data;
+    const { precision, ticker } = (
+      await axios.get(`${explorerURL}/asset/${assetHash}`)
+    ).data;
     return {
       precision: precision || defaultPrecision,
       ticker: ticker || tickerFromAssetHash(assetHash),
     };
-  } catch {
+  } catch (e) {
+    console.error(e);
     return {
       precision: defaultPrecision,
       ticker: tickerFromAssetHash(assetHash),

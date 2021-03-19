@@ -92,7 +92,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       const recipient: RecipientInterface = {
         address: recipientAddress,
         asset: balance?.asset || '',
-        value: toSatoshi(amount),
+        value: toSatoshi(amount, balance?.precision),
       };
 
       const identity = await getIdentityPromise;

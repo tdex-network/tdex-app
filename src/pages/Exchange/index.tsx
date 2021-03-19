@@ -41,11 +41,13 @@ import { swapVerticalOutline } from 'ionicons/icons';
 import { update } from '../../redux/actions/appActions';
 import { PreviewData } from '../TradeSummary';
 import Refresher from '../../components/Refresher';
+import { AssetConfig, defaultPrecision } from '../../utils/constants';
 
 interface ExchangeProps extends RouteComponentProps {
   balances: BalanceInterface[];
   explorerUrl: string;
   markets: TDEXMarket[];
+  assets: Record<string, AssetConfig>;
 }
 
 const Exchange: React.FC<ExchangeProps> = ({
@@ -53,6 +55,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   balances,
   explorerUrl,
   markets,
+  assets,
 }) => {
   const dispatch = useDispatch();
 
@@ -155,6 +158,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         {
           amount: parseFloat(newSentAmount),
           asset: assetSent.asset,
+          precision: assets[assetSent.asset]?.precision || defaultPrecision,
         },
         trades,
         onErrorGetPrice
@@ -162,7 +166,13 @@ const Exchange: React.FC<ExchangeProps> = ({
       if (asset !== assetReceived?.asset) {
         throw new Error('Wrong preview asset');
       }
-      setReceivedAmount(fromSatoshiFixed(amount, 8, 8));
+      setReceivedAmount(
+        fromSatoshiFixed(
+          amount,
+          assets[asset]?.precision || defaultPrecision,
+          assets[asset]?.precision || defaultPrecision
+        )
+      );
       setTrade(bestTrade);
     } catch (e) {
       console.error(e);
@@ -183,6 +193,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         {
           amount: parseFloat(newReceivedAmount),
           asset: assetReceived.asset,
+          precision: assets[assetReceived.asset]?.precision,
         },
         trades,
         onErrorGetPrice
@@ -192,7 +203,13 @@ const Exchange: React.FC<ExchangeProps> = ({
         throw new Error('Wrong preview asset');
       }
 
-      setSentAmount(fromSatoshiFixed(amount, 8, 8));
+      setSentAmount(
+        fromSatoshiFixed(
+          amount,
+          assets[asset]?.precision || defaultPrecision,
+          assets[asset]?.precision || defaultPrecision
+        )
+      );
       setTrade(bestTrade);
     } catch (e) {
       console.error(e);
@@ -204,11 +221,10 @@ const Exchange: React.FC<ExchangeProps> = ({
   };
 
   const sentAmountGreaterThanBalance = () => {
-    const balanceAmount = balances.find((b) => b.asset === assetSent?.asset)
-      ?.amount;
-    if (!balanceAmount || !sentAmount) return false;
-    const amountAsSats = toSatoshi(parseFloat(sentAmount));
-    return amountAsSats > balanceAmount;
+    const balance = balances.find((b) => b.asset === assetSent?.asset);
+    if (!balance || !sentAmount) return false;
+    const amountAsSats = toSatoshi(parseFloat(sentAmount), balance.precision);
+    return amountAsSats > balance.amount;
   };
 
   const onConfirm = () => setModalOpen(true);
@@ -224,7 +240,10 @@ const Exchange: React.FC<ExchangeProps> = ({
       const { txid, identityAddresses } = await makeTrade(
         trade,
         {
-          amount: toSatoshi(parseFloat(sentAmount || '0')),
+          amount: toSatoshi(
+            parseFloat(sentAmount || '0'),
+            assets[assetSent.asset]?.precision || defaultPrecision
+          ),
           asset: assetSent.asset,
         },
         explorerUrl,

@@ -13,6 +13,7 @@ const mapStateToProps = (state: any) => {
     ),
     explorerUrl: state.settings.explorerUrl,
     markets: state.tdex.markets,
+    assets: state.assets,
   };
 };
 

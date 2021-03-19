@@ -3518,7 +3518,7 @@ bindings@^1.3.0, bindings@^1.5.0:
   dependencies:
     file-uri-to-path "1.0.0"
 
-"bip174@github:vulpemventures/bip174":
+bip174@vulpemventures/bip174.git:
   version "1.0.1"
   resolved "https://codeload.github.com/vulpemventures/bip174/tar.gz/d6a71254fa66b2ba84de80c67b7255ab65979c3b"
 
@@ -3557,7 +3557,7 @@ bitcoin-ops@^1.3.0, bitcoin-ops@^1.4.0:
   resolved "https://registry.yarnpkg.com/bitcoin-ops/-/bitcoin-ops-1.4.1.tgz#e45de620398e22fd4ca6023de43974ff42240278"
   integrity sha512-pef6gxZFztEhaE9RY9HmWVmiIHqCb2OyS4HPKkpc6CIiiOa3Qmuoylxc5P2EkU3w+5eTSifI9SEZC88idAIGow==
 
-"blech32@github:vulpemventures/blech32":
+blech32@vulpemventures/blech32.git:
   version "1.0.0"
   resolved "https://codeload.github.com/vulpemventures/blech32/tar.gz/b42822d0496a27ed5a313395517e9029bcfccf2e"
 
@@ -13301,10 +13301,10 @@ tdex-react-scripts@^4.0.0-tdex:
   optionalDependencies:
     fsevents "^2.1.3"
 
-tdex-sdk@^1.3.2:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/tdex-sdk/-/tdex-sdk-1.4.0.tgz#1ea35571ff3763f6b8d56af92798e9f624339d82"
-  integrity sha512-atY4/5C4CT5QyFPUC9wv7nsGIvBY+xf5RTZ6d5mmO5nDWdqXglEzXx6saSdonVWCMRuFyINL5z8lNITbu+Ccug==
+tdex-sdk@1.3.2:
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/tdex-sdk/-/tdex-sdk-1.3.2.tgz#e1556c09dc61105173237fb73497eb36f08dd590"
+  integrity sha512-zECjsntFxxt6/aNIOlYHvRD0hDwMjl8eQfggYyqyfSq8dyd50wSVvBzrglqRvl365hHde0R68L20jUSMZujP6g==
   dependencies:
     "@grpc/grpc-js" "^1.0.4"
     "@types/google-protobuf" "^3.7.2"

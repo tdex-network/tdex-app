@@ -41,7 +41,7 @@ export const MAIN_ASSETS: AssetConfig[] = [
     assetHash:
       'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2',
     color: USDT_COLOR,
-    precision: 2,
+    precision: 8,
   },
 ];
 
