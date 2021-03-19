@@ -167,7 +167,11 @@ const Wallet: React.FC<WalletProps> = ({
                         className="main-row"
                         aria-label={`${balance.ticker}-amount`}
                       >
-                        {fromSatoshiFixed(balance.amount, 8, 8)}
+                        {fromSatoshiFixed(
+                          balance.amount,
+                          balance.precision,
+                          balance.precision
+                        )}
                       </div>
                       <div className="sub-row">
                         {fiatValue < 0
@@ -221,7 +225,11 @@ const Wallet: React.FC<WalletProps> = ({
                         className="main-row"
                         aria-label={`${balance.ticker}-amount`}
                       >
-                        {fromSatoshiFixed(balance.amount)}
+                        {fromSatoshiFixed(
+                          balance.amount,
+                          balance.precision,
+                          balance.precision
+                        )}
                       </div>
                       <div className="sub-row">
                         {fiatValue > 0 && fiatValue.toFixed(2)}

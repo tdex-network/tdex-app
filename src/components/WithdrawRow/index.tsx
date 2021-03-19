@@ -4,7 +4,7 @@ import { CurrencyIcon } from '../icons';
 import { IonInput } from '@ionic/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { fromSatoshi } from '../../utils/helpers';
+import { fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
 import { updateRates } from '../../redux/actions/ratesActions';
 
 interface WithdrawRowInterface {
@@ -22,7 +22,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
 }) => {
   const currency = useSelector((state: any) => state.settings.currency);
   const [residualBalance, setResidualBalance] = useState<string>(
-    fromSatoshi(balance.amount).toFixed(8)
+    fromSatoshiFixed(balance.amount, balance.precision, balance.precision)
   );
   const [fiat, setFiat] = useState<string>('0.00');
 
@@ -33,7 +33,9 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   }, []);
 
   const reset = () => {
-    setResidualBalance(fromSatoshi(balance.amount).toFixed(8));
+    setResidualBalance(
+      fromSatoshiFixed(balance.amount, balance.precision, balance.precision)
+    );
     if (price) setFiat('0.00');
     onAmountChange(undefined);
   };
@@ -45,8 +47,12 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
     }
 
     const val = parseFloat(value);
-    const residualAmount = fromSatoshi(balance.amount) - val;
-    setResidualBalance(residualAmount.toFixed(8));
+    const residualAmount = fromSatoshi(balance.amount, balance.precision) - val;
+    setResidualBalance(
+      residualAmount.toLocaleString(undefined, {
+        maximumFractionDigits: balance.precision,
+      })
+    );
     if (price) setFiat((val * price).toFixed(2));
     onAmountChange(val);
   };

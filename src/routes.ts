@@ -5,7 +5,7 @@ import QRScanner from './pages/QRScanner';
 import Receive from './pages/Receive';
 import Settings from './pages/Settings';
 import TradeHistory from './redux/containers/exchangeHistoryContainer';
-import TradeSummary from './pages/TradeSummary';
+import TradeSummary from './redux/containers/tradeSummaryContainer';
 import Wallet from './redux/containers/walletContainer';
 import Withdrawal from './redux/containers/withdrawalContainer';
 import WithdrawalDetails from './pages/WithdrawalDetails';

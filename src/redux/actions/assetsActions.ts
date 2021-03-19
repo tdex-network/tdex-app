@@ -1,16 +1,20 @@
-export const GET_ASSETS = 'GET_ASSETS';
-export const SET_ASSETS = 'SET_ASSETS';
+import { AssetConfig } from '../../utils/constants';
 
-export const getAssets = (assetIds: any) => {
+// SET_ASSET update the state after fetching from registry.
+export const SET_ASSET = 'SET_ASSET';
+// ADD_ASSET is used when sagas encounter new assets.
+export const ADD_ASSET = 'ADD_ASSET';
+
+export const setAsset = (asset: AssetConfig) => {
   return {
-    type: GET_ASSETS,
-    payload: assetIds,
+    type: SET_ASSET,
+    payload: asset,
   };
 };
 
-export const setAssets = (assets: any) => {
+export const addAsset = (assetHash: string) => {
   return {
-    type: SET_ASSETS,
-    payload: assets,
+    type: ADD_ASSET,
+    payload: assetHash,
   };
 };

@@ -5,6 +5,7 @@ import { transactionsWatcherSaga } from './sagas/transactionsSaga';
 import { settingsWatcherSaga } from './sagas/settingsSaga';
 import { appWatcherSaga } from './sagas/appSaga';
 import { tdexWatcherSaga } from './sagas/tdexSaga';
+import { assetsWatcherSaga } from './sagas/assetsSaga';
 
 export default function* rootSaga() {
   yield all([
@@ -14,5 +15,6 @@ export default function* rootSaga() {
     settingsWatcherSaga(),
     appWatcherSaga(),
     tdexWatcherSaga(),
+    assetsWatcherSaga(),
   ]);
 }
