@@ -6,10 +6,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { fromSatoshi } from '../../utils/helpers';
 import { updateRates } from '../../redux/actions/ratesActions';
-import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
-import { Plugins } from '@capacitor/core';
-
-const { Keyboard } = Plugins;
+import {
+  onPressEnterKeyCloseKeyboard,
+  setAccessoryBar,
+} from '../../utils/keyboard';
 
 interface WithdrawRowInterface {
   balance: BalanceInterface;
@@ -33,11 +33,11 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   const dispatch = useDispatch();
 
   useIonViewDidEnter(() => {
-    Keyboard.setAccessoryBarVisible({ isVisible: true });
+    setAccessoryBar(true);
   });
 
   useIonViewDidLeave(() => {
-    Keyboard.setAccessoryBarVisible({ isVisible: false });
+    setAccessoryBar(false);
   });
 
   useEffect(() => {

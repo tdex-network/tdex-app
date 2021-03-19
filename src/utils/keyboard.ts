@@ -1,4 +1,5 @@
 import { Plugins } from '@capacitor/core';
+import { isPlatform } from '@ionic/react';
 
 const { Keyboard } = Plugins;
 
@@ -23,5 +24,21 @@ export function onPressEnterKeyFactory(
 export function onPressEnterKeyCloseKeyboard(
   e: React.KeyboardEvent<HTMLIonInputElement>
 ) {
-  return onPressEnterKeyFactory(() => Keyboard.hide())(e);
+  return onPressEnterKeyFactory(() => {
+    try {
+      Keyboard.hide();
+    } catch (e) {
+      console.error(e);
+    }
+  })(e);
+}
+
+export async function setAccessoryBar(isVisible: boolean) {
+  try {
+    if (isPlatform('mobile')) {
+      await Keyboard.setAccessoryBarVisible({ isVisible });
+    }
+  } catch (e) {
+    console.error(e);
+  }
 }

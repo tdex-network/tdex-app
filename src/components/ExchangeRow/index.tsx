@@ -15,7 +15,10 @@ import { caretDown, searchSharp } from 'ionicons/icons';
 import { AssetWithTicker } from '../../utils/tdex';
 
 import './style.scss';
-import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
+import {
+  onPressEnterKeyCloseKeyboard,
+  setAccessoryBar,
+} from '../../utils/keyboard';
 import { Plugins } from '@capacitor/core';
 
 interface ExchangeRowInterface {
@@ -49,11 +52,11 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useIonViewDidEnter(() => {
-    Keyboard.setAccessoryBarVisible({ isVisible: true });
+    setAccessoryBar(true);
   });
 
   useIonViewDidLeave(() => {
-    Keyboard.setAccessoryBarVisible({ isVisible: false });
+    setAccessoryBar(false);
   });
 
   useEffect(() => {
