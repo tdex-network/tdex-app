@@ -21,6 +21,7 @@ import { fromSatoshiFixed } from '../../utils/helpers';
 import { swapHorizontal } from 'ionicons/icons';
 import { update } from '../../redux/actions/appActions';
 import './style.scss';
+import { AssetConfig } from '../../utils/constants';
 
 export interface PreviewData {
   sent: {
@@ -37,9 +38,16 @@ interface TradeSummaryLocationState {
   preview?: PreviewData;
 }
 
-const TradeSummary: React.FC<
-  RouteComponentProps<any, any, TradeSummaryLocationState>
-> = ({ history, location }) => {
+interface TradeSummaryProps
+  extends RouteComponentProps<any, any, TradeSummaryLocationState> {
+  assets: Record<string, AssetConfig>;
+}
+
+const TradeSummary: React.FC<TradeSummaryProps> = ({
+  history,
+  location,
+  assets,
+}) => {
   const preview = location.state?.preview;
   const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();

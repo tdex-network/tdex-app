@@ -259,11 +259,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       const preview: PreviewData = {
         sent: {
           ticker: assetSent.ticker,
-          amount:
-            '-' +
-            (Number(sentAmount).toLocaleString(undefined, {
-              minimumFractionDigits: 2,
-            }) || '0.00'),
+          amount: '-' + (sentAmount || '0.00'),
         },
         received: {
           ticker: assetReceived?.ticker || 'unknown',

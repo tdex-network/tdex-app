@@ -4,7 +4,7 @@ import { CurrencyIcon } from '../icons';
 import { IonInput } from '@ionic/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { fromSatoshi, fromSatoshiFixed, toSatoshi } from '../../utils/helpers';
+import { fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
 import { updateRates } from '../../redux/actions/ratesActions';
 
 interface WithdrawRowInterface {
