@@ -3,16 +3,15 @@ import { ActionType } from '../../utils/types';
 import { SET_ASSET } from '../actions/assetsActions';
 
 type AssetsState = Record<string, AssetConfig>;
-const initialState = initialAssets();
 
 const assetsReducer = (
-  state: AssetsState = initialState,
+  state: AssetsState = initialAssets(),
   action: ActionType
 ) => {
   switch (action.type) {
     case SET_ASSET: {
       return {
-        ...state.assets,
+        ...state,
         [action.payload.assetHash]: action.payload,
       };
     }

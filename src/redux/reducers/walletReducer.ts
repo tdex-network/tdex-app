@@ -18,7 +18,11 @@ import {
 import { createSelector } from 'reselect';
 import { groupBy } from '../../utils/helpers';
 import { BalanceInterface } from '../actionTypes/walletActionTypes';
-import { getMainAsset } from '../../utils/constants';
+import {
+  AssetConfig,
+  defaultPrecision,
+  getMainAsset,
+} from '../../utils/constants';
 
 export interface WalletState {
   isAuth: boolean;
@@ -91,18 +95,23 @@ export const allUtxosSelector = createSelector(utxosMapSelector, (utxosMap) =>
 export const balancesSelector = createSelector(
   allUtxosSelector,
   transactionsAssets,
-  (utxos: UtxoInterface[], txsAssets: string[]) => {
-    const balances = balancesFromUtxos(utxos);
+  ({ assets }: { assets: Record<string, AssetConfig> }) => assets,
+  (
+    utxos: UtxoInterface[],
+    txsAssets: string[],
+    assets: Record<string, AssetConfig>
+  ) => {
+    const balances = balancesFromUtxos(utxos, assets);
     const balancesAssets = balances.map((b) => b.asset);
-
     for (const asset of txsAssets) {
       if (balancesAssets.includes(asset)) continue;
       // include a 'zero' balance if the user has previous transactions.
       balances.push({
         asset,
         amount: 0,
-        ticker: tickerFromAssetHash(asset),
+        ticker: assets[asset]?.ticker || tickerFromAssetHash(asset),
         coinGeckoID: getMainAsset(asset)?.coinGeckoID,
+        precision: assets[asset]?.precision || defaultPrecision,
       });
     }
 
@@ -111,7 +120,10 @@ export const balancesSelector = createSelector(
 );
 
 // compute balances value from a set of utxos
-function balancesFromUtxos(utxos: UtxoInterface[]): BalanceInterface[] {
+function balancesFromUtxos(
+  utxos: UtxoInterface[],
+  assets: Record<string, AssetConfig>
+): BalanceInterface[] {
   const balances: BalanceInterface[] = [];
   const utxosGroupedByAsset: Record<string, UtxoInterface[]> = groupBy(
     utxos,
@@ -126,8 +138,9 @@ function balancesFromUtxos(utxos: UtxoInterface[]): BalanceInterface[] {
     balances.push({
       asset,
       amount,
-      ticker: tickerFromAssetHash(asset),
+      ticker: assets[asset]?.ticker || tickerFromAssetHash(asset),
       coinGeckoID,
+      precision: assets[asset]?.precision || defaultPrecision,
     });
   }
 
