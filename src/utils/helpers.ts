@@ -1,6 +1,19 @@
-import { fetchTxHex } from 'ldk';
-import { tickerFromAssetHash } from '../redux/reducers/walletReducer';
-import { defaultPrecision, getColor } from './constants';
+import {
+  CoinSelector,
+  CompareUtxoFn,
+  fetchTxHex,
+  greedyCoinSelector,
+  isBlindedUtxo,
+  UtxoInterface,
+} from 'ldk';
+import { BalanceInterface } from '../redux/actionTypes/walletActionTypes';
+import { outpointToString } from '../redux/reducers/walletReducer';
+import {
+  AssetConfig,
+  defaultPrecision,
+  getColor,
+  getMainAsset,
+} from './constants';
 
 export const createColorFromHash = (id: string): string => {
   let hash = 0;
@@ -110,4 +123,70 @@ export async function waitForTx(txid: string, explorerURL: string) {
 
 export async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// compute balances value from a set of utxos
+export function balancesFromUtxos(
+  utxos: UtxoInterface[],
+  assets: Record<string, AssetConfig>
+): BalanceInterface[] {
+  const balances: BalanceInterface[] = [];
+  const utxosGroupedByAsset: Record<string, UtxoInterface[]> = groupBy(
+    utxos,
+    'asset'
+  );
+
+  for (const asset of Object.keys(utxosGroupedByAsset)) {
+    const utxosForAsset = utxosGroupedByAsset[asset];
+    const amount = sumUtxos(utxosForAsset);
+
+    const coinGeckoID = getMainAsset(asset)?.coinGeckoID;
+    balances.push({
+      asset,
+      amount,
+      ticker: assets[asset]?.ticker || tickerFromAssetHash(asset),
+      coinGeckoID,
+      precision: assets[asset]?.precision || defaultPrecision,
+    });
+  }
+
+  return balances;
+}
+
+function sumUtxos(utxos: UtxoInterface[]): number {
+  let sum = 0;
+  for (const utxo of utxos) {
+    if (!isBlindedUtxo(utxo) && utxo.value) {
+      sum += utxo.value;
+    }
+  }
+  return sum;
+}
+
+export function tickerFromAssetHash(assetHash?: string): string {
+  if (!assetHash) return '';
+  const mainAsset = getMainAsset(assetHash);
+  if (mainAsset) return mainAsset.ticker;
+  return assetHash.slice(0, 4).toUpperCase();
+}
+
+function compareUtxoFunctionUsingLocks(
+  utxoLocks: Record<string, number>
+): CompareUtxoFn {
+  return (a: UtxoInterface, b: UtxoInterface) => {
+    const aDateLock = utxoLocks[outpointToString(a)] || 0;
+    const bDateLock = utxoLocks[outpointToString(b)] || 0;
+
+    if (aDateLock !== bDateLock) {
+      return aDateLock - bDateLock;
+    }
+
+    return a.value! - b.value!;
+  };
+}
+
+export function customCoinSelector(
+  utxoLocks: Record<string, number>
+): CoinSelector {
+  return greedyCoinSelector(compareUtxoFunctionUsingLocks(utxoLocks));
 }

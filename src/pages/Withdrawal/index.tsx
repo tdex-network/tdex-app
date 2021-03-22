@@ -13,19 +13,21 @@ import {
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
 import { IconBack, IconQR } from '../../components/icons';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import WithdrawRow from '../../components/WithdrawRow';
 import './style.scss';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import {
   address,
+  CoinSelector,
+  estimateTxSize,
   greedyCoinSelector,
   psetToUnsignedTx,
   RecipientInterface,
+  UtxoInterface,
   walletFromCoins,
 } from 'ldk';
 import { broadcastTx } from '../../redux/services/walletService';
-import { allUtxosSelector } from '../../redux/reducers/walletReducer';
 import { network } from '../../redux/config';
 import { toSatoshi } from '../../utils/helpers';
 import { setAddresses } from '../../redux/actions/walletActions';
@@ -45,33 +47,55 @@ interface WithdrawalProps
     { address: string; amount: number; asset: string }
   > {
   balances: BalanceInterface[];
+  coinSelector: CoinSelector;
+  utxos: UtxoInterface[];
+  prices: Record<string, number>;
+  explorerURL: string;
 }
 
 const Withdrawal: React.FC<WithdrawalProps> = ({
   balances,
+  coinSelector,
+  utxos,
+  prices,
+  explorerURL,
   history,
   location,
 }) => {
   // route parameter asset_id
   const { asset_id } = useParams<{ asset_id: string }>();
 
-  // selectors for balance & rates
-  const prices = useSelector((state: any) => state.rates.prices);
-  const utxos = useSelector(allUtxosSelector);
-  const explorerURL = useSelector((state: any) => state.settings.explorerUrl);
-
   // UI state
   const [balance, setBalance] = useState<BalanceInterface>();
   const [price, setPrice] = useState<number>();
   const [amount, setAmount] = useState<number>(0);
+  const [feeAmount, setFeeAmount] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [recipientAddress, setRecipientAddress] = useState<string>('');
   const [modalOpen, setModalOpen] = useState(false);
 
   const dispatch = useDispatch();
 
+  const getRecipient = (): RecipientInterface => ({
+    address: recipientAddress,
+    asset: balance?.asset || '',
+    value: toSatoshi(amount, balance?.precision),
+  });
+
   const onAmountChange = (newAmount: number | undefined) => {
     setAmount(newAmount || 0);
+    if (newAmount && newAmount > 0) {
+      const { selectedUtxos, changeOutputs } = coinSelector(
+        utxos,
+        [getRecipient()],
+        () => 'doesntmatteraddress'
+      );
+      const fee = Math.ceil(
+        estimateTxSize(selectedUtxos.length, changeOutputs.length + 2) * 0.1
+      );
+
+      setFeeAmount(fee);
+    }
   };
 
   const isValid = (): boolean => {
@@ -89,19 +113,14 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
 
       const wallet = walletFromCoins(utxos, network.chain);
       const psetBase64 = wallet.createTx();
-      const recipient: RecipientInterface = {
-        address: recipientAddress,
-        asset: balance?.asset || '',
-        value: toSatoshi(amount, balance?.precision),
-      };
 
       const identity = await getIdentityPromise;
       await identity.isRestored;
 
       const withdrawPset = wallet.buildTx(
         psetBase64,
-        [recipient],
-        greedyCoinSelector(),
+        [getRecipient()],
+        coinSelector,
         (_: string) => identity.getNextChangeAddress().confidentialAddress,
         true
       );
@@ -225,6 +244,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         </IonToolbar>
       </IonHeader>
       <IonContent className="withdrawal">
+        {feeAmount}
         {balance && (
           <WithdrawRow
             inputAmount={amount}

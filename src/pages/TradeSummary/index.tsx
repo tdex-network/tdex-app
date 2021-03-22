@@ -16,8 +16,7 @@ import {
 } from '@ionic/react';
 import { CurrencyIcon, IconBack } from '../../components/icons';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
-import { tickerFromAssetHash } from '../../redux/reducers/walletReducer';
-import { fromSatoshiFixed } from '../../utils/helpers';
+import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
 import { swapHorizontal } from 'ionicons/icons';
 import { update } from '../../redux/actions/appActions';
 import './style.scss';

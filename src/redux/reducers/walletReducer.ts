@@ -1,12 +1,6 @@
 import { transactionsAssets } from './transactionsReducer';
 import { RESET_UTXOS, SET_PUBLIC_KEYS } from './../actions/walletActions';
-import {
-  AddressInterface,
-  UtxoInterface,
-  Outpoint,
-  isBlindedUtxo,
-  Mnemonic,
-} from 'ldk';
+import { AddressInterface, UtxoInterface, Outpoint, Mnemonic } from 'ldk';
 import { ActionType } from '../../utils/types';
 import {
   CLEAR_WALLET_STATE,
@@ -16,8 +10,11 @@ import {
   DELETE_UTXO,
 } from '../actions/walletActions';
 import { createSelector } from 'reselect';
-import { groupBy } from '../../utils/helpers';
-import { BalanceInterface } from '../actionTypes/walletActionTypes';
+import {
+  tickerFromAssetHash,
+  balancesFromUtxos,
+  customCoinSelector,
+} from '../../utils/helpers';
 import {
   AssetConfig,
   defaultPrecision,
@@ -28,6 +25,7 @@ export interface WalletState {
   isAuth: boolean;
   addresses: AddressInterface[];
   utxos: Record<string, UtxoInterface>;
+  utxosLocks: Record<string, number>;
   masterPubKey: string;
   masterBlindKey: string;
 }
@@ -36,6 +34,7 @@ const initialState: WalletState = {
   isAuth: false,
   addresses: [],
   utxos: {},
+  utxosLocks: {},
   masterPubKey: '',
   masterBlindKey: '',
 };
@@ -119,49 +118,9 @@ export const balancesSelector = createSelector(
   }
 );
 
-// compute balances value from a set of utxos
-function balancesFromUtxos(
-  utxos: UtxoInterface[],
-  assets: Record<string, AssetConfig>
-): BalanceInterface[] {
-  const balances: BalanceInterface[] = [];
-  const utxosGroupedByAsset: Record<string, UtxoInterface[]> = groupBy(
-    utxos,
-    'asset'
-  );
-
-  for (const asset of Object.keys(utxosGroupedByAsset)) {
-    const utxosForAsset = utxosGroupedByAsset[asset];
-    const amount = sumUtxos(utxosForAsset);
-
-    const coinGeckoID = getMainAsset(asset)?.coinGeckoID;
-    balances.push({
-      asset,
-      amount,
-      ticker: assets[asset]?.ticker || tickerFromAssetHash(asset),
-      coinGeckoID,
-      precision: assets[asset]?.precision || defaultPrecision,
-    });
-  }
-
-  return balances;
-}
-
-function sumUtxos(utxos: UtxoInterface[]): number {
-  let sum = 0;
-  for (const utxo of utxos) {
-    if (!isBlindedUtxo(utxo) && utxo.value) {
-      sum += utxo.value;
-    }
-  }
-  return sum;
-}
-
-export function tickerFromAssetHash(assetHash?: string): string {
-  if (!assetHash) return '';
-  const mainAsset = getMainAsset(assetHash);
-  if (mainAsset) return mainAsset.ticker;
-  return assetHash.slice(0, 4).toUpperCase();
-}
+export const getCoinSelector = createSelector(
+  ({ wallet }: { wallet: WalletState }) => wallet.utxosLocks,
+  (locks: Record<string, number>) => customCoinSelector(locks)
+);
 
 export default walletReducer;

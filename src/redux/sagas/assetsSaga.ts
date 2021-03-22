@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { call, put, select, takeEvery } from 'redux-saga/effects';
 import { defaultPrecision } from '../../utils/constants';
-import { createColorFromHash } from '../../utils/helpers';
+import { createColorFromHash, tickerFromAssetHash } from '../../utils/helpers';
 import { ADD_ASSET, setAsset } from '../actions/assetsActions';
-import { tickerFromAssetHash } from '../reducers/walletReducer';
 
 // payload = the assetHash
 function* addAssetSaga({ type, payload }: { type: string; payload: string }) {
