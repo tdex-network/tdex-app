@@ -4,14 +4,24 @@ import {
   fetchAndUnblindTxsGenerator,
   address,
   AddressInterface,
+  isBlindedOutputInterface,
 } from 'ldk';
-import { takeLatest, call, put, select, all } from 'redux-saga/effects';
+import {
+  takeLatest,
+  call,
+  put,
+  select,
+  all,
+  takeEvery,
+} from 'redux-saga/effects';
 import {
   setTransaction,
+  SET_TRANSACTION,
   UPDATE_TRANSACTIONS,
 } from '../actions/transactionsActions';
 import { addErrorToast } from '../actions/toastActions';
 import { getAddressesFromStorage } from '../../utils/storage-helper';
+import { addAsset } from '../actions/assetsActions';
 
 function* updateTransactions({ type }: { type: string }) {
   try {
@@ -34,6 +44,12 @@ function* updateTransactions({ type }: { type: string }) {
   }
 }
 
+/**
+ * Saga launched in order to update the transactions state
+ * @param addressesInterfaces
+ * @param currentTxs
+ * @param explorerUrl
+ */
 export function* fetchAndUpdateTxs(
   addressesInterfaces: AddressInterface[],
   currentTxs: Record<string, TxInterface>,
@@ -81,6 +97,22 @@ export function* fetchAndUpdateTxs(
   }
 }
 
+// update the assets state when a new transaction is set in tx state
+function* updateAssets({
+  type,
+  payload,
+}: {
+  type: string;
+  payload: TxInterface;
+}) {
+  for (const out of payload.vout) {
+    if (!isBlindedOutputInterface(out)) {
+      yield put(addAsset(out.asset));
+    }
+  }
+}
+
 export function* transactionsWatcherSaga() {
   yield takeLatest(UPDATE_TRANSACTIONS, updateTransactions);
+  yield takeEvery(SET_TRANSACTION, updateAssets);
 }

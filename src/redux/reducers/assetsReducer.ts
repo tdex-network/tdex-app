@@ -1,28 +1,32 @@
+import { AssetConfig, MAIN_ASSETS } from '../../utils/constants';
 import { ActionType } from '../../utils/types';
-import { SET_ASSETS } from '../actions/assetsActions';
+import { SET_ASSET } from '../actions/assetsActions';
 
-const initialState = {
-  byId: {},
-};
+type AssetsState = Record<string, AssetConfig>;
 
-const assetsReducer = (state = initialState, action: ActionType) => {
+const assetsReducer = (
+  state: AssetsState = initialAssets(),
+  action: ActionType
+) => {
   switch (action.type) {
-    case SET_ASSETS: {
+    case SET_ASSET: {
       return {
         ...state,
-        byId: {
-          ...state.byId,
-          ...action.payload.byId,
-        },
-        byTicker: {
-          ...state.byId,
-          ...action.payload.byTicker,
-        },
+        [action.payload.assetHash]: action.payload,
       };
     }
     default:
       return state;
   }
 };
+
+// get the MAIN_ASSETS from constant file
+function initialAssets(): Record<string, AssetConfig> {
+  const result: Record<string, AssetConfig> = {};
+  for (const assetConf of MAIN_ASSETS) {
+    result[assetConf.assetHash] = assetConf;
+  }
+  return result;
+}
 
 export default assetsReducer;

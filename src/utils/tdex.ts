@@ -21,7 +21,7 @@ export interface AssetWithTicker {
 }
 
 export async function bestPrice(
-  known: { amount: number; asset: string },
+  known: { amount: number; asset: string; precision: number },
   trades: TDEXTrade[],
   onError: (e: string) => void
 ): Promise<{ amount: number; asset: string; trade: TDEXTrade }> {
@@ -52,7 +52,7 @@ export async function bestPrice(
 }
 
 async function calculatePrice(
-  known: { amount: number; asset: string },
+  known: { amount: number; asset: string; precision: number },
   trade: TDEXTrade
 ): Promise<{ amount: number; asset: string }> {
   if (known.amount <= 0) {
@@ -69,7 +69,7 @@ async function calculatePrice(
   const response = await client.marketPrice(
     trade.market,
     trade.type,
-    toSatoshi(known.amount),
+    toSatoshi(known.amount, known.precision),
     known.asset
   );
 

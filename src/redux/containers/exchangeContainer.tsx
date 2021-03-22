@@ -14,6 +14,7 @@ const mapStateToProps = (state: any) => {
     explorerUrl: state.settings.explorerUrl,
     markets: state.tdex.markets,
     utxos: allUtxosSelector(state),
+    assets: state.assets,
   };
 };
 
