@@ -9,6 +9,7 @@ import {
 } from '@ionic/react';
 import React, { useState } from 'react';
 import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
+import { IconClose } from '../icons';
 import PageDescription from '../PageDescription';
 import PinModal from '../PinModal';
 import ShowMnemonic from '../ShowMnemonic';
@@ -72,6 +73,12 @@ const BackupModal: React.FC<BackupModalProps> = ({
           <IonHeader>
             <IonToolbar className="with-back-button">
               <IonTitle>Backup your seed</IonTitle>
+              <IonButton
+                style={{ zIndex: 10 }}
+                onClick={() => onClose('skipped')}
+              >
+                <IconClose />
+              </IonButton>
             </IonToolbar>
           </IonHeader>
           <IonContent>
