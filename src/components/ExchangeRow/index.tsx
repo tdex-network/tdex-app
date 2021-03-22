@@ -19,7 +19,6 @@ import {
   onPressEnterKeyCloseKeyboard,
   setAccessoryBar,
 } from '../../utils/keyboard';
-import { Plugins } from '@capacitor/core';
 
 interface ExchangeRowInterface {
   asset: AssetWithTicker;
@@ -33,8 +32,6 @@ interface ExchangeRowInterface {
   setAsset: (newAsset: AssetWithTicker) => void;
   setFocused: () => void;
 }
-
-const { Keyboard } = Plugins;
 
 const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   asset,

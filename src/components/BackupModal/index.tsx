@@ -17,7 +17,10 @@ import ShowMnemonic from '../ShowMnemonic';
 interface BackupModalProps {
   isOpen: boolean;
   onClose: (reason: 'skipped' | 'done') => void;
+  description: string;
+  title: string;
   mnemonic?: string;
+  removeSkipBtn?: boolean;
   // below: connected redux props
   backupDone: boolean;
   setDone: () => void;
@@ -27,10 +30,12 @@ interface BackupModalProps {
 const BackupModal: React.FC<BackupModalProps> = ({
   isOpen,
   onClose,
+  description,
+  title,
   onError,
   setDone,
-  backupDone,
   mnemonic,
+  removeSkipBtn,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [mnemonicToShow, setMnemonicToShow] = useState(mnemonic);
@@ -41,8 +46,12 @@ const BackupModal: React.FC<BackupModalProps> = ({
       {!mnemonicToShow ? (
         <PinModal
           open={isOpen}
-          title="Please unlock and backup your seed"
-          description="Never share your secret words"
+          onDidDismiss={true}
+          onClose={() => {
+            if (!isLoading && !mnemonicToShow) onClose('skipped');
+          }}
+          title="Please enter you secret PIN"
+          description="Never share your seed"
           onConfirm={async (pin: string) => {
             try {
               setIsLoading(true);
@@ -57,7 +66,7 @@ const BackupModal: React.FC<BackupModalProps> = ({
           }}
         />
       ) : (
-        <IonModal isOpen={isOpen}>
+        <IonModal isOpen={isOpen} onDidDismiss={() => onClose('skipped')}>
           <div className="gradient-background" />
           <IonHeader>
             <IonToolbar className="with-back-button">
@@ -66,11 +75,8 @@ const BackupModal: React.FC<BackupModalProps> = ({
           </IonHeader>
           <IonContent>
             <div className="backup-content">
-              <PageDescription title="Seed generated !">
-                <p>
-                  Take time to write down your secret words (or skip and do it
-                  later).
-                </p>
+              <PageDescription title={title}>
+                <p>{description}</p>
               </PageDescription>
               {<ShowMnemonic mnemonic={mnemonic || mnemonicToShow} />}
               <div className="buttons">
@@ -81,14 +87,16 @@ const BackupModal: React.FC<BackupModalProps> = ({
                     onClose('done');
                   }}
                 >
-                  DONE
+                  I CONFIRM
                 </IonButton>
-                <IonButton
-                  className="main-button secondary no-border"
-                  onClick={() => onClose('skipped')}
-                >
-                  SKIP
-                </IonButton>
+                {!removeSkipBtn && (
+                  <IonButton
+                    className="main-button secondary no-border"
+                    onClick={() => onClose('skipped')}
+                  >
+                    DO IT LATER
+                  </IonButton>
+                )}
               </div>
             </div>
           </IonContent>

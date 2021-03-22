@@ -33,14 +33,11 @@ import {
 import { WalletState } from '../../redux/reducers/walletReducer';
 import { network } from '../../redux/config';
 import { IdentityRestorerFromState } from '../../utils/identity-restorer';
-import BackupModal from '../../redux/containers/backupModalContainer';
 
 const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   const [copied, setCopied] = useState(false);
   const [address, setAddress] = useState<AddressInterface>();
   const [loading, setLoading] = useState(false);
-  const backupDone = useSelector((state: any) => state.app.backupDone);
-  const [backupModal, setBackupModal] = useState(!backupDone);
   const addressRef: any = useRef(null);
   const dispatch = useDispatch();
 
@@ -108,7 +105,7 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
 
   return (
     <IonPage>
-      <IonLoading isOpen={loading && !backupModal} />
+      <IonLoading isOpen={loading} />
       <div className="gradient-background"></div>
       <IonHeader>
         <IonToolbar className="with-back-button">
@@ -179,19 +176,6 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
             <IonSpinner name="crescent" color="primary" />
           </div>
         )}
-        <BackupModal
-          isOpen={backupModal}
-          onClose={(reason: 'skipped' | 'done') => {
-            if (reason === 'skipped') {
-              dispatch(
-                addErrorToast('You must backup your seed before deposit fund!')
-              );
-              history.goBack();
-            }
-
-            setBackupModal(false);
-          }}
-        />
       </IonContent>
     </IonPage>
   );

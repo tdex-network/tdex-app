@@ -20,6 +20,7 @@ interface PinModalProps {
   description: string;
   onConfirm: (pin: string) => void;
   onClose?: () => void;
+  onDidDismiss?: boolean;
 }
 
 const PinModal: React.FC<PinModalProps> = ({
@@ -28,6 +29,7 @@ const PinModal: React.FC<PinModalProps> = ({
   onClose,
   open,
   onConfirm,
+  onDidDismiss,
 }) => {
   const validRegexp = new RegExp('\\d{6}');
   const [pin, setPin] = useState('');
@@ -40,6 +42,7 @@ const PinModal: React.FC<PinModalProps> = ({
   return (
     <IonModal
       isOpen={open}
+      onDidDismiss={onDidDismiss ? onClose : undefined}
       cssClass="modal-big withdrawal"
       keyboardClose={false}
     >

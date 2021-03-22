@@ -154,6 +154,8 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
         </div>
         {mnemonic && (
           <BackupModal
+            title="Seed generated !"
+            description="Take time to write down your secret words (or skip and do it later)."
             isOpen={backupModalOpen}
             mnemonic={mnemonic}
             onClose={(_: 'done' | 'skipped') => {

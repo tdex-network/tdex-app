@@ -27,8 +27,8 @@ export function onPressEnterKeyCloseKeyboard(
   return onPressEnterKeyFactory(() => {
     try {
       Keyboard.hide();
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
     }
   })(e);
 }
