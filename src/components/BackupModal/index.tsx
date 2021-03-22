@@ -11,8 +11,9 @@ import React, { useState } from 'react';
 import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
 import PageDescription from '../PageDescription';
 import PinModal from '../PinModal';
-
 import ShowMnemonic from '../ShowMnemonic';
+
+import './style.scss';
 
 interface BackupModalProps {
   isOpen: boolean;
