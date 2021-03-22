@@ -22,6 +22,7 @@ import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
+import BackupModal from '../../redux/containers/backupModalContainer';
 
 const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
@@ -29,9 +30,19 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const [loading, setLoading] = useState(false);
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [pin, setPin] = useState<string>();
+  const [backupModalOpen, setBackupModalOpen] = useState(false);
+  const [mnemonic, setMnemonic] = useState<string>();
 
-  const onConfirm = async () => {
-    if (acceptTerms) setModalOpen('first');
+  const onConfirm = () => {
+    if (acceptTerms) {
+      setMnemonic(bip39.generateMnemonic());
+      setBackupModalOpen(true);
+    }
+  };
+
+  const onBackupDone = () => {
+    setBackupModalOpen(false);
+    if (mnemonic) setModalOpen('first');
   };
 
   const onFirstPinConfirm = (newPin: string) => {
@@ -47,10 +58,10 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
   };
 
   const onSecondPinConfirm = (newPin: string) => {
+    if (!mnemonic) throw Error('mnemonic should be generated.');
     if (newPin === pin) {
       setLoading(true);
-      const generatedMnemonic = bip39.generateMnemonic();
-      setMnemonicInSecureStorage(generatedMnemonic, pin)
+      setMnemonicInSecureStorage(mnemonic, pin)
         .then((isStored) => {
           if (!isStored) throw new Error('unknow error for secure storage');
           dispatch(
@@ -141,6 +152,17 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
             Confirm
           </IonButton>
         </div>
+        {mnemonic && (
+          <BackupModal
+            title="Seed generated !"
+            description="Take time to write down your secret words (or skip and do it later)."
+            isOpen={backupModalOpen}
+            mnemonic={mnemonic}
+            onClose={(_: 'done' | 'skipped') => {
+              onBackupDone();
+            }}
+          />
+        )}
       </IonContent>
     </IonPage>
   );

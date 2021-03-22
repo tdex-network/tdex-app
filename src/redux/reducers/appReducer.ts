@@ -2,17 +2,20 @@ import { ActionType } from '../../utils/types';
 import {
   INIT_APP_FAIL,
   INIT_APP_SUCCESS,
+  SET_BACKUP_DONE,
   SET_SIGNED_UP,
 } from '../actions/appActions';
 
 export interface AppState {
   appInit: boolean;
   isSignedUp: boolean;
+  backupDone: boolean;
 }
 
 const initialState: AppState = {
   appInit: false,
   isSignedUp: false,
+  backupDone: false,
 };
 
 function appReducer(state = initialState, action: ActionType): AppState {
@@ -27,6 +30,11 @@ function appReducer(state = initialState, action: ActionType): AppState {
       return {
         ...state,
         isSignedUp: action.payload,
+      };
+    case SET_BACKUP_DONE:
+      return {
+        ...state,
+        backupDone: true,
       };
     default:
       return state;

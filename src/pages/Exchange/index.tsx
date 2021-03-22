@@ -34,17 +34,19 @@ import {
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import PinModal from '../../components/PinModal';
-import { getIdentityOpts } from '../../utils/storage-helper';
+import { getIdentity } from '../../utils/storage-helper';
 import { setAddresses } from '../../redux/actions/walletActions';
 import { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import { swapVerticalOutline } from 'ionicons/icons';
 import { update } from '../../redux/actions/appActions';
 import { PreviewData } from '../TradeSummary';
 import Refresher from '../../components/Refresher';
+import { UtxoInterface } from 'ldk';
 import { AssetConfig, defaultPrecision } from '../../utils/constants';
 
 interface ExchangeProps extends RouteComponentProps {
   balances: BalanceInterface[];
+  utxos: UtxoInterface[];
   explorerUrl: string;
   markets: TDEXMarket[];
   assets: Record<string, AssetConfig>;
@@ -55,6 +57,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   balances,
   explorerUrl,
   markets,
+  utxos,
   assets,
 }) => {
   const dispatch = useDispatch();
@@ -117,7 +120,12 @@ const Exchange: React.FC<ExchangeProps> = ({
       return;
     }
 
-    if (parseFloat(newReceivedAmount) <= 0) {
+    if (newReceivedAmount === '.') {
+      setReceivedAmount(newReceivedAmount);
+      return;
+    }
+
+    if (parseFloat(newReceivedAmount) < 0) {
       setSentAmount('0');
       setReceivedAmount(newReceivedAmount);
       return;
@@ -135,7 +143,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       return;
     }
 
-    if (parseFloat(newSentAmount) <= 0) {
+    if (parseFloat(newSentAmount) < 0) {
       setSentAmount(newSentAmount);
       setReceivedAmount('0');
       return;
@@ -177,7 +185,6 @@ const Exchange: React.FC<ExchangeProps> = ({
     } catch (e) {
       console.error(e);
       dispatch(addErrorToast(e.message || e));
-      setReceivedAmount('');
     } finally {
       setIsReceivedUpdating(false);
     }
@@ -214,7 +221,6 @@ const Exchange: React.FC<ExchangeProps> = ({
     } catch (e) {
       console.error(e);
       dispatch(addErrorToast(e.message || e));
-      setReceivedAmount('');
     } finally {
       setIsSentUpdating(false);
     }
@@ -235,7 +241,7 @@ const Exchange: React.FC<ExchangeProps> = ({
     try {
       setModalOpen(false);
       setLoading(true);
-      const identityOpts = await getIdentityOpts(pin);
+      const identity = await getIdentity(pin);
       if (!trade) return;
       const { txid, identityAddresses } = await makeTrade(
         trade,
@@ -247,7 +253,8 @@ const Exchange: React.FC<ExchangeProps> = ({
           asset: assetSent.asset,
         },
         explorerUrl,
-        identityOpts
+        utxos,
+        identity
       );
 
       dispatch(setAddresses(identityAddresses));

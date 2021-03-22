@@ -4,7 +4,7 @@ import './style.scss';
 
 const ShowMnemonic: React.FC<{ mnemonic: string }> = ({ mnemonic }) => {
   const Word: React.FC<{ index: number; word: string }> = ({ word, index }) => (
-    <div>
+    <div key={index}>
       <span className="word-index">{index + 1}</span>
       {word}
     </div>

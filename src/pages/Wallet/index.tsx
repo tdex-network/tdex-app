@@ -23,6 +23,8 @@ import CircleDiagram from '../../components/CircleDiagram';
 import { ActionType } from '../../utils/types';
 import { update } from '../../redux/actions/appActions';
 import Refresher from '../../components/Refresher';
+import BackupModal from '../../redux/containers/backupModalContainer';
+import { useSelector } from 'react-redux';
 
 import './style.scss';
 
@@ -31,6 +33,7 @@ interface WalletProps extends RouteComponentProps {
   currency: string;
   prices: Record<string, number>;
   dispatch: (action: ActionType) => void;
+  backupDone: boolean;
 }
 
 const Wallet: React.FC<WalletProps> = ({
@@ -44,6 +47,8 @@ const Wallet: React.FC<WalletProps> = ({
   const [LBTCBalanceIndex, setLBTCBalanceIndex] = useState(-1);
   const [mainAssets, setMainAssets] = useState<BalanceInterface[]>([]);
   const [fiats, setFiats] = useState<number[]>([]);
+  const backupDone = useSelector((state: any) => state.app.backupDone);
+  const [backupModal, setBackupModal] = useState(false);
   const [secondaryAssets, setSecondaryAssets] = useState<BalanceInterface[]>(
     []
   );
@@ -131,7 +136,13 @@ const Wallet: React.FC<WalletProps> = ({
             Asset list
             <IonButton
               className="coin-action-button ml-auto small-button"
-              routerLink="/receive"
+              onClick={() => {
+                if (backupDone) {
+                  history.push('/receive');
+                  return;
+                }
+                setBackupModal(true);
+              }}
             >
               Deposit
             </IonButton>
@@ -247,6 +258,24 @@ const Wallet: React.FC<WalletProps> = ({
             );
           })}
         </IonList>
+        {!backupDone && (
+          <BackupModal
+            title="Backup your seed before deposit"
+            description="Take time to keep your secret words in a safe place before deposit funds."
+            removeSkipBtn={true}
+            isOpen={backupModal}
+            onClose={(reason: 'skipped' | 'done') => {
+              if (reason === 'skipped') {
+                setBackupModal(false);
+              }
+
+              if (reason === 'done') {
+                setBackupModal(false);
+                history.push('/receive');
+              }
+            }}
+          />
+        )}
       </IonContent>
     </IonPage>
   );
