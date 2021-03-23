@@ -19,9 +19,6 @@ import './style.scss';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import {
   address,
-  CoinSelector,
-  estimateTxSize,
-  greedyCoinSelector,
   psetToUnsignedTx,
   RecipientInterface,
   UtxoInterface,
@@ -29,7 +26,11 @@ import {
 } from 'ldk';
 import { broadcastTx } from '../../redux/services/walletService';
 import { network } from '../../redux/config';
-import { toSatoshi } from '../../utils/helpers';
+import {
+  customCoinSelector,
+  estimateFeeAmount,
+  toSatoshi,
+} from '../../utils/helpers';
 import { setAddresses } from '../../redux/actions/walletActions';
 import { Psbt } from 'liquidjs-lib';
 import { getIdentity } from '../../utils/storage-helper';
@@ -47,7 +48,6 @@ interface WithdrawalProps
     { address: string; amount: number; asset: string }
   > {
   balances: BalanceInterface[];
-  coinSelector: CoinSelector;
   utxos: UtxoInterface[];
   prices: Record<string, number>;
   explorerURL: string;
@@ -55,7 +55,6 @@ interface WithdrawalProps
 
 const Withdrawal: React.FC<WithdrawalProps> = ({
   balances,
-  coinSelector,
   utxos,
   prices,
   explorerURL,
@@ -77,7 +76,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   const dispatch = useDispatch();
 
   const getRecipient = (): RecipientInterface => ({
-    address: recipientAddress,
+    address: recipientAddress.trim(),
     asset: balance?.asset || '',
     value: toSatoshi(amount, balance?.precision),
   });
@@ -85,16 +84,14 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   const onAmountChange = (newAmount: number | undefined) => {
     setAmount(newAmount || 0);
     if (newAmount && newAmount > 0) {
-      const { selectedUtxos, changeOutputs } = coinSelector(
-        utxos,
-        [getRecipient()],
-        () => 'doesntmatteraddress'
-      );
-      const fee = Math.ceil(
-        estimateTxSize(selectedUtxos.length, changeOutputs.length + 2) * 0.1
-      );
-
-      setFeeAmount(fee);
+      try {
+        const fee = estimateFeeAmount(utxos, [getRecipient()]);
+        setFeeAmount(fee);
+      } catch (err) {
+        console.error(err);
+        dispatch(addErrorToast('not enought utxos in your wallet'));
+        setFeeAmount(0);
+      }
     }
   };
 
@@ -120,7 +117,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       const withdrawPset = wallet.buildTx(
         psetBase64,
         [getRecipient()],
-        coinSelector,
+        customCoinSelector(dispatch),
         (_: string) => identity.getNextChangeAddress().confidentialAddress,
         true
       );
@@ -151,7 +148,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         .extractTransaction()
         .toHex();
 
-      // TODO what should be done with txID ? displayed ?
       const txid = await broadcastTx(txHex, explorerURL);
       dispatch(
         addSuccessToast(
@@ -244,7 +240,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         </IonToolbar>
       </IonHeader>
       <IonContent className="withdrawal">
-        {feeAmount}
         {balance && (
           <WithdrawRow
             inputAmount={amount}

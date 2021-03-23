@@ -1,19 +1,24 @@
 import {
+  ChangeAddressFromAssetGetter,
+  CoinSelectionResult,
   CoinSelector,
-  CompareUtxoFn,
+  estimateTxSize,
   fetchTxHex,
   greedyCoinSelector,
   isBlindedUtxo,
+  RecipientInterface,
   UtxoInterface,
 } from 'ldk';
 import { BalanceInterface } from '../redux/actionTypes/walletActionTypes';
-import { outpointToString } from '../redux/reducers/walletReducer';
 import {
   AssetConfig,
   defaultPrecision,
   getColor,
   getMainAsset,
 } from './constants';
+import { lockUtxo } from '../redux/actions/walletActions';
+import { Dispatch } from 'redux';
+import { network } from '../redux/config';
 
 export const createColorFromHash = (id: string): string => {
   let hash = 0;
@@ -170,23 +175,56 @@ export function tickerFromAssetHash(assetHash?: string): string {
   return assetHash.slice(0, 4).toUpperCase();
 }
 
-function compareUtxoFunctionUsingLocks(
-  utxoLocks: Record<string, number>
-): CompareUtxoFn {
-  return (a: UtxoInterface, b: UtxoInterface) => {
-    const aDateLock = utxoLocks[outpointToString(a)] || 0;
-    const bDateLock = utxoLocks[outpointToString(b)] || 0;
-
-    if (aDateLock !== bDateLock) {
-      return aDateLock - bDateLock;
+/**
+ * Returns a custom coinSelector
+ * @param dispatch if defined, will lock the selected utxos.
+ */
+export function customCoinSelector(dispatch?: Dispatch): CoinSelector {
+  const greedy = greedyCoinSelector();
+  if (!dispatch) return greedy;
+  return (
+    unspents: UtxoInterface[],
+    outputs: RecipientInterface[],
+    changeGetter: ChangeAddressFromAssetGetter
+  ): CoinSelectionResult => {
+    const result = greedy(unspents, outputs, changeGetter);
+    for (const utxo of result.selectedUtxos) {
+      dispatch(lockUtxo(utxo.txid, utxo.vout));
     }
-
-    return a.value! - b.value!;
+    return result;
   };
 }
 
-export function customCoinSelector(
-  utxoLocks: Record<string, number>
-): CoinSelector {
-  return greedyCoinSelector(compareUtxoFunctionUsingLocks(utxoLocks));
+function getAssetHashLBTC() {
+  if (network.chain === 'regtest')
+    return '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225';
+  return '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d';
+}
+
+/**
+ * Estimate the number of LBTC sats to pay fees
+ * @param setOfUtxos spendable unspents coins
+ * @param recipients a set of recipients/outputs describing the transaction
+ */
+export function estimateFeeAmount(
+  setOfUtxos: UtxoInterface[],
+  recipients: RecipientInterface[],
+  satsPerByte = 0.1
+): number {
+  const address = 'doesntmatteraddress';
+  const { selectedUtxos, changeOutputs } = customCoinSelector()(
+    setOfUtxos,
+    [
+      ...recipients,
+      {
+        address,
+        asset: getAssetHashLBTC(),
+        value: 500,
+      },
+    ],
+    () => address
+  );
+  return Math.ceil(
+    estimateTxSize(selectedUtxos.length, changeOutputs.length + 1) * satsPerByte
+  );
 }

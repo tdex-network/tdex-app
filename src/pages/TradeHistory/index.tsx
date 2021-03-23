@@ -134,7 +134,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
                         </IonLabel>
                         <IonText>
                           {fromSatoshiFixed(transferSent.amount, 8, 8)}{' '}
-                          <span className="currency">{' ' + tickerSent}</span>
+                          <span className="currency">{tickerSent}</span>
                         </IonText>
                       </div>
                       <div className="info-row">

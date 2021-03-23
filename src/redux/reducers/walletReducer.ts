@@ -83,44 +83,42 @@ const deleteUtxoInState = (
   return { ...state, utxos: newUtxosMap };
 };
 
-const utxosMapSelector = ({ wallet }: { wallet: WalletState }) => wallet.utxos;
-export const allUtxosSelector = createSelector(utxosMapSelector, (utxosMap) =>
-  Array.from(Object.values(utxosMap))
-);
+export const allUtxosSelector = ({ wallet }: { wallet: WalletState }) => {
+  if (Object.keys(wallet.utxosLocks).length === 0)
+    return Object.values(wallet.utxos);
+
+  const utxos = [];
+  for (const [outpoint, utxo] of Object.entries(wallet.utxos)) {
+    if (outpoint in wallet.utxosLocks) continue;
+    utxos.push(utxo);
+  }
+
+  return utxos;
+};
 
 /**
- * Meomized selector for balance (computed from utxos)
+ * Redux selector returning balance interfaces array
+ * @param state
  */
-export const balancesSelector = createSelector(
-  allUtxosSelector,
-  transactionsAssets,
-  ({ assets }: { assets: Record<string, AssetConfig> }) => assets,
-  (
-    utxos: UtxoInterface[],
-    txsAssets: string[],
-    assets: Record<string, AssetConfig>
-  ) => {
-    const balances = balancesFromUtxos(utxos, assets);
-    const balancesAssets = balances.map((b) => b.asset);
-    for (const asset of txsAssets) {
-      if (balancesAssets.includes(asset)) continue;
-      // include a 'zero' balance if the user has previous transactions.
-      balances.push({
-        asset,
-        amount: 0,
-        ticker: assets[asset]?.ticker || tickerFromAssetHash(asset),
-        coinGeckoID: getMainAsset(asset)?.coinGeckoID,
-        precision: assets[asset]?.precision || defaultPrecision,
-      });
-    }
-
-    return balances;
+export const balancesSelector = (state: any) => {
+  const assets = state.assets;
+  const utxos = allUtxosSelector(state);
+  const txsAssets = transactionsAssets(state);
+  const balances = balancesFromUtxos(utxos, assets);
+  const balancesAssets = balances.map((b) => b.asset);
+  for (const asset of txsAssets) {
+    if (balancesAssets.includes(asset)) continue;
+    // include a 'zero' balance if the user has previous transactions.
+    balances.push({
+      asset,
+      amount: 0,
+      ticker: assets[asset]?.ticker || tickerFromAssetHash(asset),
+      coinGeckoID: getMainAsset(asset)?.coinGeckoID,
+      precision: assets[asset]?.precision || defaultPrecision,
+    });
   }
-);
 
-export const getCoinSelector = createSelector(
-  ({ wallet }: { wallet: WalletState }) => wallet.utxosLocks,
-  (locks: Record<string, number>) => customCoinSelector(locks)
-);
+  return balances;
+};
 
 export default walletReducer;

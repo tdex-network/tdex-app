@@ -7,8 +7,18 @@ import {
   setUtxo,
   deleteUtxo,
   resetUtxos,
+  LOCK_UTXO,
+  unlockUtxo,
 } from './../actions/walletActions';
-import { takeLatest, call, put, select, delay, all } from 'redux-saga/effects';
+import {
+  takeLatest,
+  call,
+  put,
+  select,
+  delay,
+  all,
+  takeEvery,
+} from 'redux-saga/effects';
 import {
   AddressInterface,
   UtxoInterface,
@@ -99,7 +109,13 @@ export function* fetchAndUpdateUtxos(
   }
 }
 
+function* waitAndUnlock({ type, payload }: { type: string; payload: string }) {
+  yield delay(60_000); // 1 min
+  yield put(unlockUtxo(payload));
+}
+
 export function* walletWatcherSaga() {
   yield takeLatest(SET_ADDRESSES, persistAddresses);
   yield takeLatest(UPDATE_UTXOS, updateUtxosState);
+  yield takeEvery(LOCK_UTXO, waitAndUnlock);
 }

@@ -1,5 +1,6 @@
 import { ActionType } from '../../utils/types';
 import { AddressInterface, Mnemonic, Outpoint, UtxoInterface } from 'ldk';
+import { outpointToString } from '../reducers/walletReducer';
 
 export const SET_IS_AUTH = 'SET_IS_AUTH';
 export const CLEAR_WALLET_STATE = 'CLEAR_WALLET_STATE';
@@ -10,6 +11,22 @@ export const SET_UTXO = 'SET_UTXO';
 export const DELETE_UTXO = 'DELETE_UTXO';
 export const RESET_UTXOS = 'RESET_UTXOS';
 export const SET_PUBLIC_KEYS = 'SET_PUBLIC_KEYS';
+export const LOCK_UTXO = 'LOCK_UTXO';
+export const UNLOCK_UTXO = 'UNLOCK_UTXO';
+
+export const lockUtxo = (txid: string, vout: number) => {
+  return {
+    type: LOCK_UTXO,
+    payload: outpointToString({ txid, vout }),
+  };
+};
+
+export const unlockUtxo = (outpointStr: string) => {
+  return {
+    type: UNLOCK_UTXO,
+    payload: outpointStr,
+  };
+};
 
 export const setPublicKeys = (mnemonic: Mnemonic) => {
   return {
