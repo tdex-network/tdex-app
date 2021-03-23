@@ -42,11 +42,7 @@ interface TradeSummaryProps
   assets: Record<string, AssetConfig>;
 }
 
-const TradeSummary: React.FC<TradeSummaryProps> = ({
-  history,
-  location,
-  assets,
-}) => {
+const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
   const preview = location.state?.preview;
   const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();
@@ -127,7 +123,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({
         </IonToolbar>
       </IonHeader>
       <IonContent className="trade-summary">
-        {transaction || preview ? (
+        {(transaction || preview) && (
           <div>
             <div className="transaction-icons">
               <span className="icon-wrapper large">
@@ -216,8 +212,6 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({
               </IonButton>
             </div>
           </div>
-        ) : (
-          <IonLoading isOpen={true} message="loading..." />
         )}
       </IonContent>
     </IonPage>
