@@ -38,7 +38,6 @@ function* persistAddresses({
   payload: AddressInterface[];
 }) {
   yield call(setAddressesInStorage, payload);
-  yield delay(1000);
   yield put(updateUtxos());
 }
 

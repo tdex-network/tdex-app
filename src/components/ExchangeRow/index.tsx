@@ -54,14 +54,14 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   setFocus,
   focused,
 }) => {
-  const [balanceAmount, setBalanceAmount] = useState<number>();
+  const [balance, setBalance] = useState<BalanceInterface>();
   const [amount, setAmount] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const onErrorGetPrice = (e: any) => dispatch(addErrorToast(e.message || e)); // TODO handle error
 
   useEffect(() => {
-    setBalanceAmount(balances.find((b) => b.asset === asset.asset)?.amount);
+    setBalance(balances.find((b) => b.asset === asset.asset));
   }, [balances, asset]);
 
   useEffect(() => {
@@ -146,9 +146,11 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       </div>
       <div className="exchanger-row sub-row">
         <div>
-          <p>{`Total balance: ${fromSatoshiFixed(balanceAmount || 0, 8, 8)} ${
-            asset.ticker
-          }`}</p>
+          <p>{`Total balance: ${fromSatoshiFixed(
+            balance?.amount || 0,
+            balance?.precision,
+            balance?.precision || defaultPrecision
+          )} ${asset.ticker}`}</p>
         </div>
         {amount && asset.coinGeckoID && prices[asset.coinGeckoID] && (
           <div>

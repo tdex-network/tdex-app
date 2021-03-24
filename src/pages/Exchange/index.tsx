@@ -138,10 +138,6 @@ const Exchange: React.FC<ExchangeProps> = ({
       );
 
       dispatch(setAddresses(identityAddresses));
-      dispatch(update());
-      setTimeout(() => {
-        dispatch(update());
-      }, 3000);
       addSuccessToast('Trade successfully computed');
       const preview: PreviewData = {
         sent: {
