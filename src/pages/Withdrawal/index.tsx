@@ -29,6 +29,7 @@ import { network } from '../../redux/config';
 import {
   customCoinSelector,
   estimateFeeAmount,
+  fromSatoshi,
   toSatoshi,
 } from '../../utils/helpers';
 import { setAddresses } from '../../redux/actions/walletActions';
@@ -68,7 +69,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   const [balance, setBalance] = useState<BalanceInterface>();
   const [price, setPrice] = useState<number>();
   const [amount, setAmount] = useState<number>(0);
-  const [feeAmount, setFeeAmount] = useState<number>(0);
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState<boolean>(false);
   const [recipientAddress, setRecipientAddress] = useState<string>('');
   const [modalOpen, setModalOpen] = useState(false);
@@ -82,22 +83,42 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   });
 
   const onAmountChange = (newAmount: number | undefined) => {
+    setError('');
     setAmount(newAmount || 0);
-    if (newAmount && newAmount > 0) {
-      try {
-        const fee = estimateFeeAmount(utxos, [getRecipient()]);
-        setFeeAmount(fee);
-      } catch (err) {
-        console.error(err);
-        dispatch(addErrorToast('not enought utxos in your wallet'));
-        setFeeAmount(0);
-      }
-    }
   };
 
+  useEffect(() => {
+    try {
+      if (!balance) return;
+      if (fromSatoshi(balance.amount, balance.precision) < amount) {
+        setError('Amount is greater than your balance');
+        return;
+      }
+
+      console.log(amount);
+      const fee = estimateFeeAmount(utxos, [getRecipient()]);
+      const LBTCBalance = balances.find((b) => b.coinGeckoID === 'bitcoin');
+      if (!LBTCBalance || LBTCBalance.amount === 0) {
+        setError('You need LBTC in order to pay fees');
+        return;
+      }
+
+      let needLBTC = fee;
+      if (balance.coinGeckoID === 'bitcoin') {
+        needLBTC += toSatoshi(amount, 8);
+      }
+
+      if (needLBTC > LBTCBalance.amount) {
+        setError('You cannot pay fees');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, [amount]);
+
   const isValid = (): boolean => {
+    if (error) return false;
     if (!balance || amount <= 0) return false;
-    if (amount > balance.amount) return false;
     if (recipientAddress === '') return false;
     return true;
   };
@@ -245,6 +266,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
             balance={balance}
             price={price}
             onAmountChange={onAmountChange}
+            error={error}
           />
         )}
         <IonItem className="list-item">

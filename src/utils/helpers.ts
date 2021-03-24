@@ -197,15 +197,16 @@ export function estimateFeeAmount(
   satsPerByte = 0.1
 ): number {
   const address = 'doesntmatteraddress';
+  console.log(recipients[0].value);
   const { selectedUtxos, changeOutputs } = customCoinSelector()(
     setOfUtxos,
     [
       ...recipients,
-      {
-        address,
-        asset: getAssetHashLBTC(),
-        value: 500,
-      },
+      // {
+      //   address,
+      //   asset: getAssetHashLBTC(),
+      //   value: 100,
+      // },
     ],
     () => address
   );
