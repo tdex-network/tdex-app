@@ -32,7 +32,6 @@ import { getIdentityOpts } from '../../utils/storage-helper';
 import { setAddresses } from '../../redux/actions/walletActions';
 import { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import { swapVerticalOutline } from 'ionicons/icons';
-import { update } from '../../redux/actions/appActions';
 import { PreviewData } from '../TradeSummary';
 import Refresher from '../../components/Refresher';
 import { AssetConfig, defaultPrecision } from '../../utils/constants';
@@ -72,12 +71,6 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [loading, setLoading] = useState(false);
 
   useIonViewWillEnter(() => {
-    if (balances.length === 0) {
-      dispatch(addErrorToast('need founds to trade'));
-      history.goBack();
-      return;
-    }
-
     if (markets.length === 0) {
       dispatch(addErrorToast('no markets available'));
       history.goBack();
