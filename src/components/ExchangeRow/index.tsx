@@ -3,18 +3,17 @@ import classNames from 'classnames';
 import { CurrencyIcon } from '../icons';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
-import { IonIcon, IonInput, IonSpinner } from '@ionic/react';
+import { IonIcon, IonInput, IonSpinner, IonText } from '@ionic/react';
 import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
 import { caretDown, searchSharp } from 'ionicons/icons';
 import { AssetWithTicker, bestPrice } from '../../utils/tdex';
-
-import './style.scss';
 import { TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
-import { Dispatch } from 'redux';
-import { addErrorToast } from '../../redux/actions/toastActions';
 import { AssetConfig, defaultPrecision } from '../../utils/constants';
 
+import './style.scss';
+
 interface ExchangeRowInterface {
+  checkBalance?: boolean;
   // the asset handled by the component.
   asset: AssetWithTicker;
   // using to auto-update with best trade price
@@ -34,7 +33,6 @@ interface ExchangeRowInterface {
   balances: BalanceInterface[];
   prices: Record<string, number>;
   currency: string;
-  dispatch: Dispatch;
 }
 
 const ExchangeRow: React.FC<ExchangeRowInterface> = ({
@@ -50,15 +48,18 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   setTrade,
   assets,
   setAsset,
-  dispatch,
   setFocus,
   focused,
+  checkBalance,
 }) => {
   const [balance, setBalance] = useState<BalanceInterface>();
   const [amount, setAmount] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const onErrorGetPrice = (e: any) => dispatch(addErrorToast(e.message || e)); // TODO handle error
+  const [error, setError] = useState('');
+  const onErrorGetPrice = (e: any) => {
+    console.error(e);
+  };
 
   useEffect(() => {
     setBalance(balances.find((b) => b.asset === asset.asset));
@@ -91,9 +92,9 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         setAmount(updatedAmount);
         onChangeAmount(fromSatoshi(previewAmount, precision));
       })
-      .catch((err) => {
+      .catch((err: string) => {
         console.error(err);
-        dispatch(addErrorToast(err.message || err));
+        setError('Unable to preview price from providers');
       })
       .finally(() => setIsUpdating(false));
   }, [relatedAssetAmount, relatedAssetHash, asset]);
@@ -126,16 +127,28 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
               type="number"
               value={amount}
               placeholder="0.00"
+              color={error && 'danger'}
+              debounce={400}
               onIonChange={(e) => {
                 if (!isUpdating) {
+                  setError('');
                   if (!e.detail.value) {
                     setAmount('');
                     onChangeAmount(0);
                     return;
                   }
                   const val = e.detail.value.replace(',', '.');
+                  const inputAmount = parseFloat(val);
                   setAmount(val);
-                  onChangeAmount(parseFloat(val));
+                  onChangeAmount(inputAmount);
+                  const sats = fromSatoshi(
+                    balance?.amount || 0,
+                    balance?.precision
+                  );
+
+                  if (checkBalance && inputAmount > sats) {
+                    setError('Amount is greater than your balance');
+                  }
                 }
               }}
               onIonFocus={() => setFocus()}
@@ -154,10 +167,14 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         </div>
         {amount && asset.coinGeckoID && prices[asset.coinGeckoID] && (
           <div>
-            <p>
-              {(parseFloat(amount) * prices[asset.coinGeckoID]).toFixed(2)}{' '}
-              {currency.toUpperCase()}
-            </p>
+            {error ? (
+              <IonText color="danger">{error}</IonText>
+            ) : (
+              <p>
+                {(parseFloat(amount) * prices[asset.coinGeckoID]).toFixed(2)}{' '}
+                {currency.toUpperCase()}
+              </p>
+            )}
           </div>
         )}
       </div>

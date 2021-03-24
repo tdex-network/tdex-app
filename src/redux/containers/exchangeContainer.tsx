@@ -3,6 +3,7 @@ import Exchange from '../../pages/Exchange';
 import { getTradablesAssets } from '../../utils/tdex';
 
 import { balancesSelector } from '../reducers/walletReducer';
+import { allAssets } from '../reducers/tdexReducer';
 
 const mapStateToProps = (state: any) => {
   return {
@@ -14,6 +15,7 @@ const mapStateToProps = (state: any) => {
     explorerUrl: state.settings.explorerUrl,
     markets: state.tdex.markets,
     assets: state.assets,
+    allAssets: allAssets(state),
   };
 };
 

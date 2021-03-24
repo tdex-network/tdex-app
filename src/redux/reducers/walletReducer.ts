@@ -39,6 +39,7 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
     case CLEAR_WALLET_STATE:
       return { ...initialState };
     case SET_UTXO:
+      // TO DO replace by Object.assign
       return addUtxoInState(state, action.payload);
     case DELETE_UTXO:
       return deleteUtxoInState(state, action.payload);

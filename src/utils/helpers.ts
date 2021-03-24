@@ -45,16 +45,10 @@ export function fromSatoshiFixed(
   y?: number,
   fixed?: number
 ): string {
-  return Number(fromSatoshi(x, y).toFixed(fixed || 2)).toLocaleString(
-    undefined,
-    { minimumFractionDigits: 2, maximumFractionDigits: fixed || 2 }
-  );
-}
-
-export function formatAmount(amount: number) {
-  return amount.toLocaleString('en-US', {
+  return Number(fromSatoshi(x, y).toFixed(fixed || 2)).toLocaleString('en-US', {
     minimumFractionDigits: 2,
-    maximumFractionDigits: 8,
+    maximumFractionDigits: fixed || 2,
+    useGrouping: false,
   });
 }
 

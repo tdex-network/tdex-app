@@ -42,6 +42,7 @@ interface ExchangeProps extends RouteComponentProps {
   explorerUrl: string;
   markets: TDEXMarket[];
   assets: Record<string, AssetConfig>;
+  allAssets: AssetWithTicker[];
   dispatch: Dispatch;
 }
 
@@ -51,6 +52,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   explorerUrl,
   markets,
   assets,
+  allAssets,
   dispatch,
 }) => {
   // user inputs amount
@@ -77,19 +79,13 @@ const Exchange: React.FC<ExchangeProps> = ({
       return;
     }
 
-    setAssetSent(balances[0]);
+    setAssetSent(balances.length > 0 ? balances[0] : allAssets[0]);
     setSentAmount(undefined);
     setReceivedAmount(undefined);
   }, [balances, markets]);
 
   useEffect(() => {
-    if (
-      balances.length === 0 ||
-      markets.length === 0 ||
-      !assetSent ||
-      !assetReceived
-    )
-      return;
+    if (markets.length === 0 || !assetSent || !assetReceived) return;
     setTrades(allTrades(markets, assetSent.asset, assetReceived.asset));
   }, [assetSent, assetReceived, markets]);
 
@@ -102,7 +98,7 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   const sentAmountGreaterThanBalance = () => {
     const balance = balances.find((b) => b.asset === assetSent?.asset);
-    if (!balance || !sentAmount) return false;
+    if (!balance || !sentAmount) return true;
     const amountAsSats = toSatoshi(sentAmount, balance.precision);
     return amountAsSats > balance.amount;
   };
@@ -154,7 +150,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   return (
     <IonPage>
       <IonLoading isOpen={loading} />
-      {assetSent && assetReceived && balances.length > 0 && markets.length > 0 && (
+      {assetSent && assetReceived && markets.length > 0 && (
         <PinModal
           open={modalOpen}
           title="Unlock your seed"
@@ -171,11 +167,12 @@ const Exchange: React.FC<ExchangeProps> = ({
           <IonTitle>Exchange</IonTitle>
         </IonToolbar>
       </IonHeader>
-      {assetSent && balances.length > 0 && markets.length > 0 && (
+      {assetSent && markets.length > 0 && (
         <IonContent className="exchange-content">
           <Refresher />
           <div className="exchange">
             <ExchangeRow
+              checkBalance
               focused={isFocused === 'sent'}
               setFocus={() => setIsFocused('sent')}
               setTrade={(t: TDEXTrade) => setTrade(t)}
@@ -184,7 +181,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               asset={assetSent}
               trades={trades}
               onChangeAmount={(newAmount: number) => setSentAmount(newAmount)}
-              assetsWithTicker={balances}
+              assetsWithTicker={allAssets}
               setAsset={(asset) => {
                 if (assetReceived && asset.asset === assetReceived.asset)
                   setAssetReceived(assetSent);
@@ -192,21 +189,8 @@ const Exchange: React.FC<ExchangeProps> = ({
               }}
             />
             <div
-              className={classNames([
-                'exchange-divider',
-                {
-                  disabled:
-                    !assetReceived ||
-                    !balances.map((b) => b.asset).includes(assetReceived.asset),
-                },
-              ])}
+              className="exchange-divider"
               onClick={() => {
-                if (
-                  !assetReceived ||
-                  !balances.map((b) => b.asset).includes(assetReceived.asset)
-                )
-                  return;
-
                 const firstAsset = { ...assetSent };
                 setAssetSent(assetReceived);
                 setAssetReceived(firstAsset);
@@ -216,7 +200,7 @@ const Exchange: React.FC<ExchangeProps> = ({
             </div>
             {assetReceived && (
               <ExchangeRow
-                focused={isFocused.valueOf() === 'receive'.valueOf()}
+                focused={isFocused === 'receive'}
                 setFocus={() => setIsFocused('receive')}
                 setTrade={(t: TDEXTrade) => setTrade(t)}
                 trades={trades}
@@ -249,12 +233,6 @@ const Exchange: React.FC<ExchangeProps> = ({
               }
             >
               Confirm
-            </IonButton>
-            <IonButton
-              routerLink="/history"
-              className="main-button secondary no-border"
-            >
-              Trade history
             </IonButton>
           </div>
           {trade && (

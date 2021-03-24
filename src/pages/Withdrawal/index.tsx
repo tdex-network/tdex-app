@@ -95,7 +95,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         return;
       }
 
-      console.log(amount);
       const fee = estimateFeeAmount(utxos, [getRecipient()]);
       const LBTCBalance = balances.find((b) => b.coinGeckoID === 'bitcoin');
       if (!LBTCBalance || LBTCBalance.amount === 0) {

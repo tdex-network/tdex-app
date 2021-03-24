@@ -37,7 +37,8 @@ export async function bestPrice(
           asset: string;
           trade: TDEXTrade;
         }>).value
-    );
+    )
+    .filter((res) => res !== undefined);
 
   if (results.length === 0)
     throw new Error('Unable to preview price from providers.');
