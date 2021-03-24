@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps } from 'react-router';
-import { useDispatch } from 'react-redux';
 import {
   IonContent,
   IonHeader,
@@ -13,22 +12,17 @@ import {
   IonIcon,
   useIonViewWillEnter,
 } from '@ionic/react';
-import ExchangeRow from '../../redux/containers/exchangeRowCointainer';
+import ExchangeRow from '../../redux/containers/exchangeRowContainer';
 import classNames from 'classnames';
 import './style.scss';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import {
   allTrades,
   AssetWithTicker,
-  bestPrice,
   makeTrade,
   getTradablesAssets,
 } from '../../utils/tdex';
-import {
-  fromSatoshiFixed,
-  toSatoshi,
-  validAmountString,
-} from '../../utils/helpers';
+import { toSatoshi } from '../../utils/helpers';
 import {
   addErrorToast,
   addSuccessToast,
@@ -42,12 +36,14 @@ import { update } from '../../redux/actions/appActions';
 import { PreviewData } from '../TradeSummary';
 import Refresher from '../../components/Refresher';
 import { AssetConfig, defaultPrecision } from '../../utils/constants';
+import { Dispatch } from 'redux';
 
 interface ExchangeProps extends RouteComponentProps {
   balances: BalanceInterface[];
   explorerUrl: string;
   markets: TDEXMarket[];
   assets: Record<string, AssetConfig>;
+  dispatch: Dispatch;
 }
 
 const Exchange: React.FC<ExchangeProps> = ({
@@ -56,19 +52,22 @@ const Exchange: React.FC<ExchangeProps> = ({
   explorerUrl,
   markets,
   assets,
+  dispatch,
 }) => {
-  const dispatch = useDispatch();
-
-  const [isSentUpdating, setIsSentUpdating] = useState(false);
-  const [isReceivedUpdating, setIsReceivedUpdating] = useState(false);
-  const [focused, setFocused] = useState<'sent' | 'received'>('sent');
+  // user inputs amount
+  const [sentAmount, setSentAmount] = useState<number>();
+  const [receivedAmount, setReceivedAmount] = useState<number>();
+  // assets selected for trade
   const [assetSent, setAssetSent] = useState<AssetWithTicker>();
-  const [tradableAssets, setTradableAssets] = useState<AssetWithTicker[]>([]);
   const [assetReceived, setAssetReceived] = useState<AssetWithTicker>();
+  // current trades/tradable assets
+  const [tradableAssets, setTradableAssets] = useState<AssetWithTicker[]>([]);
   const [trades, setTrades] = useState<TDEXTrade[]>([]);
+  // selected trade
   const [trade, setTrade] = useState<TDEXTrade>();
-  const [sentAmount, setSentAmount] = useState<string>();
-  const [receivedAmount, setReceivedAmount] = useState<string>();
+
+  const [isFocused, setIsFocused] = useState<'sent' | 'receive' | ''>('');
+
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -108,122 +107,10 @@ const Exchange: React.FC<ExchangeProps> = ({
     setAssetReceived(tradable[0]);
   }, [assetSent, markets]);
 
-  const onChangeReceived = async (
-    newReceivedAmount: string | null | undefined
-  ) => {
-    if (!newReceivedAmount) {
-      setSentAmount('');
-      setReceivedAmount('');
-      return;
-    }
-
-    if (parseFloat(newReceivedAmount) <= 0) {
-      setSentAmount('0');
-      setReceivedAmount(newReceivedAmount);
-      return;
-    }
-
-    setReceivedAmount(newReceivedAmount);
-    if (!assetReceived || trades.length === 0) return;
-    updateSentAmount(newReceivedAmount);
-  };
-
-  const onChangeSent = async (newSentAmount: string | null | undefined) => {
-    if (!newSentAmount) {
-      setSentAmount('');
-      setReceivedAmount('');
-      return;
-    }
-
-    if (parseFloat(newSentAmount) <= 0) {
-      setSentAmount(newSentAmount);
-      setReceivedAmount('0');
-      return;
-    }
-
-    setSentAmount(newSentAmount);
-    if (!assetSent || trades.length === 0) return;
-    updateReceivedAmount(newSentAmount);
-  };
-
-  const onErrorGetPrice = (e: string) => dispatch(addErrorToast(e));
-
-  // if sent input field is focused, it is used to asynchornously update the received amount
-  const updateReceivedAmount = async (newSentAmount: string) => {
-    if (focused !== 'sent') return;
-    if (!assetSent) return;
-    try {
-      setIsReceivedUpdating(true);
-      const { amount, asset, trade: bestTrade } = await bestPrice(
-        {
-          amount: parseFloat(newSentAmount),
-          asset: assetSent.asset,
-          precision: assets[assetSent.asset]?.precision || defaultPrecision,
-        },
-        trades,
-        onErrorGetPrice
-      );
-      if (asset !== assetReceived?.asset) {
-        throw new Error('Wrong preview asset');
-      }
-      setReceivedAmount(
-        fromSatoshiFixed(
-          amount,
-          assets[asset]?.precision || defaultPrecision,
-          assets[asset]?.precision || defaultPrecision
-        )
-      );
-      setTrade(bestTrade);
-    } catch (e) {
-      console.error(e);
-      dispatch(addErrorToast(e.message || e));
-      setReceivedAmount('');
-    } finally {
-      setIsReceivedUpdating(false);
-    }
-  };
-
-  // if received input field is focused, it is used to asynchronously update the sent amount
-  const updateSentAmount = async (newReceivedAmount: string) => {
-    if (focused !== 'received') return;
-    if (!assetReceived) return;
-    try {
-      setIsSentUpdating(true);
-      const { amount, asset, trade: bestTrade } = await bestPrice(
-        {
-          amount: parseFloat(newReceivedAmount),
-          asset: assetReceived.asset,
-          precision: assets[assetReceived.asset]?.precision,
-        },
-        trades,
-        onErrorGetPrice
-      );
-
-      if (asset !== assetSent?.asset) {
-        throw new Error('Wrong preview asset');
-      }
-
-      setSentAmount(
-        fromSatoshiFixed(
-          amount,
-          assets[asset]?.precision || defaultPrecision,
-          assets[asset]?.precision || defaultPrecision
-        )
-      );
-      setTrade(bestTrade);
-    } catch (e) {
-      console.error(e);
-      dispatch(addErrorToast(e.message || e));
-      setReceivedAmount('');
-    } finally {
-      setIsSentUpdating(false);
-    }
-  };
-
   const sentAmountGreaterThanBalance = () => {
     const balance = balances.find((b) => b.asset === assetSent?.asset);
     if (!balance || !sentAmount) return false;
-    const amountAsSats = toSatoshi(parseFloat(sentAmount), balance.precision);
+    const amountAsSats = toSatoshi(sentAmount, balance.precision);
     return amountAsSats > balance.amount;
   };
 
@@ -231,17 +118,17 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   // make and broadcast trade, then push to trade summary page
   const onPinConfirm = async (pin: string) => {
-    if (!assetSent) return;
+    if (!assetSent || !trade || !sentAmount) return;
     try {
+      setIsFocused('');
       setModalOpen(false);
       setLoading(true);
       const identityOpts = await getIdentityOpts(pin);
-      if (!trade) return;
       const { txid, identityAddresses } = await makeTrade(
         trade,
         {
           amount: toSatoshi(
-            parseFloat(sentAmount || '0'),
+            sentAmount,
             assets[assetSent.asset]?.precision || defaultPrecision
           ),
           asset: assetSent.asset,
@@ -259,11 +146,11 @@ const Exchange: React.FC<ExchangeProps> = ({
       const preview: PreviewData = {
         sent: {
           ticker: assetSent.ticker,
-          amount: '-' + (sentAmount || '0.00'),
+          amount: `-${sentAmount || '??'}`,
         },
         received: {
           ticker: assetReceived?.ticker || 'unknown',
-          amount: receivedAmount || '0.00',
+          amount: receivedAmount?.toString() || '??',
         },
       };
       history.replace(`/tradesummary/${txid}`, { preview });
@@ -300,17 +187,20 @@ const Exchange: React.FC<ExchangeProps> = ({
           <Refresher />
           <div className="exchange">
             <ExchangeRow
+              focused={isFocused === 'sent'}
+              setFocus={() => setIsFocused('sent')}
+              setTrade={(t: TDEXTrade) => setTrade(t)}
+              relatedAssetAmount={receivedAmount || 0}
+              relatedAssetHash={assetReceived?.asset || ''}
               asset={assetSent}
-              amount={sentAmount}
-              onChangeAmount={onChangeSent}
-              isUpdating={isSentUpdating}
-              assets={balances}
+              trades={trades}
+              onChangeAmount={(newAmount: number) => setSentAmount(newAmount)}
+              assetsWithTicker={balances}
               setAsset={(asset) => {
                 if (assetReceived && asset.asset === assetReceived.asset)
                   setAssetReceived(assetSent);
                 setAssetSent(asset);
               }}
-              setFocused={() => setFocused('sent')}
             />
             <div
               className={classNames([
@@ -337,17 +227,22 @@ const Exchange: React.FC<ExchangeProps> = ({
             </div>
             {assetReceived && (
               <ExchangeRow
+                focused={isFocused.valueOf() === 'receive'.valueOf()}
+                setFocus={() => setIsFocused('receive')}
+                setTrade={(t: TDEXTrade) => setTrade(t)}
+                trades={trades}
+                relatedAssetAmount={sentAmount || 0}
+                relatedAssetHash={assetSent?.asset || ''}
                 asset={assetReceived}
-                amount={receivedAmount}
-                onChangeAmount={onChangeReceived}
-                isUpdating={isReceivedUpdating}
-                assets={tradableAssets}
+                onChangeAmount={(newAmount: number) =>
+                  setReceivedAmount(newAmount)
+                }
+                assetsWithTicker={tradableAssets}
                 setAsset={(asset) => {
                   if (asset.asset === assetSent.asset)
                     setAssetSent(assetReceived);
                   setAssetReceived(asset);
                 }}
-                setFocused={() => setFocused('received')}
               />
             )}
           </div>
@@ -361,8 +256,6 @@ const Exchange: React.FC<ExchangeProps> = ({
                 !assetSent ||
                 !assetReceived ||
                 loading ||
-                !validAmountString(sentAmount) ||
-                !validAmountString(receivedAmount) ||
                 sentAmountGreaterThanBalance()
               }
             >

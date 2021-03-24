@@ -9,17 +9,8 @@ import {
   SET_UTXO,
   DELETE_UTXO,
 } from '../actions/walletActions';
-import { createSelector } from 'reselect';
-import {
-  tickerFromAssetHash,
-  balancesFromUtxos,
-  customCoinSelector,
-} from '../../utils/helpers';
-import {
-  AssetConfig,
-  defaultPrecision,
-  getMainAsset,
-} from '../../utils/constants';
+import { tickerFromAssetHash, balancesFromUtxos } from '../../utils/helpers';
+import { defaultPrecision, getMainAsset } from '../../utils/constants';
 
 export interface WalletState {
   isAuth: boolean;

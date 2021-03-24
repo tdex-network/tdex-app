@@ -242,7 +242,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       <IonContent className="withdrawal">
         {balance && (
           <WithdrawRow
-            inputAmount={amount}
             balance={balance}
             price={price}
             onAmountChange={onAmountChange}

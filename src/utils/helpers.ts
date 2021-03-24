@@ -94,21 +94,6 @@ export function capitalizeFirstLetter(string: string): string {
 }
 
 /**
- * Util function to check the validity of string amount
- * @param amount the string to check
- */
-export function validAmountString(amount?: string): boolean {
-  if (!amount) return false;
-  return amountGuard(amount);
-}
-
-function amountGuard(amount: string): boolean {
-  // TODO handle precision & max amount for altcoins ?
-  const regexp = new RegExp('^\\d{0,8}(\\.\\d{0,8})?$');
-  return regexp.test(amount);
-}
-
-/**
  * Use esplora server to fetchTxHex
  * @param txid
  * @param explorerURL

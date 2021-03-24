@@ -11,14 +11,12 @@ interface WithdrawRowInterface {
   balance: BalanceInterface;
   price: number | undefined;
   onAmountChange: (amount: number | undefined) => void;
-  inputAmount: number;
 }
 
 const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   balance,
   price,
   onAmountChange,
-  inputAmount,
 }) => {
   const currency = useSelector((state: any) => state.settings.currency);
   const [residualBalance, setResidualBalance] = useState<string>(
@@ -46,7 +44,8 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
       return;
     }
 
-    const val = parseFloat(value);
+    const val = parseFloat(value.replace(',', '.'));
+    onAmountChange(val);
     const residualAmount = fromSatoshi(balance.amount, balance.precision) - val;
     setResidualBalance(
       residualAmount.toLocaleString(undefined, {
@@ -54,7 +53,6 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
       })
     );
     if (price) setFiat((val * price).toFixed(2));
-    onAmountChange(val);
   };
 
   return (
@@ -69,7 +67,6 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
         <div className="ion-text-end">
           <IonInput
             type="number"
-            value={inputAmount || ''}
             placeholder="0.00"
             className="amount-input"
             autofocus={true}

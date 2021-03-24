@@ -2,45 +2,101 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { CurrencyIcon } from '../icons';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { fromSatoshiFixed } from '../../utils/helpers';
+import { fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
 import { IonIcon, IonInput, IonSpinner } from '@ionic/react';
 import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
 import { caretDown, searchSharp } from 'ionicons/icons';
-import { AssetWithTicker } from '../../utils/tdex';
+import { AssetWithTicker, bestPrice } from '../../utils/tdex';
 
 import './style.scss';
+import { TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
+import { Dispatch } from 'redux';
+import { addErrorToast } from '../../redux/actions/toastActions';
+import { AssetConfig, defaultPrecision } from '../../utils/constants';
 
 interface ExchangeRowInterface {
+  // the asset handled by the component.
   asset: AssetWithTicker;
+  // using to auto-update with best trade price
+  trades: TDEXTrade[];
+  relatedAssetHash: string;
+  relatedAssetAmount: number;
+  // actions to parent component.
+  onChangeAmount: (newAmount: number) => void;
+  setTrade: (trade: TDEXTrade) => void;
+  // for exchange search
+  assetsWithTicker: AssetWithTicker[];
+  setAsset: (newAsset: AssetWithTicker) => void;
+  setFocus: () => void;
+  focused: boolean;
+  // redux connected props
+  assets: Record<string, AssetConfig>;
   balances: BalanceInterface[];
   prices: Record<string, number>;
   currency: string;
-  amount?: string;
-  onChangeAmount: (newAmount: string | null | undefined) => Promise<void>;
-  isUpdating: boolean;
-  assets: AssetWithTicker[];
-  setAsset: (newAsset: AssetWithTicker) => void;
-  setFocused: () => void;
+  dispatch: Dispatch;
 }
 
 const ExchangeRow: React.FC<ExchangeRowInterface> = ({
+  trades,
+  relatedAssetHash,
+  relatedAssetAmount,
   asset,
   prices,
   balances,
-  amount,
   onChangeAmount,
   currency,
-  isUpdating,
+  assetsWithTicker,
+  setTrade,
   assets,
   setAsset,
-  setFocused,
+  dispatch,
+  setFocus,
+  focused,
 }) => {
   const [balanceAmount, setBalanceAmount] = useState<number>();
+  const [amount, setAmount] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const onErrorGetPrice = (e: any) => dispatch(addErrorToast(e.message || e)); // TODO handle error
 
   useEffect(() => {
     setBalanceAmount(balances.find((b) => b.asset === asset.asset)?.amount);
   }, [balances, asset]);
+
+  useEffect(() => {
+    if (focused || trades.length === 0 || !relatedAssetHash) return; // skip the effect if the input field is focused
+    if (relatedAssetAmount === 0) {
+      onChangeAmount(0);
+      setAmount('');
+    }
+    setIsUpdating(true);
+    bestPrice(
+      {
+        amount: relatedAssetAmount,
+        asset: relatedAssetHash,
+        precision: assets[relatedAssetHash]?.precision || defaultPrecision,
+      },
+      trades,
+      onErrorGetPrice
+    )
+      .then(({ amount: previewAmount, asset: previewAsset, trade }) => {
+        setTrade(trade);
+        const precision = assets[previewAsset]?.precision || defaultPrecision;
+        const updatedAmount = fromSatoshiFixed(
+          previewAmount,
+          precision,
+          precision
+        );
+        setAmount(updatedAmount);
+        onChangeAmount(fromSatoshi(previewAmount, precision));
+      })
+      .catch((err) => {
+        console.error(err);
+        dispatch(addErrorToast(err.message || err));
+      })
+      .finally(() => setIsUpdating(false));
+  }, [relatedAssetAmount, relatedAssetHash]);
 
   return (
     <div className="exchange-coin-container">
@@ -72,10 +128,17 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
               placeholder="0.00"
               onIonChange={(e) => {
                 if (!isUpdating) {
-                  onChangeAmount(e.detail.value);
+                  if (!e.detail.value) {
+                    setAmount('');
+                    onChangeAmount(0);
+                    return;
+                  }
+                  const val = e.detail.value.replace(',', '.');
+                  setAmount(val);
+                  onChangeAmount(parseFloat(val));
                 }
               }}
-              onIonFocus={(e) => setFocused()}
+              onIonFocus={() => setFocus()}
               disabled={isUpdating}
             />
           </div>
@@ -104,7 +167,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         <IonSpinner color="light" name="dots" />
       </div>
       <ExchangeSearch
-        assets={assets}
+        assets={assetsWithTicker}
         setAsset={setAsset}
         isOpen={isSearchOpen}
         close={() => setIsSearchOpen(false)}

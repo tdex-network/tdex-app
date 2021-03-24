@@ -10,7 +10,6 @@ import {
   IonToolbar,
   IonHeader,
   IonIcon,
-  IonLoading,
   useIonViewDidLeave,
   IonSkeletonText,
 } from '@ionic/react';
