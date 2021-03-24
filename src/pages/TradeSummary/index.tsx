@@ -12,14 +12,15 @@ import {
   IonIcon,
   useIonViewDidLeave,
   IonSkeletonText,
+  useIonViewDidEnter,
 } from '@ionic/react';
 import { CurrencyIcon, IconBack } from '../../components/icons';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
 import { swapHorizontal } from 'ionicons/icons';
-import { update } from '../../redux/actions/appActions';
 import './style.scss';
 import { AssetConfig } from '../../utils/constants';
+import { updateTransactions } from '../../redux/actions/transactionsActions';
 
 export interface PreviewData {
   sent: {
@@ -48,15 +49,16 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
   const transaction = useSelector(transactionSelector(txid));
   const [intervalUpdater, setIntervalUpdater] = useState<NodeJS.Timeout>();
 
-  useEffect(() => {
+  useIonViewDidEnter(() => {
     if (!transaction) {
+      dispatch(updateTransactions());
       setIntervalUpdater(
         setInterval(() => {
-          dispatch(update());
-        }, 10000)
+          dispatch(updateTransactions());
+        }, 8_000)
       );
     }
-  }, []);
+  });
 
   useEffect(() => {
     if (transaction && intervalUpdater) {

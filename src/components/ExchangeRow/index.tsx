@@ -96,7 +96,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         dispatch(addErrorToast(err.message || err));
       })
       .finally(() => setIsUpdating(false));
-  }, [relatedAssetAmount, relatedAssetHash]);
+  }, [relatedAssetAmount, relatedAssetHash, asset]);
 
   return (
     <div className="exchange-coin-container">
