@@ -20,6 +20,7 @@ interface PinModalProps {
   description: string;
   onConfirm: (pin: string) => void;
   onClose?: () => void;
+  onDidDismiss?: boolean;
 }
 
 const PinModal: React.FC<PinModalProps> = ({
@@ -28,14 +29,20 @@ const PinModal: React.FC<PinModalProps> = ({
   onClose,
   open,
   onConfirm,
+  onDidDismiss,
 }) => {
   const validRegexp = new RegExp('\\d{6}');
   const [pin, setPin] = useState('');
   const dispatch = useDispatch();
+  const handleConfirm = () => {
+    if (validRegexp.test(pin)) onConfirm(pin);
+    else dispatch(addErrorToast('PIN must contain 6 digits.'));
+  };
 
   return (
     <IonModal
       isOpen={open}
+      onDidDismiss={onDidDismiss ? onClose : undefined}
       cssClass="modal-big withdrawal"
       keyboardClose={false}
     >
@@ -54,13 +61,10 @@ const PinModal: React.FC<PinModalProps> = ({
         <PageDescription title={title}>
           <p>{description}</p>
         </PageDescription>
-        <PinInput onPin={(p: string) => setPin(p)} />
+        <PinInput on6digits={handleConfirm} onPin={(p: string) => setPin(p)} />
         <div className="buttons">
           <IonButton
-            onClick={() => {
-              if (validRegexp.test(pin)) onConfirm(pin);
-              else dispatch(addErrorToast('PIN must contain 6 digits.'));
-            }}
+            onClick={handleConfirm}
             type="button"
             disabled={!validRegexp.test(pin)}
             className="main-button"

@@ -28,17 +28,19 @@ import {
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import PinModal from '../../components/PinModal';
-import { getIdentityOpts } from '../../utils/storage-helper';
+import { getIdentity } from '../../utils/storage-helper';
 import { setAddresses } from '../../redux/actions/walletActions';
 import { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import { swapVerticalOutline } from 'ionicons/icons';
 import { PreviewData } from '../TradeSummary';
 import Refresher from '../../components/Refresher';
+import { UtxoInterface } from 'ldk';
 import { AssetConfig, defaultPrecision } from '../../utils/constants';
 import { Dispatch } from 'redux';
 
 interface ExchangeProps extends RouteComponentProps {
   balances: BalanceInterface[];
+  utxos: UtxoInterface[];
   explorerUrl: string;
   markets: TDEXMarket[];
   assets: Record<string, AssetConfig>;
@@ -51,6 +53,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   balances,
   explorerUrl,
   markets,
+  utxos,
   assets,
   allAssets,
   dispatch,
@@ -112,7 +115,8 @@ const Exchange: React.FC<ExchangeProps> = ({
       setIsFocused('');
       setModalOpen(false);
       setLoading(true);
-      const identityOpts = await getIdentityOpts(pin);
+      const identity = await getIdentity(pin);
+      if (!trade) return;
       const { txid, identityAddresses } = await makeTrade(
         trade,
         {
@@ -123,7 +127,8 @@ const Exchange: React.FC<ExchangeProps> = ({
           asset: assetSent.asset,
         },
         explorerUrl,
-        identityOpts
+        utxos,
+        identity
       );
 
       dispatch(setAddresses(identityAddresses));

@@ -1,9 +1,8 @@
 import { connect } from 'react-redux';
 import Exchange from '../../pages/Exchange';
 import { getTradablesAssets } from '../../utils/tdex';
-
-import { balancesSelector } from '../reducers/walletReducer';
 import { allAssets } from '../reducers/tdexReducer';
+import { balancesSelector, allUtxosSelector } from '../reducers/walletReducer';
 
 const mapStateToProps = (state: any) => {
   return {
@@ -14,6 +13,7 @@ const mapStateToProps = (state: any) => {
     ),
     explorerUrl: state.settings.explorerUrl,
     markets: state.tdex.markets,
+    utxos: allUtxosSelector(state),
     assets: state.assets,
     allAssets: allAssets(state),
   };

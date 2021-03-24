@@ -3,7 +3,14 @@ import classNames from 'classnames';
 import { CurrencyIcon } from '../icons';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
-import { IonIcon, IonInput, IonSpinner, IonText } from '@ionic/react';
+import {
+  IonIcon,
+  IonInput,
+  IonSpinner,
+  IonText,
+  useIonViewDidEnter,
+  useIonViewDidLeave,
+} from '@ionic/react';
 import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
 import { caretDown, searchSharp } from 'ionicons/icons';
 import { AssetWithTicker, bestPrice } from '../../utils/tdex';
@@ -11,6 +18,10 @@ import { TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import { AssetConfig, defaultPrecision } from '../../utils/constants';
 
 import './style.scss';
+import {
+  onPressEnterKeyCloseKeyboard,
+  setAccessoryBar,
+} from '../../utils/keyboard';
 
 interface ExchangeRowInterface {
   checkBalance?: boolean;
@@ -60,6 +71,14 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   const onErrorGetPrice = (e: any) => {
     console.error(e);
   };
+
+  useIonViewDidEnter(() => {
+    setAccessoryBar(true);
+  });
+
+  useIonViewDidLeave(() => {
+    setAccessoryBar(false);
+  });
 
   useEffect(() => {
     setBalance(balances.find((b) => b.asset === asset.asset));
@@ -124,7 +143,9 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         >
           <div className="ion-text-end">
             <IonInput
-              type="number"
+              enterkeyhint="done"
+              onKeyDown={onPressEnterKeyCloseKeyboard}
+              inputmode="decimal"
               value={amount}
               placeholder="0.00"
               color={error && 'danger'}

@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import './style.scss';
 import { CurrencyIcon } from '../icons';
-import { IonInput, IonText } from '@ionic/react';
+import {
+  IonInput,
+  IonText,
+  useIonViewDidEnter,
+  useIonViewDidLeave,
+} from '@ionic/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
 import { updateRates } from '../../redux/actions/ratesActions';
+import {
+  onPressEnterKeyCloseKeyboard,
+  setAccessoryBar,
+} from '../../utils/keyboard';
+import './style.scss';
 
 interface WithdrawRowInterface {
   balance: BalanceInterface;
@@ -27,6 +36,14 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   const [fiat, setFiat] = useState<string>('0.00');
 
   const dispatch = useDispatch();
+
+  useIonViewDidEnter(() => {
+    setAccessoryBar(true);
+  });
+
+  useIonViewDidLeave(() => {
+    setAccessoryBar(false);
+  });
 
   useEffect(() => {
     dispatch(updateRates());
@@ -64,18 +81,19 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
           <span className="icon-wrapper medium">
             <CurrencyIcon currency={balance.ticker} />
           </span>
-          <p>{balance.ticker.toUpperCase()}</p>
+          <p className="ticker">{balance.ticker.toUpperCase()}</p>
         </div>
         <div className="ion-text-end">
           <IonInput
-            type="number"
+            inputmode="decimal"
             placeholder="0.00"
             className="amount-input"
             autofocus={true}
-            required={true}
             onIonChange={(e) => handleAmountChange(e.detail.value)}
             color={error && 'danger'}
             debounce={400}
+            onKeyDown={onPressEnterKeyCloseKeyboard}
+            enterkeyhint="done"
           />
         </div>
       </div>

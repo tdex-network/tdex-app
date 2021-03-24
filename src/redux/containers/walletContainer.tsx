@@ -8,6 +8,7 @@ const mapStateToProps = (state: any) => {
     balances: balancesSelector(state),
     prices: state.rates.prices,
     currency: state.settings.currency,
+    backupDone: state.app.backupDone,
   };
 };
 

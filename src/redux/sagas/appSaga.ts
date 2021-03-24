@@ -10,11 +10,12 @@ import {
   setSignedUp,
   SIGN_IN,
   UPDATE,
+  setBackupDone,
 } from '../actions/appActions';
 import { setAddresses, setIsAuth } from '../actions/walletActions';
 import { restoreTheme } from '../actions/settingsActions';
 import { Mnemonic } from 'ldk';
-import { getIdentity } from '../../utils/storage-helper';
+import { getIdentity, seedBackupFlag } from '../../utils/storage-helper';
 import { updateTransactions } from '../actions/transactionsActions';
 import { updateRates } from '../actions/ratesActions';
 
@@ -37,6 +38,12 @@ function* signInSaga(action: ActionType) {
 
     const addresses = identity.getAddresses();
     yield put(setAddresses(addresses));
+
+    // set the backup flag
+    const backup = yield call(seedBackupFlag);
+    if (backup) {
+      yield put(setBackupDone());
+    }
 
     yield all([put(setIsAuth(true))]);
     yield put(updateMarkets());

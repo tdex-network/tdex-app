@@ -12,6 +12,7 @@ const { SecureStoragePlugin } = Plugins;
 const MNEMONIC_KEY = 'tdex-app-mnemonic';
 const ADDRESSES_KEY = 'tdex-app-addresses';
 const PROVIDERS_KEY = 'tdex-app-providers';
+const SEED_BACKUP_FLAG_KEY = 'tdex-app-seed-backup';
 
 async function getFromStorage<T>(key: string, defaultValue: T): Promise<T> {
   try {
@@ -21,6 +22,22 @@ async function getFromStorage<T>(key: string, defaultValue: T): Promise<T> {
   } catch (error) {
     console.error(error);
     return defaultValue;
+  }
+}
+
+export function setSeedBackup() {
+  Storage.set({ key: SEED_BACKUP_FLAG_KEY, value: '1' });
+}
+
+export async function seedBackupFlag(): Promise<boolean> {
+  try {
+    const { value } = await Storage.get({ key: SEED_BACKUP_FLAG_KEY });
+    if (value === '1') {
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
   }
 }
 
@@ -119,6 +136,7 @@ async function clear() {
     SecureStoragePlugin.remove({ key: MNEMONIC_KEY }),
     Storage.remove({ key: PROVIDERS_KEY }),
     Storage.remove({ key: ADDRESSES_KEY }),
+    Storage.remove({ key: SEED_BACKUP_FLAG_KEY }),
   ]);
 }
 

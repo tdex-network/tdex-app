@@ -1,0 +1,10 @@
+.backup-content {
+  --overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly;
+  height: 85%;
+  color: rgb(201, 197, 197);
+  font-size: large;
+}

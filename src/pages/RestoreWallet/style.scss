@@ -23,7 +23,7 @@
     text-align: right;
     width: 25px;
   }
-  input {
+  .input-word {
     position: relative;
     border: 0;
     background: transparent;
@@ -31,17 +31,12 @@
     outline: none;
     border-bottom: 1px solid rgb(100, 100, 100);
     margin-left: 7px;
-    top: -3px;
     text-align: center;
-  }
-
-  & + .restore-input {
-    margin-top: 14px;
   }
 
   &.active, &:focus-within {
     color: #fff;
-    input {
+    .input-word {
       border-bottom: 1px solid #fff;
     }
   }

@@ -1,4 +1,9 @@
-import { AddressInterface, IdentityOpts } from 'ldk';
+import {
+  AddressInterface,
+  greedyCoinSelector,
+  IdentityInterface,
+  UtxoInterface,
+} from 'ldk';
 import { Trade, TraderClient, TradeType } from 'tdex-sdk';
 import {
   TDEXTrade,
@@ -79,23 +84,26 @@ export async function makeTrade(
   trade: TDEXTrade,
   known: { amount: number; asset: string },
   explorerUrl: string,
-  identity: IdentityOpts
+  utxos: UtxoInterface[],
+  identity: IdentityInterface
 ): Promise<{ txid: string; identityAddresses: AddressInterface[] }> {
   const trader = new Trade({
     explorerUrl,
     providerUrl: trade.market.provider.endpoint,
-    identity,
+    utxos,
+    coinSelector: greedyCoinSelector(),
   });
 
-  await trader.identity.isRestored;
+  await identity.isRestored;
+
   let txid = '';
 
   if (trade.type === TradeType.BUY) {
-    txid = await trader.buy({ ...known, market: trade.market });
+    txid = await trader.buy({ ...known, market: trade.market, identity });
   }
 
   if (trade.type === TradeType.SELL) {
-    txid = await trader.sell({ ...known, market: trade.market });
+    txid = await trader.sell({ ...known, market: trade.market, identity });
   }
 
   if (txid === '') {
@@ -104,7 +112,7 @@ export async function makeTrade(
 
   return {
     txid,
-    identityAddresses: trader.identity.getAddresses(),
+    identityAddresses: identity.getAddresses(),
   };
 }
 

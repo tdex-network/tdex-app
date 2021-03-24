@@ -1,15 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { IonInput, IonItem, IonLabel } from '@ionic/react';
+import { onPressEnterKeyFactory } from '../../utils/keyboard';
 import './style.scss';
 
 interface PinInputProps {
   onPin: (newPin: string) => void;
+  on6digits: () => void;
 }
 
 const length6Array = new Array(6).fill(0);
 
-const PinInput: React.FC<PinInputProps> = ({ onPin }) => {
+const PinInput: React.FC<PinInputProps> = ({ onPin, on6digits }) => {
   const inputRef = useRef<any>(null);
 
   useEffect(() => {
@@ -17,7 +19,7 @@ const PinInput: React.FC<PinInputProps> = ({ onPin }) => {
       if (inputRef && inputRef.current) {
         inputRef.current.setFocus();
       }
-    }, 100);
+    }, 500);
   });
 
   const [pin, setPin] = useState('');
@@ -51,12 +53,14 @@ const PinInput: React.FC<PinInputProps> = ({ onPin }) => {
       </IonLabel>
       <IonInput
         ref={inputRef}
-        inputMode="numeric"
+        enterkeyhint="done"
+        onKeyDown={onPressEnterKeyFactory(() => on6digits())}
+        inputmode="numeric"
+        type="password"
+        clearOnEdit={true}
         value={pin}
-        autofocus={true}
         required={true}
         onIonChange={(e) => onNewPin(e.detail.value)}
-        type="number"
       />
     </IonItem>
   );
