@@ -1,9 +1,5 @@
 import { SIGN_IN } from './../actions/appActions';
-import {
-  addProvider,
-  clearMarkets,
-  DELETE_PROVIDER,
-} from './../actions/tdexActions';
+import { addProvider, DELETE_PROVIDER } from './../actions/tdexActions';
 import { TDEXState } from '../reducers/tdexReducer';
 import {
   addMarkets,

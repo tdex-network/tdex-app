@@ -1,7 +1,6 @@
 import {
   AddressInterface,
   CoinSelector,
-  greedyCoinSelector,
   IdentityInterface,
   UtxoInterface,
 } from 'ldk';
