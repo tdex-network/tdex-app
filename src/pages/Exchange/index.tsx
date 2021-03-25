@@ -22,7 +22,7 @@ import {
   makeTrade,
   getTradablesAssets,
 } from '../../utils/tdex';
-import { toSatoshi } from '../../utils/helpers';
+import { customCoinSelector, toSatoshi } from '../../utils/helpers';
 import {
   addErrorToast,
   addSuccessToast,
@@ -128,7 +128,8 @@ const Exchange: React.FC<ExchangeProps> = ({
         },
         explorerUrl,
         utxos,
-        identity
+        identity,
+        customCoinSelector(dispatch)
       );
 
       dispatch(setAddresses(identityAddresses));

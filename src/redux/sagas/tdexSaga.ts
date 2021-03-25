@@ -22,23 +22,33 @@ import { getProvidersFromTDexRegistry } from '../../utils/tdex';
 import { provider } from '../config';
 
 function* updateMarketsWithProvidersEndpoints() {
-  const providers: TDEXProvider[] = yield select(
-    ({ tdex }: { tdex: TDEXState }) => tdex.providers
+  const { providers, markets }: TDEXState = yield select(
+    ({ tdex }: { tdex: TDEXState }) => tdex
   );
 
-  const newMarkets: TDEXMarket[] = [];
   for (const p of providers) {
     try {
-      const markets: TDEXMarket[] = yield call(getMarketsFromProvider, p);
+      const providerMarkets: TDEXMarket[] = yield call(
+        getMarketsFromProvider,
+        p
+      );
 
-      newMarkets.push(...markets);
+      for (const market of providerMarkets) {
+        if (
+          markets.find(
+            (m) =>
+              m.baseAsset === market.baseAsset &&
+              m.quoteAsset === market.quoteAsset &&
+              m.provider.endpoint === market.provider.endpoint
+          )
+        ) {
+          yield put(addMarkets([market]));
+        }
+      }
     } catch (e) {
       yield put(addErrorToast(e.message || e));
     }
   }
-
-  yield put(clearMarkets());
-  yield put(addMarkets(newMarkets));
 }
 
 function* fetchMarkets({

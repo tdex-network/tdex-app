@@ -1,5 +1,6 @@
 import {
   AddressInterface,
+  CoinSelector,
   greedyCoinSelector,
   IdentityInterface,
   UtxoInterface,
@@ -85,13 +86,14 @@ export async function makeTrade(
   known: { amount: number; asset: string },
   explorerUrl: string,
   utxos: UtxoInterface[],
-  identity: IdentityInterface
+  identity: IdentityInterface,
+  coinSelector: CoinSelector
 ): Promise<{ txid: string; identityAddresses: AddressInterface[] }> {
   const trader = new Trade({
     explorerUrl,
     providerUrl: trade.market.provider.endpoint,
     utxos,
-    coinSelector: greedyCoinSelector(),
+    coinSelector,
   });
 
   await identity.isRestored;
