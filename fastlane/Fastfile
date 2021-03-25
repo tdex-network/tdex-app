@@ -28,11 +28,11 @@ platform :ios do
   desc 'Ship to Testflight.'
   lane :beta do
     git_check
-    build
     increment_build_number(
       build_number: latest_testflight_build_number(app_identifier: 'io.sevenlabs.app') + 1,
       xcodeproj: "./ios/App/App.xcodeproj"
     )
+    build
     pilot(
       app_identifier: 'io.sevenlabs.app'
     )
