@@ -16,6 +16,9 @@
 }
 
 .diagram {
+  margin-top: 20px;
+  margin-top: constant(safe-area-inset-top);
+  margin-top: env(safe-area-inset-top);
   position: absolute;
   top: 58pt;
   left: 50%;
