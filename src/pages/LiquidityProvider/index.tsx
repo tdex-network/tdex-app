@@ -21,8 +21,12 @@ import { TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
 import { trash } from 'ionicons/icons';
 import './style.scss';
 import { useDispatch } from 'react-redux';
-import { addProvider, deleteProvider } from '../../redux/actions/tdexActions';
-import { update } from '../../redux/actions/appActions';
+import {
+  addProvider,
+  clearMarkets,
+  deleteProvider,
+  updateMarkets,
+} from '../../redux/actions/tdexActions';
 
 interface LiquidityProvidersProps extends RouteComponentProps {
   providers: TDEXProvider[];
@@ -49,7 +53,8 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
       handler: () => {
         if (providerToDelete) {
           dispatch(deleteProvider(providerToDelete));
-          dispatch(update());
+          dispatch(clearMarkets());
+          dispatch(updateMarkets());
         }
       },
     },

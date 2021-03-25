@@ -13,21 +13,25 @@ import {
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
 import { IconBack, IconQR } from '../../components/icons';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import WithdrawRow from '../../components/WithdrawRow';
 import './style.scss';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import {
   address,
-  greedyCoinSelector,
   psetToUnsignedTx,
   RecipientInterface,
+  UtxoInterface,
   walletFromCoins,
 } from 'ldk';
 import { broadcastTx } from '../../redux/services/walletService';
-import { allUtxosSelector } from '../../redux/reducers/walletReducer';
 import { network } from '../../redux/config';
-import { toSatoshi } from '../../utils/helpers';
+import {
+  customCoinSelector,
+  estimateFeeAmount,
+  fromSatoshi,
+  toSatoshi,
+} from '../../utils/helpers';
 import { setAddresses } from '../../redux/actions/walletActions';
 import { Psbt } from 'liquidjs-lib';
 import { getIdentity } from '../../utils/storage-helper';
@@ -46,38 +50,75 @@ interface WithdrawalProps
     { address: string; amount: number; asset: string }
   > {
   balances: BalanceInterface[];
+  utxos: UtxoInterface[];
+  prices: Record<string, number>;
+  explorerURL: string;
 }
 
 const Withdrawal: React.FC<WithdrawalProps> = ({
   balances,
+  utxos,
+  prices,
+  explorerURL,
   history,
   location,
 }) => {
   // route parameter asset_id
   const { asset_id } = useParams<{ asset_id: string }>();
 
-  // selectors for balance & rates
-  const prices = useSelector((state: any) => state.rates.prices);
-  const utxos = useSelector(allUtxosSelector);
-  const explorerURL = useSelector((state: any) => state.settings.explorerUrl);
-
   // UI state
   const [balance, setBalance] = useState<BalanceInterface>();
   const [price, setPrice] = useState<number>();
   const [amount, setAmount] = useState<number>(0);
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState<boolean>(false);
   const [recipientAddress, setRecipientAddress] = useState<string>('');
   const [modalOpen, setModalOpen] = useState(false);
 
   const dispatch = useDispatch();
 
+  const getRecipient = (): RecipientInterface => ({
+    address: recipientAddress.trim(),
+    asset: balance?.asset || '',
+    value: toSatoshi(amount, balance?.precision),
+  });
+
   const onAmountChange = (newAmount: number | undefined) => {
+    setError('');
     setAmount(newAmount || 0);
   };
 
+  useEffect(() => {
+    try {
+      if (!balance) return;
+      if (fromSatoshi(balance.amount, balance.precision) < amount) {
+        setError('Amount is greater than your balance');
+        return;
+      }
+
+      const fee = estimateFeeAmount(utxos, [getRecipient()]);
+      const LBTCBalance = balances.find((b) => b.coinGeckoID === 'bitcoin');
+      if (!LBTCBalance || LBTCBalance.amount === 0) {
+        setError('You need LBTC in order to pay fees');
+        return;
+      }
+
+      let needLBTC = fee;
+      if (balance.coinGeckoID === 'bitcoin') {
+        needLBTC += toSatoshi(amount, 8);
+      }
+
+      if (needLBTC > LBTCBalance.amount) {
+        setError('You cannot pay fees');
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }, [amount]);
+
   const isValid = (): boolean => {
+    if (error) return false;
     if (!balance || amount <= 0) return false;
-    if (amount > balance.amount) return false;
     if (recipientAddress === '') return false;
     return true;
   };
@@ -90,19 +131,14 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
 
       const wallet = walletFromCoins(utxos, network.chain);
       const psetBase64 = wallet.createTx();
-      const recipient: RecipientInterface = {
-        address: recipientAddress,
-        asset: balance?.asset || '',
-        value: toSatoshi(amount, balance?.precision),
-      };
 
       const identity = await getIdentityPromise;
       await identity.isRestored;
 
       const withdrawPset = wallet.buildTx(
         psetBase64,
-        [recipient],
-        greedyCoinSelector(),
+        [getRecipient()],
+        customCoinSelector(dispatch),
         (_: string) => identity.getNextChangeAddress().confidentialAddress,
         true
       );
@@ -133,7 +169,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         .extractTransaction()
         .toHex();
 
-      // TODO what should be done with txID ? displayed ?
       const txid = await broadcastTx(txHex, explorerURL);
       dispatch(
         addSuccessToast(
@@ -228,10 +263,10 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       <IonContent className="withdrawal">
         {balance && (
           <WithdrawRow
-            inputAmount={amount}
             balance={balance}
             price={price}
             onAmountChange={onAmountChange}
+            error={error}
           />
         )}
         <IonItem className="list-item">

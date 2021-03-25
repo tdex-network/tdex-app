@@ -1,12 +1,6 @@
 import { transactionsAssets } from './transactionsReducer';
 import { RESET_UTXOS, SET_PUBLIC_KEYS } from './../actions/walletActions';
-import {
-  AddressInterface,
-  UtxoInterface,
-  Outpoint,
-  isBlindedUtxo,
-  Mnemonic,
-} from 'ldk';
+import { AddressInterface, UtxoInterface, Outpoint, Mnemonic } from 'ldk';
 import { ActionType } from '../../utils/types';
 import {
   CLEAR_WALLET_STATE,
@@ -15,19 +9,14 @@ import {
   SET_UTXO,
   DELETE_UTXO,
 } from '../actions/walletActions';
-import { createSelector } from 'reselect';
-import { groupBy } from '../../utils/helpers';
-import { BalanceInterface } from '../actionTypes/walletActionTypes';
-import {
-  AssetConfig,
-  defaultPrecision,
-  getMainAsset,
-} from '../../utils/constants';
+import { tickerFromAssetHash, balancesFromUtxos } from '../../utils/helpers';
+import { defaultPrecision, getMainAsset } from '../../utils/constants';
 
 export interface WalletState {
   isAuth: boolean;
   addresses: AddressInterface[];
   utxos: Record<string, UtxoInterface>;
+  utxosLocks: Record<string, number>;
   masterPubKey: string;
   masterBlindKey: string;
 }
@@ -36,6 +25,7 @@ const initialState: WalletState = {
   isAuth: false,
   addresses: [],
   utxos: {},
+  utxosLocks: {},
   masterPubKey: '',
   masterBlindKey: '',
 };
@@ -49,6 +39,7 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
     case CLEAR_WALLET_STATE:
       return { ...initialState };
     case SET_UTXO:
+      // TO DO replace by Object.assign
       return addUtxoInState(state, action.payload);
     case DELETE_UTXO:
       return deleteUtxoInState(state, action.payload);
@@ -84,84 +75,42 @@ const deleteUtxoInState = (
   return { ...state, utxos: newUtxosMap };
 };
 
-const utxosMapSelector = ({ wallet }: { wallet: WalletState }) => wallet.utxos;
-export const allUtxosSelector = createSelector(utxosMapSelector, (utxosMap) =>
-  Array.from(Object.values(utxosMap))
-);
+export const allUtxosSelector = ({ wallet }: { wallet: WalletState }) => {
+  if (Object.keys(wallet.utxosLocks).length === 0)
+    return Object.values(wallet.utxos);
+
+  const utxos = [];
+  for (const [outpoint, utxo] of Object.entries(wallet.utxos)) {
+    if (outpoint in wallet.utxosLocks) continue;
+    utxos.push(utxo);
+  }
+
+  return utxos;
+};
 
 /**
- * Meomized selector for balance (computed from utxos)
+ * Redux selector returning balance interfaces array
+ * @param state
  */
-export const balancesSelector = createSelector(
-  allUtxosSelector,
-  transactionsAssets,
-  ({ assets }: { assets: Record<string, AssetConfig> }) => assets,
-  (
-    utxos: UtxoInterface[],
-    txsAssets: string[],
-    assets: Record<string, AssetConfig>
-  ) => {
-    const balances = balancesFromUtxos(utxos, assets);
-    const balancesAssets = balances.map((b) => b.asset);
-    for (const asset of txsAssets) {
-      if (balancesAssets.includes(asset)) continue;
-      // include a 'zero' balance if the user has previous transactions.
-      balances.push({
-        asset,
-        amount: 0,
-        ticker: assets[asset]?.ticker || tickerFromAssetHash(asset),
-        coinGeckoID: getMainAsset(asset)?.coinGeckoID,
-        precision: assets[asset]?.precision || defaultPrecision,
-      });
-    }
-
-    return balances;
-  }
-);
-
-// compute balances value from a set of utxos
-function balancesFromUtxos(
-  utxos: UtxoInterface[],
-  assets: Record<string, AssetConfig>
-): BalanceInterface[] {
-  const balances: BalanceInterface[] = [];
-  const utxosGroupedByAsset: Record<string, UtxoInterface[]> = groupBy(
-    utxos,
-    'asset'
-  );
-
-  for (const asset of Object.keys(utxosGroupedByAsset)) {
-    const utxosForAsset = utxosGroupedByAsset[asset];
-    const amount = sumUtxos(utxosForAsset);
-
-    const coinGeckoID = getMainAsset(asset)?.coinGeckoID;
+export const balancesSelector = (state: any) => {
+  const assets = state.assets;
+  const utxos = allUtxosSelector(state);
+  const txsAssets = transactionsAssets(state);
+  const balances = balancesFromUtxos(utxos, assets);
+  const balancesAssets = balances.map((b) => b.asset);
+  for (const asset of txsAssets) {
+    if (balancesAssets.includes(asset)) continue;
+    // include a 'zero' balance if the user has previous transactions.
     balances.push({
       asset,
-      amount,
+      amount: 0,
       ticker: assets[asset]?.ticker || tickerFromAssetHash(asset),
-      coinGeckoID,
+      coinGeckoID: getMainAsset(asset)?.coinGeckoID,
       precision: assets[asset]?.precision || defaultPrecision,
     });
   }
 
   return balances;
-}
-
-function sumUtxos(utxos: UtxoInterface[]): number {
-  let sum = 0;
-  for (const utxo of utxos) {
-    if (!isBlindedUtxo(utxo) && utxo.value) {
-      sum += utxo.value;
-    }
-  }
-  return sum;
-}
-
-export function tickerFromAssetHash(assetHash?: string): string {
-  if (!assetHash) return '';
-  const mainAsset = getMainAsset(assetHash);
-  if (mainAsset) return mainAsset.ticker;
-  return assetHash.slice(0, 4).toUpperCase();
-}
+};
 
 export default walletReducer;

@@ -1,11 +1,14 @@
 import { connect } from 'react-redux';
 import Withdrawal from '../../pages/Withdrawal';
 
-import { balancesSelector } from '../reducers/walletReducer';
+import { allUtxosSelector, balancesSelector } from '../reducers/walletReducer';
 
 const mapStateToProps = (state: any) => {
   return {
     balances: balancesSelector(state),
+    utxos: allUtxosSelector(state),
+    prices: state.rates.prices,
+    explorerURL: state.settings.explorerUrl,
   };
 };
 

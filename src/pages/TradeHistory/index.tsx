@@ -16,10 +16,9 @@ import {
 } from '@ionic/react';
 import { IconBack, CurrencyIcon } from '../../components/icons';
 import { checkmarkOutline } from 'ionicons/icons';
-import { fromSatoshiFixed } from '../../utils/helpers';
+import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
 import classNames from 'classnames';
 import { TxDisplayInterface } from '../../utils/types';
-import { tickerFromAssetHash } from '../../redux/reducers/walletReducer';
 import './style.scss';
 import { LBTC_TICKER } from '../../utils/constants';
 
@@ -135,7 +134,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
                         </IonLabel>
                         <IonText>
                           {fromSatoshiFixed(transferSent.amount, 8, 8)}{' '}
-                          <span className="currency">{' ' + tickerSent}</span>
+                          <span className="currency">{tickerSent}</span>
                         </IonText>
                       </div>
                       <div className="info-row">

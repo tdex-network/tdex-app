@@ -10,18 +10,17 @@ import {
   IonToolbar,
   IonHeader,
   IonIcon,
-  IonLoading,
   useIonViewDidLeave,
   IonSkeletonText,
+  useIonViewDidEnter,
 } from '@ionic/react';
 import { CurrencyIcon, IconBack } from '../../components/icons';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
-import { tickerFromAssetHash } from '../../redux/reducers/walletReducer';
-import { fromSatoshiFixed } from '../../utils/helpers';
+import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
 import { swapHorizontal } from 'ionicons/icons';
-import { update } from '../../redux/actions/appActions';
 import './style.scss';
 import { AssetConfig } from '../../utils/constants';
+import { updateTransactions } from '../../redux/actions/transactionsActions';
 
 export interface PreviewData {
   sent: {
@@ -43,26 +42,23 @@ interface TradeSummaryProps
   assets: Record<string, AssetConfig>;
 }
 
-const TradeSummary: React.FC<TradeSummaryProps> = ({
-  history,
-  location,
-  assets,
-}) => {
+const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
   const preview = location.state?.preview;
   const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();
   const transaction = useSelector(transactionSelector(txid));
   const [intervalUpdater, setIntervalUpdater] = useState<NodeJS.Timeout>();
 
-  useEffect(() => {
+  useIonViewDidEnter(() => {
     if (!transaction) {
+      dispatch(updateTransactions());
       setIntervalUpdater(
         setInterval(() => {
-          dispatch(update());
-        }, 10000)
+          dispatch(updateTransactions());
+        }, 8_000)
       );
     }
-  }, []);
+  });
 
   useEffect(() => {
     if (transaction && intervalUpdater) {
@@ -128,7 +124,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({
         </IonToolbar>
       </IonHeader>
       <IonContent className="trade-summary">
-        {transaction || preview ? (
+        {(transaction || preview) && (
           <div>
             <div className="transaction-icons">
               <span className="icon-wrapper large">
@@ -217,8 +213,6 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({
               </IonButton>
             </div>
           </div>
-        ) : (
-          <IonLoading isOpen={true} message="loading..." />
         )}
       </IonContent>
     </IonPage>

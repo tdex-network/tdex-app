@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import './style.scss';
 import { CurrencyIcon } from '../icons';
-import { IonInput, useIonViewDidEnter, useIonViewDidLeave } from '@ionic/react';
+import {
+  IonInput,
+  IonText,
+  useIonViewDidEnter,
+  useIonViewDidLeave,
+} from '@ionic/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
@@ -10,19 +14,20 @@ import {
   onPressEnterKeyCloseKeyboard,
   setAccessoryBar,
 } from '../../utils/keyboard';
+import './style.scss';
 
 interface WithdrawRowInterface {
   balance: BalanceInterface;
   price: number | undefined;
   onAmountChange: (amount: number | undefined) => void;
-  inputAmount: number;
+  error: string;
 }
 
 const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   balance,
   price,
   onAmountChange,
-  inputAmount,
+  error,
 }) => {
   const currency = useSelector((state: any) => state.settings.currency);
   const [residualBalance, setResidualBalance] = useState<string>(
@@ -58,7 +63,8 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
       return;
     }
 
-    const val = parseFloat(value);
+    const val = parseFloat(value.replace(',', '.'));
+    onAmountChange(val);
     const residualAmount = fromSatoshi(balance.amount, balance.precision) - val;
     setResidualBalance(
       residualAmount.toLocaleString(undefined, {
@@ -66,7 +72,6 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
       })
     );
     if (price) setFiat((val * price).toFixed(2));
-    onAmountChange(val);
   };
 
   return (
@@ -81,11 +86,12 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
         <div className="ion-text-end">
           <IonInput
             inputmode="decimal"
-            value={inputAmount || ''}
             placeholder="0.00"
             className="amount-input"
             autofocus={true}
             onIonChange={(e) => handleAmountChange(e.detail.value)}
+            color={error && 'danger'}
+            debounce={400}
             onKeyDown={onPressEnterKeyCloseKeyboard}
             enterkeyhint="done"
           />
@@ -99,7 +105,9 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
           </p>
         </div>
         <div>
-          {price && (
+          {error ? (
+            <IonText color="danger">{error}</IonText>
+          ) : (
             <p>
               {fiat} {currency && currency.toUpperCase()}
             </p>
