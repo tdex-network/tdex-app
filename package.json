@@ -52,7 +52,8 @@
     "lint": "npx eslint './src/**/*.ts*'",
     "lint:fix": "npx eslint './src/**/*.ts*' --fix",
     "test": "BABEL_ENV=test npx jest",
-    "build": "npx ionic build"
+    "build": "npx ionic build",
+    "resources": "npx cordova-res ios && npx cordova-res android && node scripts/resources.js"
   },
   "eslintConfig": {
     "extends": "react-app"
