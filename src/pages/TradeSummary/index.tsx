@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
 import {
@@ -10,18 +10,15 @@ import {
   IonToolbar,
   IonHeader,
   IonIcon,
-  useIonViewDidLeave,
   IonSkeletonText,
-  useIonViewDidEnter,
 } from '@ionic/react';
 import { CurrencyIcon, IconBack } from '../../components/icons';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
 import { swapHorizontal } from 'ionicons/icons';
-import './style.scss';
 import { AssetConfig } from '../../utils/constants';
-import { updateTransactions } from '../../redux/actions/transactionsActions';
 import { update } from '../../redux/actions/appActions';
+import './style.scss';
 
 export interface PreviewData {
   sent: {

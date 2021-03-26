@@ -36,7 +36,6 @@ import Refresher from '../../components/Refresher';
 import { UtxoInterface } from 'ldk';
 import { AssetConfig, defaultPrecision } from '../../utils/constants';
 import { Dispatch } from 'redux';
-import { updateUtxos } from '../../redux/actions/walletActions';
 
 interface ExchangeProps extends RouteComponentProps {
   balances: BalanceInterface[];
