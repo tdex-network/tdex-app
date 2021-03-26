@@ -20,18 +20,13 @@ function getTransfers(
 ): Transfer[] {
   const transfers: Transfer[] = [];
 
-  const addToTransfers = (
-    amountToAdd: number,
-    asset: string,
-    isInput: boolean
-  ) => {
-    let amount = amountToAdd;
-    if (isInput) amount = -amountToAdd;
+  const addToTransfers = (amount: number, asset: string) => {
     const transferIndex = transfers.findIndex(
       (t) => t.asset.valueOf() === asset.valueOf()
     );
+
     if (transferIndex >= 0) {
-      transfers[transferIndex].amount += amountToAdd;
+      transfers[transferIndex].amount += amount;
       return;
     }
 
@@ -46,7 +41,7 @@ function getTransfers(
       !isBlindedOutputInterface(input.prevout) &&
       walletScripts.includes(input.prevout.script)
     ) {
-      addToTransfers(input.prevout.value, input.prevout.asset, true);
+      addToTransfers(-1 * input.prevout.value, input.prevout.asset);
     }
   }
 
@@ -56,7 +51,7 @@ function getTransfers(
       walletScripts.includes(output.script) &&
       output.script !== ''
     ) {
-      addToTransfers(output.value, output.asset, false);
+      addToTransfers(output.value, output.asset);
     }
   }
 
@@ -74,15 +69,11 @@ export function txTypeFromTransfer(transfers: Transfer[]) {
     }
   }
 
-  if (
-    transfers.length >= 2 &&
-    transfers.find((t) => t.amount < 0) &&
-    transfers.find((t) => t.amount > 0)
-  ) {
+  if (transfers.length >= 2) {
     return TxTypeEnum.Swap;
   }
 
-  return TxTypeEnum.Exchange;
+  return TxTypeEnum.Unknow;
 }
 
 /**

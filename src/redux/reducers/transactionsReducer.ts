@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { TxInterface, AddressInterface, address } from 'ldk';
+import { TxInterface } from 'ldk';
 import { ActionType, TxDisplayInterface, TxTypeEnum } from '../../utils/types';
 import { SET_TRANSACTION } from '../actions/transactionsActions';
 import { toDisplayTransaction } from '../transformers/transactionsTransformer';
@@ -43,53 +43,44 @@ export const transactionsSelector = ({
 // meomized selector, map transactions to TxDisplayInterface[]
 export const transactionsToDisplaySelector = createSelector(
   transactionsSelector,
-  (state: any) => state.wallet.addresses,
-  (txs: TxInterface[], addresses: AddressInterface[]) => {
-    const scripts = addressesToScripts(addresses);
+  (state: any) => Object.keys(state.wallet.addresses),
+  (txs: TxInterface[], scripts: string[]) => {
     return txs.map((tx) => toDisplayTransaction(tx, scripts));
   }
 );
 
 // fetch txs using transactionsToDisplaySelector and filter by asset.
 // i.e return the transaction if one of the transfer contains the asset.
-export const transactionsByAssetSelector = (asset: string) => (state: any) => {
-  const txs = transactionsToDisplaySelector(state);
-  return txs.filter((tx) => tx.transfers.map((t) => t.asset).includes(asset));
-};
+export const transactionsByAssetSelector = (asset: string) =>
+  createSelector(transactionsToDisplaySelector, (txs) =>
+    txs.filter((tx) => tx.transfers.map((t) => t.asset).includes(asset))
+  );
 
 // returns all the assets of transactions
-export const transactionsAssets = (state: any): string[] => {
-  const txs = transactionsToDisplaySelector(state);
-  const transfersAsset = txs.flatMap((t) =>
-    t.transfers.map((transfer) => transfer.asset)
-  );
-  const withoutDuplicateAssets = [...new Set(transfersAsset)];
-  return withoutDuplicateAssets;
-};
+export const transactionsAssets = createSelector(
+  transactionsToDisplaySelector,
+  (txs) => {
+    const transfersAsset = txs.flatMap((t) =>
+      t.transfers.map((transfer) => transfer.asset)
+    );
+    const withoutDuplicateAssets = [...new Set(transfersAsset)];
+    return withoutDuplicateAssets;
+  }
+);
 
 // get a specific transaction with txid
-export const transactionSelector = (txID: string) => ({
-  transactions,
-  wallet,
-}: {
-  transactions: TransactionState;
-  wallet: WalletState;
-}) => {
-  const tx = transactions.txs[txID];
-  if (!tx) return undefined;
-  return toDisplayTransaction(tx, addressesToScripts(wallet.addresses));
-};
+export const transactionSelector = (txID: string) =>
+  createSelector(
+    ({ transactions }: { transactions: TransactionState }) =>
+      transactions.txs[txID],
+    ({ wallet }: { wallet: WalletState }) => Object.keys(wallet.addresses),
+    (tx, scripts) => (tx ? toDisplayTransaction(tx, scripts) : undefined)
+  );
 
 // filter by transaction type
 export const tradeTransactionsSelector = createSelector(
   transactionsToDisplaySelector,
   (txs: TxDisplayInterface[]) => txs.filter((tx) => tx.type === TxTypeEnum.Swap)
 );
-
-function addressesToScripts(addresses: AddressInterface[]): string[] {
-  return addresses.map((a) =>
-    address.toOutputScript(a.confidentialAddress).toString('hex')
-  );
-}
 
 export default transactionsReducer;

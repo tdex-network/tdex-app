@@ -1,8 +1,8 @@
+import { WalletState } from './../reducers/walletReducer';
 import {
   BlindingKeyGetter,
   TxInterface,
   fetchAndUnblindTxsGenerator,
-  address,
   AddressInterface,
   isBlindedOutputInterface,
 } from 'ldk';
@@ -20,22 +20,24 @@ import {
   UPDATE_TRANSACTIONS,
 } from '../actions/transactionsActions';
 import { addErrorToast } from '../actions/toastActions';
-import { getAddressesFromStorage } from '../../utils/storage-helper';
 import { addAsset } from '../actions/assetsActions';
 
 function* updateTransactions({ type }: { type: string }) {
   try {
-    const [addresses, txs, explorerURL]: [
-      AddressInterface[],
-      Record<string, TxInterface>,
+    const [addresses, explorerURL]: [
+      Record<string, AddressInterface>,
       string
     ] = yield all([
-      call(getAddressesFromStorage),
-      select(({ transactions }) => transactions.txs),
+      select(({ wallet }: { wallet: WalletState }) => wallet.addresses),
       select(({ settings }) => settings.explorerUrl),
     ]);
 
-    yield call(fetchAndUpdateTxs, addresses, txs, explorerURL);
+    const toSearch: string[] = [];
+    for (const { confidentialAddress } of Object.values(addresses)) {
+      toSearch.unshift(confidentialAddress);
+    }
+
+    yield call(fetchAndUpdateTxs, toSearch, addresses, explorerURL);
   } catch (e) {
     console.error(e);
     yield put(
@@ -46,31 +48,18 @@ function* updateTransactions({ type }: { type: string }) {
 
 /**
  * Saga launched in order to update the transactions state
- * @param addressesInterfaces
- * @param currentTxs
- * @param explorerUrl
+ * @param addresses a set of addresses to search transactions.
+ * @param scriptsToAddressInterface a record using to build a BlindingKeyGetter.
+ * @param explorerUrl esplora URL used to fetch transactions.
  */
 export function* fetchAndUpdateTxs(
-  addressesInterfaces: AddressInterface[],
-  currentTxs: Record<string, TxInterface>,
+  addresses: string[],
+  scriptsToAddressInterface: Record<string, AddressInterface>,
   explorerUrl: string
 ) {
-  const addresses: string[] = [];
-  const scriptToBlindingPrivKey: Record<string, string> = {};
-
-  for (const addrI of addressesInterfaces) {
-    addresses.push(addrI.confidentialAddress);
-    if (addrI.blindingPrivateKey.length > 0) {
-      const script = address
-        .toOutputScript(addrI.confidentialAddress)
-        .toString('hex');
-      scriptToBlindingPrivKey[script] = addrI.blindingPrivateKey;
-    }
-  }
-
   const identityBlindKeyGetter: BlindingKeyGetter = (script: string) => {
     try {
-      return scriptToBlindingPrivKey[script];
+      return scriptsToAddressInterface[script]?.blindingPrivateKey;
     } catch (_) {
       return undefined;
     }
@@ -79,9 +68,7 @@ export function* fetchAndUpdateTxs(
   const txsGen = fetchAndUnblindTxsGenerator(
     addresses,
     identityBlindKeyGetter,
-    explorerUrl,
-    (tx) =>
-      currentTxs[tx.txid] != undefined && currentTxs[tx.txid].status.confirmed
+    explorerUrl
   );
   const next = () => txsGen.next();
   let it: IteratorResult<TxInterface, number> = yield call(next);

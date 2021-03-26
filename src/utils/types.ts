@@ -8,7 +8,7 @@ export enum TxTypeEnum {
   Deposit = 1,
   Withdraw = 2,
   Swap = 3,
-  Exchange = 4,
+  Unknow = 4,
 }
 
 export interface TxDisplayInterface {

@@ -32,9 +32,8 @@ import {
   fromSatoshi,
   toSatoshi,
 } from '../../utils/helpers';
-import { setAddresses } from '../../redux/actions/walletActions';
 import { Psbt } from 'liquidjs-lib';
-import { getIdentity } from '../../utils/storage-helper';
+import { getConnectedIdentity } from '../../utils/storage-helper';
 import PinModal from '../../components/PinModal';
 import {
   addErrorToast,
@@ -127,7 +126,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     try {
       if (!isValid()) return;
       setLoading(true);
-      const getIdentityPromise = getIdentity(pin);
+      const getIdentityPromise = getConnectedIdentity(pin, dispatch);
 
       const wallet = walletFromCoins(utxos, network.chain);
       const psetBase64 = wallet.createTx();
@@ -175,7 +174,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
           `Transaction broadcasted. ${amount} ${balance?.ticker} sent.`
         )
       );
-      dispatch(setAddresses(identity.getAddresses()));
       dispatch(update());
       setModalOpen(false);
       history.push(`/withdraw/${txid}/details`, {

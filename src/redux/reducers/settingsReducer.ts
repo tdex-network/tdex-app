@@ -14,7 +14,10 @@ const initialState: SettingsState = {
   theme: 'dark',
 };
 
-const settingsReducer = (state: any = initialState, action: ActionType) => {
+const settingsReducer = (
+  state: SettingsState = initialState,
+  action: ActionType
+) => {
   switch (action.type) {
     case SET_ELECTRUM_SERVER:
       return {

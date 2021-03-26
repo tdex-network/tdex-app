@@ -19,7 +19,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Clipboard } from '@ionic-native/clipboard';
 import { QRCodeImg } from '@cheprasov/react-qrcode';
 import { checkmarkOutline } from 'ionicons/icons';
-import { setAddresses } from '../../redux/actions/walletActions';
 import {
   AddressInterface,
   IdentityOpts,
@@ -32,7 +31,8 @@ import {
 } from '../../redux/actions/toastActions';
 import { WalletState } from '../../redux/reducers/walletReducer';
 import { network } from '../../redux/config';
-import { IdentityRestorerFromState } from '../../utils/identity-restorer';
+import { IdentityRestorerFromState } from '../../utils/identity';
+import { addAddress } from '../../redux/actions/walletActions';
 
 const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   const [copied, setCopied] = useState(false);
@@ -52,7 +52,9 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
           masterPublicKey: wallet.masterPubKey,
         },
         initializeFromRestorer: true,
-        restorer: new IdentityRestorerFromState(wallet.addresses),
+        restorer: new IdentityRestorerFromState(
+          Object.values(wallet.addresses)
+        ),
       };
     }
   );
@@ -90,9 +92,10 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
     );
     masterPublicKey.isRestored
       .then(() => {
-        setAddress(masterPublicKey.getNextAddress());
+        const addr = masterPublicKey.getNextAddress();
+        dispatch(addAddress(addr));
+        setAddress(addr);
         setLoading(false);
-        dispatch(setAddresses(masterPublicKey.getAddresses()));
         dispatch(addSuccessToast('New address added to your account.'));
       })
       .catch((e) => {

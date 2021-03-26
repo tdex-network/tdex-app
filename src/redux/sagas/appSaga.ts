@@ -1,5 +1,9 @@
 import { updateMarkets } from './../actions/tdexActions';
-import { setPublicKeys, updateUtxos } from './../actions/walletActions';
+import {
+  addAddress,
+  setPublicKeys,
+  updateUtxos,
+} from './../actions/walletActions';
 import { ActionType } from './../../utils/types';
 import { waitForRestore } from './../services/walletService';
 import { takeLatest, put, call, all } from 'redux-saga/effects';
@@ -12,7 +16,7 @@ import {
   UPDATE,
   setBackupDone,
 } from '../actions/appActions';
-import { setAddresses, setIsAuth } from '../actions/walletActions';
+import { setIsAuth } from '../actions/walletActions';
 import { restoreTheme } from '../actions/settingsActions';
 import { Mnemonic } from 'ldk';
 import { getIdentity, seedBackupFlag } from '../../utils/storage-helper';
@@ -37,7 +41,9 @@ function* signInSaga(action: ActionType) {
     yield all([call(waitForRestore, identity), put(setPublicKeys(identity))]);
 
     const addresses = identity.getAddresses();
-    yield put(setAddresses(addresses));
+    for (const addr of addresses) {
+      yield put(addAddress(addr));
+    }
 
     // set the backup flag
     const backup = yield call(seedBackupFlag);

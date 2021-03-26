@@ -28,8 +28,7 @@ import {
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import PinModal from '../../components/PinModal';
-import { getIdentity } from '../../utils/storage-helper';
-import { setAddresses } from '../../redux/actions/walletActions';
+import { getConnectedIdentity } from '../../utils/storage-helper';
 import { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import { swapVerticalOutline } from 'ionicons/icons';
 import { PreviewData } from '../TradeSummary';
@@ -37,6 +36,7 @@ import Refresher from '../../components/Refresher';
 import { UtxoInterface } from 'ldk';
 import { AssetConfig, defaultPrecision } from '../../utils/constants';
 import { Dispatch } from 'redux';
+import { updateUtxos } from '../../redux/actions/walletActions';
 
 interface ExchangeProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -115,9 +115,9 @@ const Exchange: React.FC<ExchangeProps> = ({
       setIsFocused('');
       setModalOpen(false);
       setLoading(true);
-      const identity = await getIdentity(pin);
+      const identity = await getConnectedIdentity(pin, dispatch);
       if (!trade) return;
-      const { txid, identityAddresses } = await makeTrade(
+      const txid = await makeTrade(
         trade,
         {
           amount: toSatoshi(
@@ -132,7 +132,6 @@ const Exchange: React.FC<ExchangeProps> = ({
         customCoinSelector(dispatch)
       );
 
-      dispatch(setAddresses(identityAddresses));
       addSuccessToast('Trade successfully computed');
       const preview: PreviewData = {
         sent: {

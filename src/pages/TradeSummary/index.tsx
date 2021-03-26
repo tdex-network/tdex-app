@@ -21,6 +21,7 @@ import { swapHorizontal } from 'ionicons/icons';
 import './style.scss';
 import { AssetConfig } from '../../utils/constants';
 import { updateTransactions } from '../../redux/actions/transactionsActions';
+import { update } from '../../redux/actions/appActions';
 
 export interface PreviewData {
   sent: {
@@ -47,31 +48,16 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
   const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();
   const transaction = useSelector(transactionSelector(txid));
-  const [intervalUpdater, setIntervalUpdater] = useState<NodeJS.Timeout>();
-
-  useIonViewDidEnter(() => {
-    if (!transaction) {
-      dispatch(updateTransactions());
-      setIntervalUpdater(
-        setInterval(() => {
-          dispatch(updateTransactions());
-        }, 8_000)
-      );
-    }
-  });
 
   useEffect(() => {
-    if (transaction && intervalUpdater) {
-      clearInterval(intervalUpdater);
-      setIntervalUpdater(undefined);
+    if (!transaction) {
+      dispatch(update());
+      const interval = setInterval(() => {
+        dispatch(update());
+      }, 8_000);
+      return clearInterval(interval);
     }
-  }, [transaction]);
-
-  useIonViewDidLeave(() => {
-    if (intervalUpdater) {
-      clearInterval(intervalUpdater);
-    }
-  });
+  }, [preview, txid]);
 
   const SentCurrencyIcon: React.FC<{ width: string; height: string }> = ({
     width,
@@ -206,8 +192,8 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
             </IonItem>
             <div className="buttons">
               <IonButton
-                routerLink="/history"
                 className="main-button secondary"
+                onClick={() => history.replace('/history')}
               >
                 Trade history
               </IonButton>
