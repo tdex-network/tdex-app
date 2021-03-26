@@ -14,7 +14,6 @@ import {
 } from '@ionic/react';
 import ExchangeRow from '../../redux/containers/exchangeRowContainer';
 import classNames from 'classnames';
-import './style.scss';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import {
   allTrades,
@@ -36,6 +35,8 @@ import Refresher from '../../components/Refresher';
 import { UtxoInterface } from 'ldk';
 import { AssetConfig, defaultPrecision } from '../../utils/constants';
 import { Dispatch } from 'redux';
+
+import './style.scss';
 
 interface ExchangeProps extends RouteComponentProps {
   balances: BalanceInterface[];

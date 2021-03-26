@@ -99,10 +99,12 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
       </div>
       <div className="exchanger-row sub-row">
         <div>
-          <p>
-            Residual balance: {residualBalance ? residualBalance : ''}{' '}
-            {balance.ticker.toUpperCase()}{' '}
-          </p>
+          {!error && (
+            <p>
+              Residual balance: {residualBalance ? residualBalance : ''}{' '}
+              {balance.ticker.toUpperCase()}{' '}
+            </p>
+          )}
         </div>
         <div>
           {error ? (
