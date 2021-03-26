@@ -1,14 +1,17 @@
 import { updateRates } from './../actions/ratesActions';
-import { WalletState, outpointToString } from './../reducers/walletReducer';
 import {
-  SET_ADDRESSES,
+  WalletState,
+  outpointToString,
+  addressesSelector,
+} from './../reducers/walletReducer';
+import {
   UPDATE_UTXOS,
-  updateUtxos,
   setUtxo,
   deleteUtxo,
   resetUtxos,
   LOCK_UTXO,
   unlockUtxo,
+  ADD_ADDRESS,
 } from './../actions/walletActions';
 import {
   takeLatest,
@@ -30,15 +33,9 @@ import {
   setAddressesInStorage,
 } from '../../utils/storage-helper';
 
-function* persistAddresses({
-  type,
-  payload,
-}: {
-  type: string;
-  payload: AddressInterface[];
-}) {
-  yield call(setAddressesInStorage, payload);
-  yield put(updateUtxos());
+function* persistAddresses({ type }: { type: string }) {
+  const addresses = yield select(addressesSelector);
+  yield call(setAddressesInStorage, addresses);
 }
 
 function* updateUtxosState({ type }: { type: string }) {
@@ -114,7 +111,7 @@ function* waitAndUnlock({ type, payload }: { type: string; payload: string }) {
 }
 
 export function* walletWatcherSaga() {
-  yield takeLatest(SET_ADDRESSES, persistAddresses);
+  yield takeLatest(ADD_ADDRESS, persistAddresses);
   yield takeLatest(UPDATE_UTXOS, updateUtxosState);
   yield takeEvery(LOCK_UTXO, waitAndUnlock);
 }

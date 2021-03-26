@@ -4,8 +4,9 @@ import { AddressInterface, IdentityOpts, IdentityType, Mnemonic } from 'ldk';
 import 'capacitor-secure-storage-plugin';
 import { decrypt, encrypt, Encrypted } from './crypto';
 import { network } from '../redux/config';
-import { IdentityRestorerFromState } from './identity-restorer';
+import { IdentityRestorerFromState, MnemonicRedux } from './identity';
 import { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
+import { Dispatch } from 'redux';
 
 const { SecureStoragePlugin } = Plugins;
 
@@ -138,6 +139,19 @@ async function clear() {
     Storage.remove({ key: ADDRESSES_KEY }),
     Storage.remove({ key: SEED_BACKUP_FLAG_KEY }),
   ]);
+}
+
+/**
+ * get the identityOpts object and construct a new Mnemonic Identity connected to redux store
+ * @param pin using to decrypt the mnemonic
+ * @param dispatch using to dispatch action to store
+ */
+export async function getConnectedIdentity(
+  pin: string,
+  dispatch: Dispatch
+): Promise<MnemonicRedux> {
+  const opts = await getIdentityOpts(pin);
+  return new MnemonicRedux(opts, dispatch);
 }
 
 /**

@@ -1,20 +1,20 @@
 import { transactionsAssets } from './transactionsReducer';
-import { RESET_UTXOS, SET_PUBLIC_KEYS } from './../actions/walletActions';
 import { AddressInterface, UtxoInterface, Outpoint, Mnemonic } from 'ldk';
 import { ActionType } from '../../utils/types';
 import {
-  CLEAR_WALLET_STATE,
   SET_IS_AUTH,
-  SET_ADDRESSES,
   SET_UTXO,
   DELETE_UTXO,
+  ADD_ADDRESS,
+  RESET_UTXOS,
+  SET_PUBLIC_KEYS,
 } from '../actions/walletActions';
 import { tickerFromAssetHash, balancesFromUtxos } from '../../utils/helpers';
 import { defaultPrecision, getMainAsset } from '../../utils/constants';
 
 export interface WalletState {
   isAuth: boolean;
-  addresses: AddressInterface[];
+  addresses: Record<string, AddressInterface>;
   utxos: Record<string, UtxoInterface>;
   utxosLocks: Record<string, number>;
   masterPubKey: string;
@@ -23,7 +23,7 @@ export interface WalletState {
 
 const initialState: WalletState = {
   isAuth: false,
-  addresses: [],
+  addresses: {},
   utxos: {},
   utxosLocks: {},
   masterPubKey: '',
@@ -32,12 +32,16 @@ const initialState: WalletState = {
 
 function walletReducer(state = initialState, action: ActionType): WalletState {
   switch (action.type) {
-    case SET_ADDRESSES:
-      return { ...state, addresses: action.payload };
+    case ADD_ADDRESS:
+      return {
+        ...state,
+        addresses: {
+          ...state.addresses,
+          [action.payload.script]: action.payload.address,
+        },
+      };
     case SET_IS_AUTH:
       return { ...state, isAuth: action.payload };
-    case CLEAR_WALLET_STATE:
-      return { ...initialState };
     case SET_UTXO:
       // TO DO replace by Object.assign
       return addUtxoInState(state, action.payload);
@@ -111,6 +115,10 @@ export const balancesSelector = (state: any) => {
   }
 
   return balances;
+};
+
+export const addressesSelector = ({ wallet }: { wallet: WalletState }) => {
+  return Object.values(wallet.addresses);
 };
 
 export default walletReducer;

@@ -1,9 +1,35 @@
 import {
   AddressInterface,
   EsploraIdentityRestorer,
+  IdentityInterface,
+  IdentityOpts,
   IdentityRestorerInterface,
+  Mnemonic,
 } from 'ldk';
+import { Dispatch } from 'redux';
+import { addAddress } from '../redux/actions/walletActions';
 import { network } from '../redux/config';
+
+export class MnemonicRedux extends Mnemonic implements IdentityInterface {
+  private dispatch: Dispatch;
+
+  constructor(args: IdentityOpts, dispatch: Dispatch) {
+    super(args);
+    this.dispatch = dispatch;
+  }
+
+  getNextAddress(): AddressInterface {
+    const nextAddr = super.getNextAddress();
+    this.dispatch(addAddress(nextAddr));
+    return nextAddr;
+  }
+
+  getNextChangeAddress(): AddressInterface {
+    const nextAddr = super.getNextChangeAddress();
+    this.dispatch(addAddress(nextAddr));
+    return nextAddr;
+  }
+}
 
 export class IdentityRestorerFromState implements IdentityRestorerInterface {
   static esploraIdentityRestorer = new EsploraIdentityRestorer(

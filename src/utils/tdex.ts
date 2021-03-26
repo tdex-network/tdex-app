@@ -1,9 +1,4 @@
-import {
-  AddressInterface,
-  CoinSelector,
-  IdentityInterface,
-  UtxoInterface,
-} from 'ldk';
+import { CoinSelector, IdentityInterface, UtxoInterface } from 'ldk';
 import { Trade, TraderClient, TradeType } from 'tdex-sdk';
 import {
   TDEXTrade,
@@ -87,7 +82,7 @@ export async function makeTrade(
   utxos: UtxoInterface[],
   identity: IdentityInterface,
   coinSelector: CoinSelector
-): Promise<{ txid: string; identityAddresses: AddressInterface[] }> {
+): Promise<string> {
   const trader = new Trade({
     explorerUrl,
     providerUrl: trade.market.provider.endpoint,
@@ -111,10 +106,7 @@ export async function makeTrade(
     throw new Error('Invalid trade type');
   }
 
-  return {
-    txid,
-    identityAddresses: identity.getAddresses(),
-  };
+  return txid;
 }
 
 export function allTrades(

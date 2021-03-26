@@ -1,4 +1,4 @@
-import { AddressInterface, TxInterface } from 'ldk';
+import { TxInterface, address } from 'ldk';
 import { ActionType } from './../../src/utils/types';
 import { CallEffect, PutEffect } from 'redux-saga/effects';
 import { faucet, firstAddress, APIURL, sleep } from '../test-utils';
@@ -16,7 +16,7 @@ describe('Transaction saga', () => {
         })
 
         test('should discover and add new transaction', async () => {
-            const gen = fetchAndUpdateTxs([firstAddress], {}, APIURL)
+            const gen = fetchAndUpdateTxs([firstAddress.confidentialAddress], { [address.toOutputScript(firstAddress.confidentialAddress).toString('hex')]: firstAddress }, APIURL)
             // simulate the first call
             const callEffect = gen.next().value as CallEffect<IteratorResult<TxInterface, number>>
             const result = await callEffect.payload.fn()

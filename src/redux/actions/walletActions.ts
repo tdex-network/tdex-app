@@ -1,11 +1,15 @@
 import { ActionType } from '../../utils/types';
-import { AddressInterface, Mnemonic, Outpoint, UtxoInterface } from 'ldk';
+import {
+  AddressInterface,
+  Mnemonic,
+  Outpoint,
+  UtxoInterface,
+  address as addr,
+} from 'ldk';
 import { outpointToString } from '../reducers/walletReducer';
 
 export const SET_IS_AUTH = 'SET_IS_AUTH';
-export const CLEAR_WALLET_STATE = 'CLEAR_WALLET_STATE';
-export const SET_BALANCES = 'SET_BALANCES';
-export const SET_ADDRESSES = 'SET_ADDRESSES';
+export const ADD_ADDRESS = 'ADD_ADDRESS';
 export const UPDATE_UTXOS = 'UPDATE_UTXOS';
 export const SET_UTXO = 'SET_UTXO';
 export const DELETE_UTXO = 'DELETE_UTXO';
@@ -13,6 +17,16 @@ export const RESET_UTXOS = 'RESET_UTXOS';
 export const SET_PUBLIC_KEYS = 'SET_PUBLIC_KEYS';
 export const LOCK_UTXO = 'LOCK_UTXO';
 export const UNLOCK_UTXO = 'UNLOCK_UTXO';
+
+export const addAddress = (address: AddressInterface) => {
+  return {
+    type: ADD_ADDRESS,
+    payload: {
+      script: addr.toOutputScript(address.confidentialAddress).toString('hex'),
+      address,
+    },
+  };
+};
 
 export const lockUtxo = (txid: string, vout: number) => {
   return {
@@ -61,22 +75,9 @@ export const deleteUtxo = (outpoint: Outpoint): ActionType => {
   };
 };
 
-export const setAddresses = (addresses: AddressInterface[]): ActionType => {
-  return {
-    type: SET_ADDRESSES,
-    payload: addresses,
-  };
-};
-
 export const setIsAuth = (isAuth: boolean): ActionType => {
   return {
     type: SET_IS_AUTH,
     payload: isAuth,
-  };
-};
-
-export const clearWalletState = (): ActionType => {
-  return {
-    type: CLEAR_WALLET_STATE,
   };
 };

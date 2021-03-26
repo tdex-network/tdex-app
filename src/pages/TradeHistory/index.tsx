@@ -86,7 +86,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
                     open: true,
                   })}
                   onClick={() => {
-                    history.push(`/tradesummary/${transaction.txId}`);
+                    history.replace(`/tradesummary/${transaction.txId}`);
                   }}
                   key={transaction.txId}
                 >
