@@ -28,10 +28,7 @@ import {
   fetchAndUnblindUtxosGenerator,
 } from 'ldk';
 import { addErrorToast } from '../actions/toastActions';
-import {
-  getAddressesFromStorage,
-  setAddressesInStorage,
-} from '../../utils/storage-helper';
+import { setAddressesInStorage } from '../../utils/storage-helper';
 
 function* persistAddresses({ type }: { type: string }) {
   const addresses = yield select(addressesSelector);
@@ -45,7 +42,9 @@ function* updateUtxosState({ type }: { type: string }) {
       Record<string, UtxoInterface>,
       string
     ] = yield all([
-      call(getAddressesFromStorage),
+      select(({ wallet }: { wallet: WalletState }) =>
+        Object.values(wallet.addresses)
+      ),
       select(({ wallet }: { wallet: WalletState }) => wallet.utxos),
       select(({ settings }) => settings.explorerUrl),
     ]);

@@ -21,15 +21,18 @@ import {
 } from '../actions/transactionsActions';
 import { addErrorToast } from '../actions/toastActions';
 import { addAsset } from '../actions/assetsActions';
+import moment from 'moment';
 
 function* updateTransactions({ type }: { type: string }) {
   try {
-    const [addresses, explorerURL]: [
+    const [addresses, explorerURL, currentTxs]: [
       Record<string, AddressInterface>,
-      string
+      string,
+      Record<string, TxInterface>
     ] = yield all([
       select(({ wallet }: { wallet: WalletState }) => wallet.addresses),
       select(({ settings }) => settings.explorerUrl),
+      select(({ transactions }) => transactions.txs),
     ]);
 
     const toSearch: string[] = [];
@@ -37,7 +40,7 @@ function* updateTransactions({ type }: { type: string }) {
       toSearch.unshift(confidentialAddress);
     }
 
-    yield call(fetchAndUpdateTxs, toSearch, addresses, explorerURL);
+    yield call(fetchAndUpdateTxs, toSearch, addresses, currentTxs, explorerURL);
   } catch (e) {
     console.error(e);
     yield put(
@@ -55,6 +58,7 @@ function* updateTransactions({ type }: { type: string }) {
 export function* fetchAndUpdateTxs(
   addresses: string[],
   scriptsToAddressInterface: Record<string, AddressInterface>,
+  currentTxs: Record<string, TxInterface>,
   explorerUrl: string
 ) {
   const identityBlindKeyGetter: BlindingKeyGetter = (script: string) => {
@@ -64,11 +68,14 @@ export function* fetchAndUpdateTxs(
       return undefined;
     }
   };
-
+  const yesterday = moment().subtract(1, 'days');
   const txsGen = fetchAndUnblindTxsGenerator(
     addresses,
     identityBlindKeyGetter,
-    explorerUrl
+    explorerUrl,
+    (tx: TxInterface) =>
+      currentTxs[tx.txid] &&
+      moment((tx.status.blockTime || 0) * 1000).isAfter(yesterday)
   );
   const next = () => txsGen.next();
   let it: IteratorResult<TxInterface, number> = yield call(next);
