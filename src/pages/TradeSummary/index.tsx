@@ -170,7 +170,9 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                 <div className="transaction-info">
                   <div className="transaction-info-date">
                     {transaction ? (
-                      <p>{transaction.time}</p>
+                      <p>
+                        {transaction.blockTime?.format('DD MMM YYYY hh:mm:ss')}
+                      </p>
                     ) : (
                       <IonSkeletonText animated style={{ width: '30%' }} />
                     )}

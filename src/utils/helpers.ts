@@ -19,6 +19,7 @@ import {
 import { lockUtxo } from '../redux/actions/walletActions';
 import { Dispatch } from 'redux';
 import { network } from '../redux/config';
+import { TxDisplayInterface } from './types';
 
 export const createColorFromHash = (id: string): string => {
   let hash = 0;
@@ -206,4 +207,14 @@ export function estimateFeeAmount(
   return Math.ceil(
     estimateTxSize(selectedUtxos.length, changeOutputs.length + 1) * satsPerByte
   );
+}
+
+/**
+ * function can be used with sort()
+ */
+export function compareTxDisplayInterfaceByDate(
+  a: TxDisplayInterface,
+  b: TxDisplayInterface
+): number {
+  return a.blockTime?.diff(b.blockTime) || 0;
 }

@@ -16,7 +16,11 @@ import {
 } from '@ionic/react';
 import { IconBack, CurrencyIcon } from '../../components/icons';
 import { checkmarkOutline } from 'ionicons/icons';
-import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
+import {
+  compareTxDisplayInterfaceByDate,
+  fromSatoshiFixed,
+  tickerFromAssetHash,
+} from '../../utils/helpers';
 import classNames from 'classnames';
 import { TxDisplayInterface } from '../../utils/types';
 import './style.scss';
@@ -63,89 +67,95 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
       <IonContent className="trade-history">
         {swaps.length > 0 ? (
           <IonList>
-            <IonListHeader>Today</IonListHeader>
-            {swaps.map((transaction: TxDisplayInterface) => {
-              const transferSent = transaction.transfers.find(
-                (t) => t.amount < 0
-              );
-              const transferReceived = transaction.transfers.find(
-                (t) => t.amount > 0
-              );
+            <IonListHeader>Swaps</IonListHeader>
+            {swaps
+              .sort(compareTxDisplayInterfaceByDate)
+              .map((transaction: TxDisplayInterface) => {
+                const transferSent = transaction.transfers.find(
+                  (t) => t.amount < 0
+                );
+                const transferReceived = transaction.transfers.find(
+                  (t) => t.amount > 0
+                );
 
-              if (!transferReceived || !transferSent) {
-                return <IonItem key={transaction.txId}></IonItem>;
-              }
+                if (!transferReceived || !transferSent) {
+                  return <IonItem key={transaction.txId}></IonItem>;
+                }
 
-              const tickerSent = tickerFromAssetHash(transferSent.asset);
-              const tickerReceived = tickerFromAssetHash(
-                transferReceived.asset
-              );
-              return (
-                <IonItem
-                  className={classNames('list-item transaction-item', {
-                    open: true,
-                  })}
-                  onClick={() => {
-                    history.replace(`/tradesummary/${transaction.txId}`);
-                  }}
-                  key={transaction.txId}
-                >
-                  <div
-                    // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
-                    tabIndex={0}
-                  ></div>
-                  <div className="info-wrapper">
-                    <div className="item-main-info">
-                      <div className="item-start">
-                        <div className="swap-images">
-                          <span className="icon-wrapper">
-                            <CurrencyIcon currency={tickerSent} />
-                          </span>
-                          <span className="icon-wrapper with-border">
-                            <CurrencyIcon currency={tickerReceived} />
-                          </span>
-                        </div>
-                        <div className="item-name">
-                          <div className="main-row">
-                            {`${tickerSent} / ${tickerReceived}`}
+                const tickerSent = tickerFromAssetHash(transferSent.asset);
+                const tickerReceived = tickerFromAssetHash(
+                  transferReceived.asset
+                );
+                return (
+                  <IonItem
+                    className={classNames('list-item transaction-item', {
+                      open: true,
+                    })}
+                    onClick={() => {
+                      history.replace(`/tradesummary/${transaction.txId}`);
+                    }}
+                    key={transaction.txId}
+                  >
+                    <div
+                      // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
+                      tabIndex={0}
+                    ></div>
+                    <div className="info-wrapper">
+                      <div className="item-main-info">
+                        <div className="item-start">
+                          <div className="swap-images">
+                            <span className="icon-wrapper">
+                              <CurrencyIcon currency={tickerSent} />
+                            </span>
+                            <span className="icon-wrapper with-border">
+                              <CurrencyIcon currency={tickerReceived} />
+                            </span>
                           </div>
-                          <div className="sub-row">{transaction.date}</div>
+                          <div className="item-name">
+                            <div className="main-row">
+                              {`${tickerSent} / ${tickerReceived}`}
+                            </div>
+                            <div className="sub-row">
+                              {transaction.blockTime?.format(
+                                'DD MMM YYYY hh:mm:ss'
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="item-end">
+                          <div className="amount">
+                            <div className="main-row">
+                              +{fromSatoshiFixed(transferReceived.amount, 8, 8)}
+                            </div>
+                            <div className="main-row accent">
+                              {tickerReceived}
+                            </div>
+                          </div>
+                          {renderStatus(transaction.status)}
                         </div>
                       </div>
-                      <div className="item-end">
-                        <div className="amount">
-                          <div className="main-row">
-                            +{fromSatoshiFixed(transferReceived.amount, 8, 8)}
-                          </div>
-                          <div className="main-row accent">
-                            {tickerReceived}
-                          </div>
+                      <div className="sub-info">
+                        <div className="fee-row">
+                          <IonLabel>
+                            Fee{' '}
+                            <span className="amount">
+                              {transaction.fee} {LBTC_TICKER}
+                            </span>
+                          </IonLabel>
+                          <IonText>
+                            {fromSatoshiFixed(transferSent.amount, 8, 8)}{' '}
+                            <span className="currency">{tickerSent}</span>
+                          </IonText>
                         </div>
-                        {renderStatus(transaction.status)}
+                        <div className="info-row">
+                          <IonLabel>TxID</IonLabel>
+                          <IonText>{transaction.txId}</IonText>
+                        </div>
                       </div>
                     </div>
-                    <div className="sub-info">
-                      <div className="fee-row">
-                        <IonLabel>
-                          Fee{' '}
-                          <span className="amount">
-                            {transaction.fee} {LBTC_TICKER}
-                          </span>
-                        </IonLabel>
-                        <IonText>
-                          {fromSatoshiFixed(transferSent.amount, 8, 8)}{' '}
-                          <span className="currency">{tickerSent}</span>
-                        </IonText>
-                      </div>
-                      <div className="info-row">
-                        <IonLabel>TxID</IonLabel>
-                        <IonText>{transaction.txId}</IonText>
-                      </div>
-                    </div>
-                  </div>
-                </IonItem>
-              );
-            })}
+                  </IonItem>
+                );
+              })}
           </IonList>
         ) : (
           <div className="no-swaps">

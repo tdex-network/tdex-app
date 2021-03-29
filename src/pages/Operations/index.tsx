@@ -167,7 +167,9 @@ const Operations: React.FC<OperationsProps> = ({
                               {`${balance.ticker} ${txTypes[tx.type - 1]}`}
                             </div>
                             <div className="sub-row">
-                              {isOpen(tx.txId) ? tx.time : tx.date}
+                              {isOpen(tx.txId)
+                                ? tx.blockTime?.format('DD MMM YYYY hh:mm:ss')
+                                : tx.blockTime?.format('DD MMM YYYY')}
                             </div>
                           </div>
                         </div>
