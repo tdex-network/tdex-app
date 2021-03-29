@@ -75,7 +75,7 @@ export function* fetchAndUpdateTxs(
     explorerUrl,
     (tx: TxInterface) =>
       currentTxs[tx.txid] &&
-      moment((tx.status.blockTime || 0) * 1000).isAfter(yesterday)
+      moment((tx.status.blockTime || 0) * 1000).isBefore(yesterday)
   );
   const next = () => txsGen.next();
   let it: IteratorResult<TxInterface, number> = yield call(next);
