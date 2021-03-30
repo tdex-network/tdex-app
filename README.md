@@ -108,6 +108,9 @@ $ tdex depositfee
 # here, we use nigiri faucet for example
 # /!\ REPLACE by your deposit address /!\
 $ nigiri faucet --liquid YOUR_FEE_ACCOUNT_ADDRESS_HERE
+
+# claim the deposit transaction
+$ tdex claimfee --outpoints '[{"hash": <txid>, "index": <vout>}]'
 ```
 
 Well, now let's create a market:
@@ -124,6 +127,9 @@ $ nigiri faucet --liquid YOUR_MARKET_ADDRESS
 # The generated altcoin will be the quote_asset
 $ nigiri mint YOUR_MARKET_ADDRESS 100
 # /!\ Copy the altcoin asset hash in the clipboard!
+
+# claim the deposit transaction
+$ tdex claimmarket --outpoints '[{"hash": <txid>, "index": <vout>}, {...}]'
 ```
 
 We need to open the new market, by default a new market is not tradable.
