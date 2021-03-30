@@ -1,6 +1,6 @@
 let network: any, provider: any;
 
-if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV === 'production') {
   network = {
     chain: 'liquid',
     explorer: 'https://blockstream.info/liquid/api',
