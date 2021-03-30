@@ -16,7 +16,7 @@ describe('Transaction saga', () => {
         })
 
         test('should discover and add new transaction', async () => {
-            const gen = fetchAndUpdateTxs([firstAddress.confidentialAddress], { [address.toOutputScript(firstAddress.confidentialAddress).toString('hex')]: firstAddress }, APIURL)
+            const gen = fetchAndUpdateTxs([firstAddress.confidentialAddress], { [address.toOutputScript(firstAddress.confidentialAddress).toString('hex')]: firstAddress }, {}, APIURL)
             // simulate the first call
             const callEffect = gen.next().value as CallEffect<IteratorResult<TxInterface, number>>
             const result = await callEffect.payload.fn()
@@ -27,7 +27,7 @@ describe('Transaction saga', () => {
         })
 
         test('should skip if no tx to discover', async () => {
-            const gen = fetchAndUpdateTxs([], {}, APIURL)
+            const gen = fetchAndUpdateTxs([], {}, {}, APIURL)
             // simulate the first call
             const callEffect = gen.next().value as CallEffect<IteratorResult<TxInterface, number>>
             const result = await callEffect.payload.fn()

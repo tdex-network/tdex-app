@@ -63,7 +63,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
       <IonContent className="trade-history">
         {swaps.length > 0 ? (
           <IonList>
-            <IonListHeader>Today</IonListHeader>
+            <IonListHeader>Swaps</IonListHeader>
             {swaps.map((transaction: TxDisplayInterface) => {
               const transferSent = transaction.transfers.find(
                 (t) => t.amount < 0
@@ -73,7 +73,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
               );
 
               if (!transferReceived || !transferSent) {
-                return <IonItem key={transaction.txId}></IonItem>;
+                return <></>;
               }
 
               const tickerSent = tickerFromAssetHash(transferSent.asset);
@@ -109,7 +109,11 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
                           <div className="main-row">
                             {`${tickerSent} / ${tickerReceived}`}
                           </div>
-                          <div className="sub-row">{transaction.date}</div>
+                          <div className="sub-row">
+                            {transaction.blockTime?.format(
+                              'DD MMM YYYY hh:mm:ss'
+                            )}
+                          </div>
                         </div>
                       </div>
                       <div className="item-end">

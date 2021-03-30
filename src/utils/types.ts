@@ -15,10 +15,9 @@ export interface TxDisplayInterface {
   type: TxTypeEnum;
   fee: number;
   txId: string;
-  time: string;
-  date: string;
   status: TxStatusEnum;
   transfers: Transfer[];
+  blockTime?: moment.Moment;
 }
 
 export interface Transfer {

@@ -78,7 +78,7 @@ export function txTypeFromTransfer(transfers: Transfer[]) {
 
 /**
  * Convert a TxInterface to DisplayInterface
- * @param tx
+ * @param tx txInterface
  * @param walletScripts the wallet's scripts i.e wallet scripts from wallet's addresses.
  */
 export function toDisplayTransaction(
@@ -88,12 +88,9 @@ export function toDisplayTransaction(
   const transfers = getTransfers(tx.vin, tx.vout, walletScripts);
   return {
     txId: tx.txid,
-    time: tx.status.blockTime
-      ? moment(tx.status.blockTime * 1000).format('DD MMM YYYY hh:mm:ss')
-      : 'unknow',
-    date: tx.status.blockTime
-      ? moment(tx.status.blockTime * 1000).format('DD MMM YYYY')
-      : 'unknow',
+    blockTime: tx.status.blockTime
+      ? moment(tx.status.blockTime * 1000)
+      : undefined,
     status: tx.status.confirmed ? TxStatusEnum.Confirmed : TxStatusEnum.Pending,
     fee: tx.fee,
     transfers,
