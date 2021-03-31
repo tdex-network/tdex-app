@@ -1,8 +1,20 @@
 import axios from 'axios';
-import { call, put, select, takeEvery } from 'redux-saga/effects';
-import { defaultPrecision } from '../../utils/constants';
+import {
+  call,
+  delay,
+  put,
+  select,
+  takeEvery,
+  takeLatest,
+} from 'redux-saga/effects';
+import { AssetConfig, defaultPrecision } from '../../utils/constants';
 import { createColorFromHash, tickerFromAssetHash } from '../../utils/helpers';
-import { ADD_ASSET, setAsset } from '../actions/assetsActions';
+import {
+  getAssetsFromStorage,
+  setAssetsInStorage,
+} from '../../utils/storage-helper';
+import { SIGN_IN } from '../actions/appActions';
+import { ADD_ASSET, setAsset, SET_ASSET } from '../actions/assetsActions';
 
 // payload = the assetHash
 function* addAssetSaga({ type, payload }: { type: string; payload: string }) {
@@ -50,6 +62,24 @@ async function getAssetData(
   }
 }
 
+function* persistAssets() {
+  yield delay(5_000);
+  const currentAssets = yield select(
+    ({ assets }: { assets: Record<string, AssetConfig> }) =>
+      Object.values(assets)
+  );
+  yield call(setAssetsInStorage, currentAssets);
+}
+
+function* restoreAssets() {
+  const assets: AssetConfig[] = yield call(getAssetsFromStorage);
+  for (const asset of assets) {
+    yield put(setAsset(asset));
+  }
+}
+
 export function* assetsWatcherSaga() {
   yield takeEvery(ADD_ASSET, addAssetSaga);
+  yield takeLatest(SET_ASSET, persistAssets);
+  yield takeLatest(SIGN_IN, restoreAssets);
 }

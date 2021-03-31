@@ -1,12 +1,19 @@
 import { Storage, Plugins } from '@capacitor/core';
-import { AddressInterface, IdentityOpts, IdentityType, Mnemonic } from 'ldk';
-
+import {
+  AddressInterface,
+  IdentityOpts,
+  IdentityType,
+  Mnemonic,
+  TxInterface,
+  UtxoInterface,
+} from 'ldk';
 import 'capacitor-secure-storage-plugin';
 import { decrypt, encrypt, Encrypted } from './crypto';
 import { network } from '../redux/config';
 import { IdentityRestorerFromState, MnemonicRedux } from './identity';
 import { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 import { Dispatch } from 'redux';
+import { AssetConfig } from './constants';
 
 const { SecureStoragePlugin } = Plugins;
 
@@ -14,22 +21,44 @@ const MNEMONIC_KEY = 'tdex-app-mnemonic';
 const ADDRESSES_KEY = 'tdex-app-addresses';
 const PROVIDERS_KEY = 'tdex-app-providers';
 const SEED_BACKUP_FLAG_KEY = 'tdex-app-seed-backup';
+const UTXOS_KEY = 'tdex-app-utxos';
+const TRANSACTIONS_KEY = 'tdex-app-transactions';
+const ASSETS_KEY = 'tdex-app-assets';
 
-async function getFromStorage<T>(key: string, defaultValue: T): Promise<T> {
-  try {
-    const { value } = await Storage.get({ key });
-    if (!value) return defaultValue;
-    return JSON.parse(value) as T;
-  } catch (error) {
-    console.error(error);
-    return defaultValue;
-  }
+export async function getTransactionsFromStorage(): Promise<TxInterface[]> {
+  return getFromStorage<TxInterface[]>(TRANSACTIONS_KEY, []);
 }
 
+export function setTransactionsInStorage(txs: TxInterface[]) {
+  Storage.set({ key: TRANSACTIONS_KEY, value: JSON.stringify(txs) });
+}
+
+export async function getUtxosFromStorage(): Promise<UtxoInterface[]> {
+  return getFromStorage<UtxoInterface[]>(UTXOS_KEY, []);
+}
+
+export function setUtxosInStorage(utxos: UtxoInterface[]) {
+  Storage.set({ key: UTXOS_KEY, value: JSON.stringify(utxos) });
+}
+
+export async function getAssetsFromStorage(): Promise<AssetConfig[]> {
+  return getFromStorage<AssetConfig[]>(ASSETS_KEY, []);
+}
+
+export function setAssetsInStorage(assets: AssetConfig[]) {
+  Storage.set({ key: ASSETS_KEY, value: JSON.stringify(assets) });
+}
+
+/**
+ * a function using to set the backup flag.
+ */
 export function setSeedBackup() {
   Storage.set({ key: SEED_BACKUP_FLAG_KEY, value: '1' });
 }
 
+/**
+ * Check if backup flag is stored.
+ */
 export async function seedBackupFlag(): Promise<boolean> {
   try {
     const { value } = await Storage.get({ key: SEED_BACKUP_FLAG_KEY });
@@ -42,6 +71,10 @@ export async function seedBackupFlag(): Promise<boolean> {
   }
 }
 
+/**
+ * Persist providers in Storage
+ * @param providers
+ */
 export function setProvidersInStorage(providers: TDEXProvider[]) {
   return Storage.set({
     key: PROVIDERS_KEY,
@@ -132,12 +165,18 @@ export async function removeMnemonicFromSecureStorage(
   return mnemonic;
 }
 
+/**
+ * function using to remove all TDEX data from storage
+ */
 async function clear() {
   await Promise.all([
     SecureStoragePlugin.remove({ key: MNEMONIC_KEY }),
     Storage.remove({ key: PROVIDERS_KEY }),
     Storage.remove({ key: ADDRESSES_KEY }),
     Storage.remove({ key: SEED_BACKUP_FLAG_KEY }),
+    Storage.remove({ key: UTXOS_KEY }),
+    Storage.remove({ key: TRANSACTIONS_KEY }),
+    Storage.remove({ key: ASSETS_KEY }),
   ]);
 }
 
@@ -189,4 +228,15 @@ function prepareIdentityOpts(
     initializeFromRestorer: true,
     restorer: new IdentityRestorerFromState(addresses || []),
   };
+}
+
+async function getFromStorage<T>(key: string, defaultValue: T): Promise<T> {
+  try {
+    const { value } = await Storage.get({ key });
+    if (!value) return defaultValue;
+    return JSON.parse(value) as T;
+  } catch (error) {
+    console.error(error);
+    return defaultValue;
+  }
 }

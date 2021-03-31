@@ -59,7 +59,7 @@ const Operations: React.FC<OperationsProps> = ({
     if (balanceSelected) {
       setBalance(balanceSelected);
     }
-  }, [balances]);
+  }, [balances, asset_id]);
 
   const open = (txID: string) => setOpened([...opened, txID]);
   const close = (txID: string) => setOpened(opened.filter((id) => id !== txID));
