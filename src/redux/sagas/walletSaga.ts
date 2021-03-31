@@ -28,7 +28,12 @@ import {
   fetchAndUnblindUtxosGenerator,
 } from 'ldk';
 import { addErrorToast } from '../actions/toastActions';
-import { setAddressesInStorage } from '../../utils/storage-helper';
+import {
+  getUtxosFromStorage,
+  setAddressesInStorage,
+  setUtxosInStorage,
+} from '../../utils/storage-helper';
+import { SIGN_IN } from '../actions/appActions';
 
 function* persistAddresses({ type }: { type: string }) {
   const addresses = yield select(addressesSelector);
@@ -109,8 +114,25 @@ function* waitAndUnlock({ type, payload }: { type: string; payload: string }) {
   yield put(unlockUtxo(payload));
 }
 
+function* persistUtxos() {
+  yield delay(20_000); // 20 sec
+  const utxos = yield select(({ wallet }: { wallet: WalletState }) =>
+    Object.values(wallet.utxos)
+  );
+  yield call(setUtxosInStorage, utxos);
+}
+
+function* restoreUtxos() {
+  const utxos: UtxoInterface[] = yield call(getUtxosFromStorage);
+  for (const utxo of utxos) {
+    yield put(setUtxo(utxo));
+  }
+}
+
 export function* walletWatcherSaga() {
   yield takeLatest(ADD_ADDRESS, persistAddresses);
   yield takeLatest(UPDATE_UTXOS, updateUtxosState);
+  yield takeLatest(UPDATE_UTXOS, persistUtxos);
   yield takeEvery(LOCK_UTXO, waitAndUnlock);
+  yield takeLatest(SIGN_IN, restoreUtxos);
 }
