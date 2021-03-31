@@ -34,15 +34,11 @@ jobs:
       - name: build ionic android
         run: yarn build:android
 
-      - name: make icon and splash
-        run: yarn resources
-    
       # Build Android APK with Gradle
       - name: Build Debug APK
         run: |
           cd android
           chmod +x ./gradlew
-          ./gradlew build
           ./gradlew assembleDebug
           cd ..
 
