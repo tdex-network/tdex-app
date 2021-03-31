@@ -75,7 +75,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./android/build/outputs/apk/debug/app-debug.apk
+          asset_path: ./android/app/build/outputs/apk/debug/app-debug.apk
           asset_name: tdex-app-${{ steps.next_tag.outputs.tag }}.apk
           asset_content_type: application/apk
 
