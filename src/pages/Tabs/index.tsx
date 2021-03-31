@@ -22,11 +22,11 @@ const ROUTES_SORTED_BY_TAB: Record<string, string[]> = {
   settings: ['settings', 'account', 'liquidity-provider'],
 };
 
-const Tabs: React.FC<RouteComponentProps> = (history) => {
+const Tabs: React.FC<RouteComponentProps> = ({ history, location }) => {
   const isActive = (name: string) => {
     const routes = ROUTES_SORTED_BY_TAB[name];
     for (const routeName of routes) {
-      if (history.location.pathname.includes(routeName)) return true;
+      if (location.pathname.includes(routeName)) return true;
     }
 
     return false;
@@ -53,11 +53,14 @@ const Tabs: React.FC<RouteComponentProps> = (history) => {
           <IonTabBar slot="bottom">
             {TABS.map((item, index) => (
               <IonTabButton
+                selected={isActive(item.name)}
                 tab={item.path}
-                href={`${item.path}/`}
-                key={item.path}
+                key={index}
               >
-                <div className="tab-content">
+                <div
+                  className="tab-content"
+                  onClick={() => history.push(item.path)}
+                >
                   <item.icon
                     className={classNames('tab-icon', {
                       active: isActive(item.name),
