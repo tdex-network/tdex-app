@@ -26,6 +26,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import PinModal from '../../components/PinModal';
 import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
 import { addErrorToast } from '../../redux/actions/toastActions';
+import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 
 const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   const { explorerUrl, theme } = useSelector((state: any) => ({
@@ -254,58 +255,64 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
             </div>
           </IonItem>
         </IonList>
-        {showExplorerModal && (
-          <IonModal
-            isOpen={showExplorerModal}
-            cssClass="modal-big withdrawal"
-            keyboardClose={false}
-          >
-            <div className="gradient-background" />
-            <IonHeader>
-              <IonToolbar className="with-back-button">
-                <IonButton
-                  style={{ zIndex: 10 }}
-                  onClick={() => {
-                    setShowExplorerModal(false);
-                  }}
-                >
-                  <IconClose />
-                </IonButton>
-                <IonTitle>Show Mnemonic</IonTitle>
-              </IonToolbar>
-            </IonHeader>
-            <IonContent>
-              <PageDescription title="Secret phrase">
-                <p>Set explorer url for electrum server</p>
-              </PageDescription>
-              <IonInput
-                inputmode="text"
-                value={explorerValue}
-                onIonChange={handleExplorerChange}
-              />
-              <div className="buttons">
-                <IonButton
-                  onClick={() => dispatch(setElectrumServer(explorerValue))}
-                  type="button"
-                  className="main-button"
-                  disabled={!explorerValue || !explorerValue.length}
-                >
-                  Save
-                </IonButton>
-              </div>
-              <div className="align-center">
-                <IonButton
-                  onClick={() => {
-                    setShowExplorerModal(false);
-                  }}
-                  className="cancel-button"
-                >
-                  <IonLabel>Cancel</IonLabel>
-                </IonButton>
-              </div>
-            </IonContent>
-          </IonModal>
-        )}
+        <IonModal
+          isOpen={showExplorerModal}
+          cssClass="modal-big withdrawal"
+          keyboardClose={false}
+          onDidDismiss={() => setShowExplorerModal(false)}
+        >
+          <div className="gradient-background" />
+          <IonHeader>
+            <IonToolbar className="with-back-button">
+              <IonButton
+                style={{ zIndex: 10 }}
+                onClick={() => {
+                  setShowExplorerModal(false);
+                }}
+              >
+                <IconClose />
+              </IonButton>
+              <IonTitle>Show Mnemonic</IonTitle>
+            </IonToolbar>
+          </IonHeader>
+          <IonContent>
+            <PageDescription title="Secret phrase">
+              <p>Set explorer url for electrum server</p>
+            </PageDescription>
+            <IonInput
+              className="explorer-input"
+              color="light"
+              enterkeyhint="done"
+              onKeyDown={onPressEnterKeyCloseKeyboard}
+              inputmode="text"
+              value={explorerValue}
+              onIonChange={handleExplorerChange}
+            />
+            <div className="buttons">
+              <IonButton
+                onClick={() => {
+                  dispatch(setElectrumServer(explorerValue));
+                  setShowExplorerModal(false);
+                }}
+                type="button"
+                className="main-button"
+                disabled={!explorerValue || !explorerValue.length}
+              >
+                Save
+              </IonButton>
+            </div>
+            <div className="align-center">
+              <IonButton
+                onClick={() => {
+                  setShowExplorerModal(false);
+                }}
+                className="cancel-button"
+              >
+                <IonLabel>Cancel</IonLabel>
+              </IonButton>
+            </div>
+          </IonContent>
+        </IonModal>
       </IonContent>
     </IonPage>
   );
