@@ -28,11 +28,11 @@ jobs:
           java-version: 1.8
 
       # Build Ionic App
-      - name: Install and build Android
-        run: |
-          yarn
-          yarn sync
-          yarn build:android
+      - name: install node dependencies
+        run: yarn install
+          
+      - name: build ionic android
+        run: yarn build:android
       
       # Build Android APK with Gradle
       - name: Build Debug APK
