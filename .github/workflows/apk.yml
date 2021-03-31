@@ -33,7 +33,10 @@ jobs:
           
       - name: build ionic android
         run: yarn build:android
-      
+
+      - name: make icon and splash
+        run: yarn resources
+    
       # Build Android APK with Gradle
       - name: Build Debug APK
         run: |
@@ -41,6 +44,7 @@ jobs:
           chmod +x ./gradlew
           ./gradlew build
           ./gradlew assembleDebug
+          cd ..
 
       # get current  tag
       - name: tag
