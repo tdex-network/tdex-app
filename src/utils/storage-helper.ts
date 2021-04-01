@@ -10,10 +10,15 @@ import { Dispatch } from 'redux';
 
 const { SecureStoragePlugin } = Plugins;
 
+const EXPLORER_KEY = 'tdex-app-explorer';
 const MNEMONIC_KEY = 'tdex-app-mnemonic';
 const ADDRESSES_KEY = 'tdex-app-addresses';
 const PROVIDERS_KEY = 'tdex-app-providers';
 const SEED_BACKUP_FLAG_KEY = 'tdex-app-seed-backup';
+
+export function setExplorerInStorage() {
+  Storage.set({ key: EXPLORER_KEY, })
+}
 
 async function getFromStorage<T>(key: string, defaultValue: T): Promise<T> {
   try {
