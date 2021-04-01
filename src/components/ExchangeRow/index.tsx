@@ -179,7 +179,18 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         </div>
       </div>
       <div className="exchanger-row sub-row">
-        <div>
+        <div
+          onClick={() => {
+            setFocus();
+            setAmount(
+              fromSatoshiFixed(
+                balance?.amount || 0,
+                balance?.precision,
+                balance?.precision || defaultPrecision
+              )
+            );
+          }}
+        >
           <p>{`Total balance: ${fromSatoshiFixed(
             balance?.amount || 0,
             balance?.precision,
