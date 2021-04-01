@@ -37,6 +37,7 @@ function* initAppSaga() {
 
 function* signInSaga(action: ActionType) {
   try {
+    // decode mnemonic and store public key
     const identity: Mnemonic = yield call(getIdentity, action.payload);
     yield all([call(waitForRestore, identity), put(setPublicKeys(identity))]);
 
@@ -51,7 +52,7 @@ function* signInSaga(action: ActionType) {
       yield put(setBackupDone());
     }
 
-    yield all([put(setIsAuth(true))]);
+    yield put(setIsAuth(true));
     yield put(updateMarkets());
   } catch (e) {
     yield put(initAppFail());

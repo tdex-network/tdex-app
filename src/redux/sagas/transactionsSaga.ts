@@ -1,3 +1,5 @@
+import { setTransaction } from './../actions/transactionsActions';
+import { ActionType } from './../../utils/types';
 import { WalletState } from './../reducers/walletReducer';
 import {
   BlindingKeyGetter,
@@ -5,6 +7,8 @@ import {
   fetchAndUnblindTxsGenerator,
   AddressInterface,
   isBlindedOutputInterface,
+  fetchTx,
+  unblindTransaction,
 } from 'ldk';
 import {
   takeLatest,
@@ -16,9 +20,9 @@ import {
   delay,
 } from 'redux-saga/effects';
 import {
-  setTransaction,
   SET_TRANSACTION,
   UPDATE_TRANSACTIONS,
+  WATCH_TRANSACTION,
 } from '../actions/transactionsActions';
 import { addErrorToast } from '../actions/toastActions';
 import { addAsset } from '../actions/assetsActions';
@@ -67,13 +71,9 @@ export function* fetchAndUpdateTxs(
   currentTxs: Record<string, TxInterface>,
   explorerUrl: string
 ) {
-  const identityBlindKeyGetter: BlindingKeyGetter = (script: string) => {
-    try {
-      return scriptsToAddressInterface[script]?.blindingPrivateKey;
-    } catch (_) {
-      return undefined;
-    }
-  };
+  const identityBlindKeyGetter = blindKeyGetterFactory(
+    scriptsToAddressInterface
+  );
   const yesterday = moment().subtract(1, 'days');
   const txsGen = fetchAndUnblindTxsGenerator(
     addresses,
@@ -127,9 +127,46 @@ function* restoreTransactions() {
   }
 }
 
+function* watchTransaction(action: ActionType) {
+  const { txID, maxTry } = action.payload as { txID: string; maxTry: number };
+  const explorer = yield select(({ settings }) => settings.explorerUrl);
+
+  for (let t = 0; t < maxTry; t++) {
+    try {
+      const tx: TxInterface = yield call(fetchTx, txID, explorer);
+      const scriptsToAddress = yield select(
+        ({ wallet }: { wallet: WalletState }) => wallet.addresses
+      );
+      const blindKeyGetter = blindKeyGetterFactory(scriptsToAddress);
+      const unblindedTx: TxInterface = yield call(
+        unblindTransaction,
+        tx,
+        blindKeyGetter
+      );
+      yield put(setTransaction(unblindedTx));
+    } catch {
+      yield delay(1_000);
+      continue;
+    }
+  }
+}
+
+function blindKeyGetterFactory(
+  scriptsToAddressInterface: Record<string, AddressInterface>
+): BlindingKeyGetter {
+  return (script: string) => {
+    try {
+      return scriptsToAddressInterface[script]?.blindingPrivateKey;
+    } catch (_) {
+      return undefined;
+    }
+  };
+}
+
 export function* transactionsWatcherSaga() {
   yield takeLatest(UPDATE_TRANSACTIONS, updateTransactions);
   yield takeLatest(UPDATE_TRANSACTIONS, persistTransactions);
   yield takeEvery(SET_TRANSACTION, updateAssets);
   yield takeLatest(SIGN_IN, restoreTransactions);
+  yield takeEvery(WATCH_TRANSACTION, watchTransaction);
 }

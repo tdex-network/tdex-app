@@ -3,6 +3,17 @@ import { ActionType } from '../../utils/types';
 
 export const UPDATE_TRANSACTIONS = 'UPDATE_TRANSACTIONS';
 export const SET_TRANSACTION = 'SET_TRANSACTION';
+export const WATCH_TRANSACTION = 'WATCH_TRANSACTION';
+
+export const watchTransaction = (txID: string, maxTry = 100): ActionType => {
+  return {
+    type: WATCH_TRANSACTION,
+    payload: {
+      txID,
+      maxTry,
+    },
+  };
+};
 
 export const updateTransactions = (): ActionType => {
   return {
