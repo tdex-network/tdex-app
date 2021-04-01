@@ -272,7 +272,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               >
                 <IconClose />
               </IonButton>
-              <IonTitle>Show Mnemonic</IonTitle>
+              <IonTitle>Electrum server</IonTitle>
             </IonToolbar>
           </IonHeader>
           <IonContent>
@@ -281,7 +281,6 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
             </PageDescription>
             <IonInput
               className="explorer-input"
-              color="light"
               enterkeyhint="done"
               onKeyDown={onPressEnterKeyCloseKeyboard}
               inputmode="text"
