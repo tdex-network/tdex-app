@@ -186,6 +186,7 @@ async function clear() {
     Storage.remove({ key: UTXOS_KEY }),
     Storage.remove({ key: TRANSACTIONS_KEY }),
     Storage.remove({ key: ASSETS_KEY }),
+    Storage.remove({ key: EXPLORER_KEY }),
   ]);
 }
 
