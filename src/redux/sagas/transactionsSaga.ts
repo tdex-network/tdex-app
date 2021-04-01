@@ -74,14 +74,19 @@ export function* fetchAndUpdateTxs(
   const identityBlindKeyGetter = blindKeyGetterFactory(
     scriptsToAddressInterface
   );
-  const yesterday = moment().subtract(1, 'days');
+
   const txsGen = fetchAndUnblindTxsGenerator(
     addresses,
     identityBlindKeyGetter,
     explorerUrl,
-    (tx: TxInterface) =>
-      currentTxs[tx.txid] &&
-      moment((tx.status.blockTime || 0) * 1000).isBefore(yesterday)
+    (tx: TxInterface) => {
+      const txInStore = currentTxs[tx.txid];
+      if (txInStore && txInStore.status.confirmed) {
+        // skip if tx is already in store AND confirmed
+        return true;
+      }
+      return false;
+    }
   );
   const next = () => txsGen.next();
   let it: IteratorResult<TxInterface, number> = yield call(next);
@@ -144,6 +149,7 @@ function* watchTransaction(action: ActionType) {
         blindKeyGetter
       );
       yield put(setTransaction(unblindedTx));
+      break;
     } catch {
       yield delay(1_000);
       continue;

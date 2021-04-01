@@ -41,6 +41,7 @@ import {
 } from '../../redux/actions/toastActions';
 import { update } from '../../redux/actions/appActions';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
+import { watchTransaction } from '../../redux/actions/transactionsActions';
 
 interface WithdrawalProps
   extends RouteComponentProps<
@@ -174,7 +175,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
           `Transaction broadcasted. ${amount} ${balance?.ticker} sent.`
         )
       );
-      dispatch(update());
+      dispatch(watchTransaction(txid));
       setModalOpen(false);
       history.push(`/withdraw/${txid}/details`, {
         address: recipientAddress,

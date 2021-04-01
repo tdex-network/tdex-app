@@ -19,6 +19,7 @@ import { swapHorizontal } from 'ionicons/icons';
 import { AssetConfig } from '../../utils/constants';
 import { update } from '../../redux/actions/appActions';
 import './style.scss';
+import Refresher from '../../components/Refresher';
 
 export interface PreviewData {
   sent: {
@@ -42,19 +43,9 @@ interface TradeSummaryProps
 
 const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
   const preview = location.state?.preview;
-  const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();
-  const transaction = useSelector(transactionSelector(txid));
 
-  useEffect(() => {
-    if (!transaction) {
-      dispatch(update());
-      const interval = setInterval(() => {
-        dispatch(update());
-      }, 8_000);
-      return clearInterval(interval);
-    }
-  }, [preview, txid]);
+  const transaction = useSelector(transactionSelector(txid));
 
   const SentCurrencyIcon: React.FC<{ width: string; height: string }> = ({
     width,
@@ -107,6 +98,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="trade-summary">
+        <Refresher />
         {(transaction || preview) && (
           <div>
             <div className="transaction-icons">
@@ -171,7 +163,9 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                   <div className="transaction-info-date">
                     {transaction ? (
                       <p>
-                        {transaction.blockTime?.format('DD MMM YYYY hh:mm:ss')}
+                        {transaction.blockTime
+                          ? transaction.blockTime.format('DD MMM YYYY hh:mm:ss')
+                          : 'NOT CONFIRMED'}
                       </p>
                     ) : (
                       <IonSkeletonText animated style={{ width: '30%' }} />
