@@ -26,6 +26,14 @@ const TRANSACTIONS_KEY = 'tdex-app-transactions';
 const ASSETS_KEY = 'tdex-app-assets';
 const EXPLORER_KEY = 'tdex-app-explorer';
 
+export async function getExplorerFromStorage(): Promise<string> {
+  return (await Storage.get({ key: EXPLORER_KEY })).value;
+}
+
+export function setExplorerInStorage(explorer: string) {
+  Storage.set({ key: EXPLORER_KEY, value: explorer });
+}
+
 export async function getTransactionsFromStorage(): Promise<TxInterface[]> {
   return getFromStorage<TxInterface[]>(TRANSACTIONS_KEY, []);
 }

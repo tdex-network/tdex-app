@@ -17,7 +17,6 @@ import {
   setBackupDone,
 } from '../actions/appActions';
 import { setIsAuth } from '../actions/walletActions';
-import { restoreTheme } from '../actions/settingsActions';
 import { Mnemonic } from 'ldk';
 import { getIdentity, seedBackupFlag } from '../../utils/storage-helper';
 import { updateTransactions } from '../actions/transactionsActions';
@@ -25,7 +24,6 @@ import { updateRates } from '../actions/ratesActions';
 
 function* initAppSaga() {
   try {
-    yield put(restoreTheme());
     yield put(initAppSuccess());
     yield put(setSignedUp(true));
   } catch (e) {
