@@ -276,7 +276,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            <PageDescription title="Secret phrase">
+            <PageDescription title="Electrum">
               <p>Set explorer url for electrum server</p>
             </PageDescription>
             <IonInput
