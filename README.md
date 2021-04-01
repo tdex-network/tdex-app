@@ -77,7 +77,7 @@ This will mount in `pwd`/tdexd the data directory. After using you can delete it
 * Check the Logs
 
 ```sh
-$ docker logs tdex
+$ docker logs tdexd
 INFO[0000] trader interface is listening on :9945
 INFO[0000] operator interface is listening on :9945
 ```
@@ -92,11 +92,11 @@ Now you are ready to create your first market and start accepting incoming trade
 
 ```sh
 # init the cli configuration
-$ tdex config init
+$ tdex config init --network regtest
 # generate a new mnemonic
 $ SEED=$(tdex genseed)
 # init the provider's wallet
-$ tdex init --seed $SEED --password secret
+$ tdex init --seed "$SEED" --password secret
 # unlock the wallet using the password
 $ tdex unlock --password secret
 ```
