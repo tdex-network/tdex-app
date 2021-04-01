@@ -168,7 +168,7 @@ const Wallet: React.FC<WalletProps> = ({
                       >
                         {balance.coinGeckoID
                           ? capitalizeFirstLetter(balance.coinGeckoID)
-                          : 'Unknow'}
+                          : ''}
                       </div>
                     </div>
                   </div>
@@ -187,7 +187,7 @@ const Wallet: React.FC<WalletProps> = ({
                       <div className="sub-row">
                         {fiatValue < 0
                           ? fiatValue === UNKNOWN
-                            ? 'unknown'
+                            ? ''
                             : 'loading'
                           : fiatValue?.toFixed(2)}
                       </div>

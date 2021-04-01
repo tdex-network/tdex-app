@@ -1,0 +1,89 @@
+on:
+  push:
+    tags:
+      - "v*"
+
+name: Release
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  release:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # setup nodejs
+      - uses: actions/setup-node@v2
+        with:
+          node-version: "14"
+
+      - name: set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      # Build Ionic App
+      - name: install node dependencies
+        run: yarn install
+          
+      - name: build ionic android
+        run: yarn build:android
+
+      # Build Android APK with Gradle
+      - name: Build Debug APK
+        run: |
+          cd android
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
+          cd ..
+
+      # get current  tag
+      - name: tag
+        id: next_tag
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+
+      # get version number without the "v" for package.json increment
+      - name: version
+        id: next_version
+        run: |
+          tag=${{ steps.next_tag.outputs.tag }}
+          echo ::set-output name=version::${tag:1}
+
+      - name: Increment package.json version
+        run: |
+          jq '.version = "${{ steps.next_version.outputs.version }}"' package.json  > package.tmp.json
+          mv package.tmp.json package.json
+
+      # Release to github
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+      
+      - name: Upload release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./android/app/build/outputs/apk/debug/app-debug.apk
+          asset_name: tdex-app-${{ steps.next_tag.outputs.tag }}.apk
+          asset_content_type: application/apk
+
+      # Comit manifest and package.json to master
+      - name: Commit & Push
+        run: |
+          git config --local user.email "$(git log --format='%ae' HEAD^!)"
+          git config --local user.name "$(git log --format='%an' HEAD^!)"
+          git add .
+          git commit -m "${{ steps.next_tag.outputs.tag }}"
+          git push origin HEAD:master

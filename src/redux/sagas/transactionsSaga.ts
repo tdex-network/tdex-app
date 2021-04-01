@@ -13,6 +13,7 @@ import {
   select,
   all,
   takeEvery,
+  delay,
 } from 'redux-saga/effects';
 import {
   setTransaction,
@@ -22,6 +23,11 @@ import {
 import { addErrorToast } from '../actions/toastActions';
 import { addAsset } from '../actions/assetsActions';
 import moment from 'moment';
+import {
+  getTransactionsFromStorage,
+  setTransactionsInStorage,
+} from '../../utils/storage-helper';
+import { SIGN_IN } from '../actions/appActions';
 
 function* updateTransactions({ type }: { type: string }) {
   try {
@@ -106,7 +112,24 @@ function* updateAssets({
   }
 }
 
+function* persistTransactions() {
+  yield delay(20_000); // 20 sec
+  const txs = yield select(({ transactions }) =>
+    Object.values(transactions.txs)
+  );
+  yield call(setTransactionsInStorage, txs);
+}
+
+function* restoreTransactions() {
+  const txs: TxInterface[] = yield call(getTransactionsFromStorage);
+  for (const tx of txs) {
+    yield put(setTransaction(tx));
+  }
+}
+
 export function* transactionsWatcherSaga() {
   yield takeLatest(UPDATE_TRANSACTIONS, updateTransactions);
+  yield takeLatest(UPDATE_TRANSACTIONS, persistTransactions);
   yield takeEvery(SET_TRANSACTION, updateAssets);
+  yield takeLatest(SIGN_IN, restoreTransactions);
 }
