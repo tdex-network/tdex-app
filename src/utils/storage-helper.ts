@@ -25,6 +25,15 @@ const SEED_BACKUP_FLAG_KEY = 'tdex-app-seed-backup';
 const UTXOS_KEY = 'tdex-app-utxos';
 const TRANSACTIONS_KEY = 'tdex-app-transactions';
 const ASSETS_KEY = 'tdex-app-assets';
+const EXPLORER_KEY = 'tdex-app-explorer';
+
+export async function getExplorerFromStorage(): Promise<string> {
+  return (await Storage.get({ key: EXPLORER_KEY })).value;
+}
+
+export function setExplorerInStorage(explorer: string) {
+  Storage.set({ key: EXPLORER_KEY, value: explorer });
+}
 
 export async function getTransactionsFromStorage(): Promise<TxInterface[]> {
   return getFromStorage<TxInterface[]>(TRANSACTIONS_KEY, []);
@@ -175,6 +184,7 @@ async function clear() {
     Storage.remove({ key: UTXOS_KEY }),
     Storage.remove({ key: TRANSACTIONS_KEY }),
     Storage.remove({ key: ASSETS_KEY }),
+    Storage.remove({ key: EXPLORER_KEY }),
     Storage.clear(),
   ]);
 }
