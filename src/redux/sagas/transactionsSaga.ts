@@ -26,7 +26,6 @@ import {
 } from '../actions/transactionsActions';
 import { addErrorToast } from '../actions/toastActions';
 import { addAsset } from '../actions/assetsActions';
-import moment from 'moment';
 import {
   getTransactionsFromStorage,
   setTransactionsInStorage,

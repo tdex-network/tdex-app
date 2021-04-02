@@ -37,7 +37,6 @@ const WithdrawalDetails: React.FC<
   const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();
   const transaction = useSelector(transactionSelector(txid));
-  const [intervalUpdater, setIntervalUpdater] = useState<NodeJS.Timeout>();
 
   const [
     locationState,

@@ -39,7 +39,6 @@ import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import { update } from '../../redux/actions/appActions';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 

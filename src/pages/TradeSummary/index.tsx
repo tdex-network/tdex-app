@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
+import { useSelector } from 'react-redux';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
 import {
   IonPage,
@@ -17,9 +17,8 @@ import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
 import { swapHorizontal } from 'ionicons/icons';
 import { AssetConfig } from '../../utils/constants';
-import { update } from '../../redux/actions/appActions';
-import './style.scss';
 import Refresher from '../../components/Refresher';
+import './style.scss';
 
 export interface PreviewData {
   sent: {
