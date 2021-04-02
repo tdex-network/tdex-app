@@ -14,6 +14,7 @@ import { IdentityRestorerFromState, MnemonicRedux } from './identity';
 import { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 import { Dispatch } from 'redux';
 import { AssetConfig } from './constants';
+import { stringify, parse } from 'buffer-json';
 
 const { SecureStoragePlugin } = Plugins;
 
@@ -30,7 +31,7 @@ export async function getTransactionsFromStorage(): Promise<TxInterface[]> {
 }
 
 export function setTransactionsInStorage(txs: TxInterface[]) {
-  Storage.set({ key: TRANSACTIONS_KEY, value: JSON.stringify(txs) });
+  Storage.set({ key: TRANSACTIONS_KEY, value: stringify(txs) });
 }
 
 export async function getUtxosFromStorage(): Promise<UtxoInterface[]> {
@@ -38,7 +39,7 @@ export async function getUtxosFromStorage(): Promise<UtxoInterface[]> {
 }
 
 export function setUtxosInStorage(utxos: UtxoInterface[]) {
-  Storage.set({ key: UTXOS_KEY, value: JSON.stringify(utxos) });
+  Storage.set({ key: UTXOS_KEY, value: stringify(utxos) });
 }
 
 export async function getAssetsFromStorage(): Promise<AssetConfig[]> {
@@ -46,7 +47,7 @@ export async function getAssetsFromStorage(): Promise<AssetConfig[]> {
 }
 
 export function setAssetsInStorage(assets: AssetConfig[]) {
-  Storage.set({ key: ASSETS_KEY, value: JSON.stringify(assets) });
+  Storage.set({ key: ASSETS_KEY, value: stringify(assets) });
 }
 
 /**
@@ -78,7 +79,7 @@ export async function seedBackupFlag(): Promise<boolean> {
 export function setProvidersInStorage(providers: TDEXProvider[]) {
   return Storage.set({
     key: PROVIDERS_KEY,
-    value: JSON.stringify(providers),
+    value: stringify(providers),
   });
 }
 
@@ -89,7 +90,7 @@ export async function getProvidersFromStorage(): Promise<TDEXProvider[]> {
 export function setAddressesInStorage(addresses: AddressInterface[]) {
   return Storage.set({
     key: ADDRESSES_KEY,
-    value: JSON.stringify(addresses),
+    value: stringify(addresses),
   });
 }
 
@@ -121,7 +122,7 @@ export async function setMnemonicInSecureStorage(
   const encryptedData = await encrypt(mnemonic, pin);
   return SecureStoragePlugin.set({
     key: MNEMONIC_KEY,
-    value: JSON.stringify(encryptedData),
+    value: stringify(encryptedData),
   });
 }
 
@@ -133,7 +134,7 @@ export async function getMnemonicFromSecureStorage(
   pin: string
 ): Promise<string> {
   const { value } = await SecureStoragePlugin.get({ key: MNEMONIC_KEY });
-  const encryptedData: Encrypted = JSON.parse(value);
+  const encryptedData: Encrypted = parse(value);
   return decrypt(encryptedData, pin);
 }
 
@@ -232,7 +233,7 @@ async function getFromStorage<T>(key: string, defaultValue: T): Promise<T> {
   try {
     const { value } = await Storage.get({ key });
     if (!value) return defaultValue;
-    return JSON.parse(value) as T;
+    return parse(value) as T;
   } catch (error) {
     console.error(error);
     return defaultValue;
