@@ -4,7 +4,7 @@ set -e
 
 echo "creating wallet"
 
-tdex='./build/tdex-darwin-amd64'
+tdex='docker exec -it tdexd tdex '
 $tdex config init --network "regtest"
 $tdex init --seed "wrestle actress dirt spice ridge bone depart leisure fruit shoot elite mistake play supply inhale million tennis harvest merit anchor shaft desert organ salute" --password secret &>/dev/null
 
