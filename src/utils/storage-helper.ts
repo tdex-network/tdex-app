@@ -117,10 +117,7 @@ export async function setMnemonicInSecureStorage(
   mnemonic: string,
   pin: string
 ): Promise<boolean> {
-  const exists = await mnemonicInSecureStorage();
-  if (exists) {
-    await clear();
-  }
+  await clear();
   const encryptedData = await encrypt(mnemonic, pin);
   return SecureStoragePlugin.set({
     key: MNEMONIC_KEY,
@@ -177,6 +174,7 @@ async function clear() {
     Storage.remove({ key: UTXOS_KEY }),
     Storage.remove({ key: TRANSACTIONS_KEY }),
     Storage.remove({ key: ASSETS_KEY }),
+    Storage.clear(),
   ]);
 }
 
