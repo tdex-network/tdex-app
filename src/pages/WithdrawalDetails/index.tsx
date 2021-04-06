@@ -16,11 +16,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { TxStatusEnum } from '../../utils/types';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { update } from '../../redux/actions/appActions';
-
-import './style.scss';
 import { Clipboard } from '@ionic-native/clipboard';
 import { addSuccessToast } from '../../redux/actions/toastActions';
 import { tickerFromAssetHash } from '../../utils/helpers';
+
+import './style.scss';
 
 const statusText = {
   confirmed: 'completed',
