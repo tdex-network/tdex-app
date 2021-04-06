@@ -14,6 +14,7 @@ import { CurrencyInterface } from '../../redux/reducers/settingsReducer';
 import { CURRENCIES } from '../../utils/constants';
 import { setCurrency } from '../../redux/actions/settingsActions';
 import './style.scss';
+import { updateRates } from '../../redux/actions/ratesActions';
 
 interface ExchangeSearchProps {
   isOpen: boolean;
@@ -44,13 +45,19 @@ const CurrencySearch: React.FC<ExchangeSearchProps> = ({ isOpen, close }) => {
         </IonHeader>
         <IonContent className="search-content">
           <IonList>
-            {CURRENCIES.map((currency: CurrencyInterface, index: number) => {
+            {CURRENCIES.filter(
+              (currency: CurrencyInterface) =>
+                currency.name.includes(searchString) ||
+                currency.symbol.includes(searchString) ||
+                currency.value.includes(searchString)
+            ).map((currency: CurrencyInterface, index: number) => {
               return (
                 <IonItem
                   key={index}
                   data-asset={index}
                   onClick={() => {
                     dispatch(setCurrency(currency));
+                    dispatch(updateRates());
                     close();
                   }}
                 >
@@ -59,7 +66,7 @@ const CurrencySearch: React.FC<ExchangeSearchProps> = ({ isOpen, close }) => {
                     tabIndex={0}
                   ></div>
                   <div className="search-item-name">
-                    <p>{`${currency.name} ${currency.symbol}`}</p>
+                    <p>{`${currency.symbol} ${currency.name} (${currency.value})`}</p>
                   </div>
                 </IonItem>
               );
