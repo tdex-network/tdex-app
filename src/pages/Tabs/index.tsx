@@ -19,7 +19,7 @@ import './style.scss';
 const ROUTES_SORTED_BY_TAB: Record<string, string[]> = {
   wallet: ['wallet', 'operations', 'qrscanner', 'receive', 'withdraw'],
   exchange: ['exchange', 'tradesummary', 'history'],
-  settings: ['settings', 'account', 'liquidity-provider'],
+  settings: ['settings', 'account', 'liquidity-provider', 'faq', 'terms'],
 };
 
 const Tabs: React.FC<RouteComponentProps> = ({ history, location }) => {
