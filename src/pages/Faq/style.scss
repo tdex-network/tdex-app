@@ -1,0 +1,13 @@
+.main-content {
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  --overflow: auto;
+  position: relative;
+}
+
+.content {
+  color: #fff;
+  p {
+    font-size: small;
+  }
+}
