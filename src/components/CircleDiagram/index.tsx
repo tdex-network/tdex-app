@@ -1,6 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import classNames from 'classnames';
-import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { createColorFromHash } from '../../utils/helpers';
 
 import './style.scss';
