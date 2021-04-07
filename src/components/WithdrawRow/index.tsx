@@ -29,7 +29,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   onAmountChange,
   error,
 }) => {
-  const currency = useSelector((state: any) => state.settings.currency);
+  const currency = useSelector((state: any) => state.settings.currency.value);
   const [residualBalance, setResidualBalance] = useState<string>(
     fromSatoshiFixed(balance.amount, balance.precision, balance.precision)
   );

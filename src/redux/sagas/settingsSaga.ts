@@ -1,5 +1,7 @@
 import {
+  setCurrency,
   setElectrumServer,
+  SET_CURRENCY,
   SET_ELECTRUM_SERVER,
 } from './../actions/settingsActions';
 import { takeLatest, call, put } from 'redux-saga/effects';
@@ -11,7 +13,9 @@ import {
 } from '../services/settingsService';
 import { SIGN_IN } from '../actions/appActions';
 import {
+  getCurrencyFromStorage,
   getExplorerFromStorage,
+  setCurrencyInStorage,
   setExplorerInStorage,
 } from '../../utils/storage-helper';
 
@@ -49,9 +53,24 @@ function* persistExplorer(action: ActionType) {
   yield call(setExplorerInStorage, action.payload);
 }
 
+function* persistCurrency(action: ActionType) {
+  yield call(setCurrencyInStorage, action.payload);
+}
+
+function* restoreCurrency() {
+  try {
+    const currency = yield call(getCurrencyFromStorage);
+    yield put(setCurrency(currency));
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 export function* settingsWatcherSaga() {
   yield takeLatest(STORE_THEME, storeThemeSaga);
   yield takeLatest(SIGN_IN, restoreThemeSaga);
   yield takeLatest(SIGN_IN, restoreExplorer);
+  yield takeLatest(SIGN_IN, restoreCurrency);
   yield takeLatest(SET_ELECTRUM_SERVER, persistExplorer);
+  yield takeLatest(SET_CURRENCY, persistCurrency);
 }

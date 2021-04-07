@@ -8,7 +8,7 @@ import { ActionType } from '../../utils/types';
 import { setRates } from '../actions/ratesActions';
 
 function* fetchRates({ type }: ActionType) {
-  const currency = yield select((state: any) => state.settings.currency);
+  const currency = yield select((state: any) => state.settings.currency.value);
   const coinGeckoResult: CoinGeckoPriceResult = yield call(
     getPriceFromCoinGecko,
     [currency]

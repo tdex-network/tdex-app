@@ -1,8 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import './style.scss';
-import classNames from 'classnames';
-import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { createColorFromHash } from '../../utils/helpers';
+
+import './style.scss';
 
 const colors: {
   [key: string]: [string, string];
@@ -13,12 +12,11 @@ const colors: {
   btse: ['#1093f9', '#25c5fc'],
 };
 
-export interface CircleDiagram {
-  data: Array<BalanceInterface>;
-  className?: string;
+export interface CircleDiagramProps {
+  data: Array<{ asset: string; ticker: string; amount: number }>;
 }
 
-const CircleDiagram: React.FC<CircleDiagram> = ({ className, data }) => {
+const CircleDiagram: React.FC<CircleDiagramProps> = ({ data }) => {
   const canvasRef = useRef<any>(null);
   const total = data.reduce((acc, balance) => acc + balance.amount, 0);
 
@@ -36,7 +34,7 @@ const CircleDiagram: React.FC<CircleDiagram> = ({ className, data }) => {
 
     const checkSmallElements = () => {
       const marginsSum = data.length * 0.2;
-      data.forEach((item: BalanceInterface, index: number) => {
+      data.forEach((item: { asset: string; amount: number }, index: number) => {
         const part = item.amount / total;
         const realLength = part * (2 * Math.PI - marginsSum);
         if (part * 100 < minWidthPercent) {
@@ -68,7 +66,7 @@ const CircleDiagram: React.FC<CircleDiagram> = ({ className, data }) => {
           : start + length;
     };
 
-    const fillColor = (grad: any, item?: BalanceInterface) => {
+    const fillColor = (grad: any, item?: { asset: string; ticker: string }) => {
       if (!item) {
         grad.addColorStop(0, '#CCCCCC');
         grad.addColorStop(1, '#CCCCCC');
@@ -127,7 +125,7 @@ const CircleDiagram: React.FC<CircleDiagram> = ({ className, data }) => {
       height="240"
       ref={canvasRef}
       id="#canvas"
-      className={classNames('canvas', className)}
+      className="canvas"
     />
   );
 };
