@@ -8,6 +8,8 @@ import {
   ADD_ADDRESS,
   RESET_UTXOS,
   SET_PUBLIC_KEYS,
+  LOCK_UTXO,
+  UNLOCK_UTXO,
 } from '../actions/walletActions';
 import { tickerFromAssetHash, balancesFromUtxos } from '../../utils/helpers';
 import { defaultPrecision, getMainAsset } from '../../utils/constants';
@@ -16,7 +18,7 @@ export interface WalletState {
   isAuth: boolean;
   addresses: Record<string, AddressInterface>;
   utxos: Record<string, UtxoInterface>;
-  utxosLocks: Record<string, number>;
+  utxosLocks: string[];
   masterPubKey: string;
   masterBlindKey: string;
 }
@@ -25,7 +27,7 @@ const initialState: WalletState = {
   isAuth: false,
   addresses: {},
   utxos: {},
-  utxosLocks: {},
+  utxosLocks: [],
   masterPubKey: '',
   masterBlindKey: '',
 };
@@ -54,6 +56,18 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
         ...state,
         masterBlindKey: (action.payload as Mnemonic).masterBlindingKey,
         masterPubKey: (action.payload as Mnemonic).masterPublicKey,
+      };
+    case LOCK_UTXO:
+      return {
+        ...state,
+        utxosLocks: [...state.utxosLocks, action.payload],
+      };
+    case UNLOCK_UTXO:
+      return {
+        ...state,
+        utxosLocks: state.utxosLocks.filter(
+          (outpoint: string) => outpoint !== action.payload
+        ),
       };
     default:
       return state;
@@ -85,7 +99,7 @@ export const allUtxosSelector = ({ wallet }: { wallet: WalletState }) => {
 
   const utxos = [];
   for (const [outpoint, utxo] of Object.entries(wallet.utxos)) {
-    if (outpoint in wallet.utxosLocks) continue;
+    if (wallet.utxosLocks.includes(outpoint)) continue;
     utxos.push(utxo);
   }
 
