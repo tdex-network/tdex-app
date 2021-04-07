@@ -6,7 +6,6 @@ import {
   IonButton,
   IonToolbar,
   IonHeader,
-  useIonViewDidLeave,
   IonSkeletonText,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
@@ -15,10 +14,11 @@ import { CurrencyIcon, IconBack } from '../../components/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { TxStatusEnum } from '../../utils/types';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
-import { update } from '../../redux/actions/appActions';
 import { Clipboard } from '@ionic-native/clipboard';
 import { addSuccessToast } from '../../redux/actions/toastActions';
 import { tickerFromAssetHash } from '../../utils/helpers';
+import Refresher from '../../components/Refresher';
+import './style.scss';
 
 import './style.scss';
 
@@ -39,7 +39,6 @@ const WithdrawalDetails: React.FC<
   const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();
   const transaction = useSelector(transactionSelector(txid));
-  const [intervalUpdater, setIntervalUpdater] = useState<NodeJS.Timeout>();
 
   const [
     locationState,
@@ -51,22 +50,6 @@ const WithdrawalDetails: React.FC<
       setLocationState(location.state);
     }
   }, [location]);
-
-  useEffect(() => {
-    if (!transaction) {
-      setIntervalUpdater(
-        setInterval(() => {
-          dispatch(update());
-        }, 10000)
-      );
-    }
-  }, []);
-
-  useIonViewDidLeave(() => {
-    if (intervalUpdater) {
-      clearInterval(intervalUpdater);
-    }
-  });
 
   const renderStatusText: any = (status: string) => {
     switch (status) {
@@ -106,6 +89,7 @@ const WithdrawalDetails: React.FC<
         </IonToolbar>
       </IonHeader>
       <IonContent className="withdrawal-details">
+        <Refresher />
         <div className="header-info">
           {<CurrencyIcon currency={ticker()} />}
           <p className="info-amount">{`${ticker()} WITHDRAW`}</p>

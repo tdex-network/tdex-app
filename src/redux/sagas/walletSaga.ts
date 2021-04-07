@@ -1,3 +1,4 @@
+import { ActionType } from './../../utils/types';
 import { updateRates } from './../actions/ratesActions';
 import {
   WalletState,
@@ -12,6 +13,7 @@ import {
   LOCK_UTXO,
   unlockUtxo,
   ADD_ADDRESS,
+  WATCH_UTXO,
 } from './../actions/walletActions';
 import {
   takeLatest,
@@ -26,6 +28,8 @@ import {
   AddressInterface,
   UtxoInterface,
   fetchAndUnblindUtxosGenerator,
+  fetchUtxos,
+  fetchPrevoutAndTryToUnblindUtxo,
 } from 'ldk';
 import { addErrorToast } from '../actions/toastActions';
 import {
@@ -129,10 +133,41 @@ function* restoreUtxos() {
   }
 }
 
+function* watchUtxoSaga(action: ActionType) {
+  const {
+    address,
+    maxTry,
+  }: { address: AddressInterface; maxTry: number } = action.payload;
+  const explorer = yield select(({ settings }) => settings.explorerUrl);
+
+  for (let t = 0; t < maxTry; t++) {
+    try {
+      const utxos: UtxoInterface[] = yield call(
+        fetchUtxos,
+        address.confidentialAddress,
+        explorer
+      );
+      if (utxos.length === 0) throw new Error();
+      const unblindedUtxo: UtxoInterface = yield call(
+        fetchPrevoutAndTryToUnblindUtxo,
+        utxos[0],
+        address.blindingPrivateKey,
+        explorer
+      );
+      yield put(setUtxo(unblindedUtxo));
+      break;
+    } catch {
+      yield delay(1_000);
+      continue;
+    }
+  }
+}
+
 export function* walletWatcherSaga() {
   yield takeLatest(ADD_ADDRESS, persistAddresses);
   yield takeLatest(UPDATE_UTXOS, updateUtxosState);
   yield takeLatest(UPDATE_UTXOS, persistUtxos);
   yield takeEvery(LOCK_UTXO, waitAndUnlock);
   yield takeLatest(SIGN_IN, restoreUtxos);
+  yield takeLatest(WATCH_UTXO, watchUtxoSaga);
 }

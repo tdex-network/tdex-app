@@ -1,3 +1,5 @@
+import { setTransaction } from './../actions/transactionsActions';
+import { ActionType } from './../../utils/types';
 import { WalletState } from './../reducers/walletReducer';
 import {
   BlindingKeyGetter,
@@ -5,6 +7,8 @@ import {
   fetchAndUnblindTxsGenerator,
   AddressInterface,
   isBlindedOutputInterface,
+  fetchTx,
+  unblindTransaction,
 } from 'ldk';
 import {
   takeLatest,
@@ -16,13 +20,12 @@ import {
   delay,
 } from 'redux-saga/effects';
 import {
-  setTransaction,
   SET_TRANSACTION,
   UPDATE_TRANSACTIONS,
+  WATCH_TRANSACTION,
 } from '../actions/transactionsActions';
 import { addErrorToast } from '../actions/toastActions';
 import { addAsset } from '../actions/assetsActions';
-import moment from 'moment';
 import {
   getTransactionsFromStorage,
   setTransactionsInStorage,
@@ -67,21 +70,22 @@ export function* fetchAndUpdateTxs(
   currentTxs: Record<string, TxInterface>,
   explorerUrl: string
 ) {
-  const identityBlindKeyGetter: BlindingKeyGetter = (script: string) => {
-    try {
-      return scriptsToAddressInterface[script]?.blindingPrivateKey;
-    } catch (_) {
-      return undefined;
-    }
-  };
-  const yesterday = moment().subtract(1, 'days');
+  const identityBlindKeyGetter = blindKeyGetterFactory(
+    scriptsToAddressInterface
+  );
+
   const txsGen = fetchAndUnblindTxsGenerator(
     addresses,
     identityBlindKeyGetter,
     explorerUrl,
-    (tx: TxInterface) =>
-      currentTxs[tx.txid] &&
-      moment((tx.status.blockTime || 0) * 1000).isBefore(yesterday)
+    (tx: TxInterface) => {
+      const txInStore = currentTxs[tx.txid];
+      if (txInStore && txInStore.status.confirmed) {
+        // skip if tx is already in store AND confirmed
+        return true;
+      }
+      return false;
+    }
   );
   const next = () => txsGen.next();
   let it: IteratorResult<TxInterface, number> = yield call(next);
@@ -127,9 +131,47 @@ function* restoreTransactions() {
   }
 }
 
+function* watchTransaction(action: ActionType) {
+  const { txID, maxTry } = action.payload as { txID: string; maxTry: number };
+  const explorer = yield select(({ settings }) => settings.explorerUrl);
+
+  for (let t = 0; t < maxTry; t++) {
+    try {
+      const tx: TxInterface = yield call(fetchTx, txID, explorer);
+      const scriptsToAddress = yield select(
+        ({ wallet }: { wallet: WalletState }) => wallet.addresses
+      );
+      const blindKeyGetter = blindKeyGetterFactory(scriptsToAddress);
+      const unblindedTx: TxInterface = yield call(
+        unblindTransaction,
+        tx,
+        blindKeyGetter
+      );
+      yield put(setTransaction(unblindedTx));
+      break;
+    } catch {
+      yield delay(1_000);
+      continue;
+    }
+  }
+}
+
+function blindKeyGetterFactory(
+  scriptsToAddressInterface: Record<string, AddressInterface>
+): BlindingKeyGetter {
+  return (script: string) => {
+    try {
+      return scriptsToAddressInterface[script]?.blindingPrivateKey;
+    } catch (_) {
+      return undefined;
+    }
+  };
+}
+
 export function* transactionsWatcherSaga() {
   yield takeLatest(UPDATE_TRANSACTIONS, updateTransactions);
   yield takeLatest(UPDATE_TRANSACTIONS, persistTransactions);
   yield takeEvery(SET_TRANSACTION, updateAssets);
   yield takeLatest(SIGN_IN, restoreTransactions);
+  yield takeEvery(WATCH_TRANSACTION, watchTransaction);
 }

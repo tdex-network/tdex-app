@@ -17,6 +17,18 @@ export const RESET_UTXOS = 'RESET_UTXOS';
 export const SET_PUBLIC_KEYS = 'SET_PUBLIC_KEYS';
 export const LOCK_UTXO = 'LOCK_UTXO';
 export const UNLOCK_UTXO = 'UNLOCK_UTXO';
+export const WATCH_UTXO = 'WATCH_UTXO';
+
+export const watchUtxo = (
+  address: AddressInterface,
+  maxTry = 100
+): ActionType => ({
+  type: WATCH_UTXO,
+  payload: {
+    address,
+    maxTry,
+  },
+});
 
 export const addAddress = (address: AddressInterface) => {
   return {

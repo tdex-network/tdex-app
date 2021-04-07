@@ -1,3 +1,4 @@
+import { watchUtxo } from './../redux/actions/walletActions';
 import {
   AddressInterface,
   EsploraIdentityRestorer,
@@ -21,12 +22,14 @@ export class MnemonicRedux extends Mnemonic implements IdentityInterface {
   getNextAddress(): AddressInterface {
     const nextAddr = super.getNextAddress();
     this.dispatch(addAddress(nextAddr));
+    this.dispatch(watchUtxo(nextAddr));
     return nextAddr;
   }
 
   getNextChangeAddress(): AddressInterface {
     const nextAddr = super.getNextChangeAddress();
     this.dispatch(addAddress(nextAddr));
+    this.dispatch(watchUtxo(nextAddr));
     return nextAddr;
   }
 }

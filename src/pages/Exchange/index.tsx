@@ -37,6 +37,7 @@ import { AssetConfig, defaultPrecision } from '../../utils/constants';
 import { Dispatch } from 'redux';
 
 import './style.scss';
+import { watchTransaction } from '../../redux/actions/transactionsActions';
 
 interface ExchangeProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -131,6 +132,8 @@ const Exchange: React.FC<ExchangeProps> = ({
         identity,
         customCoinSelector(dispatch)
       );
+
+      dispatch(watchTransaction(txid));
 
       addSuccessToast('Trade successfully computed');
       const preview: PreviewData = {
