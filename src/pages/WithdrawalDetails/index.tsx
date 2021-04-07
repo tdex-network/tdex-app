@@ -20,8 +20,6 @@ import { tickerFromAssetHash } from '../../utils/helpers';
 import Refresher from '../../components/Refresher';
 import './style.scss';
 
-import './style.scss';
-
 const statusText = {
   confirmed: 'completed',
   pending: 'pending',
