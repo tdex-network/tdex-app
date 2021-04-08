@@ -38,6 +38,9 @@ import { Dispatch } from 'redux';
 
 import './style.scss';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
+import { TradeType } from 'tdex-sdk';
+
+const ERROR_LIQUIDITY = 'Not enough liquidity in market';
 
 interface ExchangeProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -70,11 +73,56 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [trades, setTrades] = useState<TDEXTrade[]>([]);
   // selected trade
   const [trade, setTrade] = useState<TDEXTrade>();
-
+  // focused input
   const [isFocused, setIsFocused] = useState<'sent' | 'receive'>('sent');
+  // errors
+  const [errorSent, setErrorSent] = useState('');
+  const [errorReceived, setErrorReceived] = useState('');
 
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const checkAvailableAmountSent = () => {
+    if (!trade || !sentAmount || !assetSent) return;
+
+    const availableAmount =
+      trade.type === TradeType.BUY
+        ? trade.market.quoteAmount
+        : trade.market.baseAmount;
+
+    const sats = toSatoshi(
+      sentAmount,
+      assets[assetSent.asset]?.precision || defaultPrecision
+    );
+
+    if (availableAmount && availableAmount < sats) {
+      setErrorSent(ERROR_LIQUIDITY);
+      return;
+    }
+
+    setErrorSent('');
+  };
+
+  const checkAvailableAmountReceived = () => {
+    if (!trade || !receivedAmount || !assetReceived) return;
+
+    const availableAmount =
+      trade.type === TradeType.BUY
+        ? trade.market.baseAmount
+        : trade.market.quoteAmount;
+
+    const sats = toSatoshi(
+      receivedAmount,
+      assets[assetReceived.asset]?.precision || defaultPrecision
+    );
+
+    if (availableAmount && availableAmount < sats) {
+      setErrorReceived(ERROR_LIQUIDITY);
+      return;
+    }
+
+    setErrorReceived('');
+  };
 
   useIonViewWillEnter(() => {
     if (markets.length === 0) {
@@ -187,13 +235,18 @@ const Exchange: React.FC<ExchangeProps> = ({
               relatedAssetHash={assetReceived?.asset || ''}
               asset={assetSent}
               trades={trades}
-              onChangeAmount={(newAmount: number) => setSentAmount(newAmount)}
+              onChangeAmount={(newAmount: number) => {
+                setSentAmount(newAmount);
+                checkAvailableAmountSent();
+              }}
               assetsWithTicker={allAssets}
               setAsset={(asset) => {
                 if (assetReceived && asset.asset === assetReceived.asset)
                   setAssetReceived(assetSent);
                 setAssetSent(asset);
               }}
+              error={errorSent}
+              setError={setErrorSent}
             />
             <div
               className="exchange-divider"
@@ -214,15 +267,18 @@ const Exchange: React.FC<ExchangeProps> = ({
                 relatedAssetAmount={sentAmount || 0}
                 relatedAssetHash={assetSent?.asset || ''}
                 asset={assetReceived}
-                onChangeAmount={(newAmount: number) =>
-                  setReceivedAmount(newAmount)
-                }
+                onChangeAmount={(newAmount: number) => {
+                  setReceivedAmount(newAmount);
+                  checkAvailableAmountReceived();
+                }}
                 assetsWithTicker={tradableAssets}
                 setAsset={(asset) => {
                   if (asset.asset === assetSent.asset)
                     setAssetSent(assetReceived);
                   setAssetReceived(asset);
                 }}
+                error={errorReceived}
+                setError={setErrorReceived}
               />
             )}
           </div>

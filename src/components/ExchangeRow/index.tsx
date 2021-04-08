@@ -23,6 +23,8 @@ import {
   setAccessoryBar,
 } from '../../utils/keyboard';
 
+const ERROR_BALANCE_TOO_LOW = 'Amount is greater than your balance';
+
 interface ExchangeRowInterface {
   checkBalance?: boolean;
   // the asset handled by the component.
@@ -44,6 +46,9 @@ interface ExchangeRowInterface {
   balances: BalanceInterface[];
   prices: Record<string, number>;
   currency: string;
+  // error
+  error: string;
+  setError: (msg: string) => void;
 }
 
 const ExchangeRow: React.FC<ExchangeRowInterface> = ({
@@ -62,12 +67,13 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   setFocus,
   focused,
   checkBalance,
+  error,
+  setError,
 }) => {
   const [balance, setBalance] = useState<BalanceInterface>();
   const [amount, setAmount] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const [error, setError] = useState('');
   const onErrorGetPrice = (e: any) => {
     console.error(e);
   };
@@ -149,11 +155,11 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
               value={amount}
               placeholder="0.00"
               color={error && 'danger'}
-              debounce={400}
+              debounce={200}
               onIonChange={(e) => {
                 if (!isUpdating) {
-                  setError('');
                   if (!e.detail.value) {
+                    setError('');
                     setAmount('');
                     onChangeAmount(0);
                     return;
@@ -168,7 +174,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
                   );
 
                   if (checkBalance && inputAmount > sats) {
-                    setError('Amount is greater than your balance');
+                    setError(ERROR_BALANCE_TOO_LOW);
                   }
                 }
               }}
