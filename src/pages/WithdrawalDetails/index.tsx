@@ -28,12 +28,14 @@ const statusText = {
 interface WithdrawalDetailsLocationState {
   address: string;
   asset: string;
+  ticker: string;
   amount: number;
 }
 
 const WithdrawalDetails: React.FC<
   RouteComponentProps<any, any, WithdrawalDetailsLocationState>
 > = ({ history, location }) => {
+  const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();
   const transaction = useSelector(transactionSelector(txid));
@@ -64,7 +66,10 @@ const WithdrawalDetails: React.FC<
     }
   };
 
-  const ticker = () => tickerFromAssetHash(locationState?.asset);
+  const ticker = () => {
+    const t = tickerFromAssetHash(locationState?.asset);
+    return t === 'L-BTC' ? lbtcUnit : t;
+  };
 
   const Skeleton = () => (
     <IonSkeletonText className="custom-skeleton" animated />
@@ -89,7 +94,11 @@ const WithdrawalDetails: React.FC<
       <IonContent className="withdrawal-details">
         <Refresher />
         <div className="header-info">
-          {<CurrencyIcon currency={ticker()} />}
+          {
+            <CurrencyIcon
+              currency={tickerFromAssetHash(locationState?.asset)}
+            />
+          }
           <p className="info-amount">{`${ticker()} WITHDRAW`}</p>
         </div>
         <IonItem>

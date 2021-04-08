@@ -21,7 +21,11 @@ import {
   makeTrade,
   getTradablesAssets,
 } from '../../utils/tdex';
-import { customCoinSelector, toSatoshi } from '../../utils/helpers';
+import {
+  customCoinSelector,
+  tickerFromAssetHash,
+  toSatoshi,
+} from '../../utils/helpers';
 import {
   addErrorToast,
   addSuccessToast,
@@ -35,10 +39,10 @@ import Refresher from '../../components/Refresher';
 import { UtxoInterface } from 'ldk';
 import { AssetConfig, defaultPrecision } from '../../utils/constants';
 import { Dispatch } from 'redux';
-
-import './style.scss';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { TradeType } from 'tdex-sdk';
+import { useSelector } from 'react-redux';
+import './style.scss';
 
 const ERROR_LIQUIDITY = 'Not enough liquidity in market';
 
@@ -62,6 +66,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   allAssets,
   dispatch,
 }) => {
+  const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   // user inputs amount
   const [sentAmount, setSentAmount] = useState<number>();
   const [receivedAmount, setReceivedAmount] = useState<number>();
@@ -92,7 +97,8 @@ const Exchange: React.FC<ExchangeProps> = ({
 
     const sats = toSatoshi(
       sentAmount,
-      assets[assetSent.asset]?.precision || defaultPrecision
+      assets[assetSent.asset]?.precision || defaultPrecision,
+      tickerFromAssetHash(assetSent.asset) === 'L-BTC' ? lbtcUnit : undefined
     );
 
     if (availableAmount && availableAmount < sats) {

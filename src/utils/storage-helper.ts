@@ -13,7 +13,7 @@ import { network } from '../redux/config';
 import { IdentityRestorerFromState, MnemonicRedux } from './identity';
 import { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 import { Dispatch } from 'redux';
-import { AssetConfig, CURRENCIES } from './constants';
+import { AssetConfig, CURRENCIES, LBTC_DENOMINATIONS } from './constants';
 import { CurrencyInterface } from '../redux/reducers/settingsReducer';
 import { stringify, parse } from 'buffer-json';
 
@@ -28,6 +28,21 @@ const TRANSACTIONS_KEY = 'tdex-app-transactions';
 const ASSETS_KEY = 'tdex-app-assets';
 const EXPLORER_KEY = 'tdex-app-explorer';
 const CURRENCY_KEY = 'tdex-app-currency';
+const LBTC_DENOMINATION_KEY = 'tdex-app-lbtc-unit';
+
+export async function getLBTCDenominationFromStorage(): Promise<string> {
+  return (
+    (await Storage.get({ key: LBTC_DENOMINATION_KEY })).value ||
+    LBTC_DENOMINATIONS[0]
+  );
+}
+
+export function setLBTCDenominationInStorage(denomination: string) {
+  Storage.set({
+    key: LBTC_DENOMINATION_KEY,
+    value: denomination,
+  });
+}
 
 export async function getCurrencyFromStorage(): Promise<CurrencyInterface> {
   return getFromStorage<CurrencyInterface>(CURRENCY_KEY, CURRENCIES[0]);

@@ -2,7 +2,11 @@ import React, { useEffect, useState } from 'react';
 import classNames from 'classnames';
 import { CurrencyIcon } from '../icons';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
+import {
+  fromSatoshi,
+  fromSatoshiFixed,
+  toLBTCwithUnit,
+} from '../../utils/helpers';
 import {
   IonIcon,
   IonInput,
@@ -22,6 +26,7 @@ import {
   onPressEnterKeyCloseKeyboard,
   setAccessoryBar,
 } from '../../utils/keyboard';
+import { useSelector } from 'react-redux';
 
 const ERROR_BALANCE_TOO_LOW = 'Amount is greater than your balance';
 
@@ -70,6 +75,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   error,
   setError,
 }) => {
+  const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const [balance, setBalance] = useState<BalanceInterface>();
   const [amount, setAmount] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -112,7 +118,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         const updatedAmount = fromSatoshiFixed(
           previewAmount,
           precision,
-          precision
+          precision,
+          balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
         );
         setAmount(updatedAmount);
         onChangeAmount(fromSatoshi(previewAmount, precision));
@@ -136,7 +143,11 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           <span className="icon-wrapper medium">
             <CurrencyIcon currency={asset.ticker} />
           </span>
-          <p>{asset.ticker}</p>
+          <p>
+            {balance?.ticker === 'L-BTC'
+              ? lbtcUnit
+              : balance?.ticker.toUpperCase()}
+          </p>
           <IonIcon
             className="icon"
             icon={isSearchOpen ? searchSharp : caretDown}
@@ -165,12 +176,16 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
                     return;
                   }
                   const val = e.detail.value.replace(',', '.');
-                  const inputAmount = parseFloat(val);
+                  const inputAmount = toLBTCwithUnit(
+                    parseFloat(val),
+                    balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
+                  );
                   setAmount(val);
                   onChangeAmount(inputAmount);
                   const sats = fromSatoshi(
                     balance?.amount || 0,
-                    balance?.precision
+                    balance?.precision,
+                    balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
                   );
 
                   if (checkBalance && inputAmount > sats) {
@@ -192,7 +207,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
               fromSatoshiFixed(
                 balance?.amount || 0,
                 balance?.precision,
-                balance?.precision || defaultPrecision
+                balance?.precision || defaultPrecision,
+                balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
               )
             );
           }}
@@ -200,8 +216,9 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           <p>{`Total balance: ${fromSatoshiFixed(
             balance?.amount || 0,
             balance?.precision,
-            balance?.precision || defaultPrecision
-          )} ${asset.ticker}`}</p>
+            balance?.precision || defaultPrecision,
+            balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
+          )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : asset.ticker}`}</p>
         </div>
         {amount && asset.coinGeckoID && prices[asset.coinGeckoID] && (
           <div>
@@ -209,7 +226,12 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
               <IonText color="danger">{error}</IonText>
             ) : (
               <p>
-                {(parseFloat(amount) * prices[asset.coinGeckoID]).toFixed(2)}{' '}
+                {(
+                  toLBTCwithUnit(
+                    parseFloat(amount),
+                    balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
+                  ) * prices[asset.coinGeckoID]
+                ).toFixed(2)}{' '}
                 {currency.toUpperCase()}
               </p>
             )}
