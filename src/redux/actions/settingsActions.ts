@@ -5,6 +5,12 @@ export const SET_ELECTRUM_SERVER = 'SET_ELECTRUM_SERVER';
 export const SET_THEME = 'SET_THEME';
 export const STORE_THEME = 'STORE_THEME';
 export const SET_CURRENCY = 'SET_CURRENCY';
+export const SET_LBTC_DENOMINATION = 'SET_LBTC_DENOMINATION';
+
+export const setLBTCDenomination = (denomination: string): ActionType => ({
+  type: SET_LBTC_DENOMINATION,
+  payload: denomination,
+});
 
 export const setCurrency = (currency: CurrencyInterface): ActionType => {
   return {

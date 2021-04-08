@@ -29,18 +29,23 @@ import { addErrorToast } from '../../redux/actions/toastActions';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import { Plugins } from '@capacitor/core';
 import CurrencySearch from '../../components/CurrencySearch';
+import DenominationSearch from '../../components/DenominationSearch';
 const { Device } = Plugins;
 
 const Settings: React.FC<RouteComponentProps> = ({ history }) => {
-  const { explorerUrl, theme, currency } = useSelector((state: any) => ({
-    explorerUrl: state.settings.explorerUrl,
-    currency: state.settings.currency,
-    theme: state.settings.theme,
-  }));
+  const { explorerUrl, theme, currency, unitLBTC } = useSelector(
+    (state: any) => ({
+      explorerUrl: state.settings.explorerUrl,
+      currency: state.settings.currency,
+      theme: state.settings.theme,
+      unitLBTC: state.settings.denominationLBTC,
+    })
+  );
   const [showExplorerModal, setShowExplorerModal] = useState(false);
   const [explorerValue, setExplorerValue] = useState(explorerUrl);
   const [modalOpen, setModalOpen] = useState(false);
   const [currencySearchOpen, setCurrencySearchOpen] = useState(false);
+  const [LBTCUnitSearchOpen, setLBTCUnitSearchOpen] = useState(false);
   const [appVersion, setAppVersion] = useState<string>();
 
   useEffect(() => {
@@ -149,6 +154,31 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
           </IonItem>
           <IonItem
             className="list-item"
+            onClick={() => setLBTCUnitSearchOpen(true)}
+          >
+            <div
+              // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
+              tabIndex={0}
+            ></div>
+            <div className="item-main-info">
+              <div className="item-start">
+                <div className="main-row">L-BTC unit</div>
+              </div>
+              <div className="item-end">
+                <span className="chosen-currency green-label">{unitLBTC}</span>
+                <IconRightArrow
+                  className="next-icon"
+                  fill="#fff"
+                  width="7"
+                  height="12"
+                  viewBox="0 0 7 12"
+                />
+              </div>
+            </div>
+          </IonItem>
+
+          <IonItem
+            className="list-item"
             onClick={() => setCurrencySearchOpen(true)}
           >
             <div
@@ -173,6 +203,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               </div>
             </div>
           </IonItem>
+
           <IonItem
             className="list-item"
             onClick={() => {
@@ -332,6 +363,10 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
         <CurrencySearch
           isOpen={currencySearchOpen}
           close={() => setCurrencySearchOpen(false)}
+        />
+        <DenominationSearch
+          isOpen={LBTCUnitSearchOpen}
+          close={() => setLBTCUnitSearchOpen(false)}
         />
       </IonContent>
     </IonPage>

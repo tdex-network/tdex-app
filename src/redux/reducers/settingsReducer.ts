@@ -1,8 +1,10 @@
+import { LBTC_DENOMINATIONS } from './../../utils/constants';
 import { CURRENCIES } from '../../utils/constants';
 import { ActionType } from '../../utils/types';
 import {
   SET_CURRENCY,
   SET_ELECTRUM_SERVER,
+  SET_LBTC_DENOMINATION,
   SET_THEME,
 } from '../actions/settingsActions';
 import { network } from '../config';
@@ -17,12 +19,14 @@ export interface SettingsState {
   currency: CurrencyInterface;
   explorerUrl: string;
   theme: string;
+  denominationLBTC: string;
 }
 
 const initialState: SettingsState = {
   currency: CURRENCIES[0],
   explorerUrl: network.explorer,
   theme: 'dark',
+  denominationLBTC: LBTC_DENOMINATIONS[0],
 };
 
 const settingsReducer = (
@@ -30,6 +34,11 @@ const settingsReducer = (
   action: ActionType
 ) => {
   switch (action.type) {
+    case SET_LBTC_DENOMINATION:
+      return {
+        ...state,
+        denominationLBTC: action.payload,
+      };
     case SET_CURRENCY:
       return {
         ...state,
