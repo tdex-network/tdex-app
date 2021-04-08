@@ -71,7 +71,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   // selected trade
   const [trade, setTrade] = useState<TDEXTrade>();
 
-  const [isFocused, setIsFocused] = useState<'sent' | 'receive' | ''>('');
+  const [isFocused, setIsFocused] = useState<'sent' | 'receive'>('sent');
 
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -113,7 +113,6 @@ const Exchange: React.FC<ExchangeProps> = ({
   const onPinConfirm = async (pin: string) => {
     if (!assetSent || !trade || !sentAmount) return;
     try {
-      setIsFocused('');
       setModalOpen(false);
       setLoading(true);
       const identity = await getConnectedIdentity(pin, dispatch);
