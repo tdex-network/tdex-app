@@ -32,6 +32,8 @@ import { Redirect, Route } from 'react-router';
 import Homescreen from './pages/Homescreen';
 import Login from './pages/Login';
 import RestoreWallet from './pages/RestoreWallet';
+import { NavigationBar } from '@ionic-native/navigation-bar';
+import classNames from 'classnames';
 
 const App: React.FC = () => {
   const { isAuth, appInit, theme } = useSelector((state: any) => ({
@@ -45,7 +47,9 @@ const App: React.FC = () => {
     const setupApp = async () => {
       try {
         const { StatusBar } = Plugins;
+        await StatusBar.setOverlaysWebView({ overlay: false });
         await StatusBar.setBackgroundColor({ color: '#333333' });
+        await NavigationBar.setUp(true);
       } catch (err) {
         console.log(err);
       }
@@ -62,7 +66,7 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <IonApp className={theme}>
+    <IonApp className={classNames(['app', theme])}>
       <IonReactRouter>
         <IonLoading
           cssClass="my-custom-class"
