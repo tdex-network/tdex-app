@@ -11,6 +11,8 @@ import Withdrawal from './redux/containers/withdrawalContainer';
 import WithdrawalDetails from './pages/WithdrawalDetails';
 import Account from './pages/Account';
 import LiquidityProviders from './redux/containers/liquidityProvidersContainer';
+import Faq from './pages/Faq';
+import Terms from './pages/Terms';
 
 export const routerLinks = {
   wallet: '/wallet',
@@ -25,9 +27,19 @@ export const routerLinks = {
   qrScanner: '/qrscanner/:asset_id',
   account: '/account/:pin',
   liquidityProvider: '/liquidity-provider',
+  faq: '/faq',
+  terms: '/terms',
 };
 
 export const ROUTES = [
+  {
+    path: routerLinks.faq,
+    component: Faq,
+  },
+  {
+    path: routerLinks.terms,
+    component: Terms,
+  },
   {
     path: routerLinks.wallet,
     component: Wallet,

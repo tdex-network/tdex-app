@@ -37,18 +37,19 @@ const statusText = {
 interface OperationsProps extends RouteComponentProps {
   balances: BalanceInterface[];
   prices: Record<string, number>;
+  currency: string;
 }
 
 const Operations: React.FC<OperationsProps> = ({
   balances,
   prices,
+  currency,
   history,
 }) => {
   const { asset_id } = useParams<{ asset_id: string }>();
   const [balance, setBalance] = useState<BalanceInterface>();
   const [opened, setOpened] = useState<string[]>([]);
 
-  const currency = useSelector((state: any) => state.settings.currency);
   const transactionsToDisplay = useSelector(
     transactionsByAssetSelector(asset_id)
   );

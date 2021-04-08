@@ -19,7 +19,7 @@ import {
   fromSatoshiFixed,
 } from '../../utils/helpers';
 import { getMainAsset, LBTC_TICKER } from '../../utils/constants';
-import CircleDiagram from '../../components/CircleDiagram';
+import CircleDiagram from '../../redux/containers/circleDiagramContainer';
 import { ActionType } from '../../utils/types';
 import { update } from '../../redux/actions/appActions';
 import Refresher from '../../components/Refresher';
@@ -106,7 +106,7 @@ const Wallet: React.FC<WalletProps> = ({
       <IonContent className="wallet-content">
         <Refresher />
         <div className="diagram">
-          <CircleDiagram data={balances.filter((b) => b.amount > 0)} />
+          <CircleDiagram />
         </div>
         <IonHeader className="header wallet">
           <IonToolbar>

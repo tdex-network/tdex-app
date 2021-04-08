@@ -1,3 +1,5 @@
+import { CurrencyInterface } from '../redux/reducers/settingsReducer';
+
 export const defaultPrecision = 8;
 
 export const LBTC_TICKER = 'L-BTC';
@@ -66,3 +68,16 @@ export function getCoinGeckoIDsToFeed(): string[] {
   }
   return ids;
 }
+
+export const CURRENCIES: CurrencyInterface[] = [
+  {
+    name: 'euros',
+    symbol: '€',
+    value: 'eur',
+  },
+  {
+    name: 'dollars',
+    symbol: '$',
+    value: 'usd',
+  },
+];

@@ -13,7 +13,7 @@ import {
   IonLabel,
   IonInput,
 } from '@ionic/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IconClose, IconRightArrow } from '../../components/icons';
 import { RouteComponentProps, withRouter } from 'react-router';
 import './style.scss';
@@ -27,15 +27,31 @@ import PinModal from '../../components/PinModal';
 import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
 import { addErrorToast } from '../../redux/actions/toastActions';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
+import { Plugins } from '@capacitor/core';
+import CurrencySearch from '../../components/CurrencySearch';
+const { Device } = Plugins;
 
 const Settings: React.FC<RouteComponentProps> = ({ history }) => {
-  const { explorerUrl, theme } = useSelector((state: any) => ({
+  const { explorerUrl, theme, currency } = useSelector((state: any) => ({
     explorerUrl: state.settings.explorerUrl,
+    currency: state.settings.currency,
     theme: state.settings.theme,
   }));
   const [showExplorerModal, setShowExplorerModal] = useState(false);
   const [explorerValue, setExplorerValue] = useState(explorerUrl);
   const [modalOpen, setModalOpen] = useState(false);
+  const [currencySearchOpen, setCurrencySearchOpen] = useState(false);
+  const [appVersion, setAppVersion] = useState<string>();
+
+  useEffect(() => {
+    Device.getInfo().then((info) => {
+      if (info.platform === 'web') {
+        setAppVersion('TDex App - web version');
+        return;
+      }
+      setAppVersion(`${info.appName} ${info.appVersion} ${info.appBuild}`);
+    });
+  });
 
   const dispatch = useDispatch();
   const handleExplorerChange = (e: any) => {
@@ -133,9 +149,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
           </IonItem>
           <IonItem
             className="list-item"
-            onClick={() => {
-              history.push('/currency');
-            }}
+            onClick={() => setCurrencySearchOpen(true)}
           >
             <div
               // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
@@ -146,7 +160,9 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
                 <div className="main-row">Default currency </div>
               </div>
               <div className="item-end">
-                <span className="chosen-currency green-label">EUR</span>
+                <span className="chosen-currency green-label">
+                  {(currency.value as string).toUpperCase()}
+                </span>
                 <IconRightArrow
                   className="next-icon"
                   fill="#fff"
@@ -255,6 +271,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
             </div>
           </IonItem>
         </IonList>
+        <p className="app-version">{appVersion}</p>
         <IonModal
           isOpen={showExplorerModal}
           cssClass="modal-big withdrawal"
@@ -312,6 +329,10 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
             </div>
           </IonContent>
         </IonModal>
+        <CurrencySearch
+          isOpen={currencySearchOpen}
+          close={() => setCurrencySearchOpen(false)}
+        />
       </IonContent>
     </IonPage>
   );

@@ -4,7 +4,7 @@ import ExchangeSearch from '../../components/ExchangeSearch';
 const mapStateToProps = (state: any) => {
   return {
     prices: state.rates.prices,
-    currency: state.settings.currency,
+    currency: state.settings.currency.value,
   };
 };
 

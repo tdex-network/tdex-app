@@ -13,7 +13,8 @@ import { network } from '../redux/config';
 import { IdentityRestorerFromState, MnemonicRedux } from './identity';
 import { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 import { Dispatch } from 'redux';
-import { AssetConfig } from './constants';
+import { AssetConfig, CURRENCIES } from './constants';
+import { CurrencyInterface } from '../redux/reducers/settingsReducer';
 import { stringify, parse } from 'buffer-json';
 
 const { SecureStoragePlugin } = Plugins;
@@ -26,6 +27,18 @@ const UTXOS_KEY = 'tdex-app-utxos';
 const TRANSACTIONS_KEY = 'tdex-app-transactions';
 const ASSETS_KEY = 'tdex-app-assets';
 const EXPLORER_KEY = 'tdex-app-explorer';
+const CURRENCY_KEY = 'tdex-app-currency';
+
+export async function getCurrencyFromStorage(): Promise<CurrencyInterface> {
+  return getFromStorage<CurrencyInterface>(CURRENCY_KEY, CURRENCIES[0]);
+}
+
+export function setCurrencyInStorage(currency: CurrencyInterface) {
+  Storage.set({
+    key: CURRENCY_KEY,
+    value: stringify(currency),
+  });
+}
 
 export async function getExplorerFromStorage(): Promise<string> {
   return (await Storage.get({ key: EXPLORER_KEY })).value;
@@ -185,6 +198,7 @@ async function clear() {
     Storage.remove({ key: TRANSACTIONS_KEY }),
     Storage.remove({ key: ASSETS_KEY }),
     Storage.remove({ key: EXPLORER_KEY }),
+    Storage.remove({ key: CURRENCY_KEY }),
     Storage.clear(),
   ]);
 }
