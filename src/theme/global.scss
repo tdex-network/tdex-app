@@ -11,7 +11,9 @@ body {
 }
 
 .app {
-  margin-top: 20px;
+  &.with-margin {
+    margin-top: 20px;
+  }
 }
 
 h1,

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { IonApp, IonLoading, IonRouterOutlet } from '@ionic/react';
+import { IonApp, IonLoading, IonRouterOutlet, isPlatform } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 
 /* Core CSS required for Ionic components to work properly */
@@ -66,7 +66,13 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <IonApp className={classNames(['app', theme])}>
+    <IonApp
+      className={classNames([
+        'app',
+        { 'with-margin': isPlatform('android') },
+        theme,
+      ])}
+    >
       <IonReactRouter>
         <IonLoading
           cssClass="my-custom-class"
