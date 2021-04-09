@@ -53,7 +53,7 @@ export function fromSatoshiFixed(
   return Number(
     formatLBTCwithUnit(fromSatoshi(x, y), unit).toFixed(fixed || 2)
   ).toLocaleString('en-US', {
-    minimumFractionDigits: 2,
+    minimumFractionDigits: 0,
     maximumFractionDigits: fixed || 2,
     useGrouping: false,
   });
