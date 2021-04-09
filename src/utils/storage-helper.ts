@@ -214,6 +214,7 @@ async function clear() {
     Storage.remove({ key: ASSETS_KEY }),
     Storage.remove({ key: EXPLORER_KEY }),
     Storage.remove({ key: CURRENCY_KEY }),
+    Storage.remove({ key: LBTC_DENOMINATION_KEY }),
     Storage.clear(),
   ]);
 }
