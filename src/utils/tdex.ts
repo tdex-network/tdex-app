@@ -15,6 +15,12 @@ export interface AssetWithTicker {
   coinGeckoID?: string;
 }
 
+/**
+ * Select the best price in a set of available markets
+ * @param known the amount/asset inputs by the user
+ * @param trades the set of trades available
+ * @param onError launch if an error happen in getMarketPrice request
+ */
 export async function bestPrice(
   known: { amount: number; asset: string; precision: number },
   trades: TDEXTrade[],
@@ -47,6 +53,11 @@ export async function bestPrice(
   return sorted[0];
 }
 
+/**
+ * a wraper for marketPrice request
+ * @param known the amount/asset inputs by the user
+ * @param trade trade using to compute the price
+ */
 async function calculatePrice(
   known: { amount: number; asset: string; precision: number },
   trade: TDEXTrade
@@ -75,6 +86,15 @@ async function calculatePrice(
   };
 }
 
+/**
+ * make and broadcast the swap transaction
+ * @param trade the selected trade using to swap
+ * @param known the data inputs by the user
+ * @param explorerUrl the esplora URL
+ * @param utxos the user's set of utxos
+ * @param identity the user's identity, using to sign and blind the transaction
+ * @param coinSelector the coin selector using to *select* unspents
+ */
 export async function makeTrade(
   trade: TDEXTrade,
   known: { amount: number; asset: string },
@@ -109,6 +129,12 @@ export async function makeTrade(
   return txid;
 }
 
+/**
+ * Construct all the TDexTrade from a set of markets
+ * @param markets the set of available markets
+ * @param sentAsset the asset to sent
+ * @param receivedAsset the asset to receive
+ */
 export function allTrades(
   markets: TDEXMarket[],
   sentAsset?: string,

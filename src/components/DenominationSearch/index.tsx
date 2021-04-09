@@ -10,18 +10,20 @@ import {
 } from '@ionic/react';
 import { closeSharp, searchSharp } from 'ionicons/icons';
 import { useDispatch } from 'react-redux';
-import { CurrencyInterface } from '../../redux/reducers/settingsReducer';
-import { CURRENCIES } from '../../utils/constants';
-import { setCurrency } from '../../redux/actions/settingsActions';
-import './style.scss';
+import { LBTC_DENOMINATIONS } from '../../utils/constants';
+import { setLBTCDenomination } from '../../redux/actions/settingsActions';
 import { updateRates } from '../../redux/actions/ratesActions';
+import './style.scss';
 
-interface CurrencySearchProps {
+interface DenominationSearchProps {
   isOpen: boolean;
   close: () => void;
 }
 
-const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
+const DenominationSearch: React.FC<DenominationSearchProps> = ({
+  isOpen,
+  close,
+}) => {
   const [searchString, setSearchString] = useState('');
   const dispatch = useDispatch();
 
@@ -45,18 +47,15 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
         </IonHeader>
         <IonContent className="search-content">
           <IonList>
-            {CURRENCIES.filter(
-              (currency: CurrencyInterface) =>
-                currency.name.includes(searchString) ||
-                currency.symbol.includes(searchString) ||
-                currency.value.includes(searchString)
-            ).map((currency: CurrencyInterface, index: number) => {
+            {LBTC_DENOMINATIONS.filter((denomination: string) =>
+              denomination.includes(searchString)
+            ).map((denomination: string, index: number) => {
               return (
                 <IonItem
                   key={index}
                   data-asset={index}
                   onClick={() => {
-                    dispatch(setCurrency(currency));
+                    dispatch(setLBTCDenomination(denomination));
                     dispatch(updateRates());
                     close();
                   }}
@@ -66,7 +65,7 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
                     tabIndex={0}
                   ></div>
                   <div className="search-item-name">
-                    <p>{`${currency.symbol} ${currency.name} (${currency.value})`}</p>
+                    <p>{denomination}</p>
                   </div>
                 </IonItem>
               );
@@ -78,4 +77,4 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
   );
 };
 
-export default CurrencySearch;
+export default DenominationSearch;

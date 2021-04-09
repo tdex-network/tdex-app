@@ -1,8 +1,10 @@
 import {
   setCurrency,
   setElectrumServer,
+  setLBTCDenomination,
   SET_CURRENCY,
   SET_ELECTRUM_SERVER,
+  SET_LBTC_DENOMINATION,
 } from './../actions/settingsActions';
 import { takeLatest, call, put } from 'redux-saga/effects';
 import { setTheme, STORE_THEME } from '../actions/settingsActions';
@@ -15,8 +17,10 @@ import { SIGN_IN } from '../actions/appActions';
 import {
   getCurrencyFromStorage,
   getExplorerFromStorage,
+  getLBTCDenominationFromStorage,
   setCurrencyInStorage,
   setExplorerInStorage,
+  setLBTCDenominationInStorage,
 } from '../../utils/storage-helper';
 
 function* storeThemeSaga({ payload }: ActionType) {
@@ -66,11 +70,26 @@ function* restoreCurrency() {
   }
 }
 
+function* persistDenomination(action: ActionType) {
+  yield call(setLBTCDenominationInStorage, action.payload);
+}
+
+function* restoreDenomination() {
+  try {
+    const denomination = yield call(getLBTCDenominationFromStorage);
+    yield put(setLBTCDenomination(denomination));
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 export function* settingsWatcherSaga() {
   yield takeLatest(STORE_THEME, storeThemeSaga);
   yield takeLatest(SIGN_IN, restoreThemeSaga);
   yield takeLatest(SIGN_IN, restoreExplorer);
   yield takeLatest(SIGN_IN, restoreCurrency);
+  yield takeLatest(SIGN_IN, restoreDenomination);
+  yield takeLatest(SET_LBTC_DENOMINATION, persistDenomination);
   yield takeLatest(SET_ELECTRUM_SERVER, persistExplorer);
   yield takeLatest(SET_CURRENCY, persistCurrency);
 }

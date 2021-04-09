@@ -8,6 +8,7 @@ import {
   IonToolbar,
   IonListHeader,
   IonButton,
+  useIonViewWillEnter,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -18,14 +19,14 @@ import {
   fromSatoshi,
   fromSatoshiFixed,
 } from '../../utils/helpers';
-import { getMainAsset, LBTC_TICKER } from '../../utils/constants';
+import { getMainAsset } from '../../utils/constants';
 import CircleDiagram from '../../redux/containers/circleDiagramContainer';
 import { ActionType } from '../../utils/types';
 import { update } from '../../redux/actions/appActions';
 import Refresher from '../../components/Refresher';
 import BackupModal from '../../redux/containers/backupModalContainer';
 import { useSelector } from 'react-redux';
-
+import { updateUtxos } from '../../redux/actions/walletActions';
 import './style.scss';
 
 interface WalletProps extends RouteComponentProps {
@@ -43,6 +44,7 @@ const Wallet: React.FC<WalletProps> = ({
   history,
   dispatch,
 }) => {
+  const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const [LBTCBalance, setLBTCBalance] = useState<BalanceInterface>();
   const [LBTCBalanceIndex, setLBTCBalanceIndex] = useState(-1);
   const [mainAssets, setMainAssets] = useState<BalanceInterface[]>([]);
@@ -60,6 +62,8 @@ const Wallet: React.FC<WalletProps> = ({
     if (balanceIndex < 0) return UNKNOWN;
     return fiats[balanceIndex];
   };
+
+  useIonViewWillEnter(() => dispatch(updateUtxos()));
 
   useEffect(() => {
     const fiatsValues = balances.map(({ amount, coinGeckoID }) => {
@@ -117,9 +121,9 @@ const Wallet: React.FC<WalletProps> = ({
               <p className="info-heading">Total balance</p>
               <p className="info-amount" aria-label="main-balance">
                 {LBTCBalance
-                  ? fromSatoshiFixed(LBTCBalance.amount, 8, 8)
+                  ? fromSatoshiFixed(LBTCBalance.amount, 8, 8, lbtcUnit)
                   : '0.00'}
-                <span>{LBTC_TICKER}</span>
+                <span>{lbtcUnit}</span>
               </p>
               {LBTCBalance && fiats[LBTCBalanceIndex] > 0 && (
                 <p className="info-amount-converted">
@@ -181,7 +185,8 @@ const Wallet: React.FC<WalletProps> = ({
                         {fromSatoshiFixed(
                           balance.amount,
                           balance.precision,
-                          balance.precision
+                          balance.precision,
+                          balance.ticker === 'L-BTC' ? lbtcUnit : undefined
                         )}
                       </div>
                       <div className="sub-row">
@@ -193,7 +198,9 @@ const Wallet: React.FC<WalletProps> = ({
                       </div>
                     </div>
                     <div className="second-col">
-                      <div className="main-row accent">{balance.ticker}</div>
+                      <div className="main-row accent">
+                        {balance.ticker === 'L-BTC' ? lbtcUnit : balance.ticker}
+                      </div>
                       {fiatValue >= 0 && (
                         <div className="sub-row">{currency.toUpperCase()}</div>
                       )}

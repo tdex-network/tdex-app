@@ -115,6 +115,17 @@ export function* tdexWatcherSaga() {
 async function getMarketsFromProvider(p: TDEXProvider): Promise<TDEXMarket[]> {
   const client = new TraderClient(p.endpoint);
   const markets: MarketInterface[] = await client.markets();
+  const results: TDEXMarket[] = [];
 
-  return markets.map((market) => ({ ...market, provider: p }));
+  for (const market of markets) {
+    const balance = (await client.balances(market))[0].balance;
+    results.push({
+      ...market,
+      provider: p,
+      baseAmount: balance?.baseAmount,
+      quoteAmount: balance?.quoteAmount,
+    });
+  }
+
+  return results;
 }

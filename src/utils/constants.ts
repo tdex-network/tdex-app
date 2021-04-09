@@ -81,3 +81,5 @@ export const CURRENCIES: CurrencyInterface[] = [
     value: 'usd',
   },
 ];
+
+export const LBTC_DENOMINATIONS = ['L-BTC', 'L-mBTC', 'L-bits', 'L-sats'];

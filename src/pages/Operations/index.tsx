@@ -46,6 +46,7 @@ const Operations: React.FC<OperationsProps> = ({
   currency,
   history,
 }) => {
+  const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const { asset_id } = useParams<{ asset_id: string }>();
   const [balance, setBalance] = useState<BalanceInterface>();
   const [opened, setOpened] = useState<string[]>([]);
@@ -112,9 +113,12 @@ const Operations: React.FC<OperationsProps> = ({
                 fromSatoshiFixed(
                   balance?.amount,
                   balance.precision,
-                  balance.precision
+                  balance.precision,
+                  balance.ticker === 'L-BTC' ? lbtcUnit : undefined
                 )}
-              <span>{balance?.ticker}</span>
+              <span>
+                {balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker}
+              </span>
             </p>
             {balance && balance.coinGeckoID && prices[balance.coinGeckoID] && (
               <p className="info-amount-converted">
@@ -181,12 +185,17 @@ const Operations: React.FC<OperationsProps> = ({
                                 ? fromSatoshiFixed(
                                     transfer.amount,
                                     balance.precision,
-                                    balance.precision
+                                    balance.precision,
+                                    balance.ticker === 'L-BTC'
+                                      ? lbtcUnit
+                                      : undefined
                                   )
                                 : 'unknow'}
                             </div>
                             <div className="main-row accent">
-                              {balance.ticker}
+                              {balance.ticker === 'L-BTC'
+                                ? lbtcUnit
+                                : balance.ticker}
                             </div>
                           </div>
                           {transfer && balance.coinGeckoID && (

@@ -13,7 +13,7 @@ import {
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
 import { IconBack, IconQR } from '../../components/icons';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import WithdrawRow from '../../components/WithdrawRow';
 import './style.scss';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
@@ -62,6 +62,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   history,
   location,
 }) => {
+  const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   // route parameter asset_id
   const { asset_id } = useParams<{ asset_id: string }>();
 
@@ -79,7 +80,11 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   const getRecipient = (): RecipientInterface => ({
     address: recipientAddress.trim(),
     asset: balance?.asset || '',
-    value: toSatoshi(amount, balance?.precision),
+    value: toSatoshi(
+      amount,
+      balance?.precision,
+      balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
+    ),
   });
 
   const onAmountChange = (newAmount: number | undefined) => {
@@ -90,7 +95,13 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   useEffect(() => {
     try {
       if (!balance) return;
-      if (fromSatoshi(balance.amount, balance.precision) < amount) {
+      if (
+        fromSatoshi(
+          balance.amount,
+          balance.precision,
+          balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+        ) < amount
+      ) {
         setError('Amount is greater than your balance');
         return;
       }
@@ -104,7 +115,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
 
       let needLBTC = fee;
       if (balance.coinGeckoID === 'bitcoin') {
-        needLBTC += toSatoshi(amount, 8);
+        needLBTC += toSatoshi(amount, 8, lbtcUnit);
       }
 
       if (needLBTC > LBTCBalance.amount) {
@@ -231,7 +242,9 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       <PinModal
         open={modalOpen}
         title="Unlock your seed"
-        description={`Enter your secret PIN to send ${amount} ${balance?.ticker}.`}
+        description={`Enter your secret PIN to send ${amount} ${
+          balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker
+        }.`}
         onConfirm={onPinConfirm}
         onClose={() => {
           setModalOpen(false);

@@ -33,24 +33,62 @@ export const createColorFromHash = (id: string): string => {
   return `hsl(${hash % 360}, 70%, 50%)`;
 };
 
-export function toSatoshi(x: number, y?: number): number {
-  return Math.floor(x * Math.pow(10, y || defaultPrecision));
+export function toSatoshi(x: number, y?: number, unit?: string): number {
+  return toLBTCwithUnit(
+    Math.floor(x * Math.pow(10, y || defaultPrecision)),
+    unit
+  );
 }
 
-export function fromSatoshi(x: number, y?: number): number {
-  return x / Math.pow(10, y || defaultPrecision);
+export function fromSatoshi(x: number, y?: number, unit?: string): number {
+  return formatLBTCwithUnit(x / Math.pow(10, y || defaultPrecision), unit);
 }
 
 export function fromSatoshiFixed(
   x: number,
   y?: number,
-  fixed?: number
+  fixed?: number,
+  unit?: string
 ): string {
-  return Number(fromSatoshi(x, y).toFixed(fixed || 2)).toLocaleString('en-US', {
-    minimumFractionDigits: 2,
+  return Number(
+    formatLBTCwithUnit(fromSatoshi(x, y), unit).toFixed(fixed || 2)
+  ).toLocaleString('en-US', {
+    minimumFractionDigits: 0,
     maximumFractionDigits: fixed || 2,
     useGrouping: false,
   });
+}
+
+export function toLBTCwithUnit(lbtcValue: number, unit?: string): number {
+  if (!unit) return lbtcValue;
+  switch (unit) {
+    case 'L-BTC':
+      return lbtcValue;
+    case 'L-mBTC':
+      return lbtcValue / 1000;
+    case 'L-bits':
+      return lbtcValue / 1000000;
+    case 'L-sats':
+      return fromSatoshi(lbtcValue, 8);
+    default:
+      return lbtcValue;
+  }
+}
+
+function formatLBTCwithUnit(lbtcValue: number, unit?: string): number {
+  if (!unit) return lbtcValue;
+  switch (unit) {
+    case 'L-BTC':
+      return lbtcValue;
+    case 'L-mBTC':
+      return lbtcValue * 1000;
+    case 'L-bits':
+      return lbtcValue * 1000000;
+    case 'L-sats':
+      return toSatoshi(lbtcValue, 8);
+    default:
+      return lbtcValue;
+  }
 }
 
 export function formatDate(date: any) {
@@ -59,22 +97,6 @@ export function formatDate(date: any) {
     month: 'short',
     day: 'numeric',
   });
-}
-
-export function formatPriceString(price: string | number): string {
-  const decimals = (Number(price) % 1).toFixed(2);
-  const intReverseArr = Math.trunc(Number(price))
-    .toString()
-    .split('')
-    .reverse();
-  return (
-    intReverseArr.reduce((res: string, ch: string, i: number): string => {
-      const isEvenThree = Number(i + 1) % 3;
-      return isEvenThree === 0 && i < intReverseArr.length - 1
-        ? `.${ch}${res}`
-        : `${ch}${res}`;
-    }, '') + `,${decimals.replace('0.', '')}`
-  );
 }
 
 export function groupBy(xs: Array<any>, key: string) {

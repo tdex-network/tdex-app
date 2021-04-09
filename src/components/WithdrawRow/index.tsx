@@ -8,7 +8,11 @@ import {
 } from '@ionic/react';
 import { useDispatch, useSelector } from 'react-redux';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
+import {
+  fromSatoshi,
+  fromSatoshiFixed,
+  toLBTCwithUnit,
+} from '../../utils/helpers';
 import { updateRates } from '../../redux/actions/ratesActions';
 import {
   onPressEnterKeyCloseKeyboard,
@@ -29,9 +33,15 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   onAmountChange,
   error,
 }) => {
+  const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const currency = useSelector((state: any) => state.settings.currency.value);
   const [residualBalance, setResidualBalance] = useState<string>(
-    fromSatoshiFixed(balance.amount, balance.precision, balance.precision)
+    fromSatoshiFixed(
+      balance.amount,
+      balance.precision,
+      balance.precision,
+      balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+    )
   );
   const [fiat, setFiat] = useState<string>('0.00');
 
@@ -51,7 +61,12 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
 
   const reset = () => {
     setResidualBalance(
-      fromSatoshiFixed(balance.amount, balance.precision, balance.precision)
+      fromSatoshiFixed(
+        balance.amount,
+        balance.precision,
+        balance.precision,
+        balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+      )
     );
     if (price) setFiat('0.00');
     onAmountChange(undefined);
@@ -65,13 +80,26 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
 
     const val = parseFloat(value.replace(',', '.'));
     onAmountChange(val);
-    const residualAmount = fromSatoshi(balance.amount, balance.precision) - val;
+    const residualAmount =
+      fromSatoshi(
+        balance.amount,
+        balance.precision,
+        balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+      ) - val;
     setResidualBalance(
       residualAmount.toLocaleString(undefined, {
         maximumFractionDigits: balance.precision,
       })
     );
-    if (price) setFiat((val * price).toFixed(2));
+    if (price)
+      setFiat(
+        (
+          toLBTCwithUnit(
+            val,
+            balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+          ) * price
+        ).toFixed(2)
+      );
   };
 
   return (
@@ -81,7 +109,11 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
           <span className="icon-wrapper medium">
             <CurrencyIcon currency={balance.ticker} />
           </span>
-          <p className="ticker">{balance.ticker.toUpperCase()}</p>
+          <p className="ticker">
+            {balance.ticker === 'L-BTC'
+              ? lbtcUnit
+              : balance.ticker.toUpperCase()}
+          </p>
         </div>
         <div className="ion-text-end">
           <IonInput
@@ -91,7 +123,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
             autofocus={true}
             onIonChange={(e) => handleAmountChange(e.detail.value)}
             color={error && 'danger'}
-            debounce={400}
+            debounce={200}
             onKeyDown={onPressEnterKeyCloseKeyboard}
             enterkeyhint="done"
           />
@@ -102,7 +134,9 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
           {!error && (
             <p>
               Residual balance: {residualBalance ? residualBalance : ''}{' '}
-              {balance.ticker.toUpperCase()}{' '}
+              {balance.ticker === 'L-BTC'
+                ? lbtcUnit
+                : balance.ticker.toUpperCase()}{' '}
             </p>
           )}
         </div>

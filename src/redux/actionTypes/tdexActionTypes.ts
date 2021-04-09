@@ -9,6 +9,8 @@ export interface TDEXMarket {
   baseAsset: string;
   quoteAsset: string;
   provider: TDEXProvider;
+  baseAmount?: number;
+  quoteAmount?: number;
 }
 
 export interface TDEXTrade {

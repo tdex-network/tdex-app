@@ -1,15 +1,25 @@
-@import "./variables.scss";
-@import "./components/exchange-coin-block.scss";
-@import "./components/search.scss";
-@import "./components/mainButtons.scss";
-@import "./components/listItem.scss";
-@import "./components/icons.scss";
+@import './variables.scss';
+@import './components/exchange-coin-block.scss';
+@import './components/search.scss';
+@import './components/mainButtons.scss';
+@import './components/listItem.scss';
+@import './components/icons.scss';
 
 body {
   font-family: 'DMSans';
+  background-color: #333333;
 }
 
-h1, h2, h3, p {
+.app {
+  &.with-margin {
+    margin-top: 20px;
+  }
+}
+
+h1,
+h2,
+h3,
+p {
   margin: 0;
 }
 
@@ -38,7 +48,7 @@ ion-modal {
   .modal-wrapper {
     height: 99vh !important;
   }
-  
+
   .page-description {
     margin-top: 16px;
     p {
@@ -48,10 +58,10 @@ ion-modal {
 }
 
 ion-content {
---padding-start: 10px;
---padding-end: 10px;
---background: transparent !important;
---overflow: hidden;
+  --padding-start: 10px;
+  --padding-end: 10px;
+  --background: transparent !important;
+  --overflow: hidden;
 }
 
 ion-content.scrollable {
@@ -64,7 +74,7 @@ ion-toolbar {
 }
 
 ion-title {
-  font-family: "DMSans-Bold";
+  font-family: 'DMSans-Bold';
   --color: #fff;
   font-size: 22px;
   line-height: 22px;
@@ -73,13 +83,13 @@ ion-title {
 .with-back-button {
   display: flex;
   align-items: center;
-  
+
   ion-button {
     color: #fff;
     position: absolute;
     top: 0;
     z-index: 10;
-    
+
     --background: none;
     --border: 0;
     --border-radius: 0;
@@ -98,11 +108,11 @@ ion-title {
 }
 
 ion-toolbar {
-  --background: rgba(0,0,0,0);
+  --background: rgba(0, 0, 0, 0);
 }
 
 ion-item {
-  --background: rgba(0,0,0,0);
+  --background: rgba(0, 0, 0, 0);
 }
 
 .header {
@@ -122,7 +132,6 @@ ion-item {
     background: rgba(255, 255, 255, 1);
   }
   .with-back-button {
-
     ion-button {
       color: #000;
 
