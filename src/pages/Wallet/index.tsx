@@ -19,16 +19,15 @@ import {
   fromSatoshi,
   fromSatoshiFixed,
 } from '../../utils/helpers';
-import { getMainAsset, LBTC_TICKER } from '../../utils/constants';
+import { getMainAsset } from '../../utils/constants';
 import CircleDiagram from '../../redux/containers/circleDiagramContainer';
 import { ActionType } from '../../utils/types';
 import { update } from '../../redux/actions/appActions';
 import Refresher from '../../components/Refresher';
 import BackupModal from '../../redux/containers/backupModalContainer';
 import { useSelector } from 'react-redux';
-
-import './style.scss';
 import { updateUtxos } from '../../redux/actions/walletActions';
+import './style.scss';
 
 interface WalletProps extends RouteComponentProps {
   balances: BalanceInterface[];

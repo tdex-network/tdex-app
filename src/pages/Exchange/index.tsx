@@ -21,11 +21,7 @@ import {
   makeTrade,
   getTradablesAssets,
 } from '../../utils/tdex';
-import {
-  customCoinSelector,
-  tickerFromAssetHash,
-  toSatoshi,
-} from '../../utils/helpers';
+import { customCoinSelector, toSatoshi } from '../../utils/helpers';
 import {
   addErrorToast,
   addSuccessToast,
@@ -98,7 +94,7 @@ const Exchange: React.FC<ExchangeProps> = ({
     const sats = toSatoshi(
       sentAmount,
       assets[assetSent.asset]?.precision || defaultPrecision,
-      tickerFromAssetHash(assetSent.asset) === 'L-BTC' ? lbtcUnit : undefined
+      assetSent.ticker === 'L-BTC' ? lbtcUnit : undefined
     );
 
     if (availableAmount && availableAmount < sats) {
@@ -119,7 +115,8 @@ const Exchange: React.FC<ExchangeProps> = ({
 
     const sats = toSatoshi(
       receivedAmount,
-      assets[assetReceived.asset]?.precision || defaultPrecision
+      assets[assetReceived.asset]?.precision || defaultPrecision,
+      assetReceived.ticker === 'L-BTC' ? lbtcUnit : undefined
     );
 
     if (availableAmount && availableAmount < sats) {

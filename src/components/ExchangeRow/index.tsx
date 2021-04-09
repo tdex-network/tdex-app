@@ -144,9 +144,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             <CurrencyIcon currency={asset.ticker} />
           </span>
           <p>
-            {balance?.ticker === 'L-BTC'
-              ? lbtcUnit
-              : balance?.ticker.toUpperCase()}
+            {asset.ticker === 'L-BTC' ? lbtcUnit : asset.ticker.toUpperCase()}
           </p>
           <IonIcon
             className="icon"
@@ -184,8 +182,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
                   onChangeAmount(inputAmount);
                   const sats = fromSatoshi(
                     balance?.amount || 0,
-                    balance?.precision,
-                    balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
+                    balance?.precision
                   );
 
                   if (checkBalance && inputAmount > sats) {
