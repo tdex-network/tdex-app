@@ -38,7 +38,6 @@ platform :ios do
       app_identifier: 'io.sevenlabs.app',
       changelog: changes
     )
-    push_to_git_remote
   end
 
 end
