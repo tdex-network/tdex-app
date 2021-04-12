@@ -49,7 +49,9 @@ const App: React.FC = () => {
         const { StatusBar } = Plugins;
         await StatusBar.setOverlaysWebView({ overlay: false });
         await StatusBar.setBackgroundColor({ color: '#333333' });
-        await NavigationBar.setUp(true);
+        if (isPlatform('android')) {
+          await NavigationBar.setUp(true);
+        }
       } catch (err) {
         console.log(err);
       }
