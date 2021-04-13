@@ -12,6 +12,7 @@ import { useDispatch } from 'react-redux';
 import { signIn } from '../../redux/actions/appActions';
 import PinModal from '../../components/PinModal';
 import {
+  clearStorage,
   getIdentity,
   mnemonicInSecureStorage,
 } from '../../utils/storage-helper';
@@ -19,7 +20,6 @@ import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-
 import './style.scss';
 
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
@@ -53,6 +53,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
     mnemonicInSecureStorage()
       .then((mnemonicExists: boolean) => {
         if (mnemonicExists) setPinModalIsOpen(true);
+        else clearStorage();
       })
       .catch(console.error)
       .finally(() => setLoading(false));
