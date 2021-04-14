@@ -29,6 +29,7 @@ const ASSETS_KEY = 'tdex-app-assets';
 const EXPLORER_KEY = 'tdex-app-explorer';
 const CURRENCY_KEY = 'tdex-app-currency';
 const LBTC_DENOMINATION_KEY = 'tdex-app-lbtc-unit';
+const INSTALL_FLAG = 'tdex-app-install-flag';
 
 export async function getLBTCDenominationFromStorage(): Promise<string> {
   return (
@@ -100,7 +101,23 @@ export function setSeedBackup() {
 export async function seedBackupFlag(): Promise<boolean> {
   try {
     const { value } = await Storage.get({ key: SEED_BACKUP_FLAG_KEY });
-    if (value === '1') {
+    if (value) {
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+export async function setInstallFlag() {
+  return Storage.set({ key: INSTALL_FLAG, value: 'true' });
+}
+
+export async function installFlag(): Promise<boolean> {
+  try {
+    const { value } = await Storage.get({ key: INSTALL_FLAG });
+    if (value) {
       return true;
     }
     return false;
@@ -215,9 +232,8 @@ export async function clearStorage() {
     Storage.remove({ key: EXPLORER_KEY }),
     Storage.remove({ key: CURRENCY_KEY }),
     Storage.remove({ key: LBTC_DENOMINATION_KEY }),
-    Storage.clear(),
-    SecureStoragePlugin.clear(),
   ]);
+  await setInstallFlag();
 }
 
 /**
