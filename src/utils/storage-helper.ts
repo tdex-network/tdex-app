@@ -174,14 +174,6 @@ export async function setMnemonicInSecureStorage(
 ): Promise<boolean> {
   try {
     const encryptedData = await encrypt(mnemonic, pin);
-
-    const { value: isRemoved } = await SecureStoragePlugin.remove({
-      key: MNEMONIC_KEY,
-    });
-    if (!isRemoved) {
-      throw new Error('unable to remove mnemonic from secure storage');
-    }
-
     const { value } = await SecureStoragePlugin.set({
       key: MNEMONIC_KEY,
       value: JSON.stringify(encryptedData),
