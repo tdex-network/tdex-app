@@ -172,12 +172,17 @@ export async function setMnemonicInSecureStorage(
   mnemonic: string,
   pin: string
 ): Promise<boolean> {
-  await clearStorage();
-  const encryptedData = await encrypt(mnemonic, pin);
-  return SecureStoragePlugin.set({
-    key: MNEMONIC_KEY,
-    value: stringify(encryptedData),
-  });
+  try {
+    await clearStorage();
+    const encryptedData = await encrypt(mnemonic, pin);
+    return SecureStoragePlugin.set({
+      key: MNEMONIC_KEY,
+      value: stringify(encryptedData),
+    });
+  } catch (err) {
+    console.error(err);
+    throw new Error(err);
+  }
 }
 
 /**
@@ -232,6 +237,8 @@ export async function clearStorage() {
     Storage.remove({ key: EXPLORER_KEY }),
     Storage.remove({ key: CURRENCY_KEY }),
     Storage.remove({ key: LBTC_DENOMINATION_KEY }),
+    Storage.clear(),
+    SecureStoragePlugin.clear(),
   ]);
   await setInstallFlag();
 }
