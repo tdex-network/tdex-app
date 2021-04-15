@@ -16,7 +16,10 @@ import { IconBack, IconCheck } from '../../components/icons';
 import { useDispatch } from 'react-redux';
 import * as bip39 from 'bip39';
 import { signIn } from '../../redux/actions/appActions';
-import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
+import {
+  clearStorage,
+  setMnemonicInSecureStorage,
+} from '../../utils/storage-helper';
 import PinModal from '../../components/PinModal';
 import {
   addErrorToast,
@@ -50,8 +53,9 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
     setModalOpen('second');
   };
 
-  const onError = (e: string) => {
-    dispatch(addErrorToast(e));
+  const onError = (e: Error) => {
+    clearStorage();
+    dispatch(addErrorToast('Error during setup mnemonic: ' + e.message));
     console.error(e);
     setModalOpen(undefined);
     setPin(undefined);
@@ -74,7 +78,7 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
         .finally(() => setLoading(false));
       return;
     }
-    onError('PINs do not match.');
+    onError(new Error('PINs do not match.'));
   };
 
   const cancelSecondModal = () => {

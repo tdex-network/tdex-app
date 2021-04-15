@@ -12,14 +12,16 @@ import { useDispatch } from 'react-redux';
 import { signIn } from '../../redux/actions/appActions';
 import PinModal from '../../components/PinModal';
 import {
+  clearStorage,
   getIdentity,
+  installFlag,
   mnemonicInSecureStorage,
+  setInstallFlag,
 } from '../../utils/storage-helper';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-
 import './style.scss';
 import { setKeyboardTheme } from '../../utils/keyboard';
 import { KeyboardStyle } from '@capacitor/core';
@@ -52,11 +54,20 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   };
 
   useIonViewWillEnter(() => {
-    setKeyboardTheme(KeyboardStyle.Dark);
-    mnemonicInSecureStorage()
-      .then((mnemonicExists: boolean) => {
-        if (mnemonicExists) setPinModalIsOpen(true);
-      })
+    const init = async () => {
+      setLoading(true);
+      await setKeyboardTheme(KeyboardStyle.Dark);
+      const flag = await installFlag();
+      if (!flag) {
+        await clearStorage();
+        await setInstallFlag();
+      }
+
+      const mnemonicExists = await mnemonicInSecureStorage();
+      if (mnemonicExists) setPinModalIsOpen(true);
+    };
+
+    init()
       .catch(console.error)
       .finally(() => setLoading(false));
   });
