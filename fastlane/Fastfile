@@ -33,11 +33,11 @@ platform :ios do
       xcodeproj: "./ios/App/App.xcodeproj"
     )
     build
-    changelog_from_git_commits
+    changes = changelog_from_git_commits
     pilot(
-      app_identifier: 'io.sevenlabs.app'
+      app_identifier: 'io.sevenlabs.app',
+      changelog: changes
     )
-    push_to_git_remote
   end
 
 end
