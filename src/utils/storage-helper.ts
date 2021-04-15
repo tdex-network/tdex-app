@@ -177,7 +177,7 @@ export async function setMnemonicInSecureStorage(
     const encryptedData = await encrypt(mnemonic, pin);
     return SecureStoragePlugin.set({
       key: MNEMONIC_KEY,
-      value: stringify(encryptedData),
+      value: JSON.stringify(encryptedData),
     });
   } catch (err) {
     console.error(err);
@@ -193,7 +193,7 @@ export async function getMnemonicFromSecureStorage(
   pin: string
 ): Promise<string> {
   const { value } = await SecureStoragePlugin.get({ key: MNEMONIC_KEY });
-  const encryptedData: Encrypted = parse(value);
+  const encryptedData: Encrypted = JSON.parse(value);
   return decrypt(encryptedData, pin);
 }
 
