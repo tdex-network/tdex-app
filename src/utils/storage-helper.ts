@@ -29,6 +29,7 @@ const ASSETS_KEY = 'tdex-app-assets';
 const EXPLORER_KEY = 'tdex-app-explorer';
 const CURRENCY_KEY = 'tdex-app-currency';
 const LBTC_DENOMINATION_KEY = 'tdex-app-lbtc-unit';
+const INSTALL_FLAG = 'tdex-app-install-flag';
 
 export async function getLBTCDenominationFromStorage(): Promise<string> {
   return (
@@ -100,7 +101,23 @@ export function setSeedBackup() {
 export async function seedBackupFlag(): Promise<boolean> {
   try {
     const { value } = await Storage.get({ key: SEED_BACKUP_FLAG_KEY });
-    if (value === '1') {
+    if (value) {
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+export async function setInstallFlag() {
+  return Storage.set({ key: INSTALL_FLAG, value: 'true' });
+}
+
+export async function installFlag(): Promise<boolean> {
+  try {
+    const { value } = await Storage.get({ key: INSTALL_FLAG });
+    if (value) {
       return true;
     }
     return false;
@@ -155,12 +172,22 @@ export async function setMnemonicInSecureStorage(
   mnemonic: string,
   pin: string
 ): Promise<boolean> {
-  await clear();
-  const encryptedData = await encrypt(mnemonic, pin);
-  return SecureStoragePlugin.set({
-    key: MNEMONIC_KEY,
-    value: stringify(encryptedData),
-  });
+  try {
+    const encryptedData = await encrypt(mnemonic, pin);
+    const { value } = await SecureStoragePlugin.set({
+      key: MNEMONIC_KEY,
+      value: JSON.stringify(encryptedData),
+    });
+
+    if (!value) {
+      throw new Error('unable to set the mnemonic in secure storage');
+    }
+
+    return value;
+  } catch (err) {
+    console.error(err);
+    throw new Error(err);
+  }
 }
 
 /**
@@ -171,7 +198,7 @@ export async function getMnemonicFromSecureStorage(
   pin: string
 ): Promise<string> {
   const { value } = await SecureStoragePlugin.get({ key: MNEMONIC_KEY });
-  const encryptedData: Encrypted = parse(value);
+  const encryptedData: Encrypted = JSON.parse(value);
   return decrypt(encryptedData, pin);
 }
 
@@ -196,27 +223,17 @@ export async function removeMnemonicFromSecureStorage(
   pin: string
 ): Promise<string> {
   const mnemonic = await getMnemonicFromSecureStorage(pin); // will throw an error if the pin can't decrypt the mnemonic
-  await clear();
+  await clearStorage();
   return mnemonic;
 }
 
 /**
  * function using to remove all TDEX data from storage
  */
-async function clear() {
-  await Promise.all([
-    SecureStoragePlugin.remove({ key: MNEMONIC_KEY }),
-    Storage.remove({ key: PROVIDERS_KEY }),
-    Storage.remove({ key: ADDRESSES_KEY }),
-    Storage.remove({ key: SEED_BACKUP_FLAG_KEY }),
-    Storage.remove({ key: UTXOS_KEY }),
-    Storage.remove({ key: TRANSACTIONS_KEY }),
-    Storage.remove({ key: ASSETS_KEY }),
-    Storage.remove({ key: EXPLORER_KEY }),
-    Storage.remove({ key: CURRENCY_KEY }),
-    Storage.remove({ key: LBTC_DENOMINATION_KEY }),
-    Storage.clear(),
-  ]);
+export async function clearStorage() {
+  await SecureStoragePlugin.clear();
+  await Storage.clear();
+  await setInstallFlag();
 }
 
 /**

@@ -14,7 +14,10 @@ import PageDescription from '../../components/PageDescription';
 import classNames from 'classnames';
 import { IconBack, IconWarning } from '../../components/icons';
 import { useDispatch } from 'react-redux';
-import { setMnemonicInSecureStorage } from '../../utils/storage-helper';
+import {
+  clearStorage,
+  setMnemonicInSecureStorage,
+} from '../../utils/storage-helper';
 import { setBackupDone, signIn } from '../../redux/actions/appActions';
 import { useFocus, useMnemonic } from '../../utils/custom-hooks';
 import PinModal from '../../components/PinModal';
@@ -56,8 +59,9 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
     setModalOpen('second');
   };
 
-  const onError = (e: string) => {
-    dispatch(addErrorToast(e));
+  const onError = (e: Error) => {
+    clearStorage();
+    dispatch(addErrorToast('Error during setup mnemonic:' + e.message));
     console.error(e);
     setModalOpen(undefined);
     setPin(undefined);
@@ -83,7 +87,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
       return;
     }
 
-    onError('PINs do not match.');
+    onError(new Error('PINs do not match.'));
   };
 
   const cancelSecondModal = () => {

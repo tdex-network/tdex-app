@@ -12,14 +12,16 @@ import { useDispatch } from 'react-redux';
 import { signIn } from '../../redux/actions/appActions';
 import PinModal from '../../components/PinModal';
 import {
+  clearStorage,
   getIdentity,
+  installFlag,
   mnemonicInSecureStorage,
+  setInstallFlag,
 } from '../../utils/storage-helper';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-
 import './style.scss';
 
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
@@ -50,10 +52,19 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   };
 
   useIonViewDidEnter(() => {
-    mnemonicInSecureStorage()
-      .then((mnemonicExists: boolean) => {
-        if (mnemonicExists) setPinModalIsOpen(true);
-      })
+    const init = async () => {
+      setLoading(true);
+      const flag = await installFlag();
+      if (!flag) {
+        await clearStorage();
+        await setInstallFlag();
+      }
+
+      const mnemonicExists = await mnemonicInSecureStorage();
+      if (mnemonicExists) setPinModalIsOpen(true);
+    };
+
+    init()
       .catch(console.error)
       .finally(() => setLoading(false));
   });

@@ -40,10 +40,10 @@ function randomSalt(length: number): string {
   return result;
 }
 
-const iv = Buffer.alloc(16, 0);
+const iv = 'f341557fcf9b9286';
 
 /**
- * encrypt data using scrypt + aes128-cbc
+ * encrypt data using scrypt + aes256-cbc
  * @param payload
  * @param password
  */
@@ -53,32 +53,32 @@ export async function encrypt(
 ): Promise<Encrypted> {
   const options = defaultScryptOptions();
   const passwordDerived = await passwordToKey(password, options);
-
-  const hash = crypto.createHash('sha1').update(passwordDerived);
-
-  const secret = hash.digest().slice(0, 16);
-  const key = crypto.createCipheriv('aes-128-cbc', secret, iv);
-  let encrypted = key.update(payload, 'utf8', 'hex');
-  encrypted += key.final('hex');
-
+  const hash = crypto.createHash('sha256').update(passwordDerived);
+  const secret = hash.digest();
+  const key = crypto.createCipheriv('aes-256-cbc', secret, iv);
+  let encrypted = key.update(payload, 'utf8', 'base64');
+  encrypted += key.final('base64');
   return {
     data: encrypted,
     options,
   };
 }
 
+/**
+ * Decrypt data using aes-256 & scrypt
+ * @param encryptedData encrypted data to decrypt
+ * @param password password using to decrypt
+ */
 export async function decrypt(
   encryptedData: Encrypted,
   password: string
 ): Promise<string> {
   const passwordDerived = await passwordToKey(password, encryptedData.options);
-  const hash = crypto.createHash('sha1').update(passwordDerived);
-
-  const secret = hash.digest().slice(0, 16);
-  const key = crypto.createDecipheriv('aes-128-cbc', secret, iv);
-  let decrypted = key.update(encryptedData.data, 'hex', 'utf8');
+  const hash = crypto.createHash('sha256').update(passwordDerived);
+  const secret = hash.digest();
+  const key = crypto.createDecipheriv('aes-256-cbc', secret, iv);
+  let decrypted = key.update(encryptedData.data, 'base64', 'utf8');
   decrypted += key.final('utf8');
-
   return decrypted;
 }
 
