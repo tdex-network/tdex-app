@@ -175,10 +175,11 @@ export async function setMnemonicInSecureStorage(
   try {
     await clearStorage();
     const encryptedData = await encrypt(mnemonic, pin);
-    return SecureStoragePlugin.set({
+    const { value } = await SecureStoragePlugin.set({
       key: MNEMONIC_KEY,
       value: JSON.stringify(encryptedData),
     });
+    return value;
   } catch (err) {
     console.error(err);
     throw new Error(err);
@@ -226,20 +227,8 @@ export async function removeMnemonicFromSecureStorage(
  * function using to remove all TDEX data from storage
  */
 export async function clearStorage() {
-  await Promise.all([
-    SecureStoragePlugin.remove({ key: MNEMONIC_KEY }),
-    Storage.remove({ key: PROVIDERS_KEY }),
-    Storage.remove({ key: ADDRESSES_KEY }),
-    Storage.remove({ key: SEED_BACKUP_FLAG_KEY }),
-    Storage.remove({ key: UTXOS_KEY }),
-    Storage.remove({ key: TRANSACTIONS_KEY }),
-    Storage.remove({ key: ASSETS_KEY }),
-    Storage.remove({ key: EXPLORER_KEY }),
-    Storage.remove({ key: CURRENCY_KEY }),
-    Storage.remove({ key: LBTC_DENOMINATION_KEY }),
-    Storage.clear(),
-    SecureStoragePlugin.clear(),
-  ]);
+  await SecureStoragePlugin.clear();
+  await Storage.clear();
   await setInstallFlag();
 }
 
