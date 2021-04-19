@@ -23,7 +23,6 @@ import './theme/global.scss';
 
 import Tabs from './pages/Tabs';
 
-import { Plugins } from '@capacitor/core';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
 import { useDispatch, useSelector } from 'react-redux';
 import { initApp } from './redux/actions/appActions';
@@ -34,6 +33,10 @@ import Login from './pages/Login';
 import RestoreWallet from './pages/RestoreWallet';
 import { NavigationBar } from '@ionic-native/navigation-bar';
 import classNames from 'classnames';
+import { useAppState } from '@capacitor-community/react-hooks/app';
+import { Plugins } from '@capacitor/core';
+import { unlockUtxos } from './redux/actions/walletActions';
+const { StatusBar } = Plugins;
 
 const App: React.FC = () => {
   const { isAuth, appInit, theme } = useSelector((state: any) => ({
@@ -42,11 +45,17 @@ const App: React.FC = () => {
     theme: state.settings.theme,
   }));
   const dispatch = useDispatch();
+  const appState = useAppState();
+
+  useEffect(() => {
+    if (!appState.state) {
+      dispatch(unlockUtxos());
+    }
+  }, [appState.state]);
 
   useEffect(() => {
     const setupApp = async () => {
       try {
-        const { StatusBar } = Plugins;
         await StatusBar.setOverlaysWebView({ overlay: false });
         await StatusBar.setBackgroundColor({ color: '#333333' });
         if (isPlatform('android')) {
