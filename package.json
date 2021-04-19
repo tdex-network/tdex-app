@@ -29,7 +29,7 @@
     "es6-promise-plugin": "^4.2.2",
     "ionicons": "^5.0.0",
     "jetifier": "^1.6.6",
-    "ldk": "^0.2.1",
+    "ldk": "^0.2.14",
     "liquidjs-lib": "^5.1.7",
     "moment": "^2.29.1",
     "npm": "^7.5.4",
