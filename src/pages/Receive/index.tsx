@@ -59,7 +59,9 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
     }
   );
 
-  useEffect(() => generateAndSetAddress(), []);
+  useEffect(() => {
+    generateAndSetAddress();
+  }, []);
 
   const copyAddress = () => {
     if (address) {
@@ -85,25 +87,23 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
     }
   };
 
-  const generateAndSetAddress = () => {
-    setLoading(true);
-    const masterPublicKey: MasterPublicKey = new MasterPublicKey(
-      masterPubKeyOpts
-    );
-    masterPublicKey.isRestored
-      .then(() => {
-        const addr = masterPublicKey.getNextAddress();
-        dispatch(addAddress(addr));
-        setAddress(addr);
-        setLoading(false);
-        dispatch(addSuccessToast('New address added to your account.'));
-      })
-      .catch((e) => {
-        dispatch(
-          addErrorToast('Error during address generation. Please retry.')
-        );
-        console.error(e);
-      });
+  const generateAndSetAddress = async () => {
+    try {
+      setLoading(true);
+      const masterPublicKey: MasterPublicKey = new MasterPublicKey(
+        masterPubKeyOpts
+      );
+      await masterPublicKey.isRestored;
+      const addr = await masterPublicKey.getNextAddress();
+      dispatch(addAddress(addr));
+      dispatch(addSuccessToast('New address added to your account.'));
+      setAddress(addr);
+    } catch (e) {
+      console.error(e);
+      dispatch(addErrorToast('Error during address generation. Please retry.'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

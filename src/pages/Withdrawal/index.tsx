@@ -145,12 +145,13 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
 
       const identity = await getIdentityPromise;
       await identity.isRestored;
+      const changeAddress = await identity.getNextChangeAddress();
 
       const withdrawPset = wallet.buildTx(
         psetBase64,
         [getRecipient()],
         customCoinSelector(dispatch),
-        (_: string) => identity.getNextChangeAddress().confidentialAddress,
+        (_: string) => changeAddress.confidentialAddress,
         true
       );
 
