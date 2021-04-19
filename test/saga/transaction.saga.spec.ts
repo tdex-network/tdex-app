@@ -1,4 +1,4 @@
-import { TxInterface, address } from 'ldk';
+import { TxInterface, address, AddressInterface } from 'ldk';
 import { ActionType } from './../../src/utils/types';
 import { CallEffect, PutEffect } from 'redux-saga/effects';
 import { faucet, firstAddress, APIURL, sleep } from '../test-utils';
@@ -10,13 +10,16 @@ jest.setTimeout(15000)
 describe('Transaction saga', () => {
     describe('fetchAndUpdateTxs', () => {
         let txid: string;
+        let addr: AddressInterface;
+
         beforeAll(async () => {
+            addr = await firstAddress
             await sleep(5000)
-            txid = await faucet(firstAddress.confidentialAddress)
+            txid = await faucet(addr.confidentialAddress)
         })
 
         test('should discover and add new transaction', async () => {
-            const gen = fetchAndUpdateTxs([firstAddress.confidentialAddress], { [address.toOutputScript(firstAddress.confidentialAddress).toString('hex')]: firstAddress }, {}, APIURL)
+            const gen = fetchAndUpdateTxs([addr.confidentialAddress], { [address.toOutputScript(addr.confidentialAddress).toString('hex')]: addr }, {}, APIURL)
             // simulate the first call
             const callEffect = gen.next().value as CallEffect<IteratorResult<TxInterface, number>>
             const result = await callEffect.payload.fn()
