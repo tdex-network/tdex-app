@@ -94,7 +94,7 @@ const App: React.FC = () => {
         {isAuth ? (
           <Tabs />
         ) : (
-          <IonRouterOutlet>
+          <IonRouterOutlet animated={false}>
             <Redirect exact from="/" to="/homescreen" />
             <Route path="/homescreen" component={Homescreen} />
             <Route path="/login" component={Login} />
