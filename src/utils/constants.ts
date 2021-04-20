@@ -9,7 +9,6 @@ export const BTSE_TICKER = 'BTSE';
 
 export const LBTC_COINGECKOID = 'bitcoin';
 export const USDT_COINGECKOID = 'tether';
-export const LCAD_COINGECKOID = 'cad-coin';
 
 export const LBTC_COLOR = '#f7931a';
 export const USDT_COLOR = '#50af95';
