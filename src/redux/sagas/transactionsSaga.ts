@@ -138,8 +138,6 @@ function* restoreTransactions() {
 function* watchTransaction(action: ActionType) {
   const { txID, maxTry } = action.payload as { txID: string; maxTry: number };
   yield put(addWatcherTransaction(txID));
-  yield delay(10000);
-
   const explorer = yield select(({ settings }) => settings.explorerUrl);
 
   for (let t = 0; t < maxTry; t++) {
