@@ -5,6 +5,7 @@ import {
   SET_CURRENCY,
   SET_ELECTRUM_SERVER,
   SET_LBTC_DENOMINATION,
+  SET_THEME,
 } from './../actions/settingsActions';
 import { takeLatest, call, put } from 'redux-saga/effects';
 import { setTheme, STORE_THEME } from '../actions/settingsActions';
@@ -22,6 +23,8 @@ import {
   setExplorerInStorage,
   setLBTCDenominationInStorage,
 } from '../../utils/storage-helper';
+import { setKeyboardTheme } from '../../utils/keyboard';
+import { KeyboardStyle } from '@capacitor/core';
 
 function* storeThemeSaga({ payload }: ActionType) {
   try {
@@ -83,6 +86,17 @@ function* restoreDenomination() {
   }
 }
 
+function* setKeyboardStyle(action: ActionType) {
+  switch (action.payload) {
+    case 'light':
+      yield call(setKeyboardTheme, KeyboardStyle.Light);
+      break;
+    case 'dark':
+      yield call(setKeyboardTheme, KeyboardStyle.Dark);
+      break;
+  }
+}
+
 export function* settingsWatcherSaga() {
   yield takeLatest(STORE_THEME, storeThemeSaga);
   yield takeLatest(SIGN_IN, restoreThemeSaga);
@@ -92,4 +106,5 @@ export function* settingsWatcherSaga() {
   yield takeLatest(SET_LBTC_DENOMINATION, persistDenomination);
   yield takeLatest(SET_ELECTRUM_SERVER, persistExplorer);
   yield takeLatest(SET_CURRENCY, persistCurrency);
+  yield takeLatest(SET_THEME, setKeyboardStyle);
 }

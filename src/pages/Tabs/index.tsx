@@ -36,7 +36,7 @@ const Tabs: React.FC<RouteComponentProps> = ({ history, location }) => {
     <IonPage>
       <IonContent>
         <IonTabs>
-          <IonRouterOutlet>
+          <IonRouterOutlet animated={false}>
             {ROUTES.map((item) => (
               <Route
                 key={item.path}

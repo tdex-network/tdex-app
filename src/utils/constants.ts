@@ -4,12 +4,16 @@ export const defaultPrecision = 8;
 
 export const LBTC_TICKER = 'L-BTC';
 export const USDT_TICKER = 'USDT';
+export const LCAD_TICKER = 'LCAD';
+export const BTSE_TICKER = 'BTSE';
 
 export const LBTC_COINGECKOID = 'bitcoin';
 export const USDT_COINGECKOID = 'tether';
 
 export const LBTC_COLOR = '#f7931a';
 export const USDT_COLOR = '#50af95';
+export const LCAD_COLOR = '#C40C0C';
+export const BTSE_COLOR = '#276ed9';
 
 export interface AssetConfig {
   coinGeckoID?: string;
@@ -45,6 +49,20 @@ export const MAIN_ASSETS: AssetConfig[] = [
     color: USDT_COLOR,
     precision: 8,
   },
+  {
+    ticker: LCAD_TICKER,
+    assetHash:
+      '0e99c1a6da379d1f4151fb9df90449d40d0608f6cb33a5bcbfc8c265f42bab0a',
+    color: LCAD_COLOR,
+    precision: 8,
+  },
+  {
+    ticker: BTSE_TICKER,
+    assetHash:
+      'b00b0ff0b11ebd47f7c6f57614c046dbbd204e84bf01178baf2be3713a206eb7',
+    color: BTSE_COLOR,
+    precision: 8,
+  },
 ];
 
 export function getColor(assetHash: string): string | undefined {
@@ -71,14 +89,19 @@ export function getCoinGeckoIDsToFeed(): string[] {
 
 export const CURRENCIES: CurrencyInterface[] = [
   {
-    name: 'euros',
+    name: 'euro',
     symbol: '€',
     value: 'eur',
   },
   {
-    name: 'dollars',
+    name: 'dollar',
     symbol: '$',
     value: 'usd',
+  },
+  {
+    name: 'canadian dollar',
+    symbol: '$C',
+    value: 'cad',
   },
 ];
 

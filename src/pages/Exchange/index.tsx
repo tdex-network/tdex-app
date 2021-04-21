@@ -39,6 +39,7 @@ import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { TradeType } from 'tdex-sdk';
 import { useSelector } from 'react-redux';
 import './style.scss';
+import { unlockUtxos } from '../../redux/actions/walletActions';
 
 const ERROR_LIQUIDITY = 'Not enough liquidity in market';
 
@@ -199,7 +200,8 @@ const Exchange: React.FC<ExchangeProps> = ({
       history.replace(`/tradesummary/${txid}`, { preview });
     } catch (e) {
       console.error(e);
-      dispatch(addErrorToast(e.message || e));
+      dispatch(addErrorToast('Swap transaction failed'));
+      dispatch(unlockUtxos());
     } finally {
       setLoading(false);
     }

@@ -10,6 +10,7 @@ import {
   SET_PUBLIC_KEYS,
   LOCK_UTXO,
   UNLOCK_UTXO,
+  UNLOCK_UTXOS,
 } from '../actions/walletActions';
 import { tickerFromAssetHash, balancesFromUtxos } from '../../utils/helpers';
 import { defaultPrecision, getMainAsset } from '../../utils/constants';
@@ -68,6 +69,11 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
         utxosLocks: state.utxosLocks.filter(
           (outpoint: string) => outpoint !== action.payload
         ),
+      };
+    case UNLOCK_UTXOS:
+      return {
+        ...state,
+        utxosLocks: [],
       };
     default:
       return state;

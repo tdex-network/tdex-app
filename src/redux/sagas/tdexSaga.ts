@@ -31,11 +31,11 @@ function* updateMarketsWithProvidersEndpoints() {
 
       for (const market of providerMarkets) {
         if (
-          markets.find(
+          !markets.find(
             (m) =>
               m.baseAsset === market.baseAsset &&
               m.quoteAsset === market.quoteAsset &&
-              m.provider.endpoint === market.provider.endpoint
+              m.provider.id === market.provider.id
           )
         ) {
           yield put(addMarkets([market]));

@@ -41,6 +41,7 @@ import {
 } from '../../redux/actions/toastActions';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
+import { unlockUtxos } from '../../redux/actions/walletActions';
 
 interface WithdrawalProps
   extends RouteComponentProps<
@@ -144,12 +145,13 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
 
       const identity = await getIdentityPromise;
       await identity.isRestored;
+      const changeAddress = await identity.getNextChangeAddress();
 
       const withdrawPset = wallet.buildTx(
         psetBase64,
         [getRecipient()],
         customCoinSelector(dispatch),
-        (_: string) => identity.getNextChangeAddress().confidentialAddress,
+        (_: string) => changeAddress.confidentialAddress,
         true
       );
 
@@ -194,6 +196,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       });
     } catch (err) {
       console.error(err);
+      dispatch(unlockUtxos());
       dispatch(
         addErrorToast('An error occurs while sending withdraw transaction.')
       );

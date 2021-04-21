@@ -8,7 +8,12 @@ import DepositIconBlack from '../../assets/img/deposit-black.svg';
 import PlaceholderIcon from '../../assets/img/currency-placeholder.svg';
 import { TxTypeEnum } from '../../utils/types';
 import { useSelector } from 'react-redux';
-import { LBTC_TICKER, USDT_TICKER } from '../../utils/constants';
+import {
+  BTSE_TICKER,
+  LBTC_TICKER,
+  LCAD_TICKER,
+  USDT_TICKER,
+} from '../../utils/constants';
 
 interface IconInterface {
   width?: string;
@@ -361,9 +366,9 @@ export const CurrencyIcon = ({ currency, ...props }: any) => {
       return <img src={LbtcIcon} />;
     case USDT_TICKER:
       return <img src={UsdtIcon} />;
-    case 'LCAD':
+    case LCAD_TICKER:
       return <img src={LcadIcon} />;
-    case 'BTSE':
+    case BTSE_TICKER:
       return <img src={BtseIcon} />;
     default:
       return <img src={PlaceholderIcon} />;

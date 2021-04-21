@@ -3,8 +3,8 @@ import {
   IonLabel,
   IonPage,
   IonButton,
-  useIonViewDidEnter,
   IonLoading,
+  useIonViewWillEnter,
 } from '@ionic/react';
 import React, { useState } from 'react';
 import { RouteComponentProps } from 'react-router';
@@ -23,6 +23,8 @@ import {
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import './style.scss';
+import { setKeyboardTheme } from '../../utils/keyboard';
+import { KeyboardStyle } from '@capacitor/core';
 
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   const [pinModalIsOpen, setPinModalIsOpen] = useState(false);
@@ -51,9 +53,10 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
       .finally(() => setLoading(false));
   };
 
-  useIonViewDidEnter(() => {
+  useIonViewWillEnter(() => {
     const init = async () => {
       setLoading(true);
+      await setKeyboardTheme(KeyboardStyle.Dark);
       const flag = await installFlag();
       if (!flag) {
         await clearStorage();
