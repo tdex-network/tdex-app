@@ -1,4 +1,4 @@
-import { fetchAndUnblindUtxos, UtxoInterface } from 'ldk';
+import { AddressInterface, fetchAndUnblindUtxos, UtxoInterface } from 'ldk';
 import { ActionType } from './../../src/utils/types';
 import { CallEffect, PutEffect } from 'redux-saga/effects';
 import { fetchAndUpdateUtxos } from '../../src/redux/sagas/walletSaga';
@@ -11,14 +11,16 @@ jest.setTimeout(15000)
 describe('wallet saga', () => {
     describe('fetchAndUpdateUtxos', () => {
         let utxo: UtxoInterface;
+        let addr: AddressInterface;
         beforeAll(async () => {
+            addr = await firstAddress;
             await sleep(5000)
-            const txid = await faucet(firstAddress.confidentialAddress)
-            utxo = (await fetchAndUnblindUtxos([firstAddress], APIURL, (utxo) => utxo.txid !== txid))[0]
+            const txid = await faucet(addr.confidentialAddress)
+            utxo = (await fetchAndUnblindUtxos([addr], APIURL, (utxo) => utxo.txid !== txid))[0]
         })
 
         test('should discover and add utxo', async () => {
-            const gen = fetchAndUpdateUtxos([firstAddress], {}, APIURL)
+            const gen = fetchAndUpdateUtxos([addr], {}, APIURL)
             // simulate the first call
             const callEffect = gen.next().value as CallEffect<IteratorResult<UtxoInterface, number>>
             const result = await callEffect.payload.fn()
@@ -30,7 +32,7 @@ describe('wallet saga', () => {
         test('should delete existing utxo if spent', async () => {
             const current: Record<string, UtxoInterface> = {}
             current['fakeTxid:8'] = utxo
-            const gen = fetchAndUpdateUtxos([firstAddress], current, APIURL)
+            const gen = fetchAndUpdateUtxos([addr], current, APIURL)
 
             let next = gen.next();
             while (next.value.type !== 'PUT' || next.value.payload.action.type !== 'DELETE_UTXO') {

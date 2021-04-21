@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   IonButton,
   IonContent,
@@ -38,6 +38,10 @@ const PinModal: React.FC<PinModalProps> = ({
     if (validRegexp.test(pin)) onConfirm(pin);
     else dispatch(addErrorToast('PIN must contain 6 digits.'));
   };
+
+  useEffect(() => {
+    if (pin.trim().length === 6) handleConfirm();
+  }, [pin]);
 
   return (
     <IonModal

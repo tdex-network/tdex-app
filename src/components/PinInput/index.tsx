@@ -52,6 +52,7 @@ const PinInput: React.FC<PinInputProps> = ({ onPin, on6digits }) => {
         ))}
       </IonLabel>
       <IonInput
+        autofocus={true}
         ref={inputRef}
         enterkeyhint="done"
         onKeyDown={onPressEnterKeyFactory(() => on6digits())}

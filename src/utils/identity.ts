@@ -19,15 +19,15 @@ export class MnemonicRedux extends Mnemonic implements IdentityInterface {
     this.dispatch = dispatch;
   }
 
-  getNextAddress(): AddressInterface {
-    const nextAddr = super.getNextAddress();
+  async getNextAddress(): Promise<AddressInterface> {
+    const nextAddr = await super.getNextAddress();
     this.dispatch(addAddress(nextAddr));
     this.dispatch(watchUtxo(nextAddr));
     return nextAddr;
   }
 
-  getNextChangeAddress(): AddressInterface {
-    const nextAddr = super.getNextChangeAddress();
+  async getNextChangeAddress(): Promise<AddressInterface> {
+    const nextAddr = await super.getNextChangeAddress();
     this.dispatch(addAddress(nextAddr));
     this.dispatch(watchUtxo(nextAddr));
     return nextAddr;

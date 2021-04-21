@@ -18,6 +18,7 @@ export const SET_PUBLIC_KEYS = 'SET_PUBLIC_KEYS';
 export const LOCK_UTXO = 'LOCK_UTXO';
 export const UNLOCK_UTXO = 'UNLOCK_UTXO';
 export const WATCH_UTXO = 'WATCH_UTXO';
+export const UNLOCK_UTXOS = 'UNLOCK_UTXOS';
 
 export const watchUtxo = (
   address: AddressInterface,
@@ -28,6 +29,10 @@ export const watchUtxo = (
     address,
     maxTry,
   },
+});
+
+export const unlockUtxos = () => ({
+  type: UNLOCK_UTXOS,
 });
 
 export const addAddress = (address: AddressInterface) => {

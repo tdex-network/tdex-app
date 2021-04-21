@@ -1,4 +1,4 @@
-import { Plugins } from '@capacitor/core';
+import { KeyboardStyle, Plugins } from '@capacitor/core';
 import { isPlatform } from '@ionic/react';
 
 const { Keyboard } = Plugins;
@@ -37,6 +37,17 @@ export async function setAccessoryBar(isVisible: boolean) {
   try {
     if (isPlatform('mobile')) {
       await Keyboard.setAccessoryBarVisible({ isVisible });
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+export async function setKeyboardTheme(style: KeyboardStyle) {
+  try {
+    if (isPlatform('ios')) {
+      // only available on iOS devices
+      await Keyboard.setStyle({ style });
     }
   } catch (e) {
     console.error(e);

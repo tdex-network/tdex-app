@@ -39,7 +39,7 @@ function* signInSaga(action: ActionType) {
     const identity: Mnemonic = yield call(getIdentity, action.payload);
     yield all([call(waitForRestore, identity), put(setPublicKeys(identity))]);
 
-    const addresses = identity.getAddresses();
+    const addresses = yield call(() => identity.getAddresses());
     for (const addr of addresses) {
       yield put(addAddress(addr));
     }
