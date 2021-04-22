@@ -19,7 +19,11 @@ import classNames from 'classnames';
 import { CurrencyIcon, IconBack, TxIcon } from '../../components/icons';
 import { useSelector } from 'react-redux';
 import { TxDisplayInterface, TxStatusEnum } from '../../utils/types';
-import { fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
+import {
+  compareTxDisplayInterfaceByDate,
+  fromSatoshi,
+  fromSatoshiFixed,
+} from '../../utils/helpers';
 import { checkmarkSharp } from 'ionicons/icons';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
@@ -152,8 +156,9 @@ const Operations: React.FC<OperationsProps> = ({
           <IonListHeader>Transactions</IonListHeader>
           <WatchersLoader />
           {balance &&
-            transactionsToDisplay.map(
-              (tx: TxDisplayInterface, index: number) => {
+            transactionsToDisplay
+              .sort(compareTxDisplayInterfaceByDate)
+              .map((tx: TxDisplayInterface, index: number) => {
                 const transfer = tx.transfers.find((t) => t.asset === asset_id);
                 return (
                   <IonItem
@@ -230,8 +235,7 @@ const Operations: React.FC<OperationsProps> = ({
                     </div>
                   </IonItem>
                 );
-              }
-            )}
+              })}
         </IonList>
       </IonContent>
     </IonPage>
