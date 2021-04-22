@@ -24,7 +24,7 @@ function* addAssetSaga({ type, payload }: { type: string; payload: string }) {
     const explorerUrl = yield select(
       (state: any) => state.settings.explorerUrl
     );
-    const { precision, ticker } = yield call(
+    const { precision, ticker, name } = yield call(
       getAssetData,
       payload,
       explorerUrl
@@ -35,6 +35,7 @@ function* addAssetSaga({ type, payload }: { type: string; payload: string }) {
       precision,
       assetHash: payload,
       color: createColorFromHash(payload),
+      name,
     });
 
     yield put(setAssetAction);
@@ -44,20 +45,22 @@ function* addAssetSaga({ type, payload }: { type: string; payload: string }) {
 async function getAssetData(
   assetHash: string,
   explorerURL: string
-): Promise<{ precision: number; ticker: string }> {
+): Promise<{ precision: number; ticker: string; name: string }> {
   try {
-    const { precision, ticker } = (
+    const { precision, ticker, name } = (
       await axios.get(`${explorerURL}/asset/${assetHash}`)
     ).data;
     return {
       precision: precision || defaultPrecision,
       ticker: ticker || tickerFromAssetHash(assetHash),
+      name: name || '',
     };
   } catch (e) {
     console.error(e);
     return {
       precision: defaultPrecision,
       ticker: tickerFromAssetHash(assetHash),
+      name: '',
     };
   }
 }

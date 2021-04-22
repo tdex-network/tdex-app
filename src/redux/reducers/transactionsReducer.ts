@@ -1,37 +1,43 @@
 import { createSelector } from 'reselect';
 import { TxInterface } from 'ldk';
 import { ActionType, TxDisplayInterface, TxTypeEnum } from '../../utils/types';
-import { SET_TRANSACTION } from '../actions/transactionsActions';
+import {
+  ADD_WATCHER_TRANSACTION,
+  REMOVE_WATCHER_TRANSACTION,
+  SET_TRANSACTION,
+} from '../actions/transactionsActions';
 import { toDisplayTransaction } from '../transformers/transactionsTransformer';
 import { WalletState } from './walletReducer';
 
 interface TransactionState {
   // record txid ---> tx
   txs: Record<string, TxInterface>;
+  watchers: string[];
 }
 
 const initialState: TransactionState = {
   txs: {},
+  watchers: [],
 };
 
 const transactionsReducer = (state = initialState, action: ActionType) => {
   switch (action.type) {
+    case ADD_WATCHER_TRANSACTION:
+      return { ...state, watchers: [...state.watchers, action.payload] };
+    case REMOVE_WATCHER_TRANSACTION:
+      return {
+        ...state,
+        watchers: state.watchers.filter((w) => w !== action.payload),
+      };
     case SET_TRANSACTION:
-      return addTransactionInState(state, action.payload);
+      return {
+        ...state,
+        txs: { ...state.txs, [action.payload.txid]: action.payload },
+      };
     default:
       return state;
   }
 };
-
-// util function using to add transaction in state
-function addTransactionInState(
-  state: TransactionState,
-  tx: TxInterface
-): TransactionState {
-  const txs = { ...state.txs };
-  txs[tx.txid] = tx;
-  return { ...state, txs };
-}
 
 // a selector using to select all transaction in map
 export const transactionsSelector = ({

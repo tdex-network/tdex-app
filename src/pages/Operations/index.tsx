@@ -25,6 +25,7 @@ import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
 import { LBTC_TICKER } from '../../utils/constants';
 import Refresher from '../../components/Refresher';
+import WatchersLoader from '../../redux/containers/watchersLoaderContainer';
 
 import './style.scss';
 
@@ -149,6 +150,7 @@ const Operations: React.FC<OperationsProps> = ({
         </IonHeader>
         <IonList>
           <IonListHeader>Transactions</IonListHeader>
+          <WatchersLoader />
           {balance &&
             transactionsToDisplay.map(
               (tx: TxDisplayInterface, index: number) => {

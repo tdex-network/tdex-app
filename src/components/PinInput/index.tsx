@@ -47,7 +47,7 @@ const PinInput: React.FC<PinInputProps> = ({ onPin, on6digits }) => {
               active: index <= pin.length,
             })}
           >
-            {pin[index]}
+            {pin[index] ? '*' : undefined}
           </div>
         ))}
       </IonLabel>

@@ -1,4 +1,8 @@
-import { setTransaction } from './../actions/transactionsActions';
+import {
+  addWatcherTransaction,
+  removeWatcherTransaction,
+  setTransaction,
+} from './../actions/transactionsActions';
 import { ActionType } from './../../utils/types';
 import { WalletState } from './../reducers/walletReducer';
 import {
@@ -133,6 +137,7 @@ function* restoreTransactions() {
 
 function* watchTransaction(action: ActionType) {
   const { txID, maxTry } = action.payload as { txID: string; maxTry: number };
+  yield put(addWatcherTransaction(txID));
   const explorer = yield select(({ settings }) => settings.explorerUrl);
 
   for (let t = 0; t < maxTry; t++) {
@@ -148,12 +153,14 @@ function* watchTransaction(action: ActionType) {
         blindKeyGetter
       );
       yield put(setTransaction(unblindedTx));
+      yield put(removeWatcherTransaction(txID));
       break;
     } catch {
       yield delay(1_000);
       continue;
     }
   }
+  yield put(removeWatcherTransaction(txID));
 }
 
 function blindKeyGetterFactory(

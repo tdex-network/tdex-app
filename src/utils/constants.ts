@@ -22,6 +22,7 @@ export interface AssetConfig {
   assetHash: string;
   color: string;
   precision: number;
+  name?: string;
 }
 
 export const MAIN_ASSETS: AssetConfig[] = [

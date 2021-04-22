@@ -1,0 +1,16 @@
+.spinner-tx {
+  margin-right: 5px;
+}
+
+.list-item {
+  &.tx-loader {
+    opacity: 0.7;
+  }
+}
+
+.main-row {
+  &.text-loader {
+    font-size: 8px !important;
+    overflow-wrap: normal;
+  }
+}
