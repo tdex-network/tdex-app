@@ -1,9 +1,11 @@
 import { Storage } from '@capacitor/core';
-import { provider } from '../config';
+import { defaultProvider } from '../config';
 import { Mnemonic } from 'ldk';
 import axios from 'axios';
 
-export const axiosProviderObject = axios.create({ baseURL: provider.endpoint });
+export const axiosProviderObject = axios.create({
+  baseURL: defaultProvider.endpoint,
+});
 
 export const getAssetsRequest = (
   path: string,
