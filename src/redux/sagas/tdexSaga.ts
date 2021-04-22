@@ -15,7 +15,7 @@ import {
   setProvidersInStorage,
 } from '../../utils/storage-helper';
 import { getProvidersFromTDexRegistry } from '../../utils/tdex';
-import { provider } from '../config';
+import { defaultProvider } from '../config';
 
 function* updateMarketsWithProvidersEndpoints() {
   const { providers, markets }: TDEXState = yield select(
@@ -72,27 +72,32 @@ function* restoreProviders() {
       yield put(addProvider(p));
     }
 
-    // fetch from registry if no providers found
-    if (providers.length <= 0) {
-      try {
-        const providersFromRegistry: TDEXProvider[] = yield call(
-          getProvidersFromTDexRegistry
-        );
-        for (const p of providersFromRegistry) {
-          yield put(addProvider(p));
-        }
-      } catch (e) {
-        // if an error happen, add the default provider (depends on config)
-        console.error(e);
-        yield put(addErrorToast('Unable to fetch providers from registry'));
-        yield put(
-          addProvider({ name: 'Default provider', endpoint: provider.endpoint })
-        );
+    try {
+      const providersFromRegistry: TDEXProvider[] = yield call(
+        getProvidersFromTDexRegistry
+      );
+      const filteredProviders = providersFromRegistry.filter(
+        (prov: TDEXProvider) =>
+          providers.find((p) => p.endpoint === prov.endpoint) === undefined
+      );
+
+      for (const p of filteredProviders) {
+        yield put(addProvider(p));
       }
+    } catch (e) {
+      console.error(e);
+      yield put(addErrorToast('Unable to fetch providers from registry'));
     }
   } catch (e) {
     console.error(e);
     yield put(addErrorToast(e));
+    // if an error happen, add the default provider (depends on config)
+    yield put(
+      addProvider({
+        name: 'Default provider',
+        endpoint: defaultProvider.endpoint,
+      })
+    );
   }
 }
 
@@ -112,6 +117,10 @@ export function* tdexWatcherSaga() {
   yield takeLatest(SIGN_IN, restoreProviders);
 }
 
+/**
+ * make two gRPC calls in order to fetch markets and balances
+ * @param p provider
+ */
 async function getMarketsFromProvider(p: TDEXProvider): Promise<TDEXMarket[]> {
   const client = new TraderClient(p.endpoint);
   const markets: MarketInterface[] = await client.markets();

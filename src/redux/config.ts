@@ -1,4 +1,4 @@
-let network: any, provider: any;
+let network: any, defaultProvider: any;
 
 if (process.env.NODE_ENV === 'production') {
   network = {
@@ -6,7 +6,7 @@ if (process.env.NODE_ENV === 'production') {
     explorer: 'https://blockstream.info/liquid/api',
   };
 
-  provider = {
+  defaultProvider = {
     endpoint: 'https://provider.tdex.network:9945',
   };
 } else {
@@ -15,9 +15,9 @@ if (process.env.NODE_ENV === 'production') {
     explorer: 'http://localhost:3001',
   };
 
-  provider = {
+  defaultProvider = {
     endpoint: 'http://localhost:9945',
   };
 }
 
-export { network, provider };
+export { network, defaultProvider };
