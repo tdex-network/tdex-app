@@ -172,7 +172,7 @@ const Wallet: React.FC<WalletProps> = ({
                       >
                         {balance.coinGeckoID
                           ? capitalizeFirstLetter(balance.coinGeckoID)
-                          : ''}
+                          : balance.ticker}
                       </div>
                     </div>
                   </div>
