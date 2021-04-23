@@ -238,5 +238,5 @@ export function compareTxDisplayInterfaceByDate(
   a: TxDisplayInterface,
   b: TxDisplayInterface
 ): number {
-  return a.blockTime?.diff(b.blockTime) || 0;
+  return b.blockTime?.diff(a.blockTime) || 0;
 }
