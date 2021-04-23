@@ -2,7 +2,13 @@
 
 set -e
 
-echo "creating wallet"
+echo ""
+echo "starting tdexd"
+
+docker run -it -d --name tdexd -v $(pwd)/tdexd:/.tdex-daemon --network="host" -e TDEX_NETWORK="regtest" -e TDEX_BASE_ASSET="5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225" -e TDEX_EXPLORER_ENDPOINT="http://127.0.0.1:3001" ghcr.io/tdex-network/tdexd:latest
+
+echo ""
+echo "init wallet"
 
 tdex='docker exec -it tdexd tdex '
 $tdex config init --network "regtest"
@@ -32,14 +38,14 @@ addressmarket=$($tdex depositmarket | jq -r '.addresses[0]')
 echo ""
 echo "market address: ${addressmarket}"
 
-btctxid=$(nigiri faucet --liquid $addressmarket | grep '^txId: ' | cut -d ':' -f 2 | tr -d ' ')
+btctxid=$(nigiri faucet --liquid $addressmarket 10 | grep '^txId: ' | cut -d ':' -f 2 | tr -d ' ')
 sleep 5
 
 btcvout=$(nigiri rpc --liquid gettransaction $btctxid | jq -r '.details[0].vout')
 
 echo "market base outpoint: ${btctxid} ${btcvout}"
 
-mintresponse=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket'", "quantity": 100}' "http://localhost:3001/mint")
+mintresponse=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket'", "amount": 500000, "name": "Liquid Tether", "ticker":"USDt"}' "http://localhost:3001/mint")
 sleep 5
 
 shitcoin=$(echo $mintresponse | jq -r '.asset')
@@ -56,7 +62,6 @@ $tdex config set quote_asset $shitcoin &>/dev/null
 
 $tdex claimmarket --outpoints '[{"hash":"'$btctxid'", "index":'$btcvout'}, {"hash":"'$shittxid'", "index":'$shitvout'}]'
 sleep 1
-
 
 echo ""
 echo "opening market"
