@@ -12,6 +12,7 @@ import {
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
+import { network } from '../../redux/config';
 import { CurrencyIcon } from '../../components/icons';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import {
@@ -19,10 +20,12 @@ import {
   fromSatoshi,
   fromSatoshiFixed,
 } from '../../utils/helpers';
-import { getMainAsset } from '../../utils/constants';
+import { getMainAsset, MAIN_ASSETS } from '../../utils/constants';
+import { AssetWithTicker } from '../../utils/tdex';
 import CircleDiagram from '../../redux/containers/circleDiagramContainer';
 import { ActionType } from '../../utils/types';
 import { update } from '../../redux/actions/appActions';
+import ExchangeSearch from '../../components/ExchangeSearch';
 import Refresher from '../../components/Refresher';
 import BackupModal from '../../redux/containers/backupModalContainer';
 import { useSelector } from 'react-redux';
@@ -54,6 +57,10 @@ const Wallet: React.FC<WalletProps> = ({
   const [secondaryAssets, setSecondaryAssets] = useState<BalanceInterface[]>(
     []
   );
+  const [ExchangeSearchOpen, setExchangeSearchOpen] = useState(false);
+  const [assetsWithTicker, setAssetsWithTicker] = useState<AssetWithTicker[]>(
+    []
+  );
 
   const UNKNOWN = -1;
 
@@ -61,6 +68,25 @@ const Wallet: React.FC<WalletProps> = ({
     const balanceIndex = balances.findIndex((b) => b.ticker === balance.ticker);
     if (balanceIndex < 0) return UNKNOWN;
     return fiats[balanceIndex];
+  };
+
+  const getAssetsWithTicker = () => {
+    const assetWithTicker: AssetWithTicker[] = [];
+    MAIN_ASSETS.forEach(({ assetHash, ticker, coinGeckoID, chain }) => {
+      if (ticker === 'L-BTC' && network.chain !== chain) return;
+      assetWithTicker.push({ asset: assetHash, ticker, coinGeckoID });
+    });
+    secondaryAssets.forEach(({ asset, ticker, coinGeckoID }) => {
+      assetWithTicker.push({ asset, ticker, coinGeckoID });
+    });
+    return assetWithTicker;
+  };
+
+  const handleAssetSelection = (asset: AssetWithTicker) => {
+    history.push({
+      pathname: '/receive',
+      state: { depositAsset: asset },
+    });
   };
 
   useIonViewWillEnter(() => dispatch(updateUtxos()));
@@ -81,10 +107,8 @@ const Wallet: React.FC<WalletProps> = ({
       setLBTCBalance(undefined);
       setLBTCBalanceIndex(-1);
     }
-
     setLBTCBalanceIndex(index);
     setLBTCBalance(balances[index]);
-
     const main = [];
     const secondary = [];
     for (const balance of balances) {
@@ -92,12 +116,11 @@ const Wallet: React.FC<WalletProps> = ({
         main.push(balance);
         continue;
       }
-
       secondary.push(balance);
     }
-
     setMainAssets(main);
     setSecondaryAssets(secondary);
+    setAssetsWithTicker(getAssetsWithTicker());
   }, [balances]);
 
   useEffect(() => {
@@ -106,7 +129,7 @@ const Wallet: React.FC<WalletProps> = ({
 
   return (
     <IonPage>
-      <div className="gradient-background"></div>
+      <div className="gradient-background" />
       <IonContent className="wallet-content">
         <Refresher />
         <div className="diagram">
@@ -142,7 +165,7 @@ const Wallet: React.FC<WalletProps> = ({
               className="coin-action-button ml-auto small-button"
               onClick={() => {
                 if (backupDone) {
-                  history.push('/receive');
+                  setExchangeSearchOpen(true);
                   return;
                 }
                 setBackupModal(true);
@@ -265,6 +288,17 @@ const Wallet: React.FC<WalletProps> = ({
             );
           })}
         </IonList>
+
+        <ExchangeSearch
+          assets={assetsWithTicker}
+          currency={currency}
+          isOpen={ExchangeSearchOpen}
+          close={() => setExchangeSearchOpen(false)}
+          prices={prices}
+          setAsset={handleAssetSelection}
+          isDepositSearch={true}
+        />
+
         {!backupDone && (
           <BackupModal
             title="Backup your seed before deposit"

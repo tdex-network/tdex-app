@@ -11,8 +11,8 @@ import {
   IonLoading,
 } from '@ionic/react';
 import React, { useEffect, useRef, useState } from 'react';
-import { withRouter, RouteComponentProps } from 'react-router';
-import { IconBack, IconBTC, IconCopy } from '../../components/icons';
+import { withRouter, RouteComponentProps, useLocation } from 'react-router';
+import { IconBack, IconCopy, CurrencyIcon } from '../../components/icons';
 import PageDescription from '../../components/PageDescription';
 import './style.scss';
 import { useDispatch, useSelector } from 'react-redux';
@@ -33,6 +33,11 @@ import { WalletState } from '../../redux/reducers/walletReducer';
 import { network } from '../../redux/config';
 import { IdentityRestorerFromState } from '../../utils/identity';
 import { addAddress } from '../../redux/actions/walletActions';
+import { AssetWithTicker } from '../../utils/tdex';
+
+interface LocationState {
+  depositAsset: AssetWithTicker;
+}
 
 const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   const [copied, setCopied] = useState(false);
@@ -40,6 +45,9 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   const [loading, setLoading] = useState(false);
   const addressRef: any = useRef(null);
   const dispatch = useDispatch();
+  const { state } = useLocation<LocationState>();
+  // Hack to prevent undefined state when hitting back button
+  const [locationState] = useState(state);
 
   // select data for MasterPubKey identity
   const masterPubKeyOpts: IdentityOpts = useSelector(
@@ -109,7 +117,7 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage>
       <IonLoading isOpen={loading} />
-      <div className="gradient-background"></div>
+      <div className="gradient-background" />
       <IonHeader>
         <IonToolbar className="with-back-button">
           <IonButton
@@ -126,12 +134,22 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
       <IonContent className="receive">
         <div className="description-with-icon">
           <div className="img-wrapper">
-            <IconBTC width="48px" height="48px" />
+            <CurrencyIcon
+              currency={locationState.depositAsset.ticker}
+              width="48px"
+              height="48px"
+            />
           </div>
-          <PageDescription align="left" title="Your BTC address">
+          <PageDescription
+            align="left"
+            title={`Your ${locationState.depositAsset.ticker} address`}
+          >
             <p>
-              To provide this address to the person sending you Bitcoin simply
-              tap to copy it or scan your wallet QR code with their device.
+              {`To provide this address to the person sending you ${
+                locationState.depositAsset.coinGeckoID ||
+                locationState.depositAsset.ticker
+              } simply tap to copy it or scan your
+              wallet QR code with their device.`}
             </p>
           </PageDescription>
         </div>

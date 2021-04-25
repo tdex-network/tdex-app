@@ -18,11 +18,11 @@ export const BTSE_COLOR = '#276ed9';
 export interface AssetConfig {
   coinGeckoID?: string;
   ticker: string;
-  // assetHash should be unique /!\
   assetHash: string;
   color: string;
   precision: number;
   name?: string;
+  chain?: 'liquid' | 'regtest';
 }
 
 export const MAIN_ASSETS: AssetConfig[] = [
@@ -33,6 +33,7 @@ export const MAIN_ASSETS: AssetConfig[] = [
       '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225',
     color: LBTC_COLOR,
     precision: 8,
+    chain: 'regtest',
   },
   {
     coinGeckoID: LBTC_COINGECKOID,
@@ -41,6 +42,7 @@ export const MAIN_ASSETS: AssetConfig[] = [
       '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d',
     color: LBTC_COLOR,
     precision: 8,
+    chain: 'liquid',
   },
   {
     coinGeckoID: USDT_COINGECKOID,
