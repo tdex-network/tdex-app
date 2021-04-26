@@ -136,7 +136,21 @@ const Operations: React.FC<OperationsProps> = ({
             )}
           </div>
           <IonButtons className="operations-buttons">
-            <IonButton className="coin-action-button" routerLink="/receive">
+            <IonButton
+              className="coin-action-button"
+              onClick={() => {
+                history.push({
+                  pathname: '/receive',
+                  state: {
+                    depositAsset: {
+                      asset: balance?.asset,
+                      ticker: balance?.ticker,
+                      coinGeckoID: balance?.coinGeckoID,
+                    },
+                  },
+                });
+              }}
+            >
               Deposit
             </IonButton>
             <IonButton
