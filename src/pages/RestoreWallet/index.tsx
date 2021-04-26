@@ -159,15 +159,6 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
           })}
         </div>
 
-        <div className="warning-message">
-          <div className="warning-icon">
-            <IconWarning width="25px" height="25px" viewBox="0 0 25 25" />
-          </div>
-          <p className="warning">
-            Write your secret phrase and store it in a safe place such as safe
-            deposit box
-          </p>
-        </div>
         <div className="buttons restore">
           <IonButton
             disabled={isEmpty}
