@@ -40,6 +40,7 @@ import { TradeType } from 'tdex-sdk';
 import { useSelector } from 'react-redux';
 import './style.scss';
 import { unlockUtxos } from '../../redux/actions/walletActions';
+import { AppError, NoMarketsProvidedError } from '../../utils/errors';
 
 const ERROR_LIQUIDITY = 'Not enough liquidity in market';
 
@@ -130,7 +131,7 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   useIonViewWillEnter(() => {
     if (markets.length === 0) {
-      dispatch(addErrorToast('no markets available'));
+      dispatch(addErrorToast(NoMarketsProvidedError));
       history.goBack();
       return;
     }
@@ -200,8 +201,10 @@ const Exchange: React.FC<ExchangeProps> = ({
       history.replace(`/tradesummary/${txid}`, { preview });
     } catch (e) {
       console.error(e);
-      dispatch(addErrorToast('Swap transaction failed'));
       dispatch(unlockUtxos());
+      if (e instanceof AppError) {
+        dispatch(addErrorToast(e));
+      }
     } finally {
       setLoading(false);
     }

@@ -8,6 +8,7 @@ import {
   IonLoading,
 } from '@ionic/react';
 import React, { useState } from 'react';
+import { AppError, IncorrectPINError } from '../../utils/errors';
 import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
 import { IconClose } from '../icons';
 import PageDescription from '../PageDescription';
@@ -26,7 +27,7 @@ interface BackupModalProps {
   // below: connected redux props
   backupDone: boolean;
   setDone: () => void;
-  onError: (_: string) => void;
+  onError: (err: AppError) => void;
 }
 
 const BackupModal: React.FC<BackupModalProps> = ({
@@ -45,7 +46,29 @@ const BackupModal: React.FC<BackupModalProps> = ({
   return (
     <div>
       <IonLoading isOpen={isLoading} />
-      {mnemonicToShow ? (
+      {!mnemonicToShow ? (
+        <PinModal
+          open={isOpen}
+          onDidDismiss={true}
+          onClose={() => {
+            if (!isLoading && !mnemonicToShow) onClose('skipped');
+          }}
+          title="Please enter you secret PIN"
+          description="Never share your seed"
+          onConfirm={async (pin: string) => {
+            try {
+              setIsLoading(true);
+              const decrypted = await getMnemonicFromSecureStorage(pin);
+              setMnemonicToShow(decrypted);
+            } catch (e) {
+              onError(IncorrectPINError);
+              console.error(e);
+            } finally {
+              setIsLoading(false);
+            }
+          }}
+        />
+      ) : (
         <IonModal isOpen={isOpen} onDidDismiss={() => onClose('skipped')}>
           <div className="gradient-background" />
           <IonHeader>
@@ -87,29 +110,6 @@ const BackupModal: React.FC<BackupModalProps> = ({
             </div>
           </IonContent>
         </IonModal>
-      ) : (
-        <PinModal
-          open={isOpen}
-          onDidDismiss={true}
-          onClose={() => {
-            if (!isLoading && !mnemonicToShow) onClose('skipped');
-          }}
-          title="Please enter you secret PIN"
-          description="Never share your seed"
-          onConfirm={async (pin: string) => {
-            try {
-              setIsLoading(true);
-              const decrypted = await getMnemonicFromSecureStorage(pin);
-              setMnemonicToShow(decrypted);
-            } catch (e) {
-              onError(e);
-              console.error(e);
-            } finally {
-              setIsLoading(false);
-            }
-          }}
-          isWrongPin={false}
-        />
       )}
     </div>
   );

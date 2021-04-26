@@ -16,6 +16,7 @@ import {
 } from '../../utils/storage-helper';
 import { getProvidersFromTDexRegistry } from '../../utils/tdex';
 import { defaultProvider } from '../config';
+import { TDEXRegistryError } from '../../utils/errors';
 
 function* updateMarketsWithProvidersEndpoints() {
   const { providers, markets }: TDEXState = yield select(
@@ -42,7 +43,7 @@ function* updateMarketsWithProvidersEndpoints() {
         }
       }
     } catch (e) {
-      yield put(addErrorToast(e.message || e));
+      console.error(e);
     }
   }
 }
@@ -60,7 +61,7 @@ function* fetchMarkets({
       yield put(addMarkets(markets));
     }
   } catch (e) {
-    yield put(addErrorToast(e.message || e));
+    console.error(e);
   }
 }
 
@@ -86,11 +87,10 @@ function* restoreProviders() {
       }
     } catch (e) {
       console.error(e);
-      yield put(addErrorToast('Unable to fetch providers from registry'));
+      yield put(addErrorToast(TDEXRegistryError));
     }
   } catch (e) {
     console.error(e);
-    yield put(addErrorToast(e));
     // if an error happen, add the default provider (depends on config)
     yield put(
       addProvider({

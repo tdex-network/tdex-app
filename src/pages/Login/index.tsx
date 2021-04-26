@@ -26,6 +26,11 @@ import {
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import BackupModal from '../../redux/containers/backupModalContainer';
+import {
+  AppError,
+  PINsDoNotMatchError,
+  SecureStorageError,
+} from '../../utils/errors';
 
 const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
@@ -53,9 +58,9 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
     setModalOpen('second');
   };
 
-  const onError = (e: Error) => {
+  const onError = (e: AppError) => {
     clearStorage();
-    dispatch(addErrorToast('Error during setup mnemonic: ' + e.message));
+    dispatch(addErrorToast(e));
     console.error(e);
     setModalOpen(undefined);
     setPin(undefined);
@@ -66,19 +71,19 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
     if (newPin === pin) {
       setLoading(true);
       setMnemonicInSecureStorage(mnemonic, pin)
-        .then((isStored) => {
-          if (!isStored) throw new Error('unknow error for secure storage');
+        .then(() => {
           dispatch(
             addSuccessToast('Mnemonic generated and encrypted with your PIN.')
           );
           dispatch(signIn(pin));
           history.push('/wallet');
         })
-        .catch(onError)
+        .catch(() => onError(SecureStorageError))
         .finally(() => setLoading(false));
       return;
     }
-    onError(new Error('PINs do not match.'));
+    // else PIN 1 != PIN 2
+    onError(PINsDoNotMatchError);
   };
 
   const cancelSecondModal = () => {

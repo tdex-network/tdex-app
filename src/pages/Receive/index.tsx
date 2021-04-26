@@ -34,6 +34,7 @@ import { network } from '../../redux/config';
 import { IdentityRestorerFromState } from '../../utils/identity';
 import { addAddress } from '../../redux/actions/walletActions';
 import { AssetWithTicker } from '../../utils/tdex';
+import { AddressGenerationError } from '../../utils/errors';
 
 interface LocationState {
   depositAsset: AssetWithTicker;
@@ -108,7 +109,7 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
       setAddress(addr);
     } catch (e) {
       console.error(e);
-      dispatch(addErrorToast('Error during address generation. Please retry.'));
+      dispatch(addErrorToast(AddressGenerationError));
     } finally {
       setLoading(false);
     }

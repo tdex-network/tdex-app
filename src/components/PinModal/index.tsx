@@ -13,12 +13,13 @@ import PageDescription from '../PageDescription';
 import PinInput from '../PinInput';
 import { useDispatch } from 'react-redux';
 import { addErrorToast } from '../../redux/actions/toastActions';
+import { PinDigitsError } from '../../utils/errors';
 
 interface PinModalProps {
   open: boolean;
   title: string;
   description: string;
-  onConfirm: (pin: string) => any;
+  onConfirm: (pin: string) => void;
   onClose?: () => void;
   onDidDismiss?: boolean;
   isWrongPin: boolean | null;
@@ -41,15 +42,12 @@ const PinModal: React.FC<PinModalProps> = ({
       onConfirm(pin);
       setPin('');
     } else {
-      dispatch(addErrorToast('PIN must contain 6 digits.'));
+      dispatch(addErrorToast(PinDigitsError));
     }
   };
 
   useEffect(() => {
-    if (pin.trim().length === 6) {
-      console.log('handleConfirm');
-      handleConfirm();
-    }
+    if (pin.trim().length === 6) handleConfirm();
   }, [pin]);
 
   return (

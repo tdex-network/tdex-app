@@ -1,3 +1,4 @@
+import { AppError } from './../../utils/errors';
 import { ActionType } from './../../utils/types';
 import { ToastType, ToastOpts } from './../reducers/toastReducer';
 
@@ -11,10 +12,10 @@ export function addSuccessToast(message: string): ActionType {
   };
 }
 
-export function addErrorToast(message: string): ActionType {
+export function addErrorToast(error: AppError): ActionType {
   return {
     type: ADD_TOAST,
-    payload: createToast(message, 'error'),
+    payload: createToast(error.toToastMessage(), 'error'),
   };
 }
 

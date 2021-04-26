@@ -18,6 +18,7 @@ import {
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
 
 import './style.scss';
+import { QRCodeScanError } from '../../utils/errors';
 
 const { BarcodeScanner } = Plugins;
 
@@ -53,7 +54,7 @@ const QRCodeScanner: React.FC<
       })
       .catch((e: any) => {
         console.error(e);
-        dispatch(addErrorToast(e));
+        dispatch(addErrorToast(QRCodeScanError));
       });
   });
 

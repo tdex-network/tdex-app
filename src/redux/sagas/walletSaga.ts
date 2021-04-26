@@ -38,6 +38,7 @@ import {
   setUtxosInStorage,
 } from '../../utils/storage-helper';
 import { SIGN_IN } from '../actions/appActions';
+import { UpdateUtxosError } from '../../utils/errors';
 
 function* persistAddresses({ type }: { type: string }) {
   const addresses = yield select(addressesSelector);
@@ -61,7 +62,7 @@ function* updateUtxosState({ type }: { type: string }) {
     yield call(fetchAndUpdateUtxos, addresses, utxos, explorerURL);
   } catch (error) {
     console.error(error);
-    yield put(addErrorToast('An error occurs while trying to fetch UTXOs.'));
+    yield put(addErrorToast(UpdateUtxosError));
   }
 }
 

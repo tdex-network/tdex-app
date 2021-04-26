@@ -6,6 +6,7 @@ import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
+import { AppError, IncorrectPINError } from '../../utils/errors';
 import {
   changePin,
   getMnemonicFromSecureStorage,
@@ -27,7 +28,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
   const [pin, setPin] = useState('');
   const dispatch = useDispatch();
 
-  const onError = (e: any) => {
+  const onError = (e: AppError) => {
     console.error(e);
     dispatch(addErrorToast(e));
     setPin('');
@@ -63,7 +64,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
         dispatch(addSuccessToast('PIN has been changed.'));
         onDeleted();
       })
-      .catch(onError)
+      .catch(() => onError(IncorrectPINError))
       .finally(() => setLoading(false));
   };
 
