@@ -30,6 +30,7 @@ import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import { Plugins } from '@capacitor/core';
 import CurrencySearch from '../../components/CurrencySearch';
 import DenominationSearch from '../../components/DenominationSearch';
+import { IncorrectPINError } from '../../utils/errors';
 const { Device } = Plugins;
 
 const Settings: React.FC<RouteComponentProps> = ({ history }) => {
@@ -77,7 +78,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
         setModalOpen(false);
       })
       .catch((e) => {
-        dispatch(addErrorToast(e));
+        dispatch(addErrorToast(IncorrectPINError));
         console.error(e);
       });
   };

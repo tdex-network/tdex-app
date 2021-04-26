@@ -8,6 +8,7 @@ import {
 import { toSatoshi } from './helpers';
 import axios from 'axios';
 import { getMainAsset } from './constants';
+import { InvalidTradeTypeError, MakeTradeError } from './errors';
 
 export interface AssetWithTicker {
   asset: string;
@@ -114,18 +115,22 @@ export async function makeTrade(
 
   let txid = '';
 
-  if (trade.type === TradeType.BUY) {
-    txid = await trader.buy({ ...known, market: trade.market, identity });
-  }
+  try {
+    if (trade.type === TradeType.BUY) {
+      txid = await trader.buy({ ...known, market: trade.market, identity });
+    }
 
-  if (trade.type === TradeType.SELL) {
-    txid = await trader.sell({ ...known, market: trade.market, identity });
+    if (trade.type === TradeType.SELL) {
+      txid = await trader.sell({ ...known, market: trade.market, identity });
+    }
+  } catch (e) {
+    console.error(e);
+    throw MakeTradeError;
   }
 
   if (txid === '') {
-    throw new Error('Invalid trade type');
+    throw InvalidTradeTypeError;
   }
-
   return txid;
 }
 

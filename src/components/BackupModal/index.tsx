@@ -8,6 +8,7 @@ import {
   IonLoading,
 } from '@ionic/react';
 import React, { useState } from 'react';
+import { AppError, IncorrectPINError } from '../../utils/errors';
 import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
 import { IconClose } from '../icons';
 import PageDescription from '../PageDescription';
@@ -26,7 +27,7 @@ interface BackupModalProps {
   // below: connected redux props
   backupDone: boolean;
   setDone: () => void;
-  onError: (_: string) => void;
+  onError: (err: AppError) => void;
 }
 
 const BackupModal: React.FC<BackupModalProps> = ({
@@ -60,7 +61,7 @@ const BackupModal: React.FC<BackupModalProps> = ({
               const decrypted = await getMnemonicFromSecureStorage(pin);
               setMnemonicToShow(decrypted);
             } catch (e) {
-              onError(e);
+              onError(IncorrectPINError);
               console.error(e);
             } finally {
               setIsLoading(false);

@@ -12,11 +12,8 @@ import { useDispatch } from 'react-redux';
 import { signIn } from '../../redux/actions/appActions';
 import PinModal from '../../components/PinModal';
 import {
-  clearStorage,
   getIdentity,
-  installFlag,
   mnemonicInSecureStorage,
-  setInstallFlag,
 } from '../../utils/storage-helper';
 import {
   addErrorToast,
@@ -25,6 +22,7 @@ import {
 import './style.scss';
 import { setKeyboardTheme } from '../../utils/keyboard';
 import { KeyboardStyle } from '@capacitor/core';
+import { IncorrectPINError } from '../../utils/errors';
 
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   const [pinModalIsOpen, setPinModalIsOpen] = useState(false);
@@ -47,7 +45,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
       })
       .catch((e) => {
         console.error(e);
-        dispatch(addErrorToast('Error: bad PIN. Please retry.'));
+        dispatch(addErrorToast(IncorrectPINError));
         setTimeout(() => setPinModalIsOpen(true), 800);
       })
       .finally(() => setLoading(false));
@@ -57,12 +55,6 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
     const init = async () => {
       setLoading(true);
       await setKeyboardTheme(KeyboardStyle.Dark);
-      const flag = await installFlag();
-      if (!flag) {
-        await clearStorage();
-        await setInstallFlag();
-      }
-
       const mnemonicExists = await mnemonicInSecureStorage();
       if (mnemonicExists) setPinModalIsOpen(true);
     };

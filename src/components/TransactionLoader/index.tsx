@@ -7,6 +7,7 @@ import {
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import './style.scss';
+import { UnableToCopyTxIDError } from '../../utils/errors';
 
 interface TransactionLoaderProps {
   txID: string;
@@ -23,7 +24,7 @@ const TransactionLoader: React.FC<TransactionLoaderProps> = ({ txID }) => {
           .then(() => dispatch(addSuccessToast('Tx ID copied in clipboard')))
           .catch((err) => {
             console.error(err);
-            dispatch(addErrorToast('Unable to copy tx ID'));
+            dispatch(addErrorToast(UnableToCopyTxIDError));
           });
       }}
     >

@@ -12,7 +12,7 @@ import {
 import { RouteComponentProps, withRouter } from 'react-router';
 import PageDescription from '../../components/PageDescription';
 import classNames from 'classnames';
-import { IconBack, IconWarning } from '../../components/icons';
+import { IconBack } from '../../components/icons';
 import { useDispatch } from 'react-redux';
 import {
   clearStorage,
@@ -28,6 +28,12 @@ import {
 import * as bip39 from 'bip39';
 import { onPressEnterKeyFactory } from '../../utils/keyboard';
 import './style.scss';
+import {
+  AppError,
+  InvalidMnemonicError,
+  PINsDoNotMatchError,
+  SecureStorageError,
+} from '../../utils/errors';
 
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
@@ -45,7 +51,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
 
   const handleConfirm = () => {
     if (!bip39.validateMnemonic(mnemonic.join(' '))) {
-      dispatch(addErrorToast('Invalid BIP39 mnemonic'));
+      dispatch(addErrorToast(InvalidMnemonicError));
       return;
     }
     setModalOpen('first');
@@ -59,9 +65,9 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
     setModalOpen('second');
   };
 
-  const onError = (e: Error) => {
+  const onError = (e: AppError) => {
     clearStorage();
-    dispatch(addErrorToast('Error during setup mnemonic:' + e.message));
+    dispatch(addErrorToast(e));
     console.error(e);
     setModalOpen(undefined);
     setPin(undefined);
@@ -72,8 +78,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
       setLoading(true);
       const restoredMnemonic = mnemonic.join(' ');
       setMnemonicInSecureStorage(restoredMnemonic, pin)
-        .then((isStored) => {
-          if (!isStored) throw new Error('unknow error for secure storage');
+        .then(() => {
           dispatch(
             addSuccessToast('Mnemonic generated and encrypted with your PIN.')
           );
@@ -82,12 +87,12 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
           dispatch(setBackupDone());
           history.push('/wallet');
         })
-        .catch(onError)
+        .catch(() => onError(SecureStorageError))
         .finally(() => setLoading(false));
       return;
     }
 
-    onError(new Error('PINs do not match.'));
+    onError(PINsDoNotMatchError);
   };
 
   const cancelSecondModal = () => {
