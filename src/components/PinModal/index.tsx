@@ -13,6 +13,7 @@ import PageDescription from '../PageDescription';
 import PinInput from '../PinInput';
 import { useDispatch } from 'react-redux';
 import { addErrorToast } from '../../redux/actions/toastActions';
+import { PinDigitsError } from '../../utils/errors';
 
 interface PinModalProps {
   open: boolean;
@@ -36,7 +37,7 @@ const PinModal: React.FC<PinModalProps> = ({
   const dispatch = useDispatch();
   const handleConfirm = () => {
     if (validRegexp.test(pin)) onConfirm(pin);
-    else dispatch(addErrorToast('PIN must contain 6 digits.'));
+    else dispatch(addErrorToast(PinDigitsError));
   };
 
   useEffect(() => {

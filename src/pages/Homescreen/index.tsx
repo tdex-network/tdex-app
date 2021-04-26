@@ -22,6 +22,7 @@ import {
 import './style.scss';
 import { setKeyboardTheme } from '../../utils/keyboard';
 import { KeyboardStyle } from '@capacitor/core';
+import { IncorrectPINError } from '../../utils/errors';
 
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   const [pinModalIsOpen, setPinModalIsOpen] = useState(false);
@@ -44,7 +45,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
       })
       .catch((e) => {
         console.error(e);
-        dispatch(addErrorToast('Error: bad PIN. Please retry.'));
+        dispatch(addErrorToast(IncorrectPINError));
         setTimeout(() => setPinModalIsOpen(true), 800);
       })
       .finally(() => setLoading(false));
