@@ -26,3 +26,4 @@ export const IncorrectPINError = new AppError(6, 'Incorrect PIN');
 export const SecureStorageError = new AppError(7, 'Secure Storage error')
 export const PINsDoNotMatchError = new AppError(8, 'PINs needs to be equal')
 export const QRCodeScanError = new AppError(9, 'QR Scanner scan failed');
+export const AddressGenerationError = new AppError(10, 'Unable to generate new address');
