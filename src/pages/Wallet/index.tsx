@@ -305,16 +305,7 @@ const Wallet: React.FC<WalletProps> = ({
             description="Take time to keep your secret words in a safe place before deposit funds."
             removeSkipBtn={true}
             isOpen={backupModal}
-            onClose={(reason: 'skipped' | 'done') => {
-              if (reason === 'skipped') {
-                setBackupModal(false);
-              }
-
-              if (reason === 'done') {
-                setBackupModal(false);
-                history.push('/receive');
-              }
-            }}
+            onClose={() => setBackupModal(false)}
           />
         )}
       </IonContent>
