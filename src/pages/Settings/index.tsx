@@ -48,6 +48,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   const [currencySearchOpen, setCurrencySearchOpen] = useState(false);
   const [LBTCUnitSearchOpen, setLBTCUnitSearchOpen] = useState(false);
   const [appVersion, setAppVersion] = useState<string>();
+  const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
 
   useEffect(() => {
     Device.getInfo().then((info) => {
@@ -74,10 +75,18 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   const onPinConfirm = (pin: string) => {
     getMnemonicFromSecureStorage(pin)
       .then(() => {
-        history.push(`/account/${pin}`);
-        setModalOpen(false);
+        setIsWrongPin(false);
+        setTimeout(() => {
+          history.push(`/account/${pin}`);
+          setModalOpen(false);
+          setIsWrongPin(null);
+        }, 500);
       })
       .catch((e) => {
+        setIsWrongPin(true);
+        setTimeout(() => {
+          setIsWrongPin(null);
+        }, 2000);
         dispatch(addErrorToast(IncorrectPINError));
         console.error(e);
       });
@@ -93,7 +102,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
         onClose={() => {
           setModalOpen(false);
         }}
-        isWrongPin={false}
+        isWrongPin={isWrongPin}
       />
       <div className="gradient-background"></div>
       <IonHeader>

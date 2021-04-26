@@ -26,13 +26,18 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [loading, setLoading] = useState(false);
   const [pin, setPin] = useState('');
+  const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const dispatch = useDispatch();
 
   const onError = (e: AppError) => {
     console.error(e);
     dispatch(addErrorToast(e));
-    setPin('');
-    onClose();
+    setIsWrongPin(true);
+    setTimeout(() => {
+      setIsWrongPin(null);
+      setPin('');
+      onClose();
+    }, 2000);
   };
 
   useEffect(() => {
@@ -51,9 +56,15 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
     getMnemonicFromSecureStorage(firstPin)
       .then(() => {
         setPin(firstPin);
-        setModalOpen('second');
+        setIsWrongPin(false);
+        setTimeout(() => {
+          setModalOpen('second');
+          setIsWrongPin(null);
+        }, 500);
       })
-      .catch(onError)
+      .catch(() => {
+        onError(IncorrectPINError);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -64,7 +75,9 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
         dispatch(addSuccessToast('PIN has been changed.'));
         onDeleted();
       })
-      .catch(() => onError(IncorrectPINError))
+      .catch(() => {
+        onError(IncorrectPINError);
+      })
       .finally(() => setLoading(false));
   };
 
@@ -77,7 +90,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
         description="Enter your current PIN."
         onConfirm={onFirstPinConfirm}
         onClose={onClose}
-        isWrongPin={false}
+        isWrongPin={isWrongPin}
       />
       <PinModal
         open={modalOpen === 'second'}
@@ -85,7 +98,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
         description="Set up the new PIN."
         onConfirm={onSecondPinConfirm}
         onClose={onClose}
-        isWrongPin={false}
+        isWrongPin={isWrongPin}
       />
     </div>
   );

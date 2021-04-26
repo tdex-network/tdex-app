@@ -42,33 +42,12 @@ const BackupModal: React.FC<BackupModalProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [mnemonicToShow, setMnemonicToShow] = useState(mnemonic);
+  const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
 
   return (
     <div>
       <IonLoading isOpen={isLoading} />
-      {!mnemonicToShow ? (
-        <PinModal
-          open={isOpen}
-          onDidDismiss={true}
-          onClose={() => {
-            if (!isLoading && !mnemonicToShow) onClose('skipped');
-          }}
-          title="Please enter you secret PIN"
-          description="Never share your seed"
-          onConfirm={async (pin: string) => {
-            try {
-              setIsLoading(true);
-              const decrypted = await getMnemonicFromSecureStorage(pin);
-              setMnemonicToShow(decrypted);
-            } catch (e) {
-              onError(IncorrectPINError);
-              console.error(e);
-            } finally {
-              setIsLoading(false);
-            }
-          }}
-        />
-      ) : (
+      {mnemonicToShow ? (
         <IonModal isOpen={isOpen} onDidDismiss={() => onClose('skipped')}>
           <div className="gradient-background" />
           <IonHeader>
@@ -110,6 +89,34 @@ const BackupModal: React.FC<BackupModalProps> = ({
             </div>
           </IonContent>
         </IonModal>
+      ) : (
+        <PinModal
+          open={isOpen}
+          onDidDismiss={true}
+          title="Please enter you secret PIN"
+          description="Never share your seed"
+          onConfirm={async (pin: string) => {
+            try {
+              setIsLoading(true);
+              const decrypted = await getMnemonicFromSecureStorage(pin);
+              setIsWrongPin(false);
+              setTimeout(() => {
+                setMnemonicToShow(decrypted);
+                setIsWrongPin(null);
+              }, 500);
+            } catch (e) {
+              setIsWrongPin(true);
+              setTimeout(() => {
+                setIsWrongPin(null);
+              }, 2000);
+              onError(IncorrectPINError);
+              console.error(e);
+            } finally {
+              setIsLoading(false);
+            }
+          }}
+          isWrongPin={isWrongPin}
+        />
       )}
     </div>
   );

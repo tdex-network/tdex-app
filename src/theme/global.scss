@@ -58,6 +58,8 @@ ion-modal {
 }
 
 ion-content {
+  --padding-start: 10px;
+  --padding-end: 10px;
   --background: transparent !important;
   --overflow: hidden;
 }
