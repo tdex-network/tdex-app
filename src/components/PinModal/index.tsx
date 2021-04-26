@@ -66,16 +66,6 @@ const PinModal: React.FC<PinModalProps> = ({
           <p>{description}</p>
         </PageDescription>
         <PinInput on6digits={handleConfirm} onPin={(p: string) => setPin(p)} />
-        <div className="buttons">
-          <IonButton
-            onClick={handleConfirm}
-            type="button"
-            disabled={!validRegexp.test(pin)}
-            className="main-button"
-          >
-            Confirm
-          </IonButton>
-        </div>
       </IonContent>
     </IonModal>
   );

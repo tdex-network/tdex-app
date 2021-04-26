@@ -1,60 +1,82 @@
-@import '../../theme/variables';
+// @import '../../theme/variables';
+//
+// .pin-wrapper {
+//   --background: none;
+//   background: none;
+//   --padding-top: 0;
+//   --padding-bottom: 0;
+//   --padding-start: 0;
+//   --padding-end: 0;
+//   --inner-padding-end: 0;
+//   ion-input {
+//     opacity: 0;
+//     position: absolute;
+//     // z-index: -20;
+//   }
+//   ion-label {
+//     margin: 0;
+//     display: flex !important;
+//     justify-content: center;
+//     width: 100%;
+//     min-width: 100%;
+//     .pin-input {
+//       display: flex;
+//       align-items: center;
+//       justify-content: center;
+//       width: 39px;
+//       height: 40px;
+//       border-bottom: 2px solid rgb(100, 100, 100);
+//       font-size: 30px;
+//     }
+//
+//     .pin-input.active {
+//       border-bottom: 2px solid #fff;
+//     }
+//
+//     .pin-input.error {
+//       border-color: $error-color;
+//       color: $error-color;
+//     }
+//
+//     .pin-input + .pin-input {
+//       margin-left: 17px;
+//     }
+//   }
+// }
+//
+// .light {
+//   .pin-wrapper {
+//     ion-label {
+//       .pin-input {
+//         border-bottom: 2px solid #adadad;
+//         font-size: 30px;
+//       }
+//
+//       .pin-input.active {
+//         border-bottom: 2px solid #000;
+//       }
+//     }
+//   }
+// }
 
 .pin-wrapper {
-  --background: none;
-  background: none;
-  --padding-top: 0;
-  --padding-bottom: 0;
-  --padding-start: 0;
-  --padding-end: 0;
-  --inner-padding-end: 0;
-  ion-input {
-    opacity: 0;
-    position: absolute;
-    // z-index: -20;
-  }
-  ion-label {
-    margin: 0;
-    display: flex !important;
-    justify-content: center;
-    width: 100%;
-    min-width: 100%;
+    padding-right: 12%;
+    padding-left: 12%;
+    ion-input {
+        opacity: 0;
+        position: absolute;
+    }
     .pin-input {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 39px;
-      height: 40px;
-      border-bottom: 2px solid rgb(100, 100, 100);
-      font-size: 30px;
+        width: 1.25rem;
+        height: 1.25rem;
+        border-radius: 50%;
+        border: 0.125rem solid rgb(102, 102, 102);
+        margin: 0 auto;
+        &.active {
+            background-color: rgb(102, 102, 102);
+        }
+        &.filled {
+            background-color: rgb(102, 102, 102);
+        }
     }
-
-    .pin-input.active {
-      border-bottom: 2px solid #fff;
-    }
-
-    .pin-input.error {
-      border-color: $error-color;
-      color: $error-color;
-    }
-
-    .pin-input + .pin-input {
-      margin-left: 17px;
-    }
-  }
-}
-
-.light {
-  .pin-wrapper {
-    ion-label {
-      .pin-input {
-        border-bottom: 2px solid #adadad;
-        font-size: 30px;
-      }
-
-      .pin-input.active {
-        border-bottom: 2px solid #000;
-      }
-    }
-  }
 }

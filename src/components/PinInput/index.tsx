@@ -1,6 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { IonInput, IonItem, IonLabel } from '@ionic/react';
+import {
+  IonInput,
+  IonItem,
+  IonLabel,
+  IonGrid,
+  IonRow,
+  IonCol,
+} from '@ionic/react';
 import { onPressEnterKeyFactory } from '../../utils/keyboard';
 import './style.scss';
 
@@ -8,8 +15,6 @@ interface PinInputProps {
   onPin: (newPin: string) => void;
   on6digits: () => void;
 }
-
-const length6Array = new Array(6).fill(0);
 
 const PinInput: React.FC<PinInputProps> = ({ onPin, on6digits }) => {
   const inputRef = useRef<any>(null);
@@ -24,33 +29,26 @@ const PinInput: React.FC<PinInputProps> = ({ onPin, on6digits }) => {
 
   const [pin, setPin] = useState('');
   const onNewPin = (newPin: string | null | undefined) => {
-    if (!newPin) {
-      setPin('');
-      return;
-    }
-    if (newPin.length > 6) {
-      setPin(newPin.slice(6));
-      return;
-    }
-
-    setPin(newPin);
+    console.log('newPin', newPin);
+    if (!newPin) return;
     if (newPin.length === 6) onPin(newPin);
+    setPin(newPin);
   };
 
   return (
-    <IonItem lines="none" className="pin-wrapper">
-      <IonLabel>
-        {length6Array.map((_, index) => (
-          <div
-            key={index}
-            className={classNames('pin-input', {
-              active: index <= pin.length,
-            })}
-          >
-            {pin[index] ? '*' : undefined}
-          </div>
+    <IonGrid className="pin-wrapper">
+      <IonRow>
+        {[...new Array(6)].map((_, index) => (
+          <IonCol key={index}>
+            <div
+              className={classNames('pin-input', {
+                active: index <= pin.length,
+                filled: index + 1 <= pin.length,
+              })}
+            />
+          </IonCol>
         ))}
-      </IonLabel>
+      </IonRow>
       <IonInput
         autofocus={true}
         ref={inputRef}
@@ -58,12 +56,12 @@ const PinInput: React.FC<PinInputProps> = ({ onPin, on6digits }) => {
         onKeyDown={onPressEnterKeyFactory(() => on6digits())}
         inputmode="numeric"
         type="password"
-        clearOnEdit={true}
         value={pin}
         required={true}
         onIonChange={(e) => onNewPin(e.detail.value)}
+        maxlength={6}
       />
-    </IonItem>
+    </IonGrid>
   );
 };
 
