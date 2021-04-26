@@ -36,7 +36,6 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
     setTimeout(() => {
       setIsWrongPin(null);
       setPin('');
-      onClose();
     }, 2000);
   };
 
