@@ -12,11 +12,8 @@ import { useDispatch } from 'react-redux';
 import { signIn } from '../../redux/actions/appActions';
 import PinModal from '../../components/PinModal';
 import {
-  clearStorage,
   getIdentity,
-  installFlag,
   mnemonicInSecureStorage,
-  setInstallFlag,
 } from '../../utils/storage-helper';
 import {
   addErrorToast,
@@ -57,12 +54,6 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
     const init = async () => {
       setLoading(true);
       await setKeyboardTheme(KeyboardStyle.Dark);
-      const flag = await installFlag();
-      if (!flag) {
-        await clearStorage();
-        await setInstallFlag();
-      }
-
       const mnemonicExists = await mnemonicInSecureStorage();
       if (mnemonicExists) setPinModalIsOpen(true);
     };

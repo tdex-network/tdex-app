@@ -110,22 +110,6 @@ export async function seedBackupFlag(): Promise<boolean> {
   }
 }
 
-export async function setInstallFlag() {
-  return Storage.set({ key: INSTALL_FLAG, value: 'true' });
-}
-
-export async function installFlag(): Promise<boolean> {
-  try {
-    const { value } = await Storage.get({ key: INSTALL_FLAG });
-    if (value) {
-      return true;
-    }
-    return false;
-  } catch {
-    return false;
-  }
-}
-
 /**
  * Persist providers in Storage
  * @param providers
@@ -233,7 +217,6 @@ export async function removeMnemonicFromSecureStorage(
 export async function clearStorage() {
   await SecureStoragePlugin.clear();
   await Storage.clear();
-  await setInstallFlag();
 }
 
 /**
