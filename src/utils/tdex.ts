@@ -125,7 +125,7 @@ export async function makeTrade(
     }
   } catch (e) {
     console.error(e);
-    throw MakeTradeError
+    throw MakeTradeError;
   }
 
   if (txid === '') {

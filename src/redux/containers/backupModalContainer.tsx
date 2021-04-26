@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import BackupModal from '../../components/BackupModal';
+import { AppError } from '../../utils/errors';
 import { setSeedBackup } from '../../utils/storage-helper';
 import { setBackupDone } from '../actions/appActions';
 import { addErrorToast } from '../actions/toastActions';
@@ -16,7 +17,7 @@ const mapDispatchToProps = (dispatch: any) => {
       setSeedBackup();
       dispatch(setBackupDone());
     },
-    onError: (msg: string) => dispatch(addErrorToast(msg)),
+    onError: (err: AppError) => dispatch(addErrorToast(err)),
   };
 };
 

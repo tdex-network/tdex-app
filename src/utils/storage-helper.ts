@@ -29,7 +29,6 @@ const ASSETS_KEY = 'tdex-app-assets';
 const EXPLORER_KEY = 'tdex-app-explorer';
 const CURRENCY_KEY = 'tdex-app-currency';
 const LBTC_DENOMINATION_KEY = 'tdex-app-lbtc-unit';
-const INSTALL_FLAG = 'tdex-app-install-flag';
 
 export async function getLBTCDenominationFromStorage(): Promise<string> {
   return (
