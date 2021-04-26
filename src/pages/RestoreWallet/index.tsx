@@ -41,6 +41,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [pin, setPin] = useState<string>();
   const [isEmpty, setIsEmpty] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -62,15 +63,23 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
 
   const onFirstPinConfirm = (newPin: string) => {
     setPin(newPin);
-    setModalOpen('second');
+    setIsWrongPin(false);
+    setTimeout(() => {
+      setIsWrongPin(null);
+      setModalOpen('second');
+    }, 500);
   };
 
   const onError = (e: AppError) => {
+    console.error(e);
     clearStorage();
     dispatch(addErrorToast(e));
-    console.error(e);
-    setModalOpen(undefined);
-    setPin(undefined);
+    setIsWrongPin(true);
+    setTimeout(() => {
+      setIsWrongPin(null);
+      setModalOpen(undefined);
+      setPin(undefined);
+    }, 2000);
   };
 
   const onSecondPinConfirm = (newPin: string) => {
@@ -82,10 +91,14 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
           dispatch(
             addSuccessToast('Mnemonic generated and encrypted with your PIN.')
           );
-          dispatch(signIn(pin));
-          // we don't need to ask backup if the mnemonic is restored
-          dispatch(setBackupDone());
-          history.push('/wallet');
+          setIsWrongPin(false);
+          setTimeout(() => {
+            setIsWrongPin(null);
+            dispatch(signIn(pin));
+            // we don't need to ask backup if the mnemonic is restored
+            dispatch(setBackupDone());
+            history.push('/wallet');
+          }, 500);
         })
         .catch(() => onError(SecureStorageError))
         .finally(() => setLoading(false));
@@ -112,7 +125,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
           setModalOpen(undefined);
           history.goBack();
         }}
-        isWrongPin={false}
+        isWrongPin={isWrongPin}
       />
       <PinModal
         open={modalOpen === 'second'}
@@ -120,9 +133,9 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
         description="Confirm your secret PIN."
         onConfirm={onSecondPinConfirm}
         onClose={cancelSecondModal}
-        isWrongPin={false}
+        isWrongPin={isWrongPin}
       />
-      <div className="gradient-background"></div>
+      <div className="gradient-background" />
       <IonHeader>
         <IonToolbar className="with-back-button">
           <IonButton

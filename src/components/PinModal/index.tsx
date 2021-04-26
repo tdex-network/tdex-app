@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   IonButton,
   IonContent,
@@ -6,6 +6,8 @@ import {
   IonModal,
   IonTitle,
   IonToolbar,
+  useIonViewWillEnter,
+  useIonViewWillLeave,
 } from '@ionic/react';
 import './style.scss';
 import { IconClose } from '../icons';
@@ -37,6 +39,8 @@ const PinModal: React.FC<PinModalProps> = ({
   const validRegexp = new RegExp('\\d{6}');
   const [pin, setPin] = useState('');
   const dispatch = useDispatch();
+  const inputRef = useRef<any>(null);
+
   const handleConfirm = () => {
     if (validRegexp.test(pin)) {
       onConfirm(pin);
@@ -45,6 +49,19 @@ const PinModal: React.FC<PinModalProps> = ({
       dispatch(addErrorToast(PinDigitsError));
     }
   };
+
+  // Make sure PIN input always has focus when clicking anywhere
+  const handleClick = () => {
+    if (inputRef && inputRef.current) {
+      inputRef.current.setFocus();
+    }
+  };
+  useIonViewWillEnter(() => {
+    document.body.addEventListener('click', handleClick);
+  });
+  useIonViewWillLeave(() => {
+    document.body.removeEventListener('click', handleClick);
+  });
 
   useEffect(() => {
     if (pin.trim().length === 6) handleConfirm();
@@ -73,6 +90,7 @@ const PinModal: React.FC<PinModalProps> = ({
           <p>{description}</p>
         </PageDescription>
         <PinInput
+          inputRef={inputRef}
           on6digits={handleConfirm}
           onPin={(p: string) => setPin(p)}
           isWrongPin={isWrongPin}
