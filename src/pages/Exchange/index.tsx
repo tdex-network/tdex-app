@@ -219,6 +219,7 @@ const Exchange: React.FC<ExchangeProps> = ({
           onClose={() => {
             setModalOpen(false);
           }}
+          isWrongPin={false}
         />
       )}
       <div className="gradient-background"></div>

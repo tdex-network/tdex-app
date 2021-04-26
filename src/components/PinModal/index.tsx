@@ -18,9 +18,10 @@ interface PinModalProps {
   open: boolean;
   title: string;
   description: string;
-  onConfirm: (pin: string) => void;
+  onConfirm: (pin: string) => any;
   onClose?: () => void;
   onDidDismiss?: boolean;
+  isWrongPin: boolean | null;
 }
 
 const PinModal: React.FC<PinModalProps> = ({
@@ -30,17 +31,25 @@ const PinModal: React.FC<PinModalProps> = ({
   open,
   onConfirm,
   onDidDismiss,
+  isWrongPin,
 }) => {
   const validRegexp = new RegExp('\\d{6}');
   const [pin, setPin] = useState('');
   const dispatch = useDispatch();
   const handleConfirm = () => {
-    if (validRegexp.test(pin)) onConfirm(pin);
-    else dispatch(addErrorToast('PIN must contain 6 digits.'));
+    if (validRegexp.test(pin)) {
+      onConfirm(pin);
+      setPin('');
+    } else {
+      dispatch(addErrorToast('PIN must contain 6 digits.'));
+    }
   };
 
   useEffect(() => {
-    if (pin.trim().length === 6) handleConfirm();
+    if (pin.trim().length === 6) {
+      console.log('handleConfirm');
+      handleConfirm();
+    }
   }, [pin]);
 
   return (
@@ -65,7 +74,11 @@ const PinModal: React.FC<PinModalProps> = ({
         <PageDescription title={title}>
           <p>{description}</p>
         </PageDescription>
-        <PinInput on6digits={handleConfirm} onPin={(p: string) => setPin(p)} />
+        <PinInput
+          on6digits={handleConfirm}
+          onPin={(p: string) => setPin(p)}
+          isWrongPin={isWrongPin}
+        />
       </IonContent>
     </IonModal>
   );

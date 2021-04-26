@@ -11,7 +11,6 @@ export function onPressEnterKeyFactory(
   action: () => void
 ): (e: React.KeyboardEvent<HTMLIonInputElement>) => void {
   return function (e: React.KeyboardEvent<HTMLIonInputElement>) {
-    console.log('e.key', e.key);
     if (e.key === 'Enter') {
       action();
     }

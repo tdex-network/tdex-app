@@ -76,6 +76,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
         description="Enter your current PIN."
         onConfirm={onFirstPinConfirm}
         onClose={onClose}
+        isWrongPin={false}
       />
       <PinModal
         open={modalOpen === 'second'}
@@ -83,6 +84,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
         description="Set up the new PIN."
         onConfirm={onSecondPinConfirm}
         onClose={onClose}
+        isWrongPin={false}
       />
     </div>
   );

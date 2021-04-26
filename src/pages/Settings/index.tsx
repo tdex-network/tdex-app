@@ -92,6 +92,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
         onClose={() => {
           setModalOpen(false);
         }}
+        isWrongPin={false}
       />
       <div className="gradient-background"></div>
       <IonHeader>

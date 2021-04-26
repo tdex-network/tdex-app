@@ -45,29 +45,7 @@ const BackupModal: React.FC<BackupModalProps> = ({
   return (
     <div>
       <IonLoading isOpen={isLoading} />
-      {!mnemonicToShow ? (
-        <PinModal
-          open={isOpen}
-          onDidDismiss={true}
-          onClose={() => {
-            if (!isLoading && !mnemonicToShow) onClose('skipped');
-          }}
-          title="Please enter you secret PIN"
-          description="Never share your seed"
-          onConfirm={async (pin: string) => {
-            try {
-              setIsLoading(true);
-              const decrypted = await getMnemonicFromSecureStorage(pin);
-              setMnemonicToShow(decrypted);
-            } catch (e) {
-              onError(e);
-              console.error(e);
-            } finally {
-              setIsLoading(false);
-            }
-          }}
-        />
-      ) : (
+      {mnemonicToShow ? (
         <IonModal isOpen={isOpen} onDidDismiss={() => onClose('skipped')}>
           <div className="gradient-background" />
           <IonHeader>
@@ -109,6 +87,29 @@ const BackupModal: React.FC<BackupModalProps> = ({
             </div>
           </IonContent>
         </IonModal>
+      ) : (
+        <PinModal
+          open={isOpen}
+          onDidDismiss={true}
+          onClose={() => {
+            if (!isLoading && !mnemonicToShow) onClose('skipped');
+          }}
+          title="Please enter you secret PIN"
+          description="Never share your seed"
+          onConfirm={async (pin: string) => {
+            try {
+              setIsLoading(true);
+              const decrypted = await getMnemonicFromSecureStorage(pin);
+              setMnemonicToShow(decrypted);
+            } catch (e) {
+              onError(e);
+              console.error(e);
+            } finally {
+              setIsLoading(false);
+            }
+          }}
+          isWrongPin={false}
+        />
       )}
     </div>
   );

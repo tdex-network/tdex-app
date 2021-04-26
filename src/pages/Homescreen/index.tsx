@@ -27,6 +27,7 @@ import { setKeyboardTheme } from '../../utils/keyboard';
 import { KeyboardStyle } from '@capacitor/core';
 
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
+  const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [pinModalIsOpen, setPinModalIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingMessage, setLoadingMessage] = useState(
@@ -36,19 +37,25 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
 
   const onConfirmPinModal = (pin: string) => {
-    setPinModalIsOpen(false);
     setLoadingMessage('Unlocking wallet...');
     setLoading(true);
     getIdentity(pin)
       .then(() => {
+        setIsWrongPin(false);
+        setTimeout(() => {
+          setIsWrongPin(null);
+        }, 2000);
         dispatch(addSuccessToast('Your wallet has been unlocked.'));
         dispatch(signIn(pin));
         history.push('/wallet');
       })
       .catch((e) => {
         console.error(e);
+        setIsWrongPin(true);
+        setTimeout(() => {
+          setIsWrongPin(null);
+        }, 2000);
         dispatch(addErrorToast('Error: bad PIN. Please retry.'));
-        setTimeout(() => setPinModalIsOpen(true), 800);
       })
       .finally(() => setLoading(false));
   };
@@ -80,6 +87,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
         title="Enter your secret PIN"
         description="Unlock your wallet."
         onConfirm={onConfirmPinModal}
+        isWrongPin={isWrongPin}
       />
       <div className="gradient-background"></div>
       <IonContent>

@@ -252,6 +252,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         onClose={() => {
           setModalOpen(false);
         }}
+        isWrongPin={false}
       />
       <div className="gradient-background"></div>
       <IonLoading

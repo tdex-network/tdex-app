@@ -98,6 +98,7 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
           setModalOpen(undefined);
           history.goBack();
         }}
+        isWrongPin={false}
       />
       <PinModal
         open={modalOpen === 'second'}
@@ -105,6 +106,7 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
         description="Confirm your secret PIN."
         onConfirm={onSecondPinConfirm}
         onClose={cancelSecondModal}
+        isWrongPin={false}
       />
       <div className="gradient-background" />
       <IonHeader>
