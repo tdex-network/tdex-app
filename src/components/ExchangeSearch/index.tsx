@@ -20,6 +20,7 @@ interface ExchangeSearchProps {
   isOpen: boolean;
   close: () => void;
   currency: string;
+  isDepositSearch?: boolean;
 }
 
 const ExchangeSearch: React.FC<ExchangeSearchProps> = ({
@@ -29,6 +30,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({
   isOpen,
   close,
   currency,
+  isDepositSearch = false,
 }) => {
   const [searchString, setSearchString] = useState('');
 
@@ -38,15 +40,25 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({
         <IonHeader>
           <div>
             <label className="search-bar">
-              <IonIcon icon={searchSharp} color="light" onClick={close} />
+              <IonIcon
+                icon={searchSharp}
+                color="light-contrast"
+                onClick={close}
+              />
               <IonInput
                 inputMode="search"
-                color="light"
+                color="light-contrast"
                 placeholder="Search currency"
                 value={searchString}
-                onIonChange={(e) => setSearchString(e.detail.value || '')}
+                onIonChange={(e) =>
+                  setSearchString(e.detail.value?.toLowerCase() || '')
+                }
               />
-              <IonIcon icon={closeSharp} color="light" onClick={close} />
+              <IonIcon
+                icon={closeSharp}
+                color="light-contrast"
+                onClick={close}
+              />
             </label>
           </div>
         </IonHeader>
@@ -55,9 +67,9 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({
             {assets
               .filter(
                 (asset: AssetWithTicker) =>
-                  asset.asset.includes(searchString) ||
-                  asset.ticker.includes(searchString) ||
-                  asset.coinGeckoID?.includes(searchString)
+                  asset.asset.toLowerCase().includes(searchString) ||
+                  asset.ticker.toLowerCase().includes(searchString) ||
+                  asset.coinGeckoID?.toLowerCase().includes(searchString)
               )
               .map((asset: AssetWithTicker, index: number) => {
                 return (
@@ -79,7 +91,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({
                       </span>
                       <p>{asset.ticker}</p>
                     </div>
-                    {
+                    {!isDepositSearch && (
                       <div className="search-item-amount">
                         <p>
                           <span className="price-equivalent">
@@ -89,7 +101,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({
                           <span>{currency.toUpperCase()}</span>
                         </p>
                       </div>
-                    }
+                    )}
                   </IonItem>
                 );
               })}
