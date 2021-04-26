@@ -306,14 +306,8 @@ const Wallet: React.FC<WalletProps> = ({
             removeSkipBtn={true}
             isOpen={backupModal}
             onClose={(reason: 'skipped' | 'done') => {
-              if (reason === 'skipped') {
+              if (reason === 'skipped' || reason === 'done')
                 setBackupModal(false);
-              }
-
-              if (reason === 'done') {
-                setBackupModal(false);
-                history.push('/receive');
-              }
             }}
           />
         )}
