@@ -83,7 +83,7 @@ const BackupModal: React.FC<BackupModalProps> = ({
                 </IonButton>
                 {!removeSkipBtn && (
                   <IonButton
-                    className="main-button secondary no-border"
+                    className="sub-button"
                     onClick={() => onClose('skipped')}
                   >
                     DO IT LATER
