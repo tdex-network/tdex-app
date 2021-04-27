@@ -20,7 +20,11 @@ import {
   fromSatoshi,
   fromSatoshiFixed,
 } from '../../utils/helpers';
-import { getMainAsset, MAIN_ASSETS } from '../../utils/constants';
+import {
+  getMainAsset,
+  LBTC_COINGECKOID,
+  MAIN_ASSETS,
+} from '../../utils/constants';
 import { AssetWithTicker } from '../../utils/tdex';
 import CircleDiagram from '../../redux/containers/circleDiagramContainer';
 import { ActionType } from '../../utils/types';
@@ -137,15 +141,15 @@ const Wallet: React.FC<WalletProps> = ({
               <p className="info-heading">Total balance</p>
               <p className="info-amount" aria-label="main-balance">
                 {totalLBTC
-                  ? fromSatoshiFixed(totalLBTC.amount, 8, 8, lbtcUnit)
+                  ? fromSatoshiFixed(totalLBTC.amount, 8, undefined, lbtcUnit)
                   : '0.00'}
                 <span>{lbtcUnit}</span>
               </p>
-              {totalLBTC && getFiatValue(totalLBTC) > 0 && (
+              {totalLBTC && prices[LBTC_COINGECKOID] && (
                 <p className="info-amount-converted">
-                  {`${getFiatValue(totalLBTC).toFixed(
-                    2
-                  )} ${currency.toUpperCase()}`}
+                  {`${(
+                    fromSatoshi(totalLBTC.amount) * prices[LBTC_COINGECKOID]
+                  ).toFixed(2)} ${currency.toUpperCase()}`}
                 </p>
               )}
             </div>

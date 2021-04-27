@@ -51,10 +51,12 @@ export function fromSatoshiFixed(
   unit?: string
 ): string {
   return Number(
-    formatLBTCwithUnit(fromSatoshi(x, y), unit).toFixed(fixed || 2)
+    formatLBTCwithUnit(fromSatoshi(x, y), unit).toFixed(
+      fixed || unitToFixedDigits(unit)
+    )
   ).toLocaleString('en-US', {
     minimumFractionDigits: 0,
-    maximumFractionDigits: fixed || 2,
+    maximumFractionDigits: fixed || unitToFixedDigits(unit),
     useGrouping: false,
   });
 }
@@ -72,6 +74,22 @@ export function toLBTCwithUnit(lbtcValue: number, unit?: string): number {
       return fromSatoshi(lbtcValue, 8);
     default:
       return lbtcValue;
+  }
+}
+
+export function unitToFixedDigits(unit?: string): number {
+  if (!unit) return 2;
+  switch (unit) {
+    case 'L-BTC':
+      return 8;
+    case 'L-mBTC':
+      return 5;
+    case 'L-bits':
+      return 2;
+    case 'L-sats':
+      return 0;
+    default:
+      return 2;
   }
 }
 
