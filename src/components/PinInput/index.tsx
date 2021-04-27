@@ -17,6 +17,8 @@ const PinInput: React.FC<PinInputProps> = ({
   isWrongPin,
   inputRef,
 }) => {
+  const [pin, setPin] = useState('');
+
   useEffect(() => {
     setTimeout(() => {
       if (inputRef && inputRef.current) {
@@ -24,8 +26,6 @@ const PinInput: React.FC<PinInputProps> = ({
       }
     }, 500);
   });
-
-  const [pin, setPin] = useState('');
 
   const onNewPin = (newPin: string | null | undefined) => {
     if (!newPin) {
@@ -39,7 +39,9 @@ const PinInput: React.FC<PinInputProps> = ({
     setPin(newPin);
     if (newPin.length === 6) {
       onPin(newPin);
-      setTimeout(() => setPin(''), 2000);
+      if (isWrongPin === true || isWrongPin === null) {
+        setTimeout(() => setPin(''), 2000);
+      }
     }
   };
 

@@ -34,6 +34,10 @@ import {
   PINsDoNotMatchError,
   SecureStorageError,
 } from '../../utils/errors';
+import {
+  PIN_TIMEOUT_FAILURE,
+  PIN_TIMEOUT_SUCCESS,
+} from '../../utils/constants';
 
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
@@ -67,7 +71,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
     setTimeout(() => {
       setIsWrongPin(null);
       setModalOpen('second');
-    }, 500);
+    }, PIN_TIMEOUT_SUCCESS);
   };
 
   const onError = (e: AppError) => {
@@ -79,7 +83,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
       setIsWrongPin(null);
       setModalOpen(undefined);
       setPin(undefined);
-    }, 2000);
+    }, PIN_TIMEOUT_FAILURE);
   };
 
   const onSecondPinConfirm = (newPin: string) => {
@@ -92,13 +96,13 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
             addSuccessToast('Mnemonic generated and encrypted with your PIN.')
           );
           setIsWrongPin(false);
+          dispatch(signIn(pin));
+          dispatch(setBackupDone());
           setTimeout(() => {
-            setIsWrongPin(null);
-            dispatch(signIn(pin));
             // we don't need to ask backup if the mnemonic is restored
-            dispatch(setBackupDone());
             history.push('/wallet');
-          }, 500);
+            setIsWrongPin(null);
+          }, PIN_TIMEOUT_SUCCESS);
         })
         .catch(() => onError(SecureStorageError))
         .finally(() => setLoading(false));

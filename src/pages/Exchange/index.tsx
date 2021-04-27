@@ -33,7 +33,12 @@ import { swapVerticalOutline } from 'ionicons/icons';
 import { PreviewData } from '../TradeSummary';
 import Refresher from '../../components/Refresher';
 import { UtxoInterface } from 'ldk';
-import { AssetConfig, defaultPrecision } from '../../utils/constants';
+import {
+  AssetConfig,
+  defaultPrecision,
+  PIN_TIMEOUT_FAILURE,
+  PIN_TIMEOUT_SUCCESS,
+} from '../../utils/constants';
 import { Dispatch } from 'redux';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { TradeType } from 'tdex-sdk';
@@ -179,7 +184,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         setIsWrongPin(false);
         setTimeout(() => {
           setIsWrongPin(null);
-        }, 500);
+        }, PIN_TIMEOUT_SUCCESS);
       } catch (_) {
         throw IncorrectPINError;
       }
@@ -221,7 +226,7 @@ const Exchange: React.FC<ExchangeProps> = ({
           setIsWrongPin(true);
           setTimeout(() => {
             setIsWrongPin(null);
-          }, 2000);
+          }, PIN_TIMEOUT_FAILURE);
         }
         dispatch(addErrorToast(e));
       }

@@ -11,6 +11,10 @@ import {
   changePin,
   getMnemonicFromSecureStorage,
 } from '../../utils/storage-helper';
+import {
+  PIN_TIMEOUT_FAILURE,
+  PIN_TIMEOUT_SUCCESS,
+} from '../../utils/constants';
 
 interface ChangePinModalsProps {
   open: boolean;
@@ -36,7 +40,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
     setTimeout(() => {
       setIsWrongPin(null);
       setPin('');
-    }, 2000);
+    }, PIN_TIMEOUT_FAILURE);
   };
 
   useEffect(() => {
@@ -59,7 +63,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
         setTimeout(() => {
           setModalOpen('second');
           setIsWrongPin(null);
-        }, 500);
+        }, PIN_TIMEOUT_SUCCESS);
       })
       .catch(() => {
         onError(IncorrectPINError);

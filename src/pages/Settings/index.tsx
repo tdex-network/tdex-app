@@ -31,6 +31,10 @@ import { Plugins } from '@capacitor/core';
 import CurrencySearch from '../../components/CurrencySearch';
 import DenominationSearch from '../../components/DenominationSearch';
 import { IncorrectPINError } from '../../utils/errors';
+import {
+  PIN_TIMEOUT_FAILURE,
+  PIN_TIMEOUT_SUCCESS,
+} from '../../utils/constants';
 const { Device } = Plugins;
 
 const Settings: React.FC<RouteComponentProps> = ({ history }) => {
@@ -80,13 +84,13 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
           history.push(`/account/${pin}`);
           setModalOpen(false);
           setIsWrongPin(null);
-        }, 500);
+        }, PIN_TIMEOUT_SUCCESS);
       })
       .catch((e) => {
         setIsWrongPin(true);
         setTimeout(() => {
           setIsWrongPin(null);
-        }, 2000);
+        }, PIN_TIMEOUT_FAILURE);
         dispatch(addErrorToast(IncorrectPINError));
         console.error(e);
       });

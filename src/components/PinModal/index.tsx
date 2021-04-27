@@ -69,10 +69,11 @@ const PinModal: React.FC<PinModalProps> = ({
 
   return (
     <IonModal
-      isOpen={open}
-      onDidDismiss={onDidDismiss ? onClose : undefined}
+      animated={false}
       cssClass="modal-big withdrawal"
+      isOpen={open}
       keyboardClose={false}
+      onDidDismiss={onDidDismiss ? onClose : undefined}
     >
       <div className="gradient-background" />
       <IonHeader>

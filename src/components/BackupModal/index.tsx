@@ -16,6 +16,10 @@ import PinModal from '../PinModal';
 import ShowMnemonic from '../ShowMnemonic';
 
 import './style.scss';
+import {
+  PIN_TIMEOUT_FAILURE,
+  PIN_TIMEOUT_SUCCESS,
+} from '../../utils/constants';
 
 interface BackupModalProps {
   isOpen: boolean;
@@ -103,12 +107,12 @@ const BackupModal: React.FC<BackupModalProps> = ({
               setTimeout(() => {
                 setMnemonicToShow(decrypted);
                 setIsWrongPin(null);
-              }, 500);
+              }, PIN_TIMEOUT_SUCCESS);
             } catch (e) {
               setIsWrongPin(true);
               setTimeout(() => {
                 setIsWrongPin(null);
-              }, 2000);
+              }, PIN_TIMEOUT_FAILURE);
               onError(IncorrectPINError);
               console.error(e);
             } finally {

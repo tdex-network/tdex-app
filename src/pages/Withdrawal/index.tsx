@@ -47,6 +47,10 @@ import {
   IncorrectPINError,
   WithdrawTxError,
 } from '../../utils/errors';
+import {
+  PIN_TIMEOUT_FAILURE,
+  PIN_TIMEOUT_SUCCESS,
+} from '../../utils/constants';
 
 interface WithdrawalProps
   extends RouteComponentProps<
@@ -150,7 +154,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         setIsWrongPin(false);
         setTimeout(() => {
           setIsWrongPin(null);
-        }, 500);
+        }, PIN_TIMEOUT_SUCCESS);
       } catch (_) {
         throw IncorrectPINError;
       }
@@ -207,7 +211,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         setIsWrongPin(true);
         setTimeout(() => {
           setIsWrongPin(null);
-        }, 2000);
+        }, PIN_TIMEOUT_FAILURE);
       }
       dispatch(unlockUtxos());
       dispatch(addErrorToast(WithdrawTxError));
