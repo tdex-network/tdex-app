@@ -175,118 +175,70 @@ const Wallet: React.FC<WalletProps> = ({
             </IonButton>
           </IonListHeader>
 
-          {mainAssets.map((balance: BalanceInterface) => {
-            const fiatValue = getFiatValue(balance);
-            return (
-              <IonItem
-                aria-label={balance.ticker}
-                key={balance.asset}
-                onClick={() => {
-                  history.push(`/operations/${balance.asset}`);
-                }}
-              >
-                <div className="item-main-info">
-                  <div className="item-start">
-                    <CurrencyIcon currency={balance.ticker} />
-                    <div className="item-name">
-                      <div
-                        className="main-row"
-                        aria-label={`${balance.ticker}-asset`}
-                      >
-                        {balance.coinGeckoID
-                          ? capitalizeFirstLetter(balance.coinGeckoID)
-                          : balance.ticker}
+          {mainAssets
+            .concat(secondaryAssets)
+            .map((balance: BalanceInterface) => {
+              const fiatValue = getFiatValue(balance);
+              return (
+                <IonItem
+                  aria-label={balance.ticker}
+                  key={balance.asset}
+                  onClick={() => {
+                    history.push(`/operations/${balance.asset}`);
+                  }}
+                >
+                  <div className="item-main-info">
+                    <div className="item-start">
+                      <CurrencyIcon currency={balance.ticker} />
+                      <div className="item-name">
+                        <div
+                          className="main-row"
+                          aria-label={`${balance.ticker}-asset`}
+                        >
+                          {balance.coinGeckoID
+                            ? capitalizeFirstLetter(balance.coinGeckoID)
+                            : balance.ticker}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="item-end">
-                    <div className="first-col">
-                      <div
-                        className="main-row"
-                        aria-label={`${balance.ticker}-amount`}
-                      >
-                        {fromSatoshiFixed(
-                          balance.amount,
-                          balance.precision,
-                          balance.precision,
-                          balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+                    <div className="item-end">
+                      <div className="first-col">
+                        <div
+                          className="main-row"
+                          aria-label={`${balance.ticker}-amount`}
+                        >
+                          {fromSatoshiFixed(
+                            balance.amount,
+                            balance.precision,
+                            balance.precision,
+                            balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+                          )}
+                        </div>
+                        <div className="sub-row">
+                          {fiatValue < 0
+                            ? fiatValue === UNKNOWN
+                              ? ''
+                              : 'loading'
+                            : fiatValue?.toFixed(2)}
+                        </div>
+                      </div>
+                      <div className="second-col">
+                        <div className="main-row accent">
+                          {balance.ticker === 'L-BTC'
+                            ? lbtcUnit
+                            : balance.ticker}
+                        </div>
+                        {fiatValue >= 0 && (
+                          <div className="sub-row">
+                            {currency.toUpperCase()}
+                          </div>
                         )}
                       </div>
-                      <div className="sub-row">
-                        {fiatValue < 0
-                          ? fiatValue === UNKNOWN
-                            ? ''
-                            : 'loading'
-                          : fiatValue?.toFixed(2)}
-                      </div>
-                    </div>
-                    <div className="second-col">
-                      <div className="main-row accent">
-                        {balance.ticker === 'L-BTC' ? lbtcUnit : balance.ticker}
-                      </div>
-                      {fiatValue >= 0 && (
-                        <div className="sub-row">{currency.toUpperCase()}</div>
-                      )}
                     </div>
                   </div>
-                </div>
-              </IonItem>
-            );
-          })}
-          {secondaryAssets.length ? (
-            <IonListHeader>Other list</IonListHeader>
-          ) : (
-            ''
-          )}
-          {secondaryAssets.map((balance: BalanceInterface) => {
-            const fiatValue = getFiatValue(balance);
-            return (
-              <IonItem
-                key={balance.asset}
-                aria-label={balance.ticker}
-                onClick={() => {
-                  history.push(`/operations/${balance.asset}`);
-                }}
-              >
-                <div className="item-main-info">
-                  <div className="item-start">
-                    <CurrencyIcon currency={balance.ticker} />
-                    <div className="item-name">
-                      <div
-                        className="main-row"
-                        aria-label={`${balance.ticker}-asset`}
-                      >
-                        {`Asset ${balance.ticker}`}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="item-end">
-                    <div className="first-col">
-                      <div
-                        className="main-row"
-                        aria-label={`${balance.ticker}-amount`}
-                      >
-                        {fromSatoshiFixed(
-                          balance.amount,
-                          balance.precision,
-                          balance.precision
-                        )}
-                      </div>
-                      <div className="sub-row">
-                        {fiatValue > 0 && fiatValue.toFixed(2)}
-                      </div>
-                    </div>
-                    <div className="second-col">
-                      <div className="main-row accent">{balance.ticker}</div>
-                      {fiatValue > 0 && (
-                        <div className="sub-row">{currency.toUpperCase()}</div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </IonItem>
-            );
-          })}
+                </IonItem>
+              );
+            })}
         </IonList>
 
         <ExchangeSearch
