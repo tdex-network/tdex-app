@@ -3,7 +3,7 @@
 ion-list {
   background: transparent !important;
 }
-  
+
 ion-item {
   border: 0;
   --border: 0;
@@ -30,7 +30,7 @@ ion-item + ion-item {
 
 ion-list-header {
   color: rgb(102, 102, 102);
-  font-size: 14px;
+  font-size: 1.2rem;
   display: inline-block;
   padding-inline-start: 10px !important;
   margin-bottom: 3px;
@@ -63,6 +63,7 @@ ion-list-header {
       margin-right: 8px;
       .main-row {
         font-family: $sub-font;
+        line-height: 1;
       }
     }
     .second-col {
