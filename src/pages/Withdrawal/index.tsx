@@ -42,7 +42,15 @@ import {
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
-import { WithdrawTxError } from '../../utils/errors';
+import {
+  AppError,
+  IncorrectPINError,
+  WithdrawTxError,
+} from '../../utils/errors';
+import {
+  PIN_TIMEOUT_FAILURE,
+  PIN_TIMEOUT_SUCCESS,
+} from '../../utils/constants';
 
 interface WithdrawalProps
   extends RouteComponentProps<
@@ -76,6 +84,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [recipientAddress, setRecipientAddress] = useState<string>('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
 
   const dispatch = useDispatch();
 
@@ -139,15 +148,20 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     try {
       if (!isValid()) return;
       setLoading(true);
-      const getIdentityPromise = getConnectedIdentity(pin, dispatch);
-
+      let identity;
+      try {
+        identity = await getConnectedIdentity(pin, dispatch);
+        setIsWrongPin(false);
+        setTimeout(() => {
+          setIsWrongPin(null);
+        }, PIN_TIMEOUT_SUCCESS);
+      } catch (_) {
+        throw IncorrectPINError;
+      }
       const wallet = walletFromCoins(utxos, network.chain);
       const psetBase64 = wallet.createTx();
-
-      const identity = await getIdentityPromise;
       await identity.isRestored;
       const changeAddress = await identity.getNextChangeAddress();
-
       const withdrawPset = wallet.buildTx(
         psetBase64,
         [getRecipient()],
@@ -155,7 +169,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         (_: string) => changeAddress.confidentialAddress,
         true
       );
-
       const recipientData = address.fromConfidential(recipientAddress);
       const recipientScript = address.toOutputScript(
         recipientData.unconfidentialAddress
@@ -169,19 +182,16 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         if (out.script.equals(recipientScript))
           blindKeyMap.set(index, recipientData.blindingKey.toString('hex'));
       });
-
       const blindedPset = await identity.blindPset(
         withdrawPset,
         outputsToBlind,
         blindKeyMap
       );
-
       const signedPset = await identity.signPset(blindedPset);
       const txHex = Psbt.fromBase64(signedPset)
         .finalizeAllInputs()
         .extractTransaction()
         .toHex();
-
       const txid = await broadcastTx(txHex, explorerURL);
       dispatch(
         addSuccessToast(
@@ -197,6 +207,12 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       });
     } catch (err) {
       console.error(err);
+      if (err instanceof AppError && err.code === 6) {
+        setIsWrongPin(true);
+        setTimeout(() => {
+          setIsWrongPin(null);
+        }, PIN_TIMEOUT_FAILURE);
+      }
       dispatch(unlockUtxos());
       dispatch(addErrorToast(WithdrawTxError));
     } finally {
@@ -251,8 +267,9 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         onClose={() => {
           setModalOpen(false);
         }}
+        isWrongPin={isWrongPin}
       />
-      <div className="gradient-background"></div>
+      <div className="gradient-background" />
       <IonLoading
         cssClass="my-custom-class"
         isOpen={loading}

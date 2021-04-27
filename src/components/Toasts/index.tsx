@@ -2,6 +2,10 @@ import React from 'react';
 import { IonToast } from '@ionic/react';
 import { ToastOpts, ToastType } from '../../redux/reducers/toastReducer';
 import { closeCircleOutline } from 'ionicons/icons';
+import {
+  TOAST_TIMEOUT_FAILURE,
+  TOAST_TIMEOUT_SUCCESS,
+} from '../../utils/constants';
 
 interface ToastsProps {
   toasts: ToastOpts[];
@@ -39,9 +43,9 @@ const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast }) => {
 function toastDuration(toastType: ToastType): number {
   switch (toastType) {
     case 'error':
-      return 2000;
+      return TOAST_TIMEOUT_FAILURE;
     case 'success':
-      return 800;
+      return TOAST_TIMEOUT_SUCCESS;
     default:
       return toastDuration('success');
   }

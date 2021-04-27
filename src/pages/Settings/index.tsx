@@ -31,6 +31,10 @@ import { Plugins } from '@capacitor/core';
 import CurrencySearch from '../../components/CurrencySearch';
 import DenominationSearch from '../../components/DenominationSearch';
 import { IncorrectPINError } from '../../utils/errors';
+import {
+  PIN_TIMEOUT_FAILURE,
+  PIN_TIMEOUT_SUCCESS,
+} from '../../utils/constants';
 const { Device } = Plugins;
 
 const Settings: React.FC<RouteComponentProps> = ({ history }) => {
@@ -48,6 +52,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   const [currencySearchOpen, setCurrencySearchOpen] = useState(false);
   const [LBTCUnitSearchOpen, setLBTCUnitSearchOpen] = useState(false);
   const [appVersion, setAppVersion] = useState<string>();
+  const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
 
   useEffect(() => {
     Device.getInfo().then((info) => {
@@ -74,10 +79,18 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   const onPinConfirm = (pin: string) => {
     getMnemonicFromSecureStorage(pin)
       .then(() => {
-        history.push(`/account/${pin}`);
-        setModalOpen(false);
+        setIsWrongPin(false);
+        setTimeout(() => {
+          history.push(`/account/${pin}`);
+          setModalOpen(false);
+          setIsWrongPin(null);
+        }, PIN_TIMEOUT_SUCCESS);
       })
       .catch((e) => {
+        setIsWrongPin(true);
+        setTimeout(() => {
+          setIsWrongPin(null);
+        }, PIN_TIMEOUT_FAILURE);
         dispatch(addErrorToast(IncorrectPINError));
         console.error(e);
       });
@@ -93,6 +106,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
         onClose={() => {
           setModalOpen(false);
         }}
+        isWrongPin={isWrongPin}
       />
       <div className="gradient-background"></div>
       <IonHeader>

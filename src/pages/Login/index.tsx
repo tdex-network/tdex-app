@@ -31,6 +31,10 @@ import {
   PINsDoNotMatchError,
   SecureStorageError,
 } from '../../utils/errors';
+import {
+  PIN_TIMEOUT_FAILURE,
+  PIN_TIMEOUT_SUCCESS,
+} from '../../utils/constants';
 
 const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
@@ -40,6 +44,7 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const [pin, setPin] = useState<string>();
   const [backupModalOpen, setBackupModalOpen] = useState(false);
   const [mnemonic, setMnemonic] = useState<string>();
+  const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
 
   const onConfirm = () => {
     if (acceptTerms) {
@@ -55,15 +60,23 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
 
   const onFirstPinConfirm = (newPin: string) => {
     setPin(newPin);
-    setModalOpen('second');
+    setIsWrongPin(false);
+    setTimeout(() => {
+      setIsWrongPin(null);
+      setModalOpen('second');
+    }, PIN_TIMEOUT_SUCCESS);
   };
 
   const onError = (e: AppError) => {
+    console.error(e);
     clearStorage();
     dispatch(addErrorToast(e));
-    console.error(e);
-    setModalOpen(undefined);
-    setPin(undefined);
+    setIsWrongPin(true);
+    setTimeout(() => {
+      setIsWrongPin(null);
+      setModalOpen(undefined);
+      setPin(undefined);
+    }, PIN_TIMEOUT_FAILURE);
   };
 
   const onSecondPinConfirm = (newPin: string) => {
@@ -76,7 +89,11 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
             addSuccessToast('Mnemonic generated and encrypted with your PIN.')
           );
           dispatch(signIn(pin));
-          history.push('/wallet');
+          setIsWrongPin(false);
+          setTimeout(() => {
+            history.push('/wallet');
+            setIsWrongPin(null);
+          }, 1500);
         })
         .catch(() => onError(SecureStorageError))
         .finally(() => setLoading(false));
@@ -103,6 +120,7 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
           setModalOpen(undefined);
           history.goBack();
         }}
+        isWrongPin={isWrongPin}
       />
       <PinModal
         open={modalOpen === 'second'}
@@ -110,6 +128,7 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
         description="Confirm your secret PIN."
         onConfirm={onSecondPinConfirm}
         onClose={cancelSecondModal}
+        isWrongPin={isWrongPin}
       />
       <div className="gradient-background" />
       <IonHeader>

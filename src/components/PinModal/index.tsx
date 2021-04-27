@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   IonButton,
   IonContent,
@@ -6,6 +6,8 @@ import {
   IonModal,
   IonTitle,
   IonToolbar,
+  useIonViewWillEnter,
+  useIonViewWillLeave,
 } from '@ionic/react';
 import './style.scss';
 import { IconClose } from '../icons';
@@ -22,6 +24,7 @@ interface PinModalProps {
   onConfirm: (pin: string) => void;
   onClose?: () => void;
   onDidDismiss?: boolean;
+  isWrongPin: boolean | null;
 }
 
 const PinModal: React.FC<PinModalProps> = ({
@@ -31,14 +34,34 @@ const PinModal: React.FC<PinModalProps> = ({
   open,
   onConfirm,
   onDidDismiss,
+  isWrongPin,
 }) => {
   const validRegexp = new RegExp('\\d{6}');
   const [pin, setPin] = useState('');
   const dispatch = useDispatch();
+  const inputRef = useRef<any>(null);
+
   const handleConfirm = () => {
-    if (validRegexp.test(pin)) onConfirm(pin);
-    else dispatch(addErrorToast(PinDigitsError));
+    if (validRegexp.test(pin)) {
+      onConfirm(pin);
+      setPin('');
+    } else {
+      dispatch(addErrorToast(PinDigitsError));
+    }
   };
+
+  // Make sure PIN input always has focus when clicking anywhere
+  const handleClick = () => {
+    if (inputRef && inputRef.current) {
+      inputRef.current.setFocus();
+    }
+  };
+  useIonViewWillEnter(() => {
+    document.body.addEventListener('click', handleClick);
+  });
+  useIonViewWillLeave(() => {
+    document.body.removeEventListener('click', handleClick);
+  });
 
   useEffect(() => {
     if (pin.trim().length === 6) handleConfirm();
@@ -46,10 +69,11 @@ const PinModal: React.FC<PinModalProps> = ({
 
   return (
     <IonModal
-      isOpen={open}
-      onDidDismiss={onDidDismiss ? onClose : undefined}
+      animated={false}
       cssClass="modal-big withdrawal"
+      isOpen={open}
       keyboardClose={false}
+      onDidDismiss={onDidDismiss ? onClose : undefined}
     >
       <div className="gradient-background" />
       <IonHeader>
@@ -66,17 +90,12 @@ const PinModal: React.FC<PinModalProps> = ({
         <PageDescription title={title}>
           <p>{description}</p>
         </PageDescription>
-        <PinInput on6digits={handleConfirm} onPin={(p: string) => setPin(p)} />
-        <div className="buttons">
-          <IonButton
-            onClick={handleConfirm}
-            type="button"
-            disabled={!validRegexp.test(pin)}
-            className="main-button"
-          >
-            Confirm
-          </IonButton>
-        </div>
+        <PinInput
+          inputRef={inputRef}
+          on6digits={handleConfirm}
+          onPin={(p: string) => setPin(p)}
+          isWrongPin={isWrongPin}
+        />
       </IonContent>
     </IonModal>
   );

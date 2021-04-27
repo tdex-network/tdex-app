@@ -34,6 +34,10 @@ import {
   PINsDoNotMatchError,
   SecureStorageError,
 } from '../../utils/errors';
+import {
+  PIN_TIMEOUT_FAILURE,
+  PIN_TIMEOUT_SUCCESS,
+} from '../../utils/constants';
 
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
@@ -41,6 +45,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [pin, setPin] = useState<string>();
   const [isEmpty, setIsEmpty] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -62,15 +67,23 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
 
   const onFirstPinConfirm = (newPin: string) => {
     setPin(newPin);
-    setModalOpen('second');
+    setIsWrongPin(false);
+    setTimeout(() => {
+      setIsWrongPin(null);
+      setModalOpen('second');
+    }, PIN_TIMEOUT_SUCCESS);
   };
 
   const onError = (e: AppError) => {
+    console.error(e);
     clearStorage();
     dispatch(addErrorToast(e));
-    console.error(e);
-    setModalOpen(undefined);
-    setPin(undefined);
+    setIsWrongPin(true);
+    setTimeout(() => {
+      setIsWrongPin(null);
+      setModalOpen(undefined);
+      setPin(undefined);
+    }, PIN_TIMEOUT_FAILURE);
   };
 
   const onSecondPinConfirm = (newPin: string) => {
@@ -82,10 +95,14 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
           dispatch(
             addSuccessToast('Mnemonic generated and encrypted with your PIN.')
           );
+          setIsWrongPin(false);
           dispatch(signIn(pin));
-          // we don't need to ask backup if the mnemonic is restored
           dispatch(setBackupDone());
-          history.push('/wallet');
+          setTimeout(() => {
+            // we don't need to ask backup if the mnemonic is restored
+            history.push('/wallet');
+            setIsWrongPin(null);
+          }, PIN_TIMEOUT_SUCCESS);
         })
         .catch(() => onError(SecureStorageError))
         .finally(() => setLoading(false));
@@ -112,6 +129,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
           setModalOpen(undefined);
           history.goBack();
         }}
+        isWrongPin={isWrongPin}
       />
       <PinModal
         open={modalOpen === 'second'}
@@ -119,8 +137,9 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
         description="Confirm your secret PIN."
         onConfirm={onSecondPinConfirm}
         onClose={cancelSecondModal}
+        isWrongPin={isWrongPin}
       />
-      <div className="gradient-background"></div>
+      <div className="gradient-background" />
       <IonHeader>
         <IonToolbar className="with-back-button">
           <IonButton
