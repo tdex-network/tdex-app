@@ -13,7 +13,7 @@ import {
   fromSatoshiFixed,
   toLBTCwithUnit,
 } from '../../utils/helpers';
-import { updateRates } from '../../redux/actions/ratesActions';
+import { updatePrices } from '../../redux/actions/ratesActions';
 import {
   onPressEnterKeyCloseKeyboard,
   setAccessoryBar,
@@ -56,7 +56,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   });
 
   useEffect(() => {
-    dispatch(updateRates());
+    dispatch(updatePrices());
   }, []);
 
   const reset = () => {

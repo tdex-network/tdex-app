@@ -13,12 +13,13 @@ const colors: {
 };
 
 export interface CircleDiagramProps {
-  data: Array<{ asset: string; ticker: string; amount: number }>;
+  balances: Array<{ asset: string; ticker: string; amount: number }>;
 }
 
-const CircleDiagram: React.FC<CircleDiagramProps> = ({ data }) => {
+const CircleDiagram: React.FC<CircleDiagramProps> = ({ balances }) => {
   const canvasRef = useRef<any>(null);
-  const total = data.reduce((acc, balance) => acc + balance.amount, 0);
+
+  const total = balances.reduce((acc, balance) => acc + balance.amount, 0);
 
   const renderCircle = () => {
     const ctx = canvasRef.current.getContext('2d');
@@ -33,24 +34,26 @@ const CircleDiagram: React.FC<CircleDiagramProps> = ({ data }) => {
     let minimalWidthSum = 0;
 
     const checkSmallElements = () => {
-      const marginsSum = data.length * 0.2;
-      data.forEach((item: { asset: string; amount: number }, index: number) => {
-        const part = item.amount / total;
-        const realLength = part * (2 * Math.PI - marginsSum);
-        if (part * 100 < minWidthPercent) {
-          minimalCount++;
-          minimalWidthSum += realLength;
-          lengthList.push(minWidth);
-        } else {
-          lengthList.push(realLength);
+      const marginsSum = balances.length * 0.2;
+      balances.forEach(
+        (item: { asset: string; amount: number }, index: number) => {
+          const part = item.amount / total;
+          const realLength = part * (2 * Math.PI - marginsSum);
+          if (part * 100 < minWidthPercent) {
+            minimalCount++;
+            minimalWidthSum += realLength;
+            lengthList.push(minWidth);
+          } else {
+            lengthList.push(realLength);
+          }
         }
-      });
+      );
     };
 
     const getElementPosition = (index: number, discrepancy: number) => {
       if (index === 0) {
         start = shift + 0.1;
-      } else if (index === data.length - 1) {
+      } else if (index === balances.length - 1) {
         start = start + length + 0.2;
       } else {
         start = start + length + 0.2;
@@ -82,7 +85,7 @@ const CircleDiagram: React.FC<CircleDiagramProps> = ({ data }) => {
     };
 
     const drawDiagram = (grad: any) => {
-      const withData = data.length;
+      const withData = balances.length;
       ctx.beginPath();
       ctx.arc(
         120,
@@ -97,12 +100,12 @@ const CircleDiagram: React.FC<CircleDiagramProps> = ({ data }) => {
       ctx.stroke();
     };
 
-    if (data.length) {
+    if (balances.length) {
       checkSmallElements();
       const discrepancy =
         (minimalCount * minWidth - minimalWidthSum) /
-        (data.length - minimalCount);
-      data.forEach((item, index: number) => {
+        (balances.length - minimalCount);
+      balances.forEach((item, index: number) => {
         const grad = ctx.createLinearGradient(100, 0, 200, 200);
         getElementPosition(index, discrepancy);
         fillColor(grad, item);
@@ -117,7 +120,7 @@ const CircleDiagram: React.FC<CircleDiagramProps> = ({ data }) => {
 
   useEffect(() => {
     renderCircle();
-  }, [data]);
+  }, [balances]);
 
   return (
     <canvas

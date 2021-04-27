@@ -1,15 +1,23 @@
-export const UPDATE_RATES = 'GET_RATES';
-export const SET_RATES = 'SET_RATES';
+export const UPDATE_PRICES = 'UPDATE_PRICES';
+export const SET_PRICES = 'SET_PRICES';
+export const SET_LBTC_PRICES = 'SET_LBTC_PRICES';
 
-export const updateRates = () => {
+export const updatePrices = () => {
   return {
-    type: UPDATE_RATES,
+    type: UPDATE_PRICES,
   };
 };
 
-export const setRates = (rates: Record<string, number>) => {
+export const setPrices = (prices: Record<string, number>) => {
   return {
-    type: SET_RATES,
-    payload: rates,
+    type: SET_PRICES,
+    payload: prices,
+  };
+};
+
+export const setLBTCPrices = (prices: Record<string, number>) => {
+  return {
+    type: SET_LBTC_PRICES,
+    payload: prices,
   };
 };

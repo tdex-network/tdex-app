@@ -1,5 +1,5 @@
 import { ActionType } from './../../utils/types';
-import { updateRates } from './../actions/ratesActions';
+import { updatePrices } from './../actions/ratesActions';
 import {
   WalletState,
   outpointToString,
@@ -58,7 +58,7 @@ function* updateUtxosState({ type }: { type: string }) {
       select(({ wallet }: { wallet: WalletState }) => wallet.utxos),
       select(({ settings }) => settings.explorerUrl),
     ]);
-    yield put(updateRates());
+    yield put(updatePrices());
     yield call(fetchAndUpdateUtxos, addresses, utxos, explorerURL);
   } catch (error) {
     console.error(error);
