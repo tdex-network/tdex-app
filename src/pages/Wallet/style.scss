@@ -16,9 +16,6 @@
 }
 
 .diagram {
-  margin-top: 20px;
-  margin-top: constant(safe-area-inset-top);
-  margin-top: env(safe-area-inset-top);
   position: absolute;
   top: 58pt;
   left: 50%;
@@ -43,15 +40,17 @@
   .info-heading {
     font-family: 'DMSans-Bold';
     color: rgb(102, 102, 102);
-    font-size: 14px;
+    font-size: 17px;
     margin-top: 20px;
     margin-bottom: 2px;
   }
 
   .info-amount {
     font-family: 'DMMono';
-    font-size: 20px;
+    font-size: 25px;
     line-height: 30px;
+    padding-top: 5px;
+    padding-bottom: 2px;
     span {
       margin-left: 8px;
       font-size: 14px;
@@ -60,7 +59,7 @@
 
   .info-amount-converted {
     font-family: 'DMMono-Medium';
-    font-size: 10px;
+    font-size: 12px;
     line-height: 10px;
     color: rgb(198, 198, 198);
     margin-top: -2px;

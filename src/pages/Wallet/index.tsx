@@ -26,9 +26,9 @@ import {
   MAIN_ASSETS,
 } from '../../utils/constants';
 import { AssetWithTicker } from '../../utils/tdex';
-import CircleDiagram from '../../redux/containers/circleDiagramContainer';
 import { ActionType } from '../../utils/types';
 import { update } from '../../redux/actions/appActions';
+import CircleTotalBalance from '../../components/CircleTotalBalance';
 import ExchangeSearch from '../../components/ExchangeSearch';
 import Refresher from '../../components/Refresher';
 import BackupModal from '../../redux/containers/backupModalContainer';
@@ -129,9 +129,7 @@ const Wallet: React.FC<WalletProps> = ({
       <div className="gradient-background" />
       <IonContent className="wallet-content">
         <Refresher />
-        <div className="diagram">
-          <CircleDiagram />
-        </div>
+        <CircleTotalBalance />
         <IonHeader className="header wallet">
           <IonToolbar>
             <IonTitle>Wallet</IonTitle>

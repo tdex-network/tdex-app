@@ -1,0 +1,22 @@
+.circle-total-balance {
+	position: absolute;
+	top: 5rem;
+	left: 50%;
+	transform: translateX(-50%);
+	background: linear-gradient(100deg, rgba(51, 51, 51, 1) 0%, rgba(15, 15, 15, 1) 100%);
+	border-radius: 50%;
+	width: 16.5rem;
+	height: 16.5rem;
+	box-shadow: 6px 5px 12px 0 rgba(15, 255, 1, 0.7);
+	div {
+		display: flex;
+		position: relative;
+		top: 20px;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 14rem;
+		height: 14rem;
+		background: linear-gradient(100deg, black 0%, rgba(51, 51, 51, 1) 100%);
+		border-radius: 50%;
+	}
+}
