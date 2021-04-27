@@ -40,7 +40,11 @@ import { TradeType } from 'tdex-sdk';
 import { useSelector } from 'react-redux';
 import './style.scss';
 import { unlockUtxos } from '../../redux/actions/walletActions';
-import { AppError, NoMarketsProvidedError } from '../../utils/errors';
+import {
+  AppError,
+  IncorrectPINError,
+  NoMarketsProvidedError,
+} from '../../utils/errors';
 
 const ERROR_LIQUIDITY = 'Not enough liquidity in market';
 
@@ -84,6 +88,7 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
 
   const checkAvailableAmountSent = () => {
     if (!trade || !sentAmount || !assetSent) return;
@@ -168,7 +173,16 @@ const Exchange: React.FC<ExchangeProps> = ({
     try {
       setModalOpen(false);
       setLoading(true);
-      const identity = await getConnectedIdentity(pin, dispatch);
+      let identity;
+      try {
+        identity = await getConnectedIdentity(pin, dispatch);
+        setIsWrongPin(false);
+        setTimeout(() => {
+          setIsWrongPin(null);
+        }, 500);
+      } catch (_) {
+        throw IncorrectPINError;
+      }
       if (!trade) return;
       const txid = await makeTrade(
         trade,
@@ -203,6 +217,12 @@ const Exchange: React.FC<ExchangeProps> = ({
       console.error(e);
       dispatch(unlockUtxos());
       if (e instanceof AppError) {
+        if (e.code === 6) {
+          setIsWrongPin(true);
+          setTimeout(() => {
+            setIsWrongPin(null);
+          }, 2000);
+        }
         dispatch(addErrorToast(e));
       }
     } finally {
@@ -222,10 +242,10 @@ const Exchange: React.FC<ExchangeProps> = ({
           onClose={() => {
             setModalOpen(false);
           }}
-          isWrongPin={false}
+          isWrongPin={isWrongPin}
         />
       )}
-      <div className="gradient-background"></div>
+      <div className="gradient-background" />
       <IonHeader className="exchange-header">
         <IonToolbar>
           <IonTitle>Exchange</IonTitle>

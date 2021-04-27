@@ -40,12 +40,11 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
     getIdentity(pin)
       .then(() => {
         setIsWrongPin(false);
-        setTimeout(() => {
-          setIsWrongPin(null);
-        }, 2000);
-        dispatch(addSuccessToast('Your wallet has been unlocked.'));
         dispatch(signIn(pin));
-        history.push('/wallet');
+        setTimeout(() => {
+          history.push('/wallet');
+          setIsWrongPin(null);
+        }, 1500);
       })
       .catch((e) => {
         console.error(e);
