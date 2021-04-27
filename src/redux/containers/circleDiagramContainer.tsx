@@ -7,11 +7,11 @@ import { balancesSelector } from '../reducers/walletReducer';
 
 const mapStateToProps = (state: any): CircleDiagramProps => {
   return {
-    data: balancesSelector(state)
+    balances: balancesSelector(state)
       .filter((b) => b.amount > 0 && b.coinGeckoID)
       .map((balance: BalanceInterface) => {
         const price: number | undefined =
-          state.rates.prices[balance.coinGeckoID || ''];
+          state.rates.diagramPrices[balance.coinGeckoID || ''];
         return {
           asset: balance.asset,
           ticker: balance.ticker,

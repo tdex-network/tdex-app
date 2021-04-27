@@ -12,7 +12,7 @@ import { closeSharp, searchSharp } from 'ionicons/icons';
 import { useDispatch } from 'react-redux';
 import { LBTC_DENOMINATIONS } from '../../utils/constants';
 import { setLBTCDenomination } from '../../redux/actions/settingsActions';
-import { updateRates } from '../../redux/actions/ratesActions';
+import { updatePrices } from '../../redux/actions/ratesActions';
 import './style.scss';
 
 interface DenominationSearchProps {
@@ -56,7 +56,7 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({
                   data-asset={index}
                   onClick={() => {
                     dispatch(setLBTCDenomination(denomination));
-                    dispatch(updateRates());
+                    dispatch(updatePrices());
                     close();
                   }}
                 >

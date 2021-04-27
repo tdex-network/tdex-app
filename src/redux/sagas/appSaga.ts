@@ -20,7 +20,7 @@ import { setIsAuth } from '../actions/walletActions';
 import { Mnemonic } from 'ldk';
 import { getIdentity, seedBackupFlag } from '../../utils/storage-helper';
 import { updateTransactions } from '../actions/transactionsActions';
-import { updateRates } from '../actions/ratesActions';
+import { updatePrices } from '../actions/ratesActions';
 
 function* initAppSaga() {
   try {
@@ -62,7 +62,7 @@ function* updateState() {
   yield all([
     put(updateMarkets()),
     put(updateTransactions()),
-    put(updateRates()),
+    put(updatePrices()),
     put(updateUtxos()),
   ]);
 }

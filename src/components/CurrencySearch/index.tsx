@@ -14,7 +14,7 @@ import { CurrencyInterface } from '../../redux/reducers/settingsReducer';
 import { CURRENCIES } from '../../utils/constants';
 import { setCurrency } from '../../redux/actions/settingsActions';
 import './style.scss';
-import { updateRates } from '../../redux/actions/ratesActions';
+import { updatePrices } from '../../redux/actions/ratesActions';
 
 interface CurrencySearchProps {
   isOpen: boolean;
@@ -57,7 +57,7 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
                   data-asset={index}
                   onClick={() => {
                     dispatch(setCurrency(currency));
-                    dispatch(updateRates());
+                    dispatch(updatePrices());
                     close();
                   }}
                 >
