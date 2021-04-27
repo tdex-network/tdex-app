@@ -361,7 +361,7 @@ export const IconBTC = (props: IconInterface) => (
 );
 
 export const CurrencyIcon = ({ currency, ...props }: any) => {
-  switch (currency.toUpperCase()) {
+  switch (currency?.toUpperCase()) {
     case LBTC_TICKER:
       return <img src={LbtcIcon} />;
     case USDT_TICKER:

@@ -111,7 +111,11 @@ const Operations: React.FC<OperationsProps> = ({
           </IonToolbar>
           <div className="header-info">
             <div className="img-wrapper">
-              {balance && <CurrencyIcon currency={balance?.ticker} />}
+              {balance ? (
+                <CurrencyIcon currency={balance?.ticker} />
+              ) : (
+                <CurrencyIcon currency={LBTC_TICKER} />
+              )}
             </div>
             <p className="info-amount">
               {balance &&
@@ -144,8 +148,8 @@ const Operations: React.FC<OperationsProps> = ({
                   state: {
                     depositAsset: {
                       asset: balance?.asset,
-                      ticker: balance?.ticker,
-                      coinGeckoID: balance?.coinGeckoID,
+                      ticker: balance?.ticker ?? LBTC_TICKER,
+                      coinGeckoID: balance?.coinGeckoID ?? 'L-BTC',
                     },
                   },
                 });
