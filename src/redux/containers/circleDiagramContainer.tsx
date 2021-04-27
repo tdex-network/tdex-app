@@ -11,7 +11,7 @@ const mapStateToProps = (state: any): CircleDiagramProps => {
       .filter((b) => b.amount > 0 && b.coinGeckoID)
       .map((balance: BalanceInterface) => {
         const price: number | undefined =
-          state.rates.diagramPrices[balance.coinGeckoID || ''];
+          state.rates.lbtcPrices[balance.coinGeckoID || ''];
         return {
           asset: balance.asset,
           ticker: balance.ticker,

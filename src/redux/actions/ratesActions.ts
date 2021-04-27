@@ -1,6 +1,6 @@
 export const UPDATE_PRICES = 'UPDATE_PRICES';
 export const SET_PRICES = 'SET_PRICES';
-export const SET_DIAGRAM_PRICES = 'SET_DIAGRAM_PRICES';
+export const SET_LBTC_PRICES = 'SET_LBTC_PRICES';
 
 export const updatePrices = () => {
   return {
@@ -15,9 +15,9 @@ export const setPrices = (prices: Record<string, number>) => {
   };
 };
 
-export const setDiagramPrices = (prices: Record<string, number>) => {
+export const setLBTCPrices = (prices: Record<string, number>) => {
   return {
-    type: SET_DIAGRAM_PRICES,
+    type: SET_LBTC_PRICES,
     payload: prices,
   };
 };

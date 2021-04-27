@@ -1,14 +1,14 @@
 import { ActionType } from '../../utils/types';
-import { SET_DIAGRAM_PRICES, SET_PRICES } from '../actions/ratesActions';
+import { SET_LBTC_PRICES, SET_PRICES } from '../actions/ratesActions';
 
 export interface RateState {
   prices: Record<string, number>; // prices in fiat specified in settings reducer
-  diagramPrices: Record<string, number>; // prices in btc denomination for diagram
+  lbtcPrices: Record<string, number>; // prices in btc denomination for diagram
 }
 
 const initialState: RateState = {
   prices: {},
-  diagramPrices: {},
+  lbtcPrices: {},
 };
 
 const ratesReducer = (
@@ -16,8 +16,8 @@ const ratesReducer = (
   action: ActionType
 ): RateState => {
   switch (action.type) {
-    case SET_DIAGRAM_PRICES:
-      return { ...state, diagramPrices: action.payload };
+    case SET_LBTC_PRICES:
+      return { ...state, lbtcPrices: action.payload };
     case SET_PRICES:
       return { ...state, prices: action.payload };
     default:

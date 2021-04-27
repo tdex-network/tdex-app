@@ -2,7 +2,7 @@ import {
   CoinGeckoPriceResult,
   getPriceFromCoinGecko,
 } from './../services/ratesService';
-import { setDiagramPrices, UPDATE_PRICES } from './../actions/ratesActions';
+import { setLBTCPrices, UPDATE_PRICES } from './../actions/ratesActions';
 import { takeLatest, call, put, select } from 'redux-saga/effects';
 import { ActionType } from '../../utils/types';
 import { setPrices } from '../actions/ratesActions';
@@ -20,15 +20,15 @@ function* fetchRates({ type }: ActionType) {
   );
 
   const prices: Record<string, number> = {};
-  const diagramPrices: Record<string, number> = {};
+  const lbtcPrices: Record<string, number> = {};
 
   for (const crypto of Object.keys(coinGeckoResult)) {
     prices[crypto] = coinGeckoResult[crypto][currency];
-    diagramPrices[crypto] = coinGeckoResult[crypto]['btc'];
+    lbtcPrices[crypto] = coinGeckoResult[crypto]['btc'];
   }
 
   yield put(setPrices(prices));
-  yield put(setDiagramPrices(diagramPrices));
+  yield put(setLBTCPrices(lbtcPrices));
 }
 
 export function* ratesWatcherSaga() {

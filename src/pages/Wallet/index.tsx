@@ -38,6 +38,7 @@ interface WalletProps extends RouteComponentProps {
   prices: Record<string, number>;
   dispatch: (action: ActionType) => void;
   backupDone: boolean;
+  totalLBTC: BalanceInterface;
 }
 
 const Wallet: React.FC<WalletProps> = ({
@@ -46,10 +47,9 @@ const Wallet: React.FC<WalletProps> = ({
   currency,
   history,
   dispatch,
+  totalLBTC,
 }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
-  const [LBTCBalance, setLBTCBalance] = useState<BalanceInterface>();
-  const [LBTCBalanceIndex, setLBTCBalanceIndex] = useState(-1);
   const [mainAssets, setMainAssets] = useState<BalanceInterface[]>([]);
   const [fiats, setFiats] = useState<number[]>([]);
   const backupDone = useSelector((state: any) => state.app.backupDone);
@@ -102,13 +102,6 @@ const Wallet: React.FC<WalletProps> = ({
   }, [prices, balances]);
 
   useEffect(() => {
-    const index = balances.findIndex((b) => b.coinGeckoID === 'bitcoin');
-    if (index < 0) {
-      setLBTCBalance(undefined);
-      setLBTCBalanceIndex(-1);
-    }
-    setLBTCBalanceIndex(index);
-    setLBTCBalance(balances[index]);
     const main = [];
     const secondary = [];
     for (const balance of balances) {
@@ -143,14 +136,14 @@ const Wallet: React.FC<WalletProps> = ({
             <div className="header-info wallet">
               <p className="info-heading">Total balance</p>
               <p className="info-amount" aria-label="main-balance">
-                {LBTCBalance
-                  ? fromSatoshiFixed(LBTCBalance.amount, 8, 8, lbtcUnit)
+                {totalLBTC
+                  ? fromSatoshiFixed(totalLBTC.amount, 8, 8, lbtcUnit)
                   : '0.00'}
                 <span>{lbtcUnit}</span>
               </p>
-              {LBTCBalance && fiats[LBTCBalanceIndex] > 0 && (
+              {totalLBTC && getFiatValue(totalLBTC) > 0 && (
                 <p className="info-amount-converted">
-                  {`${fiats[LBTCBalanceIndex]?.toFixed(
+                  {`${getFiatValue(totalLBTC).toFixed(
                     2
                   )} ${currency.toUpperCase()}`}
                 </p>

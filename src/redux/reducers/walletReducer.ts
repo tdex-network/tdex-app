@@ -1,3 +1,4 @@
+import { LBTC_COINGECKOID, LBTC_TICKER } from './../../utils/constants';
 import { transactionsAssets } from './transactionsReducer';
 import { AddressInterface, UtxoInterface, Outpoint, Mnemonic } from 'ldk';
 import { ActionType } from '../../utils/types';
@@ -14,6 +15,7 @@ import {
 } from '../actions/walletActions';
 import { tickerFromAssetHash, balancesFromUtxos } from '../../utils/helpers';
 import { defaultPrecision, getMainAsset } from '../../utils/constants';
+import { BalanceInterface } from '../actionTypes/walletActionTypes';
 
 export interface WalletState {
   isAuth: boolean;
@@ -135,6 +137,33 @@ export const balancesSelector = (state: any) => {
   }
 
   return balances;
+};
+
+/**
+ * Redux selector returning the total LBTC balance (including featuring assets with CoinGecko support)
+ * @param state the current redux state
+ */
+export const aggregatedLBTCBalanceSelector = (state: any): BalanceInterface => {
+  const toAggregateBalancesInBTC = balancesSelector(state)
+    .filter((b) => b.amount > 0 && b.coinGeckoID)
+    .map((balance: BalanceInterface) => {
+      if (balance.coinGeckoID === LBTC_COINGECKOID) {
+        return balance.amount;
+      }
+
+      const price: number | undefined =
+        state.rates.lbtcPrices[balance.coinGeckoID || ''];
+      return (price || 0) * balance.amount;
+    });
+
+  const amount = toAggregateBalancesInBTC.reduce((acc, a) => acc + a, 0);
+  return {
+    amount,
+    asset: '',
+    ticker: LBTC_TICKER,
+    coinGeckoID: LBTC_COINGECKOID,
+    precision: 8,
+  };
 };
 
 export const addressesSelector = ({ wallet }: { wallet: WalletState }) => {
