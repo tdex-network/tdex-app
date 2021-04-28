@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   IonContent,
   IonHeader,
@@ -43,16 +43,9 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [pin, setPin] = useState<string>();
-  const [isEmpty, setIsEmpty] = useState(true);
   const [loading, setLoading] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const dispatch = useDispatch();
-
-  useEffect(() => {
-    const filledMnemonic = mnemonic.filter((item: string) => item);
-    const isMnemonicFilled = filledMnemonic.length === 12;
-    setIsEmpty(!isMnemonicFilled);
-  }, [mnemonic]);
 
   const handleConfirm = () => {
     if (!bip39.validateMnemonic(mnemonic.join(' '))) {
@@ -108,7 +101,6 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
         .finally(() => setLoading(false));
       return;
     }
-
     onError(PINsDoNotMatchError);
   };
 
@@ -185,11 +177,11 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
 
         <div className="buttons restore">
           <IonButton
-            disabled={isEmpty}
+            disabled={mnemonic.includes('')}
             onClick={handleConfirm}
             className="main-button"
           >
-            Confirm
+            RESTORE WALLET
           </IonButton>
         </div>
       </IonContent>
