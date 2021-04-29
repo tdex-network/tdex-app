@@ -1,4 +1,7 @@
 .circle-total-balance {
+	color: #fff;
+	margin-top: 20px;
+	margin-top: env(safe-area-inset-top);
 	position: absolute;
 	top: 5rem;
 	left: 50%;
@@ -18,5 +21,31 @@
 		height: 14rem;
 		background: linear-gradient(100deg, black 0%, rgba(51, 51, 51, 1) 100%);
 		border-radius: 50%;
+		
+		img {
+			position: absolute;
+			z-index: -1;
+		}
+		
+		ion-row:nth-child(1)  {
+			font-family: 'DMSans-Bold';
+			font-size: 1.2rem;
+			color: var(--ion-color-step-500);
+		}
+		ion-row:nth-child(2)  {
+			font-family: 'DMMono';
+			span:nth-child(1) {
+				font-size: 1.8rem;
+				color: var(--ion-color-step-850);
+			}
+			span:nth-child(2) {
+				font-size: 1rem;
+				color: var(--ion-color-step-500);
+			}
+		}
+		ion-row:nth-child(3)  {
+			font-family: 'DMMono-Medium';
+			color: var(--ion-color-step-600);
+		}
 	}
 }

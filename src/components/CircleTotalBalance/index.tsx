@@ -1,12 +1,35 @@
 import React from 'react';
 import TdexLogo from '../../assets/img/tdex_logo_black.svg';
 import './style.scss';
+import { IonGrid, IonRow } from '@ionic/react';
 
-const CircleTotalBalance: React.FC = () => {
+interface CircleTotalBalanceProps {
+  fiatBalance: string | undefined;
+  lbtcUnit: string;
+  totalBalance: string;
+}
+
+const CircleTotalBalance: React.FC<CircleTotalBalanceProps> = ({
+  fiatBalance,
+  lbtcUnit,
+  totalBalance,
+}) => {
   return (
     <div className="circle-total-balance">
-      <div className="ion-text-center ion-justify-content-center ion-align-items-center">
+      <div className="ion-align-items-center ion-justify-content-center">
         <img src={TdexLogo} alt="tdex logo" />
+        <IonGrid>
+          <IonRow className="ion-justify-content-center">Total Balance</IonRow>
+          <IonRow className="ion-justify-content-center ion-align-items-baseline">
+            <span>{totalBalance}</span>
+            <span>{lbtcUnit}</span>
+          </IonRow>
+          {fiatBalance && (
+            <IonRow className="ion-justify-content-center">
+              {fiatBalance}
+            </IonRow>
+          )}
+        </IonGrid>
       </div>
     </div>
   );
