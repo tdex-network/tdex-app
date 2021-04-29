@@ -6,7 +6,15 @@ export const useMnemonic = (
   const [mnemonic, setMnemonic] = useState(initialMnemonic);
   const setMnemonicWord = (word: string, index: number) => {
     const mnemonicCopy = [...mnemonic];
-    mnemonicCopy[index] = word.trim().toLowerCase();
+    // Check if string has multiple words
+    const wordsArray = word.split(' ').slice(0, 12);
+    if (wordsArray.length > 1) {
+      wordsArray.forEach((w, i) => {
+        mnemonicCopy[i] = w.trim().toLowerCase();
+      });
+    } else {
+      mnemonicCopy[index] = word.trim().toLowerCase();
+    }
     setMnemonic(mnemonicCopy);
   };
   return [mnemonic, setMnemonicWord];
