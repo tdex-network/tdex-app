@@ -20,9 +20,11 @@ const CircleTotalBalance: React.FC<CircleTotalBalanceProps> = ({
         <img src={TdexLogo} alt="tdex logo" />
         <IonGrid>
           <IonRow className="ion-justify-content-center">Total Balance</IonRow>
-          <IonRow className="ion-justify-content-center ion-align-items-baseline">
-            <span>{totalBalance}</span>
-            <span>{lbtcUnit}</span>
+          <IonRow className="ion-margin-top ion-justify-content-center">
+            {totalBalance}
+          </IonRow>
+          <IonRow className="ion-margin-bottom ion-justify-content-center">
+            {lbtcUnit}
           </IonRow>
           {fiatBalance && (
             <IonRow className="ion-justify-content-center">

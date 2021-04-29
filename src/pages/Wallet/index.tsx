@@ -150,29 +150,30 @@ const Wallet: React.FC<WalletProps> = ({
       <IonContent className="wallet-content">
         <IonGrid>
           <Refresher />
-          <IonHeader className="header wallet">
+          <IonHeader>
             <IonToolbar>
               <IonTitle>Wallet</IonTitle>
             </IonToolbar>
           </IonHeader>
+          <IonRow className="ion-margin-vertical ion-justify-content-center">
+            <CircleTotalBalance
+              totalBalance={
+                totalLBTC.amount
+                  ? fromSatoshiFixed(totalLBTC.amount, 8, undefined, lbtcUnit)
+                  : '0.00'
+              }
+              lbtcUnit={lbtcUnit}
+              fiatBalance={
+                totalLBTC && prices[LBTC_COINGECKOID]
+                  ? `${(
+                      fromSatoshi(totalLBTC.amount) * prices[LBTC_COINGECKOID]
+                    ).toFixed(2)} ${currency.toUpperCase()}`
+                  : undefined
+              }
+            />
+          </IonRow>
 
-          <CircleTotalBalance
-            totalBalance={
-              totalLBTC.amount
-                ? fromSatoshiFixed(totalLBTC.amount, 8, undefined, lbtcUnit)
-                : '0.00'
-            }
-            lbtcUnit={lbtcUnit}
-            fiatBalance={
-              totalLBTC && prices[LBTC_COINGECKOID]
-                ? `${(
-                    fromSatoshi(totalLBTC.amount) * prices[LBTC_COINGECKOID]
-                  ).toFixed(2)} ${currency.toUpperCase()}`
-                : undefined
-            }
-          />
-
-          <IonList scroll-y={true} className="ion-padding-vertical">
+          <IonList scroll-y={true}>
             <IonListHeader className="ion-no-margin">
               <IonRow className="ion-align-items-center">
                 <IonCol size="6">Asset list</IonCol>
