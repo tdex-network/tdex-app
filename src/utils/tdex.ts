@@ -4,7 +4,7 @@ import {
   TDEXTrade,
   TDEXMarket,
   TDEXProvider,
-} from './../redux/actionTypes/tdexActionTypes';
+} from '../redux/actionTypes/tdexActionTypes';
 import { toSatoshi } from './helpers';
 import axios from 'axios';
 import { getMainAsset } from './constants';
@@ -55,9 +55,31 @@ export async function bestPrice(
 }
 
 /**
- * a wraper for marketPrice request
- * @param known the amount/asset inputs by the user
- * @param trade trade using to compute the price
+ * Get receiving asset's greatest balance
+ * @param trades
+ * @param onError
+ */
+export async function bestBalance(
+  trades: TDEXTrade[],
+  onError: (e: string) => void
+): Promise<TDEXTrade> {
+  if (trades.length === 0) throw new Error('trades array should not be empty');
+  const sorted = trades.sort((a, b) => {
+    if (a.type === TradeType.BUY) {
+      return (b.market.baseAmount as number) - (a.market.baseAmount as number);
+    } else {
+      return (
+        (b.market.quoteAmount as number) - (a.market.quoteAmount as number)
+      );
+    }
+  });
+  return sorted[0];
+}
+
+/**
+ * Wrapper for marketPrice request
+ * @param known the amount/asset provided by the user
+ * @param trade trade used to compute the price
  */
 async function calculatePrice(
   known: { amount: number; asset: string; precision: number },
