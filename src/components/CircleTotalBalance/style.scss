@@ -3,7 +3,6 @@
 	border-radius: 50%;
 	width: 16.5rem;
 	height: 16.5rem;
-	box-shadow: 6px 5px 12px 0 rgba(15, 255, 1, 0.7);
 	div {
 		display: flex;
 		position: relative;
@@ -38,6 +37,26 @@
 		ion-row:nth-child(4)  {
 			font-family: 'DMMono-Medium';
 			color: #a0a0a0;
+		}
+	}
+}
+
+// Rotate shadow without inner content
+.circle-total-balance:before {
+	content: "";
+	position: absolute;
+	animation: rotation 6s infinite linear;
+	border-radius: 50%;
+	width: 16.5rem;
+	height: 16.5rem;
+	box-shadow: 6px 5px 12px 0 rgba(15, 255, 1, 0.7);
+	
+	@keyframes rotation {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(359deg);
 		}
 	}
 }
