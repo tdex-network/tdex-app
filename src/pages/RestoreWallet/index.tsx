@@ -172,7 +172,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
           })}
         </div>
 
-        <div className="buttons restore">
+        <div className="ion-text-center ion-margin">
           <IonButton
             disabled={mnemonic.includes('')}
             onClick={handleConfirm}
