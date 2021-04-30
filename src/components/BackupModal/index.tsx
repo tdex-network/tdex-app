@@ -6,11 +6,12 @@ import {
   IonButton,
   IonToolbar,
   IonLoading,
+  IonButtons,
+  IonIcon,
 } from '@ionic/react';
 import React, { useState } from 'react';
 import { AppError, IncorrectPINError } from '../../utils/errors';
 import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
-import { IconClose } from '../icons';
 import PageDescription from '../PageDescription';
 import PinModal from '../PinModal';
 import ShowMnemonic from '../ShowMnemonic';
@@ -20,6 +21,7 @@ import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
+import { closeOutline } from 'ionicons/icons';
 
 interface BackupModalProps {
   isOpen: boolean;
@@ -54,15 +56,14 @@ const BackupModal: React.FC<BackupModalProps> = ({
       {mnemonicToShow ? (
         <IonModal isOpen={isOpen} onDidDismiss={() => onClose('skipped')}>
           <div className="gradient-background" />
-          <IonHeader>
+          <IonHeader className="ion-no-border">
             <IonToolbar className="with-back-button">
+              <IonButtons slot="start">
+                <IonButton onClick={() => onClose('skipped')}>
+                  <IonIcon slot="icon-only" icon={closeOutline} />
+                </IonButton>
+              </IonButtons>
               <IonTitle>Backup your seed</IonTitle>
-              <IonButton
-                style={{ zIndex: 10 }}
-                onClick={() => onClose('skipped')}
-              >
-                <IconClose />
-              </IonButton>
             </IonToolbar>
           </IonHeader>
           <IonContent>

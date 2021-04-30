@@ -12,11 +12,12 @@ import {
   IonLabel,
   IonText,
   IonIcon,
+  IonBackButton,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { withRouter, RouteComponentProps, useParams } from 'react-router';
 import classNames from 'classnames';
-import { CurrencyIcon, IconBack, TxIcon } from '../../components/icons';
+import { CurrencyIcon, TxIcon } from '../../components/icons';
 import { useSelector } from 'react-redux';
 import { TxDisplayInterface, TxStatusEnum } from '../../utils/types';
 import {
@@ -24,7 +25,7 @@ import {
   fromSatoshi,
   fromSatoshiFixed,
 } from '../../utils/helpers';
-import { checkmarkSharp } from 'ionicons/icons';
+import { checkmarkSharp, chevronBackOutline } from 'ionicons/icons';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
 import { LBTC_TICKER } from '../../utils/constants';
@@ -99,24 +100,26 @@ const Operations: React.FC<OperationsProps> = ({
 
   return (
     <IonPage>
-      <div className="gradient-background"></div>
+      <div className="gradient-background" />
       <IonContent className="operations">
         <Refresher />
-        <IonHeader className="header operations">
+        <IonHeader className="header operations ion-no-border">
           <IonToolbar className="with-back-button">
-            <IonButton style={{ zIndex: 10 }} onClick={() => history.goBack()}>
-              <IconBack />
-            </IonButton>
+            <IonButtons slot="start">
+              <IonBackButton
+                defaultHref="/"
+                text=""
+                icon={chevronBackOutline}
+              />
+            </IonButtons>
             <IonTitle>{balance?.ticker} operations</IonTitle>
           </IonToolbar>
-          <div className="header-info">
-            <div className="img-wrapper">
-              {balance ? (
-                <CurrencyIcon currency={balance?.ticker} />
-              ) : (
-                <CurrencyIcon currency={LBTC_TICKER} />
-              )}
-            </div>
+          <div className="header-info ion-text-center ion-margin">
+            {balance ? (
+              <CurrencyIcon currency={balance?.ticker} />
+            ) : (
+              <CurrencyIcon currency={LBTC_TICKER} />
+            )}
             <p className="info-amount">
               {balance &&
                 fromSatoshiFixed(

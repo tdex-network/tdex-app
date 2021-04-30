@@ -251,7 +251,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         />
       )}
       <div className="gradient-background" />
-      <IonHeader className="exchange-header">
+      <IonHeader className="exchange-header ion-no-border">
         <IonToolbar>
           <IonTitle>Exchange</IonTitle>
         </IonToolbar>

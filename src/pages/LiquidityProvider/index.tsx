@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import {
   IonAlert,
+  IonBackButton,
   IonButton,
+  IonButtons,
   IonContent,
   IonHeader,
   IonIcon,
@@ -16,9 +18,8 @@ import {
   IonToolbar,
 } from '@ionic/react';
 import { RouteComponentProps, withRouter } from 'react-router';
-import { IconBack, IconClose } from '../../components/icons';
 import { TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
-import { trash } from 'ionicons/icons';
+import { chevronBackOutline, closeOutline, trash } from 'ionicons/icons';
 import './style.scss';
 import { useDispatch } from 'react-redux';
 import {
@@ -70,15 +71,11 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
         onDidDismiss={() => setProviderToDelete(undefined)}
       />
       <div className="gradient-background" />
-      <IonHeader>
+      <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
-          <IonButton
-            onClick={() => {
-              history.goBack();
-            }}
-          >
-            <IconBack />
-          </IonButton>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
+          </IonButtons>
           <IonTitle>TDEX providers</IonTitle>
         </IonToolbar>
       </IonHeader>
@@ -126,12 +123,15 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
           <div className="gradient-background" />
           <IonHeader>
             <IonToolbar className="with-back-button">
-              <IonButton
-                style={{ zIndex: 10 }}
-                onClick={() => setNewProvider(false)}
-              >
-                <IconClose />
-              </IonButton>
+              <IonButtons slot="start">
+                <IonButton
+                  onClick={() => {
+                    setNewProvider(false);
+                  }}
+                >
+                  <IonIcon slot="icon-only" icon={closeOutline} />
+                </IonButton>
+              </IonButtons>
               <IonTitle>Create new provider</IonTitle>
             </IonToolbar>
           </IonHeader>

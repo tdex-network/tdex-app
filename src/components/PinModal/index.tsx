@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   IonButton,
+  IonButtons,
   IonContent,
   IonHeader,
   IonModal,
@@ -8,14 +9,16 @@ import {
   IonToolbar,
   useIonViewWillEnter,
   useIonViewWillLeave,
+  IonBackButton,
+  IonIcon,
 } from '@ionic/react';
 import './style.scss';
-import { IconClose } from '../icons';
 import PageDescription from '../PageDescription';
 import PinInput from '../PinInput';
 import { useDispatch } from 'react-redux';
 import { addErrorToast } from '../../redux/actions/toastActions';
 import { PinDigitsError } from '../../utils/errors';
+import { closeOutline } from 'ionicons/icons';
 
 interface PinModalProps {
   open: boolean;
@@ -76,17 +79,19 @@ const PinModal: React.FC<PinModalProps> = ({
       onDidDismiss={onDidDismiss ? onClose : undefined}
     >
       <div className="gradient-background" />
-      <IonHeader>
+      <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
           {onClose && (
-            <IonButton style={{ zIndex: 10 }} onClick={() => onClose()}>
-              <IconClose />
-            </IonButton>
+            <IonButtons slot="start">
+              <IonButton onClick={() => onClose()}>
+                <IonIcon slot="icon-only" icon={closeOutline} />
+              </IonButton>
+            </IonButtons>
           )}
           <IonTitle>Insert PIN</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
+      <IonContent scrollY={false}>
         <PageDescription title={title}>
           <p>{description}</p>
         </PageDescription>

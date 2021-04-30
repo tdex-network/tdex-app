@@ -150,7 +150,7 @@ const Wallet: React.FC<WalletProps> = ({
       <IonContent className="wallet-content">
         <IonGrid>
           <Refresher />
-          <IonHeader>
+          <IonHeader className="ion-no-border">
             <IonToolbar>
               <IonTitle>Wallet</IonTitle>
             </IonToolbar>

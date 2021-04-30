@@ -1,5 +1,7 @@
 import {
+  IonBackButton,
   IonButton,
+  IonButtons,
   IonContent,
   IonHeader,
   IonPage,
@@ -8,23 +10,18 @@ import {
 } from '@ionic/react';
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
-import { IconBack } from '../../components/icons';
 import './style.scss';
+import { chevronBackOutline } from 'ionicons/icons';
 
 const Terms: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage>
       <div className="gradient-background"></div>
-      <IonHeader>
+      <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
-          <IonButton
-            style={{ zIndex: 10 }}
-            onClick={() => {
-              history.goBack();
-            }}
-          >
-            <IconBack />
-          </IonButton>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
+          </IonButtons>
           <IonTitle>Terms & Conditions</IonTitle>
         </IonToolbar>
       </IonHeader>

@@ -7,10 +7,12 @@ import {
   IonToolbar,
   IonHeader,
   IonSkeletonText,
+  IonButtons,
+  IonBackButton,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { withRouter, RouteComponentProps, useParams } from 'react-router';
-import { CurrencyIcon, IconBack } from '../../components/icons';
+import { CurrencyIcon } from '../../components/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { TxStatusEnum } from '../../utils/types';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
@@ -19,6 +21,7 @@ import { addSuccessToast } from '../../redux/actions/toastActions';
 import { tickerFromAssetHash } from '../../utils/helpers';
 import Refresher from '../../components/Refresher';
 import './style.scss';
+import { chevronBackOutline } from 'ionicons/icons';
 
 const statusText = {
   confirmed: 'completed',
@@ -77,17 +80,12 @@ const WithdrawalDetails: React.FC<
 
   return (
     <IonPage>
-      <div className="gradient-background"></div>
-      <IonHeader className="">
+      <div className="gradient-background" />
+      <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
-          <IonButton
-            style={{ zIndex: 10 }}
-            onClick={() => {
-              history.goBack();
-            }}
-          >
-            <IconBack />
-          </IonButton>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
+          </IonButtons>
           <IonTitle>WITHDRAWAL DETAILS</IonTitle>
         </IonToolbar>
       </IonHeader>

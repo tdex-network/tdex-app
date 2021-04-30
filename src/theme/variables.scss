@@ -37,6 +37,14 @@ $dark-pending-color: rgb(195, 195, 27);
 
 /** Ionic CSS Variables **/
 :root {
+  .ios {
+    --ion-safe-area-top: 40px;
+  }
+  
+  .md {
+    --ion-safe-area-top: 60px;
+  }
+  
   /** primary **/
   --ion-color-primary: #3880ff;
   --ion-color-primary-rgb: 56, 128, 255;

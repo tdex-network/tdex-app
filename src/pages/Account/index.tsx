@@ -12,12 +12,21 @@ import {
   IonButton,
   IonModal,
   IonLabel,
+  IonButtons,
+  IonBackButton,
 } from '@ionic/react';
 import React, { useEffect, useRef, useState } from 'react';
-import { IconBack, IconClose, IconRightArrow } from '../../components/icons';
+import { IconRightArrow } from '../../components/icons';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
 import './style.scss';
-import { eye, lockOpen, shieldCheckmark, trashOutline } from 'ionicons/icons';
+import {
+  chevronBackOutline,
+  closeOutline,
+  eye,
+  lockOpen,
+  shieldCheckmark,
+  trashOutline,
+} from 'ionicons/icons';
 
 import PageDescription from '../../components/PageDescription';
 import { Clipboard } from '@ionic-native/clipboard';
@@ -67,16 +76,11 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage>
       <div className="gradient-background" />
-      <IonHeader>
+      <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
-          <IonButton
-            style={{ zIndex: 10 }}
-            onClick={() => {
-              history.goBack();
-            }}
-          >
-            <IconBack />
-          </IonButton>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
+          </IonButtons>
           <IonTitle>Account</IonTitle>
         </IonToolbar>
       </IonHeader>
@@ -207,16 +211,17 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
             keyboardClose={false}
           >
             <div className="gradient-background" />
-            <IonHeader>
+            <IonHeader className="ion-no-border">
               <IonToolbar className="with-back-button">
-                <IonButton
-                  style={{ zIndex: 10 }}
-                  onClick={() => {
-                    setShowMnemonicModal(false);
-                  }}
-                >
-                  <IconClose />
-                </IonButton>
+                <IonButtons slot="start">
+                  <IonButton
+                    onClick={() => {
+                      setShowMnemonicModal(false);
+                    }}
+                  >
+                    <IonIcon slot="icon-only" icon={closeOutline} />
+                  </IonButton>
+                </IonButtons>
                 <IonTitle>Show Mnemonic</IonTitle>
               </IonToolbar>
             </IonHeader>

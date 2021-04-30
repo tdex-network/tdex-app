@@ -77,13 +77,7 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <IonApp
-      className={classNames([
-        'app',
-        { 'with-margin': isPlatform('android') },
-        theme,
-      ])}
-    >
+    <IonApp className={classNames(['app', theme])}>
       <IonReactRouter>
         <IonLoading
           cssClass="my-custom-class"

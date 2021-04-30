@@ -9,16 +9,18 @@ import {
   IonIcon,
   IonSpinner,
   IonLoading,
+  IonButtons,
+  IonBackButton,
 } from '@ionic/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { withRouter, RouteComponentProps, useLocation } from 'react-router';
-import { IconBack, IconCopy, CurrencyIcon } from '../../components/icons';
+import { IconCopy, CurrencyIcon } from '../../components/icons';
 import PageDescription from '../../components/PageDescription';
 import './style.scss';
 import { useDispatch, useSelector } from 'react-redux';
 import { Clipboard } from '@ionic-native/clipboard';
 import { QRCodeImg } from '@cheprasov/react-qrcode';
-import { checkmarkOutline } from 'ionicons/icons';
+import { checkmarkOutline, chevronBackOutline } from 'ionicons/icons';
 import {
   AddressInterface,
   IdentityOpts,
@@ -119,16 +121,11 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
     <IonPage>
       <IonLoading isOpen={loading} />
       <div className="gradient-background" />
-      <IonHeader>
+      <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
-          <IonButton
-            style={{ zIndex: 10 }}
-            onClick={() => {
-              history.goBack();
-            }}
-          >
-            <IconBack />
-          </IonButton>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
+          </IonButtons>
           <IonTitle>Receive</IonTitle>
         </IonToolbar>
       </IonHeader>
