@@ -250,7 +250,6 @@ const Exchange: React.FC<ExchangeProps> = ({
           isWrongPin={isWrongPin}
         />
       )}
-      <div className="gradient-background" />
       <IonHeader className="exchange-header ion-no-border">
         <IonToolbar>
           <IonTitle>Exchange</IonTitle>

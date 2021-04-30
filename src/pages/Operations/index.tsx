@@ -100,7 +100,6 @@ const Operations: React.FC<OperationsProps> = ({
 
   return (
     <IonPage>
-      <div className="gradient-background" />
       <IonContent className="operations">
         <Refresher />
         <IonHeader className="header operations ion-no-border">

@@ -48,7 +48,6 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
 
   return (
     <IonPage>
-      <div className="gradient-background"></div>
       <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
           <IonButtons slot="start">

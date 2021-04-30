@@ -37,6 +37,8 @@ $dark-pending-color: rgb(195, 195, 27);
 
 /** Ionic CSS Variables **/
 :root {
+  --ion-background-color: linear-gradient(to top, rgb(0, 0, 0), #333);
+  
   .ios {
     --ion-safe-area-top: 40px;
   }

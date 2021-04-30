@@ -50,7 +50,6 @@ const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({
       cssClass="modal-big withdrawal"
       keyboardClose={false}
     >
-      <div className="gradient-background" />
       <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
           <IonButtons slot="start">

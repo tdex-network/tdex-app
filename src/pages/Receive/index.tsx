@@ -120,7 +120,6 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage>
       <IonLoading isOpen={loading} />
-      <div className="gradient-background" />
       <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
           <IonButtons slot="start">

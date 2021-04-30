@@ -78,7 +78,6 @@ const PinModal: React.FC<PinModalProps> = ({
       keyboardClose={false}
       onDidDismiss={onDidDismiss ? onClose : undefined}
     >
-      <div className="gradient-background" />
       <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
           {onClose && (

@@ -111,7 +111,6 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
         }}
         isWrongPin={isWrongPin}
       />
-      <div className="gradient-background"></div>
       <IonHeader className="ion-no-border">
         <IonToolbar>
           <IonTitle>Settings</IonTitle>
@@ -327,7 +326,6 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
           keyboardClose={false}
           onDidDismiss={() => setShowExplorerModal(false)}
         >
-          <div className="gradient-background" />
           <IonHeader className="ion-no-border">
             <IonToolbar className="with-back-button">
               <IonButtons slot="start">

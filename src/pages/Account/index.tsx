@@ -75,7 +75,6 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
 
   return (
     <IonPage>
-      <div className="gradient-background" />
       <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
           <IonButtons slot="start">
@@ -210,7 +209,6 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
             cssClass="modal-big withdrawal"
             keyboardClose={false}
           >
-            <div className="gradient-background" />
             <IonHeader className="ion-no-border">
               <IonToolbar className="with-back-button">
                 <IonButtons slot="start">

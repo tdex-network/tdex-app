@@ -84,7 +84,6 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
 
   return (
     <IonPage>
-      <div className="gradient-background" />
       <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
           <IonButtons slot="start">

@@ -272,7 +272,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         }}
         isWrongPin={isWrongPin}
       />
-      <div className="gradient-background" />
       <IonLoading
         cssClass="my-custom-class"
         isOpen={loading}

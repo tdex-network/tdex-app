@@ -78,7 +78,6 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
         onConfirm={onConfirmPinModal}
         isWrongPin={isWrongPin}
       />
-      <div className="gradient-background" />
       <IonContent>
         <div className="main-page-wrapper">
           <img className="logo" src="./assets/img/logo.png" />

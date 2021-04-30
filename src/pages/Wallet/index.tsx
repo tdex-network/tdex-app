@@ -146,7 +146,6 @@ const Wallet: React.FC<WalletProps> = ({
 
   return (
     <IonPage>
-      <div className="gradient-background" />
       <IonContent className="wallet-content">
         <IonGrid>
           <Refresher />

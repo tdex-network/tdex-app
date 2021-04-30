@@ -55,7 +55,6 @@ const BackupModal: React.FC<BackupModalProps> = ({
       <IonLoading isOpen={isLoading} />
       {mnemonicToShow ? (
         <IonModal isOpen={isOpen} onDidDismiss={() => onClose('skipped')}>
-          <div className="gradient-background" />
           <IonHeader className="ion-no-border">
             <IonToolbar className="with-back-button">
               <IonButtons slot="start">

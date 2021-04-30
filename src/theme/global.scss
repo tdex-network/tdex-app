@@ -17,15 +17,6 @@ p {
   margin: 0;
 }
 
-.gradient-background {
-  position: fixed;
-  height: 100vh;
-  width: 100vw;
-  top: 0;
-  left: 0;
-  background: linear-gradient(to top, rgb(0, 0, 0), #222);
-}
-
 ion-modal {
   .modal-wrapper {
     border-top-left-radius: 10px !important;

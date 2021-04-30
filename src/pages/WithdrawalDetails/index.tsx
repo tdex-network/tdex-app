@@ -80,7 +80,6 @@ const WithdrawalDetails: React.FC<
 
   return (
     <IonPage>
-      <div className="gradient-background" />
       <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
           <IonButtons slot="start">

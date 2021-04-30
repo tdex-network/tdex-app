@@ -70,7 +70,6 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
         message={`Delete the provider ${providerToDelete?.name} - ${providerToDelete?.endpoint}.`}
         onDidDismiss={() => setProviderToDelete(undefined)}
       />
-      <div className="gradient-background" />
       <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
           <IonButtons slot="start">
@@ -120,7 +119,6 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
             setNewProviderEndpoint('');
           }}
         >
-          <div className="gradient-background" />
           <IonHeader>
             <IonToolbar className="with-back-button">
               <IonButtons slot="start">
