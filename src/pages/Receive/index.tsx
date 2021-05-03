@@ -3,7 +3,6 @@ import {
   IonTitle,
   IonContent,
   IonItem,
-  IonButton,
   IonToolbar,
   IonHeader,
   IonIcon,
@@ -164,10 +163,7 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
                 <div className="item-start conf-addr">
                   {address?.confidentialAddress}
                 </div>
-                <div
-                  className="icon-wrapper copy-icon"
-                  onClick={() => copyAddress()}
-                >
+                <div className="icon-wrapper copy-icon" onClick={copyAddress}>
                   {copied ? (
                     <IonIcon
                       className="copied-icon"
@@ -187,7 +183,7 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
             </IonItem>
             <div className="qr-code-container">
               <QRCodeImg value={address.confidentialAddress} size={192} />
-            </div>{' '}
+            </div>
           </div>
         ) : (
           <div className="align-center">
