@@ -25,6 +25,8 @@ interface PinModalProps {
   onClose?: () => void;
   onDidDismiss?: boolean;
   isWrongPin: boolean | null;
+  needReset?: boolean;
+  setNeedReset?: (b: boolean) => void;
 }
 
 const PinModal: React.FC<PinModalProps> = ({
@@ -35,11 +37,20 @@ const PinModal: React.FC<PinModalProps> = ({
   onConfirm,
   onDidDismiss,
   isWrongPin,
+  needReset,
+  setNeedReset,
 }) => {
   const validRegexp = new RegExp('\\d{6}');
   const [pin, setPin] = useState('');
   const dispatch = useDispatch();
   const inputRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (needReset) {
+      setPin('');
+      setNeedReset?.(false);
+    }
+  }, [needReset]);
 
   const handleConfirm = () => {
     if (validRegexp.test(pin)) {
@@ -70,7 +81,7 @@ const PinModal: React.FC<PinModalProps> = ({
   return (
     <IonModal
       animated={false}
-      cssClass="modal-big withdrawal"
+      cssClass="modal-big"
       isOpen={open}
       keyboardClose={false}
       onDidDismiss={onDidDismiss ? onClose : undefined}
@@ -93,8 +104,9 @@ const PinModal: React.FC<PinModalProps> = ({
         <PinInput
           inputRef={inputRef}
           on6digits={handleConfirm}
-          onPin={(p: string) => setPin(p)}
+          onPin={setPin}
           isWrongPin={isWrongPin}
+          pin={pin}
         />
       </IonContent>
     </IonModal>

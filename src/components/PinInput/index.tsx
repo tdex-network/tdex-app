@@ -3,12 +3,17 @@ import classNames from 'classnames';
 import { IonInput, IonGrid, IonRow, IonCol } from '@ionic/react';
 import { onPressEnterKeyFactory } from '../../utils/keyboard';
 import './style.scss';
+import {
+  PIN_TIMEOUT_FAILURE,
+  PIN_TIMEOUT_SUCCESS,
+} from '../../utils/constants';
 
 interface PinInputProps {
   onPin: (newPin: string) => void;
   on6digits: () => void;
   isWrongPin: boolean | null;
   inputRef: React.RefObject<HTMLIonInputElement>;
+  pin: string;
 }
 
 const PinInput: React.FC<PinInputProps> = ({
@@ -16,9 +21,8 @@ const PinInput: React.FC<PinInputProps> = ({
   on6digits,
   isWrongPin,
   inputRef,
+  pin,
 }) => {
-  const [pin, setPin] = useState('');
-
   useEffect(() => {
     setTimeout(() => {
       if (inputRef && inputRef.current) {
@@ -29,24 +33,27 @@ const PinInput: React.FC<PinInputProps> = ({
 
   const onNewPin = (newPin: string | null | undefined) => {
     if (!newPin) {
-      setPin('');
+      onPin('');
       return;
     }
     if (newPin.length > 6) {
-      setPin(newPin.slice(6));
+      onPin(newPin.slice(6));
       return;
     }
-    setPin(newPin);
+    onPin(newPin);
     if (newPin.length === 6) {
       onPin(newPin);
-      if (isWrongPin === true || isWrongPin === null) {
-        setTimeout(() => setPin(''), 2000);
+      if (isWrongPin === true) {
+        setTimeout(() => onPin(''), PIN_TIMEOUT_FAILURE);
+      }
+      if (isWrongPin === null) {
+        setTimeout(() => onPin(''), PIN_TIMEOUT_SUCCESS);
       }
     }
   };
 
   return (
-    <IonGrid>
+    <IonGrid id="pin-input-container">
       <IonRow>
         <IonCol offset="1" size="10">
           <IonGrid className="pin-wrapper">
