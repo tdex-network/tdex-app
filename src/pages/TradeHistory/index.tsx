@@ -33,14 +33,14 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
       <div className="status pending">
         PENDING{' '}
         <span className="three-dots">
-          <span className="dot"></span>
-          <span className="dot"></span>
-          <span className="dot"></span>
+          <span className="dot" />
+          <span className="dot" />
+          <span className="dot" />
         </span>
       </div>
     ) : (
       <div className="status confirmed">
-        CONFIRMED <IonIcon color="success" icon={checkmarkOutline}></IonIcon>
+        CONFIRMED <IonIcon color="success" icon={checkmarkOutline} />
       </div>
     );
   };

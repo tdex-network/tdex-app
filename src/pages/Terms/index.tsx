@@ -12,7 +12,7 @@ import { RouteComponentProps } from 'react-router';
 import './style.scss';
 import { chevronBackOutline } from 'ionicons/icons';
 
-const Terms: React.FC<RouteComponentProps> = ({ history }) => {
+const Terms: React.FC<RouteComponentProps> = () => {
   return (
     <IonPage>
       <IonHeader className="ion-no-border">

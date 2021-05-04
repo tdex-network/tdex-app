@@ -4,7 +4,7 @@ import {
   TDEXTrade,
   TDEXMarket,
   TDEXProvider,
-} from './../redux/actionTypes/tdexActionTypes';
+} from '../redux/actionTypes/tdexActionTypes';
 import { toSatoshi } from './helpers';
 import axios from 'axios';
 import { getMainAsset } from './constants';
@@ -55,11 +55,29 @@ export async function bestPrice(
 }
 
 /**
- * a wraper for marketPrice request
- * @param known the amount/asset inputs by the user
- * @param trade trade using to compute the price
+ * Get receiving asset's greatest balance
+ * @param trades
  */
-async function calculatePrice(
+export async function bestBalance(trades: TDEXTrade[]): Promise<TDEXTrade> {
+  if (trades.length === 0) throw new Error('trades array should not be empty');
+  const sorted = trades.sort((a, b) => {
+    if (a.type === TradeType.BUY) {
+      return (b.market.baseAmount as number) - (a.market.baseAmount as number);
+    } else {
+      return (
+        (b.market.quoteAmount as number) - (a.market.quoteAmount as number)
+      );
+    }
+  });
+  return sorted[0];
+}
+
+/**
+ * Wrapper for marketPrice request
+ * @param known the amount/asset provided by the user
+ * @param trade trade used to compute the price
+ */
+export async function calculatePrice(
   known: { amount: number; asset: string; precision: number },
   trade: TDEXTrade
 ): Promise<{ amount: number; asset: string }> {
@@ -72,7 +90,6 @@ async function calculatePrice(
           : trade.market.baseAsset,
     };
   }
-
   const client = new TraderClient(trade.market.provider.endpoint);
   const response = await client.marketPrice(
     trade.market,
@@ -80,7 +97,6 @@ async function calculatePrice(
     toSatoshi(known.amount, known.precision),
     known.asset
   );
-
   return {
     amount: response[0].amount,
     asset: response[0].asset,
