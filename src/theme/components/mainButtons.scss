@@ -38,8 +38,8 @@ $breakpoint-small-device: 700px;
   --padding-bottom: 21px;
   --padding-start: 21px;
   --padding-end: 21px;
-  border: 2px solid var(--ion-color-success);
-  color: var(--ion-color-success);
+  border: 2px solid rgb(15, 255, 1);
+  color: rgb(15, 255, 1);
   &.secondary {
     border: 2px solid #fff;
     color: #fff;
@@ -49,8 +49,8 @@ $breakpoint-small-device: 700px;
   }
   &.button-disabled {
     --background: transparent;
-    border: 2px solid var(--ion-color-step-300);
-    color: var(--ion-color-step-300);
+    border: 2px solid rgb(100, 100, 100);
+    color: rgb(100, 100, 100);
   }
 }
 

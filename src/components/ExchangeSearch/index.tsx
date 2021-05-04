@@ -37,7 +37,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({
   return (
     <div className="search">
       <IonModal cssClass="modal-small" isOpen={isOpen} onDidDismiss={close}>
-        <IonHeader>
+        <IonHeader className="ion-no-border">
           <div>
             <label className="search-bar">
               <IonIcon

@@ -8,11 +8,12 @@ import {
   IonToolbar,
   IonLoading,
   IonInput,
+  IonButtons,
+  IonBackButton,
 } from '@ionic/react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import PageDescription from '../../components/PageDescription';
 import classNames from 'classnames';
-import { IconBack } from '../../components/icons';
 import { useDispatch } from 'react-redux';
 import {
   clearStorage,
@@ -38,6 +39,7 @@ import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
+import { chevronBackOutline } from 'ionicons/icons';
 
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
@@ -140,16 +142,11 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
         needReset={needReset}
         setNeedReset={setNeedReset}
       />
-      <div className="gradient-background" />
-      <IonHeader>
+      <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
-          <IonButton
-            onClick={() => {
-              history.goBack();
-            }}
-          >
-            <IconBack />
-          </IonButton>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
+          </IonButtons>
           <IonTitle>Secret phrase</IonTitle>
         </IonToolbar>
       </IonHeader>
@@ -184,7 +181,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
           })}
         </div>
 
-        <div className="buttons restore">
+        <div className="ion-text-center ion-margin">
           <IonButton
             disabled={mnemonic.includes('')}
             onClick={handleConfirm}

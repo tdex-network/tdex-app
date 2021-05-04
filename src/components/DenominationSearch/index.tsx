@@ -30,7 +30,7 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({
   return (
     <div className="search">
       <IonModal cssClass="modal-small" isOpen={isOpen} onDidDismiss={close}>
-        <IonHeader>
+        <IonHeader className="ion-no-border">
           <div>
             <label className="search-bar">
               <IonIcon icon={searchSharp} color="light" onClick={close} />
