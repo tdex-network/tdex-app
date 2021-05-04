@@ -42,7 +42,8 @@ import {
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
-  const [pin, setPin] = useState<string>();
+  const [firstPin, setFirstPin] = useState<string>();
+  const [needReset, setNeedReset] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const dispatch = useDispatch();
@@ -59,37 +60,25 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [refs, setFocus] = useFocus(12, handleConfirm);
 
   const onFirstPinConfirm = (newPin: string) => {
-    setPin(newPin);
+    setFirstPin(newPin);
     setIsWrongPin(false);
     setTimeout(() => {
-      setIsWrongPin(null);
       setModalOpen('second');
+      setIsWrongPin(null);
     }, PIN_TIMEOUT_SUCCESS);
   };
 
-  const onError = (e: AppError) => {
-    console.error(e);
-    clearStorage();
-    dispatch(addErrorToast(e));
-    setIsWrongPin(true);
-    setTimeout(() => {
-      setIsWrongPin(null);
-      setModalOpen(undefined);
-      setPin(undefined);
-    }, PIN_TIMEOUT_FAILURE);
-  };
-
   const onSecondPinConfirm = (newPin: string) => {
-    if (newPin === pin) {
+    if (newPin === firstPin) {
       setLoading(true);
       const restoredMnemonic = mnemonic.join(' ');
-      setMnemonicInSecureStorage(restoredMnemonic, pin)
+      setMnemonicInSecureStorage(restoredMnemonic, newPin)
         .then(() => {
           dispatch(
             addSuccessToast('Mnemonic generated and encrypted with your PIN.')
           );
           setIsWrongPin(false);
-          dispatch(signIn(pin));
+          dispatch(signIn(newPin));
           dispatch(setBackupDone());
           setTimeout(() => {
             // we don't need to ask backup if the mnemonic is restored
@@ -104,32 +93,52 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
     onError(PINsDoNotMatchError);
   };
 
-  const cancelSecondModal = () => {
-    setPin(undefined);
-    setModalOpen('first');
+  const onError = (e: AppError) => {
+    console.error(e);
+    clearStorage();
+    dispatch(addErrorToast(e));
+    setIsWrongPin(true);
+    setTimeout(() => {
+      setIsWrongPin(null);
+      setModalOpen(undefined);
+      setFirstPin('');
+    }, PIN_TIMEOUT_FAILURE);
   };
 
   return (
     <IonPage>
       <IonLoading isOpen={loading} />
       <PinModal
-        open={modalOpen === 'first'}
-        title="Set your secret PIN"
-        description="Enter a 6-digit secret PIN to secure your wallet's seed."
-        onConfirm={onFirstPinConfirm}
-        onClose={() => {
-          setModalOpen(undefined);
-          history.goBack();
-        }}
+        open={modalOpen === 'first' || modalOpen === 'second'}
+        title={
+          modalOpen === 'first'
+            ? 'Set your secret PIN'
+            : 'Repeat your secret PIN'
+        }
+        description={
+          modalOpen === 'first'
+            ? "Enter a 6-digit secret PIN to secure your wallet's seed."
+            : 'Confirm your secret PIN.'
+        }
+        onConfirm={
+          modalOpen === 'first' ? onFirstPinConfirm : onSecondPinConfirm
+        }
+        onClose={
+          modalOpen === 'first'
+            ? () => {
+                setModalOpen(undefined);
+                history.goBack();
+              }
+            : () => {
+                setModalOpen('first');
+                setNeedReset(true);
+                setFirstPin('');
+                setIsWrongPin(null);
+              }
+        }
         isWrongPin={isWrongPin}
-      />
-      <PinModal
-        open={modalOpen === 'second'}
-        title="Repeat your secret PIN"
-        description="Confirm your secret PIN."
-        onConfirm={onSecondPinConfirm}
-        onClose={cancelSecondModal}
-        isWrongPin={isWrongPin}
+        needReset={needReset}
+        setNeedReset={setNeedReset}
       />
       <div className="gradient-background" />
       <IonHeader>
