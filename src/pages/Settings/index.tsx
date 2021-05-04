@@ -12,9 +12,11 @@ import {
   IonButton,
   IonLabel,
   IonInput,
+  IonButtons,
+  IonIcon,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-import { IconClose, IconRightArrow } from '../../components/icons';
+import { IconRightArrow } from '../../components/icons';
 import { RouteComponentProps, withRouter } from 'react-router';
 import './style.scss';
 import PageDescription from '../../components/PageDescription';
@@ -35,6 +37,7 @@ import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
+import { closeOutline } from 'ionicons/icons';
 const { Device } = Plugins;
 
 const Settings: React.FC<RouteComponentProps> = ({ history }) => {
@@ -108,8 +111,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
         }}
         isWrongPin={isWrongPin}
       />
-      <div className="gradient-background"></div>
-      <IonHeader>
+      <IonHeader className="ion-no-border">
         <IonToolbar>
           <IonTitle>Settings</IonTitle>
         </IonToolbar>
@@ -324,17 +326,17 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
           keyboardClose={false}
           onDidDismiss={() => setShowExplorerModal(false)}
         >
-          <div className="gradient-background" />
-          <IonHeader>
+          <IonHeader className="ion-no-border">
             <IonToolbar className="with-back-button">
-              <IonButton
-                style={{ zIndex: 10 }}
-                onClick={() => {
-                  setShowExplorerModal(false);
-                }}
-              >
-                <IconClose />
-              </IonButton>
+              <IonButtons slot="start">
+                <IonButton
+                  onClick={() => {
+                    setShowExplorerModal(false);
+                  }}
+                >
+                  <IonIcon slot="icon-only" icon={closeOutline} />
+                </IonButton>
+              </IonButtons>
               <IonTitle>Electrum server</IonTitle>
             </IonToolbar>
           </IonHeader>

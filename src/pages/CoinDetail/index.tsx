@@ -14,13 +14,10 @@ import {
   IonButtons,
 } from '@ionic/react';
 
-//styles
-import './style.scss';
-
 const Exchange: React.FC = () => {
   return (
     <IonPage>
-      <IonHeader className="header">
+      <IonHeader className="header ion-no-border">
         <IonToolbar>
           <IonTitle>Exchange</IonTitle>
         </IonToolbar>

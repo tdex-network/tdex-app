@@ -23,38 +23,42 @@
   }
 
   .settings-toggle {
-    width: 40px;
+    width: 35px;
     height: 20px;
     border: 2px solid #fff;
-    border-radius: 12px;
-    --handle-background: rgb(51, 51, 51);
+    border-radius: 35px;
+    padding: 0 2px;
+    --handle-background: transparent;
+    --handle-background-checked: transparent;
     --handle-border: 2px solid #fff;
-    --handle-border-radius: 8px;
+    --handle-border-radius: 50%;
     --handle-box-shadow: 0 0 0 2px #fff;
-    --handle-width: 13px;
-    --handle-height: 13px;
+    --handle-width: 12px;
+    --handle-height: 12px;
     --handle-spacing: 4px;
-    --background-checked: rgb(51, 51, 51);
-    --background: rgb(51, 51, 51);
+    --background-checked: transparent;
+    --background: transparent;
   }
 }
 
 .light {
   .settings {
     .settings-toggle {
-      width: 40px;
-      height: 20px;
-      border: 2px solid rgb(51, 51, 51);
-      border-radius: 12px;
-      --handle-background: #ffffff;
-      --handle-border: 2px solid rgb(51, 51, 51);
-      --handle-border-radius: 8px;
-      --handle-box-shadow: 0 0 0 2px rgb(51, 51, 51);
-      --handle-width: 13px;
-      --handle-height: 13px;
+      width: 35px;
+      height: 19px;
+      border: 2px solid #333;
+      border-radius: 35px;
+      padding: 0 2px;
+      --handle-background: transparent;
+      --handle-background-checked: transparent;
+      --handle-border: 2px solid #333;
+      --handle-border-radius: 50%;
+      --handle-box-shadow: 0 0 0 2px #333;
+      --handle-width: 12px;
+      --handle-height: 12px;
       --handle-spacing: 4px;
-      --background-checked: #ffffff;
-      --background: #ffffff;
+      --background-checked: transparent;
+      --background: transparent;
     }
     .green-label {
       color: $green-color;

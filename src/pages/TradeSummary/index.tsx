@@ -11,11 +11,13 @@ import {
   IonHeader,
   IonIcon,
   IonSkeletonText,
+  IonButtons,
+  IonBackButton,
 } from '@ionic/react';
-import { CurrencyIcon, IconBack } from '../../components/icons';
+import { CurrencyIcon } from '../../components/icons';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
-import { swapHorizontal } from 'ionicons/icons';
+import { chevronBackOutline, swapHorizontal } from 'ionicons/icons';
 import { AssetConfig } from '../../utils/constants';
 import Refresher from '../../components/Refresher';
 import './style.scss';
@@ -82,17 +84,11 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
 
   return (
     <IonPage>
-      <div className="gradient-background"></div>
-      <IonHeader className="">
+      <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
-          <IonButton
-            style={{ zIndex: 10 }}
-            onClick={() => {
-              history.goBack();
-            }}
-          >
-            <IconBack />
-          </IonButton>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
+          </IonButtons>
           <IonTitle>Trade summary</IonTitle>
         </IonToolbar>
       </IonHeader>

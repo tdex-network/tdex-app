@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   IonButton,
+  IonButtons,
   IonContent,
   IonHeader,
   IonModal,
@@ -8,14 +9,16 @@ import {
   IonToolbar,
   useIonViewWillEnter,
   useIonViewWillLeave,
+  IonBackButton,
+  IonIcon,
 } from '@ionic/react';
 import './style.scss';
-import { IconClose } from '../icons';
 import PageDescription from '../PageDescription';
 import PinInput from '../PinInput';
 import { useDispatch } from 'react-redux';
 import { addErrorToast } from '../../redux/actions/toastActions';
 import { PinDigitsError } from '../../utils/errors';
+import { closeOutline } from 'ionicons/icons';
 
 interface PinModalProps {
   open: boolean;
@@ -25,6 +28,8 @@ interface PinModalProps {
   onClose?: () => void;
   onDidDismiss?: boolean;
   isWrongPin: boolean | null;
+  needReset?: boolean;
+  setNeedReset?: (b: boolean) => void;
 }
 
 const PinModal: React.FC<PinModalProps> = ({
@@ -35,11 +40,20 @@ const PinModal: React.FC<PinModalProps> = ({
   onConfirm,
   onDidDismiss,
   isWrongPin,
+  needReset,
+  setNeedReset,
 }) => {
   const validRegexp = new RegExp('\\d{6}');
   const [pin, setPin] = useState('');
   const dispatch = useDispatch();
   const inputRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (needReset) {
+      setPin('');
+      setNeedReset?.(false);
+    }
+  }, [needReset]);
 
   const handleConfirm = () => {
     if (validRegexp.test(pin)) {
@@ -70,31 +84,33 @@ const PinModal: React.FC<PinModalProps> = ({
   return (
     <IonModal
       animated={false}
-      cssClass="modal-big withdrawal"
+      cssClass="modal-big"
       isOpen={open}
       keyboardClose={false}
       onDidDismiss={onDidDismiss ? onClose : undefined}
     >
-      <div className="gradient-background" />
-      <IonHeader>
+      <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
           {onClose && (
-            <IonButton style={{ zIndex: 10 }} onClick={() => onClose()}>
-              <IconClose />
-            </IonButton>
+            <IonButtons slot="start">
+              <IonButton onClick={() => onClose()}>
+                <IonIcon slot="icon-only" icon={closeOutline} />
+              </IonButton>
+            </IonButtons>
           )}
           <IonTitle>Insert PIN</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent>
+      <IonContent scrollY={false}>
         <PageDescription title={title}>
           <p>{description}</p>
         </PageDescription>
         <PinInput
           inputRef={inputRef}
           on6digits={handleConfirm}
-          onPin={(p: string) => setPin(p)}
+          onPin={setPin}
           isWrongPin={isWrongPin}
+          pin={pin}
         />
       </IonContent>
     </IonModal>

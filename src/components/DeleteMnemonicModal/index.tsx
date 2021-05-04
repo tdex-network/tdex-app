@@ -1,16 +1,18 @@
 import React, { useState } from 'react';
 import {
   IonButton,
+  IonButtons,
   IonContent,
   IonHeader,
+  IonIcon,
   IonModal,
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
 import './style.scss';
-import { IconClose } from '../icons';
 import PageDescription from '../PageDescription';
 import { removeMnemonicFromSecureStorage } from '../../utils/storage-helper';
+import { closeOutline } from 'ionicons/icons';
 
 interface DeleteMnemonicModalProps {
   openModal: boolean;
@@ -48,12 +50,13 @@ const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({
       cssClass="modal-big withdrawal"
       keyboardClose={false}
     >
-      <div className="gradient-background" />
-      <IonHeader>
+      <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
-          <IonButton style={{ zIndex: 10 }} onClick={close}>
-            <IconClose />
-          </IonButton>
+          <IonButtons slot="start">
+            <IonButton onClick={close}>
+              <IonIcon slot="icon-only" icon={closeOutline} />
+            </IonButton>
+          </IonButtons>
           <IonTitle>CLEAR MY KEY</IonTitle>
         </IonToolbar>
       </IonHeader>

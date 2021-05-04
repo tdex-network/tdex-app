@@ -13,9 +13,11 @@ import {
   IonIcon,
   IonLabel,
   IonText,
+  IonButtons,
+  IonBackButton,
 } from '@ionic/react';
-import { IconBack, CurrencyIcon } from '../../components/icons';
-import { checkmarkOutline } from 'ionicons/icons';
+import { CurrencyIcon } from '../../components/icons';
+import { checkmarkOutline, chevronBackOutline } from 'ionicons/icons';
 import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
 import classNames from 'classnames';
 import { TxDisplayInterface } from '../../utils/types';
@@ -46,17 +48,11 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
 
   return (
     <IonPage>
-      <div className="gradient-background"></div>
-      <IonHeader className="">
+      <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
-          <IonButton
-            style={{ zIndex: 10 }}
-            onClick={() => {
-              history.goBack();
-            }}
-          >
-            <IconBack />
-          </IonButton>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
+          </IonButtons>
           <IonTitle>Trade history</IonTitle>
         </IonToolbar>
       </IonHeader>

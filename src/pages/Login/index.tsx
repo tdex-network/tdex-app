@@ -11,8 +11,10 @@ import {
   IonTitle,
   IonToolbar,
   IonLoading,
+  IonButtons,
+  IonBackButton,
 } from '@ionic/react';
-import { IconBack, IconCheck } from '../../components/icons';
+import { IconCheck } from '../../components/icons';
 import { useDispatch } from 'react-redux';
 import * as bip39 from 'bip39';
 import { signIn } from '../../redux/actions/appActions';
@@ -35,6 +37,7 @@ import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
+import { chevronBackOutline } from 'ionicons/icons';
 
 const Login: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
@@ -130,16 +133,11 @@ const Login: React.FC<RouteComponentProps> = ({ history }) => {
         onClose={cancelSecondModal}
         isWrongPin={isWrongPin}
       />
-      <div className="gradient-background" />
-      <IonHeader>
+      <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
-          <IonButton
-            onClick={() => {
-              history.goBack();
-            }}
-          >
-            <IconBack />
-          </IonButton>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
+          </IonButtons>
           <IonTitle>SETUP WALLET</IonTitle>
         </IonToolbar>
       </IonHeader>

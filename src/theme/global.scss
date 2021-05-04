@@ -10,26 +10,11 @@ body {
   background-color: #333333;
 }
 
-.app {
-  &.with-margin {
-    margin-top: 20px;
-  }
-}
-
 h1,
 h2,
 h3,
 p {
   margin: 0;
-}
-
-.gradient-background {
-  position: fixed;
-  height: 100vh;
-  width: 100vw;
-  top: 0;
-  left: 0;
-  background: linear-gradient(to top, rgb(0, 0, 0), #333);
 }
 
 ion-modal {
@@ -61,49 +46,26 @@ ion-content {
   --padding-start: 10px;
   --padding-end: 10px;
   --background: transparent !important;
-  --overflow: hidden;
-}
-
-ion-content.scrollable {
-  --overflow: scroll;
-}
-
-ion-toolbar {
-  --border-width: 0 !important;
-  color: #fff;
 }
 
 ion-title {
   font-family: 'DMSans-Bold';
   --color: #fff;
   font-size: 22px;
-  line-height: 22px;
+  text-align: center;
 }
 
 .with-back-button {
-  display: flex;
-  align-items: center;
-
-  ion-button {
-    color: #fff;
+  ion-button, ion-back-button {
     position: absolute;
-    top: 0;
-    z-index: 10;
-
-    --background: none;
-    --border: 0;
-    --border-radius: 0;
-    svg {
-      fill: rgb(198, 198, 198);
-      width: 15px;
-      height: 15px;
-    }
+    font-size: 14px;
+    color: rgb(198, 198, 198);
   }
   ion-title {
+    text-align: center;
     text-transform: uppercase;
-    font-size: 12px;
+    font-size: 16px;
     color: rgb(198, 198, 198);
-    letter-spacing: 0.15pt;
   }
 }
 
@@ -113,11 +75,6 @@ ion-toolbar {
 
 ion-item {
   --background: rgba(0, 0, 0, 0);
-}
-
-.header {
-  height: 310px;
-  min-height: 320px;
 }
 
 .light {

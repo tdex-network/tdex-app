@@ -31,9 +31,9 @@ import {
   MAIN_ASSETS,
 } from '../../utils/constants';
 import { AssetWithTicker } from '../../utils/tdex';
-import CircleDiagram from '../../redux/containers/circleDiagramContainer';
 import { ActionType } from '../../utils/types';
 import { update } from '../../redux/actions/appActions';
+import CircleTotalBalance from '../../components/CircleTotalBalance';
 import ExchangeSearch from '../../components/ExchangeSearch';
 import Refresher from '../../components/Refresher';
 import BackupModal from '../../redux/containers/backupModalContainer';
@@ -146,37 +146,33 @@ const Wallet: React.FC<WalletProps> = ({
 
   return (
     <IonPage>
-      <div className="gradient-background" />
       <IonContent className="wallet-content">
         <IonGrid>
           <Refresher />
-          <div className="diagram">
-            <CircleDiagram />
-          </div>
-          <IonHeader className="header wallet">
+          <IonHeader className="ion-no-border">
             <IonToolbar>
               <IonTitle>Wallet</IonTitle>
             </IonToolbar>
-            <div className="total-info">
-              <div className="header-info wallet">
-                <p className="info-heading">Total balance</p>
-                <p className="info-amount" aria-label="main-balance">
-                  {totalLBTC.amount
-                    ? fromSatoshiFixed(totalLBTC.amount, 8, undefined, lbtcUnit)
-                    : '0.00'}
-                  <span>{lbtcUnit}</span>
-                </p>
-                {totalLBTC && prices[LBTC_COINGECKOID] && (
-                  <p className="info-amount-converted">
-                    {`${(
-                      fromSatoshi(totalLBTC.amount) * prices[LBTC_COINGECKOID]
-                    ).toFixed(2)} ${currency.toUpperCase()}`}
-                  </p>
-                )}
-              </div>
-            </div>
           </IonHeader>
-          <IonList scroll-y={true} className="ion-padding-bottom">
+          <IonRow className="ion-margin-vertical ion-justify-content-center">
+            <CircleTotalBalance
+              totalBalance={
+                totalLBTC.amount
+                  ? fromSatoshiFixed(totalLBTC.amount, 8, undefined, lbtcUnit)
+                  : '0.00'
+              }
+              lbtcUnit={lbtcUnit}
+              fiatBalance={
+                totalLBTC && prices[LBTC_COINGECKOID]
+                  ? `${(
+                      fromSatoshi(totalLBTC.amount) * prices[LBTC_COINGECKOID]
+                    ).toFixed(2)} ${currency.toUpperCase()}`
+                  : undefined
+              }
+            />
+          </IonRow>
+
+          <IonList scroll-y={true}>
             <IonListHeader className="ion-no-margin">
               <IonRow className="ion-align-items-center">
                 <IonCol size="6">Asset list</IonCol>

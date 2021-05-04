@@ -7,91 +7,15 @@ ion-list-header {
   }
 }
 
-.wallet-content {
-  --padding-top: 10px;
-  --padding-bottom: 10px;
-  --overflow: auto;
-  position: relative;
-}
+//.diagram {
+//  margin-top: 20px;
+//  margin-top: env(safe-area-inset-top);
+//  position: absolute;
+//  top: 58pt;
+//  left: 50%;
+//  transform: translateX(-50%);
+//}
 
-.pin-label {
-  display: flex;
-}
-
-.total-info {
-  display: flex;
-  justify-content: center;
-  align-self: center;
-}
-
-.diagram {
-  margin-top: 20px;
-  margin-top: constant(safe-area-inset-top);
-  margin-top: env(safe-area-inset-top);
-  position: absolute;
-  top: 58pt;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.header-info {
-  margin: auto;
-  color: #fff;
-  text-align: center;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  &.wallet {
-    margin-top: 80px;
-  }
-  .info-heading {
-    font-family: 'DMSans-Bold';
-    color: rgb(102, 102, 102);
-    font-size: 14px;
-    margin-top: 20px;
-    margin-bottom: 2px;
-  }
-
-  .info-amount {
-    font-family: 'DMMono';
-    font-size: 20px;
-    line-height: 30px;
-    span {
-      margin-left: 8px;
-      font-size: 14px;
-    }
-  }
-
-  .info-amount-converted {
-    font-family: 'DMMono-Medium';
-    font-size: 10px;
-    line-height: 10px;
-    color: rgb(198, 198, 198);
-    margin-top: -2px;
-  }
-}
 ion-refresher {
   z-index: 1;
-}
-.ml-auto {
-  margin-left: auto !important;
-}
-
-.light {
-  .header-info {
-    .info-heading {
-      color: rgb(102, 102, 102);
-    }
-    .info-amount {
-      color: #000;
-    }
-    .info-amount-converted {
-      color: rgb(144, 144, 144);
-    }
-  }
 }

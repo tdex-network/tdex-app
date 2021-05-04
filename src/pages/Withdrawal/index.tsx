@@ -9,10 +9,12 @@ import {
   IonLabel,
   IonInput,
   IonLoading,
+  IonButtons,
+  IonBackButton,
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
-import { IconBack, IconQR } from '../../components/icons';
+import { IconQR } from '../../components/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import WithdrawRow from '../../components/WithdrawRow';
 import './style.scss';
@@ -51,6 +53,7 @@ import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
+import { chevronBackOutline } from 'ionicons/icons';
 
 interface WithdrawalProps
   extends RouteComponentProps<
@@ -269,22 +272,16 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         }}
         isWrongPin={isWrongPin}
       />
-      <div className="gradient-background" />
       <IonLoading
         cssClass="my-custom-class"
         isOpen={loading}
         message={'Please wait...'}
       />
-      <IonHeader>
+      <IonHeader className="ion-no-border">
         <IonToolbar className="with-back-button">
-          <IonButton
-            style={{ zIndex: 10 }}
-            onClick={() => {
-              history.goBack();
-            }}
-          >
-            <IconBack />
-          </IonButton>
+          <IonButtons slot="start">
+            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
+          </IonButtons>
           <IonTitle>
             {balance ? balance.ticker.toUpperCase() : ''} Withdrawal
           </IonTitle>

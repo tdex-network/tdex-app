@@ -1,7 +1,23 @@
-import { KeyboardStyle, Plugins } from '@capacitor/core';
+import { KeyboardInfo, KeyboardStyle, Plugins } from '@capacitor/core';
 import { isPlatform } from '@ionic/react';
 
 const { Keyboard } = Plugins;
+
+Keyboard.addListener('keyboardWillShow', (info: KeyboardInfo) => {
+  console.log('keyboard will show with height', info.keyboardHeight);
+});
+
+Keyboard.addListener('keyboardDidShow', (info: KeyboardInfo) => {
+  console.log('keyboard did show with height', info.keyboardHeight);
+});
+
+Keyboard.addListener('keyboardWillHide', () => {
+  console.log('keyboard will hide');
+});
+
+Keyboard.addListener('keyboardDidHide', () => {
+  console.log('keyboard did hide');
+});
 
 /**
  * this using to handle EnterButton in keyboards (should be coupled with onKeyDown)

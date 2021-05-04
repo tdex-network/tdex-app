@@ -1,26 +1,16 @@
 @import '../../theme/variables';
 
-.modal-big.receive {
-  .description-with-icon {
-    margin-top: 56px;
-  }
-  .page-description {
-    p {
-      width: 300px !important;
-    }
-  }
-}
-.receive {
-  --overflow: auto;
-}
 .description-with-icon {
   display: flex;
   align-items: center;
   flex-direction: column;
   .img-wrapper {
-    margin-top: 47px;
     width: 48px;
     height: 48px;
+    img {
+      height: 100%;
+      width: 100%;
+    }
   }
   .page-description {
     margin-top: 30px;
