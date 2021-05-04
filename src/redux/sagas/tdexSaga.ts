@@ -1,10 +1,11 @@
-import { SIGN_IN } from './../actions/appActions';
-import { addProvider, DELETE_PROVIDER } from './../actions/tdexActions';
+import { SIGN_IN } from '../actions/appActions';
 import { TDEXState } from '../reducers/tdexReducer';
 import {
   addMarkets,
+  addProvider,
   ADD_PROVIDER,
   UPDATE_MARKETS,
+  DELETE_PROVIDER,
 } from '../actions/tdexActions';
 import { put, takeLatest, select, call, delay } from 'redux-saga/effects';
 import { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';

@@ -1,3 +1,4 @@
+import React from 'react';
 import { KeyboardInfo, KeyboardStyle, Plugins } from '@capacitor/core';
 import { isPlatform } from '@ionic/react';
 
@@ -40,9 +41,9 @@ export function onPressEnterKeyFactory(
 export function onPressEnterKeyCloseKeyboard(
   e: React.KeyboardEvent<HTMLIonInputElement>
 ) {
-  return onPressEnterKeyFactory(() => {
+  return onPressEnterKeyFactory(async () => {
     try {
-      Keyboard.hide();
+      await Keyboard.hide();
     } catch (err) {
       console.error(err);
     }
