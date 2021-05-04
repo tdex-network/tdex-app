@@ -9,7 +9,6 @@ import {
   IonToolbar,
   useIonViewWillEnter,
   useIonViewWillLeave,
-  IonBackButton,
   IonIcon,
 } from '@ionic/react';
 import './style.scss';

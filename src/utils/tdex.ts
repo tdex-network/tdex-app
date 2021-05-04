@@ -57,12 +57,8 @@ export async function bestPrice(
 /**
  * Get receiving asset's greatest balance
  * @param trades
- * @param onError
  */
-export async function bestBalance(
-  trades: TDEXTrade[],
-  onError: (e: string) => void
-): Promise<TDEXTrade> {
+export async function bestBalance(trades: TDEXTrade[]): Promise<TDEXTrade> {
   if (trades.length === 0) throw new Error('trades array should not be empty');
   const sorted = trades.sort((a, b) => {
     if (a.type === TradeType.BUY) {
@@ -81,7 +77,7 @@ export async function bestBalance(
  * @param known the amount/asset provided by the user
  * @param trade trade used to compute the price
  */
-async function calculatePrice(
+export async function calculatePrice(
   known: { amount: number; asset: string; precision: number },
   trade: TDEXTrade
 ): Promise<{ amount: number; asset: string }> {
@@ -94,7 +90,6 @@ async function calculatePrice(
           : trade.market.baseAsset,
     };
   }
-
   const client = new TraderClient(trade.market.provider.endpoint);
   const response = await client.marketPrice(
     trade.market,
@@ -102,7 +97,6 @@ async function calculatePrice(
     toSatoshi(known.amount, known.precision),
     known.asset
   );
-
   return {
     amount: response[0].amount,
     asset: response[0].asset,

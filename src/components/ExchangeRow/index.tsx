@@ -17,7 +17,12 @@ import {
 } from '@ionic/react';
 import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
 import { caretDown, searchSharp } from 'ionicons/icons';
-import { AssetWithTicker, bestBalance, bestPrice } from '../../utils/tdex';
+import {
+  AssetWithTicker,
+  bestBalance,
+  bestPrice,
+  calculatePrice,
+} from '../../utils/tdex';
 import { TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import { AssetConfig, defaultPrecision } from '../../utils/constants';
 
@@ -80,16 +85,13 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   const [amount, setAmount] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const onErrorGetPrice = (e: any) => {
-    console.error(e);
-  };
 
   useIonViewDidEnter(() => {
-    setAccessoryBar(true);
+    setAccessoryBar(true).catch(console.error);
   });
 
   useIonViewDidLeave(() => {
-    setAccessoryBar(false);
+    setAccessoryBar(false).catch(console.error);
   });
 
   useEffect(() => {
@@ -98,7 +100,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
 
   useEffect(() => {
     void (async (): Promise<void> => {
-      let bestBalanceTrade;
+      let trade;
       let bestPriceRes;
       if (focused || trades.length === 0 || !relatedAssetHash) return; // skip the effect if the input field is focused
       if (relatedAssetAmount === 0) {
@@ -107,8 +109,10 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       }
       setIsUpdating(true);
       try {
-        bestBalanceTrade = await bestBalance(trades, onErrorGetPrice);
-        setTrade(bestBalanceTrade);
+        trade = await bestBalance(trades);
+      } catch (err) {
+        console.error(err);
+        setError(err.message);
         bestPriceRes = await bestPrice(
           {
             amount: relatedAssetAmount,
@@ -116,24 +120,29 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             precision: assets[relatedAssetHash]?.precision || defaultPrecision,
           },
           trades,
-          onErrorGetPrice
+          console.error
         );
-        //setTrade(bestPriceRes.trade);
-        const precision =
-          assets[bestPriceRes.asset]?.precision || defaultPrecision;
-        const updatedAmount = fromSatoshiFixed(
-          bestPriceRes.amount,
-          precision,
-          precision,
-          balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
-        );
-        setAmount(updatedAmount);
-        onChangeAmount(fromSatoshi(bestPriceRes.amount, precision));
-        setIsUpdating(false);
-      } catch (err) {
-        console.error(err);
-        setError(err.message);
+        trade = bestPriceRes.trade;
       }
+      setTrade(trade);
+      const price = await calculatePrice(
+        {
+          amount: relatedAssetAmount,
+          asset: relatedAssetHash,
+          precision: assets[relatedAssetHash]?.precision || defaultPrecision,
+        },
+        trade
+      );
+      const precision = assets[price.asset]?.precision || defaultPrecision;
+      const updatedAmount = fromSatoshiFixed(
+        price.amount,
+        precision,
+        precision,
+        balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
+      );
+      setAmount(updatedAmount);
+      onChangeAmount(fromSatoshi(price.amount, precision));
+      setIsUpdating(false);
     })();
   }, [relatedAssetAmount, relatedAssetHash, asset]);
 
