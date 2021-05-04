@@ -42,12 +42,6 @@ ion-modal {
   }
 }
 
-ion-content {
-  --padding-start: 10px;
-  --padding-end: 10px;
-  --background: transparent !important;
-}
-
 ion-title {
   font-family: 'DMSans-Bold';
   --color: #fff;
@@ -70,11 +64,12 @@ ion-title {
 }
 
 ion-toolbar {
-  --background: rgba(0, 0, 0, 0);
+  // For linear-gradient background to be applied
+  --background: transparent;
 }
-
-ion-item {
-  --background: rgba(0, 0, 0, 0);
+ion-content {
+  // For linear-gradient background to be applied
+  --background: transparent;
 }
 
 .light {

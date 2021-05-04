@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import { IonInput, IonGrid, IonRow, IonCol } from '@ionic/react';
 import { onPressEnterKeyFactory } from '../../utils/keyboard';

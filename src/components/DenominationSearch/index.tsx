@@ -13,7 +13,6 @@ import { useDispatch } from 'react-redux';
 import { LBTC_DENOMINATIONS } from '../../utils/constants';
 import { setLBTCDenomination } from '../../redux/actions/settingsActions';
 import { updatePrices } from '../../redux/actions/ratesActions';
-import './style.scss';
 
 interface DenominationSearchProps {
   isOpen: boolean;
@@ -33,15 +32,23 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({
         <IonHeader className="ion-no-border">
           <div>
             <label className="search-bar">
-              <IonIcon icon={searchSharp} color="light" onClick={close} />
+              <IonIcon
+                icon={searchSharp}
+                color="light-contrast"
+                onClick={close}
+              />
               <IonInput
                 inputMode="search"
-                color="light"
+                color="light-contrast"
                 placeholder="Search currency"
                 value={searchString}
                 onIonChange={(e) => setSearchString(e.detail.value || '')}
               />
-              <IonIcon icon={closeSharp} color="light" onClick={close} />
+              <IonIcon
+                icon={closeSharp}
+                color="light-contrast"
+                onClick={close}
+              />
             </label>
           </div>
         </IonHeader>

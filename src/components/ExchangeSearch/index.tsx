@@ -11,7 +11,6 @@ import {
 import { CurrencyIcon } from '../icons';
 import { closeSharp, searchSharp } from 'ionicons/icons';
 import { AssetWithTicker } from '../../utils/tdex';
-import './style.scss';
 
 interface ExchangeSearchProps {
   prices: Record<string, number>;

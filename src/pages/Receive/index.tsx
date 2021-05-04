@@ -119,15 +119,20 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage>
       <IonLoading isOpen={loading} />
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="with-back-button">
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
-          </IonButtons>
-          <IonTitle>Receive</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent className="receive">
+        <IonHeader className="ion-no-border">
+          <IonToolbar className="with-back-button">
+            <IonButtons slot="start">
+              <IonBackButton
+                defaultHref="/"
+                text=""
+                icon={chevronBackOutline}
+              />
+            </IonButtons>
+            <IonTitle>Receive</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+
         <div className="description-with-icon">
           <div className="img-wrapper">
             <CurrencyIcon

@@ -10,6 +10,9 @@ import {
   IonInput,
   IonButtons,
   IonBackButton,
+  IonGrid,
+  IonRow,
+  IonCol,
 } from '@ionic/react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import PageDescription from '../../components/PageDescription';
@@ -151,45 +154,51 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="restore-wallet">
-        <PageDescription title="RestoreWallet">
-          <p>Paste your 12-word recovery phrase in the correct order</p>
-        </PageDescription>
+        <IonGrid>
+          <PageDescription title="RestoreWallet">
+            <p>Paste your 12-word recovery phrase in the correct order</p>
+          </PageDescription>
 
-        <div className="restore-input-wrapper">
-          {mnemonic.map((item: string, index: number) => {
-            return (
-              <label
-                key={index}
-                className={classNames('restore-input', {
-                  active: mnemonic[index],
-                })}
+          <div className="restore-input-wrapper">
+            {mnemonic.map((item: string, index: number) => {
+              return (
+                <label
+                  key={index}
+                  className={classNames('restore-input', {
+                    active: mnemonic[index],
+                  })}
+                >
+                  <div className="input-number">{index + 1}</div>
+                  <IonInput
+                    ref={refs[index]}
+                    className="input-word"
+                    onKeyDown={onPressEnterKeyFactory(() =>
+                      setFocus(index + 1)
+                    )}
+                    onIonChange={(e) =>
+                      setMnemonicWord(e.detail.value || '', index)
+                    }
+                    value={item}
+                    type="text"
+                    enterkeyhint={index === refs.length - 1 ? 'done' : 'next'}
+                  />
+                </label>
+              );
+            })}
+          </div>
+
+          <IonRow className="restore-btn-container">
+            <IonCol size="8" offset="2" sizeMd="6" offsetMd="3">
+              <IonButton
+                disabled={mnemonic.includes('')}
+                onClick={handleConfirm}
+                className="main-button"
               >
-                <div className="input-number">{index + 1}</div>
-                <IonInput
-                  ref={refs[index]}
-                  className="input-word"
-                  onKeyDown={onPressEnterKeyFactory(() => setFocus(index + 1))}
-                  onIonChange={(e) =>
-                    setMnemonicWord(e.detail.value || '', index)
-                  }
-                  value={item}
-                  type="text"
-                  enterkeyhint={index === refs.length - 1 ? 'done' : 'next'}
-                />
-              </label>
-            );
-          })}
-        </div>
-
-        <div className="ion-text-center ion-margin">
-          <IonButton
-            disabled={mnemonic.includes('')}
-            onClick={handleConfirm}
-            className="main-button"
-          >
-            RESTORE WALLET
-          </IonButton>
-        </div>
+                RESTORE WALLET
+              </IonButton>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
       </IonContent>
     </IonPage>
   );

@@ -37,6 +37,7 @@ $dark-pending-color: rgb(195, 195, 27);
 
 /** Ionic CSS Variables **/
 :root {
+  --ion-grid-padding: 0;
   --ion-background-color: linear-gradient(to top, rgb(0, 0, 0), #333);
   --ion-text-color: #ffffff;
   --ion-text-color-rgb: 255,255,255;

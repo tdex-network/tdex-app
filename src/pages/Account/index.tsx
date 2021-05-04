@@ -75,15 +75,20 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
 
   return (
     <IonPage>
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="with-back-button">
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
-          </IonButtons>
-          <IonTitle>Account</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent className="account">
+        <IonHeader className="ion-no-border">
+          <IonToolbar className="with-back-button">
+            <IonButtons slot="start">
+              <IonBackButton
+                defaultHref="/"
+                text=""
+                icon={chevronBackOutline}
+              />
+            </IonButtons>
+            <IonTitle>Account</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+
         <IonList>
           <IonListHeader>Identity</IonListHeader>
           <IonItem
@@ -209,21 +214,22 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
             cssClass="modal-big withdrawal"
             keyboardClose={false}
           >
-            <IonHeader className="ion-no-border">
-              <IonToolbar className="with-back-button">
-                <IonButtons slot="start">
-                  <IonButton
-                    onClick={() => {
-                      setShowMnemonicModal(false);
-                    }}
-                  >
-                    <IonIcon slot="icon-only" icon={closeOutline} />
-                  </IonButton>
-                </IonButtons>
-                <IonTitle>Show Mnemonic</IonTitle>
-              </IonToolbar>
-            </IonHeader>
             <IonContent>
+              <IonHeader className="ion-no-border">
+                <IonToolbar className="with-back-button">
+                  <IonButtons slot="start">
+                    <IonButton
+                      onClick={() => {
+                        setShowMnemonicModal(false);
+                      }}
+                    >
+                      <IonIcon slot="icon-only" icon={closeOutline} />
+                    </IonButton>
+                  </IonButtons>
+                  <IonTitle>Show Mnemonic</IonTitle>
+                </IonToolbar>
+              </IonHeader>
+
               <PageDescription title="Secret phrase">
                 <ShowMnemonic mnemonic={mnemonic || ''} />
               </PageDescription>
