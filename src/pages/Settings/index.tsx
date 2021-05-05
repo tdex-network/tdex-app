@@ -7,7 +7,7 @@ import {
   IonTitle,
   IonToolbar,
   IonListHeader,
-  IonToggle,
+  //IonToggle,
   IonModal,
   IonButton,
   IonInput,
@@ -251,7 +251,8 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
                 </div>
               </div>
             </IonItem>
-            <IonItem className="list-item">
+
+            {/*<IonItem className="list-item">
               <div
                 // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
                 tabIndex={0}
@@ -269,7 +270,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
                   />
                 </div>
               </div>
-            </IonItem>
+            </IonItem>*/}
           </IonList>
           <IonList>
             <IonListHeader>Support</IonListHeader>
