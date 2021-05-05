@@ -13,6 +13,7 @@ import Account from './pages/Account';
 import LiquidityProviders from './redux/containers/liquidityProvidersContainer';
 import Faq from './pages/Faq';
 import Terms from './pages/Terms';
+import Deposit from './pages/Deposit';
 
 export const routerLinks = {
   wallet: '/wallet',
@@ -29,6 +30,7 @@ export const routerLinks = {
   liquidityProvider: '/liquidity-provider',
   faq: '/faq',
   terms: '/terms',
+  deposit: '/deposit',
 };
 
 export const ROUTES = [
@@ -87,6 +89,10 @@ export const ROUTES = [
   {
     path: routerLinks.liquidityProvider,
     component: LiquidityProviders,
+  },
+  {
+    path: routerLinks.deposit,
+    component: Deposit,
   },
 ];
 

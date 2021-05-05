@@ -19,7 +19,6 @@ interface ExchangeSearchProps {
   isOpen: boolean;
   close: () => void;
   currency: string;
-  isDepositSearch?: boolean;
 }
 
 const ExchangeSearch: React.FC<ExchangeSearchProps> = ({
@@ -29,7 +28,6 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({
   isOpen,
   close,
   currency,
-  isDepositSearch = false,
 }) => {
   const [searchString, setSearchString] = useState('');
 
@@ -90,17 +88,15 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({
                       </span>
                       <p>{asset.ticker}</p>
                     </div>
-                    {!isDepositSearch && (
-                      <div className="search-item-amount">
-                        <p>
-                          <span className="price-equivalent">
-                            {(asset.coinGeckoID && prices[asset.coinGeckoID]) ||
-                              '?'}
-                          </span>
-                          <span>{currency.toUpperCase()}</span>
-                        </p>
-                      </div>
-                    )}
+                    <div className="search-item-amount">
+                      <p>
+                        <span className="price-equivalent">
+                          {(asset.coinGeckoID && prices[asset.coinGeckoID]) ||
+                            '?'}
+                        </span>
+                        <span>{currency.toUpperCase()}</span>
+                      </p>
+                    </div>
                   </IonItem>
                 );
               })}

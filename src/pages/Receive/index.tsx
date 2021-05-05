@@ -12,7 +12,7 @@ import {
   IonBackButton,
 } from '@ionic/react';
 import React, { useEffect, useRef, useState } from 'react';
-import { withRouter, RouteComponentProps, useLocation } from 'react-router';
+import { withRouter, useLocation } from 'react-router';
 import { IconCopy, CurrencyIcon } from '../../components/icons';
 import PageDescription from '../../components/PageDescription';
 import './style.scss';
@@ -34,14 +34,14 @@ import { WalletState } from '../../redux/reducers/walletReducer';
 import { network } from '../../redux/config';
 import { IdentityRestorerFromState } from '../../utils/identity';
 import { addAddress } from '../../redux/actions/walletActions';
-import { AssetWithTicker } from '../../utils/tdex';
 import { AddressGenerationError } from '../../utils/errors';
+import { AssetConfig } from '../../utils/constants';
 
 interface LocationState {
-  depositAsset: AssetWithTicker;
+  depositAsset: AssetConfig;
 }
 
-const Receive: React.FC<RouteComponentProps> = ({ history }) => {
+const Receive: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [address, setAddress] = useState<AddressInterface>();
   const [loading, setLoading] = useState(false);
@@ -147,6 +147,7 @@ const Receive: React.FC<RouteComponentProps> = ({ history }) => {
           >
             <p>
               {`To provide this address to the person sending you ${
+                locationState.depositAsset.name ||
                 locationState.depositAsset.coinGeckoID ||
                 locationState.depositAsset.ticker
               } simply tap to copy it or scan your
