@@ -1,11 +1,11 @@
 import React, { CSSProperties } from 'react';
-import LbtcIcon from '../../assets/img/lbtc.svg';
-import UsdtIcon from '../../assets/img/usdt.svg';
-import BtseIcon from '../../assets/img/btse.svg';
-import LcadIcon from '../../assets/img/lcad.svg';
+import LbtcIcon from '../../assets/img/coins/lbtc.svg';
+import UsdtIcon from '../../assets/img/coins/usdt.svg';
+import BtseIcon from '../../assets/img/coins/btse.svg';
+import LcadIcon from '../../assets/img/coins/lcad.svg';
+import CurrencyPlaceholderIcon from '../../assets/img/coins/currency-placeholder.svg';
 import DepositIcon from '../../assets/img/deposit.svg';
 import DepositIconBlack from '../../assets/img/deposit-black.svg';
-import PlaceholderIcon from '../../assets/img/currency-placeholder.svg';
 import { TxTypeEnum } from '../../utils/types';
 import { useSelector } from 'react-redux';
 import {
@@ -338,7 +338,7 @@ export const CurrencyIcon = ({ currency, ...props }: any) => {
     case BTSE_TICKER:
       return <img src={BtseIcon} />;
     default:
-      return <img src={PlaceholderIcon} />;
+      return <img src={CurrencyPlaceholderIcon} />;
   }
 };
 
@@ -352,7 +352,7 @@ export const TxIcon = ({ type, ...props }: any) => {
     case TxTypeEnum.Withdraw:
       return <img className="withdraw" src={themeIcon} />;
     default:
-      return <img src={PlaceholderIcon} />;
+      return <img src={CurrencyPlaceholderIcon} />;
   }
 };
 
