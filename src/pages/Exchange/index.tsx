@@ -11,6 +11,9 @@ import {
   IonText,
   IonIcon,
   useIonViewWillEnter,
+  IonGrid,
+  IonRow,
+  IonCol,
 } from '@ionic/react';
 import ExchangeRow from '../../redux/containers/exchangeRowContainer';
 import classNames from 'classnames';
@@ -250,99 +253,104 @@ const Exchange: React.FC<ExchangeProps> = ({
           isWrongPin={isWrongPin}
         />
       )}
-      <IonHeader className="exchange-header ion-no-border">
-        <IonToolbar>
-          <IonTitle>Exchange</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      {assetSent && markets.length > 0 && (
-        <IonContent className="exchange-content">
-          <Refresher />
-          <div className="exchange">
-            <ExchangeRow
-              checkBalance
-              focused={isFocused === 'sent'}
-              setFocus={() => setIsFocused('sent')}
-              setTrade={(t: TDEXTrade) => setTrade(t)}
-              relatedAssetAmount={receivedAmount || 0}
-              relatedAssetHash={assetReceived?.asset || ''}
-              asset={assetSent}
-              trades={trades}
-              onChangeAmount={(newAmount: number) => {
-                setSentAmount(newAmount);
-                checkAvailableAmountSent();
-              }}
-              assetsWithTicker={allAssets}
-              setAsset={(asset) => {
-                if (assetReceived && asset.asset === assetReceived.asset)
-                  setAssetReceived(assetSent);
-                setAssetSent(asset);
-              }}
-              error={errorSent}
-              setError={setErrorSent}
-            />
-            <div
-              className="exchange-divider"
-              onClick={() => {
-                const firstAsset = { ...assetSent };
-                setAssetSent(assetReceived);
-                setAssetReceived(firstAsset);
-              }}
-            >
-              <IonIcon className="swap-btn" icon={swapVerticalOutline} />
-            </div>
-            {assetReceived && (
+
+      <IonGrid className="ion-no-margin ion-no-padding">
+        <IonHeader className="exchange-header ion-no-border">
+          <IonToolbar>
+            <IonTitle>Exchange</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        {assetSent && markets.length > 0 && (
+          <IonContent className="exchange-content">
+            <Refresher />
+            <div className="exchange">
               <ExchangeRow
-                focused={isFocused === 'receive'}
-                setFocus={() => setIsFocused('receive')}
+                checkBalance
+                focused={isFocused === 'sent'}
+                setFocus={() => setIsFocused('sent')}
                 setTrade={(t: TDEXTrade) => setTrade(t)}
+                relatedAssetAmount={receivedAmount || 0}
+                relatedAssetHash={assetReceived?.asset || ''}
+                asset={assetSent}
                 trades={trades}
-                relatedAssetAmount={sentAmount || 0}
-                relatedAssetHash={assetSent?.asset || ''}
-                asset={assetReceived}
                 onChangeAmount={(newAmount: number) => {
-                  setReceivedAmount(newAmount);
-                  checkAvailableAmountReceived();
+                  setSentAmount(newAmount);
+                  checkAvailableAmountSent();
                 }}
-                assetsWithTicker={tradableAssets}
+                assetsWithTicker={allAssets}
                 setAsset={(asset) => {
-                  if (asset.asset === assetSent.asset)
-                    setAssetSent(assetReceived);
-                  setAssetReceived(asset);
+                  if (assetReceived && asset.asset === assetReceived.asset)
+                    setAssetReceived(assetSent);
+                  setAssetSent(asset);
                 }}
-                error={errorReceived}
-                setError={setErrorReceived}
+                error={errorSent}
+                setError={setErrorSent}
               />
-            )}
-          </div>
-          <div className="buttons">
-            <IonButton
-              className={classNames('main-button', {
-                secondary: false,
-              })}
-              onClick={onConfirm}
-              disabled={
-                !assetSent ||
-                !assetReceived ||
-                loading ||
-                sentAmountGreaterThanBalance()
-              }
-            >
-              Confirm
-            </IonButton>
-          </div>
-          {trade && (
-            <div className="market-provider">
-              <IonText className="trade-info" color="light">
-                Market provided by:{' '}
-                <span className="provider-info">
-                  {` ${trade.market.provider.name} - ${trade.market.provider.endpoint}`}
-                </span>
-              </IonText>
+              <div
+                className="exchange-divider"
+                onClick={() => {
+                  const firstAsset = { ...assetSent };
+                  setAssetSent(assetReceived);
+                  setAssetReceived(firstAsset);
+                }}
+              >
+                <IonIcon className="swap-btn" icon={swapVerticalOutline} />
+              </div>
+              {assetReceived && (
+                <ExchangeRow
+                  focused={isFocused === 'receive'}
+                  setFocus={() => setIsFocused('receive')}
+                  setTrade={(t: TDEXTrade) => setTrade(t)}
+                  trades={trades}
+                  relatedAssetAmount={sentAmount || 0}
+                  relatedAssetHash={assetSent?.asset || ''}
+                  asset={assetReceived}
+                  onChangeAmount={(newAmount: number) => {
+                    setReceivedAmount(newAmount);
+                    checkAvailableAmountReceived();
+                  }}
+                  assetsWithTicker={tradableAssets}
+                  setAsset={(asset) => {
+                    if (asset.asset === assetSent.asset)
+                      setAssetSent(assetReceived);
+                    setAssetReceived(asset);
+                  }}
+                  error={errorReceived}
+                  setError={setErrorReceived}
+                />
+              )}
             </div>
-          )}
-        </IonContent>
-      )}
+            <IonRow>
+              <IonCol size="8" offset="2">
+                <IonButton
+                  className={classNames('main-button', {
+                    secondary: false,
+                  })}
+                  onClick={onConfirm}
+                  disabled={
+                    !assetSent ||
+                    !assetReceived ||
+                    loading ||
+                    sentAmountGreaterThanBalance()
+                  }
+                >
+                  Confirm
+                </IonButton>
+              </IonCol>
+            </IonRow>
+            {trade && (
+              <div className="market-provider">
+                <IonText className="trade-info" color="light">
+                  Market provided by:{' '}
+                  <span className="provider-info">
+                    {` ${trade.market.provider.name} - ${trade.market.provider.endpoint}`}
+                  </span>
+                </IonText>
+              </div>
+            )}
+          </IonContent>
+        )}
+      </IonGrid>
     </IonPage>
   );
 };

@@ -147,13 +147,14 @@ const Wallet: React.FC<WalletProps> = ({
   return (
     <IonPage>
       <IonContent className="wallet-content">
+        <Refresher />
         <IonGrid>
-          <Refresher />
           <IonHeader className="ion-no-border">
             <IonToolbar>
               <IonTitle>Wallet</IonTitle>
             </IonToolbar>
           </IonHeader>
+
           <IonRow className="ion-margin-vertical ion-justify-content-center">
             <CircleTotalBalance
               totalBalance={
@@ -175,8 +176,8 @@ const Wallet: React.FC<WalletProps> = ({
           <IonList scroll-y={true}>
             <IonListHeader className="ion-no-margin">
               <IonRow className="ion-align-items-center">
-                <IonCol size="6">Asset list</IonCol>
-                <IonCol size="6" className="ion-text-right">
+                <IonCol size="10">Asset list</IonCol>
+                <IonCol size="2">
                   <IonButton
                     className="ion-no-padding"
                     onClick={() => {
@@ -265,18 +266,22 @@ const Wallet: React.FC<WalletProps> = ({
 
           {!totalLBTC.amount && (
             <div className="ion-text-center ion-padding-vertical">
-              <IonButton
-                className="main-button"
-                onClick={() => {
-                  if (backupDone) {
-                    setExchangeSearchOpen(true);
-                    return;
-                  }
-                  setBackupModal(true);
-                }}
-              >
-                DEPOSIT ASSETS
-              </IonButton>
+              <IonRow>
+                <IonCol size="8" offset="2" sizeMd="6" offsetMd="3">
+                  <IonButton
+                    className="main-button"
+                    onClick={() => {
+                      if (backupDone) {
+                        setExchangeSearchOpen(true);
+                        return;
+                      }
+                      setBackupModal(true);
+                    }}
+                  >
+                    DEPOSIT ASSETS
+                  </IonButton>
+                </IonCol>
+              </IonRow>
             </div>
           )}
 

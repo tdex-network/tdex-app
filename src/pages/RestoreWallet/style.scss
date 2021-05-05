@@ -1,70 +1,43 @@
-@import '../../theme/mixins/style.scss';
-
-.restore {
-  @include customHeight(750px) {
-    --overflow: auto;
-    padding-bottom: 20px;
-  }
-}
-
-.restore-input-wrapper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.restore-input {
-  margin-left: -25px;
-  display: flex;
-  align-items: flex-end;
-  font-size: 14px;
-  color:rgb(100, 100, 100);
-  .input-number {
-    text-align: right;
-    width: 25px;
-  }
-  .input-word {
-    position: relative;
-    border: 0;
-    background: transparent;
-    width: 200px;
-    outline: none;
-    border-bottom: 1px solid rgb(100, 100, 100);
-    margin-left: 7px;
-    text-align: center;
-  }
-
-  &.active, &:focus-within {
-    color: #fff;
-    .input-word {
-      border-bottom: 1px solid #fff;
-    }
-  }
-}
-
-.warning-message {
-  display: flex;
-  align-items: flex-start;
-  max-width: 302px;
-  margin: auto;
-  color: #fff;
-  font-size: 14px;
-  margin-top: 33px;
-  margin-bottom: 18px;
-  .warning-icon {
-    svg {
-      width: 22px;
-      height: 22px;
-      fill: rgb(206, 58, 62);
-    }
-  }
-  .warning {
-    font-family: 'DMSans';
-    margin-left: 9px;
-  }
-}
-
 .restore-wallet {
   --overflow: auto;
+  
+  .restore-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+    
+    .restore-input {
+      margin-left: -25px;
+      display: flex;
+      align-items: flex-end;
+      font-size: 14px;
+      color:rgb(100, 100, 100);
+      .input-number {
+        text-align: right;
+        width: 25px;
+      }
+      .input-word {
+        position: relative;
+        border: 0;
+        background: transparent;
+        width: 200px;
+        outline: none;
+        border-bottom: 1px solid rgb(100, 100, 100);
+        margin-left: 7px;
+        text-align: center;
+      }
+      
+      &.active, &:focus-within {
+        color: #fff;
+        .input-word {
+          border-bottom: 1px solid #fff;
+        }
+      }
+    }
+  }
+  
+  .restore-btn-container {
+    margin: 40px 0;
+  }
 }

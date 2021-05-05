@@ -1,10 +1,11 @@
 import {
   IonContent,
-  IonLabel,
   IonPage,
-  IonButton,
   IonLoading,
   useIonViewWillEnter,
+  IonGrid,
+  IonRow,
+  IonCol,
 } from '@ionic/react';
 import React, { useState } from 'react';
 import { RouteComponentProps } from 'react-router';
@@ -21,6 +22,8 @@ import { setKeyboardTheme } from '../../utils/keyboard';
 import { KeyboardStyle } from '@capacitor/core';
 import { IncorrectPINError } from '../../utils/errors';
 import { PIN_TIMEOUT_FAILURE } from '../../utils/constants';
+import logo from '../../assets/img/tdex_3d_logo.svg';
+import ButtonsMainSub from '../../components/ButtonsMainSub';
 
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
@@ -69,7 +72,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   });
 
   return (
-    <IonPage>
+    <IonPage id="homescreen">
       <IonLoading isOpen={loading} message={loadingMessage} />
       <PinModal
         open={pinModalIsOpen}
@@ -79,17 +82,21 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
         isWrongPin={isWrongPin}
       />
       <IonContent>
-        <div className="main-page-wrapper">
-          <img className="logo" src="./assets/img/logo.png" />
-          <div className="buttons homescreen">
-            <IonButton className="main-button" routerLink="/login">
-              <IonLabel>Setup wallet</IonLabel>
-            </IonButton>
-            <IonButton className="sub-button" routerLink="/restore">
-              Restore wallet
-            </IonButton>
-          </div>
-        </div>
+        <IonGrid className="ion-text-center ion-justify-content-evenly">
+          <IonRow className="img-container">
+            <IonCol size="8" offset="2" sizeMd="6" offsetMd="3">
+              <img src={logo} alt="tdex logo" />
+            </IonCol>
+          </IonRow>
+
+          <ButtonsMainSub
+            mainLink="/login"
+            subTitle="Restore wallet"
+            mainTitle="Setup wallet"
+            subLink="/restore"
+            classes="btn-container"
+          />
+        </IonGrid>
       </IonContent>
     </IonPage>
   );

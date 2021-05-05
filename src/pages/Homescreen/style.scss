@@ -1,17 +1,18 @@
-.logo {
-  display: block;
-  margin: auto;
-  margin-top: 145px;
-}
-
-.main-page-buttons-bar {
-  position: fixed;
-  bottom: 65px;
-  left: 0;
-}
-
-.buttons.homescreen {
-  position: fixed;
-  bottom: 65px;
-  left: 0;
+#homescreen {
+  background: linear-gradient(to top, rgb(2, 18, 0) 35%, rgb(0, 122, 22));
+  
+  ion-grid {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    .img-container {
+      margin-top: 30%;
+      img {
+        width: 100%;
+      }
+    }
+    .btn-container {
+      margin-bottom: 30%;
+    }
+  }
 }

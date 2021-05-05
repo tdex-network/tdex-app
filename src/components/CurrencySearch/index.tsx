@@ -13,7 +13,6 @@ import { useDispatch } from 'react-redux';
 import { CurrencyInterface } from '../../redux/reducers/settingsReducer';
 import { CURRENCIES } from '../../utils/constants';
 import { setCurrency } from '../../redux/actions/settingsActions';
-import './style.scss';
 import { updatePrices } from '../../redux/actions/ratesActions';
 
 interface CurrencySearchProps {
@@ -31,15 +30,23 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
         <IonHeader className="ion-no-border">
           <div>
             <label className="search-bar">
-              <IonIcon icon={searchSharp} color="light" onClick={close} />
+              <IonIcon
+                icon={searchSharp}
+                color="light-contrast"
+                onClick={close}
+              />
               <IonInput
                 inputMode="search"
-                color="light"
+                color="light-contrast"
                 placeholder="Search currency"
                 value={searchString}
                 onIonChange={(e) => setSearchString(e.detail.value || '')}
               />
-              <IonIcon icon={closeSharp} color="light" onClick={close} />
+              <IonIcon
+                icon={closeSharp}
+                color="light-contrast"
+                onClick={close}
+              />
             </label>
           </div>
         </IonHeader>

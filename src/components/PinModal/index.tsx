@@ -88,19 +88,20 @@ const PinModal: React.FC<PinModalProps> = ({
       keyboardClose={false}
       onDidDismiss={onDidDismiss ? onClose : undefined}
     >
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="with-back-button">
-          {onClose && (
-            <IonButtons slot="start">
-              <IonButton onClick={() => onClose()}>
-                <IonIcon slot="icon-only" icon={closeOutline} />
-              </IonButton>
-            </IonButtons>
-          )}
-          <IonTitle>Insert PIN</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent scrollY={false}>
+        <IonHeader className="ion-no-border">
+          <IonToolbar className="with-back-button">
+            {onClose && (
+              <IonButtons slot="start">
+                <IonButton onClick={() => onClose()}>
+                  <IonIcon slot="icon-only" icon={closeOutline} />
+                </IonButton>
+              </IonButtons>
+            )}
+            <IonTitle>Insert PIN</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+
         <PageDescription title={title}>
           <p>{description}</p>
         </PageDescription>

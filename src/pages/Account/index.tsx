@@ -11,7 +11,6 @@ import {
   IonIcon,
   IonButton,
   IonModal,
-  IonLabel,
   IonButtons,
   IonBackButton,
 } from '@ionic/react';
@@ -37,6 +36,7 @@ import ShowMnemonic from '../../components/ShowMnemonic';
 import { useDispatch } from 'react-redux';
 import { setSignedUp } from '../../redux/actions/appActions';
 import { setIsAuth } from '../../redux/actions/walletActions';
+import ButtonsMainSub from '../../components/ButtonsMainSub';
 
 const Account: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
@@ -60,7 +60,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
           setCopied(true);
           setTimeout(() => {
             setCopied(false);
-          }, 5000);
+          }, 2000);
         })
         .catch((e: any) => {
           mnemonicRef.current.select();
@@ -68,22 +68,27 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
           setCopied(true);
           setTimeout(() => {
             setCopied(false);
-          }, 10000);
+          }, 2000);
         });
     }
   };
 
   return (
     <IonPage>
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="with-back-button">
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
-          </IonButtons>
-          <IonTitle>Account</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent className="account">
+        <IonHeader className="ion-no-border">
+          <IonToolbar className="with-back-button">
+            <IonButtons slot="start">
+              <IonBackButton
+                defaultHref="/"
+                text=""
+                icon={chevronBackOutline}
+              />
+            </IonButtons>
+            <IonTitle>Account</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+
         <IonList>
           <IonListHeader>Identity</IonListHeader>
           <IonItem
@@ -171,7 +176,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
             }}
           >
             <div className="item-main-info">
-              <IonIcon icon={trashOutline}></IonIcon>
+              <IonIcon icon={trashOutline} />
               <div className="item-start">
                 <div className="main-row">Delete Mnemonic</div>
                 <IonText className="description">
@@ -209,21 +214,22 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
             cssClass="modal-big withdrawal"
             keyboardClose={false}
           >
-            <IonHeader className="ion-no-border">
-              <IonToolbar className="with-back-button">
-                <IonButtons slot="start">
-                  <IonButton
-                    onClick={() => {
-                      setShowMnemonicModal(false);
-                    }}
-                  >
-                    <IonIcon slot="icon-only" icon={closeOutline} />
-                  </IonButton>
-                </IonButtons>
-                <IonTitle>Show Mnemonic</IonTitle>
-              </IonToolbar>
-            </IonHeader>
             <IonContent>
+              <IonHeader className="ion-no-border">
+                <IonToolbar className="with-back-button">
+                  <IonButtons slot="start">
+                    <IonButton
+                      onClick={() => {
+                        setShowMnemonicModal(false);
+                      }}
+                    >
+                      <IonIcon slot="icon-only" icon={closeOutline} />
+                    </IonButton>
+                  </IonButtons>
+                  <IonTitle>Show Mnemonic</IonTitle>
+                </IonToolbar>
+              </IonHeader>
+
               <PageDescription title="Secret phrase">
                 <ShowMnemonic mnemonic={mnemonic || ''} />
               </PageDescription>
@@ -233,25 +239,13 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
                 value={mnemonic}
                 className="hidden-input"
               />
-              <div className="buttons">
-                <IonButton
-                  onClick={() => copyMnemonic()}
-                  type="button"
-                  className="main-button"
-                >
-                  {copied ? 'Copied' : 'Copy'}
-                </IonButton>
-              </div>
-              <div className="align-center">
-                <IonButton
-                  onClick={() => {
-                    setShowMnemonicModal(false);
-                  }}
-                  className="cancel-button"
-                >
-                  <IonLabel>Cancel</IonLabel>
-                </IonButton>
-              </div>
+
+              <ButtonsMainSub
+                mainTitle={copied ? 'Copied' : 'Copy'}
+                mainOnClick={copyMnemonic}
+                subTitle="Cancel"
+                subOnClick={() => setShowMnemonicModal(false)}
+              />
             </IonContent>
           </IonModal>
         )}
