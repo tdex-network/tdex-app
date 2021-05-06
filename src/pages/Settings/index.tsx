@@ -21,10 +21,7 @@ import { IconRightArrow } from '../../components/icons';
 import { RouteComponentProps, withRouter } from 'react-router';
 import './style.scss';
 import PageDescription from '../../components/PageDescription';
-import {
-  setElectrumServer,
-  storeTheme,
-} from '../../redux/actions/settingsActions';
+import { setElectrumServer } from '../../redux/actions/settingsActions';
 import { useDispatch, useSelector } from 'react-redux';
 import PinModal from '../../components/PinModal';
 import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
@@ -43,14 +40,12 @@ import ButtonsMainSub from '../../components/ButtonsMainSub';
 const { Device } = Plugins;
 
 const Settings: React.FC<RouteComponentProps> = ({ history }) => {
-  const { explorerUrl, theme, currency, unitLBTC } = useSelector(
-    (state: any) => ({
-      explorerUrl: state.settings.explorerUrl,
-      currency: state.settings.currency,
-      theme: state.settings.theme,
-      unitLBTC: state.settings.denominationLBTC,
-    })
-  );
+  const { explorerUrl, currency, unitLBTC } = useSelector((state: any) => ({
+    explorerUrl: state.settings.explorerUrl,
+    currency: state.settings.currency,
+    theme: state.settings.theme,
+    unitLBTC: state.settings.denominationLBTC,
+  }));
   const [showExplorerModal, setShowExplorerModal] = useState(false);
   const [explorerValue, setExplorerValue] = useState(explorerUrl);
   const [modalOpen, setModalOpen] = useState(false);
@@ -75,11 +70,11 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
     setExplorerValue(value);
   };
 
-  const handleThemeChange = (e: any) => {
+  /* const handleThemeChange = (e: any) => {
     const { checked } = e.detail;
     const newTheme = checked ? 'dark' : 'light';
     dispatch(storeTheme(newTheme));
-  };
+  }; */
 
   const onPinConfirm = (pin: string) => {
     getMnemonicFromSecureStorage(pin)
