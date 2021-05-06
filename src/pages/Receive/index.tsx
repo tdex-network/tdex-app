@@ -129,7 +129,9 @@ const Receive: React.FC = () => {
                 icon={chevronBackOutline}
               />
             </IonButtons>
-            <IonTitle>Receive</IonTitle>
+            <IonTitle>
+              {locationState.depositAsset.name?.toUpperCase() ?? ''} DEPOSIT
+            </IonTitle>
           </IonToolbar>
         </IonHeader>
 

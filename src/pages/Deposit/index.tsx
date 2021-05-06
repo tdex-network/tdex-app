@@ -49,7 +49,17 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
         <button
           className="deposit-grid-item ion-justify-content-center ion-align-items-center"
           key="add-asset"
-          onClick={() => console.log('Add Asset')}
+          onClick={() =>
+            history.push({
+              pathname: '/receive',
+              state: {
+                depositAsset: {
+                  name: 'Liquid Asset',
+                  ticker: 'Liquid Asset',
+                },
+              },
+            })
+          }
         >
           <IonIcon
             class="deposit-grid-item-plus-icon"
