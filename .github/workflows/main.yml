@@ -27,6 +27,9 @@ jobs:
 
       - name: lint
         run: yarn lint
-
+        
       - name: test
         run: yarn test --ci --maxWorkers=2
+        
+      - name: build
+        run: yarn build
