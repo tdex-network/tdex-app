@@ -1,0 +1,24 @@
+@import '../../theme/variables';
+
+.word-list-container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 16px;
+  margin-bottom: 32px;
+  .word-row {
+    display: flex;
+    margin-top: 16px;
+    .word-index {
+      color: #ffffff;
+      position: absolute;
+      margin-left: 20%;
+    }
+    .word {
+      margin: 0 auto;
+      color: $green-color;
+      font-family: "DMSans-Bold";
+      font-size: 20px;
+      line-height: 1;
+    }
+  }
+}

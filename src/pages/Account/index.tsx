@@ -27,12 +27,11 @@ import {
   trashOutline,
 } from 'ionicons/icons';
 
-import PageDescription from '../../components/PageDescription';
 import { Clipboard } from '@ionic-native/clipboard';
 import DeleteMnemonicModal from '../../components/DeleteMnemonicModal';
 import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
 import ChangePinModals from '../../components/ChangePinModals';
-import ShowMnemonic from '../../components/ShowMnemonic';
+import WordList from '../../components/WordList';
 import { useDispatch } from 'react-redux';
 import { setSignedUp } from '../../redux/actions/appActions';
 import { setIsAuth } from '../../redux/actions/walletActions';
@@ -230,9 +229,8 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
                 </IonToolbar>
               </IonHeader>
 
-              <PageDescription title="Secret phrase">
-                <ShowMnemonic mnemonic={mnemonic || ''} />
-              </PageDescription>
+              <h2 className="ion-text-center">Secret Phrase</h2>
+              <WordList mnemonic={mnemonic || ''} />
               <input
                 type="text"
                 ref={mnemonicRef}

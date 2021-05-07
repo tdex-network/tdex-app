@@ -1,0 +1,64 @@
+import {
+  IonContent,
+  IonIcon,
+  IonPage,
+  IonGrid,
+  IonRow,
+  IonCol,
+} from '@ionic/react';
+import React from 'react';
+import { warningOutline } from 'ionicons/icons';
+import { AppError } from '../../utils/errors';
+import ButtonsMainSub from '../../components/ButtonsMainSub';
+import './style.scss';
+import Header from '../../components/Header';
+
+interface BackupProps {
+  // connected redux props
+  backupDone: boolean;
+  setDone: () => void;
+  onError: (err: AppError) => void;
+}
+
+const BackupOnboarding: React.FC<BackupProps> = () => {
+  return (
+    <IonPage>
+      <IonContent className="backup-onboarding-content">
+        <Header hasBackBtn={true} title="BACKUP WALLET" />
+        <IonGrid className="ion-text-center ion-justify-content-center">
+          <IonRow className="icon-row ion-margin-vertical">
+            <IonCol>
+              <IonIcon icon={warningOutline} color="success" />
+            </IonCol>
+          </IonRow>
+          <IonRow className="ion-text-center">
+            <IonCol offset="1" size="10">
+              <h2>Back up your secret phrase</h2>
+            </IonCol>
+          </IonRow>
+          <IonRow className="ion-text-left">
+            <IonCol offset="1" size="10">
+              <p className="ion-no-margin">
+                Your secret 12-words recovery phrase is the only way to recover
+                your funds if you lose access to your wallet.
+              </p>
+              <p>Write it down safely and store it in a secure location.</p>
+            </IonCol>
+          </IonRow>
+          <IonRow className="ion-margin-bottom">
+            <IonCol>
+              <ButtonsMainSub
+                mainTitle="BACKUP NOW"
+                subTitle="DO IT LATER"
+                mainLink="/show-mnemonic"
+                subOnClick={() => ''}
+              />
+            </IonCol>
+          </IonRow>
+        </IonGrid>
+      </IonContent>
+    </IonPage>
+  );
+};
+
+export default BackupOnboarding;

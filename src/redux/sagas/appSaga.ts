@@ -14,7 +14,7 @@ import {
   setSignedUp,
   SIGN_IN,
   UPDATE,
-  setBackupDone,
+  setIsBackupDone,
 } from '../actions/appActions';
 import { setIsAuth } from '../actions/walletActions';
 import { Mnemonic } from 'ldk';
@@ -47,7 +47,7 @@ function* signInSaga(action: ActionType) {
     // set the backup flag
     const backup = yield call(seedBackupFlag);
     if (backup) {
-      yield put(setBackupDone());
+      yield put(setIsBackupDone(true));
     }
 
     yield put(setIsAuth(true));

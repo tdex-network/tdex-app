@@ -1,0 +1,21 @@
+ion-header {
+	.back-button {
+		ion-button, ion-back-button {
+			color: rgb(198, 198, 198);
+			font-size: 14px;
+			position: absolute;
+			margin-left: 10px;
+		}
+	}
+	ion-title {
+		text-align: center;
+		text-transform: uppercase;
+		font-size: 16px;
+		color: rgb(198, 198, 198);
+		&.title-large {
+			font-size: 30px;
+			color: #ffffff;
+		}
+	}
+}
+

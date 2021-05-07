@@ -22,7 +22,7 @@ import {
   clearStorage,
   setMnemonicInSecureStorage,
 } from '../../utils/storage-helper';
-import { setBackupDone, signIn } from '../../redux/actions/appActions';
+import { setIsBackupDone, signIn } from '../../redux/actions/appActions';
 import { useFocus, useMnemonic } from '../../utils/custom-hooks';
 import PinModal from '../../components/PinModal';
 import {
@@ -43,6 +43,7 @@ import {
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
 import { chevronBackOutline } from 'ionicons/icons';
+import Header from '../../components/Header';
 
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
@@ -84,7 +85,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
           );
           setIsWrongPin(false);
           dispatch(signIn(newPin));
-          dispatch(setBackupDone());
+          dispatch(setIsBackupDone(true));
           setTimeout(() => {
             // we don't need to ask backup if the mnemonic is restored
             history.push('/wallet');
@@ -145,21 +146,22 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
         needReset={needReset}
         setNeedReset={setNeedReset}
       />
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="with-back-button">
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
-          </IonButtons>
-          <IonTitle>Secret phrase</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent className="restore-wallet">
-        <IonGrid>
-          <PageDescription title="RestoreWallet">
-            <p>Paste your 12-word recovery phrase in the correct order</p>
-          </PageDescription>
-
-          <div className="restore-input-wrapper">
+        <Header hasBackBtn={true} title="SECRET PHRASE" />
+        <IonGrid className="ion-text-center">
+          <IonRow>
+            <IonCol size="8" offset="2">
+              <h2>Restore Wallet</h2>
+            </IonCol>
+          </IonRow>
+          <IonRow>
+            <IonCol size="8" offset="2">
+              <p className="ion-no-margin">
+                Paste your 12 words recovery phrase in the correct order
+              </p>
+            </IonCol>
+          </IonRow>
+          <div className="restore-input-wrapper ion-margin-vertical">
             {mnemonic.map((item: string, index: number) => {
               return (
                 <label

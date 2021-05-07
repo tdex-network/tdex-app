@@ -25,7 +25,7 @@ const ButtonsMainSub: React.FC<ButtonsMainSubProps> = ({
   subDisabled,
 }) => {
   return (
-    <IonRow className={classes}>
+    <IonRow className={`${classes} buttonsMainSub`}>
       <IonCol size="8" offset="2" sizeMd="6" offsetMd="3">
         <IonRow className="ion-justify-content-center">
           <IonButton

@@ -5,6 +5,7 @@ $breakpoint-small-device: 700px;
 .sub-button {
   --background: none;
   --border: 0;
+  --box-shadow: none;
   border: 0;
   height: auto;
   margin-top: 30px;
@@ -24,6 +25,7 @@ $breakpoint-small-device: 700px;
 
 .main-button {
   --background: rgba(15, 255, 0, 0.12);
+  --box-shadow: none;
   --padding-top: 21px;
   --padding-bottom: 21px;
   --padding-start: 21px;

@@ -1,0 +1,13 @@
+@import '../../theme/variables';
+
+.show-mnemonic-content {
+	input[name=seedSave] {
+		opacity: 0;
+	}
+	label {
+		display: flex;
+		justify-content: center;
+	}
+}
+
+

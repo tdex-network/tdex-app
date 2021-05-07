@@ -29,13 +29,14 @@ import { initApp } from './redux/actions/appActions';
 import Toasts from './redux/containers/toastsContainer';
 import { Redirect, Route } from 'react-router';
 import Homescreen from './pages/Homescreen';
-import Login from './pages/Login';
 import RestoreWallet from './pages/RestoreWallet';
 import { NavigationBar } from '@ionic-native/navigation-bar';
 import classNames from 'classnames';
 import { useAppState } from '@capacitor-community/react-hooks/app';
 import { Plugins } from '@capacitor/core';
 import { unlockUtxos } from './redux/actions/walletActions';
+import BackupOnboarding from './pages/Backup/backup-onboarding';
+import ShowMnemonic from './redux/containers/showMnemonicContainer';
 const { StatusBar } = Plugins;
 
 const App: React.FC = () => {
@@ -91,8 +92,9 @@ const App: React.FC = () => {
           <IonRouterOutlet animated={false}>
             <Redirect exact from="/" to="/homescreen" />
             <Route path="/homescreen" component={Homescreen} />
-            <Route path="/login" component={Login} />
+            <Route path="/show-mnemonic" component={ShowMnemonic} />
             <Route path="/restore" component={RestoreWallet} />
+            <Route path="/onboarding/backup" component={BackupOnboarding} />
           </IonRouterOutlet>
         )}
 

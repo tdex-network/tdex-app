@@ -14,6 +14,8 @@ import LiquidityProviders from './redux/containers/liquidityProvidersContainer';
 import Faq from './pages/Faq';
 import Terms from './pages/Terms';
 import Deposit from './pages/Deposit';
+import Backup from './redux/containers/backupContainer';
+import ShowMnemonic from './redux/containers/showMnemonicContainer';
 
 export const routerLinks = {
   wallet: '/wallet',
@@ -30,6 +32,8 @@ export const routerLinks = {
   liquidityProvider: '/liquidity-provider',
   faq: '/faq',
   terms: '/terms',
+  backup: '/backup',
+  showMnemonic: '/show-mnemonic',
   deposit: '/deposit',
 };
 
@@ -93,6 +97,14 @@ export const ROUTES = [
   {
     path: routerLinks.deposit,
     component: Deposit,
+  },
+  {
+    path: routerLinks.backup,
+    component: Backup,
+  },
+  {
+    path: routerLinks.showMnemonic,
+    component: ShowMnemonic,
   },
 ];
 

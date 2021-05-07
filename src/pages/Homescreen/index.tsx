@@ -90,9 +90,9 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
           </IonRow>
 
           <ButtonsMainSub
-            mainLink="/login"
-            subTitle="Restore wallet"
             mainTitle="Setup wallet"
+            mainLink="/onboarding/backup"
+            subTitle="Restore wallet"
             subLink="/restore"
             classes="btn-container"
           />
