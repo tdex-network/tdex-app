@@ -26,15 +26,14 @@ import {
   fromSatoshiFixed,
 } from '../../utils/helpers';
 import {
+  AssetConfig,
   getMainAsset,
   LBTC_COINGECKOID,
   MAIN_ASSETS,
 } from '../../utils/constants';
-import { AssetWithTicker } from '../../utils/tdex';
 import { ActionType } from '../../utils/types';
 import { update } from '../../redux/actions/appActions';
 import CircleTotalBalance from '../../components/CircleTotalBalance';
-import ExchangeSearch from '../../components/ExchangeSearch';
 import Refresher from '../../components/Refresher';
 import BackupModal from '../../redux/containers/backupModalContainer';
 import { useSelector } from 'react-redux';
@@ -66,10 +65,7 @@ const Wallet: React.FC<WalletProps> = ({
   const [secondaryAssets, setSecondaryAssets] = useState<BalanceInterface[]>(
     []
   );
-  const [ExchangeSearchOpen, setExchangeSearchOpen] = useState(false);
-  const [assetsWithTicker, setAssetsWithTicker] = useState<AssetWithTicker[]>(
-    []
-  );
+  const [depositAssets, setDepositAssets] = useState<AssetConfig[]>([]);
 
   const UNKNOWN = -1;
 
@@ -79,23 +75,18 @@ const Wallet: React.FC<WalletProps> = ({
     return fiats[balanceIndex];
   };
 
-  const getAssetsWithTicker = () => {
-    const assetWithTicker: AssetWithTicker[] = [];
-    MAIN_ASSETS.forEach(({ assetHash, ticker, coinGeckoID, chain }) => {
-      if (ticker === 'L-BTC' && network.chain !== chain) return;
-      assetWithTicker.push({ asset: assetHash, ticker, coinGeckoID });
+  const getDepositAssets = () => {
+    const assets: AssetConfig[] = [...MAIN_ASSETS];
+    secondaryAssets.forEach(({ asset, ticker, coinGeckoID, precision }) => {
+      assets.push({
+        assetHash: asset,
+        ticker,
+        coinGeckoID,
+        precision,
+        color: '',
+      });
     });
-    secondaryAssets.forEach(({ asset, ticker, coinGeckoID }) => {
-      assetWithTicker.push({ asset, ticker, coinGeckoID });
-    });
-    return assetWithTicker;
-  };
-
-  const handleAssetSelection = (asset: AssetWithTicker) => {
-    history.push({
-      pathname: '/receive',
-      state: { depositAsset: asset },
-    });
+    return assets;
   };
 
   useIonViewWillEnter(() => dispatch(updateUtxos()));
@@ -137,7 +128,7 @@ const Wallet: React.FC<WalletProps> = ({
     }
     setMainAssets(main);
     setSecondaryAssets(secondary);
-    setAssetsWithTicker(getAssetsWithTicker());
+    setDepositAssets(getDepositAssets());
   }, [balances]);
 
   useEffect(() => {
@@ -182,7 +173,10 @@ const Wallet: React.FC<WalletProps> = ({
                     className="ion-no-padding"
                     onClick={() => {
                       if (backupDone) {
-                        setExchangeSearchOpen(true);
+                        history.push({
+                          pathname: '/deposit',
+                          state: { depositAssets },
+                        });
                         return;
                       }
                       setBackupModal(true);
@@ -272,7 +266,10 @@ const Wallet: React.FC<WalletProps> = ({
                     className="main-button"
                     onClick={() => {
                       if (backupDone) {
-                        setExchangeSearchOpen(true);
+                        history.push({
+                          pathname: '/deposit',
+                          state: { depositAssets },
+                        });
                         return;
                       }
                       setBackupModal(true);
@@ -284,16 +281,6 @@ const Wallet: React.FC<WalletProps> = ({
               </IonRow>
             </div>
           )}
-
-          <ExchangeSearch
-            assets={assetsWithTicker}
-            currency={currency}
-            isOpen={ExchangeSearchOpen}
-            close={() => setExchangeSearchOpen(false)}
-            prices={prices}
-            setAsset={handleAssetSelection}
-            isDepositSearch={true}
-          />
 
           {!backupDone && (
             <BackupModal

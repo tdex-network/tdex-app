@@ -70,11 +70,11 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
     setExplorerValue(value);
   };
 
-  /* const handleThemeChange = (e: any) => {
-    const { checked } = e.detail;
-    const newTheme = checked ? 'dark' : 'light';
-    dispatch(storeTheme(newTheme));
-  }; */
+  // const handleThemeChange = (e: any) => {
+  //   const { checked } = e.detail;
+  //   const newTheme = checked ? 'dark' : 'light';
+  //   dispatch(storeTheme(newTheme));
+  // };
 
   const onPinConfirm = (pin: string) => {
     getMnemonicFromSecureStorage(pin)

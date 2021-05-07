@@ -34,6 +34,7 @@ export const MAIN_ASSETS: AssetConfig[] = [
     color: LBTC_COLOR,
     precision: 8,
     chain: 'regtest',
+    name: 'Liquid Bitcoin',
   },
   {
     coinGeckoID: LBTC_COINGECKOID,
@@ -43,6 +44,7 @@ export const MAIN_ASSETS: AssetConfig[] = [
     color: LBTC_COLOR,
     precision: 8,
     chain: 'liquid',
+    name: 'Liquid Bitcoin',
   },
   {
     coinGeckoID: USDT_COINGECKOID,
@@ -51,6 +53,7 @@ export const MAIN_ASSETS: AssetConfig[] = [
       'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2',
     color: USDT_COLOR,
     precision: 8,
+    name: 'Tether USD',
   },
   {
     ticker: LCAD_TICKER,
@@ -58,6 +61,7 @@ export const MAIN_ASSETS: AssetConfig[] = [
       '0e99c1a6da379d1f4151fb9df90449d40d0608f6cb33a5bcbfc8c265f42bab0a',
     color: LCAD_COLOR,
     precision: 8,
+    name: 'Liquid CAD',
   },
   {
     ticker: BTSE_TICKER,
@@ -65,6 +69,7 @@ export const MAIN_ASSETS: AssetConfig[] = [
       'b00b0ff0b11ebd47f7c6f57614c046dbbd204e84bf01178baf2be3713a206eb7',
     color: BTSE_COLOR,
     precision: 8,
+    name: 'BTCE Token',
   },
 ];
 
