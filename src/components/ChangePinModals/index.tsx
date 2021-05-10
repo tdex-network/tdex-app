@@ -29,8 +29,9 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
 }) => {
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [loading, setLoading] = useState(false);
-  const [pin, setPin] = useState('');
+  const [currentPin, setCurrentPin] = useState('');
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
+  const [needReset, setNeedReset] = useState<boolean>(false);
   const dispatch = useDispatch();
 
   const onError = (e: AppError) => {
@@ -39,7 +40,8 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
     setIsWrongPin(true);
     setTimeout(() => {
       setIsWrongPin(null);
-      setPin('');
+      setCurrentPin('');
+      setNeedReset(true);
     }, PIN_TIMEOUT_FAILURE);
   };
 
@@ -47,10 +49,9 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
     if (!modalOpen && open) {
       setModalOpen('first');
     }
-
     if (!open) {
       setModalOpen(undefined);
-      setPin('');
+      setCurrentPin('');
     }
   }, [open]);
 
@@ -58,7 +59,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
     setLoading(true);
     getMnemonicFromSecureStorage(firstPin)
       .then(() => {
-        setPin(firstPin);
+        setCurrentPin(firstPin);
         setIsWrongPin(false);
         setTimeout(() => {
           setModalOpen('second');
@@ -73,7 +74,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
 
   const onSecondPinConfirm = (secondPin: string) => {
     setLoading(true);
-    changePin(pin, secondPin)
+    changePin(currentPin, secondPin)
       .then(() => {
         dispatch(addSuccessToast('PIN has been changed.'));
         onDeleted();
@@ -88,6 +89,8 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
     <div>
       <IonLoading isOpen={loading} />
       <PinModal
+        needReset={needReset}
+        setNeedReset={setNeedReset}
         open={modalOpen === 'first'}
         title="Unlock wallet"
         description="Enter your current PIN."
@@ -96,6 +99,8 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
         isWrongPin={isWrongPin}
       />
       <PinModal
+        needReset={needReset}
+        setNeedReset={setNeedReset}
         open={modalOpen === 'second'}
         title="New PIN"
         description="Set up the new PIN."

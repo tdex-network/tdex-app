@@ -38,10 +38,8 @@ const WithdrawalDetails: React.FC<
   const { txid } = useParams<{ txid: string }>();
   const transaction = useSelector(transactionSelector(txid));
 
-  const [
-    locationState,
-    setLocationState,
-  ] = useState<WithdrawalDetailsLocationState>();
+  const [locationState, setLocationState] =
+    useState<WithdrawalDetailsLocationState>();
 
   useEffect(() => {
     if (location.state) {

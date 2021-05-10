@@ -65,6 +65,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
     setTimeout(() => {
       setModalOpen('second');
       setIsWrongPin(null);
+      setNeedReset(true);
     }, PIN_TIMEOUT_SUCCESS);
   };
 
@@ -95,13 +96,13 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
 
   const onError = (e: AppError) => {
     console.error(e);
-    clearStorage();
+    clearStorage().catch(console.error);
     dispatch(addErrorToast(e));
     setIsWrongPin(true);
     setTimeout(() => {
       setIsWrongPin(null);
-      setModalOpen(undefined);
       setFirstPin('');
+      setNeedReset(true);
     }, PIN_TIMEOUT_FAILURE);
   };
 

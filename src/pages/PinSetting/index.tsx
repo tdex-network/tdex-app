@@ -50,6 +50,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
   const [isPinValidated, setIsPinValidated] = useState<boolean>(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isPinInputLocked, setIsPinInputLocked] = useState<boolean>(false);
   const dispatch = useDispatch();
   const inputRef = useRef<any>(null);
 
@@ -59,6 +60,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
     if (isRepeatScreen && !isPinValidated) {
       if (validRegexp.test(secondPin)) {
         if (secondPin === firstPin) {
+          setIsPinInputLocked(true);
           setMnemonicInSecureStorage(
             // Coming from Show Mnemonic or from Backup Wallet 'do it later'
             state?.mnemonic ?? bip39.generateMnemonic(),
@@ -153,10 +155,11 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
           <IonRow className="ion-margin-vertical">
             <IonCol>
               <PinInput
+                isLocked={isPinInputLocked}
                 inputRef={inputRef}
+                isWrongPin={isWrongPin}
                 on6digits={handleConfirm}
                 onPin={isRepeatScreen ? setSecondPin : setFirstPin}
-                isWrongPin={isWrongPin}
                 pin={isRepeatScreen ? secondPin : firstPin}
               />
             </IonCol>

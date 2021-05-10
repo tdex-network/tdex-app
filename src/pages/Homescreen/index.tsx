@@ -29,6 +29,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [pinModalIsOpen, setPinModalIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [needReset, setNeedReset] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState(
     'Searching mnemonic in secure storage...'
   );
@@ -52,6 +53,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
         setIsWrongPin(true);
         setTimeout(() => {
           setIsWrongPin(null);
+          setNeedReset(true);
         }, PIN_TIMEOUT_FAILURE);
         dispatch(addErrorToast(IncorrectPINError));
       })
@@ -74,6 +76,8 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
     <IonPage id="homescreen">
       <IonLoading isOpen={loading} message={loadingMessage} />
       <PinModal
+        needReset={needReset}
+        setNeedReset={setNeedReset}
         open={pinModalIsOpen}
         title="Enter your secret PIN"
         description="Unlock your wallet"

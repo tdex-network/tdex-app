@@ -37,22 +37,24 @@ const PinModal: React.FC<PinModalProps> = ({
   needReset,
   setNeedReset,
 }) => {
-  const validRegexp = new RegExp('\\d{6}');
   const [pin, setPin] = useState('');
+  const [isPinInputLocked, setIsPinInputLocked] = useState<boolean>(false);
   const dispatch = useDispatch();
   const inputRef = useRef<any>(null);
 
   useEffect(() => {
     if (needReset) {
       setPin('');
+      setIsPinInputLocked(false);
       setNeedReset?.(false);
     }
   }, [needReset]);
 
   const handleConfirm = () => {
+    const validRegexp = new RegExp('\\d{6}');
     if (validRegexp.test(pin)) {
+      setIsPinInputLocked(true);
       onConfirm(pin);
-      setPin('');
     } else {
       dispatch(addErrorToast(PinDigitsError));
     }
@@ -68,6 +70,8 @@ const PinModal: React.FC<PinModalProps> = ({
     document.body.addEventListener('click', handleClick);
   });
   useIonViewWillLeave(() => {
+    setIsPinInputLocked(false);
+    setPin('');
     document.body.removeEventListener('click', handleClick);
   });
 
@@ -94,10 +98,11 @@ const PinModal: React.FC<PinModalProps> = ({
           />
           <PageDescription description={description} title={title} />
           <PinInput
+            isLocked={isPinInputLocked}
             inputRef={inputRef}
+            isWrongPin={isWrongPin}
             on6digits={handleConfirm}
             onPin={setPin}
-            isWrongPin={isWrongPin}
             pin={pin}
           />
         </IonGrid>

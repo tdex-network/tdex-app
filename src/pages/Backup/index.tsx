@@ -39,6 +39,7 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
   const [isSeedSaved, setIsSeedSaved] = useState<boolean>(false);
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
+  const [needReset, setNeedReset] = useState<boolean>(false);
   const { state } = useLocation<LocationState>();
   const dispatch = useDispatch();
 
@@ -58,6 +59,7 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
       setIsWrongPin(true);
       setTimeout(() => {
         setIsWrongPin(null);
+        setNeedReset(true);
       }, PIN_TIMEOUT_FAILURE);
       dispatch(addErrorToast(IncorrectPINError));
       console.error(err);
@@ -67,6 +69,8 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
   return (
     <IonPage>
       <PinModal
+        needReset={needReset}
+        setNeedReset={setNeedReset}
         open={isPinModalOpen}
         title="Unlock wallet"
         description="Enter your current PIN."

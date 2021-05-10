@@ -171,7 +171,6 @@ const Wallet: React.FC<WalletProps> = ({
                   <IonButton
                     className="ion-no-padding"
                     onClick={() => {
-                      console.log('backupDone', backupDone);
                       if (backupDone) {
                         history.push({
                           pathname: '/deposit',
@@ -273,9 +272,12 @@ const Wallet: React.FC<WalletProps> = ({
                           pathname: '/deposit',
                           state: { depositAssets },
                         });
-                        //return;
+                        return;
                       }
-                      //setBackupModal(true);
+                      history.push({
+                        pathname: '/backup',
+                        state: { depositAssets },
+                      });
                     }}
                   >
                     DEPOSIT ASSETS
@@ -284,16 +286,6 @@ const Wallet: React.FC<WalletProps> = ({
               </IonRow>
             </div>
           )}
-
-          {/*{!backupDone && (*/}
-          {/*  <BackupModal*/}
-          {/*    title="Backup your seed before deposit"*/}
-          {/*    description="Take time to keep your secret words in a safe place before deposit funds."*/}
-          {/*    removeSkipBtn={true}*/}
-          {/*    isOpen={backupModal}*/}
-          {/*    onClose={() => setBackupModal(false)}*/}
-          {/*  />*/}
-          {/*)}*/}
         </IonGrid>
       </IonContent>
     </IonPage>

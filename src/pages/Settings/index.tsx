@@ -50,6 +50,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   const [LBTCUnitSearchOpen, setLBTCUnitSearchOpen] = useState(false);
   const [appVersion, setAppVersion] = useState<string>();
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
+  const [needReset, setNeedReset] = useState<boolean>(false);
 
   useEffect(() => {
     Device.getInfo().then((info) => {
@@ -78,7 +79,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
       .then(() => {
         setIsWrongPin(false);
         setTimeout(() => {
-          history.push(`/account/${pin}`);
+          history.replace(`/account/${pin}`);
           setModalOpen(false);
           setIsWrongPin(null);
         }, PIN_TIMEOUT_SUCCESS);
@@ -87,6 +88,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
         setIsWrongPin(true);
         setTimeout(() => {
           setIsWrongPin(null);
+          setNeedReset(true);
         }, PIN_TIMEOUT_FAILURE);
         dispatch(addErrorToast(IncorrectPINError));
         console.error(e);
@@ -96,6 +98,8 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage>
       <PinModal
+        needReset={needReset}
+        setNeedReset={setNeedReset}
         open={modalOpen}
         title="Unlock your seed"
         description="Enter your secret PIN to unlock your wallet"

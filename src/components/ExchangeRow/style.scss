@@ -43,12 +43,14 @@
     font-size: 30px;
     display: flex;
     align-items: center;
-  }
-
-  .icon-wrapper {
-    width: 24px;
-    height: 24px;
-    margin-right: 8px;
+    .icon-wrapper {
+      width: 24px;
+      margin-right: 10px;
+    }
+    ion-icon {
+      width: 40px;
+      height: 20px;
+    }
   }
 
   .coin-amount {

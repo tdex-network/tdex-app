@@ -16,7 +16,7 @@ import {
   useIonViewDidLeave,
 } from '@ionic/react';
 import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
-import { caretDown, searchSharp } from 'ionicons/icons';
+import { chevronDownOutline } from 'ionicons/icons';
 import {
   AssetWithTicker,
   bestBalance,
@@ -161,10 +161,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           <p>
             {asset.ticker === 'L-BTC' ? lbtcUnit : asset.ticker.toUpperCase()}
           </p>
-          <IonIcon
-            className="icon"
-            icon={isSearchOpen ? searchSharp : caretDown}
-          />
+          <IonIcon className="icon" icon={chevronDownOutline} />
         </div>
         <div
           className={classNames('coin-amount', {
