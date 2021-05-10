@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
 import {
   IonButton,
-  IonButtons,
   IonContent,
-  IonHeader,
-  IonIcon,
   IonModal,
-  IonTitle,
-  IonToolbar,
+  IonGrid,
+  IonCol,
+  IonRow,
 } from '@ionic/react';
-import './style.scss';
 import PageDescription from '../PageDescription';
 import { removeMnemonicFromSecureStorage } from '../../utils/storage-helper';
-import { closeOutline } from 'ionicons/icons';
+import Header from '../Header';
 
 interface DeleteMnemonicModalProps {
   openModal: boolean;
@@ -24,7 +21,6 @@ interface DeleteMnemonicModalProps {
 const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({
   openModal,
   onConfirm,
-  close,
   pin,
 }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -50,34 +46,30 @@ const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({
       cssClass="modal-big withdrawal"
       keyboardClose={false}
     >
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="with-back-button">
-          <IonButtons slot="start">
-            <IonButton onClick={close}>
-              <IonIcon slot="icon-only" icon={closeOutline} />
-            </IonButton>
-          </IonButtons>
-          <IonTitle>CLEAR MY KEY</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent>
-        <PageDescription title="Delete your secret mnemonic">
-          <p>
-            Clicking on "Delete" will delete your key on this device. Be sure to
-            backup your mnemonic!
-          </p>
-        </PageDescription>
-        <div className="buttons">
-          <IonButton
-            onClick={() => deleteMnemonic()}
-            disabled={isLoading}
-            type="button"
-            className="main-button"
-          >
-            Delete
-          </IonButton>
-        </div>
-        {errorMsg !== '' && <p>{errorMsg}</p>}
+        <IonGrid>
+          <Header
+            title="CLEAR MY KEY"
+            hasBackButton={false}
+            hasCloseButton={true}
+          />
+          <PageDescription
+            description='Clicking on "Delete" will delete your mnemonic on this device. Be sure to back it up!'
+            title="Delete your mnemonic"
+          />
+          <IonRow className="ion-margin-vertical-x2">
+            <IonCol size="10" offset="1" sizeMd="8" offsetMd="2">
+              <IonButton
+                onClick={() => deleteMnemonic()}
+                disabled={isLoading}
+                className="main-button"
+              >
+                Delete
+              </IonButton>
+            </IonCol>
+          </IonRow>
+          {errorMsg !== '' && <p>{errorMsg}</p>}
+        </IonGrid>
       </IonContent>
     </IonModal>
   );

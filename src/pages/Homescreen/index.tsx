@@ -17,13 +17,13 @@ import {
   mnemonicInSecureStorage,
 } from '../../utils/storage-helper';
 import { addErrorToast } from '../../redux/actions/toastActions';
-import './style.scss';
 import { setKeyboardTheme } from '../../utils/keyboard';
 import { KeyboardStyle } from '@capacitor/core';
 import { IncorrectPINError } from '../../utils/errors';
 import { PIN_TIMEOUT_FAILURE } from '../../utils/constants';
 import logo from '../../assets/img/tdex_3d_logo.svg';
 import ButtonsMainSub from '../../components/ButtonsMainSub';
+import './style.scss';
 
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
@@ -65,7 +65,6 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
       const mnemonicExists = await mnemonicInSecureStorage();
       if (mnemonicExists) setPinModalIsOpen(true);
     };
-
     init()
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -77,7 +76,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
       <PinModal
         open={pinModalIsOpen}
         title="Enter your secret PIN"
-        description="Unlock your wallet."
+        description="Unlock your wallet"
         onConfirm={onConfirmPinModal}
         isWrongPin={isWrongPin}
       />
@@ -94,7 +93,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
             mainLink="/onboarding/backup"
             subTitle="Restore wallet"
             subLink="/restore"
-            classes="btn-container"
+            className="btn-container"
           />
         </IonGrid>
       </IonContent>

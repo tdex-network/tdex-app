@@ -1,11 +1,3 @@
-.buttons {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  margin-top: 5%;
-}
-
 .provider-name {
   font-size: 14px;
 }
@@ -22,11 +14,10 @@
   }
   @media (max-width: 450px) {
     .provider-name {
-      font-size: 12px;
+      font-size: 1rem;
     }
-
     .provider-endpoint {
-      font-size: 8px;
+      font-size: 0.8rem;
     }
   }
 }
@@ -34,4 +25,5 @@
 .button-delete {
   position: absolute;
   right: 5px;
+  width: 45px;
 }

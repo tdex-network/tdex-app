@@ -24,7 +24,7 @@ const BackupOnboarding: React.FC<BackupProps> = () => {
   return (
     <IonPage>
       <IonContent className="backup-onboarding-content">
-        <Header hasBackBtn={true} title="BACKUP WALLET" />
+        <Header hasBackButton={true} title="BACKUP WALLET" />
         <IonGrid className="ion-text-center ion-justify-content-center">
           <IonRow className="icon-row ion-margin-vertical">
             <IonCol>
@@ -50,8 +50,8 @@ const BackupOnboarding: React.FC<BackupProps> = () => {
               <ButtonsMainSub
                 mainTitle="BACKUP NOW"
                 subTitle="DO IT LATER"
-                mainLink="/show-mnemonic"
-                subOnClick={() => ''}
+                mainLink="/onboarding/show-mnemonic"
+                subLink="/onboarding/pin-setting"
               />
             </IonCol>
           </IonRow>

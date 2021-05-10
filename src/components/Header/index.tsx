@@ -1,23 +1,33 @@
 import React from 'react';
 import {
   IonBackButton,
+  IonButton,
   IonButtons,
   IonHeader,
+  IonIcon,
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
-import { chevronBackOutline } from 'ionicons/icons';
+import { chevronBackOutline, closeOutline } from 'ionicons/icons';
 import classNames from 'classnames';
 import './style.scss';
 
 interface HeaderProps {
+  defaultHref?: string;
   isTitleLarge?: boolean;
-  hasBackBtn: boolean;
+  handleBack?: () => void;
+  handleClose?: () => void;
+  hasBackButton: boolean;
+  hasCloseButton?: boolean;
   title: string;
 }
 
 const Header: React.FC<HeaderProps> = ({
-  hasBackBtn,
+  defaultHref,
+  handleBack,
+  handleClose,
+  hasBackButton,
+  hasCloseButton,
   isTitleLarge = false,
   title,
 }) => {
@@ -25,12 +35,30 @@ const Header: React.FC<HeaderProps> = ({
     <IonHeader className="ion-no-border">
       <IonToolbar
         className={classNames({
-          'back-button': hasBackBtn,
+          'back-button': hasBackButton,
+          'close-button': hasCloseButton,
         })}
       >
-        {hasBackBtn && (
+        {hasCloseButton && (
+          <IonButtons slot="end">
+            <IonButton onClick={handleClose}>
+              <IonIcon slot="icon-only" icon={closeOutline} />
+            </IonButton>
+          </IonButtons>
+        )}
+        {hasBackButton && (
           <IonButtons slot="start">
-            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
+            {handleBack ? (
+              <IonButton onClick={handleBack}>
+                <IonIcon slot="icon-only" icon={chevronBackOutline} />
+              </IonButton>
+            ) : (
+              <IonBackButton
+                defaultHref={defaultHref ?? '/homescreen'}
+                text=""
+                icon={chevronBackOutline}
+              />
+            )}
           </IonButtons>
         )}
         <IonTitle className={classNames({ 'title-large': isTitleLarge })}>

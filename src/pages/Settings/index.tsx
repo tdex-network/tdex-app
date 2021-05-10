@@ -7,12 +7,8 @@ import {
   IonTitle,
   IonToolbar,
   IonListHeader,
-  //IonToggle,
   IonModal,
-  IonButton,
   IonInput,
-  IonButtons,
-  IonIcon,
   IonGrid,
   IonRow,
 } from '@ionic/react';
@@ -35,8 +31,9 @@ import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
-import { closeOutline } from 'ionicons/icons';
 import ButtonsMainSub from '../../components/ButtonsMainSub';
+import Header from '../../components/Header';
+
 const { Device } = Plugins;
 
 const Settings: React.FC<RouteComponentProps> = ({ history }) => {
@@ -76,7 +73,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   //   dispatch(storeTheme(newTheme));
   // };
 
-  const onPinConfirm = (pin: string) => {
+  const handlePinConfirm = (pin: string) => {
     getMnemonicFromSecureStorage(pin)
       .then(() => {
         setIsWrongPin(false);
@@ -101,8 +98,8 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
       <PinModal
         open={modalOpen}
         title="Unlock your seed"
-        description="Enter your secret PIN to unlock your wallet."
-        onConfirm={onPinConfirm}
+        description="Enter your secret PIN to unlock your wallet"
+        onConfirm={handlePinConfirm}
         onClose={() => {
           setModalOpen(false);
         }}
@@ -129,7 +126,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               ></div>
               <div className="item-main-info">
                 <div className="item-start">
-                  <div className="main-row">Account </div>
+                  <div className="main-row">Account</div>
                 </div>
                 <div className="item-end">
                   <IconRightArrow
@@ -154,7 +151,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               ></div>
               <div className="item-main-info">
                 <div className="item-start">
-                  <div className="main-row">Manage liquidity provider </div>
+                  <div className="main-row">Manage liquidity provider</div>
                 </div>
                 <div className="item-end">
                   <IconRightArrow
@@ -204,7 +201,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               ></div>
               <div className="item-main-info">
                 <div className="item-start">
-                  <div className="main-row">Default currency </div>
+                  <div className="main-row">Default currency</div>
                 </div>
                 <div className="item-end">
                   <span className="chosen-currency green-label">
@@ -233,7 +230,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               ></div>
               <div className="item-main-info">
                 <div className="item-start">
-                  <div className="main-row">Electrum server </div>
+                  <div className="main-row">Electrum server</div>
                 </div>
                 <div className="item-end">
                   <IconRightArrow
@@ -281,7 +278,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               ></div>
               <div className="item-main-info">
                 <div className="item-start">
-                  <div className="main-row">FAQ </div>
+                  <div className="main-row">FAQ</div>
                 </div>
                 <div className="item-end">
                   <IconRightArrow
@@ -306,7 +303,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               ></div>
               <div className="item-main-info">
                 <div className="item-start">
-                  <div className="main-row">Terms & Conditions </div>
+                  <div className="main-row">Terms & Conditions</div>
                 </div>
                 <div className="item-end">
                   <IconRightArrow
@@ -329,24 +326,19 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
             keyboardClose={false}
             onDidDismiss={() => setShowExplorerModal(false)}
           >
-            <IonHeader className="ion-no-border">
-              <IonToolbar className="with-back-button">
-                <IonButtons slot="start">
-                  <IonButton
-                    onClick={() => {
-                      setShowExplorerModal(false);
-                    }}
-                  >
-                    <IonIcon slot="icon-only" icon={closeOutline} />
-                  </IonButton>
-                </IonButtons>
-                <IonTitle>Electrum server</IonTitle>
-              </IonToolbar>
-            </IonHeader>
             <IonContent>
-              <PageDescription title="Electrum">
-                <p>Set explorer url for electrum server</p>
-              </PageDescription>
+              <Header
+                title="ELECTRUM SERVER"
+                hasBackButton={false}
+                hasCloseButton={true}
+                handleClose={() => {
+                  setShowExplorerModal(false);
+                }}
+              />
+              <PageDescription
+                description="Set explorer url for electrum server"
+                title="Electrum"
+              />
               <IonRow>
                 <IonInput
                   className="explorer-input"
@@ -359,7 +351,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               </IonRow>
 
               <ButtonsMainSub
-                classes="ion-margin"
+                className="ion-margin"
                 mainTitle="Save"
                 subTitle="Cancel"
                 mainOnClick={() => {

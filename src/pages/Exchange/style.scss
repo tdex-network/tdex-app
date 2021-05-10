@@ -1,66 +1,66 @@
 @import '../../theme/variables';
 
-.exchange-header {
-  background: rgb(51, 51, 51);
-}
-
-.exchange {
-  .exchange-coin-container:nth-child(3) {
-    background: transparent;
+#exchange-page {
+  overflow: auto;
+  background: rgb(22, 22, 22);
+  
+  .refresher-active, .refresher-refreshing {
+    background: #333333;
   }
-}
-
-.exchange-content {
-  --padding-start: 0;
-  --padding-end: 0;
-}
-
-.exchange-divider {
-  transition: all 800ms ease-in-out;
-  position: absolute;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #000;
-  top: 170px;
-  left: calc(50vw - 17px);
-  z-index: 2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  @media (max-height: 700px) {
-    top: 110px;
-  }
-
-  .swap-btn {
-    font-size: 18px;
-    color: rgb(15, 255, 0);
-  }
-}
-
-.light {
+  
   .exchange-header {
-    background: transparent;
+    background: rgb(51, 51, 51);
   }
+  
+  .exchange-coin-container:nth-child(3) {
+    background: rgb(22, 22, 22);
+  }
+  
+  
+  .exchange-content {
+    --padding-start: 0;
+    --padding-end: 0;
+  }
+  
   .exchange-divider {
-    background: #fff;
-    border: 1px solid #f4f4f4;
+    transition: all 800ms ease-in-out;
+    display: flex;
+    img {
+      margin-top: -16px;
+      position: absolute;
+      left: calc(50vw - 17px);
+      z-index: 2;
+      background: rgba(15, 255, 0, 0.12);
+      width: 32px;
+      height: 32px;
+      padding: 5px;
+      border: rgb(15, 255, 0) 1px solid;
+      border-radius: 50%;
+    }
   }
-}
-
-.market-provider {
-  margin-top: 2%;
-  text-align: center;
-  .trade-info {
-    margin-top: 2%;
+  
+  .market-provider {
+    background: rgb(22, 22, 22);
     text-align: center;
-    font-size: small;
-    color: rgba(245, 245, 245, 0.774);
-
-    .provider-info {
-      font-style: italic;
-      font-weight: 500;
+    .trade-info {
+      text-align: center;
+      font-size: small;
+      color: rgba(245, 245, 245, 0.774);
+      .provider-info {
+        font-style: italic;
+        font-weight: 500;
+      }
+    }
+  }
+  
+  .light {
+    .exchange-header {
+      background: transparent;
+    }
+    .exchange-divider {
+      background: #fff;
+      border: 1px solid #f4f4f4;
     }
   }
 }
+

@@ -2,13 +2,14 @@ import {
   setCurrency,
   setElectrumServer,
   setLBTCDenomination,
+  setTheme,
   SET_CURRENCY,
   SET_ELECTRUM_SERVER,
   SET_LBTC_DENOMINATION,
   SET_THEME,
-} from './../actions/settingsActions';
+  STORE_THEME,
+} from '../actions/settingsActions';
 import { takeLatest, call, put } from 'redux-saga/effects';
-import { setTheme, STORE_THEME } from '../actions/settingsActions';
 import { ActionType } from '../../utils/types';
 import {
   setThemeToStorage,

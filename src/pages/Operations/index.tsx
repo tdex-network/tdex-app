@@ -1,18 +1,14 @@
 import {
   IonPage,
   IonButtons,
-  IonTitle,
   IonContent,
   IonList,
   IonItem,
   IonButton,
-  IonToolbar,
-  IonHeader,
   IonListHeader,
   IonLabel,
   IonText,
   IonIcon,
-  IonBackButton,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { withRouter, RouteComponentProps, useParams } from 'react-router';
@@ -25,14 +21,15 @@ import {
   fromSatoshi,
   fromSatoshiFixed,
 } from '../../utils/helpers';
-import { checkmarkSharp, chevronBackOutline } from 'ionicons/icons';
+import { checkmarkSharp } from 'ionicons/icons';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
-import { LBTC_TICKER } from '../../utils/constants';
+import { LBTC_TICKER, MAIN_ASSETS } from '../../utils/constants';
 import Refresher from '../../components/Refresher';
 import WatchersLoader from '../../redux/containers/watchersLoaderContainer';
 
 import './style.scss';
+import Header from '../../components/Header';
 
 const txTypes = ['deposit', 'withdrawal', 'swap', 'trade'];
 const statusText = {
@@ -66,6 +63,15 @@ const Operations: React.FC<OperationsProps> = ({
     const balanceSelected = balances.find((bal) => bal.asset === asset_id);
     if (balanceSelected) {
       setBalance(balanceSelected);
+    } else {
+      const asset = MAIN_ASSETS.find((a) => a.assetHash === asset_id);
+      setBalance({
+        asset: asset?.assetHash ?? '',
+        amount: 0,
+        coinGeckoID: asset?.coinGeckoID ?? '',
+        ticker: asset?.ticker ?? '',
+        precision: asset?.precision ?? 8,
+      });
     }
   }, [balances, asset_id]);
 
@@ -102,76 +108,69 @@ const Operations: React.FC<OperationsProps> = ({
     <IonPage>
       <IonContent className="operations">
         <Refresher />
-        <IonHeader className="header operations ion-no-border">
-          <IonToolbar className="with-back-button">
-            <IonButtons slot="start">
-              <IonBackButton
-                defaultHref="/"
-                text=""
-                icon={chevronBackOutline}
-              />
-            </IonButtons>
-            <IonTitle>{balance?.ticker} operations</IonTitle>
-          </IonToolbar>
-          <div className="header-info ion-text-center ion-margin">
-            {balance ? (
-              <CurrencyIcon currency={balance?.ticker} />
-            ) : (
-              <CurrencyIcon currency={LBTC_TICKER} />
-            )}
-            <p className="info-amount">
-              {balance &&
-                fromSatoshiFixed(
-                  balance?.amount,
-                  balance.precision,
-                  balance.precision,
-                  balance.ticker === 'L-BTC' ? lbtcUnit : undefined
-                )}
-              <span>
-                {balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker}
-              </span>
+        <Header
+          title={`${balance?.ticker ?? ''} ${balance?.coinGeckoID ?? ''}`}
+          hasBackButton={true}
+        />
+        <div className="header-info ion-text-center ion-margin">
+          {balance ? (
+            <CurrencyIcon currency={balance?.ticker} />
+          ) : (
+            <CurrencyIcon currency={LBTC_TICKER} />
+          )}
+          <p className="info-amount">
+            {balance &&
+              fromSatoshiFixed(
+                balance?.amount,
+                balance.precision,
+                balance.precision,
+                balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+              )}
+            <span>
+              {' '}
+              {balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker}
+            </span>
+          </p>
+          {balance && balance.coinGeckoID && prices[balance.coinGeckoID] && (
+            <p className="info-amount-converted">
+              {(
+                fromSatoshi(balance.amount, balance.precision) *
+                prices[balance.coinGeckoID]
+              ).toFixed(2)}{' '}
+              {currency.toUpperCase()}
             </p>
-            {balance && balance.coinGeckoID && prices[balance.coinGeckoID] && (
-              <p className="info-amount-converted">
-                {(
-                  fromSatoshi(balance.amount, balance.precision) *
-                  prices[balance.coinGeckoID]
-                ).toFixed(2)}{' '}
-                {currency.toUpperCase()}
-              </p>
-            )}
-          </div>
-          <IonButtons className="operations-buttons">
-            <IonButton
-              className="coin-action-button"
-              onClick={() => {
-                history.push({
-                  pathname: '/receive',
-                  state: {
-                    depositAsset: {
-                      asset: balance?.asset,
-                      ticker: balance?.ticker ?? LBTC_TICKER,
-                      coinGeckoID: balance?.coinGeckoID ?? 'L-BTC',
-                    },
+          )}
+        </div>
+        <IonButtons className="operations-buttons">
+          <IonButton
+            className="coin-action-button"
+            onClick={() => {
+              history.push({
+                pathname: '/receive',
+                state: {
+                  depositAsset: {
+                    asset: balance?.asset,
+                    ticker: balance?.ticker ?? LBTC_TICKER,
+                    coinGeckoID: balance?.coinGeckoID ?? 'L-BTC',
                   },
-                });
-              }}
-            >
-              Deposit
-            </IonButton>
-            <IonButton
-              className="coin-action-button"
-              onClick={() => {
-                history.push(`/withdraw/${asset_id}`);
-              }}
-            >
-              Withdraw
-            </IonButton>
-            <IonButton className="coin-action-button" routerLink="/exchange">
-              Swap
-            </IonButton>
-          </IonButtons>
-        </IonHeader>
+                },
+              });
+            }}
+          >
+            Deposit
+          </IonButton>
+          <IonButton
+            className="coin-action-button"
+            onClick={() => {
+              history.push(`/withdraw/${asset_id}`);
+            }}
+          >
+            Withdraw
+          </IonButton>
+          <IonButton className="coin-action-button" routerLink="/exchange">
+            Swap
+          </IonButton>
+        </IonButtons>
         <IonList>
           <IonListHeader>Transactions</IonListHeader>
           <WatchersLoader />

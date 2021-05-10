@@ -1,6 +1,24 @@
 @import '../../theme/variables.scss';
 
 .exchange-coin-container {
+  &:nth-child(1):before {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 1px;
+    width: calc(50% - 16px);
+    border-bottom:1px solid rgb(15, 255, 0);
+  }
+  &:nth-child(1):after {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    width: calc(50% - 16px);
+    border-bottom:1px solid rgb(15, 255, 0);
+  }
   position: relative;
   background: rgb(51, 51, 51);
   @media (max-height: 700px) {
@@ -8,11 +26,10 @@
   }
   padding: 54px 24px;
   color: #fff;
-
   .exchanger-row {
     display: flex;
     justify-content: space-between;
-
+    align-items: baseline;
     &.sub-row {
       font-family: $sub-heading-font;
       font-size: $sub-font-size;

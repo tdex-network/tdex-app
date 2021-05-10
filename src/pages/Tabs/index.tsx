@@ -66,7 +66,6 @@ const Tabs: React.FC<RouteComponentProps> = ({ history, location }) => {
                       active: isActive(item.name),
                     })}
                   />
-                  {isActive(item.name) && <span className="indicator"></span>}
                 </div>
               </IonTabButton>
             ))}

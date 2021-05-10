@@ -1,28 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  IonButton,
-  IonButtons,
   IonContent,
-  IonHeader,
   IonModal,
-  IonTitle,
-  IonToolbar,
   useIonViewWillEnter,
   useIonViewWillLeave,
-  IonIcon,
+  IonGrid,
 } from '@ionic/react';
-import './style.scss';
 import PageDescription from '../PageDescription';
 import PinInput from '../PinInput';
 import { useDispatch } from 'react-redux';
 import { addErrorToast } from '../../redux/actions/toastActions';
 import { PinDigitsError } from '../../utils/errors';
-import { closeOutline } from 'ionicons/icons';
+import Header from '../Header';
 
 interface PinModalProps {
   open: boolean;
   title: string;
   description: string;
+  isDescriptionCentered?: boolean;
   onConfirm: (pin: string) => void;
   onClose?: () => void;
   onDidDismiss?: boolean;
@@ -82,6 +77,7 @@ const PinModal: React.FC<PinModalProps> = ({
 
   return (
     <IonModal
+      id="pin-modal"
       animated={false}
       cssClass="modal-big"
       isOpen={open}
@@ -89,29 +85,22 @@ const PinModal: React.FC<PinModalProps> = ({
       onDidDismiss={onDidDismiss ? onClose : undefined}
     >
       <IonContent scrollY={false}>
-        <IonHeader className="ion-no-border">
-          <IonToolbar className="with-back-button">
-            {onClose && (
-              <IonButtons slot="start">
-                <IonButton onClick={() => onClose()}>
-                  <IonIcon slot="icon-only" icon={closeOutline} />
-                </IonButton>
-              </IonButtons>
-            )}
-            <IonTitle>Insert PIN</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-
-        <PageDescription title={title}>
-          <p>{description}</p>
-        </PageDescription>
-        <PinInput
-          inputRef={inputRef}
-          on6digits={handleConfirm}
-          onPin={setPin}
-          isWrongPin={isWrongPin}
-          pin={pin}
-        />
+        <IonGrid className="ion-text-center ion-justify-content-center">
+          <Header
+            title="INSERT PIN"
+            hasBackButton={false}
+            hasCloseButton={!!onClose}
+            handleClose={onClose}
+          />
+          <PageDescription description={description} title={title} />
+          <PinInput
+            inputRef={inputRef}
+            on6digits={handleConfirm}
+            onPin={setPin}
+            isWrongPin={isWrongPin}
+            pin={pin}
+          />
+        </IonGrid>
       </IonContent>
     </IonModal>
   );

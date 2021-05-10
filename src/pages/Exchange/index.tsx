@@ -6,17 +6,14 @@ import {
   IonPage,
   IonTitle,
   IonToolbar,
-  IonButton,
   IonLoading,
   IonText,
-  IonIcon,
   useIonViewWillEnter,
   IonGrid,
   IonRow,
   IonCol,
 } from '@ionic/react';
 import ExchangeRow from '../../redux/containers/exchangeRowContainer';
-import classNames from 'classnames';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import {
   allTrades,
@@ -32,7 +29,6 @@ import {
 import PinModal from '../../components/PinModal';
 import { getConnectedIdentity } from '../../utils/storage-helper';
 import { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
-import { swapVerticalOutline } from 'ionicons/icons';
 import { PreviewData } from '../TradeSummary';
 import Refresher from '../../components/Refresher';
 import { UtxoInterface } from 'ldk';
@@ -53,6 +49,8 @@ import {
   IncorrectPINError,
   NoMarketsProvidedError,
 } from '../../utils/errors';
+import swap from '../../assets/img/swap.svg';
+import ButtonsMainSub from '../../components/ButtonsMainSub';
 
 const ERROR_LIQUIDITY = 'Not enough liquidity in market';
 
@@ -239,7 +237,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   };
 
   return (
-    <IonPage>
+    <IonPage id="exchange-page">
       <IonLoading isOpen={loading} />
       {assetSent && assetReceived && markets.length > 0 && (
         <PinModal
@@ -263,7 +261,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         {assetSent && markets.length > 0 && (
           <IonContent className="exchange-content">
             <Refresher />
-            <div className="exchange">
+            <div>
               <ExchangeRow
                 checkBalance
                 focused={isFocused === 'sent'}
@@ -294,7 +292,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                   setAssetReceived(firstAsset);
                 }}
               >
-                <IonIcon className="swap-btn" icon={swapVerticalOutline} />
+                <img src={swap} alt="swap" />
               </div>
               {assetReceived && (
                 <ExchangeRow
@@ -320,33 +318,28 @@ const Exchange: React.FC<ExchangeProps> = ({
                 />
               )}
             </div>
-            <IonRow>
-              <IonCol size="8" offset="2">
-                <IonButton
-                  className={classNames('main-button', {
-                    secondary: false,
-                  })}
-                  onClick={onConfirm}
-                  disabled={
-                    !assetSent ||
-                    !assetReceived ||
-                    loading ||
-                    sentAmountGreaterThanBalance()
-                  }
-                >
-                  Confirm
-                </IonButton>
-              </IonCol>
-            </IonRow>
+            <ButtonsMainSub
+              mainTitle="CONFIRM"
+              subTitle="CANCEL"
+              mainOnClick={onConfirm}
+              mainDisabled={
+                !assetSent ||
+                !assetReceived ||
+                loading ||
+                sentAmountGreaterThanBalance()
+              }
+            />
             {trade && (
-              <div className="market-provider">
-                <IonText className="trade-info" color="light">
-                  Market provided by:{' '}
-                  <span className="provider-info">
-                    {` ${trade.market.provider.name} - ${trade.market.provider.endpoint}`}
-                  </span>
-                </IonText>
-              </div>
+              <IonRow className="market-provider ion-margin-vertical">
+                <IonCol size="10" offset="1">
+                  <IonText className="trade-info" color="light">
+                    Market provided by:{' '}
+                    <span className="provider-info">
+                      {` ${trade.market.provider.name} - ${trade.market.provider.endpoint}`}
+                    </span>
+                  </IonText>
+                </IonCol>
+              </IonRow>
             )}
           </IonContent>
         )}

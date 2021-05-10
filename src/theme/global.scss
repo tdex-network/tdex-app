@@ -40,13 +40,7 @@ ion-modal {
 .modal-big {
   .modal-wrapper {
     height: 99vh !important;
-  }
-
-  .page-description {
-    margin-top: 16px;
-    p {
-      width: 186px !important;
-    }
+    width: 100%;
   }
 }
 
@@ -59,54 +53,20 @@ ion-content {
   --background: transparent;
 }
 
-.light {
-  .gradient-background {
-    background: rgb(244, 244, 244);
-  }
-  ion-title {
-    color: #000;
-  }
-
-  ion-list ion-item {
-    background: rgba(255, 255, 255, 1);
-  }
-  .with-back-button {
-    ion-button {
-      color: #000;
-
-      svg {
-        fill: rgb(0, 0, 0);
-      }
-    }
-  }
-  ion-input {
-    color: #000;
-  }
-}
-
-/* Checkbox */
-.custom-check {
-  height: 20px;
-  width: 20px;
-  border: 1px solid #fff;
-  border-radius: 10px;
-  margin-right: 13px;
-  .check-icon svg {
-    width: 20px;
-    height: 20px;
-    margin-left: 2px;
-    fill: rgb(15, 255, 0);
-    display: none;
-  }
-}
-input:checked + .custom-check {
-  .check-icon svg {
-    display: block;
-  }
-}
-/**/
-
 ion-icon {
   height: 100%;
   width: 100%;
+}
+
+ion-button {
+  width: 100%;
+  border-radius: 35px;
+  --border-radius: 35px;
+  font-size: 14px;
+  position: relative;
+  --background-hover: transparent;
+  --background-focused: transparent;
+  --background-activated: transparent;
+  --background-hover-opacity: 1;
+  text-transform: uppercase;
 }

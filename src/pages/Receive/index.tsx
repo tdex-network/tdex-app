@@ -1,25 +1,19 @@
 import {
   IonPage,
-  IonTitle,
   IonContent,
   IonItem,
-  IonToolbar,
-  IonHeader,
   IonIcon,
   IonSpinner,
   IonLoading,
-  IonButtons,
-  IonBackButton,
 } from '@ionic/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { withRouter, useLocation } from 'react-router';
 import { IconCopy, CurrencyIcon } from '../../components/icons';
 import PageDescription from '../../components/PageDescription';
-import './style.scss';
 import { useDispatch, useSelector } from 'react-redux';
 import { Clipboard } from '@ionic-native/clipboard';
 import { QRCodeImg } from '@cheprasov/react-qrcode';
-import { checkmarkOutline, chevronBackOutline } from 'ionicons/icons';
+import { checkmarkOutline } from 'ionicons/icons';
 import {
   AddressInterface,
   IdentityOpts,
@@ -36,6 +30,8 @@ import { IdentityRestorerFromState } from '../../utils/identity';
 import { addAddress } from '../../redux/actions/walletActions';
 import { AddressGenerationError } from '../../utils/errors';
 import { AssetConfig } from '../../utils/constants';
+import './style.scss';
+import Header from '../../components/Header';
 
 interface LocationState {
   depositAsset: AssetConfig;
@@ -120,43 +116,28 @@ const Receive: React.FC = () => {
     <IonPage>
       <IonLoading isOpen={loading} />
       <IonContent className="receive">
-        <IonHeader className="ion-no-border">
-          <IonToolbar className="with-back-button">
-            <IonButtons slot="start">
-              <IonBackButton
-                defaultHref="/"
-                text=""
-                icon={chevronBackOutline}
-              />
-            </IonButtons>
-            <IonTitle>
-              {locationState.depositAsset.name?.toUpperCase() ?? ''} DEPOSIT
-            </IonTitle>
-          </IonToolbar>
-        </IonHeader>
-
-        <div className="description-with-icon">
-          <div className="img-wrapper">
-            <CurrencyIcon
-              currency={locationState.depositAsset.ticker}
-              width="48px"
-              height="48px"
-            />
-          </div>
-          <PageDescription
-            align="left"
-            title={`Your ${locationState.depositAsset.ticker} address`}
-          >
-            <p>
-              {`To provide this address to the person sending you ${
-                locationState.depositAsset.name ||
-                locationState.depositAsset.coinGeckoID ||
-                locationState.depositAsset.ticker
-              } simply tap to copy it or scan your
-              wallet QR code with their device.`}
-            </p>
-          </PageDescription>
+        <Header
+          hasBackButton={true}
+          title={`${
+            locationState.depositAsset.name?.toUpperCase() ?? ''
+          } DEPOSIT`}
+        />
+        <div className="ion-text-center">
+          <CurrencyIcon
+            currency={locationState.depositAsset.ticker}
+            width="48"
+            height="48"
+          />
         </div>
+        <PageDescription
+          description={`To provide this address to the person sending you ${
+            locationState.depositAsset.name ||
+            locationState.depositAsset.coinGeckoID ||
+            locationState.depositAsset.ticker
+          } simply tap to copy it or scan your
+              wallet QR code with their device.`}
+          title={`Your ${locationState.depositAsset.ticker} address`}
+        />
         {address ? (
           <div>
             <input

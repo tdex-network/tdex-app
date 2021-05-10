@@ -1,42 +1,51 @@
 import React, { useState } from 'react';
+import { RouteComponentProps, useLocation } from 'react-router';
 import {
   IonContent,
   IonPage,
   IonGrid,
   IonRow,
   IonButton,
+  useIonViewWillEnter,
   IonCol,
 } from '@ionic/react';
-import { RouteComponentProps, useLocation } from 'react-router';
+import * as bip39 from 'bip39';
 import { AppError } from '../../utils/errors';
 import WordList from '../../components/WordList';
 import Header from '../../components/Header';
 import Checkbox from '../../components/Checkbox';
 import PageDescription from '../../components/PageDescription';
-import { AssetConfig } from '../../utils/constants';
 
 interface ShowMnemonicProps extends RouteComponentProps {
   // connected redux props
+  backupDone: boolean;
   setIsBackupDone: (done: boolean) => void;
   onError: (err: AppError) => void;
 }
 
 interface LocationState {
-  depositAssets: AssetConfig[];
   mnemonic: string;
 }
 
-const ShowMnemonic: React.FC<ShowMnemonicProps> = ({
+const ShowMnemonicOnboarding: React.FC<ShowMnemonicProps> = ({
+  backupDone,
   history,
   setIsBackupDone,
 }) => {
-  const [isSeedSaved, setIsSeedSaved] = useState(false);
   const { state } = useLocation<LocationState>();
+  const [isSeedSaved, setIsSeedSaved] = useState(false);
+  const [mnemonic, setMnemonic] = useState<string>('');
+
+  useIonViewWillEnter(() => {
+    if (!backupDone || !state?.mnemonic) {
+      setMnemonic(bip39.generateMnemonic());
+    }
+  }, [backupDone]);
 
   return (
     <IonPage>
       <IonContent className="show-mnemonic-content">
-        <Header hasBackButton={false} title="SHOW MNEMONIC" />
+        <Header hasBackButton={true} title="SHOW MNEMONIC" />
         <IonGrid className="ion-text-center ion-justify-content-center">
           <PageDescription
             description="Save your 12 words recovery phrase in the correct order"
@@ -44,7 +53,7 @@ const ShowMnemonic: React.FC<ShowMnemonicProps> = ({
           />
           <IonRow>
             <IonCol>
-              <WordList mnemonic={state?.mnemonic ?? ''} />
+              <WordList mnemonic={mnemonic} />
             </IonCol>
           </IonRow>
           <Checkbox
@@ -66,12 +75,12 @@ const ShowMnemonic: React.FC<ShowMnemonicProps> = ({
                 onClick={() => {
                   setIsBackupDone(true);
                   history.push({
-                    pathname: '/deposit',
-                    state: { depositAssets: state?.depositAssets },
+                    pathname: '/onboarding/pin-setting',
+                    state: { mnemonic },
                   });
                 }}
               >
-                CONTINUE TO DEPOSIT
+                CONTINUE
               </IonButton>
             </IonCol>
           </IonRow>
@@ -81,4 +90,4 @@ const ShowMnemonic: React.FC<ShowMnemonicProps> = ({
   );
 };
 
-export default ShowMnemonic;
+export default ShowMnemonicOnboarding;

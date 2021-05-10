@@ -1,14 +1,9 @@
 import {
   IonPage,
-  IonTitle,
   IonContent,
   IonItem,
   IonButton,
-  IonToolbar,
-  IonHeader,
   IonSkeletonText,
-  IonButtons,
-  IonBackButton,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { withRouter, RouteComponentProps, useParams } from 'react-router';
@@ -20,8 +15,8 @@ import { Clipboard } from '@ionic-native/clipboard';
 import { addSuccessToast } from '../../redux/actions/toastActions';
 import { tickerFromAssetHash } from '../../utils/helpers';
 import Refresher from '../../components/Refresher';
+import Header from '../../components/Header';
 import './style.scss';
-import { chevronBackOutline } from 'ionicons/icons';
 
 const statusText = {
   confirmed: 'completed',
@@ -80,16 +75,9 @@ const WithdrawalDetails: React.FC<
 
   return (
     <IonPage>
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="with-back-button">
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
-          </IonButtons>
-          <IonTitle>WITHDRAWAL DETAILS</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent className="withdrawal-details">
         <Refresher />
+        <Header hasBackButton={true} title="WITHDRAWAL DETAILS" />
         <div className="header-info">
           {
             <CurrencyIcon

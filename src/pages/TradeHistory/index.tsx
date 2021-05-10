@@ -2,26 +2,22 @@ import React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import {
   IonPage,
-  IonTitle,
   IonContent,
   IonList,
   IonItem,
-  IonToolbar,
-  IonHeader,
   IonListHeader,
   IonIcon,
   IonLabel,
   IonText,
-  IonButtons,
-  IonBackButton,
 } from '@ionic/react';
-import { CurrencyIcon } from '../../components/icons';
-import { checkmarkOutline, chevronBackOutline } from 'ionicons/icons';
-import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
 import classNames from 'classnames';
+import { CurrencyIcon } from '../../components/icons';
+import { checkmarkOutline } from 'ionicons/icons';
+import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
 import { TxDisplayInterface } from '../../utils/types';
-import './style.scss';
 import { LBTC_TICKER } from '../../utils/constants';
+import Header from '../../components/Header';
+import './style.scss';
 
 interface TradeHistoryProps extends RouteComponentProps {
   swaps: TxDisplayInterface[];
@@ -47,15 +43,8 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
 
   return (
     <IonPage>
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="with-back-button">
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
-          </IonButtons>
-          <IonTitle>Trade history</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent className="trade-history">
+        <Header hasBackButton={true} title="TRADE HISTORY" />
         {swaps.length > 0 ? (
           <IonList>
             <IonListHeader>Swaps</IonListHeader>

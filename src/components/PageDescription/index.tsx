@@ -1,22 +1,28 @@
-import React from 'react';
+import React, { PropsWithChildren } from 'react';
+import { IonCol, IonRow } from '@ionic/react';
 import './style.scss';
 
-export type Alignments = 'left' | 'center' | 'right';
-
-export interface PageDescriptionInterface {
+export interface PageDescriptionProps extends PropsWithChildren<any> {
+  description: string;
   title: string;
-  align?: Alignments;
 }
 
-const PageDescription: React.FC<PageDescriptionInterface> = ({
+const PageDescription: React.FC<PageDescriptionProps> = ({
   title,
-  children,
-  align = 'center',
+  description,
 }) => {
   return (
-    <div className="page-description">
-      <h2>{title}</h2>
-      <div style={{ textAlign: align }}>{children}</div>
+    <div className="page-description ion-margin-vertical">
+      <IonRow>
+        <IonCol className="ion-text-center" size="10" offset="1">
+          <h2>{title}</h2>
+        </IonCol>
+      </IonRow>
+      <IonRow>
+        <IonCol size="10" offset="1">
+          <p className="ion-no-margin">{description}</p>
+        </IonCol>
+      </IonRow>
     </div>
   );
 };

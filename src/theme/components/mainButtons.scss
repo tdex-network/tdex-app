@@ -1,28 +1,5 @@
 @import '../../theme/variables';
 
-$breakpoint-small-device: 700px;
-
-.sub-button {
-  --background: none;
-  --border: 0;
-  --box-shadow: none;
-  border: 0;
-  height: auto;
-  margin-top: 30px;
-}
-
-@media (max-height: $breakpoint-small-device) {
-  .main-button {
-    height: 48px;
-  }
-}
-
-@media (min-height: $breakpoint-small-device) {
-  .main-button {
-    height: 60px;
-  }
-}
-
 .main-button {
   --background: rgba(15, 255, 0, 0.12);
   --box-shadow: none;
@@ -32,6 +9,7 @@ $breakpoint-small-device: 700px;
   --padding-end: 21px;
   border: 2px solid rgb(15, 255, 1);
   color: rgb(15, 255, 1);
+  height: 60px;
   &.secondary {
     border: 2px solid #fff;
     color: #fff;
@@ -46,25 +24,13 @@ $breakpoint-small-device: 700px;
   }
 }
 
-ion-button {
-  width: 100%;
-  border-radius: 35px;
-  --border-radius: 35px;
-  font-size: 14px;
-  position: relative;
-  --background-hover: transparent;
-  --background-focused: transparent;
-  --background-activated: transparent;
-  --background-hover-opacity: 1;
-  text-transform: uppercase;
-}
-
-.button-gradient {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  top: 0;
-  left: 0;
+.sub-button {
+  --background: none;
+  --border: 0;
+  --box-shadow: none;
+  border: 0;
+  height: 35px;
+  margin-top: 15px;
 }
 
 .light {

@@ -1,30 +1,6 @@
-.page-description {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: #fff;
-  margin-top: 40px;
-  margin-bottom: 35px;
-  h2 {
-    font-family: 'DMSans-Bold';
-    font-size: 18px;
-    margin-bottom: 7px;
-  }
-
-  p {
-    font-family: 'DMSans';
-    font-size: 14px;
-    width: 264px;
-    line-height: 21px;
-  }
-
-  p + p {
-    margin-top: 24px;
-  }
-}
-
-.light {
-  .page-description {
-    color: rgb(0, 0, 0);
-  }
+// Min height when pin screens to always have pin input at the same height
+#pin-setting-page, #pin-modal {
+	.page-description {
+		min-height: 170px;
+	}
 }

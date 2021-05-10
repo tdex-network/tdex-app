@@ -1,11 +1,12 @@
-import { updateMarkets } from './../actions/tdexActions';
+import { updateMarkets } from '../actions/tdexActions';
 import {
   addAddress,
+  setIsAuth,
   setPublicKeys,
   updateUtxos,
-} from './../actions/walletActions';
-import { ActionType } from './../../utils/types';
-import { waitForRestore } from './../services/walletService';
+} from '../actions/walletActions';
+import { ActionType } from '../../utils/types';
+import { waitForRestore } from '../services/walletService';
 import { takeLatest, put, call, all } from 'redux-saga/effects';
 import {
   INIT_APP,
@@ -16,7 +17,6 @@ import {
   UPDATE,
   setIsBackupDone,
 } from '../actions/appActions';
-import { setIsAuth } from '../actions/walletActions';
 import { Mnemonic } from 'ldk';
 import { getIdentity, seedBackupFlag } from '../../utils/storage-helper';
 import { updateTransactions } from '../actions/transactionsActions';
@@ -44,7 +44,7 @@ function* signInSaga(action: ActionType) {
       yield put(addAddress(addr));
     }
 
-    // set the backup flag
+    // Get backup flag from storage and set Redux state
     const backup = yield call(seedBackupFlag);
     if (backup) {
       yield put(setIsBackupDone(true));

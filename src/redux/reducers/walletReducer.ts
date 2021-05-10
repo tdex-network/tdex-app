@@ -1,4 +1,9 @@
-import { LBTC_COINGECKOID, LBTC_TICKER } from './../../utils/constants';
+import {
+  defaultPrecision,
+  LBTC_COINGECKOID,
+  LBTC_TICKER,
+  getMainAsset,
+} from '../../utils/constants';
 import { transactionsAssets } from './transactionsReducer';
 import { AddressInterface, UtxoInterface, Outpoint, Mnemonic } from 'ldk';
 import { ActionType } from '../../utils/types';
@@ -14,7 +19,6 @@ import {
   UNLOCK_UTXOS,
 } from '../actions/walletActions';
 import { tickerFromAssetHash, balancesFromUtxos } from '../../utils/helpers';
-import { defaultPrecision, getMainAsset } from '../../utils/constants';
 import { BalanceInterface } from '../actionTypes/walletActionTypes';
 
 export interface WalletState {

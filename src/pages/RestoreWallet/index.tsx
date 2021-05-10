@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
 import {
   IonContent,
-  IonHeader,
   IonButton,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonLoading,
   IonInput,
-  IonButtons,
-  IonBackButton,
   IonGrid,
   IonRow,
   IonCol,
@@ -42,7 +37,6 @@ import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
-import { chevronBackOutline } from 'ionicons/icons';
 import Header from '../../components/Header';
 
 const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
@@ -147,20 +141,12 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
         setNeedReset={setNeedReset}
       />
       <IonContent className="restore-wallet">
-        <Header hasBackBtn={true} title="SECRET PHRASE" />
+        <Header hasBackButton={true} title="SECRET PHRASE" />
         <IonGrid className="ion-text-center">
-          <IonRow>
-            <IonCol size="8" offset="2">
-              <h2>Restore Wallet</h2>
-            </IonCol>
-          </IonRow>
-          <IonRow>
-            <IonCol size="8" offset="2">
-              <p className="ion-no-margin">
-                Paste your 12 words recovery phrase in the correct order
-              </p>
-            </IonCol>
-          </IonRow>
+          <PageDescription
+            description="Paste your 12 words recovery phrase in the correct order"
+            title="Restore Wallet"
+          />
           <div className="restore-input-wrapper ion-margin-vertical">
             {mnemonic.map((item: string, index: number) => {
               return (

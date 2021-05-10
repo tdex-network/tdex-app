@@ -50,6 +50,7 @@ interface WalletProps extends RouteComponentProps {
 }
 
 const Wallet: React.FC<WalletProps> = ({
+  backupDone,
   balances,
   prices,
   currency,
@@ -60,8 +61,6 @@ const Wallet: React.FC<WalletProps> = ({
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const [mainAssets, setMainAssets] = useState<BalanceInterface[]>([]);
   const [fiats, setFiats] = useState<number[]>([]);
-  const backupDone = useSelector((state: any) => state.app.backupDone);
-  //const [backupModal, setBackupModal] = useState(false);
   const [secondaryAssets, setSecondaryAssets] = useState<BalanceInterface[]>(
     []
   );
@@ -172,14 +171,18 @@ const Wallet: React.FC<WalletProps> = ({
                   <IonButton
                     className="ion-no-padding"
                     onClick={() => {
+                      console.log('backupDone', backupDone);
                       if (backupDone) {
                         history.push({
                           pathname: '/deposit',
                           state: { depositAssets },
                         });
-                        //return;
+                        return;
                       }
-                      //setBackupModal(true);
+                      history.push({
+                        pathname: '/backup',
+                        state: { depositAssets },
+                      });
                     }}
                   >
                     <IonIcon

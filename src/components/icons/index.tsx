@@ -330,15 +330,15 @@ export const IconBTC = (props: IconInterface) => (
 export const CurrencyIcon = ({ currency, ...props }: any) => {
   switch (currency?.toUpperCase()) {
     case LBTC_TICKER:
-      return <img src={LbtcIcon} />;
+      return <img src={LbtcIcon} {...props} />;
     case USDT_TICKER:
-      return <img src={UsdtIcon} />;
+      return <img src={UsdtIcon} {...props} />;
     case LCAD_TICKER:
-      return <img src={LcadIcon} />;
+      return <img src={LcadIcon} {...props} />;
     case BTSE_TICKER:
-      return <img src={BtseIcon} />;
+      return <img src={BtseIcon} {...props} />;
     default:
-      return <img src={CurrencyPlaceholderIcon} />;
+      return <img src={CurrencyPlaceholderIcon} {...props} />;
   }
 };
 
@@ -360,10 +360,10 @@ export const SwapIcon = () => {
   return (
     <div className="swap-images">
       <span className="icon-wrapper">
-        <IconBTC width="13px" height="13px"></IconBTC>
+        <IconBTC width="13px" height="13px" />
       </span>
       <span className="icon-wrapper with-border">
-        <IconBTC width="13px" height="13px"></IconBTC>
+        <IconBTC width="13px" height="13px" />
       </span>
     </div>
   );

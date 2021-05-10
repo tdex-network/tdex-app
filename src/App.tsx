@@ -36,7 +36,8 @@ import { useAppState } from '@capacitor-community/react-hooks/app';
 import { Plugins } from '@capacitor/core';
 import { unlockUtxos } from './redux/actions/walletActions';
 import BackupOnboarding from './pages/Backup/backup-onboarding';
-import ShowMnemonic from './redux/containers/showMnemonicContainer';
+import ShowMnemonicOnboarding from './redux/containers/showMnemonicOnboadingContainer';
+import PinSetting from './pages/PinSetting';
 const { StatusBar } = Plugins;
 
 const App: React.FC = () => {
@@ -92,9 +93,13 @@ const App: React.FC = () => {
           <IonRouterOutlet animated={false}>
             <Redirect exact from="/" to="/homescreen" />
             <Route path="/homescreen" component={Homescreen} />
-            <Route path="/show-mnemonic" component={ShowMnemonic} />
             <Route path="/restore" component={RestoreWallet} />
             <Route path="/onboarding/backup" component={BackupOnboarding} />
+            <Route path="/onboarding/pin-setting" component={PinSetting} />
+            <Route
+              path="/onboarding/show-mnemonic"
+              component={ShowMnemonicOnboarding}
+            />
           </IonRouterOutlet>
         )}
 

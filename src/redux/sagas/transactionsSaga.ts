@@ -2,9 +2,12 @@ import {
   addWatcherTransaction,
   removeWatcherTransaction,
   setTransaction,
-} from './../actions/transactionsActions';
-import { ActionType } from './../../utils/types';
-import { WalletState } from './../reducers/walletReducer';
+  SET_TRANSACTION,
+  UPDATE_TRANSACTIONS,
+  WATCH_TRANSACTION,
+} from '../actions/transactionsActions';
+import { ActionType } from '../../utils/types';
+import { WalletState } from '../reducers/walletReducer';
 import {
   BlindingKeyGetter,
   TxInterface,
@@ -23,11 +26,6 @@ import {
   takeEvery,
   delay,
 } from 'redux-saga/effects';
-import {
-  SET_TRANSACTION,
-  UPDATE_TRANSACTIONS,
-  WATCH_TRANSACTION,
-} from '../actions/transactionsActions';
 import { addErrorToast } from '../actions/toastActions';
 import { addAsset } from '../actions/assetsActions';
 import {

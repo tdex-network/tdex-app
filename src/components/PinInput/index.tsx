@@ -3,10 +3,6 @@ import classNames from 'classnames';
 import { IonInput, IonGrid, IonRow, IonCol } from '@ionic/react';
 import { onPressEnterKeyFactory } from '../../utils/keyboard';
 import './style.scss';
-import {
-  PIN_TIMEOUT_FAILURE,
-  PIN_TIMEOUT_SUCCESS,
-} from '../../utils/constants';
 
 interface PinInputProps {
   onPin: (newPin: string) => void;
@@ -31,7 +27,16 @@ const PinInput: React.FC<PinInputProps> = ({
     }, 500);
   });
 
-  const onNewPin = (newPin: string | null | undefined) => {
+  /**
+   * Set new pin digit until 6
+   * @param newPin
+   */
+  const handleNewPinDigit = (newPin: string | null | undefined) => {
+    // Dont handle new pin if pin already validated
+    if (isWrongPin === false) {
+      return;
+    }
+
     if (!newPin) {
       onPin('');
       return;
@@ -43,12 +48,15 @@ const PinInput: React.FC<PinInputProps> = ({
     onPin(newPin);
     if (newPin.length === 6) {
       onPin(newPin);
-      if (isWrongPin === true) {
-        setTimeout(() => onPin(''), PIN_TIMEOUT_FAILURE);
-      }
-      if (isWrongPin === null) {
-        setTimeout(() => onPin(''), PIN_TIMEOUT_SUCCESS);
-      }
+      // if (isWrongPin === true) {
+      //   console.log('isWrongPin true', isWrongPin);
+      //   setTimeout(() => onPin(''), PIN_TIMEOUT_FAILURE);
+      // }
+      // if (isWrongPin === null) {
+      //   console.log('isWrongPin null', isWrongPin);
+      //   // TODO: not reset on onboard PIN setting
+      //   setTimeout(() => onPin(''), PIN_TIMEOUT_SUCCESS);
+      // }
     }
   };
 
@@ -81,7 +89,7 @@ const PinInput: React.FC<PinInputProps> = ({
               type="number"
               value={pin}
               required={true}
-              onIonChange={(e) => onNewPin(e.detail.value)}
+              onIonChange={(e) => handleNewPinDigit(e.detail.value)}
               maxlength={6}
             />
           </IonGrid>

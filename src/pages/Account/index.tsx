@@ -1,31 +1,18 @@
 import {
   IonContent,
   IonList,
-  IonHeader,
   IonItem,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonListHeader,
   IonText,
   IonIcon,
-  IonButton,
   IonModal,
-  IonButtons,
-  IonBackButton,
 } from '@ionic/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { IconRightArrow } from '../../components/icons';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
 import './style.scss';
-import {
-  chevronBackOutline,
-  closeOutline,
-  eye,
-  lockOpen,
-  shieldCheckmark,
-  trashOutline,
-} from 'ionicons/icons';
+import { eye, lockOpen, shieldCheckmark, trashOutline } from 'ionicons/icons';
 
 import { Clipboard } from '@ionic-native/clipboard';
 import DeleteMnemonicModal from '../../components/DeleteMnemonicModal';
@@ -36,6 +23,7 @@ import { useDispatch } from 'react-redux';
 import { setSignedUp } from '../../redux/actions/appActions';
 import { setIsAuth } from '../../redux/actions/walletActions';
 import ButtonsMainSub from '../../components/ButtonsMainSub';
+import Header from '../../components/Header';
 
 const Account: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
@@ -75,19 +63,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage>
       <IonContent className="account">
-        <IonHeader className="ion-no-border">
-          <IonToolbar className="with-back-button">
-            <IonButtons slot="start">
-              <IonBackButton
-                defaultHref="/"
-                text=""
-                icon={chevronBackOutline}
-              />
-            </IonButtons>
-            <IonTitle>Account</IonTitle>
-          </IonToolbar>
-        </IonHeader>
-
+        <Header title="ACCOUNT" hasBackButton={true} />
         <IonList>
           <IonListHeader>Identity</IonListHeader>
           <IonItem
@@ -214,21 +190,14 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
             keyboardClose={false}
           >
             <IonContent>
-              <IonHeader className="ion-no-border">
-                <IonToolbar className="with-back-button">
-                  <IonButtons slot="start">
-                    <IonButton
-                      onClick={() => {
-                        setShowMnemonicModal(false);
-                      }}
-                    >
-                      <IonIcon slot="icon-only" icon={closeOutline} />
-                    </IonButton>
-                  </IonButtons>
-                  <IonTitle>Show Mnemonic</IonTitle>
-                </IonToolbar>
-              </IonHeader>
-
+              <Header
+                title="SHOW MNEMONIC"
+                hasBackButton={false}
+                hasCloseButton={true}
+                handleClose={() => {
+                  setShowMnemonicModal(false);
+                }}
+              />
               <h2 className="ion-text-center">Secret Phrase</h2>
               <WordList mnemonic={mnemonic || ''} />
               <input
