@@ -204,6 +204,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
                 type="text"
                 ref={mnemonicRef}
                 value={mnemonic}
+                onChange={() => null}
                 className="hidden-input"
               />
 
@@ -218,7 +219,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
         )}
         <DeleteMnemonicModal
           pin={pin}
-          close={() => {
+          closeModal={() => {
             setShowDeleteMnemonicModal(false);
           }}
           onConfirm={() => {

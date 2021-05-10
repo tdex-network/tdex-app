@@ -11,14 +11,6 @@ const WordList: React.FC<{ mnemonic: string }> = ({ mnemonic }) => {
         </div>
       ))}
     </div>
-    // <IonGrid>
-    //   {mnemonic.split(' ').map((word, index) => (
-    //     <IonRow className="ion-justify-content-center container">
-    //       <span className="word-index">{index + 1}.</span>
-    //       <span className="word">{word}</span>
-    //     </IonRow>
-    //   ))}
-    // </IonGrid>
   );
 };
 

@@ -90,10 +90,10 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
           {(transaction || preview) && (
             <div>
               <div className="transaction-icons">
-                <span className="icon-wrapper large">
+                <span>
                   <SentCurrencyIcon width="45px" height="45px" />
                 </span>
-                <span className="icon-wrapper large second">
+                <span>
                   <ReceiveCurrencyIcon width="45px" height="45px" />
                 </span>
               </div>
@@ -105,7 +105,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                       <div className="trade-items">
                         <div className="trade-item">
                           <div className="name">
-                            <span className="icon-wrapper medium">
+                            <span>
                               <SentCurrencyIcon width="24px" height="24px" />
                             </span>
                             <p>
@@ -131,7 +131,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                         </div>
                         <div className="trade-item">
                           <div className="name">
-                            <span className="icon-wrapper medium">
+                            <span>
                               <ReceiveCurrencyIcon width="24px" height="24px" />
                             </span>
                             <p>

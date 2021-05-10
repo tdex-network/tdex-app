@@ -85,7 +85,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
                           <span className="icon-wrapper">
                             <CurrencyIcon currency={tickerSent} />
                           </span>
-                          <span className="icon-wrapper with-border">
+                          <span className="icon-wrapper">
                             <CurrencyIcon currency={tickerReceived} />
                           </span>
                         </div>

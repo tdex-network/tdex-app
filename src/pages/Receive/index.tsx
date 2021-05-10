@@ -152,7 +152,7 @@ const Receive: React.FC = () => {
                 <div className="item-start conf-addr">
                   {address?.confidentialAddress}
                 </div>
-                <div className="icon-wrapper copy-icon" onClick={copyAddress}>
+                <div className="copy-icon" onClick={copyAddress}>
                   {copied ? (
                     <IonIcon
                       className="copied-icon"

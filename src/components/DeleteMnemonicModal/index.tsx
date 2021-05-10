@@ -12,13 +12,14 @@ import { removeMnemonicFromSecureStorage } from '../../utils/storage-helper';
 import Header from '../Header';
 
 interface DeleteMnemonicModalProps {
+  closeModal: () => void;
   openModal: boolean;
   onConfirm: () => void;
-  close: () => void;
   pin: string;
 }
 
 const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({
+  closeModal,
   openModal,
   onConfirm,
   pin,
@@ -52,6 +53,7 @@ const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({
             title="CLEAR MY KEY"
             hasBackButton={false}
             hasCloseButton={true}
+            handleClose={closeModal}
           />
           <PageDescription
             description='Clicking on "Delete" will delete your mnemonic on this device. Be sure to back it up!'
@@ -60,7 +62,7 @@ const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({
           <IonRow className="ion-margin-vertical-x2">
             <IonCol size="10" offset="1" sizeMd="8" offsetMd="2">
               <IonButton
-                onClick={() => deleteMnemonic()}
+                onClick={deleteMnemonic}
                 disabled={isLoading}
                 className="main-button"
               >

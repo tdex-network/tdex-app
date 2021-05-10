@@ -190,9 +190,7 @@ const Operations: React.FC<OperationsProps> = ({
                     <div className="info-wrapper">
                       <div className="item-main-info">
                         <div className="item-start">
-                          <div className="icon-wrapper">
-                            <TxIcon type={tx.type} />
-                          </div>
+                          <TxIcon type={tx.type} />
                           <div className="item-name">
                             <div className="main-row">
                               {`${balance.ticker} ${txTypes[tx.type - 1]}`}

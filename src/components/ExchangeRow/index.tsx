@@ -155,7 +155,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             setIsSearchOpen(true);
           }}
         >
-          <span className="icon-wrapper medium">
+          <span className="icon-wrapper">
             <CurrencyIcon currency={asset.ticker} />
           </span>
           <p>

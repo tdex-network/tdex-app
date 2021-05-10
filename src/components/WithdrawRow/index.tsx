@@ -106,7 +106,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
     <div className="exchange-coin-container">
       <div className="exchanger-row">
         <div className="coin-name">
-          <span className="icon-wrapper medium">
+          <span className="icon-wrapper">
             <CurrencyIcon currency={balance.ticker} />
           </span>
           <p className="ticker">

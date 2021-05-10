@@ -74,7 +74,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({
                   }}
                 >
                   <div className="search-item-name">
-                    <span className="icon-wrapper medium">
+                    <span>
                       <CurrencyIcon currency={asset.ticker} />
                     </span>
                     <p>{asset.ticker}</p>
