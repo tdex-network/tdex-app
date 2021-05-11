@@ -66,6 +66,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({
             .map((asset: AssetWithTicker, index: number) => {
               return (
                 <IonItem
+                  className="ion-no-margin"
                   key={index}
                   data-asset={index}
                   onClick={() => {

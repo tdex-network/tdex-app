@@ -60,6 +60,7 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
             ).map((currency: CurrencyInterface, index: number) => {
               return (
                 <IonItem
+                  className="ion-no-margin"
                   key={index}
                   data-asset={index}
                   onClick={() => {
@@ -68,10 +69,6 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
                     close();
                   }}
                 >
-                  <div
-                    // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
-                    tabIndex={0}
-                  ></div>
                   <div className="search-item-name">
                     <p>{`${currency.symbol} ${currency.name} (${currency.value})`}</p>
                   </div>
