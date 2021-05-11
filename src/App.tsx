@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { IonApp, IonLoading, IonRouterOutlet, isPlatform } from '@ionic/react';
+import { IonApp, IonLoading, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,10 +8,9 @@ import Toasts from './redux/containers/toastsContainer';
 import { Redirect, Route } from 'react-router';
 import Homescreen from './pages/Homescreen';
 import RestoreWallet from './pages/RestoreWallet';
-import { NavigationBar } from '@ionic-native/navigation-bar';
 import classNames from 'classnames';
 import { useAppState } from '@capacitor-community/react-hooks/app';
-import { Plugins } from '@capacitor/core';
+import { Capacitor, Plugins } from '@capacitor/core';
 import { unlockUtxos } from './redux/actions/walletActions';
 import BackupOnboarding from './pages/Backup/backup-onboarding';
 import ShowMnemonicOnboarding from './redux/containers/showMnemonicOnboadingContainer';
@@ -37,24 +36,32 @@ const App: React.FC = () => {
   useEffect(() => {
     const setupApp = async () => {
       try {
-        await StatusBar.setOverlaysWebView({ overlay: false });
-        //await StatusBar.setBackgroundColor({ color: '#333333' });
-        if (isPlatform('android')) {
-          await NavigationBar.setUp(true);
+        await StatusBar.setBackgroundColor({ color: '#333333' });
+        // if (isPlatform('android')) {
+        //   await NavigationBar.setUp(true);
+        // }
+      } catch (err) {
+        console.error(err);
+      }
+      try {
+        if (Capacitor.isPluginAvailable('StatusBar')) {
+          await StatusBar.setOverlaysWebView({ overlay: false });
         }
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
-
       try {
         await ScreenOrientation.lock(ScreenOrientation.ORIENTATIONS.PORTRAIT);
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     };
 
-    setupApp();
-    dispatch(initApp());
+    setupApp()
+      .then(() => {
+        dispatch(initApp());
+      })
+      .catch(console.error);
   }, []);
 
   return (

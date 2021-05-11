@@ -1,11 +1,11 @@
 body {
-  font-family: 'DMSans';
+  font-family: var(--ion-font-main);
 }
 
 h1,
 h2,
 h3 {
-  font-family: 'DMSans-Bold';
+  font-family: var(--ion-font-heading);
 }
 
 p {
@@ -35,29 +35,3 @@ ion-modal {
     width: 100%;
   }
 }
-
-//ion-toolbar {
-//  // For linear-gradient background to be applied
-//  --background: transparent;
-//}
-//ion-content {
-//  // For linear-gradient background to be applied
-//  --background: transparent;
-//}
-
-ion-button {
-  width: 100%;
-  border-radius: 35px;
-  --border-radius: 35px;
-  font-size: 14px;
-  position: relative;
-  --background-hover: transparent;
-  --background-focused: transparent;
-  --background-activated: transparent;
-  --background-hover-opacity: 1;
-  text-transform: uppercase;
-}
-
-//body {
-//  --ion-background-color: linear-gradient(to top, rgb(0, 0, 0), #333);
-//}
