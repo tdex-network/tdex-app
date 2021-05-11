@@ -36,6 +36,8 @@ import {
 import { signIn } from '../../redux/actions/appActions';
 import { RouteComponentProps, useLocation } from 'react-router';
 import * as bip39 from 'bip39';
+import { Plugins } from '@capacitor/core';
+const { Keyboard } = Plugins;
 
 interface LocationState {
   mnemonic: string;
@@ -74,6 +76,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
               );
               setIsWrongPin(false);
               setIsPinValidated(true);
+              Keyboard.hide().catch(console.error);
             })
             .catch(() => onError(SecureStorageError));
         } else {
