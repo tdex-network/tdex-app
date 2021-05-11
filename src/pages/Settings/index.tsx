@@ -15,24 +15,16 @@ import {
 import React, { useEffect, useState } from 'react';
 import { IconRightArrow } from '../../components/icons';
 import { RouteComponentProps, withRouter } from 'react-router';
-import './style.scss';
 import PageDescription from '../../components/PageDescription';
 import { setElectrumServer } from '../../redux/actions/settingsActions';
 import { useDispatch, useSelector } from 'react-redux';
-import PinModal from '../../components/PinModal';
-import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
-import { addErrorToast } from '../../redux/actions/toastActions';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import { Plugins } from '@capacitor/core';
 import CurrencySearch from '../../components/CurrencySearch';
 import DenominationSearch from '../../components/DenominationSearch';
-import { IncorrectPINError } from '../../utils/errors';
-import {
-  PIN_TIMEOUT_FAILURE,
-  PIN_TIMEOUT_SUCCESS,
-} from '../../utils/constants';
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Header from '../../components/Header';
+import './style.scss';
 
 const { Device } = Plugins;
 
@@ -45,12 +37,9 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   }));
   const [showExplorerModal, setShowExplorerModal] = useState(false);
   const [explorerValue, setExplorerValue] = useState(explorerUrl);
-  const [modalOpen, setModalOpen] = useState(false);
   const [currencySearchOpen, setCurrencySearchOpen] = useState(false);
   const [LBTCUnitSearchOpen, setLBTCUnitSearchOpen] = useState(false);
   const [appVersion, setAppVersion] = useState<string>();
-  const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
-  const [needReset, setNeedReset] = useState<boolean>(false);
 
   useEffect(() => {
     Device.getInfo().then((info) => {
@@ -74,41 +63,8 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   //   dispatch(storeTheme(newTheme));
   // };
 
-  const handlePinConfirm = (pin: string) => {
-    getMnemonicFromSecureStorage(pin)
-      .then(() => {
-        setIsWrongPin(false);
-        setTimeout(() => {
-          history.replace(`/account/${pin}`);
-          setModalOpen(false);
-          setIsWrongPin(null);
-        }, PIN_TIMEOUT_SUCCESS);
-      })
-      .catch((e) => {
-        setIsWrongPin(true);
-        setTimeout(() => {
-          setIsWrongPin(null);
-          setNeedReset(true);
-        }, PIN_TIMEOUT_FAILURE);
-        dispatch(addErrorToast(IncorrectPINError));
-        console.error(e);
-      });
-  };
-
   return (
     <IonPage>
-      <PinModal
-        needReset={needReset}
-        setNeedReset={setNeedReset}
-        open={modalOpen}
-        title="Unlock your seed"
-        description="Enter your secret PIN to unlock your wallet"
-        onConfirm={handlePinConfirm}
-        onClose={() => {
-          setModalOpen(false);
-        }}
-        isWrongPin={isWrongPin}
-      />
       <IonContent className="settings">
         <IonGrid>
           <IonHeader className="ion-no-border">
@@ -120,14 +76,8 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
             <IonListHeader>General</IonListHeader>
             <IonItem
               className="list-item"
-              onClick={() => {
-                setModalOpen(true);
-              }}
+              onClick={() => history.push('/account')}
             >
-              <div
-                // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
-                tabIndex={0}
-              ></div>
               <div className="item-main-info">
                 <div className="item-start">
                   <div className="main-row">Account</div>
@@ -149,10 +99,6 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
                 history.push('/liquidity-provider');
               }}
             >
-              <div
-                // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
-                tabIndex={0}
-              ></div>
               <div className="item-main-info">
                 <div className="item-start">
                   <div className="main-row">Manage liquidity provider</div>
@@ -172,10 +118,6 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               className="list-item"
               onClick={() => setLBTCUnitSearchOpen(true)}
             >
-              <div
-                // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
-                tabIndex={0}
-              ></div>
               <div className="item-main-info">
                 <div className="item-start">
                   <div className="main-row">L-BTC unit</div>
@@ -199,10 +141,6 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               className="list-item"
               onClick={() => setCurrencySearchOpen(true)}
             >
-              <div
-                // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
-                tabIndex={0}
-              ></div>
               <div className="item-main-info">
                 <div className="item-start">
                   <div className="main-row">Default currency</div>
@@ -228,10 +166,6 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
                 setShowExplorerModal(true);
               }}
             >
-              <div
-                // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
-                tabIndex={0}
-              ></div>
               <div className="item-main-info">
                 <div className="item-start">
                   <div className="main-row">Electrum server</div>
@@ -276,10 +210,6 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
                 history.push('/faq');
               }}
             >
-              <div
-                // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
-                tabIndex={0}
-              ></div>
               <div className="item-main-info">
                 <div className="item-start">
                   <div className="main-row">FAQ</div>
@@ -301,10 +231,6 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
                 history.push('/terms');
               }}
             >
-              <div
-                // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
-                tabIndex={0}
-              ></div>
               <div className="item-main-info">
                 <div className="item-start">
                   <div className="main-row">Terms & Conditions</div>

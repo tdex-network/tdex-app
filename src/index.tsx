@@ -23,6 +23,7 @@ import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Customization */
 import './theme/font.scss';
+import './theme/components/ionic/index.scss';
 import './theme/global.scss';
 import './theme/variables.scss';
 import './theme/components/exchange-coin-block.scss';
