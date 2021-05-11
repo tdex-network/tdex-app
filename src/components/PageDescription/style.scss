@@ -1,6 +1,7 @@
 // Min height when pin screens to always have pin input at the same height
-#pin-setting-page, #pin-modal {
-	.page-description {
-		min-height: 170px;
-	}
+#pin-setting-page,
+#pin-modal {
+  .page-description {
+    min-height: 170px;
+  }
 }

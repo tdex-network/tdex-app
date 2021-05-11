@@ -2,22 +2,22 @@
 
 .exchange-coin-container {
   &:nth-child(1):before {
-    content: "";
+    content: '';
     position: absolute;
     left: 0;
     bottom: 0;
     height: 1px;
     width: calc(50% - 16px);
-    border-bottom:1px solid rgb(15, 255, 0);
+    border-bottom: 1px solid rgb(15, 255, 0);
   }
   &:nth-child(1):after {
-    content: "";
+    content: '';
     position: absolute;
     right: 0;
     bottom: 0;
     height: 1px;
     width: calc(50% - 16px);
-    border-bottom:1px solid rgb(15, 255, 0);
+    border-bottom: 1px solid rgb(15, 255, 0);
   }
   position: relative;
   background: rgb(51, 51, 51);

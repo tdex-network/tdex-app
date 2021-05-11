@@ -1,4 +1,4 @@
-@import "../variables.scss";
+@import '../variables.scss';
 
 //
 ion-modal.modal-small {
@@ -20,7 +20,7 @@ ion-modal.modal-small {
 
 //
 .search-bar {
-  border-bottom: 1px solid  rgba(198, 198, 198, 0.3);
+  border-bottom: 1px solid rgba(198, 198, 198, 0.3);
   color: #ffffff;
   width: 100%;
   padding: 12px 10px;
@@ -62,7 +62,7 @@ ion-modal.modal-small {
     }
   }
   .search-item-name {
-    font-family: "DMSans";
+    font-family: 'DMSans';
     font-size: 14px;
     display: flex;
     flex: 1;

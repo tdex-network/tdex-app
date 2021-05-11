@@ -1,4 +1,4 @@
-@import "../variables.scss";
+@import '../variables.scss';
 
 ion-list {
   background: transparent !important;
@@ -23,14 +23,13 @@ ion-item {
 }
 
 ion-list-header {
-  font-family: "DMSans-Bold";
+  font-family: 'DMSans-Bold';
   color: rgb(102, 102, 102);
   font-size: 1.2rem;
   display: inline-block;
   padding-inline-start: 10px !important;
   margin-bottom: 3px;
 }
-
 
 .info-wrapper .item-main-info,
 .item-main-info {
@@ -69,14 +68,14 @@ ion-list-header {
     }
   }
   .main-row {
-    font-family: "DMSans";
+    font-family: 'DMSans';
     font-size: 14px;
     &.accent {
       font-size: 10px;
     }
   }
   .sub-row {
-    font-family: "DMMono-Medium";
+    font-family: 'DMMono-Medium';
     font-size: 10px;
     color: rgb(198, 198, 198);
     line-height: 18px;
@@ -218,7 +217,7 @@ ion-list-header {
   .transaction-item {
     .info-wrapper {
       .sub-row {
-        color: rgb(144, 144, 144)
+        color: rgb(144, 144, 144);
       }
       .item-main-info {
         .item-end {
@@ -240,7 +239,7 @@ ion-list-header {
   .info-wrapper .item-main-info,
   .item-main-info {
     .sub-row {
-      color: rgb(144, 144, 144)
+      color: rgb(144, 144, 144);
     }
     .item-end {
       svg {

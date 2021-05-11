@@ -1,62 +1,66 @@
 .circle-total-balance {
-	background: linear-gradient(100deg, rgba(51, 51, 51, 1) 0%, rgba(15, 15, 15, 1) 100%);
-	border-radius: 50%;
-	width: 16.5rem;
-	height: 16.5rem;
-	div {
-		display: flex;
-		position: relative;
-		top: 20px;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 14rem;
-		height: 14rem;
-		background: linear-gradient(100deg, black 0%, rgba(51, 51, 51, 1) 100%);
-		border-radius: 50%;
-		
-		img {
-			position: absolute;
-			z-index: -1;
-		}
-		
-		ion-row:nth-child(1)  {
-			font-family: 'DMSans-Bold';
-			font-size: 1.2rem;
-			color: #898989;
-		}
-		ion-row:nth-child(2) {
-			font-family: 'DMMono';
-			font-size: 1.8rem;
-			color: #dbdbdb;
-		}
-		ion-row:nth-child(3) {
-				font-family: 'DMMono';
-				font-size: 1rem;
-				color: #898989;
-		}
-		ion-row:nth-child(4)  {
-			font-family: 'DMMono-Medium';
-			color: #a0a0a0;
-		}
-	}
+  background: linear-gradient(
+    100deg,
+    rgba(51, 51, 51, 1) 0%,
+    rgba(15, 15, 15, 1) 100%
+  );
+  border-radius: 50%;
+  width: 16.5rem;
+  height: 16.5rem;
+  div {
+    display: flex;
+    position: relative;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14rem;
+    height: 14rem;
+    background: linear-gradient(100deg, black 0%, rgba(51, 51, 51, 1) 100%);
+    border-radius: 50%;
+
+    img {
+      position: absolute;
+      z-index: -1;
+    }
+
+    ion-row:nth-child(1) {
+      font-family: 'DMSans-Bold';
+      font-size: 1.2rem;
+      color: #898989;
+    }
+    ion-row:nth-child(2) {
+      font-family: 'DMMono';
+      font-size: 1.8rem;
+      color: #dbdbdb;
+    }
+    ion-row:nth-child(3) {
+      font-family: 'DMMono';
+      font-size: 1rem;
+      color: #898989;
+    }
+    ion-row:nth-child(4) {
+      font-family: 'DMMono-Medium';
+      color: #a0a0a0;
+    }
+  }
 }
 
 // Rotate shadow without inner content
 .circle-total-balance:before {
-	content: "";
-	position: absolute;
-	animation: rotation 6s infinite linear;
-	border-radius: 50%;
-	width: 16.5rem;
-	height: 16.5rem;
-	box-shadow: 6px 5px 12px 0 rgba(15, 255, 1, 0.7);
-	
-	@keyframes rotation {
-		from {
-			transform: rotate(0deg);
-		}
-		to {
-			transform: rotate(359deg);
-		}
-	}
+  content: '';
+  position: absolute;
+  animation: rotation 6s infinite linear;
+  border-radius: 50%;
+  width: 16.5rem;
+  height: 16.5rem;
+  box-shadow: 6px 5px 12px 0 rgba(15, 255, 1, 0.7);
+
+  @keyframes rotation {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(359deg);
+    }
+  }
 }

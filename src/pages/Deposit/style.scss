@@ -1,45 +1,43 @@
-@import "../../theme/variables";
+@import '../../theme/variables';
 
 .deposit-grid {
-	display: grid;
-	grid-gap: 20px;
-	grid-template-columns: 1fr 1fr;
-	grid-auto-rows: minmax(130px, auto);
-	padding: 20px;
-	
-	.deposit-grid-item {
-		&:active {
-			background: rgba(15, 255, 0, 0.12);
-			box-shadow:inset 0 0 0 2px rgb(15, 255, 1);
-		}
-		background: rgb(51, 51, 51);
-		border-radius: 10px;
-		padding: 20px;
-		display: flex;
-		flex-direction: column;
-		img {
-			height: 60px;
-			object-fit: contain;
-			margin-bottom: 6px;
-		}
-		span {
-			margin-top: 2px;
-			&.deposit-grid-item-name {
-				color: #ffffff;
-				font-family: $main-font;
-				font-size: 1.2rem;
-			}
-			&.deposit-grid-item-ticker {
-				color: #858585;
-				font-family: $sub-font;
-				font-size: 1rem;
-			}
-		}
-		ion-icon.deposit-grid-item-plus-icon {
-			font-size: 40px;
-			margin-bottom: 6px;
-		}
-	}
+  display: grid;
+  grid-gap: 20px;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: minmax(130px, auto);
+  padding: 20px;
+
+  .deposit-grid-item {
+    &:active {
+      background: rgba(15, 255, 0, 0.12);
+      box-shadow: inset 0 0 0 2px rgb(15, 255, 1);
+    }
+    background: rgb(51, 51, 51);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    img {
+      height: 60px;
+      object-fit: contain;
+      margin-bottom: 6px;
+    }
+    span {
+      margin-top: 2px;
+      &.deposit-grid-item-name {
+        color: #ffffff;
+        font-family: $main-font;
+        font-size: 1.2rem;
+      }
+      &.deposit-grid-item-ticker {
+        color: #858585;
+        font-family: $sub-font;
+        font-size: 1rem;
+      }
+    }
+    ion-icon.deposit-grid-item-plus-icon {
+      font-size: 40px;
+      margin-bottom: 6px;
+    }
+  }
 }
-
-

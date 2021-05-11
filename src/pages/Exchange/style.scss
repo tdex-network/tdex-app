@@ -3,25 +3,25 @@
 #exchange-page {
   overflow: auto;
   background: rgb(22, 22, 22);
-  
-  .refresher-active, .refresher-refreshing {
+
+  .refresher-active,
+  .refresher-refreshing {
     background: #333333;
   }
-  
+
   .exchange-header {
     background: rgb(51, 51, 51);
   }
-  
+
   .exchange-coin-container:nth-child(3) {
     background: rgb(22, 22, 22);
   }
-  
-  
+
   .exchange-content {
     --padding-start: 0;
     --padding-end: 0;
   }
-  
+
   .exchange-divider {
     transition: all 800ms ease-in-out;
     display: flex;
@@ -38,7 +38,7 @@
       border-radius: 50%;
     }
   }
-  
+
   .market-provider {
     background: rgb(22, 22, 22);
     text-align: center;
@@ -52,7 +52,7 @@
       }
     }
   }
-  
+
   .light {
     .exchange-header {
       background: transparent;
@@ -63,4 +63,3 @@
     }
   }
 }
-

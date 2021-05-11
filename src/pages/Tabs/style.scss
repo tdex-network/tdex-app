@@ -15,10 +15,13 @@ ion-tab-bar {
       }
     }
   }
-  ion-tab-button:nth-child(1) .tab-icon.active, ion-tab-button:nth-child(3) .tab-icon.active {
-    filter: drop-shadow(0 0 9px rgb(15,255,0)) drop-shadow(0px 0px 20px #0fff00);
+  ion-tab-button:nth-child(1) .tab-icon.active,
+  ion-tab-button:nth-child(3) .tab-icon.active {
+    filter: drop-shadow(0 0 9px rgb(15, 255, 0))
+      drop-shadow(0px 0px 20px #0fff00);
   }
   ion-tab-button:nth-child(2) .tab-icon.active {
-    filter: drop-shadow(0px 0px 5px #0fff00) drop-shadow(0 0 9px rgb(15,255,0)) drop-shadow(0 0 20px rgb(15,255,0));
+    filter: drop-shadow(0px 0px 5px #0fff00)
+      drop-shadow(0 0 9px rgb(15, 255, 0)) drop-shadow(0 0 20px rgb(15, 255, 0));
   }
 }
