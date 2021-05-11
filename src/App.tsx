@@ -1,28 +1,6 @@
 import React, { useEffect } from 'react';
 import { IonApp, IonLoading, IonRouterOutlet, isPlatform } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-
-/* Core CSS required for Ionic components to work properly */
-import '@ionic/react/css/core.css';
-
-/* Basic CSS for apps built with Ionic */
-import '@ionic/react/css/normalize.css';
-import '@ionic/react/css/structure.css';
-import '@ionic/react/css/typography.css';
-
-/* Optional CSS utils that can be commented out */
-import '@ionic/react/css/padding.css';
-import '@ionic/react/css/float-elements.css';
-import '@ionic/react/css/text-alignment.css';
-import '@ionic/react/css/text-transformation.css';
-import '@ionic/react/css/flex-utils.css';
-import '@ionic/react/css/display.css';
-
-/* Theme variables */
-import './theme/global.scss';
-
-import Tabs from './pages/Tabs';
-
 import { ScreenOrientation } from '@ionic-native/screen-orientation';
 import { useDispatch, useSelector } from 'react-redux';
 import { initApp } from './redux/actions/appActions';
@@ -38,6 +16,7 @@ import { unlockUtxos } from './redux/actions/walletActions';
 import BackupOnboarding from './pages/Backup/backup-onboarding';
 import ShowMnemonicOnboarding from './redux/containers/showMnemonicOnboadingContainer';
 import PinSetting from './pages/PinSetting';
+import Tabs from './pages/Tabs';
 const { StatusBar } = Plugins;
 
 const App: React.FC = () => {
@@ -59,7 +38,7 @@ const App: React.FC = () => {
     const setupApp = async () => {
       try {
         await StatusBar.setOverlaysWebView({ overlay: false });
-        await StatusBar.setBackgroundColor({ color: '#333333' });
+        //await StatusBar.setBackgroundColor({ color: '#333333' });
         if (isPlatform('android')) {
           await NavigationBar.setUp(true);
         }

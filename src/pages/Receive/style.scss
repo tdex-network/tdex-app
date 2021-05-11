@@ -1,5 +1,3 @@
-@import '../../theme/variables';
-
 .qr-code-container {
   padding: 20pt;
   width: 192px;
@@ -51,7 +49,7 @@
       }
       .copied-icon {
         svg {
-          fill: $green-color;
+          fill: var(--ion-color-secondary);
         }
       }
     }

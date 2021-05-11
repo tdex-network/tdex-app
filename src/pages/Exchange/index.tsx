@@ -2,10 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { RouteComponentProps } from 'react-router';
 import {
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonLoading,
   IonText,
   useIonViewWillEnter,
@@ -51,6 +48,7 @@ import {
 } from '../../utils/errors';
 import swap from '../../assets/img/swap.svg';
 import ButtonsMainSub from '../../components/ButtonsMainSub';
+import Header from '../../components/Header';
 
 const ERROR_LIQUIDITY = 'Not enough liquidity in market';
 
@@ -253,13 +251,9 @@ const Exchange: React.FC<ExchangeProps> = ({
       )}
 
       <IonGrid className="ion-no-margin ion-no-padding">
-        <IonHeader className="exchange-header ion-no-border">
-          <IonToolbar>
-            <IonTitle>Exchange</IonTitle>
-          </IonToolbar>
-        </IonHeader>
         {assetSent && markets.length > 0 && (
           <IonContent className="exchange-content">
+            <Header hasBackButton={false} title="EXCHANGE" />
             <Refresher />
             <div>
               <ExchangeRow
@@ -330,7 +324,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               }
             />
             {trade && (
-              <IonRow className="market-provider ion-margin-vertical">
+              <IonRow className="market-provider ion-margin-vertical ion-text-center">
                 <IonCol size="10" offset="1">
                   <IonText className="trade-info" color="light">
                     Market provided by:{' '}

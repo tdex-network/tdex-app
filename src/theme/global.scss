@@ -1,12 +1,5 @@
-@import './variables.scss';
-@import './components/exchange-coin-block.scss';
-@import './components/search.scss';
-@import './components/mainButtons.scss';
-@import './components/listItem.scss';
-
 body {
   font-family: 'DMSans';
-  background-color: #333333;
 }
 
 h1,
@@ -43,14 +36,14 @@ ion-modal {
   }
 }
 
-ion-toolbar {
-  // For linear-gradient background to be applied
-  --background: transparent;
-}
-ion-content {
-  // For linear-gradient background to be applied
-  --background: transparent;
-}
+//ion-toolbar {
+//  // For linear-gradient background to be applied
+//  --background: transparent;
+//}
+//ion-content {
+//  // For linear-gradient background to be applied
+//  --background: transparent;
+//}
 
 ion-button {
   width: 100%;
@@ -64,3 +57,7 @@ ion-button {
   --background-hover-opacity: 1;
   text-transform: uppercase;
 }
+
+//body {
+//  --ion-background-color: linear-gradient(to top, rgb(0, 0, 0), #333);
+//}

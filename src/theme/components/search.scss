@@ -1,6 +1,3 @@
-@import '../variables.scss';
-
-//
 ion-modal.modal-small {
   .modal-wrapper {
     height: 375px !important;
@@ -43,7 +40,7 @@ ion-modal.modal-small {
     height: 24px;
     color: rgb(198, 198, 198);
     margin-left: 8px;
-    font-family: $main-font;
+    font-family: var(--ion-font-main);
   }
 }
 

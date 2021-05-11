@@ -1,13 +1,11 @@
-@import '../../theme/variables';
-
 .settings {
   --overflow: auto;
   .item-end {
     align-items: center;
   }
   .green-label {
-    font-family: $main-font;
-    color: $light-green-color;
+    font-family: var(--tdex-font-main);
+    color: var(--ion-color-secondary);
     font-size: 14px;
     line-height: 16px;
     display: inline-block;
@@ -61,7 +59,7 @@
       --background: transparent;
     }
     .green-label {
-      color: $green-color;
+      color: var(--ion-color-secondary);
     }
   }
 }

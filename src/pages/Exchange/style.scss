@@ -1,25 +1,14 @@
-@import '../../theme/variables';
-
 #exchange-page {
-  overflow: auto;
-  background: rgb(22, 22, 22);
-
+  /* Top half of the screen is light grey */
+  ion-header {
+    background: var(--ion-color-primary);
+  }
+  .exchange-coin-container:nth-child(1) {
+    background: var(--ion-color-primary);
+  }
   .refresher-active,
   .refresher-refreshing {
-    background: #333333;
-  }
-
-  .exchange-header {
-    background: rgb(51, 51, 51);
-  }
-
-  .exchange-coin-container:nth-child(3) {
-    background: rgb(22, 22, 22);
-  }
-
-  .exchange-content {
-    --padding-start: 0;
-    --padding-end: 0;
+    background: var(--ion-color-primary);
   }
 
   .exchange-divider {
@@ -40,26 +29,13 @@
   }
 
   .market-provider {
-    background: rgb(22, 22, 22);
-    text-align: center;
     .trade-info {
-      text-align: center;
       font-size: small;
       color: rgba(245, 245, 245, 0.774);
       .provider-info {
         font-style: italic;
         font-weight: 500;
       }
-    }
-  }
-
-  .light {
-    .exchange-header {
-      background: transparent;
-    }
-    .exchange-divider {
-      background: #fff;
-      border: 1px solid #f4f4f4;
     }
   }
 }

@@ -1,11 +1,9 @@
-@import '../../theme/variables';
-
 .ticker {
   font-size: x-large;
 }
 
 .amount-input {
-  font-family: $sub-font;
+  font-family: var(--ion-font-sub);
   color: #fff;
   &::placeholder {
     color: #666666;
@@ -19,5 +17,5 @@
 }
 
 .error {
-  color: red;
+  color: var(--ion-color-danger);
 }
