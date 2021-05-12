@@ -1,9 +1,11 @@
 import {
   IonPage,
   IonContent,
-  IonItem,
   IonButton,
   IonSkeletonText,
+  IonGrid,
+  IonRow,
+  IonCol,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { withRouter, RouteComponentProps, useParams } from 'react-router';
@@ -13,7 +15,7 @@ import { TxStatusEnum } from '../../utils/types';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { Clipboard } from '@ionic-native/clipboard';
 import { addSuccessToast } from '../../redux/actions/toastActions';
-import { tickerFromAssetHash } from '../../utils/helpers';
+import { nameFromAssetHash, tickerFromAssetHash } from '../../utils/helpers';
 import Refresher from '../../components/Refresher';
 import Header from '../../components/Header';
 import './style.scss';
@@ -32,7 +34,7 @@ interface WithdrawalDetailsLocationState {
 
 const WithdrawalDetails: React.FC<
   RouteComponentProps<any, any, WithdrawalDetailsLocationState>
-> = ({ history, location }) => {
+> = ({ location }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();
@@ -74,87 +76,101 @@ const WithdrawalDetails: React.FC<
   );
 
   return (
-    <IonPage>
-      <IonContent className="withdrawal-details">
+    <IonPage id="withdrawal-details">
+      <IonContent>
         <Refresher />
         <Header hasBackButton={true} title="WITHDRAWAL DETAILS" />
-        <div className="header-info">
-          {
-            <CurrencyIcon
-              currency={tickerFromAssetHash(locationState?.asset)}
-            />
-          }
-          <p className="info-amount">{`${ticker()} WITHDRAW`}</p>
-        </div>
-        <IonItem>
-          <div className="item-col">
-            <div className="item-main-info">
-              <div className="item-start main-row">Amount</div>
-              <div className="item-end main-row">
-                {`-${
-                  locationState?.amount ? locationState.amount : '?'
-                } ${ticker()}`}
+        <IonGrid>
+          <IonRow>
+            <IonCol className="header-info ion-text-center">
+              <CurrencyIcon
+                currency={tickerFromAssetHash(locationState?.asset)}
+              />
+              <p className="info-amount">
+                {nameFromAssetHash(locationState?.asset) ?? ticker()}
+              </p>
+            </IonCol>
+          </IonRow>
+
+          <IonRow>
+            <IonCol>
+              <div className="card-details">
+                <div className="item-main-info">
+                  <div className="item-start main-row">Amount</div>
+                  <div className="item-end main-row">
+                    {`-${
+                      locationState?.amount ? locationState.amount : '?'
+                    } ${ticker()}`}
+                  </div>
+                </div>
+                <div className="item-main-info">
+                  <div className="item-start main-row">Status</div>
+                  <div className="item-end main-row completed">
+                    {transaction ? (
+                      renderStatusText(transaction?.status)
+                    ) : (
+                      <Skeleton />
+                    )}
+                  </div>
+                </div>
+
+                <div className="item-main-info divider">
+                  <div className="item-start main-row">Date</div>
+                  <div className="item-end sub-row">
+                    {transaction ? (
+                      transaction.blockTime?.format('DD MMM YYYY hh:mm:ss')
+                    ) : (
+                      <Skeleton />
+                    )}
+                  </div>
+                </div>
+
+                <div className="item-main-info">
+                  <div className="item-start main-row">Fee</div>
+                  <div className="item-end sub-row">
+                    {transaction ? transaction.fee : <Skeleton />}
+                  </div>
+                </div>
+
+                <div
+                  className="item-main-info"
+                  onClick={() => {
+                    if (!locationState) return;
+                    Clipboard.copy(locationState.address);
+                    dispatch(addSuccessToast('Address copied!'));
+                  }}
+                >
+                  <div className="item-start main-row">Address</div>
+                  <div className="item-end sub-row">
+                    {locationState?.address || ''}
+                  </div>
+                </div>
+
+                <div
+                  className="item-main-info"
+                  onClick={() => {
+                    Clipboard.copy(txid);
+                    dispatch(addSuccessToast('TxID copied!'));
+                  }}
+                >
+                  <div className="item-start main-row">TxID</div>
+                  <div className="item-end sub-row">{txid}</div>
+                </div>
               </div>
-            </div>
-            <div className="item-main-info">
-              <div className="item-start main-row">Status</div>
-              <div className="item-end main-row completed">
-                {transaction ? (
-                  renderStatusText(transaction?.status)
-                ) : (
-                  <Skeleton />
-                )}
-              </div>
-            </div>
-            <div
-              className="item-main-info divider"
-              onClick={() => {
-                Clipboard.copy(txid);
-                dispatch(addSuccessToast('TxID copied!'));
-              }}
-            >
-              <div className="item-start main-row">TxID</div>
-              <div className="item-end sub-row">{txid}</div>
-            </div>
-            <div
-              className="item-main-info"
-              onClick={() => {
-                if (!locationState) return;
-                Clipboard.copy(locationState.address);
-                dispatch(addSuccessToast('Address copied!'));
-              }}
-            >
-              <div className="item-start main-row">Address</div>
-              <div className="item-end sub-row">
-                {locationState?.address || ''}
-              </div>
-            </div>
-            <div className="item-main-info">
-              <div className="item-start main-row">Time</div>
-              <div className="item-end sub-row">
-                {transaction ? (
-                  transaction.blockTime?.format('DD MMM YYYY hh:mm:ss')
-                ) : (
-                  <Skeleton />
-                )}
-              </div>
-            </div>
-            <div className="item-main-info">
-              <div className="item-start main-row">Fee</div>
-              <div className="item-end sub-row">
-                {transaction ? transaction.fee : <Skeleton />}
-              </div>
-            </div>
-          </div>
-        </IonItem>
-        <div className="buttons">
-          <IonButton
-            routerLink={`/operations/${locationState?.asset}`}
-            className="main-button secondary"
-          >
-            History
-          </IonButton>
-        </div>
+            </IonCol>
+          </IonRow>
+
+          <IonRow className="ion-margin-vertical-x2">
+            <IonCol size="10" offset="1">
+              <IonButton
+                routerLink={`/operations/${locationState?.asset}`}
+                className="main-button"
+              >
+                GO TO TRANSACTION HISTORY
+              </IonButton>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
       </IonContent>
     </IonPage>
   );

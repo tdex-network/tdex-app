@@ -117,36 +117,34 @@ const Operations: React.FC<OperationsProps> = ({
           hasBackButton={true}
         />
         <IonGrid>
-          <IonRow className="ion-margin-bottom">
+          <IonRow className="ion-margin-bottom header-info ion-text-center ion-margin">
             <IonCol>
-              <div className="header-info ion-text-center ion-margin">
-                {balance ? (
-                  <CurrencyIcon currency={balance?.ticker} />
-                ) : (
-                  <CurrencyIcon currency={LBTC_TICKER} />
-                )}
-                <p className="info-amount ion-no-margin">
-                  {balance &&
-                    fromSatoshiFixed(
-                      balance?.amount,
-                      balance.precision,
-                      balance.precision,
-                      balance.ticker === 'L-BTC' ? lbtcUnit : undefined
-                    )}
-                  <span>
-                    {balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker}
-                  </span>
-                </p>
-                {balance && balance.coinGeckoID && prices[balance.coinGeckoID] && (
-                  <span className="info-amount-converted">
-                    {(
-                      fromSatoshi(balance.amount, balance.precision) *
-                      prices[balance.coinGeckoID]
-                    ).toFixed(2)}{' '}
-                    {currency.toUpperCase()}
-                  </span>
-                )}
-              </div>
+              {balance ? (
+                <CurrencyIcon currency={balance?.ticker} />
+              ) : (
+                <CurrencyIcon currency={LBTC_TICKER} />
+              )}
+              <p className="info-amount ion-no-margin">
+                {balance &&
+                  fromSatoshiFixed(
+                    balance?.amount,
+                    balance.precision,
+                    balance.precision,
+                    balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+                  )}
+                <span>
+                  {balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker}
+                </span>
+              </p>
+              {balance && balance.coinGeckoID && prices[balance.coinGeckoID] && (
+                <span className="info-amount-converted">
+                  {(
+                    fromSatoshi(balance.amount, balance.precision) *
+                    prices[balance.coinGeckoID]
+                  ).toFixed(2)}{' '}
+                  {currency.toUpperCase()}
+                </span>
+              )}
             </IonCol>
           </IonRow>
 
@@ -196,6 +194,7 @@ const Operations: React.FC<OperationsProps> = ({
               </IonButtons>
             </IonCol>
           </IonRow>
+
           <IonRow>
             <IonCol>
               <IonList>
