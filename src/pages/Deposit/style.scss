@@ -25,12 +25,12 @@
       &.deposit-grid-item-name {
         color: #ffffff;
         font-family: var(--ion-font-main);
-        font-size: 1.2rem;
+        font-size: var(--ion-font-size-main);
       }
       &.deposit-grid-item-ticker {
-        color: #858585;
+        color: var(--ion-color-tertiary);
         font-family: var(--ion-font-sub);
-        font-size: 1rem;
+        font-size: var(--ion-font-size-sub);
       }
     }
     ion-icon.deposit-grid-item-plus-icon {

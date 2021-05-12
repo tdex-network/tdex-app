@@ -171,7 +171,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
               onKeyDown={onPressEnterKeyCloseKeyboard}
               inputmode="decimal"
               value={amount}
-              placeholder="0.00"
+              placeholder="0"
               color={error && 'danger'}
               debounce={200}
               onIonChange={(e) => {
