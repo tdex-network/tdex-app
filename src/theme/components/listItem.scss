@@ -3,83 +3,64 @@
   display: flex;
   justify-content: space-between;
   width: 100%;
-
   .item-start {
     display: flex;
     flex: 1;
-    min-height: 30px;
-
     .item-name {
       margin-left: 8px;
     }
-
     img {
       height: 24px;
       margin-right: 10px;
       width: 24px;
     }
   }
-
   .item-end {
     display: flex;
-
     .first-col {
       text-align: right;
       margin-right: 8px;
-
       .main-row {
         font-family: var(--ion-font-sub);
         line-height: 1;
       }
     }
-
     .second-col {
       display: flex;
       flex-direction: column;
     }
   }
-
   .main-row {
     font-family: var(--ion-font-main);
     font-size: 14px;
-
     &.accent {
       font-size: 10px;
     }
   }
-
   .sub-row {
     font-family: var(--ion-font-sub-heading);
     font-size: 10px;
     color: rgb(198, 198, 198);
     line-height: 18px;
   }
-
   .completed {
-    color: rgb(15, 255, 0);
+    color: var(--ion-color-secondary);
   }
-}
-
-.info-wrapper {
-  width: 100%;
 }
 
 .transaction-item {
   .info-wrapper {
     width: 100%;
-
     .item-main-info {
       .item-start {
         .item-name {
           margin-left: 1px;
         }
       }
-
       .item-end {
         display: flex;
         flex-direction: column;
         font-family: var(--ion-font-sub-heading);
-
         .amount {
           display: flex;
           align-items: center;
@@ -92,25 +73,20 @@
             }
           }
         }
-
         .status {
           display: flex;
           align-items: center;
           justify-content: flex-end;
-
           ion-icon {
             font-size: 18px;
             margin-left: 5px;
           }
-
           &.pending {
-            color: #ff0;
-
+            color: var(--ion-color-warning);
             .three-dots {
               display: flex;
               margin-left: 5px;
               align-items: center;
-
               .dot {
                 display: inline-block;
                 -webkit-border-radius: 50%;
@@ -118,8 +94,7 @@
                 border-radius: 50%;
                 width: 3px;
                 height: 3px;
-                background-color: #ff0;
-
+                background-color: var(--ion-color-warning);
                 & + .dot {
                   margin-left: 3px;
                 }
@@ -134,27 +109,22 @@
       padding-left: 31px;
       margin-top: 8px;
       font-family: var(--ion-font-sub-heading);
-      color: #c6c6c6;
-
+      color: var(--ion-color-step-750);
       .fee-row {
         display: flex;
         justify-content: space-between;
         margin-bottom: 8px;
-
         ion-label {
           font-family: var(--ion-font-sub-heading);
         }
       }
-
       .info-row {
         display: flex;
         justify-content: space-between;
         margin-top: 2px;
-
         ion-label {
           font-family: var(--ion-font-sub-heading);
         }
-
         ion-text {
           overflow-wrap: break-word;
           word-wrap: break-word;
@@ -186,7 +156,6 @@
     &.confirmed {
       color: var(--ion-color-secondary);
     }
-
     &.pending {
       color: var(--ion-color-warning-shade);
     }
@@ -221,11 +190,11 @@
   .info-wrapper .item-main-info,
   .item-main-info {
     .sub-row {
-      color: rgb(144, 144, 144);
+      color: var(--ion-color-step-500);
     }
     .item-end {
       svg {
-        fill: rgb(51, 51, 51);
+        fill: var(--ion-color-primary);
       }
     }
   }

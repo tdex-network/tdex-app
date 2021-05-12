@@ -28,7 +28,15 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    &.sub-row {
+    &.sub-row .total-balance {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    &.sub-row > span:nth-child(2) {
+      flex: 1;
+    }
+    &.sub-row span {
       font-family: var(--ion-font-sub-heading);
       font-size: var(--ion-font-sub-size);
       color: rgb(198, 198, 198);
@@ -37,7 +45,7 @@
 
   .coin-name {
     cursor: pointer;
-    font-family: var(--tdex-font-main);
+    font-family: var(--ion-font-main);
     font-size: 30px;
     display: flex;
     align-items: center;

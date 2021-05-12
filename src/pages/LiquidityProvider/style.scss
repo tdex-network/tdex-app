@@ -1,29 +1,31 @@
-.provider-name {
-  font-size: 14px;
-}
-
-.provider-endpoint {
-  font-size: 10px;
-}
-
 .provider {
-  overflow: scroll;
-  white-space: nowrap;
-  @media (max-width: 375px) {
-    max-width: 200px;
-  }
-  @media (max-width: 450px) {
-    .provider-name {
-      font-size: 1rem;
-    }
-    .provider-endpoint {
-      font-size: 0.8rem;
-    }
-  }
+	overflow: scroll;
+	white-space: nowrap;
+	@media (max-width: 375px) {
+		max-width: 200px;
+	}
+	
+	.provider-name {
+		margin-top: 7px;
+		font-size: 1rem;
+		@media (max-width: 320px) {
+			font-size: 0.8rem;
+		}
+	}
+	
+	.provider-endpoint {
+		font-size: 0.8rem;
+		@media (max-width: 320px) {
+			font-size: 0.6rem;
+		}
+	}
 }
 
 .button-delete {
-  position: absolute;
-  right: 5px;
-  width: 45px;
+	position: absolute;
+	right: 5px;
+	top: 0;
+	@media (max-width: 320px) {
+		width: 40px;
+	}
 }

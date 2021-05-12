@@ -158,9 +158,9 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           <span className="icon-wrapper">
             <CurrencyIcon currency={asset.ticker} />
           </span>
-          <p>
+          <span>
             {asset.ticker === 'L-BTC' ? lbtcUnit : asset.ticker.toUpperCase()}
-          </p>
+          </span>
           <IonIcon className="icon" icon={chevronDownOutline} />
         </div>
         <div
@@ -209,7 +209,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         </div>
       </div>
       <div className="exchanger-row sub-row">
-        <div
+        <span
+          className="total-balance"
           onClick={() => {
             setFocus();
             setAmount(
@@ -222,19 +223,20 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             );
           }}
         >
-          <p>{`Total balance: ${fromSatoshiFixed(
+          <span>Total balance:</span>
+          <span>{`${fromSatoshiFixed(
             balance?.amount || 0,
             balance?.precision,
             balance?.precision || defaultPrecision,
             balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
-          )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : asset.ticker}`}</p>
-        </div>
+          )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : asset.ticker}`}</span>
+        </span>
         {amount && asset.coinGeckoID && prices[asset.coinGeckoID] && (
-          <div>
+          <span className="ion-text-right">
             {error ? (
               <IonText color="danger">{error}</IonText>
             ) : (
-              <p>
+              <>
                 {(
                   toLBTCwithUnit(
                     parseFloat(amount),
@@ -242,9 +244,9 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
                   ) * prices[asset.coinGeckoID]
                 ).toFixed(2)}{' '}
                 {currency.toUpperCase()}
-              </p>
+              </>
             )}
-          </div>
+          </span>
         )}
       </div>
       <div

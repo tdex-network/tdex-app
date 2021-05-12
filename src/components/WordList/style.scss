@@ -1,11 +1,11 @@
 .word-list-container {
   display: flex;
   flex-direction: column;
-  margin-top: 16px;
   margin-bottom: 32px;
   .word-row {
+    align-items: center;
     display: flex;
-    margin-top: 16px;
+    margin-top: 14px;
     .word-index {
       color: #ffffff;
       position: absolute;
@@ -15,8 +15,6 @@
       margin: 0 auto;
       color: var(--ion-color-secondary);
       font-family: var(--ion-font-heading);
-      font-size: 20px;
-      line-height: 1;
     }
   }
 }

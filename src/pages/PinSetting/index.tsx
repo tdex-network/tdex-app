@@ -184,7 +184,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
                 <IonCol size="8" offset="2">
                   <IonButton
                     className="main-button"
-                    disabled={!isTermsAccepted}
+                    disabled={!isPinValidated || !isTermsAccepted}
                     onClick={() => {
                       if (isPinValidated && isTermsAccepted) {
                         setLoading(true);

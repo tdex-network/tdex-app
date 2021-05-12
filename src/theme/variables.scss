@@ -6,8 +6,8 @@
 	--ion-font-heading: 'DMSans-Bold';
 	--ion-font-sub: 'DMMono';
 	--ion-font-sub-heading: 'DMMono-Medium';
-	--ion-font-main-size: 14px;
-	--ion-font-sub-size: 10px;
+	--ion-font-main-size: 16px;
+	--ion-font-sub-size: 13px;
 	/** Safe Area **/
 	.ios {
 		--ion-safe-area-top: 40px;
@@ -28,12 +28,10 @@ body.dark {
 	--ion-toolbar-background: transparent;
 	--ion-tab-bar-background: rgb(26, 26, 26);
 	--ion-item-background: transparent;
-	//--ion-card-background: #1e1e1e;
-	
+	/** Colors **/
 	--ion-text-color: #ffffff;
 	--ion-text-color-rgb: 255, 255, 255;
 	--ion-border-color: #222222;
-	
 	/** primary **/
 	--ion-color-primary: #313131;
 	--ion-color-primary-rgb: 49, 49, 49;

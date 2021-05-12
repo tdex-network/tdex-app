@@ -1,9 +1,8 @@
 ion-item {
   --border: 0;
-  --background: rgb(51, 51, 51);
+  --background: var(--ion-color-primary);
   border-radius: 8px;
-  --color: rgb(255, 255, 255);
-  font-size: 10px;
+  --color: var(--ion-text-color);
   --min-height: auto;
   --padding-start: 17px;
   --padding-end: 17px;

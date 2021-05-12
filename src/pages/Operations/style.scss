@@ -53,12 +53,11 @@
     }
   }
   .list-item {
-    transition: all 0.2s ease-in-out;
     &.pending {
       background-color: rgba(255, 220, 0, 0.15);
     }
     &.open {
-      background-color: #444;
+      font-size: 10px;
       .sub-info {
         display: block;
       }
