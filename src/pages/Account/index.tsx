@@ -6,6 +6,9 @@ import {
   IonListHeader,
   IonText,
   IonIcon,
+  IonGrid,
+  IonRow,
+  IonCol,
 } from '@ionic/react';
 import React, { useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
@@ -87,31 +90,34 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
       {/* IDENTITY */}
       <IonContent className="account">
         <Header title="ACCOUNT" hasBackButton={true} />
-        {/* Show Mnemonic */}
-        <IonList>
-          <IonListHeader>Identity</IonListHeader>
-          <IonItem
-            className="list-item"
-            onClick={() => {
-              setPinModalOpen(true);
-              setRouteToGo('/settings/show-mnemonic');
-            }}
-          >
-            <div className="item-main-info">
-              <IonIcon icon={eye} />
-              <div className="item-start">
-                <div className="main-row">Show mnemonic</div>
-                <IonText className="description">
-                  Display the secret mnemonic stored in your device's secure
-                  storage.
-                </IonText>
-              </div>
-              <IonIcon icon={chevronForwardOutline} />
-            </div>
-          </IonItem>
+        <IonGrid>
+          <IonRow>
+            <IonCol>
+              {/* Show Mnemonic */}
+              <IonList>
+                <IonListHeader>Identity</IonListHeader>
+                <IonItem
+                  className="list-item"
+                  onClick={() => {
+                    setPinModalOpen(true);
+                    setRouteToGo('/settings/show-mnemonic');
+                  }}
+                >
+                  <div className="item-main-info">
+                    <IonIcon icon={eye} />
+                    <div className="item-start">
+                      <div className="main-row">Show mnemonic</div>
+                      <IonText className="description">
+                        Display the secret mnemonic stored in your device's
+                        secure storage.
+                      </IonText>
+                    </div>
+                    <IonIcon icon={chevronForwardOutline} />
+                  </div>
+                </IonItem>
 
-          {/* Show advanced info */}
-          {/*<IonItem
+                {/* Show advanced info */}
+                {/*<IonItem
             className="list-item"
             onClick={() => {
               history.push('/set-pin');
@@ -129,61 +135,65 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
               <IonIcon icon={chevronForwardOutline} />
             </div>
           </IonItem>*/}
-        </IonList>
+              </IonList>
 
-        <IonList>
-          <IonListHeader>Security</IonListHeader>
-          {/* Change PIN */}
-          <IonItem
-            className="list-item"
-            onClick={() => {
-              setShowChangePinModal(true);
-            }}
-          >
-            <div className="item-main-info">
-              <IonIcon icon={lockOpen} />
-              <div className="item-start">
-                <div className="main-row">Set new pin</div>
-                <IonText className="description">
-                  Change the secure PIN using to encrypt your wallet's seed.
-                </IonText>
-              </div>
-              <IonIcon icon={chevronForwardOutline} />
-            </div>
-          </IonItem>
-          {showChangePinModal && (
-            <ChangePinModals
-              open={showChangePinModal}
-              onClose={() => setShowChangePinModal(false)}
-              onDeleted={() => {
-                setShowChangePinModal(false);
-                history.push('/homescreen');
-              }}
-            />
-          )}
+              <IonList>
+                <IonListHeader>Security</IonListHeader>
+                {/* Change PIN */}
+                <IonItem
+                  className="list-item"
+                  onClick={() => {
+                    setShowChangePinModal(true);
+                  }}
+                >
+                  <div className="item-main-info">
+                    <IonIcon icon={lockOpen} />
+                    <div className="item-start">
+                      <div className="main-row">Set new pin</div>
+                      <IonText className="description">
+                        Change the secure PIN using to encrypt your wallet's
+                        seed.
+                      </IonText>
+                    </div>
+                    <IonIcon icon={chevronForwardOutline} />
+                  </div>
+                </IonItem>
+                {showChangePinModal && (
+                  <ChangePinModals
+                    open={showChangePinModal}
+                    onClose={() => setShowChangePinModal(false)}
+                    onDeleted={() => {
+                      setShowChangePinModal(false);
+                      history.push('/homescreen');
+                    }}
+                  />
+                )}
 
-          {/* Delete Mnemonic */}
-          <IonItem
-            className="list-item"
-            onClick={() => {
-              setPinModalOpen(true);
-              setRouteToGo('/settings/delete-mnemonic');
-            }}
-          >
-            <div className="item-main-info">
-              <IonIcon icon={trashOutline} />
-              <div className="item-start">
-                <div className="main-row">Delete Mnemonic</div>
-                <IonText className="description">
-                  Definitively removes your seed from this device. Be extremely
-                  careful, after deletion it will be impossible to retrieve your
-                  key from tdex-app.
-                </IonText>
-              </div>
-              <IonIcon icon={chevronForwardOutline} />
-            </div>
-          </IonItem>
-        </IonList>
+                {/* Delete Mnemonic */}
+                <IonItem
+                  className="list-item"
+                  onClick={() => {
+                    setPinModalOpen(true);
+                    setRouteToGo('/settings/delete-mnemonic');
+                  }}
+                >
+                  <div className="item-main-info">
+                    <IonIcon icon={trashOutline} />
+                    <div className="item-start">
+                      <div className="main-row">Delete Mnemonic</div>
+                      <IonText className="description">
+                        Definitively removes your seed from this device. Be
+                        extremely careful, after deletion it will be impossible
+                        to retrieve your key from tdex-app.
+                      </IonText>
+                    </div>
+                    <IonIcon icon={chevronForwardOutline} />
+                  </div>
+                </IonItem>
+              </IonList>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
       </IonContent>
     </IonPage>
   );

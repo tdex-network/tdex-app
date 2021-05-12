@@ -9,11 +9,16 @@ h3 {
   font-family: var(--ion-font-heading);
 }
 
+h2 {
+  font-size: var(--ion-font-size-md);
+}
+
 p {
   line-height: 1.75rem;
 }
 
-a, span {
+a,
+span {
   color: var(--ion-text-color);
   font-family: var(--ion-font-main);
 }

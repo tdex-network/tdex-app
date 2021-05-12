@@ -1,31 +1,25 @@
 .provider {
-	overflow: scroll;
-	white-space: nowrap;
-	@media (max-width: 375px) {
-		max-width: 200px;
-	}
-	
-	.provider-name {
-		margin-top: 7px;
-		font-size: 1rem;
-		@media (max-width: 320px) {
-			font-size: 0.8rem;
-		}
-	}
-	
-	.provider-endpoint {
-		font-size: 0.8rem;
-		@media (max-width: 320px) {
-			font-size: 0.6rem;
-		}
-	}
+  overflow: scroll;
+  white-space: nowrap;
+  @media (max-width: 375px) {
+    max-width: 200px;
+  }
+
+  .provider-name {
+    margin-top: 7px;
+    font-size: var(--ion-font-size-main);
+  }
+
+  .provider-endpoint {
+    font-size: var(--ion-font-size-sub);
+  }
 }
 
 .button-delete {
-	position: absolute;
-	right: 5px;
-	top: 0;
-	@media (max-width: 320px) {
-		width: 40px;
-	}
+  position: absolute;
+  right: 5px;
+  top: 0;
+  @media (max-width: 320px) {
+    width: 40px;
+  }
 }

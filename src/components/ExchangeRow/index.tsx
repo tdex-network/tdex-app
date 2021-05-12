@@ -149,12 +149,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   return (
     <div className="exchange-coin-container">
       <div className="exchanger-row">
-        <div
-          className="coin-name"
-          onClick={() => {
-            setIsSearchOpen(true);
-          }}
-        >
+        <div className="coin-name" onClick={() => setIsSearchOpen(true)}>
           <span className="icon-wrapper">
             <CurrencyIcon currency={asset.ticker} />
           </span>
@@ -163,6 +158,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           </span>
           <IonIcon className="icon" icon={chevronDownOutline} />
         </div>
+
         <div
           className={classNames('coin-amount', {
             active: amount,
@@ -171,6 +167,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           <div className="ion-text-end">
             <IonInput
               enterkeyhint="done"
+              type="number"
               onKeyDown={onPressEnterKeyCloseKeyboard}
               inputmode="decimal"
               value={amount}
@@ -208,9 +205,10 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           </div>
         </div>
       </div>
+
       <div className="exchanger-row sub-row">
         <span
-          className="total-balance"
+          className="balance"
           onClick={() => {
             setFocus();
             setAmount(

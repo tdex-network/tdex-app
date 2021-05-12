@@ -1,12 +1,12 @@
 ion-button {
-	width: 100%;
-	border-radius: 35px;
-	--border-radius: 35px;
-	font-size: 14px;
-	position: relative;
-	--background-hover: transparent;
-	--background-focused: transparent;
-	--background-activated: transparent;
-	--background-hover-opacity: 1;
-	text-transform: uppercase;
+  width: 100%;
+  border-radius: 35px;
+  --border-radius: 35px;
+  font-size: var(--ion-font-size-main);
+  position: relative;
+  --background-hover: transparent;
+  --background-focused: transparent;
+  --background-activated: transparent;
+  --background-hover-opacity: 1;
+  text-transform: uppercase;
 }

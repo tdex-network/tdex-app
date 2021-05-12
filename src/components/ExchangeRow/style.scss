@@ -1,24 +1,23 @@
 .exchange-coin-container {
-  &:nth-child(1):before {
+  &:nth-child(3):before {
     content: '';
     position: absolute;
     left: 0;
-    bottom: 0;
+    top: 0;
     height: 1px;
     width: calc(50% - 16px);
-    border-bottom: 1px solid rgb(15, 255, 0);
+    border-top: 1px solid rgb(15, 255, 0);
   }
-  &:nth-child(1):after {
+  &:nth-child(3):after {
     content: '';
     position: absolute;
     right: 0;
-    bottom: 0;
+    top: 0;
     height: 1px;
     width: calc(50% - 16px);
-    border-bottom: 1px solid rgb(15, 255, 0);
+    border-top: 1px solid rgb(15, 255, 0);
   }
   position: relative;
-  //background: rgb(51, 51, 51);
   @media (max-height: 700px) {
     padding: 32px 24px;
   }
@@ -28,7 +27,7 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    &.sub-row .total-balance {
+    &.sub-row .balance {
       display: flex;
       flex-direction: column;
       flex: 1;
@@ -38,7 +37,7 @@
     }
     &.sub-row span {
       font-family: var(--ion-font-sub-heading);
-      font-size: var(--ion-font-sub-size);
+      font-size: var(--ion-font-size-sub);
       color: rgb(198, 198, 198);
     }
   }
@@ -46,7 +45,7 @@
   .coin-name {
     cursor: pointer;
     font-family: var(--ion-font-main);
-    font-size: 30px;
+    font-size: var(--ion-font-size-l);
     display: flex;
     align-items: center;
     .icon-wrapper {
@@ -70,10 +69,7 @@
     --padding-end: 0;
     --inner-padding-end: 0;
     font-family: var(--ion-font-sub);
-    font-size: 30px;
-    @media (max-height: 700px) {
-      font-size: 16px;
-    }
+    font-size: var(--ion-font-size-l);
     color: rgb(102, 102, 102);
 
     &.active {
@@ -87,18 +83,13 @@
       margin-right: 8px;
     }
 
-    .ion-input {
-      border: none;
-      height: 0;
-      padding: 0;
-      position: absolute;
-      width: 0;
+    ion-input {
+      --padding-bottom: 0;
+      --padding-end: 0;
+      --padding-start: 0;
+      --padding-top: 0;
     }
   }
-}
-
-.exchange-coin-container.transparent {
-  //background: transparent;
 }
 
 .light {
@@ -127,7 +118,7 @@
       --padding-end: 0;
       --inner-padding-end: 0;
       font-family: var(--ion-font-sub);
-      font-size: 30px;
+      font-size: var(--ion-font-size-l);
       color: rgb(102, 102, 102);
 
       &.active {

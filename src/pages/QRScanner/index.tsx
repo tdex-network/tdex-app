@@ -1,7 +1,10 @@
 import {
   IonButton,
+  IonCol,
   IonContent,
+  IonGrid,
   IonPage,
+  IonRow,
   useIonViewDidEnter,
   useIonViewWillLeave,
 } from '@ionic/react';
@@ -61,30 +64,36 @@ const QRCodeScanner: React.FC<
 
   return (
     <IonPage>
-      <Header
-        title="SCAN QR CODE"
-        hasBackButton={false}
-        hasCloseButton={false}
-      />
       <IonContent className="content">
-        <div className="qr-scanner">
-          <div className="rect">
-            <div className="rect-border" />
-          </div>
-          <div className="btn-container">
-            <IonButton
-              onClick={() =>
-                history.replace(`/withdraw/${asset_id}`, {
-                  ...location.state,
-                  amount: location.state.amount,
-                })
-              }
-              className="cancel-btn"
-            >
-              CLOSE
-            </IonButton>
-          </div>
-        </div>
+        <Header
+          title="SCAN QR CODE"
+          hasBackButton={false}
+          hasCloseButton={false}
+        />
+        <IonGrid>
+          <IonRow>
+            <IonCol size="10" offset="1">
+              <div className="qr-scanner">
+                <div className="rect">
+                  <div className="rect-border" />
+                </div>
+                <div className="btn-container">
+                  <IonButton
+                    onClick={() =>
+                      history.replace(`/withdraw/${asset_id}`, {
+                        ...location.state,
+                        amount: location.state.amount,
+                      })
+                    }
+                    className="cancel-btn"
+                  >
+                    CLOSE
+                  </IonButton>
+                </div>
+              </div>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
       </IonContent>
     </IonPage>
   );

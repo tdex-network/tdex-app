@@ -1,41 +1,27 @@
-.operations-buttons {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
 .coin-action-button {
-  border: 2px solid #fff;
-  color: #fff;
-  height: 40px !important;
-  width: 100%;
-  padding: 11px 15px;
-  font-size: 14px !important;
-  @media (max-width: 400px) {
-    width: 100px !important;
-    font-size: 12px !important;
+  background: var(--ion-color-secondary-transparent);
+  border-radius: 10px;
+  color: var(--ion-color-secondary);
+  height: 85px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  div {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    img {
+      margin-bottom: 7px;
+      width: 27px;
+      &:nth-child(2) {
+        rotate: 180deg;
+      }
+    }
   }
-
-  &.small-button {
-    min-width: 75px !important;
-    width: auto !important;
-    max-width: none !important;
-    height: 27px !important;
-    padding: 5px 10px;
-    font-size: 11px !important;
+  &:nth-child(1) {
+    margin-right: 10px !important;
   }
-  &:hover {
-    color: #000 !important;
-    background: linear-gradient(
-      to top,
-      rgb(15, 255, 0),
-      rgb(0, 235, 127)
-    ) !important;
-    border-color: transparent;
-    opacity: 1;
-  }
-  & + & {
-    margin-left: 10px;
+  &:nth-child(3) {
+    margin-left: 10px !important;
   }
 }
 
@@ -50,6 +36,18 @@
       width: 48px;
       height: 48px;
       margin-bottom: 14px;
+    }
+    .info-amount {
+      font-size: var(--ion-font-size-xl);
+      span {
+        font-size: var(--ion-font-size-main);
+        margin-left: 10px;
+      }
+    }
+    .info-amount-converted {
+      font-family: var(--ion-font-sub);
+      font-size: var(--ion-font-size-sub);
+      color: var(--ion-color-tertiary);
     }
   }
   .list-item {

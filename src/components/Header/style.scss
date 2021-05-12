@@ -2,17 +2,21 @@ ion-header {
   .back-button {
     ion-button,
     ion-back-button {
-      color: rgb(198, 198, 198);
+      color: var(--ion-color-tertiary);
+      --color: var(--ion-color-tertiary);
       position: absolute;
       left: 12px;
+      width: 30px;
     }
   }
   .close-button {
     ion-button,
     ion-back-button {
-      color: rgb(198, 198, 198);
+      color: var(--ion-color-tertiary);
+      --color: var(--ion-color-tertiary);
       position: absolute;
       right: 12px;
+      width: 30px;
     }
   }
   ion-title {
@@ -21,7 +25,7 @@ ion-header {
     font-size: 16px;
     color: rgb(198, 198, 198);
     &.title-large {
-      font-size: 30px;
+      font-size: var(--ion-font-size-l);
       color: #ffffff;
     }
   }

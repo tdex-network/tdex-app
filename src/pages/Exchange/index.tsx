@@ -250,68 +250,69 @@ const Exchange: React.FC<ExchangeProps> = ({
         />
       )}
 
-      <IonGrid className="ion-no-margin ion-no-padding">
-        {assetSent && markets.length > 0 && (
-          <IonContent className="exchange-content">
-            <Header hasBackButton={false} title="EXCHANGE" />
-            <Refresher />
-            <div>
-              <ExchangeRow
-                checkBalance
-                focused={isFocused === 'sent'}
-                setFocus={() => setIsFocused('sent')}
-                setTrade={(t: TDEXTrade) => setTrade(t)}
-                relatedAssetAmount={receivedAmount || 0}
-                relatedAssetHash={assetReceived?.asset || ''}
-                asset={assetSent}
-                trades={trades}
-                onChangeAmount={(newAmount: number) => {
-                  setSentAmount(newAmount);
-                  checkAvailableAmountSent();
-                }}
-                assetsWithTicker={allAssets}
-                setAsset={(asset) => {
-                  if (assetReceived && asset.asset === assetReceived.asset)
-                    setAssetReceived(assetSent);
-                  setAssetSent(asset);
-                }}
-                error={errorSent}
-                setError={setErrorSent}
-              />
-              <div
-                className="exchange-divider"
-                onClick={() => {
-                  const firstAsset = { ...assetSent };
-                  setAssetSent(assetReceived);
-                  setAssetReceived(firstAsset);
-                }}
-              >
-                <img src={swap} alt="swap" />
-              </div>
-              {assetReceived && (
-                <ExchangeRow
-                  focused={isFocused === 'receive'}
-                  setFocus={() => setIsFocused('receive')}
-                  setTrade={(t: TDEXTrade) => setTrade(t)}
-                  trades={trades}
-                  relatedAssetAmount={sentAmount || 0}
-                  relatedAssetHash={assetSent?.asset || ''}
-                  asset={assetReceived}
-                  onChangeAmount={(newAmount: number) => {
-                    setReceivedAmount(newAmount);
-                    checkAvailableAmountReceived();
-                  }}
-                  assetsWithTicker={tradableAssets}
-                  setAsset={(asset) => {
-                    if (asset.asset === assetSent.asset)
-                      setAssetSent(assetReceived);
-                    setAssetReceived(asset);
-                  }}
-                  error={errorReceived}
-                  setError={setErrorReceived}
-                />
-              )}
+      {assetSent && markets.length > 0 && (
+        <IonContent className="exchange-content">
+          <Header hasBackButton={false} title="EXCHANGE" />
+          <Refresher />
+          <IonGrid className="ion-no-margin ion-no-padding">
+            <ExchangeRow
+              checkBalance
+              focused={isFocused === 'sent'}
+              setFocus={() => setIsFocused('sent')}
+              setTrade={(t: TDEXTrade) => setTrade(t)}
+              relatedAssetAmount={receivedAmount || 0}
+              relatedAssetHash={assetReceived?.asset || ''}
+              asset={assetSent}
+              trades={trades}
+              onChangeAmount={(newAmount: number) => {
+                setSentAmount(newAmount);
+                checkAvailableAmountSent();
+              }}
+              assetsWithTicker={allAssets}
+              setAsset={(asset) => {
+                if (assetReceived && asset.asset === assetReceived.asset)
+                  setAssetReceived(assetSent);
+                setAssetSent(asset);
+              }}
+              error={errorSent}
+              setError={setErrorSent}
+            />
+
+            <div
+              className="exchange-divider"
+              onClick={() => {
+                const firstAsset = { ...assetSent };
+                setAssetSent(assetReceived);
+                setAssetReceived(firstAsset);
+              }}
+            >
+              <img src={swap} alt="swap" />
             </div>
+
+            {assetReceived && (
+              <ExchangeRow
+                focused={isFocused === 'receive'}
+                setFocus={() => setIsFocused('receive')}
+                setTrade={(t: TDEXTrade) => setTrade(t)}
+                trades={trades}
+                relatedAssetAmount={sentAmount || 0}
+                relatedAssetHash={assetSent?.asset || ''}
+                asset={assetReceived}
+                onChangeAmount={(newAmount: number) => {
+                  setReceivedAmount(newAmount);
+                  checkAvailableAmountReceived();
+                }}
+                assetsWithTicker={tradableAssets}
+                setAsset={(asset) => {
+                  if (asset.asset === assetSent.asset)
+                    setAssetSent(assetReceived);
+                  setAssetReceived(asset);
+                }}
+                error={errorReceived}
+                setError={setErrorReceived}
+              />
+            )}
+
             <ButtonsMainSub
               mainTitle="CONFIRM"
               subTitle="CANCEL"
@@ -323,6 +324,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                 sentAmountGreaterThanBalance()
               }
             />
+
             {trade && (
               <IonRow className="market-provider ion-margin-vertical ion-text-center">
                 <IonCol size="10" offset="1">
@@ -335,9 +337,9 @@ const Exchange: React.FC<ExchangeProps> = ({
                 </IonCol>
               </IonRow>
             )}
-          </IonContent>
-        )}
-      </IonGrid>
+          </IonGrid>
+        </IonContent>
+      )}
     </IonPage>
   );
 };

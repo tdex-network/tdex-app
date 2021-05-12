@@ -11,6 +11,7 @@ import {
   IonInput,
   IonGrid,
   IonRow,
+  IonCol,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { IconRightArrow } from '../../components/icons';
@@ -270,29 +271,36 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
                 title="Electrum"
               />
               <IonRow>
-                <IonInput
-                  className="explorer-input"
-                  enterkeyhint="done"
-                  onKeyDown={onPressEnterKeyCloseKeyboard}
-                  inputmode="text"
-                  value={explorerValue}
-                  onIonChange={handleExplorerChange}
-                />
+                <IonCol size="10" offset="1">
+                  <IonItem>
+                    <IonInput
+                      enterkeyhint="done"
+                      onKeyDown={onPressEnterKeyCloseKeyboard}
+                      inputmode="text"
+                      value={explorerValue}
+                      onIonChange={handleExplorerChange}
+                    />
+                  </IonItem>
+                </IonCol>
               </IonRow>
 
-              <ButtonsMainSub
-                className="ion-margin"
-                mainTitle="Save"
-                subTitle="Cancel"
-                mainOnClick={() => {
-                  dispatch(setElectrumServer(explorerValue));
-                  setShowExplorerModal(false);
-                }}
-                subOnClick={() => {
-                  setShowExplorerModal(false);
-                }}
-                mainDisabled={!explorerValue || !explorerValue.length}
-              />
+              <IonRow className="ion-margin-vertical-x2">
+                <IonCol>
+                  <ButtonsMainSub
+                    className="ion-margin"
+                    mainTitle="Save"
+                    subTitle="Cancel"
+                    mainOnClick={() => {
+                      dispatch(setElectrumServer(explorerValue));
+                      setShowExplorerModal(false);
+                    }}
+                    subOnClick={() => {
+                      setShowExplorerModal(false);
+                    }}
+                    mainDisabled={!explorerValue || !explorerValue.length}
+                  />
+                </IonCol>
+              </IonRow>
             </IonContent>
           </IonModal>
 

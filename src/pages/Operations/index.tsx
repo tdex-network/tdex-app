@@ -9,6 +9,9 @@ import {
   IonLabel,
   IonText,
   IonIcon,
+  IonGrid,
+  IonRow,
+  IonCol,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { withRouter, RouteComponentProps, useParams } from 'react-router';
@@ -27,9 +30,10 @@ import { transactionsByAssetSelector } from '../../redux/reducers/transactionsRe
 import { LBTC_TICKER, MAIN_ASSETS } from '../../utils/constants';
 import Refresher from '../../components/Refresher';
 import WatchersLoader from '../../redux/containers/watchersLoaderContainer';
-
-import './style.scss';
 import Header from '../../components/Header';
+import depositIcon from '../../assets/img/deposit-green.svg';
+import swapIcon from '../../assets/img/swap-circle.svg';
+import './style.scss';
 
 const txTypes = ['deposit', 'withdrawal', 'swap', 'trade'];
 const statusText = {
@@ -112,148 +116,181 @@ const Operations: React.FC<OperationsProps> = ({
           title={`${balance?.ticker ?? ''} ${balance?.coinGeckoID ?? ''}`}
           hasBackButton={true}
         />
-        <div className="header-info ion-text-center ion-margin">
-          {balance ? (
-            <CurrencyIcon currency={balance?.ticker} />
-          ) : (
-            <CurrencyIcon currency={LBTC_TICKER} />
-          )}
-          <p className="info-amount">
-            {balance &&
-              fromSatoshiFixed(
-                balance?.amount,
-                balance.precision,
-                balance.precision,
-                balance.ticker === 'L-BTC' ? lbtcUnit : undefined
-              )}
-            <span>
-              {' '}
-              {balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker}
-            </span>
-          </p>
-          {balance && balance.coinGeckoID && prices[balance.coinGeckoID] && (
-            <p className="info-amount-converted">
-              {(
-                fromSatoshi(balance.amount, balance.precision) *
-                prices[balance.coinGeckoID]
-              ).toFixed(2)}{' '}
-              {currency.toUpperCase()}
-            </p>
-          )}
-        </div>
-        <IonButtons className="operations-buttons">
-          <IonButton
-            className="coin-action-button"
-            onClick={() => {
-              history.push({
-                pathname: '/receive',
-                state: {
-                  depositAsset: {
-                    asset: balance?.asset,
-                    ticker: balance?.ticker ?? LBTC_TICKER,
-                    coinGeckoID: balance?.coinGeckoID ?? 'L-BTC',
-                  },
-                },
-              });
-            }}
-          >
-            Deposit
-          </IonButton>
-          <IonButton
-            className="coin-action-button"
-            onClick={() => {
-              history.push(`/withdraw/${asset_id}`);
-            }}
-          >
-            Withdraw
-          </IonButton>
-          <IonButton className="coin-action-button" routerLink="/exchange">
-            Swap
-          </IonButton>
-        </IonButtons>
-        <IonList>
-          <IonListHeader>Transactions</IonListHeader>
-          <WatchersLoader />
-          {balance &&
-            transactionsToDisplay
-              .sort(compareTxDisplayInterfaceByDate)
-              .map((tx: TxDisplayInterface, index: number) => {
-                const transfer = tx.transfers.find((t) => t.asset === asset_id);
-                return (
-                  <IonItem
-                    onClick={() => onclickTx(tx.txId)}
-                    key={index}
-                    className={classNames('list-item transaction-item', {
-                      open: isOpen(tx.txId),
-                    })}
-                  >
-                    <div className="info-wrapper">
-                      <div className="item-main-info">
-                        <div className="item-start">
-                          <TxIcon type={tx.type} />
-                          <div className="item-name">
-                            <div className="main-row">
-                              {`${balance.ticker} ${txTypes[tx.type - 1]}`}
-                            </div>
-                            <div className="sub-row">
-                              {isOpen(tx.txId)
-                                ? tx.blockTime?.format('DD MMM YYYY hh:mm:ss')
-                                : tx.blockTime?.format('DD MMM YYYY')}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="item-end">
-                          <div className="amount">
-                            <div className="main-row">
-                              {transfer
-                                ? fromSatoshiFixed(
-                                    transfer.amount,
-                                    balance.precision,
-                                    balance.precision,
-                                    balance.ticker === 'L-BTC'
+        <IonGrid>
+          <IonRow className="ion-margin-bottom">
+            <IonCol>
+              <div className="header-info ion-text-center ion-margin">
+                {balance ? (
+                  <CurrencyIcon currency={balance?.ticker} />
+                ) : (
+                  <CurrencyIcon currency={LBTC_TICKER} />
+                )}
+                <p className="info-amount ion-no-margin">
+                  {balance &&
+                    fromSatoshiFixed(
+                      balance?.amount,
+                      balance.precision,
+                      balance.precision,
+                      balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+                    )}
+                  <span>
+                    {balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker}
+                  </span>
+                </p>
+                {balance && balance.coinGeckoID && prices[balance.coinGeckoID] && (
+                  <span className="info-amount-converted">
+                    {(
+                      fromSatoshi(balance.amount, balance.precision) *
+                      prices[balance.coinGeckoID]
+                    ).toFixed(2)}{' '}
+                    {currency.toUpperCase()}
+                  </span>
+                )}
+              </div>
+            </IonCol>
+          </IonRow>
+
+          <IonRow className="ion-margin-top">
+            <IonCol>
+              <IonButtons>
+                <IonButton
+                  className="coin-action-button"
+                  onClick={() => {
+                    history.push({
+                      pathname: '/receive',
+                      state: {
+                        depositAsset: {
+                          asset: balance?.asset,
+                          ticker: balance?.ticker ?? LBTC_TICKER,
+                          coinGeckoID: balance?.coinGeckoID ?? 'L-BTC',
+                        },
+                      },
+                    });
+                  }}
+                >
+                  <div>
+                    <img src={depositIcon} alt="deposit" />
+                    Deposit
+                  </div>
+                </IonButton>
+                <IonButton
+                  className="coin-action-button"
+                  onClick={() => {
+                    history.push(`/withdraw/${asset_id}`);
+                  }}
+                >
+                  <div>
+                    <img src={depositIcon} alt="deposit" />
+                    Withdraw
+                  </div>
+                </IonButton>
+                <IonButton
+                  className="coin-action-button"
+                  routerLink="/exchange"
+                >
+                  <div>
+                    <img src={swapIcon} alt="swap" />
+                    Swap
+                  </div>
+                </IonButton>
+              </IonButtons>
+            </IonCol>
+          </IonRow>
+          <IonRow>
+            <IonCol>
+              <IonList>
+                <IonListHeader>Transactions</IonListHeader>
+                <WatchersLoader />
+                {balance &&
+                  transactionsToDisplay
+                    .sort(compareTxDisplayInterfaceByDate)
+                    .map((tx: TxDisplayInterface, index: number) => {
+                      const transfer = tx.transfers.find(
+                        (t) => t.asset === asset_id
+                      );
+                      return (
+                        <IonItem
+                          onClick={() => onclickTx(tx.txId)}
+                          key={index}
+                          className={classNames('list-item transaction-item', {
+                            open: isOpen(tx.txId),
+                          })}
+                        >
+                          <div className="info-wrapper">
+                            <div className="item-main-info">
+                              <div className="item-start">
+                                <TxIcon type={tx.type} />
+                                <div className="item-name">
+                                  <div className="main-row">
+                                    {`${balance.ticker} ${
+                                      txTypes[tx.type - 1]
+                                    }`}
+                                  </div>
+                                  <div className="sub-row">
+                                    {isOpen(tx.txId)
+                                      ? tx.blockTime?.format(
+                                          'DD MMM YYYY hh:mm:ss'
+                                        )
+                                      : tx.blockTime?.format('DD MMM YYYY')}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="item-end">
+                                <div className="amount">
+                                  <div className="main-row">
+                                    {transfer
+                                      ? fromSatoshiFixed(
+                                          transfer.amount,
+                                          balance.precision,
+                                          balance.precision,
+                                          balance.ticker === 'L-BTC'
+                                            ? lbtcUnit
+                                            : undefined
+                                        )
+                                      : 'unknow'}
+                                  </div>
+                                  <div className="main-row accent">
+                                    {balance.ticker === 'L-BTC'
                                       ? lbtcUnit
-                                      : undefined
-                                  )
-                                : 'unknow'}
+                                      : balance.ticker}
+                                  </div>
+                                </div>
+                                {transfer && balance.coinGeckoID && (
+                                  <div className="sub-row ta-end">
+                                    {(
+                                      fromSatoshi(
+                                        transfer.amount,
+                                        balance.precision
+                                      ) * prices[balance.coinGeckoID]
+                                    ).toFixed(2)}{' '}
+                                    {currency.toUpperCase()}
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                            <div className="main-row accent">
-                              {balance.ticker === 'L-BTC'
-                                ? lbtcUnit
-                                : balance.ticker}
+                            <div className="sub-info">
+                              <div className="fee-row">
+                                <IonLabel>
+                                  Fee{' '}
+                                  <span className="amount">
+                                    {fromSatoshi(tx.fee, 8).toFixed(8)}{' '}
+                                    {LBTC_TICKER}
+                                  </span>
+                                </IonLabel>
+                                <IonText>{renderStatusText(tx.status)}</IonText>
+                              </div>
+                              <div className="info-row ion-text-wrap">
+                                TxID {tx.txId}
+                              </div>
                             </div>
                           </div>
-                          {transfer && balance.coinGeckoID && (
-                            <div className="sub-row ta-end">
-                              {(
-                                fromSatoshi(
-                                  transfer.amount,
-                                  balance.precision
-                                ) * prices[balance.coinGeckoID]
-                              ).toFixed(2)}{' '}
-                              {currency.toUpperCase()}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="sub-info">
-                        <div className="fee-row">
-                          <IonLabel>
-                            Fee{' '}
-                            <span className="amount">
-                              {fromSatoshi(tx.fee, 8).toFixed(8)} {LBTC_TICKER}
-                            </span>
-                          </IonLabel>
-                          <IonText>{renderStatusText(tx.status)}</IonText>
-                        </div>
-                        <div className="info-row ion-text-wrap">
-                          TxID {tx.txId}
-                        </div>
-                      </div>
-                    </div>
-                  </IonItem>
-                );
-              })}
-        </IonList>
+                        </IonItem>
+                      );
+                    })}
+              </IonList>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
       </IonContent>
     </IonPage>
   );

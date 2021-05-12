@@ -86,52 +86,66 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
               title="CREATE NEW PROVIDER"
               handleClose={() => setNewProvider(false)}
             />
-            <IonList>
-              <IonItem>
-                <IonLabel position="stacked">Provider name</IonLabel>
-                <IonInput
-                  required
-                  value={newProviderName}
-                  onIonChange={(e) => setNewProviderName(e.detail.value || '')}
-                  inputmode="text"
-                  placeholder="name the provider to add"
-                />
-              </IonItem>
-              <IonItem>
-                <IonLabel position="stacked">Endpoint</IonLabel>
-                <IonInput
-                  required
-                  value={newProviderEndpoint}
-                  onIonChange={(e) =>
-                    setNewProviderEndpoint(e.detail.value || '')
-                  }
-                  inputmode="url"
-                  placeholder="i.e http://localhost:9945"
-                />
-              </IonItem>
-            </IonList>
-            <ButtonsMainSub
-              mainTitle="CONFIRM"
-              subTitle="CANCEL"
-              mainDisabled={
-                newProviderName.trim() === '' ||
-                newProviderEndpoint.trim() === ''
-              }
-              mainOnClick={() => {
-                setNewProvider(false);
-                dispatch(
-                  addProvider({
-                    endpoint: newProviderEndpoint.trim(),
-                    name: newProviderName.trim(),
-                  })
-                );
-              }}
-              subOnClick={() => setNewProvider(false)}
-            />
+            <IonGrid>
+              <IonRow>
+                <IonCol>
+                  <IonList>
+                    <IonItem>
+                      <IonLabel position="stacked">Provider name</IonLabel>
+                      <IonInput
+                        required
+                        value={newProviderName}
+                        onIonChange={(e) =>
+                          setNewProviderName(e.detail.value || '')
+                        }
+                        inputmode="text"
+                        placeholder="name the provider to add"
+                      />
+                    </IonItem>
+                    <IonItem>
+                      <IonLabel position="stacked">Endpoint</IonLabel>
+                      <IonInput
+                        required
+                        value={newProviderEndpoint}
+                        onIonChange={(e) =>
+                          setNewProviderEndpoint(e.detail.value || '')
+                        }
+                        inputmode="url"
+                        placeholder="i.e http://localhost:9945"
+                      />
+                    </IonItem>
+                  </IonList>
+                </IonCol>
+              </IonRow>
+
+              <IonRow className="ion-margin-vertical-x2">
+                <IonCol>
+                  <ButtonsMainSub
+                    mainTitle="CONFIRM"
+                    subTitle="CANCEL"
+                    mainDisabled={
+                      newProviderName.trim() === '' ||
+                      newProviderEndpoint.trim() === ''
+                    }
+                    mainOnClick={() => {
+                      setNewProvider(false);
+                      dispatch(
+                        addProvider({
+                          endpoint: newProviderEndpoint.trim(),
+                          name: newProviderName.trim(),
+                        })
+                      );
+                    }}
+                    subOnClick={() => setNewProvider(false)}
+                  />
+                </IonCol>
+              </IonRow>
+            </IonGrid>
           </IonContent>
         </IonModal>
+
+        <Header title="TDEX PROVIDERS" hasBackButton={true} />
         <IonGrid>
-          <Header title="TDEX PROVIDERS" hasBackButton={true} />
           <IonList>
             <IonListHeader>Providers</IonListHeader>
             {providers.map((provider: TDEXProvider, index: number) => {
@@ -155,7 +169,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
               );
             })}
           </IonList>
-          <IonRow>
+          <IonRow className="ion-margin-vertical-x2">
             <IonCol size="10" offset="1">
               <IonButton
                 className="main-button"

@@ -43,7 +43,7 @@
   }
   .search-item-name {
     font-family: 'DMSans';
-    font-size: 14px;
+    font-size: var(--ion-font-size-sub);
     display: flex;
     flex: 1;
     align-items: center;
@@ -54,6 +54,6 @@
   }
   .search-item-amount {
     display: flex;
-    font-size: 1rem;
+    font-size: var(--ion-font-size-main);
   }
 }

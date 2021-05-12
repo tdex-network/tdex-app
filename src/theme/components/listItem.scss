@@ -6,6 +6,7 @@
   .item-start {
     display: flex;
     flex: 1;
+    align-items: center;
     .item-name {
       margin-left: 8px;
     }
@@ -32,15 +33,15 @@
   }
   .main-row {
     font-family: var(--ion-font-main);
-    font-size: 14px;
+    font-size: var(--ion-font-size-main);
     &.accent {
-      font-size: 10px;
+      font-size: var(--ion-font-size-sub);
     }
   }
   .sub-row {
     font-family: var(--ion-font-sub-heading);
-    font-size: 10px;
-    color: rgb(198, 198, 198);
+    font-size: var(--ion-font-size-sub);
+    color: var(--ion-color-tertiary);
     line-height: 18px;
   }
   .completed {
@@ -67,8 +68,8 @@
           .main-row {
             font-family: var(--ion-font-sub-heading);
             &.accent {
-              font-family: var(--ion-font-main);
-              font-size: 10px;
+              font-family: var(--ion-font-sub);
+              font-size: var(--ion-font-size-sub);
               margin-left: 8px;
             }
           }
@@ -78,7 +79,7 @@
           align-items: center;
           justify-content: flex-end;
           ion-icon {
-            font-size: 18px;
+            font-size: var(--ion-font-size-main);
             margin-left: 5px;
           }
           &.pending {
