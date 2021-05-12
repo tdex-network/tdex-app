@@ -36,7 +36,7 @@ function* storeThemeSaga({ payload }: ActionType) {
   }
 }
 
-function* restoreThemeSaga(action: ActionType) {
+function* restoreThemeSaga() {
   try {
     const data = yield call(getThemeFromStorage);
     const theme = data.value || 'dark';

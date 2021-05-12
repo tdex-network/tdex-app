@@ -8,7 +8,6 @@ import Toasts from './redux/containers/toastsContainer';
 import { Redirect, Route } from 'react-router';
 import Homescreen from './pages/Homescreen';
 import RestoreWallet from './pages/RestoreWallet';
-import classNames from 'classnames';
 import { useAppState } from '@capacitor-community/react-hooks/app';
 import { Capacitor, Plugins } from '@capacitor/core';
 import { unlockUtxos } from './redux/actions/walletActions';
@@ -36,6 +35,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const setupApp = async () => {
       try {
+        document.body.classList.add(theme);
         await StatusBar.setBackgroundColor({ color: '#333333' });
         // if (isPlatform('android')) {
         //   await NavigationBar.setUp(true);
@@ -65,7 +65,7 @@ const App: React.FC = () => {
   }, []);
 
   return (
-    <IonApp className={classNames(['app', theme])}>
+    <IonApp>
       <IonReactRouter>
         <IonLoading
           cssClass="my-custom-class"
