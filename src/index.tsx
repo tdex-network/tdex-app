@@ -28,7 +28,6 @@ import './theme/global.scss';
 import './theme/variables.scss';
 import './theme/components/exchange-coin-block.scss';
 import './theme/components/search.scss';
-import './theme/components/mainButtons.scss';
 import './theme/components/listItem.scss';
 
 const sagaMiddleware = createSagaMiddleware();

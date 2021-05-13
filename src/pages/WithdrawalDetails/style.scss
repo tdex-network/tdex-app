@@ -1,62 +1,60 @@
 #withdrawal-details {
-	.header-info {
-		img {
-			height: 60px;
-			width: 60px;
-		}
-	}
-	
-	.card-details {
-		display: flex;
-		flex-direction: column;
-		background: var(--ion-color-primary);
-		border-radius: 10px;
-		padding: 20px;
-		.divider {
-			border-top: 1px solid rgb(102, 102, 102);
-			margin-top: 12px;
-			padding-top: 8px;
-		}
-		
-		.address-row {
-			max-width: 70%;
-			word-break: break-word;
-		}
-		
-		.item-start {
-			margin-right: 2%;
-		}
-		
-		.item-main-info {
-			align-items: end;
-			margin-top: 16px;
-			
-			.main-row {
-				color: var(--ion-color-tertiary);
-			}
-			
-			.sub-row {
-				color: #ffffff;
-				line-break: anywhere;
-				text-align: right !important;
-				flex: 50%;
-				display: inline-block;
-			}
-		}
-	}
-	
-	.custom-skeleton {
-		width: 100px;
-		display: inline-block;
-	}
-	
-	.light {
-		.withdrawal-details {
-			ion-item {
-				--background: #fff;
-			}
-		}
-	}
+  .header-info {
+    img {
+      height: 60px;
+      width: 60px;
+    }
+  }
+
+  .card-details {
+    display: flex;
+    flex-direction: column;
+    background: var(--ion-color-primary);
+    border-radius: 10px;
+    padding: 20px;
+    .divider {
+      border-top: 1px solid rgb(102, 102, 102);
+      margin-top: 12px;
+      padding-top: 8px;
+    }
+
+    .address-row {
+      max-width: 70%;
+      word-break: break-word;
+    }
+
+    .item-start {
+      margin-right: 2%;
+    }
+
+    .item-main-info {
+      align-items: end;
+      margin-top: 16px;
+
+      .main-row {
+        color: var(--ion-color-tertiary);
+      }
+
+      .sub-row {
+        color: #ffffff;
+        line-break: anywhere;
+        text-align: right !important;
+        flex: 50%;
+        display: inline-block;
+      }
+    }
+  }
+
+  .custom-skeleton {
+    width: 100px;
+    display: inline-block;
+  }
+
+  .light {
+    .withdrawal-details {
+      ion-item {
+        --background: #fff;
+      }
+    }
+  }
 }
-
-

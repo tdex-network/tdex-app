@@ -150,12 +150,12 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
             <IonListHeader>Providers</IonListHeader>
             {providers.map((provider: TDEXProvider, index: number) => {
               return (
-                <IonItem key={index}>
-                  <div className="provider">
+                <IonItem className="provider-container" key={index}>
+                  <div className="provider-data">
                     <h2 className="provider-name">{provider.name}</h2>
                     <p className="provider-endpoint">{provider.endpoint}</p>
                   </div>
-                  <div className="button-delete">
+                  <div className="button-delete ion-text-right">
                     <IonButton
                       color="danger"
                       slot="icon-only"

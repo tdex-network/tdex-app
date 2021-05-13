@@ -1,25 +1,29 @@
-.provider {
-  overflow: scroll;
-  white-space: nowrap;
-  @media (max-width: 375px) {
-    max-width: 200px;
+ion-item.provider-container {
+  --border-radius: 15px;
+
+  .provider-data {
+    flex: 2.5;
+    overflow: scroll;
+    white-space: nowrap;
+
+    .provider-name {
+      margin-top: 7px;
+      font-size: var(--ion-font-size-main);
+    }
+
+    .provider-endpoint {
+      font-size: var(--ion-font-size-sub);
+    }
   }
 
-  .provider-name {
-    margin-top: 7px;
-    font-size: var(--ion-font-size-main);
-  }
-
-  .provider-endpoint {
-    font-size: var(--ion-font-size-sub);
-  }
-}
-
-.button-delete {
-  position: absolute;
-  right: 5px;
-  top: 0;
-  @media (max-width: 320px) {
-    width: 40px;
+  .button-delete {
+    flex: 1;
+    height: 100%;
+    ion-button {
+      width: 60px;
+      @media (max-width: 320px) {
+        width: 50px;
+      }
+    }
   }
 }
