@@ -76,6 +76,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
     <IonPage id="homescreen">
       <IonLoading isOpen={loading} message={loadingMessage} />
       <PinModal
+        onClose={() => setPinModalIsOpen(false)}
         needReset={needReset}
         setNeedReset={setNeedReset}
         open={pinModalIsOpen}
