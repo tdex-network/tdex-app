@@ -35,7 +35,6 @@ import { ActionType } from '../../utils/types';
 import { update } from '../../redux/actions/appActions';
 import CircleTotalBalance from '../../components/CircleTotalBalance';
 import Refresher from '../../components/Refresher';
-//import Backup from '../../redux/containers/backupContainer';
 import { useSelector } from 'react-redux';
 import { updateUtxos } from '../../redux/actions/walletActions';
 import './style.scss';

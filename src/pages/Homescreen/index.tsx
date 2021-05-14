@@ -9,8 +9,8 @@ import {
 } from '@ionic/react';
 import React, { useState } from 'react';
 import { RouteComponentProps } from 'react-router';
-import { useDispatch } from 'react-redux';
-import { signIn } from '../../redux/actions/appActions';
+import { useDispatch, useSelector } from 'react-redux';
+import { initApp, signIn } from '../../redux/actions/appActions';
 import PinModal from '../../components/PinModal';
 import {
   getIdentity,
@@ -33,7 +33,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   const [loadingMessage, setLoadingMessage] = useState(
     'Searching mnemonic in secure storage...'
   );
-
+  const appInit = useSelector((state: any) => state.app.appInit);
   const dispatch = useDispatch();
 
   const onConfirmPinModal = (pin: string) => {
@@ -63,6 +63,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   useIonViewWillEnter(() => {
     const init = async () => {
       setLoading(true);
+      if (!appInit) dispatch(initApp());
       await setKeyboardTheme(KeyboardStyle.Dark);
       const mnemonicExists = await mnemonicInSecureStorage();
       if (mnemonicExists) setPinModalIsOpen(true);

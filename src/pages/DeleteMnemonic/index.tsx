@@ -12,8 +12,7 @@ import {
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
 import { removeMnemonicFromSecureStorage } from '../../utils/storage-helper';
-import { setSignedUp } from '../../redux/actions/appActions';
-import { setIsAuth } from '../../redux/actions/walletActions';
+import { resetAll } from '../../redux/actions/rootActions';
 
 interface LocationState {
   pin: string;
@@ -36,8 +35,7 @@ const DeleteMnemonic: React.FC<RouteComponentProps> = ({ history }) => {
       return;
     }
     setIsLoading(false);
-    dispatch(setSignedUp(false));
-    dispatch(setIsAuth(false));
+    dispatch(resetAll());
     history.replace('/homescreen');
   };
 
