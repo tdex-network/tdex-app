@@ -257,7 +257,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   };
 
   return (
-    <IonPage>
+    <IonPage id="withdrawal">
       <PinModal
         open={modalOpen}
         title="Unlock your seed"
@@ -275,7 +275,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         isOpen={loading}
         message={'Please wait...'}
       />
-      <IonContent className="withdrawal">
+      <IonContent>
         <Header
           title={`${balance ? balance.ticker.toUpperCase() : ''} Withdrawal`}
           hasBackButton={true}
@@ -290,40 +290,30 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
             />
           )}
 
-          <IonRow>
-            <IonCol>
-              <IonItem className="list-item">
-                <div className="item-main-info">
-                  <div className="item-start">
-                    <IonInput
-                      inputmode="text"
-                      enterkeyhint="done"
-                      onKeyDown={onPressEnterKeyCloseKeyboard}
-                      value={recipientAddress}
-                      placeholder="Paste address here or scan QR code"
-                      onIonChange={(e) => {
-                        setRecipientAddress(e.detail.value || '');
-                      }}
-                    />
-                  </div>
-                  <div className="item-end">
-                    <IonButton
-                      className="scan-btn"
-                      onClick={() =>
-                        history.replace(`/qrscanner/${asset_id}`, {
-                          amount,
-                          address: '',
-                          asset: asset_id,
-                        })
-                      }
-                    >
-                      <IconQR fill="#fff" />
-                    </IonButton>
-                  </div>
-                </div>
-              </IonItem>
-            </IonCol>
-          </IonRow>
+          <IonItem className="address-input">
+            <IonInput
+              inputmode="text"
+              enterkeyhint="done"
+              onKeyDown={onPressEnterKeyCloseKeyboard}
+              value={recipientAddress}
+              placeholder="Paste address here or scan QR code"
+              onIonChange={(e) => {
+                setRecipientAddress(e.detail.value || '');
+              }}
+            />
+            <IonButton
+              className="scan-btn"
+              onClick={() =>
+                history.replace(`/qrscanner/${asset_id}`, {
+                  amount,
+                  address: '',
+                  asset: asset_id,
+                })
+              }
+            >
+              <IconQR fill="#fff" />
+            </IonButton>
+          </IonItem>
 
           <IonRow className="ion-margin-vertical-x2">
             <IonCol>

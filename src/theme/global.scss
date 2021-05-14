@@ -28,3 +28,7 @@ span {
   margin-bottom: 32px;
   margin-top: 32px;
 }
+
+.bg-transparent {
+  --ion-background-color: transparent !important;
+}
