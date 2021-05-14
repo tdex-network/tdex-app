@@ -1,11 +1,8 @@
 import {
   IonContent,
   IonList,
-  IonHeader,
   IonItem,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonListHeader,
   IonModal,
   IonInput,
@@ -68,11 +65,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
     <IonPage>
       <IonContent className="settings">
         <IonGrid>
-          <IonHeader className="ion-no-border">
-            <IonToolbar>
-              <IonTitle>Settings</IonTitle>
-            </IonToolbar>
-          </IonHeader>
+          <Header title="Settings" hasBackButton={false} />
           <IonList>
             <IonListHeader>General</IonListHeader>
             <IonItem

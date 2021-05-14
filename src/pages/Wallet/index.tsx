@@ -1,11 +1,8 @@
 import {
   IonContent,
   IonList,
-  IonHeader,
   IonItem,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonListHeader,
   IonButton,
   useIonViewWillEnter,
@@ -16,6 +13,7 @@ import {
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
+import { useSelector } from 'react-redux';
 import { addCircleOutline } from 'ionicons/icons';
 import { network } from '../../redux/config';
 import { CurrencyIcon } from '../../components/icons';
@@ -35,7 +33,7 @@ import { ActionType } from '../../utils/types';
 import { update } from '../../redux/actions/appActions';
 import CircleTotalBalance from '../../components/CircleTotalBalance';
 import Refresher from '../../components/Refresher';
-import { useSelector } from 'react-redux';
+import Header from '../../components/Header';
 import { updateUtxos } from '../../redux/actions/walletActions';
 import './style.scss';
 
@@ -138,12 +136,7 @@ const Wallet: React.FC<WalletProps> = ({
       <IonContent className="wallet-content">
         <Refresher />
         <IonGrid>
-          <IonHeader className="ion-no-border">
-            <IonToolbar>
-              <IonTitle>Wallet</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-
+          <Header title="Wallet" hasBackButton={false} />
           <IonRow className="ion-margin-vertical ion-justify-content-center">
             <CircleTotalBalance
               totalBalance={

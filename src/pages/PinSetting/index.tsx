@@ -37,6 +37,7 @@ import { signIn } from '../../redux/actions/appActions';
 import { RouteComponentProps, useLocation } from 'react-router';
 import * as bip39 from 'bip39';
 import { Plugins } from '@capacitor/core';
+
 const { Keyboard } = Plugins;
 
 interface LocationState {
@@ -136,12 +137,17 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
       <IonContent>
         <Header
           hasBackButton={true}
-          handleBack={() =>
-            history.replace({
-              pathname: '/onboarding/show-mnemonic',
-              state: { mnemonic: state?.mnemonic },
-            })
-          }
+          handleBack={() => {
+            if (state?.mnemonic) {
+              // Pass mnemonic to avoid regenerate it
+              history.replace({
+                pathname: '/onboarding/show-mnemonic',
+                state: { mnemonic: state?.mnemonic },
+              });
+            } else {
+              history.goBack();
+            }
+          }}
           hasCloseButton={false}
           title="SETUP WALLET"
         />
