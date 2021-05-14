@@ -37,9 +37,6 @@ const App: React.FC = () => {
       try {
         document.body.classList.add(theme);
         await StatusBar.setBackgroundColor({ color: '#333333' });
-        // if (isPlatform('android')) {
-        //   await NavigationBar.setUp(true);
-        // }
       } catch (err) {
         console.error(err);
       }
