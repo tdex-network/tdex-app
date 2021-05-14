@@ -1,11 +1,14 @@
 import {
   CoinGeckoPriceResult,
   getPriceFromCoinGecko,
-} from './../services/ratesService';
-import { setLBTCPrices, UPDATE_PRICES } from './../actions/ratesActions';
+} from '../services/ratesService';
+import {
+  setLBTCPrices,
+  setPrices,
+  UPDATE_PRICES,
+} from '../actions/ratesActions';
 import { takeLatest, call, put, select } from 'redux-saga/effects';
 import { ActionType } from '../../utils/types';
-import { setPrices } from '../actions/ratesActions';
 
 function* fetchRates({ type }: ActionType) {
   const currency = yield select((state: any) => state.settings.currency.value);

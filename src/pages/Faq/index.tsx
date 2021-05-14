@@ -1,29 +1,14 @@
-import {
-  IonBackButton,
-  IonButtons,
-  IonContent,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/react';
 import React from 'react';
 import { RouteComponentProps } from 'react-router';
+import { IonContent, IonPage } from '@ionic/react';
+import Header from '../../components/Header';
 import './style.scss';
-import { chevronBackOutline } from 'ionicons/icons';
 
 const Faq: React.FC<RouteComponentProps> = () => {
   return (
     <IonPage>
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="with-back-button">
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
-          </IonButtons>
-          <IonTitle>FAQ</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent className="main-content">
+        <Header title="FAQ" hasBackButton={true} />
         <div className="content">
           <h4>Lorem ipsum ?</h4>
           <p>

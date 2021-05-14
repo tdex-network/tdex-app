@@ -1,5 +1,5 @@
 @mixin customHeight($value) {
-    @media (max-height: $value) {
-      @content;
-    }
+  @media (max-height: $value) {
+    @content;
+  }
 }

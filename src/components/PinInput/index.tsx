@@ -3,10 +3,6 @@ import classNames from 'classnames';
 import { IonInput, IonGrid, IonRow, IonCol } from '@ionic/react';
 import { onPressEnterKeyFactory } from '../../utils/keyboard';
 import './style.scss';
-import {
-  PIN_TIMEOUT_FAILURE,
-  PIN_TIMEOUT_SUCCESS,
-} from '../../utils/constants';
 
 interface PinInputProps {
   onPin: (newPin: string) => void;
@@ -14,6 +10,7 @@ interface PinInputProps {
   isWrongPin: boolean | null;
   inputRef: React.RefObject<HTMLIonInputElement>;
   pin: string;
+  isLocked?: boolean;
 }
 
 const PinInput: React.FC<PinInputProps> = ({
@@ -22,16 +19,25 @@ const PinInput: React.FC<PinInputProps> = ({
   isWrongPin,
   inputRef,
   pin,
+  isLocked,
 }) => {
   useEffect(() => {
     setTimeout(() => {
       if (inputRef && inputRef.current) {
-        inputRef.current.setFocus();
+        inputRef.current.setFocus().catch(console.error);
       }
     }, 500);
   });
 
-  const onNewPin = (newPin: string | null | undefined) => {
+  /**
+   * Set new pin digit until 6
+   * @param newPin
+   */
+  const handleNewPinDigit = (newPin: string | null | undefined) => {
+    // Dont handle new pin if pin already validated
+    if (isWrongPin === false || isLocked) {
+      return;
+    }
     if (!newPin) {
       onPin('');
       return;
@@ -40,16 +46,8 @@ const PinInput: React.FC<PinInputProps> = ({
       onPin(newPin.slice(6));
       return;
     }
+    //
     onPin(newPin);
-    if (newPin.length === 6) {
-      onPin(newPin);
-      if (isWrongPin === true) {
-        setTimeout(() => onPin(''), PIN_TIMEOUT_FAILURE);
-      }
-      if (isWrongPin === null) {
-        setTimeout(() => onPin(''), PIN_TIMEOUT_SUCCESS);
-      }
-    }
   };
 
   return (
@@ -74,14 +72,12 @@ const PinInput: React.FC<PinInputProps> = ({
               autofocus={true}
               ref={inputRef}
               enterkeyhint="done"
-              onKeyDown={onPressEnterKeyFactory(() => {
-                on6digits();
-              })}
+              onKeyDown={onPressEnterKeyFactory(on6digits)}
               inputmode="numeric"
               type="number"
               value={pin}
               required={true}
-              onIonChange={(e) => onNewPin(e.detail.value)}
+              onIonChange={(e) => handleNewPinDigit(e.detail.value)}
               maxlength={6}
             />
           </IonGrid>

@@ -9,30 +9,31 @@ import {
 } from '@ionic/react';
 import React, { useState } from 'react';
 import { RouteComponentProps } from 'react-router';
-import { useDispatch } from 'react-redux';
-import { signIn } from '../../redux/actions/appActions';
+import { useDispatch, useSelector } from 'react-redux';
+import { initApp, signIn } from '../../redux/actions/appActions';
 import PinModal from '../../components/PinModal';
 import {
   getIdentity,
   mnemonicInSecureStorage,
 } from '../../utils/storage-helper';
 import { addErrorToast } from '../../redux/actions/toastActions';
-import './style.scss';
 import { setKeyboardTheme } from '../../utils/keyboard';
 import { KeyboardStyle } from '@capacitor/core';
 import { IncorrectPINError } from '../../utils/errors';
 import { PIN_TIMEOUT_FAILURE } from '../../utils/constants';
 import logo from '../../assets/img/tdex_3d_logo.svg';
 import ButtonsMainSub from '../../components/ButtonsMainSub';
+import './style.scss';
 
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [pinModalIsOpen, setPinModalIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [needReset, setNeedReset] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState(
     'Searching mnemonic in secure storage...'
   );
-
+  const appInit = useSelector((state: any) => state.app.appInit);
   const dispatch = useDispatch();
 
   const onConfirmPinModal = (pin: string) => {
@@ -52,6 +53,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
         setIsWrongPin(true);
         setTimeout(() => {
           setIsWrongPin(null);
+          setNeedReset(true);
         }, PIN_TIMEOUT_FAILURE);
         dispatch(addErrorToast(IncorrectPINError));
       })
@@ -61,11 +63,11 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   useIonViewWillEnter(() => {
     const init = async () => {
       setLoading(true);
+      if (!appInit) dispatch(initApp());
       await setKeyboardTheme(KeyboardStyle.Dark);
       const mnemonicExists = await mnemonicInSecureStorage();
       if (mnemonicExists) setPinModalIsOpen(true);
     };
-
     init()
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -75,9 +77,12 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
     <IonPage id="homescreen">
       <IonLoading isOpen={loading} message={loadingMessage} />
       <PinModal
+        onClose={() => setPinModalIsOpen(false)}
+        needReset={needReset}
+        setNeedReset={setNeedReset}
         open={pinModalIsOpen}
         title="Enter your secret PIN"
-        description="Unlock your wallet."
+        description="Unlock your wallet"
         onConfirm={onConfirmPinModal}
         isWrongPin={isWrongPin}
       />
@@ -90,11 +95,11 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
           </IonRow>
 
           <ButtonsMainSub
-            mainLink="/login"
-            subTitle="Restore wallet"
             mainTitle="Setup wallet"
+            mainLink="/onboarding/backup"
+            subTitle="Restore wallet"
             subLink="/restore"
-            classes="btn-container"
+            className="btn-container"
           />
         </IonGrid>
       </IonContent>

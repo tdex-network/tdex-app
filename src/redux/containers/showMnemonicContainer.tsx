@@ -1,8 +1,8 @@
 import { connect } from 'react-redux';
-import BackupModal from '../../components/BackupModal';
+import ShowMnemonic from '../../pages/ShowMnemonic';
 import { AppError } from '../../utils/errors';
-import { setSeedBackup } from '../../utils/storage-helper';
-import { setBackupDone } from '../actions/appActions';
+import { setSeedBackupFlag } from '../../utils/storage-helper';
+import { setIsBackupDone } from '../actions/appActions';
 import { addErrorToast } from '../actions/toastActions';
 
 const mapStateToProps = (state: any) => {
@@ -13,12 +13,12 @@ const mapStateToProps = (state: any) => {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    setDone: () => {
-      setSeedBackup();
-      dispatch(setBackupDone());
+    setIsBackupDone: (done: boolean) => {
+      setSeedBackupFlag(done);
+      dispatch(setIsBackupDone(done));
     },
     onError: (err: AppError) => dispatch(addErrorToast(err)),
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(BackupModal);
+export default connect(mapStateToProps, mapDispatchToProps)(ShowMnemonic);

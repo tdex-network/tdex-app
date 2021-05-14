@@ -1,5 +1,4 @@
-import { LBTC_DENOMINATIONS } from './../../utils/constants';
-import { CURRENCIES } from '../../utils/constants';
+import { CURRENCIES, LBTC_DENOMINATIONS } from '../../utils/constants';
 import { ActionType } from '../../utils/types';
 import {
   SET_CURRENCY,

@@ -1,20 +1,12 @@
 import React from 'react';
 import { RouteComponentProps, useLocation } from 'react-router';
-import {
-  IonContent,
-  IonButtons,
-  IonHeader,
-  IonPage,
-  IonTitle,
-  IonToolbar,
-  IonBackButton,
-  IonIcon,
-} from '@ionic/react';
-import { addCircleOutline, chevronBackOutline } from 'ionicons/icons';
+import { IonContent, IonPage, IonIcon } from '@ionic/react';
+import { addCircleOutline } from 'ionicons/icons';
 import { AssetConfig } from '../../utils/constants';
 import { network } from '../../redux/config';
 import { CurrencyIcon } from '../../components/icons';
 import './style.scss';
+import Header from '../../components/Header';
 
 interface LocationState {
   depositAssets: AssetConfig[];
@@ -75,18 +67,7 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage>
       <IonContent>
-        <IonHeader className="ion-no-border">
-          <IonToolbar className="with-back-button">
-            <IonButtons slot="start">
-              <IonBackButton
-                defaultHref="/"
-                text=""
-                icon={chevronBackOutline}
-              />
-            </IonButtons>
-            <IonTitle>DEPOSIT</IonTitle>
-          </IonToolbar>
-        </IonHeader>
+        <Header title="DEPOSIT" hasBackButton={true} />
         <div className="deposit-grid ion-margin-vertical ion-text-center">
           {generateGridItems()}
         </div>

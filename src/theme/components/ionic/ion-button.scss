@@ -1,0 +1,45 @@
+ion-button {
+  width: 100%;
+  border-radius: 35px;
+  --border-radius: 35px;
+  --background-hover: transparent;
+  --background-focused: transparent;
+  --background-activated: transparent;
+  --background-hover-opacity: 1;
+  font-size: var(--ion-font-size-main);
+  text-transform: uppercase;
+}
+
+ion-button.main-button {
+  --background: var(--ion-color-secondary-transparent);
+  --box-shadow: none;
+  --padding-top: 21px;
+  --padding-bottom: 21px;
+  --padding-start: 21px;
+  --padding-end: 21px;
+  --color: var(--ion-color-secondary);
+  border: 2px solid var(--ion-color-secondary);
+  height: 60px;
+  &.button-disabled {
+    --background: transparent;
+    --color: var(--ion-color-step-350);
+    border: 2px solid var(--ion-color-step-350);
+  }
+}
+
+ion-button.sub-button {
+  --background: none;
+  --border: 0;
+  --color: #ffffff;
+  --box-shadow: none;
+  border: 0;
+  height: 35px;
+  margin-top: 15px;
+}
+
+.light {
+  ion-button.main-button {
+    border-color: var(--ion-color-secondary);
+    --color: var(--ion-color-secondary);
+  }
+}

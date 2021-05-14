@@ -59,6 +59,7 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({
             ).map((denomination: string, index: number) => {
               return (
                 <IonItem
+                  className="ion-no-margin"
                   key={index}
                   data-asset={index}
                   onClick={() => {
@@ -67,10 +68,6 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({
                     close();
                   }}
                 >
-                  <div
-                    // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307
-                    tabIndex={0}
-                  ></div>
                   <div className="search-item-name">
                     <p>{denomination}</p>
                   </div>

@@ -1,7 +1,11 @@
-import { ADD_MARKETS, CLEAR_MARKETS } from './../actions/tdexActions';
+import {
+  ADD_MARKETS,
+  ADD_PROVIDER,
+  CLEAR_MARKETS,
+  DELETE_PROVIDER,
+} from '../actions/tdexActions';
 import { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
 import { ActionType } from '../../utils/types';
-import { ADD_PROVIDER, DELETE_PROVIDER } from '../actions/tdexActions';
 import { AssetConfig } from '../../utils/constants';
 import { AssetWithTicker } from '../../utils/tdex';
 import { tickerFromAssetHash } from '../../utils/helpers';

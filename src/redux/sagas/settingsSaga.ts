@@ -2,13 +2,15 @@ import {
   setCurrency,
   setElectrumServer,
   setLBTCDenomination,
+  setTheme,
+  storeTheme,
   SET_CURRENCY,
   SET_ELECTRUM_SERVER,
   SET_LBTC_DENOMINATION,
   SET_THEME,
-} from './../actions/settingsActions';
+  STORE_THEME,
+} from '../actions/settingsActions';
 import { takeLatest, call, put } from 'redux-saga/effects';
-import { setTheme, STORE_THEME } from '../actions/settingsActions';
 import { ActionType } from '../../utils/types';
 import {
   setThemeToStorage,
@@ -35,10 +37,13 @@ function* storeThemeSaga({ payload }: ActionType) {
   }
 }
 
-function* restoreThemeSaga(action: ActionType) {
+function* restoreThemeSaga() {
   try {
     const data = yield call(getThemeFromStorage);
     const theme = data.value || 'dark';
+    if (data.value === null) {
+      yield put(storeTheme(theme));
+    }
     yield put(setTheme(theme));
   } catch (e) {
     console.error(e);

@@ -90,8 +90,12 @@ export function setAssetsInStorage(assets: AssetConfig[]) {
 /**
  * a function using to set the backup flag.
  */
-export function setSeedBackup() {
-  Storage.set({ key: SEED_BACKUP_FLAG_KEY, value: '1' });
+export function setSeedBackupFlag(flag: boolean) {
+  if (flag) {
+    Storage.set({ key: SEED_BACKUP_FLAG_KEY, value: '1' }).catch(console.error);
+  } else {
+    Storage.remove({ key: SEED_BACKUP_FLAG_KEY }).catch(console.error);
+  }
 }
 
 /**
@@ -100,10 +104,7 @@ export function setSeedBackup() {
 export async function seedBackupFlag(): Promise<boolean> {
   try {
     const { value } = await Storage.get({ key: SEED_BACKUP_FLAG_KEY });
-    if (value) {
-      return true;
-    }
-    return false;
+    return !!value;
   } catch {
     return false;
   }

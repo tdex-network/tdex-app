@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { HTMLAttributes, PropsWithChildren } from 'react';
 import { IonButton, IonCol, IonRow } from '@ionic/react';
 
-interface ButtonsMainSubProps {
-  classes?: string;
+interface ButtonsMainSubProps extends PropsWithChildren<HTMLAttributes<any>> {
   mainTitle: string;
   subTitle: string;
   mainLink?: string;
@@ -14,7 +13,6 @@ interface ButtonsMainSubProps {
 }
 
 const ButtonsMainSub: React.FC<ButtonsMainSubProps> = ({
-  classes,
   mainTitle,
   subTitle,
   mainLink,
@@ -23,9 +21,10 @@ const ButtonsMainSub: React.FC<ButtonsMainSubProps> = ({
   subOnClick,
   mainDisabled,
   subDisabled,
+  ...props
 }) => {
   return (
-    <IonRow className={classes}>
+    <IonRow className={`buttonsMainSub ${props.className}`}>
       <IonCol size="8" offset="2" sizeMd="6" offsetMd="3">
         <IonRow className="ion-justify-content-center">
           <IonButton

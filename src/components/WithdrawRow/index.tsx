@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { CurrencyIcon } from '../icons';
 import {
+  IonIcon,
   IonInput,
   IonText,
   useIonViewDidEnter,
@@ -18,7 +19,8 @@ import {
   onPressEnterKeyCloseKeyboard,
   setAccessoryBar,
 } from '../../utils/keyboard';
-import './style.scss';
+import { chevronDownOutline } from 'ionicons/icons';
+import classNames from 'classnames';
 
 interface WithdrawRowInterface {
   balance: BalanceInterface;
@@ -44,7 +46,6 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
     )
   );
   const [fiat, setFiat] = useState<string>('0.00');
-
   const dispatch = useDispatch();
 
   useIonViewDidEnter(() => {
@@ -106,49 +107,65 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
     <div className="exchange-coin-container">
       <div className="exchanger-row">
         <div className="coin-name">
-          <span className="icon-wrapper medium">
+          <span className="icon-wrapper">
             <CurrencyIcon currency={balance.ticker} />
           </span>
-          <p className="ticker">
+          <span>
             {balance.ticker === 'L-BTC'
               ? lbtcUnit
               : balance.ticker.toUpperCase()}
-          </p>
+          </span>
+          <IonIcon className="icon" icon={chevronDownOutline} />
         </div>
-        <div className="ion-text-end">
-          <IonInput
-            inputmode="decimal"
-            placeholder="0.00"
-            className="amount-input"
-            autofocus={true}
-            onIonChange={(e) => handleAmountChange(e.detail.value)}
-            color={error && 'danger'}
-            debounce={200}
-            onKeyDown={onPressEnterKeyCloseKeyboard}
-            enterkeyhint="done"
-          />
+
+        <div
+          className={classNames('coin-amount', {
+            active: balance.amount,
+          })}
+        >
+          <div className="ion-text-end">
+            <IonInput
+              type="number"
+              inputmode="decimal"
+              placeholder="0.00"
+              className="amount-input"
+              autofocus={true}
+              onIonChange={(e) => handleAmountChange(e.detail.value)}
+              color={error && 'danger'}
+              debounce={200}
+              onKeyDown={onPressEnterKeyCloseKeyboard}
+              enterkeyhint="done"
+            />
+          </div>
         </div>
       </div>
+
       <div className="exchanger-row sub-row">
-        <div>
-          {!error && (
-            <p>
-              Residual balance: {residualBalance ? residualBalance : ''}{' '}
-              {balance.ticker === 'L-BTC'
-                ? lbtcUnit
-                : balance.ticker.toUpperCase()}{' '}
-            </p>
-          )}
-        </div>
-        <div>
+        <span className="balance">
+          <>
+            <span>Residual balance:</span>
+            {error ? (
+              '0.00'
+            ) : (
+              <span>
+                {`${residualBalance && residualBalance} ${
+                  balance.ticker === 'L-BTC'
+                    ? lbtcUnit
+                    : balance.ticker.toUpperCase()
+                }`}
+              </span>
+            )}
+          </>
+        </span>
+        <span className="ion-text-right">
           {error ? (
             <IonText color="danger">{error}</IonText>
           ) : (
-            <p>
+            <span>
               {fiat} {currency && currency.toUpperCase()}
-            </p>
+            </span>
           )}
-        </div>
+        </span>
       </div>
     </div>
   );

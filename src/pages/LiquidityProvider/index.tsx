@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import {
   IonAlert,
-  IonBackButton,
   IonButton,
-  IonButtons,
+  IonCol,
   IonContent,
-  IonHeader,
+  IonGrid,
   IonIcon,
   IonInput,
   IonItem,
@@ -14,12 +13,11 @@ import {
   IonListHeader,
   IonModal,
   IonPage,
-  IonTitle,
-  IonToolbar,
+  IonRow,
 } from '@ionic/react';
 import { RouteComponentProps, withRouter } from 'react-router';
 import { TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
-import { chevronBackOutline, closeOutline, trash } from 'ionicons/icons';
+import { trash } from 'ionicons/icons';
 import './style.scss';
 import { useDispatch } from 'react-redux';
 import {
@@ -28,13 +26,14 @@ import {
   deleteProvider,
   updateMarkets,
 } from '../../redux/actions/tdexActions';
+import Header from '../../components/Header';
+import ButtonsMainSub from '../../components/ButtonsMainSub';
 
 interface LiquidityProvidersProps extends RouteComponentProps {
   providers: TDEXProvider[];
 }
 
 const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
-  history,
   providers,
 }) => {
   const dispatch = useDispatch();
@@ -70,47 +69,8 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
         message={`Delete the provider ${providerToDelete?.name} - ${providerToDelete?.endpoint}.`}
         onDidDismiss={() => setProviderToDelete(undefined)}
       />
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="with-back-button">
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
-          </IonButtons>
-          <IonTitle>TDEX providers</IonTitle>
-        </IonToolbar>
-      </IonHeader>
 
       <IonContent>
-        <IonList>
-          <IonListHeader>Providers</IonListHeader>
-          {providers.map((provider: TDEXProvider, index: number) => {
-            return (
-              <IonItem key={index}>
-                <div className="provider">
-                  <h2 className="provider-name">{provider.name}</h2>
-                  <p className="provider-endpoint">{provider.endpoint}</p>
-                </div>
-                <div className="button-delete">
-                  <IonButton
-                    color="danger"
-                    onClick={() => setProviderToDelete(provider)}
-                    disabled={providerToDelete != undefined}
-                  >
-                    {' '}
-                    <IonIcon icon={trash} />
-                  </IonButton>
-                </div>
-              </IonItem>
-            );
-          })}
-        </IonList>
-        <div className="buttons">
-          <IonButton
-            className="main-button"
-            onClick={() => setNewProvider(true)}
-          >
-            ADD PROVIDER
-          </IonButton>
-        </div>
         <IonModal
           isOpen={newProvider}
           onDidDismiss={() => setNewProvider(false)}
@@ -119,73 +79,107 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
             setNewProviderEndpoint('');
           }}
         >
-          <IonHeader>
-            <IonToolbar className="with-back-button">
-              <IonButtons slot="start">
-                <IonButton
-                  onClick={() => {
-                    setNewProvider(false);
-                  }}
-                >
-                  <IonIcon slot="icon-only" icon={closeOutline} />
-                </IonButton>
-              </IonButtons>
-              <IonTitle>Create new provider</IonTitle>
-            </IonToolbar>
-          </IonHeader>
           <IonContent>
-            <IonList>
-              <IonItem>
-                <IonLabel position="stacked">Provider name</IonLabel>
-                <IonInput
-                  required
-                  value={newProviderName}
-                  onIonChange={(e) => setNewProviderName(e.detail.value || '')}
-                  inputmode="text"
-                  placeholder="name the provider to add"
-                />
-              </IonItem>
-              <IonItem>
-                <IonLabel position="stacked">Endpoint</IonLabel>
-                <IonInput
-                  required
-                  value={newProviderEndpoint}
-                  onIonChange={(e) =>
-                    setNewProviderEndpoint(e.detail.value || '')
-                  }
-                  inputmode="url"
-                  placeholder="i.e http://localhost:9945"
-                />
-              </IonItem>
-            </IonList>
-            <div className="buttons">
-              <IonButton
-                className="main-button"
-                disabled={
-                  newProviderName.trim() === '' ||
-                  newProviderEndpoint.trim() === ''
-                }
-                onClick={() => {
-                  setNewProvider(false);
-                  dispatch(
-                    addProvider({
-                      endpoint: newProviderEndpoint.trim(),
-                      name: newProviderName.trim(),
-                    })
-                  );
-                }}
-              >
-                CONFIRM
-              </IonButton>
-              <IonButton
-                className="main-button secondary"
-                onClick={() => setNewProvider(false)}
-              >
-                CANCEL
-              </IonButton>
-            </div>
+            <Header
+              hasBackButton={false}
+              hasCloseButton={true}
+              title="CREATE NEW PROVIDER"
+              handleClose={() => setNewProvider(false)}
+            />
+            <IonGrid>
+              <IonRow>
+                <IonCol>
+                  <IonList>
+                    <IonItem>
+                      <IonLabel position="stacked">Provider name</IonLabel>
+                      <IonInput
+                        required
+                        value={newProviderName}
+                        onIonChange={(e) =>
+                          setNewProviderName(e.detail.value || '')
+                        }
+                        inputmode="text"
+                        placeholder="name the provider to add"
+                      />
+                    </IonItem>
+                    <IonItem>
+                      <IonLabel position="stacked">Endpoint</IonLabel>
+                      <IonInput
+                        required
+                        value={newProviderEndpoint}
+                        onIonChange={(e) =>
+                          setNewProviderEndpoint(e.detail.value || '')
+                        }
+                        inputmode="url"
+                        placeholder="i.e http://localhost:9945"
+                      />
+                    </IonItem>
+                  </IonList>
+                </IonCol>
+              </IonRow>
+
+              <IonRow className="ion-margin-vertical-x2">
+                <IonCol>
+                  <ButtonsMainSub
+                    mainTitle="CONFIRM"
+                    subTitle="CANCEL"
+                    mainDisabled={
+                      newProviderName.trim() === '' ||
+                      newProviderEndpoint.trim() === ''
+                    }
+                    mainOnClick={() => {
+                      setNewProvider(false);
+                      dispatch(
+                        addProvider({
+                          endpoint: newProviderEndpoint.trim(),
+                          name: newProviderName.trim(),
+                        })
+                      );
+                    }}
+                    subOnClick={() => setNewProvider(false)}
+                  />
+                </IonCol>
+              </IonRow>
+            </IonGrid>
           </IonContent>
         </IonModal>
+
+        <Header title="TDEX PROVIDERS" hasBackButton={true} />
+        <IonGrid>
+          <IonList>
+            <IonListHeader>Providers</IonListHeader>
+            {providers.map((provider: TDEXProvider, index: number) => {
+              return (
+                <IonItem className="provider-container" key={index}>
+                  <div className="provider-data">
+                    <h2 className="provider-name">{provider.name}</h2>
+                    <p className="provider-endpoint">{provider.endpoint}</p>
+                  </div>
+                  <div className="button-delete ion-text-right">
+                    <IonButton
+                      color="danger"
+                      slot="icon-only"
+                      onClick={() => setProviderToDelete(provider)}
+                      disabled={providerToDelete != undefined}
+                    >
+                      <IonIcon icon={trash} />
+                    </IonButton>
+                  </div>
+                </IonItem>
+              );
+            })}
+          </IonList>
+          <IonRow className="ion-margin-vertical-x2">
+            <IonCol size="10" offset="1">
+              <IonButton
+                className="main-button"
+                onClick={() => setNewProvider(true)}
+              >
+                ADD PROVIDER
+              </IonButton>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
       </IonContent>
     </IonPage>
   );

@@ -3,23 +3,22 @@ import { useSelector } from 'react-redux';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
 import {
   IonPage,
-  IonTitle,
   IonContent,
   IonItem,
   IonButton,
-  IonToolbar,
-  IonHeader,
   IonIcon,
   IonSkeletonText,
-  IonButtons,
-  IonBackButton,
+  IonRow,
+  IonCol,
+  IonGrid,
 } from '@ionic/react';
 import { CurrencyIcon } from '../../components/icons';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
-import { chevronBackOutline, swapHorizontal } from 'ionicons/icons';
+import { swapHorizontal } from 'ionicons/icons';
 import { AssetConfig } from '../../utils/constants';
 import Refresher from '../../components/Refresher';
+import Header from '../../components/Header';
 import './style.scss';
 
 export interface PreviewData {
@@ -84,110 +83,125 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
 
   return (
     <IonPage>
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="with-back-button">
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
-          </IonButtons>
-          <IonTitle>Trade summary</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent className="trade-summary">
         <Refresher />
-        {(transaction || preview) && (
-          <div>
-            <div className="transaction-icons">
-              <span className="icon-wrapper large">
-                <SentCurrencyIcon width="45px" height="45px" />
-              </span>
-              <span className="icon-wrapper large second">
-                <ReceiveCurrencyIcon width="45px" height="45px" />
-              </span>
-            </div>
-            <IonItem>
-              <div className="trade-summary-item">
-                <div className="trade-items">
-                  <div className="trade-item">
-                    <div className="name">
-                      <span className="icon-wrapper medium">
-                        <SentCurrencyIcon width="24px" height="24px" />
-                      </span>
-                      <p>
-                        {transaction
-                          ? tickerFromAssetHash(transaction.transfers[0].asset)
-                          : preview?.sent.ticker}
-                      </p>
-                    </div>
-                    <p className="trade-price">
-                      {transaction
-                        ? fromSatoshiFixed(
-                            transaction.transfers[0].amount,
-                            8,
-                            8
-                          )
-                        : preview?.sent.amount}
-                    </p>
-                  </div>
-                  <div className="trade-divider">
-                    <IonIcon icon={swapHorizontal} />
-                  </div>
-                  <div className="trade-item">
-                    <div className="name">
-                      <span className="icon-wrapper medium">
-                        <ReceiveCurrencyIcon width="24px" height="24px" />
-                      </span>
-                      <p>
-                        {transaction
-                          ? tickerFromAssetHash(transaction.transfers[1].asset)
-                          : preview?.received.ticker}
-                      </p>
-                    </div>
-                    <p className="trade-price">
-                      +
-                      {transaction
-                        ? fromSatoshiFixed(
-                            transaction.transfers[1].amount,
-                            8,
-                            8
-                          )
-                        : preview?.received.amount}
-                    </p>
-                  </div>
-                </div>
-                <div className="transaction-info">
-                  <div className="transaction-info-date">
-                    {transaction ? (
-                      <p>
-                        {transaction.blockTime
-                          ? transaction.blockTime.format('DD MMM YYYY hh:mm:ss')
-                          : 'NOT CONFIRMED'}
-                      </p>
-                    ) : (
-                      <IonSkeletonText animated style={{ width: '30%' }} />
-                    )}
-                    {transaction ? (
-                      <p>{fromSatoshiFixed(transaction.fee, 8, 8)} Fee</p>
-                    ) : (
-                      <IonSkeletonText animated style={{ width: '15%' }} />
-                    )}
-                  </div>
-                  <div className="transaction-info-values">
-                    <div className="transaction-col-name">Tx ID</div>
-                    <div className="transaction-col-value">{txid}</div>
-                  </div>
-                </div>
+        <IonGrid>
+          <Header title="TRADE SUMMARY" hasBackButton={true} />
+          {(transaction || preview) && (
+            <div>
+              <div className="transaction-icons">
+                <span>
+                  <SentCurrencyIcon width="45px" height="45px" />
+                </span>
+                <span>
+                  <ReceiveCurrencyIcon width="45px" height="45px" />
+                </span>
               </div>
-            </IonItem>
-            <div className="buttons">
-              <IonButton
-                className="main-button secondary"
-                onClick={() => history.replace('/history')}
-              >
-                Trade history
-              </IonButton>
+
+              <IonRow className="ion-margin-bottom">
+                <IonCol>
+                  <IonItem>
+                    <div className="trade-summary-item">
+                      <div className="trade-items">
+                        <div className="trade-item">
+                          <div className="name">
+                            <span>
+                              <SentCurrencyIcon width="24px" height="24px" />
+                            </span>
+                            <p>
+                              {transaction
+                                ? tickerFromAssetHash(
+                                    transaction.transfers[0].asset
+                                  )
+                                : preview?.sent.ticker}
+                            </p>
+                          </div>
+                          <p className="trade-price">
+                            {transaction
+                              ? fromSatoshiFixed(
+                                  transaction.transfers[0].amount,
+                                  8,
+                                  8
+                                )
+                              : preview?.sent.amount}
+                          </p>
+                        </div>
+                        <div className="trade-divider">
+                          <IonIcon icon={swapHorizontal} />
+                        </div>
+                        <div className="trade-item">
+                          <div className="name">
+                            <span>
+                              <ReceiveCurrencyIcon width="24px" height="24px" />
+                            </span>
+                            <p>
+                              {transaction
+                                ? tickerFromAssetHash(
+                                    transaction.transfers[1].asset
+                                  )
+                                : preview?.received.ticker}
+                            </p>
+                          </div>
+                          <p className="trade-price">
+                            +
+                            {transaction
+                              ? fromSatoshiFixed(
+                                  transaction.transfers[1].amount,
+                                  8,
+                                  8
+                                )
+                              : preview?.received.amount}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="transaction-info">
+                        <div className="transaction-info-date">
+                          {transaction ? (
+                            <p>
+                              {transaction.blockTime
+                                ? transaction.blockTime.format(
+                                    'DD MMM YYYY hh:mm:ss'
+                                  )
+                                : 'NOT CONFIRMED'}
+                            </p>
+                          ) : (
+                            <IonSkeletonText
+                              animated
+                              style={{ width: '30%' }}
+                            />
+                          )}
+                          {transaction ? (
+                            <p>{fromSatoshiFixed(transaction.fee, 8, 8)} Fee</p>
+                          ) : (
+                            <IonSkeletonText
+                              animated
+                              style={{ width: '15%' }}
+                            />
+                          )}
+                        </div>
+                        <div className="transaction-info-values">
+                          <div className="transaction-col-name">Tx ID</div>
+                          <div className="transaction-col-value">{txid}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </IonItem>
+                </IonCol>
+              </IonRow>
+
+              <IonRow className="ion-margin-vertical-x2">
+                <IonCol size="8" offset="2">
+                  <IonButton
+                    className="main-button"
+                    onClick={() => history.push('/history')}
+                  >
+                    GO TO TRADE HISTORY
+                  </IonButton>
+                </IonCol>
+              </IonRow>
             </div>
-          </div>
-        )}
+          )}
+        </IonGrid>
       </IonContent>
     </IonPage>
   );

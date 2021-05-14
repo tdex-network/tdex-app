@@ -1,98 +1,30 @@
-@import './variables.scss';
-@import './components/exchange-coin-block.scss';
-@import './components/search.scss';
-@import './components/mainButtons.scss';
-@import './components/listItem.scss';
-@import './components/icons.scss';
-
+/* HTML Tags */
 body {
-  font-family: 'DMSans';
-  background-color: #333333;
+  font-family: var(--ion-font-main);
 }
 
 h1,
 h2,
-h3,
+h3 {
+  font-family: var(--ion-font-heading);
+}
+
+h2 {
+  font-size: var(--ion-font-size-md);
+}
+
 p {
-  margin: 0;
+  line-height: 1.75rem;
 }
 
-ion-modal {
-  .modal-wrapper {
-    border-top-left-radius: 10px !important;
-    border-top-right-radius: 10px !important;
-    position: absolute;
-    bottom: 0;
-  }
-  .modal-shadow {
-    z-index: -1 !important;
-  }
+a,
+span {
+  color: var(--ion-text-color);
+  font-family: var(--ion-font-main);
 }
 
-.modal-big {
-  .modal-wrapper {
-    height: 99vh !important;
-  }
-
-  .page-description {
-    margin-top: 16px;
-    p {
-      width: 186px !important;
-    }
-  }
-}
-
-ion-title {
-  font-family: 'DMSans-Bold';
-  --color: #fff;
-  font-size: 22px;
-  text-align: center;
-}
-
-.with-back-button {
-  ion-button, ion-back-button {
-    position: absolute;
-    font-size: 14px;
-    color: rgb(198, 198, 198);
-  }
-  ion-title {
-    text-align: center;
-    text-transform: uppercase;
-    font-size: 16px;
-    color: rgb(198, 198, 198);
-  }
-}
-
-ion-toolbar {
-  // For linear-gradient background to be applied
-  --background: transparent;
-}
-ion-content {
-  // For linear-gradient background to be applied
-  --background: transparent;
-}
-
-.light {
-  .gradient-background {
-    background: rgb(244, 244, 244);
-  }
-  ion-title {
-    color: #000;
-  }
-
-  ion-list ion-item {
-    background: rgba(255, 255, 255, 1);
-  }
-  .with-back-button {
-    ion-button {
-      color: #000;
-
-      svg {
-        fill: rgb(0, 0, 0);
-      }
-    }
-  }
-  ion-input {
-    color: #000;
-  }
+/* Utility Classes */
+.ion-margin-vertical-x2 {
+  margin-bottom: 32px;
+  margin-top: 32px;
 }

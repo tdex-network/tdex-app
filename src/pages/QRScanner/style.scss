@@ -1,5 +1,3 @@
-@import '../../theme/variables';
-
 .qr-scanner {
   display: flex;
   flex-direction: column;
@@ -8,17 +6,11 @@
   margin: 0;
 
   .rect {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 50vh;
-    width: 50vh;
+    height: 40vh;
     .rect-border {
       background-color: rgba(255, 255, 255, 0);
       border: 1px solid rgba(255, 255, 255, 0.692);
       border-radius: 2px;
-      display: block;
-      width: 80%;
       height: 80%;
     }
   }
@@ -29,7 +21,7 @@
 
   .cancel-btn {
     --background: transparent;
-    color: $light-green-color;
+    color: var(--ion-color-secondary);
   }
 }
 .semitransparent {

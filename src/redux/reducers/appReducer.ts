@@ -2,7 +2,7 @@ import { ActionType } from '../../utils/types';
 import {
   INIT_APP_FAIL,
   INIT_APP_SUCCESS,
-  SET_BACKUP_DONE,
+  SET_IS_BACKUP_DONE,
   SET_SIGNED_UP,
 } from '../actions/appActions';
 
@@ -31,10 +31,10 @@ function appReducer(state = initialState, action: ActionType): AppState {
         ...state,
         isSignedUp: action.payload,
       };
-    case SET_BACKUP_DONE:
+    case SET_IS_BACKUP_DONE:
       return {
         ...state,
-        backupDone: true,
+        backupDone: action.payload,
       };
     default:
       return state;

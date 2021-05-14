@@ -1,18 +1,17 @@
 import {
   IonPage,
   IonButtons,
-  IonTitle,
   IonContent,
   IonList,
   IonItem,
   IonButton,
-  IonToolbar,
-  IonHeader,
   IonListHeader,
   IonLabel,
   IonText,
   IonIcon,
-  IonBackButton,
+  IonGrid,
+  IonRow,
+  IonCol,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { withRouter, RouteComponentProps, useParams } from 'react-router';
@@ -25,13 +24,15 @@ import {
   fromSatoshi,
   fromSatoshiFixed,
 } from '../../utils/helpers';
-import { checkmarkSharp, chevronBackOutline } from 'ionicons/icons';
+import { checkmarkSharp } from 'ionicons/icons';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
-import { LBTC_TICKER } from '../../utils/constants';
+import { LBTC_TICKER, MAIN_ASSETS } from '../../utils/constants';
 import Refresher from '../../components/Refresher';
 import WatchersLoader from '../../redux/containers/watchersLoaderContainer';
-
+import Header from '../../components/Header';
+import depositIcon from '../../assets/img/deposit-green.svg';
+import swapIcon from '../../assets/img/swap-circle.svg';
 import './style.scss';
 
 const txTypes = ['deposit', 'withdrawal', 'swap', 'trade'];
@@ -66,6 +67,15 @@ const Operations: React.FC<OperationsProps> = ({
     const balanceSelected = balances.find((bal) => bal.asset === asset_id);
     if (balanceSelected) {
       setBalance(balanceSelected);
+    } else {
+      const asset = MAIN_ASSETS.find((a) => a.assetHash === asset_id);
+      setBalance({
+        asset: asset?.assetHash ?? '',
+        amount: 0,
+        coinGeckoID: asset?.coinGeckoID ?? '',
+        ticker: asset?.ticker ?? '',
+        precision: asset?.precision ?? 8,
+      });
     }
   }, [balances, asset_id]);
 
@@ -102,161 +112,184 @@ const Operations: React.FC<OperationsProps> = ({
     <IonPage>
       <IonContent className="operations">
         <Refresher />
-        <IonHeader className="header operations ion-no-border">
-          <IonToolbar className="with-back-button">
-            <IonButtons slot="start">
-              <IonBackButton
-                defaultHref="/"
-                text=""
-                icon={chevronBackOutline}
-              />
-            </IonButtons>
-            <IonTitle>{balance?.ticker} operations</IonTitle>
-          </IonToolbar>
-          <div className="header-info ion-text-center ion-margin">
-            {balance ? (
-              <CurrencyIcon currency={balance?.ticker} />
-            ) : (
-              <CurrencyIcon currency={LBTC_TICKER} />
-            )}
-            <p className="info-amount">
-              {balance &&
-                fromSatoshiFixed(
-                  balance?.amount,
-                  balance.precision,
-                  balance.precision,
-                  balance.ticker === 'L-BTC' ? lbtcUnit : undefined
-                )}
-              <span>
-                {balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker}
-              </span>
-            </p>
-            {balance && balance.coinGeckoID && prices[balance.coinGeckoID] && (
-              <p className="info-amount-converted">
-                {(
-                  fromSatoshi(balance.amount, balance.precision) *
-                  prices[balance.coinGeckoID]
-                ).toFixed(2)}{' '}
-                {currency.toUpperCase()}
+        <Header
+          title={`${balance?.ticker ?? ''} ${balance?.coinGeckoID ?? ''}`}
+          hasBackButton={true}
+        />
+        <IonGrid>
+          <IonRow className="ion-margin-bottom header-info ion-text-center ion-margin">
+            <IonCol>
+              {balance ? (
+                <CurrencyIcon currency={balance?.ticker} />
+              ) : (
+                <CurrencyIcon currency={LBTC_TICKER} />
+              )}
+              <p className="info-amount ion-no-margin">
+                {balance &&
+                  fromSatoshiFixed(
+                    balance?.amount,
+                    balance.precision,
+                    balance.precision,
+                    balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+                  )}
+                <span>
+                  {balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker}
+                </span>
               </p>
-            )}
-          </div>
-          <IonButtons className="operations-buttons">
-            <IonButton
-              className="coin-action-button"
-              onClick={() => {
-                history.push({
-                  pathname: '/receive',
-                  state: {
-                    depositAsset: {
-                      asset: balance?.asset,
-                      ticker: balance?.ticker ?? LBTC_TICKER,
-                      coinGeckoID: balance?.coinGeckoID ?? 'L-BTC',
-                    },
-                  },
-                });
-              }}
-            >
-              Deposit
-            </IonButton>
-            <IonButton
-              className="coin-action-button"
-              onClick={() => {
-                history.push(`/withdraw/${asset_id}`);
-              }}
-            >
-              Withdraw
-            </IonButton>
-            <IonButton className="coin-action-button" routerLink="/exchange">
-              Swap
-            </IonButton>
-          </IonButtons>
-        </IonHeader>
-        <IonList>
-          <IonListHeader>Transactions</IonListHeader>
-          <WatchersLoader />
-          {balance &&
-            transactionsToDisplay
-              .sort(compareTxDisplayInterfaceByDate)
-              .map((tx: TxDisplayInterface, index: number) => {
-                const transfer = tx.transfers.find((t) => t.asset === asset_id);
-                return (
-                  <IonItem
-                    onClick={() => onclickTx(tx.txId)}
-                    key={index}
-                    className={classNames('list-item transaction-item', {
-                      open: isOpen(tx.txId),
-                    })}
-                  >
-                    <div className="info-wrapper">
-                      <div className="item-main-info">
-                        <div className="item-start">
-                          <div className="icon-wrapper">
-                            <TxIcon type={tx.type} />
-                          </div>
-                          <div className="item-name">
-                            <div className="main-row">
-                              {`${balance.ticker} ${txTypes[tx.type - 1]}`}
-                            </div>
-                            <div className="sub-row">
-                              {isOpen(tx.txId)
-                                ? tx.blockTime?.format('DD MMM YYYY hh:mm:ss')
-                                : tx.blockTime?.format('DD MMM YYYY')}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="item-end">
-                          <div className="amount">
-                            <div className="main-row">
-                              {transfer
-                                ? fromSatoshiFixed(
-                                    transfer.amount,
-                                    balance.precision,
-                                    balance.precision,
-                                    balance.ticker === 'L-BTC'
+              {balance && balance.coinGeckoID && prices[balance.coinGeckoID] && (
+                <span className="info-amount-converted">
+                  {(
+                    fromSatoshi(balance.amount, balance.precision) *
+                    prices[balance.coinGeckoID]
+                  ).toFixed(2)}{' '}
+                  {currency.toUpperCase()}
+                </span>
+              )}
+            </IonCol>
+          </IonRow>
+
+          <IonRow className="ion-margin-top">
+            <IonCol>
+              <IonButtons>
+                <IonButton
+                  className="coin-action-button"
+                  onClick={() => {
+                    history.push({
+                      pathname: '/receive',
+                      state: {
+                        depositAsset: {
+                          asset: balance?.asset,
+                          ticker: balance?.ticker ?? LBTC_TICKER,
+                          coinGeckoID: balance?.coinGeckoID ?? 'L-BTC',
+                        },
+                      },
+                    });
+                  }}
+                >
+                  <div>
+                    <img src={depositIcon} alt="deposit" />
+                    Deposit
+                  </div>
+                </IonButton>
+                <IonButton
+                  className="coin-action-button"
+                  onClick={() => {
+                    history.push(`/withdraw/${asset_id}`);
+                  }}
+                >
+                  <div>
+                    <img src={depositIcon} alt="deposit" />
+                    Withdraw
+                  </div>
+                </IonButton>
+                <IonButton
+                  className="coin-action-button"
+                  routerLink="/exchange"
+                >
+                  <div>
+                    <img src={swapIcon} alt="swap" />
+                    Swap
+                  </div>
+                </IonButton>
+              </IonButtons>
+            </IonCol>
+          </IonRow>
+
+          <IonRow>
+            <IonCol>
+              <IonList>
+                <IonListHeader>Transactions</IonListHeader>
+                <WatchersLoader />
+                {balance &&
+                  transactionsToDisplay
+                    .sort(compareTxDisplayInterfaceByDate)
+                    .map((tx: TxDisplayInterface, index: number) => {
+                      const transfer = tx.transfers.find(
+                        (t) => t.asset === asset_id
+                      );
+                      return (
+                        <IonItem
+                          onClick={() => onclickTx(tx.txId)}
+                          key={index}
+                          className={classNames('list-item transaction-item', {
+                            open: isOpen(tx.txId),
+                          })}
+                        >
+                          <div className="info-wrapper">
+                            <div className="item-main-info">
+                              <div className="item-start">
+                                <TxIcon type={tx.type} />
+                                <div className="item-name">
+                                  <div className="main-row">
+                                    {`${balance.ticker} ${
+                                      txTypes[tx.type - 1]
+                                    }`}
+                                  </div>
+                                  <div className="sub-row">
+                                    {isOpen(tx.txId)
+                                      ? tx.blockTime?.format(
+                                          'DD MMM YYYY hh:mm:ss'
+                                        )
+                                      : tx.blockTime?.format('DD MMM YYYY')}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="item-end">
+                                <div className="amount">
+                                  <div className="main-row">
+                                    {transfer
+                                      ? fromSatoshiFixed(
+                                          transfer.amount,
+                                          balance.precision,
+                                          balance.precision,
+                                          balance.ticker === 'L-BTC'
+                                            ? lbtcUnit
+                                            : undefined
+                                        )
+                                      : 'unknow'}
+                                  </div>
+                                  <div className="main-row accent">
+                                    {balance.ticker === 'L-BTC'
                                       ? lbtcUnit
-                                      : undefined
-                                  )
-                                : 'unknow'}
+                                      : balance.ticker}
+                                  </div>
+                                </div>
+                                {transfer && balance.coinGeckoID && (
+                                  <div className="sub-row ta-end">
+                                    {(
+                                      fromSatoshi(
+                                        transfer.amount,
+                                        balance.precision
+                                      ) * prices[balance.coinGeckoID]
+                                    ).toFixed(2)}{' '}
+                                    {currency.toUpperCase()}
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                            <div className="main-row accent">
-                              {balance.ticker === 'L-BTC'
-                                ? lbtcUnit
-                                : balance.ticker}
+                            <div className="sub-info">
+                              <div className="fee-row">
+                                <IonLabel>
+                                  Fee{' '}
+                                  <span className="amount">
+                                    {fromSatoshi(tx.fee, 8).toFixed(8)}{' '}
+                                    {LBTC_TICKER}
+                                  </span>
+                                </IonLabel>
+                                <IonText>{renderStatusText(tx.status)}</IonText>
+                              </div>
+                              <div className="info-row ion-text-wrap">
+                                TxID {tx.txId}
+                              </div>
                             </div>
                           </div>
-                          {transfer && balance.coinGeckoID && (
-                            <div className="sub-row ta-end">
-                              {(
-                                fromSatoshi(
-                                  transfer.amount,
-                                  balance.precision
-                                ) * prices[balance.coinGeckoID]
-                              ).toFixed(2)}{' '}
-                              {currency.toUpperCase()}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="sub-info">
-                        <div className="fee-row">
-                          <IonLabel>
-                            Fee{' '}
-                            <span className="amount">
-                              {fromSatoshi(tx.fee, 8).toFixed(8)} {LBTC_TICKER}
-                            </span>
-                          </IonLabel>
-                          <IonText>{renderStatusText(tx.status)}</IonText>
-                        </div>
-                        <div className="info-row ion-text-wrap">
-                          TxID {tx.txId}
-                        </div>
-                      </div>
-                    </div>
-                  </IonItem>
-                );
-              })}
-        </IonList>
+                        </IonItem>
+                      );
+                    })}
+              </IonList>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
       </IonContent>
     </IonPage>
   );

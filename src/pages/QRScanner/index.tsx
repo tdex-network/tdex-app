@@ -1,24 +1,24 @@
 import {
   IonButton,
+  IonCol,
   IonContent,
-  IonHeader,
+  IonGrid,
   IonPage,
-  IonTitle,
-  IonToolbar,
+  IonRow,
   useIonViewDidEnter,
   useIonViewWillLeave,
 } from '@ionic/react';
 import React from 'react';
+import { RouteComponentProps, useParams, withRouter } from 'react-router';
 import { Plugins } from '@capacitor/core';
 import { useDispatch } from 'react-redux';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import { RouteComponentProps, useParams, withRouter } from 'react-router';
-
-import './style.scss';
 import { QRCodeScanError } from '../../utils/errors';
+import Header from '../../components/Header';
+import './style.scss';
 
 const { BarcodeScanner } = Plugins;
 
@@ -64,30 +64,36 @@ const QRCodeScanner: React.FC<
 
   return (
     <IonPage>
-      <IonHeader className="semitransparent">
-        <IonToolbar className="with-back-button">
-          <IonTitle>SCAN QR CODE</IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent className="content">
-        <div className="qr-scanner">
-          <div className="rect">
-            <div className="rect-border" />
-          </div>
-          <div className="btn-container">
-            <IonButton
-              onClick={() =>
-                history.replace(`/withdraw/${asset_id}`, {
-                  ...location.state,
-                  amount: location.state.amount,
-                })
-              }
-              className="cancel-btn"
-            >
-              CLOSE
-            </IonButton>
-          </div>
-        </div>
+        <Header
+          title="SCAN QR CODE"
+          hasBackButton={false}
+          hasCloseButton={false}
+        />
+        <IonGrid>
+          <IonRow>
+            <IonCol size="10" offset="1">
+              <div className="qr-scanner">
+                <div className="rect">
+                  <div className="rect-border" />
+                </div>
+                <div className="btn-container">
+                  <IonButton
+                    onClick={() =>
+                      history.replace(`/withdraw/${asset_id}`, {
+                        ...location.state,
+                        amount: location.state.amount,
+                      })
+                    }
+                    className="cancel-btn"
+                  >
+                    CLOSE
+                  </IonButton>
+                </div>
+              </div>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
       </IonContent>
     </IonPage>
   );

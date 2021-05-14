@@ -14,6 +14,10 @@ import LiquidityProviders from './redux/containers/liquidityProvidersContainer';
 import Faq from './pages/Faq';
 import Terms from './pages/Terms';
 import Deposit from './pages/Deposit';
+import Backup from './redux/containers/backupContainer';
+import ShowMnemonic from './redux/containers/showMnemonicContainer';
+import ShowMnemonicSettings from './pages/ShowMnemonic/show-mnemonic-settings';
+import DeleteMnemonic from './pages/DeleteMnemonic';
 
 export const routerLinks = {
   wallet: '/wallet',
@@ -26,11 +30,16 @@ export const routerLinks = {
   withdrawal: '/withdraw/:asset_id',
   receive: '/receive',
   qrScanner: '/qrscanner/:asset_id',
-  account: '/account/:pin',
+  account: '/account',
   liquidityProvider: '/liquidity-provider',
   faq: '/faq',
   terms: '/terms',
+  backup: '/backup',
+  showMnemonic: '/show-mnemonic',
   deposit: '/deposit',
+  // Settings
+  deleteMnemonic: '/settings/delete-mnemonic',
+  showMnemonicSettings: '/settings/show-mnemonic',
 };
 
 export const ROUTES = [
@@ -93,6 +102,22 @@ export const ROUTES = [
   {
     path: routerLinks.deposit,
     component: Deposit,
+  },
+  {
+    path: routerLinks.backup,
+    component: Backup,
+  },
+  {
+    path: routerLinks.showMnemonic,
+    component: ShowMnemonic,
+  },
+  {
+    path: routerLinks.showMnemonicSettings,
+    component: ShowMnemonicSettings,
+  },
+  {
+    path: routerLinks.deleteMnemonic,
+    component: DeleteMnemonic,
   },
 ];
 

@@ -195,6 +195,12 @@ export function tickerFromAssetHash(assetHash?: string): string {
   return assetHash.slice(0, 4).toUpperCase();
 }
 
+export function nameFromAssetHash(assetHash?: string): string | undefined {
+  if (!assetHash) return '';
+  const mainAsset = getMainAsset(assetHash);
+  if (mainAsset) return mainAsset.name;
+}
+
 /**
  * Returns a custom coinSelector
  * @param dispatch if defined, will lock the selected utxos.

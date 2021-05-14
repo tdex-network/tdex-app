@@ -1,66 +1,41 @@
-@import '../../theme/variables';
-
-.exchange-header {
-  background: rgb(51, 51, 51);
-}
-
-.exchange {
-  .exchange-coin-container:nth-child(3) {
-    background: transparent;
+#exchange-page {
+  /* Top half of the screen is light grey */
+  ion-header {
+    background: var(--ion-color-primary);
   }
-}
-
-.exchange-content {
-  --padding-start: 0;
-  --padding-end: 0;
-}
-
-.exchange-divider {
-  transition: all 800ms ease-in-out;
-  position: absolute;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #000;
-  top: 170px;
-  left: calc(50vw - 17px);
-  z-index: 2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  @media (max-height: 700px) {
-    top: 110px;
+  .exchange-coin-container:nth-child(1) {
+    background: var(--ion-color-primary);
+  }
+  .refresher-active,
+  .refresher-refreshing {
+    background: var(--ion-color-primary);
   }
 
-  .swap-btn {
-    font-size: 18px;
-    color: rgb(15, 255, 0);
-  }
-}
-
-.light {
-  .exchange-header {
-    background: transparent;
-  }
   .exchange-divider {
-    background: #fff;
-    border: 1px solid #f4f4f4;
+    transition: all 800ms ease-in-out;
+    display: flex;
+    img {
+      margin-top: -16px;
+      position: absolute;
+      left: calc(50vw - 17px);
+      z-index: 2;
+      background: rgba(15, 255, 0, 0.12);
+      width: 32px;
+      height: 32px;
+      padding: 5px;
+      border: rgb(15, 255, 0) 1px solid;
+      border-radius: 50%;
+    }
   }
-}
 
-.market-provider {
-  margin-top: 2%;
-  text-align: center;
-  .trade-info {
-    margin-top: 2%;
-    text-align: center;
-    font-size: small;
-    color: rgba(245, 245, 245, 0.774);
-
-    .provider-info {
-      font-style: italic;
-      font-weight: 500;
+  .market-provider {
+    .trade-info {
+      font-size: small;
+      color: rgba(245, 245, 245, 0.774);
+      .provider-info {
+        font-style: italic;
+        font-weight: 500;
+      }
     }
   }
 }

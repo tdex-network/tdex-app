@@ -1,16 +1,13 @@
 import {
   IonPage,
-  IonTitle,
   IonContent,
   IonItem,
   IonButton,
-  IonToolbar,
-  IonHeader,
-  IonLabel,
   IonInput,
   IonLoading,
-  IonButtons,
-  IonBackButton,
+  IonGrid,
+  IonRow,
+  IonCol,
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
@@ -53,7 +50,8 @@ import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
-import { chevronBackOutline } from 'ionicons/icons';
+import Header from '../../components/Header';
+import ButtonsMainSub from '../../components/ButtonsMainSub';
 
 interface WithdrawalProps
   extends RouteComponentProps<
@@ -277,76 +275,68 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         isOpen={loading}
         message={'Please wait...'}
       />
-      <IonHeader className="ion-no-border">
-        <IonToolbar className="with-back-button">
-          <IonButtons slot="start">
-            <IonBackButton defaultHref="/" text="" icon={chevronBackOutline} />
-          </IonButtons>
-          <IonTitle>
-            {balance ? balance.ticker.toUpperCase() : ''} Withdrawal
-          </IonTitle>
-        </IonToolbar>
-      </IonHeader>
       <IonContent className="withdrawal">
-        {balance && (
-          <WithdrawRow
-            balance={balance}
-            price={price}
-            onAmountChange={onAmountChange}
-            error={error}
-          />
-        )}
-        <IonItem className="list-item">
-          <div className="item-main-info">
-            <div className="item-start">
-              <IonInput
-                inputmode="text"
-                enterkeyhint="done"
-                onKeyDown={onPressEnterKeyCloseKeyboard}
-                value={recipientAddress}
-                placeholder="Paste address here or scan QR code"
-                onIonChange={(e) => {
-                  setRecipientAddress(e.detail.value || '');
-                }}
+        <Header
+          title={`${balance ? balance.ticker.toUpperCase() : ''} Withdrawal`}
+          hasBackButton={true}
+        />
+        <IonGrid>
+          {balance && (
+            <WithdrawRow
+              balance={balance}
+              price={price}
+              onAmountChange={onAmountChange}
+              error={error}
+            />
+          )}
+
+          <IonRow>
+            <IonCol>
+              <IonItem className="list-item">
+                <div className="item-main-info">
+                  <div className="item-start">
+                    <IonInput
+                      inputmode="text"
+                      enterkeyhint="done"
+                      onKeyDown={onPressEnterKeyCloseKeyboard}
+                      value={recipientAddress}
+                      placeholder="Paste address here or scan QR code"
+                      onIonChange={(e) => {
+                        setRecipientAddress(e.detail.value || '');
+                      }}
+                    />
+                  </div>
+                  <div className="item-end">
+                    <IonButton
+                      className="scan-btn"
+                      onClick={() =>
+                        history.replace(`/qrscanner/${asset_id}`, {
+                          amount,
+                          address: '',
+                          asset: asset_id,
+                        })
+                      }
+                    >
+                      <IconQR fill="#fff" />
+                    </IonButton>
+                  </div>
+                </div>
+              </IonItem>
+            </IonCol>
+          </IonRow>
+
+          <IonRow className="ion-margin-vertical-x2">
+            <IonCol>
+              <ButtonsMainSub
+                mainTitle="CONFIRM"
+                subTitle="CANCEL"
+                mainOnClick={() => setModalOpen(true)}
+                mainDisabled={!isValid()}
+                subOnClick={history.goBack}
               />
-            </div>
-            <div className="item-end">
-              <IonButton
-                className="scan-btn"
-                onClick={() =>
-                  history.replace(`/qrscanner/${asset_id}`, {
-                    amount,
-                    address: '',
-                    asset: asset_id,
-                  })
-                }
-              >
-                <IconQR fill="#fff" />
-              </IonButton>
-            </div>
-          </div>
-        </IonItem>
-        <div className="buttons">
-          <div className="align-center">
-            <IonButton
-              className="main-button"
-              onClick={() => setModalOpen(true)}
-              disabled={!isValid()}
-            >
-              <IonLabel>CONFIRM</IonLabel>
-            </IonButton>
-          </div>
-          <div className="align-center">
-            <IonButton
-              onClick={() => {
-                history.goBack();
-              }}
-              className="cancel-button"
-            >
-              <IonLabel>CANCEL</IonLabel>
-            </IonButton>
-          </div>
-        </div>
+            </IonCol>
+          </IonRow>
+        </IonGrid>
       </IonContent>
     </IonPage>
   );

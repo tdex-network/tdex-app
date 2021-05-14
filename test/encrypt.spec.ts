@@ -1,4 +1,4 @@
-import { decrypt, encrypt } from "../src/utils/crypto";
+import { decrypt, encrypt } from '../src/utils/crypto';
 import * as assert from 'assert';
 
 const PIN = '666666';
@@ -11,5 +11,5 @@ describe('encryption', () => {
     const encrypted = await encrypt(data, PIN);
     const decrypted = await decrypt(encrypted, PIN);
     assert.deepStrictEqual(decrypted, data);
-  })
-})
+  });
+});

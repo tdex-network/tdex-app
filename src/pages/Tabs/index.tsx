@@ -9,11 +9,7 @@ import {
 import React from 'react';
 import { Redirect, Route, RouteComponentProps, withRouter } from 'react-router';
 import classNames from 'classnames';
-
-//routes
 import { ROUTES, TABS } from '../../routes';
-
-//style
 import './style.scss';
 
 const ROUTES_SORTED_BY_TAB: Record<string, string[]> = {
@@ -66,7 +62,6 @@ const Tabs: React.FC<RouteComponentProps> = ({ history, location }) => {
                       active: isActive(item.name),
                     })}
                   />
-                  {isActive(item.name) && <span className="indicator"></span>}
                 </div>
               </IonTabButton>
             ))}

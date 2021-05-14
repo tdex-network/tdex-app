@@ -1,10 +1,10 @@
-import { ActionType } from './../../utils/types';
-import { updatePrices } from './../actions/ratesActions';
+import { ActionType } from '../../utils/types';
+import { updatePrices } from '../actions/ratesActions';
 import {
   WalletState,
   outpointToString,
   addressesSelector,
-} from './../reducers/walletReducer';
+} from '../reducers/walletReducer';
 import {
   UPDATE_UTXOS,
   setUtxo,
@@ -14,7 +14,7 @@ import {
   unlockUtxo,
   ADD_ADDRESS,
   WATCH_UTXO,
-} from './../actions/walletActions';
+} from '../actions/walletActions';
 import {
   takeLatest,
   call,

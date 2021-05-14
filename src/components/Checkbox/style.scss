@@ -1,0 +1,31 @@
+.checkbox {
+  align-items: center;
+  height: 50px;
+  label {
+    display: flex;
+    justify-content: center;
+  }
+  .custom-check {
+    height: 20px;
+    width: 20px;
+    border: 1px solid #fff;
+    border-radius: 10px;
+    margin-right: 13px;
+    .check-icon svg {
+      width: 20px;
+      height: 20px;
+      margin-left: 2px;
+      fill: rgb(15, 255, 0);
+      display: none;
+    }
+  }
+  input {
+    opacity: 0;
+    z-index: -1;
+  }
+  input:checked + .custom-check {
+    .check-icon svg {
+      display: block;
+    }
+  }
+}

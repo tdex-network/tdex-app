@@ -1,43 +1,27 @@
-@import "../../theme/variables";
-
 .account {
-    --overflow: auto;
-    .item-main-info {
-        align-items:start
+  .item-main-info {
+    align-items: start;
+  }
+  .item-start {
+    flex-direction: column;
+    align-items: start !important;
+    padding: 0 5px 0 10px;
+    .main-row {
+      font-family: var(--ion-font-heading);
+      font-size: 18px;
+      line-height: 24px;
+      margin-bottom: 7px;
     }
-    .item-start {
-        flex-direction: column;
-        align-items: start;
-        padding: 0 18px 0 8px;
-
-        .main-row {
-            font-family: $heading-font;
-            font-size: 18px;
-            line-height: 24px;
-            margin-bottom: 7px;
-        }
-        .description {
-            font-size: 14px;
-            line-height: 21px;
-            color: #c6c6c6;
-        }
+    .description {
+      font-size: 14px;
+      line-height: 21px;
+      color: #c6c6c6;
     }
-    .item-end {
-        align-items: center;
-        padding: 8px 0;
-    }
-    ion-icon {
-        font-size: 24px;
-        align-self: start;
-    }
-}
-
-.light {
-    .account {
-        .item-start {
-            .description {
-                color: rgb(144, 144, 144);
-            }
-        }
-    }
+  }
+  ion-item {
+    --inner-padding-end: 0;
+  }
+  ion-icon {
+    font-size: 24px;
+  }
 }

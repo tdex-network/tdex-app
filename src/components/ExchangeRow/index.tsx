@@ -16,7 +16,7 @@ import {
   useIonViewDidLeave,
 } from '@ionic/react';
 import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
-import { caretDown, searchSharp } from 'ionicons/icons';
+import { chevronDownOutline } from 'ionicons/icons';
 import {
   AssetWithTicker,
   bestBalance,
@@ -149,23 +149,16 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   return (
     <div className="exchange-coin-container">
       <div className="exchanger-row">
-        <div
-          className="coin-name"
-          onClick={() => {
-            setIsSearchOpen(true);
-          }}
-        >
-          <span className="icon-wrapper medium">
+        <div className="coin-name" onClick={() => setIsSearchOpen(true)}>
+          <span className="icon-wrapper">
             <CurrencyIcon currency={asset.ticker} />
           </span>
-          <p>
+          <span>
             {asset.ticker === 'L-BTC' ? lbtcUnit : asset.ticker.toUpperCase()}
-          </p>
-          <IonIcon
-            className="icon"
-            icon={isSearchOpen ? searchSharp : caretDown}
-          />
+          </span>
+          <IonIcon className="icon" icon={chevronDownOutline} />
         </div>
+
         <div
           className={classNames('coin-amount', {
             active: amount,
@@ -174,10 +167,11 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           <div className="ion-text-end">
             <IonInput
               enterkeyhint="done"
+              type="number"
               onKeyDown={onPressEnterKeyCloseKeyboard}
               inputmode="decimal"
               value={amount}
-              placeholder="0.00"
+              placeholder="0"
               color={error && 'danger'}
               debounce={200}
               onIonChange={(e) => {
@@ -211,8 +205,10 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           </div>
         </div>
       </div>
+
       <div className="exchanger-row sub-row">
-        <div
+        <span
+          className="balance"
           onClick={() => {
             setFocus();
             setAmount(
@@ -225,19 +221,20 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             );
           }}
         >
-          <p>{`Total balance: ${fromSatoshiFixed(
+          <span>Total balance:</span>
+          <span>{`${fromSatoshiFixed(
             balance?.amount || 0,
             balance?.precision,
             balance?.precision || defaultPrecision,
             balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
-          )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : asset.ticker}`}</p>
-        </div>
+          )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : asset.ticker}`}</span>
+        </span>
         {amount && asset.coinGeckoID && prices[asset.coinGeckoID] && (
-          <div>
+          <span className="ion-text-right">
             {error ? (
               <IonText color="danger">{error}</IonText>
             ) : (
-              <p>
+              <>
                 {(
                   toLBTCwithUnit(
                     parseFloat(amount),
@@ -245,9 +242,9 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
                   ) * prices[asset.coinGeckoID]
                 ).toFixed(2)}{' '}
                 {currency.toUpperCase()}
-              </p>
+              </>
             )}
-          </div>
+          </span>
         )}
       </div>
       <div

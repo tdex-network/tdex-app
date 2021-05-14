@@ -1,0 +1,32 @@
+ion-header {
+  .back-button {
+    ion-button,
+    ion-back-button {
+      color: var(--ion-color-tertiary);
+      --color: var(--ion-color-tertiary);
+      position: absolute;
+      left: 12px;
+      width: 30px;
+    }
+  }
+  .close-button {
+    ion-button,
+    ion-back-button {
+      color: var(--ion-color-tertiary);
+      --color: var(--ion-color-tertiary);
+      position: absolute;
+      right: 12px;
+      width: 30px;
+    }
+  }
+  ion-title {
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 16px;
+    color: rgb(198, 198, 198);
+    &.title-large {
+      font-size: var(--ion-font-size-l);
+      color: #ffffff;
+    }
+  }
+}

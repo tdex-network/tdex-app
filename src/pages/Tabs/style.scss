@@ -1,46 +1,25 @@
 ion-tab-bar {
-  --background: #131313;
-  height: 90px;
-}
-
-.tab-icon {
-  fill: rgb(102, 102, 102);
-}
-
-.tab-icon.active {
-  fill: #fff;
-}
-
-.indicator {
-  position: absolute;
-  bottom: 26px;
-  width: 4px;
-  height: 4px;
-  background: #31c43e;
-  border-radius: 2px;
-}
-
-.tab-content {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: -10;
-}
-
-.light {
-  ion-tab-bar {
-    --background: #ffffff;
-    border-top: 1px solid #f4f4f4;
+  height: 70px;
+  .tab-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .tab-icon {
+      fill: var(--ion-color-tertiary);
+      &.active {
+        fill: var(--ion-color-secondary);
+      }
+    }
   }
-
-  .tab-icon {
-    fill: rgb(0, 0, 0);
+  ion-tab-button:nth-child(1) .tab-icon.active,
+  ion-tab-button:nth-child(3) .tab-icon.active {
+    filter: drop-shadow(0 0 9px rgb(15, 255, 0))
+      drop-shadow(0px 0px 20px #0fff00);
   }
-
-  .tab-icon.active {
-    fill: #000000;
+  ion-tab-button:nth-child(2) .tab-icon.active {
+    filter: drop-shadow(0px 0px 5px #0fff00)
+      drop-shadow(0 0 9px rgb(15, 255, 0)) drop-shadow(0 0 20px rgb(15, 255, 0));
   }
 }

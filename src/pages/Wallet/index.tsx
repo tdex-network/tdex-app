@@ -1,11 +1,8 @@
 import {
   IonContent,
   IonList,
-  IonHeader,
   IonItem,
   IonPage,
-  IonTitle,
-  IonToolbar,
   IonListHeader,
   IonButton,
   useIonViewWillEnter,
@@ -16,6 +13,7 @@ import {
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
+import { useSelector } from 'react-redux';
 import { addCircleOutline } from 'ionicons/icons';
 import { network } from '../../redux/config';
 import { CurrencyIcon } from '../../components/icons';
@@ -35,8 +33,7 @@ import { ActionType } from '../../utils/types';
 import { update } from '../../redux/actions/appActions';
 import CircleTotalBalance from '../../components/CircleTotalBalance';
 import Refresher from '../../components/Refresher';
-import BackupModal from '../../redux/containers/backupModalContainer';
-import { useSelector } from 'react-redux';
+import Header from '../../components/Header';
 import { updateUtxos } from '../../redux/actions/walletActions';
 import './style.scss';
 
@@ -50,6 +47,7 @@ interface WalletProps extends RouteComponentProps {
 }
 
 const Wallet: React.FC<WalletProps> = ({
+  backupDone,
   balances,
   prices,
   currency,
@@ -60,8 +58,6 @@ const Wallet: React.FC<WalletProps> = ({
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const [mainAssets, setMainAssets] = useState<BalanceInterface[]>([]);
   const [fiats, setFiats] = useState<number[]>([]);
-  const backupDone = useSelector((state: any) => state.app.backupDone);
-  const [backupModal, setBackupModal] = useState(false);
   const [secondaryAssets, setSecondaryAssets] = useState<BalanceInterface[]>(
     []
   );
@@ -140,12 +136,7 @@ const Wallet: React.FC<WalletProps> = ({
       <IonContent className="wallet-content">
         <Refresher />
         <IonGrid>
-          <IonHeader className="ion-no-border">
-            <IonToolbar>
-              <IonTitle>Wallet</IonTitle>
-            </IonToolbar>
-          </IonHeader>
-
+          <Header title="Wallet" hasBackButton={false} />
           <IonRow className="ion-margin-vertical ion-justify-content-center">
             <CircleTotalBalance
               totalBalance={
@@ -179,7 +170,10 @@ const Wallet: React.FC<WalletProps> = ({
                         });
                         return;
                       }
-                      setBackupModal(true);
+                      history.push({
+                        pathname: '/backup',
+                        state: { depositAssets },
+                      });
                     }}
                   >
                     <IonIcon
@@ -272,7 +266,10 @@ const Wallet: React.FC<WalletProps> = ({
                         });
                         return;
                       }
-                      setBackupModal(true);
+                      history.push({
+                        pathname: '/backup',
+                        state: { depositAssets },
+                      });
                     }}
                   >
                     DEPOSIT ASSETS
@@ -280,16 +277,6 @@ const Wallet: React.FC<WalletProps> = ({
                 </IonCol>
               </IonRow>
             </div>
-          )}
-
-          {!backupDone && (
-            <BackupModal
-              title="Backup your seed before deposit"
-              description="Take time to keep your secret words in a safe place before deposit funds."
-              removeSkipBtn={true}
-              isOpen={backupModal}
-              onClose={() => setBackupModal(false)}
-            />
           )}
         </IonGrid>
       </IonContent>

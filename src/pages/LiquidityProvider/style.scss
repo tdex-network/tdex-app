@@ -1,37 +1,29 @@
-.buttons {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  margin-top: 5%;
-}
+ion-item.provider-container {
+  --border-radius: 15px;
 
-.provider-name {
-  font-size: 14px;
-}
+  .provider-data {
+    flex: 2.5;
+    overflow: scroll;
+    white-space: nowrap;
 
-.provider-endpoint {
-  font-size: 10px;
-}
-
-.provider {
-  overflow: scroll;
-  white-space: nowrap;
-  @media (max-width: 375px) {
-    max-width: 200px;
-  }
-  @media (max-width: 450px) {
     .provider-name {
-      font-size: 12px;
+      margin-top: 7px;
+      font-size: var(--ion-font-size-main);
     }
 
     .provider-endpoint {
-      font-size: 8px;
+      font-size: var(--ion-font-size-sub);
     }
   }
-}
 
-.button-delete {
-  position: absolute;
-  right: 5px;
+  .button-delete {
+    flex: 1;
+    height: 100%;
+    ion-button {
+      width: 60px;
+      @media (max-width: 320px) {
+        width: 50px;
+      }
+    }
+  }
 }
