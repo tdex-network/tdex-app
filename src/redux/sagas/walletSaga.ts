@@ -135,10 +135,8 @@ function* restoreUtxos() {
 }
 
 function* watchUtxoSaga(action: ActionType) {
-  const {
-    address,
-    maxTry,
-  }: { address: AddressInterface; maxTry: number } = action.payload;
+  const { address, maxTry }: { address: AddressInterface; maxTry: number } =
+    action.payload;
   const explorer = yield select(({ settings }) => settings.explorerUrl);
 
   for (let t = 0; t < maxTry; t++) {

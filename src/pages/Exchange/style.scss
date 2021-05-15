@@ -30,11 +30,11 @@
 
   .market-provider {
     .trade-info {
-      font-size: small;
+      font-family: var(--ion-font-sub);
+      font-size: var(--ion-font-size-sub);
       color: rgba(245, 245, 245, 0.774);
       .provider-info {
         font-style: italic;
-        font-weight: 500;
       }
     }
   }

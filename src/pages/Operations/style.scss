@@ -44,16 +44,18 @@ ion-button.coin-action-button {
     }
 
     .info-amount {
+      font-family: var(--ion-font-sub);
       font-size: var(--ion-font-size-xl);
 
       span {
+        font-family: var(--ion-font-sub);
         font-size: var(--ion-font-size-main);
         margin-left: 10px;
       }
     }
 
     .info-amount-converted {
-      font-family: var(--ion-font-sub);
+      font-family: var(--ion-font-sub-heading);
       font-size: var(--ion-font-size-sub);
       color: var(--ion-color-tertiary);
     }
