@@ -1,9 +1,8 @@
 import React from 'react';
-import { RouteComponentProps } from 'react-router';
 import { IonContent, IonPage, IonGrid, IonRow, IonCol } from '@ionic/react';
 import Header from '../../components/Header';
 
-const Privacy: React.FC<RouteComponentProps> = () => {
+const Privacy: React.FC = () => {
   return (
     <IonPage id="privacy">
       <IonContent>

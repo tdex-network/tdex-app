@@ -1,9 +1,8 @@
 import React from 'react';
-import { RouteComponentProps } from 'react-router';
 import { IonContent, IonPage, IonGrid, IonRow, IonCol } from '@ionic/react';
 import Header from '../../components/Header';
 
-const Faq: React.FC<RouteComponentProps> = () => {
+const Faq: React.FC = () => {
   return (
     <IonPage id="faq">
       <IonContent>
