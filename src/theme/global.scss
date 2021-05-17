@@ -1,8 +1,4 @@
 /* HTML Tags */
-body {
-  font-family: var(--ion-font-main);
-}
-
 h1,
 h2,
 h3 {
@@ -14,7 +10,14 @@ h2 {
 }
 
 p {
-  line-height: 1.75rem;
+  font-family: var(--ion-font-main);
+  font-size: var(--ion-font-size-main);
+  line-height: 1.5rem;
+}
+
+ol, li {
+  font-family: var(--ion-font-main);
+  font-size: var(--ion-font-size-main);
 }
 
 a,

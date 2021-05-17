@@ -3,6 +3,7 @@
 
   .restore-input-wrapper {
     display: flex;
+    font-family: var(--ion-font-heading);
     flex-direction: column;
     align-items: center;
     margin-bottom: 30px;
@@ -18,6 +19,7 @@
         width: 25px;
       }
       .input-word {
+        font-family: var(--ion-font-main);
         position: relative;
         border: 0;
         background: transparent;

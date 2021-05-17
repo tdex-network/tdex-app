@@ -9,6 +9,7 @@ import {
   IonGrid,
   IonRow,
   IonCol,
+  IonButton,
 } from '@ionic/react';
 import ExchangeRow from '../../redux/containers/exchangeRowContainer';
 import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
@@ -39,7 +40,6 @@ import { Dispatch } from 'redux';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { TradeType } from 'tdex-sdk';
 import { useSelector } from 'react-redux';
-import './style.scss';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import {
   AppError,
@@ -47,8 +47,9 @@ import {
   NoMarketsProvidedError,
 } from '../../utils/errors';
 import swap from '../../assets/img/swap.svg';
-import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Header from '../../components/Header';
+import classNames from 'classnames';
+import './style.scss';
 
 const ERROR_LIQUIDITY = 'Not enough liquidity in market';
 
@@ -313,20 +314,31 @@ const Exchange: React.FC<ExchangeProps> = ({
               />
             )}
 
-            <ButtonsMainSub
-              mainTitle="CONFIRM"
-              subTitle="CANCEL"
-              mainOnClick={onConfirm}
-              mainDisabled={
-                !assetSent ||
-                !assetReceived ||
-                loading ||
-                sentAmountGreaterThanBalance()
-              }
-            />
+            <IonRow>
+              <IonCol size="8" offset="2">
+                <IonButton
+                  className={classNames('main-button', {
+                    'button-disabled':
+                      !assetSent ||
+                      !assetReceived ||
+                      loading ||
+                      sentAmountGreaterThanBalance(),
+                  })}
+                  onClick={onConfirm}
+                  disabled={
+                    !assetSent ||
+                    !assetReceived ||
+                    loading ||
+                    sentAmountGreaterThanBalance()
+                  }
+                >
+                  CONFIRM
+                </IonButton>
+              </IonCol>
+            </IonRow>
 
             {trade && (
-              <IonRow className="market-provider ion-margin-vertical ion-text-center">
+              <IonRow className="market-provider ion-margin-vertical-x2 ion-text-center">
                 <IonCol size="10" offset="1">
                   <IonText className="trade-info" color="light">
                     Market provided by:{' '}

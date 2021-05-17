@@ -6,6 +6,7 @@ ion-button {
   --background-focused: transparent;
   --background-activated: transparent;
   --background-hover-opacity: 1;
+  font-family: var(--ion-font-heading);
   font-size: var(--ion-font-size-main);
   text-transform: uppercase;
 }
@@ -20,10 +21,13 @@ ion-button.main-button {
   --color: var(--ion-color-secondary);
   border: 2px solid var(--ion-color-secondary);
   height: 60px;
+  @media (max-width: 320px) {
+    height: 52px;
+  }
   &.button-disabled {
     --background: transparent;
-    --color: var(--ion-color-step-350);
-    border: 2px solid var(--ion-color-step-350);
+    --color: var(--ion-color-medium);
+    border: 2px solid var(--ion-color-medium);
   }
 }
 

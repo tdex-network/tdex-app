@@ -29,8 +29,6 @@ export const rateSelectorFactory = (crypto: string) => ({
   rates,
 }: {
   rates: RateState;
-}) => {
-  rates.prices[crypto];
-};
+}) => rates.prices[crypto];
 
 export default ratesReducer;

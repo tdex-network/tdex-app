@@ -222,6 +222,27 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
             <IonItem
               className="list-item"
               onClick={() => {
+                history.push('/privacy');
+              }}
+            >
+              <div className="item-main-info">
+                <div className="item-start">
+                  <div className="main-row">Privacy</div>
+                </div>
+                <div className="item-end">
+                  <IconRightArrow
+                    className="next-icon"
+                    fill="#fff"
+                    width="7"
+                    height="12"
+                    viewBox="0 0 7 12"
+                  />
+                </div>
+              </div>
+            </IonItem>
+            <IonItem
+              className="list-item"
+              onClick={() => {
                 history.push('/terms');
               }}
             >

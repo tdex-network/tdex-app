@@ -12,6 +12,7 @@ import WithdrawalDetails from './pages/WithdrawalDetails';
 import Account from './pages/Account';
 import LiquidityProviders from './redux/containers/liquidityProvidersContainer';
 import Faq from './pages/Faq';
+import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import Deposit from './pages/Deposit';
 import Backup from './redux/containers/backupContainer';
@@ -33,6 +34,7 @@ export const routerLinks = {
   account: '/account',
   liquidityProvider: '/liquidity-provider',
   faq: '/faq',
+  privacy: '/privacy',
   terms: '/terms',
   backup: '/backup',
   showMnemonic: '/show-mnemonic',
@@ -46,6 +48,10 @@ export const ROUTES = [
   {
     path: routerLinks.faq,
     component: Faq,
+  },
+  {
+    path: routerLinks.privacy,
+    component: Privacy,
   },
   {
     path: routerLinks.terms,
