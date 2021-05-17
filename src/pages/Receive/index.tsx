@@ -3,7 +3,6 @@ import {
   IonContent,
   IonItem,
   IonIcon,
-  IonSpinner,
   IonLoading,
   IonGrid,
 } from '@ionic/react';
@@ -140,7 +139,7 @@ const Receive: React.FC = () => {
               wallet QR code with their device.`}
             title={`Your ${locationState.depositAsset.ticker} address`}
           />
-          {address ? (
+          {address && (
             <div>
               <input
                 readOnly
@@ -175,10 +174,6 @@ const Receive: React.FC = () => {
               <div className="qr-code-container">
                 <QRCodeImg value={address.confidentialAddress} size={192} />
               </div>
-            </div>
-          ) : (
-            <div className="align-center">
-              <IonSpinner name="crescent" color="primary" />
             </div>
           )}
         </IonGrid>
