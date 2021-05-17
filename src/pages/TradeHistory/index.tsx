@@ -90,9 +90,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
                           </span>
                         </div>
                         <div className="item-name">
-                          <div className="main-row">
-                            {`${tickerSent} / ${tickerReceived}`}
-                          </div>
+                          <div className="main-row">{`${tickerSent} / ${tickerReceived}`}</div>
                           <div className="sub-row">
                             {transaction.blockTime?.format(
                               'DD MMM YYYY hh:mm:ss'

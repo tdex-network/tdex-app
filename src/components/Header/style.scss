@@ -22,7 +22,8 @@ ion-header {
   ion-title {
     text-align: center;
     text-transform: uppercase;
-    font-size: 16px;
+    font-size: var(--ion-font-size-main);
+    font-family: var(--ion-font-heading);
     color: rgb(198, 198, 198);
     &.title-large {
       font-size: var(--ion-font-size-l);

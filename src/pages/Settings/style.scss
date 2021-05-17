@@ -68,7 +68,8 @@
   margin: 2%;
   width: 95%;
   text-align: right;
-  color: rgb(117, 115, 115);
-  font-size: small;
+  color: var(--ion-color-medium);
+  font-family: var(--ion-font-sub);
+  font-size: var(--ion-font-size-sub);
   font-style: italic;
 }

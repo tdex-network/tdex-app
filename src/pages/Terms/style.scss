@@ -1,15 +1,23 @@
-.content {
-  color: #fff;
-
-  p {
-    text-align: left;
-    font-size: small;
+#terms {
+  ol {
+    padding-inline-start: 30px;
   }
-}
-
-.main-content {
-  --padding-top: 10px;
-  --padding-bottom: 10px;
-  --overflow: auto;
-  position: relative;
+  
+  ol li {
+    margin-bottom: 20px;
+  }
+  
+  ol[type="a"] {
+    margin-top: 5px;
+    li {
+      margin-bottom: 15px;
+    }
+  }
+  
+  ol[type="i"] {
+    margin-top: 5px;
+    li {
+     margin-bottom: 10px;
+   }
+  }
 }
