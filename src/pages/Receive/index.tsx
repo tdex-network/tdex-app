@@ -3,7 +3,6 @@ import {
   IonContent,
   IonItem,
   IonIcon,
-  IonSpinner,
   IonLoading,
   IonGrid,
 } from '@ionic/react';
