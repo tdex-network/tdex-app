@@ -156,7 +156,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   }, [assetSent, assetReceived, markets]);
 
   useEffect(() => {
-    if (!assetSent) return;
+    if (!assetSent || assetReceived) return;
     const tradable = getTradablesAssets(markets, assetSent.asset);
     setTradableAssets(tradable);
     setAssetReceived(tradable[0]);
