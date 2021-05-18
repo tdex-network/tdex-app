@@ -11,11 +11,12 @@ import {
   IonRow,
   IonCol,
   IonGrid,
+  IonText,
 } from '@ionic/react';
 import { CurrencyIcon } from '../../components/icons';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
-import { swapHorizontal } from 'ionicons/icons';
+import { ellipsisHorizontal } from 'ionicons/icons';
 import { AssetConfig } from '../../utils/constants';
 import Refresher from '../../components/Refresher';
 import Header from '../../components/Header';
@@ -64,9 +65,14 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
     );
   };
 
-  const ReceiveCurrencyIcon: React.FC<{ width: string; height: string }> = ({
+  type ReceiveCurrencyIconProps = {
+    width: string;
+    height: string;
+  } & React.HTMLAttributes<any>;
+  const ReceiveCurrencyIcon: React.FC<ReceiveCurrencyIconProps> = ({
     width,
     height,
+    ...props
   }) => {
     return (
       <CurrencyIcon
@@ -77,26 +83,34 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
         }
         width={width}
         height={height}
+        {...props}
       />
     );
   };
 
   return (
-    <IonPage>
-      <IonContent className="trade-summary">
+    <IonPage id="trade-summary">
+      <IonContent>
         <Refresher />
+        <Header title="TRADE SUMMARY" hasBackButton={true} />
         <IonGrid>
-          <Header title="TRADE SUMMARY" hasBackButton={true} />
           {(transaction || preview) && (
-            <div>
-              <div className="transaction-icons">
-                <span>
-                  <SentCurrencyIcon width="45px" height="45px" />
-                </span>
-                <span>
-                  <ReceiveCurrencyIcon width="45px" height="45px" />
-                </span>
-              </div>
+            <>
+              <IonRow className="ion-margin-bottom ion-text-center">
+                <IonCol>
+                  <div className="transaction-icons">
+                    <SentCurrencyIcon width="45" height="45" />
+                    <div className="receive-icon-container">
+                      <ReceiveCurrencyIcon width="45" height="45" />
+                      <ReceiveCurrencyIcon
+                        className="duplicate"
+                        width="55"
+                        height="55"
+                      />
+                    </div>
+                  </div>
+                </IonCol>
+              </IonRow>
 
               <IonRow className="ion-margin-bottom">
                 <IonCol>
@@ -105,16 +119,14 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                       <div className="trade-items">
                         <div className="trade-item">
                           <div className="name">
+                            <SentCurrencyIcon width="24" height="24" />
                             <span>
-                              <SentCurrencyIcon width="24px" height="24px" />
-                            </span>
-                            <p>
                               {transaction
                                 ? tickerFromAssetHash(
                                     transaction.transfers[0].asset
                                   )
                                 : preview?.sent.ticker}
-                            </p>
+                            </span>
                           </div>
                           <p className="trade-price">
                             {transaction
@@ -126,21 +138,21 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                               : preview?.sent.amount}
                           </p>
                         </div>
+
                         <div className="trade-divider">
-                          <IonIcon icon={swapHorizontal} />
+                          <IonIcon color="medium" icon={ellipsisHorizontal} />
                         </div>
+
                         <div className="trade-item">
                           <div className="name">
+                            <ReceiveCurrencyIcon width="24" height="24" />
                             <span>
-                              <ReceiveCurrencyIcon width="24px" height="24px" />
-                            </span>
-                            <p>
                               {transaction
                                 ? tickerFromAssetHash(
                                     transaction.transfers[1].asset
                                   )
                                 : preview?.received.ticker}
-                            </p>
+                            </span>
                           </div>
                           <p className="trade-price">
                             +
@@ -156,32 +168,40 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                       </div>
                       <div className="transaction-info">
                         <div className="transaction-info-date">
-                          {transaction ? (
-                            <p>
-                              {transaction.blockTime
-                                ? transaction.blockTime.format(
-                                    'DD MMM YYYY hh:mm:ss'
-                                  )
-                                : 'NOT CONFIRMED'}
-                            </p>
-                          ) : (
-                            <IonSkeletonText
-                              animated
-                              style={{ width: '30%' }}
-                            />
+                          {transaction && (
+                            <span>
+                              {transaction.blockTime &&
+                                transaction.blockTime.format(
+                                  'DD MMM YYYY hh:mm:ss'
+                                )}
+                            </span>
                           )}
                           {transaction ? (
-                            <p>{fromSatoshiFixed(transaction.fee, 8, 8)} Fee</p>
+                            <span>
+                              {fromSatoshiFixed(transaction.fee, 8, 8)} Fee
+                            </span>
                           ) : (
                             <IonSkeletonText
                               animated
-                              style={{ width: '15%' }}
+                              style={{ width: '100%' }}
                             />
                           )}
                         </div>
                         <div className="transaction-info-values">
-                          <div className="transaction-col-name">Tx ID</div>
-                          <div className="transaction-col-value">{txid}</div>
+                          <span className="transaction-col-name">TxID</span>
+                          <span className="transaction-col-value">{txid}</span>
+                        </div>
+                        <div className="transaction-info-values">
+                          <span className="transaction-col-name">{''}</span>
+                          {transaction?.blockTime || (
+                            <span className="transaction-col-value pending">
+                              <IonText color="warning">PENDING</IonText>
+                              <IonIcon
+                                color="warning"
+                                icon={ellipsisHorizontal}
+                              />
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -199,7 +219,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                   </IonButton>
                 </IonCol>
               </IonRow>
-            </div>
+            </>
           )}
         </IonGrid>
       </IonContent>

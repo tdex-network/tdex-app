@@ -1,106 +1,95 @@
-.trade-summary {
-  .buttons {
-    margin-top: 46px;
-  }
-}
-
-.trade-summary-item {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
-
-.trade-items {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding-bottom: 18px;
-  border-bottom: 1px solid rgb(102, 102, 102);
-}
-
-.trade-divider {
-  font-size: 34px;
-}
-
-.trade-item {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  .name {
-    font-size: 24px;
-    @media (max-width: 350px) {
-      font-size: medium;
+#trade-summary {
+  .transaction-icons {
+    .receive-icon-container {
+      width: 55px;
+      transform: translateX(-16px);
+      display: inline-block;
+      position: relative;
+      top: 0;
+      left: 0;
     }
-    font-family: 'DMSans';
-    display: flex;
-    align-items: center;
-    .icon-wrapper {
-      margin-right: 8px;
-      min-width: 23px;
+    img.duplicate {
+      filter: invert(50%) brightness(33%) contrast(100%);
+      position: absolute;
+      top: -6px;
+      left: -1px;
+      z-index: -1;
     }
   }
-  .trade-price {
-    font-family: 'DMMono';
-    font-size: var(--ion-font-size-main);
-    margin-top: 2px;
-  }
-  &.trade-item:nth-child(3) {
-    align-items: flex-end;
-  }
-}
-
-.transaction-info {
-  padding-top: 15px;
-  color: rgb(198, 198, 198);
-  .transaction-info-date {
-    font-size: var(--ion-font-size-sub);
-    font-family: 'DMMono-Medium';
+  
+  .trade-items {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
-  }
-  .transaction-info-values {
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    & + & {
-      margin-top: 1px;
+    align-items: center;
+    width: 100%;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--ion-color-medium);
+  
+    .trade-divider {
+      font-size: 34px;
     }
-    .transaction-col-name {
-      white-space: nowrap;
-      margin-right: 8px;
-    }
-    .transaction-col-value {
-      word-break: break-all;
-    }
-  }
-}
-
-.transaction-icons {
-  margin: 47px auto 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  img {
-    width: 47px;
-    height: 47px;
-  }
-  img:nth-child(2) {
-    border-radius: 50%;
-    box-sizing: content-box;
-    margin-left: -23px;
-  }
-}
-
-.light {
-  .trade-summary {
-    ion-item {
-      --background: #fff;
+  
+    .trade-item {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      .name {
+        font-size: 24px;
+        font-family: var(--ion-font-main);
+        display: flex;
+        align-items: center;
+        img {
+          margin-right: 10px;
+          @media (max-width: 320px) {
+            margin-right: 5px;
+          }
+        }
+      }
+      .trade-price {
+        font-family: var(--ion-font-sub);
+        font-size: var(--ion-font-size-main);
+        margin-top: 2px;
+      }
+      &.trade-item:nth-child(3) {
+        align-items: flex-end;
+      }
     }
   }
-}
-
-.second {
-  transform: translate(-15px) rotate(25deg) scale(1.1);
+  
+  .transaction-info {
+    padding-top: 15px;
+    color: var(--ion-color-tertiary);
+    span {
+      font-size: var(--ion-font-size-sub);
+      font-family: var(--ion-font-sub-heading);
+    }
+    .transaction-info-date {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .transaction-info-values {
+      display: flex;
+      justify-content: flex-start;
+      align-items: flex-start;
+      margin-bottom: 5px;
+      .transaction-col-name {
+        flex: 10%;
+        white-space: nowrap;
+        margin-right: 8px;
+      }
+      .transaction-col-value {
+        flex: 90%;
+        word-break: break-all;
+      }
+      .transaction-col-value.pending {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        ion-text {
+          margin-right: 5px;
+        }
+      }
+    }
+  }
 }
