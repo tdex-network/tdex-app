@@ -98,8 +98,9 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
         balance.ticker === 'L-BTC' ? lbtcUnit : undefined
       ) - val;
     setResidualBalance(
-      residualAmount.toLocaleString(undefined, {
+      residualAmount.toLocaleString('en-US', {
         maximumFractionDigits: balance.precision,
+        useGrouping: false,
       })
     );
     if (price)
