@@ -8551,10 +8551,10 @@ last-call-webpack-plugin@^3.0.0:
     lodash "^4.17.5"
     webpack-sources "^1.1.0"
 
-ldk@^0.2.15:
-  version "0.2.15"
-  resolved "https://registry.yarnpkg.com/ldk/-/ldk-0.2.15.tgz#341106d7b22efa17b75e4c388a02dbe20c3396e4"
-  integrity sha512-OXpCet8NfyFtJseipKeQA/+WhIURNex3N2s3gFhnn/ygG3FM6WEvfCI3KAfno18QUzPLRgMMs8gE6qQGoBg3ww==
+ldk@^0.2.16:
+  version "0.2.16"
+  resolved "https://registry.yarnpkg.com/ldk/-/ldk-0.2.16.tgz#1be5abe674590438a28714eafed603945fde5961"
+  integrity sha512-he3Cn1+bsfuo6Of+2ezcuGyZOCWK2PRjZjnfL2OKiSWcCJ6adS7CS1/qC0WukgaVR3Hpez0FfAo4bTMCXn+21w==
   dependencies:
     axios "^0.21.1"
     bip32 "^2.0.6"
@@ -13548,10 +13548,10 @@ tdex-react-scripts@^4.0.0-tdex:
   optionalDependencies:
     fsevents "^2.1.3"
 
-tdex-sdk@1.6.3:
-  version "1.6.3"
-  resolved "https://registry.yarnpkg.com/tdex-sdk/-/tdex-sdk-1.6.3.tgz#f9ff8e3073f78719ee6f9f29c34eeec7d98c7650"
-  integrity sha512-d6wom8h4lZKWedTWfr/sf+jrTCtHK+nJrFoBUbln/cKC4tfxaMLAx4+/0DM94g3QLxqIVSzmB3zDmVbWGlZtHQ==
+tdex-sdk@1.6.5:
+  version "1.6.5"
+  resolved "https://registry.yarnpkg.com/tdex-sdk/-/tdex-sdk-1.6.5.tgz#e1ea71ab6e0309dad2fcac01381ec1d6171dd5d3"
+  integrity sha512-bW2P7TGzcrBmSb1BO1SGdnC9qaHVpE0oAkViNsTtJs2sf6cDwq/mg0o7QlzZ1YgY42cj2YijMGbH9tK/P1RRgw==
   dependencies:
     "@grpc/grpc-js" "^1.0.4"
     "@types/google-protobuf" "^3.7.2"
@@ -13560,7 +13560,7 @@ tdex-sdk@1.6.3:
     bip39 "^3.0.2"
     bs58check "^2.1.2"
     google-protobuf "^3.11.4"
-    ldk "^0.2.15"
+    ldk "^0.2.16"
     liquidjs-lib "^5.1.7"
     slip77 "^0.1.1"
     tdex-protobuf tdex-network/tdex-protobuf
