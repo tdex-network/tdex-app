@@ -57,6 +57,16 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   });
 
   useEffect(() => {
+    setResidualBalance(
+      fromSatoshiFixed(
+        balance.amount,
+        balance.precision,
+        balance.precision,
+        balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
+      ));
+  }, [lbtcUnit]);
+
+  useEffect(() => {
     dispatch(updatePrices());
   }, []);
 
