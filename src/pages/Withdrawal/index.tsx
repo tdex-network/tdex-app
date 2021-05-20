@@ -8,6 +8,7 @@ import {
   IonGrid,
   IonRow,
   IonCol,
+  useIonViewDidLeave,
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
@@ -85,6 +86,10 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const dispatch = useDispatch();
+
+  useIonViewDidLeave(() => {
+    setRecipientAddress('');
+  })
 
   // effect to select the balance of withdrawal
   useEffect(() => {
