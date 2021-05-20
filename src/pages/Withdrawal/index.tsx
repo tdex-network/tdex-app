@@ -278,6 +278,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         <IonGrid>
           {balance && (
             <WithdrawRow
+              amount={amount !== 0 ? amount : undefined}
               balance={balance}
               price={price}
               onAmountChange={onAmountChange}

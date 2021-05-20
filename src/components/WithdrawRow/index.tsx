@@ -23,6 +23,7 @@ import { chevronDownOutline } from 'ionicons/icons';
 import classNames from 'classnames';
 
 interface WithdrawRowInterface {
+  amount: number | undefined;
   balance: BalanceInterface;
   price: number | undefined;
   onAmountChange: (amount: number | undefined) => void;
@@ -30,6 +31,7 @@ interface WithdrawRowInterface {
 }
 
 const WithdrawRow: React.FC<WithdrawRowInterface> = ({
+  amount,
   balance,
   price,
   onAmountChange,
@@ -49,11 +51,12 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   const dispatch = useDispatch();
 
   useIonViewDidEnter(() => {
-    setAccessoryBar(true);
+    setAccessoryBar(true).catch(console.error);
   });
 
   useIonViewDidLeave(() => {
-    setAccessoryBar(false);
+    setAccessoryBar(false).catch(console.error);
+    reset();
   });
 
   useEffect(() => {
@@ -69,6 +72,10 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   useEffect(() => {
     dispatch(updatePrices());
   }, []);
+
+  useEffect(() => {
+    handleAmountChange(amount?.toString());
+  }, [price]);
 
   const reset = () => {
     setResidualBalance(
@@ -136,6 +143,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
         >
           <div className="ion-text-end">
             <IonInput
+              value={amount}
               type="number"
               inputmode="decimal"
               placeholder="0.00"
