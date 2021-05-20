@@ -1,6 +1,6 @@
 {
   "name": "tdex-app",
-  "version": "0.0.12-build21",
+  "version": "0.0.13-build22",
   "private": true,
   "dependencies": {
     "@capacitor-community/barcode-scanner": "^1.2.1",
@@ -22,7 +22,6 @@
     "es6-promise-plugin": "^4.2.2",
     "ionicons": "^5.5.1",
     "jetifier": "^1.6.8",
-    "ldk": "^0.2.16",
     "liquidjs-lib": "^5.1.12",
     "moment": "^2.29.1",
     "react": "^16.14.0",
@@ -74,6 +73,7 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/preset-typescript": "^7.13.0",
     "@capacitor/cli": "^2.4.7",
+    "@ionic/cli": "^6.16.1",
     "@ionic/eslint-plugin": "0.0.1",
     "@testing-library/jest-dom": "^5.12.0",
     "@testing-library/react": "^11.2.7",
