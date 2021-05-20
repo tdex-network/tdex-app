@@ -74,9 +74,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   location,
 }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
-  // route parameter asset_id
   const { asset_id } = useParams<{ asset_id: string }>();
-
   // UI state
   const [balance, setBalance] = useState<BalanceInterface>();
   const [price, setPrice] = useState<number>();
@@ -86,23 +84,36 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   const [recipientAddress, setRecipientAddress] = useState<string>('');
   const [modalOpen, setModalOpen] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
-
   const dispatch = useDispatch();
 
-  const getRecipient = (): RecipientInterface => ({
-    address: recipientAddress.trim(),
-    asset: balance?.asset || '',
-    value: toSatoshi(
-      amount,
-      balance?.precision,
-      balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
-    ),
-  });
+  // effect to select the balance of withdrawal
+  useEffect(() => {
+    const balanceSelected = balances.find((bal) => bal.asset === asset_id);
+    if (balanceSelected) {
+      setBalance(balanceSelected);
+    }
+  }, [balances, asset_id]);
 
-  const onAmountChange = (newAmount: number | undefined) => {
-    setError('');
-    setAmount(newAmount || 0);
-  };
+  // effect for fiat equivalent
+  useEffect(() => {
+    if (balance && balance.coinGeckoID) {
+      const p = prices[balance.coinGeckoID];
+      if (!p) {
+        setPrice(undefined);
+        return;
+      }
+      setPrice(p);
+      return;
+    }
+    setPrice(undefined);
+  }, [prices]);
+
+  useEffect(() => {
+    if (location.state) {
+      setRecipientAddress(location.state.address);
+      setAmount(location.state.amount);
+    }
+  }, [location]);
 
   useEffect(() => {
     try {
@@ -138,11 +149,25 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     }
   }, [amount]);
 
+  const getRecipient = (): RecipientInterface => ({
+    address: recipientAddress?.trim(),
+    asset: balance?.asset || '',
+    value: toSatoshi(
+      amount,
+      balance?.precision,
+      balance?.ticker === 'L-BTC' ? lbtcUnit : undefined,
+    ),
+  });
+
+  const onAmountChange = (newAmount: number | undefined) => {
+    setError('');
+    setAmount(newAmount || 0);
+  };
+
   const isValid = (): boolean => {
     if (error) return false;
     if (!balance || amount <= 0) return false;
-    if (recipientAddress === '') return false;
-    return true;
+    return recipientAddress !== '';
   };
 
   const createTxAndBroadcast = async (pin: string) => {
@@ -221,39 +246,9 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     }
   };
 
-  // effect to select the balance of withdrawal
-  useEffect(() => {
-    const balanceSelected = balances.find((bal) => bal.asset === asset_id);
-    if (balanceSelected) {
-      setBalance(balanceSelected);
-    }
-  }, [balances]);
-
-  // effect for fiat equivalent
-  useEffect(() => {
-    if (balance && balance.coinGeckoID) {
-      const p = prices[balance.coinGeckoID];
-      if (!p) {
-        setPrice(undefined);
-        return;
-      }
-      setPrice(p);
-      return;
-    }
-
-    setPrice(undefined);
-  }, [prices]);
-
-  useEffect(() => {
-    if (location.state) {
-      setRecipientAddress(location.state.address);
-      setAmount(location.state.amount);
-    }
-  }, [location]);
-
   const onPinConfirm = (pin: string) => {
     if (!isValid()) return;
-    createTxAndBroadcast(pin);
+    createTxAndBroadcast(pin).catch(console.error);
   };
 
   return (
