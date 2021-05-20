@@ -73,6 +73,7 @@
     "@babel/preset-react": "^7.13.13",
     "@babel/preset-typescript": "^7.13.0",
     "@capacitor/cli": "^2.4.7",
+    "@ionic/cli": "^6.16.1",
     "@ionic/eslint-plugin": "0.0.1",
     "@testing-library/jest-dom": "^5.12.0",
     "@testing-library/react": "^11.2.7",
