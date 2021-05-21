@@ -26,7 +26,6 @@ import './theme/font.scss';
 import './theme/components/ionic/index.scss';
 import './theme/global.scss';
 import './theme/variables.scss';
-import './theme/components/exchange-coin-block.scss';
 import './theme/components/search.scss';
 import './theme/components/listItem.scss';
 

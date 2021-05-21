@@ -172,23 +172,6 @@ export const IconQR = (props: IconInterface) => (
   </svg>
 );
 
-export const IconRightArrow = (props: IconInterface) => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 20 20"
-    fill="none"
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M0.292461 1.71255L4.17246 5.59255L0.292461 9.47255C-0.0975389 9.86255 -0.0975389 10.4925 0.292461 10.8825C0.682461 11.2725 1.31246 11.2725 1.70246 10.8825L6.29246 6.29255C6.68246 5.90255 6.68246 5.27255 6.29246 4.88255L1.70246 0.292549C1.31246 -0.0974512 0.682461 -0.0974512 0.292461 0.292549C-0.0875392 0.682549 -0.0975389 1.32255 0.292461 1.71255Z"
-    />
-  </svg>
-);
-
 export const CurrencyIcon = ({ currency, ...props }: any) => {
   switch (currency?.toUpperCase()) {
     case LBTC_TICKER:

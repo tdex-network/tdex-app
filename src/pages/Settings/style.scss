@@ -1,8 +1,8 @@
-.settings {
-  --overflow: auto;
-  .item-end {
-    align-items: center;
+#settings {
+  ion-icon {
+    width: 18px;
   }
+  
   .green-label {
     font-family: var(--ion-font-main);
     color: var(--ion-color-secondary);
@@ -36,31 +36,6 @@
     --handle-spacing: 4px;
     --background-checked: transparent;
     --background: transparent;
-  }
-}
-
-.light {
-  .settings {
-    .settings-toggle {
-      width: 35px;
-      height: 19px;
-      border: 2px solid #333;
-      border-radius: 35px;
-      padding: 0 2px;
-      --handle-background: transparent;
-      --handle-background-checked: transparent;
-      --handle-border: 2px solid #333;
-      --handle-border-radius: 50%;
-      --handle-box-shadow: 0 0 0 2px #333;
-      --handle-width: 12px;
-      --handle-height: 12px;
-      --handle-spacing: 4px;
-      --background-checked: transparent;
-      --background: transparent;
-    }
-    .green-label {
-      color: var(--ion-color-secondary);
-    }
   }
 }
 

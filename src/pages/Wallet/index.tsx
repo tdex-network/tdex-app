@@ -228,7 +228,7 @@ const Wallet: React.FC<WalletProps> = ({
                           <div className="sub-row">
                             {fiatValue < 0
                               ? fiatValue === UNKNOWN
-                                ? ''
+                                ? 0
                                 : 'loading'
                               : fiatValue?.toFixed(2)}
                           </div>
@@ -239,11 +239,9 @@ const Wallet: React.FC<WalletProps> = ({
                               ? lbtcUnit
                               : balance.ticker}
                           </div>
-                          {fiatValue >= 0 && (
-                            <div className="sub-row">
-                              {currency.toUpperCase()}
-                            </div>
-                          )}
+                          <div className="sub-row">
+                            {currency.toUpperCase()}
+                          </div>
                         </div>
                       </div>
                     </div>

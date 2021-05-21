@@ -9,9 +9,9 @@ import {
   IonGrid,
   IonRow,
   IonCol,
+  IonIcon,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-import { IconRightArrow } from '../../components/icons';
 import { RouteComponentProps, withRouter } from 'react-router';
 import PageDescription from '../../components/PageDescription';
 import { setElectrumServer } from '../../redux/actions/settingsActions';
@@ -23,6 +23,7 @@ import DenominationSearch from '../../components/DenominationSearch';
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Header from '../../components/Header';
 import './style.scss';
+import { chevronForwardOutline } from 'ionicons/icons';
 
 const { Device } = Plugins;
 
@@ -62,118 +63,74 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   // };
 
   return (
-    <IonPage>
-      <IonContent className="settings">
+    <IonPage id="settings">
+      <IonContent>
         <IonGrid>
           <Header title="Settings" hasBackButton={false} isTitleLarge={true} />
           <IonList>
             <IonListHeader>General</IonListHeader>
-            <IonItem
-              className="list-item"
-              onClick={() => history.push('/account')}
-            >
-              <div className="item-main-info">
-                <div className="item-start">
-                  <div className="main-row">Account</div>
-                </div>
-                <div className="item-end">
-                  <IconRightArrow
-                    className="next-icon"
-                    fill="#fff"
-                    width="7"
-                    height="12"
-                    viewBox="0 0 7 12"
-                  />
-                </div>
-              </div>
+            <IonItem onClick={() => history.push('/account')}>
+              <span>Account</span>
+              <IonIcon
+                icon={chevronForwardOutline}
+                color="text-color"
+                slot="end"
+                className="ion-no-margin"
+              />
             </IonItem>
+
             <IonItem
-              className="list-item"
               onClick={() => {
                 history.push('/liquidity-provider');
               }}
             >
-              <div className="item-main-info">
-                <div className="item-start">
-                  <div className="main-row">Manage liquidity provider</div>
-                </div>
-                <div className="item-end">
-                  <IconRightArrow
-                    className="next-icon"
-                    fill="#fff"
-                    width="7"
-                    height="12"
-                    viewBox="0 0 7 12"
-                  />
-                </div>
-              </div>
+              <span>Manage liquidity provider</span>
+              <IonIcon
+                icon={chevronForwardOutline}
+                color="text-color"
+                slot="end"
+                className="ion-no-margin"
+              />
             </IonItem>
-            <IonItem
-              className="list-item"
-              onClick={() => setLBTCUnitSearchOpen(true)}
-            >
-              <div className="item-main-info">
-                <div className="item-start">
-                  <div className="main-row">L-BTC unit</div>
-                </div>
-                <div className="item-end">
-                  <span className="chosen-currency green-label">
-                    {unitLBTC}
-                  </span>
-                  <IconRightArrow
-                    className="next-icon"
-                    fill="#fff"
-                    width="7"
-                    height="12"
-                    viewBox="0 0 7 12"
-                  />
-                </div>
-              </div>
+
+            <IonItem onClick={() => setLBTCUnitSearchOpen(true)}>
+              <span>L-BTC unit</span>
+              <IonItem slot="end" className="ion-no-padding ion-no-margin">
+                <span className="chosen-currency green-label">{unitLBTC}</span>
+                <IonIcon
+                  icon={chevronForwardOutline}
+                  color="text-color"
+                  className="ion-no-margin"
+                />
+              </IonItem>
+            </IonItem>
+
+            <IonItem onClick={() => setCurrencySearchOpen(true)}>
+              <span>Default currency</span>
+              <IonItem slot="end" className="ion-no-padding ion-no-margin">
+                <span className="chosen-currency green-label">
+                  {currency.value.toUpperCase()}
+                </span>
+                <IonIcon
+                  icon={chevronForwardOutline}
+                  color="text-color"
+                  className="ion-no-margin"
+                />
+              </IonItem>
             </IonItem>
 
             <IonItem
-              className="list-item"
-              onClick={() => setCurrencySearchOpen(true)}
-            >
-              <div className="item-main-info">
-                <div className="item-start">
-                  <div className="main-row">Default currency</div>
-                </div>
-                <div className="item-end">
-                  <span className="chosen-currency green-label">
-                    {(currency.value as string).toUpperCase()}
-                  </span>
-                  <IconRightArrow
-                    className="next-icon"
-                    fill="#fff"
-                    width="7"
-                    height="12"
-                    viewBox="0 0 7 12"
-                  />
-                </div>
-              </div>
-            </IonItem>
-
-            <IonItem
-              className="list-item"
               onClick={() => {
                 setShowExplorerModal(true);
               }}
             >
-              <div className="item-main-info">
-                <div className="item-start">
-                  <div className="main-row">Electrum server</div>
-                </div>
-                <div className="item-end">
-                  <IconRightArrow
-                    className="next-icon"
-                    fill="#fff"
-                    width="7"
-                    height="12"
-                    viewBox="0 0 7 12"
-                  />
-                </div>
-              </div>
+              <span>Electrum server</span>
+              <IonIcon
+                icon={chevronForwardOutline}
+                color="text-color"
+                slot="end"
+                className="ion-no-margin"
+              />
             </IonItem>
 
             {/*<IonItem className="list-item">
@@ -199,67 +156,43 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
           <IonList>
             <IonListHeader>Support</IonListHeader>
             <IonItem
-              className="list-item"
               onClick={() => {
                 history.push('/faq');
               }}
             >
-              <div className="item-main-info">
-                <div className="item-start">
-                  <div className="main-row">FAQ</div>
-                </div>
-                <div className="item-end">
-                  <IconRightArrow
-                    className="next-icon"
-                    fill="#fff"
-                    width="7"
-                    height="12"
-                    viewBox="0 0 7 12"
-                  />
-                </div>
-              </div>
+              <span>FAQ</span>
+              <IonIcon
+                icon={chevronForwardOutline}
+                color="text-color"
+                slot="end"
+                className="ion-no-margin"
+              />
             </IonItem>
             <IonItem
-              className="list-item"
               onClick={() => {
                 history.push('/privacy');
               }}
             >
-              <div className="item-main-info">
-                <div className="item-start">
-                  <div className="main-row">Privacy</div>
-                </div>
-                <div className="item-end">
-                  <IconRightArrow
-                    className="next-icon"
-                    fill="#fff"
-                    width="7"
-                    height="12"
-                    viewBox="0 0 7 12"
-                  />
-                </div>
-              </div>
+              <span>Privacy</span>
+              <IonIcon
+                icon={chevronForwardOutline}
+                color="text-color"
+                slot="end"
+                className="ion-no-margin"
+              />
             </IonItem>
             <IonItem
-              className="list-item"
               onClick={() => {
                 history.push('/terms');
               }}
             >
-              <div className="item-main-info">
-                <div className="item-start">
-                  <div className="main-row">Terms & Conditions</div>
-                </div>
-                <div className="item-end">
-                  <IconRightArrow
-                    className="next-icon"
-                    fill="#fff"
-                    width="7"
-                    height="12"
-                    viewBox="0 0 7 12"
-                  />
-                </div>
-              </div>
+              <span>Terms & Conditions</span>
+              <IonIcon
+                icon={chevronForwardOutline}
+                color="text-color"
+                slot="end"
+                className="ion-no-margin"
+              />
             </IonItem>
           </IonList>
           <p className="app-version">{appVersion}</p>
@@ -273,49 +206,49 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
           >
             <IonContent>
               <IonGrid>
-              <Header
-                title="ELECTRUM SERVER"
-                hasBackButton={false}
-                hasCloseButton={true}
-                handleClose={() => {
-                  setShowExplorerModal(false);
-                }}
-              />
-              <PageDescription
-                description="Set explorer url for electrum server"
-                title="Electrum"
-              />
-              <IonRow>
-                <IonCol size="10" offset="1">
-                  <IonItem>
-                    <IonInput
-                      enterkeyhint="done"
-                      onKeyDown={onPressEnterKeyCloseKeyboard}
-                      inputmode="text"
-                      value={explorerValue}
-                      onIonChange={handleExplorerChange}
-                    />
-                  </IonItem>
-                </IonCol>
-              </IonRow>
+                <Header
+                  title="ELECTRUM SERVER"
+                  hasBackButton={false}
+                  hasCloseButton={true}
+                  handleClose={() => {
+                    setShowExplorerModal(false);
+                  }}
+                />
+                <PageDescription
+                  description="Set explorer url for electrum server"
+                  title="Electrum"
+                />
+                <IonRow>
+                  <IonCol size="10" offset="1">
+                    <IonItem>
+                      <IonInput
+                        enterkeyhint="done"
+                        onKeyDown={onPressEnterKeyCloseKeyboard}
+                        inputmode="text"
+                        value={explorerValue}
+                        onIonChange={handleExplorerChange}
+                      />
+                    </IonItem>
+                  </IonCol>
+                </IonRow>
 
-              <IonRow className="ion-margin-vertical-x2">
-                <IonCol>
-                  <ButtonsMainSub
-                    className="ion-margin"
-                    mainTitle="Save"
-                    subTitle="Cancel"
-                    mainOnClick={() => {
-                      dispatch(setElectrumServer(explorerValue));
-                      setShowExplorerModal(false);
-                    }}
-                    subOnClick={() => {
-                      setShowExplorerModal(false);
-                    }}
-                    mainDisabled={!explorerValue || !explorerValue.length}
-                  />
-                </IonCol>
-              </IonRow>
+                <IonRow className="ion-margin-vertical-x2">
+                  <IonCol>
+                    <ButtonsMainSub
+                      className="ion-margin"
+                      mainTitle="Save"
+                      subTitle="Cancel"
+                      mainOnClick={() => {
+                        dispatch(setElectrumServer(explorerValue));
+                        setShowExplorerModal(false);
+                      }}
+                      subOnClick={() => {
+                        setShowExplorerModal(false);
+                      }}
+                      mainDisabled={!explorerValue || !explorerValue.length}
+                    />
+                  </IonCol>
+                </IonRow>
               </IonGrid>
             </IonContent>
           </IonModal>
