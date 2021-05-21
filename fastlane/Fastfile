@@ -52,7 +52,6 @@ platform :ios do
 
   desc 'Ship to TestFlight in CI'
   lane :beta_ci do
-    git_check
     bump
     create_keychain(
       name: "Fastlane_CI",
