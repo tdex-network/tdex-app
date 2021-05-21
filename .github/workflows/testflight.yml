@@ -14,7 +14,8 @@ jobs:
         run: bundle install
 
       - name: Set Appstore Connect User
-        run: bundle exec fastlane fastlane-credentials add --username marco@sevenlabs.io --password ${{ secrets.APPSTORE_PASSWORD }}
+        run: |
+          bundle exec fastlane fastlane-credentials add --username marco@sevenlabs.io --password ${{ secrets.APPSTORE_PASSWORD }}
 
       # Build Ionic App
       - name: install node dependencies
