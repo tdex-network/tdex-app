@@ -5,7 +5,7 @@ ion-header {
       color: var(--ion-color-tertiary);
       --color: var(--ion-color-tertiary);
       position: absolute;
-      left: 12px;
+      left: 0;
       width: 30px;
     }
   }
@@ -15,7 +15,7 @@ ion-header {
       color: var(--ion-color-tertiary);
       --color: var(--ion-color-tertiary);
       position: absolute;
-      right: 12px;
+      right: 0;
       width: 30px;
     }
   }
@@ -26,7 +26,8 @@ ion-header {
     font-family: var(--ion-font-heading);
     color: rgb(198, 198, 198);
     &.title-large {
-      font-size: var(--ion-font-size-l);
+      text-transform: capitalize;
+      font-size: var(--ion-font-size-md);
       color: #ffffff;
     }
   }

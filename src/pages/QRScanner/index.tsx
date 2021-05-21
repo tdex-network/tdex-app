@@ -65,12 +65,12 @@ const QRCodeScanner: React.FC<
   return (
     <IonPage>
       <IonContent className="content">
-        <Header
-          title="SCAN QR CODE"
-          hasBackButton={false}
-          hasCloseButton={false}
-        />
         <IonGrid>
+          <Header
+            title="SCAN QR CODE"
+            hasBackButton={false}
+            hasCloseButton={false}
+          />
           <IonRow>
             <IonCol size="10" offset="1">
               <div className="qr-scanner">

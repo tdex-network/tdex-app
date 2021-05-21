@@ -65,7 +65,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
     <IonPage>
       <IonContent className="settings">
         <IonGrid>
-          <Header title="Settings" hasBackButton={false} />
+          <Header title="Settings" hasBackButton={false} isTitleLarge={true} />
           <IonList>
             <IonListHeader>General</IonListHeader>
             <IonItem
@@ -272,6 +272,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
             onDidDismiss={() => setShowExplorerModal(false)}
           >
             <IonContent>
+              <IonGrid>
               <Header
                 title="ELECTRUM SERVER"
                 hasBackButton={false}
@@ -315,6 +316,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
                   />
                 </IonCol>
               </IonRow>
+              </IonGrid>
             </IonContent>
           </IonModal>
 

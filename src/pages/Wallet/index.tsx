@@ -136,7 +136,7 @@ const Wallet: React.FC<WalletProps> = ({
       <IonContent className="wallet-content">
         <Refresher />
         <IonGrid>
-          <Header title="Wallet" hasBackButton={false} />
+          <Header title="Wallet" hasBackButton={false} isTitleLarge={true} />
           <IonRow className="ion-margin-vertical ion-justify-content-center">
             <CircleTotalBalance
               totalBalance={

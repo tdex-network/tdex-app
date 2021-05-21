@@ -80,13 +80,13 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
           }}
         >
           <IonContent>
-            <Header
-              hasBackButton={false}
-              hasCloseButton={true}
-              title="CREATE NEW PROVIDER"
-              handleClose={() => setNewProvider(false)}
-            />
             <IonGrid>
+              <Header
+                hasBackButton={false}
+                hasCloseButton={true}
+                title="CREATE NEW PROVIDER"
+                handleClose={() => setNewProvider(false)}
+              />
               <IonRow>
                 <IonCol>
                   <IonList>
@@ -144,8 +144,8 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
           </IonContent>
         </IonModal>
 
-        <Header title="TDEX PROVIDERS" hasBackButton={true} />
         <IonGrid>
+          <Header title="TDEX PROVIDERS" hasBackButton={true} />
           <IonList>
             <IonListHeader>Providers</IonListHeader>
             {providers.map((provider: TDEXProvider, index: number) => {

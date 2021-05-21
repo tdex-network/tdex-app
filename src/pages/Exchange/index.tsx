@@ -253,9 +253,13 @@ const Exchange: React.FC<ExchangeProps> = ({
 
       {assetSent && markets.length > 0 && (
         <IonContent className="exchange-content">
-          <Header hasBackButton={false} title="EXCHANGE" />
           <Refresher />
-          <IonGrid className="ion-no-margin ion-no-padding">
+          <IonGrid className="ion-no-padding ion-padding-top">
+            <Header
+              hasBackButton={false}
+              title="Exchange"
+              isTitleLarge={true}
+            />
             <ExchangeRow
               checkBalance
               focused={isFocused === 'sent'}

@@ -6,8 +6,8 @@ const Privacy: React.FC = () => {
   return (
     <IonPage id="privacy">
       <IonContent>
-        <Header title="PRIVACY POLICY" hasBackButton={true} />
         <IonGrid>
+          <Header title="PRIVACY POLICY" hasBackButton={true} />
           <IonRow>
             <IonCol>
               <p>
