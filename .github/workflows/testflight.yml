@@ -23,7 +23,7 @@ jobs:
         run: yarn build:ios
 
       - name: Fastlane Beta CI
-        run: bundle exec fastlane beta_ci
+        run: bundle exec fastlane ios beta_ci
         env:
           MATCH_PASSWORD: ${{ secrets.KEYSTORE_PASSPHRASE }}
           FASTLANE_PASSWORD: ${{ secrets.APPSTORE_PASSWORD }}
