@@ -229,7 +229,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
           )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : asset.ticker}`}</span>
         </span>
-        {amount && asset.coinGeckoID && prices[asset.coinGeckoID] && (
+        {amount && asset.coinGeckoID && prices[asset.coinGeckoID] ? (
           <span className="ion-text-right">
             {error ? (
               <IonText color="danger">{error}</IonText>
@@ -245,6 +245,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
               </>
             )}
           </span>
+        ) : (
+          <span></span>
         )}
       </div>
       <div
