@@ -57,7 +57,6 @@ platform :ios do
 
   desc 'Ship to TestFlight in CI'
   lane :beta_ci do
-    git_check
     create_keychain(
       name: "Fastlane_CI",
       password: "CI_Password",
