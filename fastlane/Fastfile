@@ -42,6 +42,7 @@ platform :ios do
   desc 'Ship to Testflight.'
   lane :beta do
     git_check
+    bump
     certificates
     build
     changes = changelog_from_git_commits
@@ -56,7 +57,7 @@ platform :ios do
 
   desc 'Ship to TestFlight in CI'
   lane :beta_ci do
-    bump
+    git_check
     create_keychain(
       name: "Fastlane_CI",
       password: "CI_Password",
