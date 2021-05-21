@@ -1,6 +1,6 @@
 {
   "name": "tdex-app",
-  "version": "0.0.15-build23",
+  "version": "0.0.16-build23",
   "private": true,
   "dependencies": {
     "@capacitor-community/barcode-scanner": "^1.2.1",
