@@ -26,3 +26,4 @@ jobs:
           MATCH_PASSWORD: ${{ secrets.KEYSTORE_PASSPHRASE }}
           FASTLANE_USER: marco@sevenlabs.io
           FASTLANE_PASSWORD: ${{ secrets.APPSTORE_PASSWORD }}
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_PASSWORD}}
