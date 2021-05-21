@@ -8,7 +8,9 @@ lane :git_check do
 end
 
 platform :ios do
+   
    # iOS Lanes 🍏
+
   desc 'Fetch certificates and provisioning profiles'
   lane :certificates do
     match(app_identifier: 'io.sevenlabs.app', type: 'development', readonly: true)
@@ -17,28 +19,65 @@ platform :ios do
 
   desc 'Build the iOS application.'
   lane :build do
-    certificates
     gym(
       scheme: 'App', 
       workspace: "./ios/App/App.xcworkspace", 
       include_bitcode: false
     )
   end
+
+  desc 'Increment the build bersion.'
+  lane :bump do
+    increment_build_number(
+      build_number: latest_testflight_build_number(
+        app_identifier: 'io.sevenlabs.app',
+        username: 'marco@sevenlabs.io',
+        team_name: 'Seven Labs Limited',
+        team_id: '122448679',
+      ) + 1,
+      xcodeproj: "./ios/App/App.xcodeproj"
+    )
+  end
   
   desc 'Ship to Testflight.'
   lane :beta do
     git_check
-    increment_build_number(
-      build_number: latest_testflight_build_number(app_identifier: 'io.sevenlabs.app') + 1,
-      xcodeproj: "./ios/App/App.xcodeproj"
-    )
+    bump
+    certificates
     build
     changes = changelog_from_git_commits
     pilot(
       app_identifier: 'io.sevenlabs.app',
+      username: 'marco@sevenlabs.io',
+      team_id: '122448679',
+      team_name: 'Seven Labs Limited',
       changelog: changes
     )
   end
+
+  desc 'Ship to TestFlight in CI'
+  lane :beta_ci do
+    create_keychain(
+      name: "Fastlane_CI",
+      password: "CI_Password",
+      default_keychain: true,
+      unlock: true,
+      timeout: 3600,
+      add_to_search_list: true,
+    )
+    match(type: "development", readonly: true, keychain_name: 'Fastlane_CI', keychain_password: 'CI_Password')
+    match(type: "appstore", readonly: true, keychain_name: 'Fastlane_CI', keychain_password: 'CI_Password')
+    build
+    changes
+    pilot(
+      app_identifier: 'io.sevenlabs.app',
+      username: 'marco@sevenlabs.io',
+      team_id: '122448679',
+      team_name: 'Seven Labs Limited',
+      changelog: changes,
+      skip_waiting_for_build_processing: true,
+    )
+  end 
 
 end
 

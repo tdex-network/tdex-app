@@ -22,14 +22,13 @@ jobs:
           curl https://travis.nigiri.network | bash; cd ..
           docker-compose -f  tmp/docker-compose.yml up -d
 
-      - name: Install deps and build (with cache)
-        uses: bahmutov/npm-install@v1
+      - run: yarn install --frozen-lockfile
 
       - name: lint
         run: yarn lint
-        
+
       - name: test
         run: yarn test --ci --maxWorkers=2
-        
+
       - name: build
         run: yarn build

@@ -34,11 +34,21 @@ Fetch certificates and provisioning profiles
 fastlane ios build
 ```
 Build the iOS application.
+### ios bump
+```
+fastlane ios bump
+```
+Increment the build bersion.
 ### ios beta
 ```
 fastlane ios beta
 ```
 Ship to Testflight.
+### ios beta_ci
+```
+fastlane ios beta_ci
+```
+Ship to TestFlight in CI
 
 ----
 
