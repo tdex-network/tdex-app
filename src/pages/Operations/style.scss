@@ -6,7 +6,7 @@ ion-button.coin-action-button {
   padding: 0;
   margin: 0;
   font-family: var(--ion-font-heading);
-  font-size: var(--ion-font-size-main);
+  font-size: 0.9rem;
 
   div {
     display: flex;
@@ -80,35 +80,6 @@ ion-button.coin-action-button {
 
     .sub-info {
       display: none;
-    }
-  }
-}
-
-.light {
-  .coin-action-button {
-    border: 2px solid rgb(144, 144, 144);
-    color: rgb(144, 144, 144);
-
-    &:hover {
-      color: #fff !important;
-      border-color: transparent;
-      background: linear-gradient(
-        to top,
-        rgb(13, 229, 0),
-        rgb(1, 227, 123)
-      ) !important;
-    }
-  }
-
-  .operations {
-    .list-item {
-      &.open {
-        background-color: #fff;
-
-        .sub-info {
-          color: #909090;
-        }
-      }
     }
   }
 }
