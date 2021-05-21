@@ -319,7 +319,7 @@ const Exchange: React.FC<ExchangeProps> = ({
             )}
 
             <IonRow>
-              <IonCol size="8" offset="2">
+              <IonCol size="8.5" offset="1.75">
                 <IonButton
                   className={classNames('main-button', {
                     'button-disabled':

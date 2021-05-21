@@ -80,8 +80,8 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
       />
       {/* /// */}
       <IonContent className="backup-content">
-        <Header hasBackButton={false} title="BACKUP WALLET" />
         <IonGrid className="ion-text-center ion-justify-content-center">
+          <Header hasBackButton={false} title="BACKUP WALLET" />
           <IonRow className="icon-row ion-margin-vertical">
             <IonCol>
               <IonIcon icon={warningOutline} color="success" />

@@ -170,7 +170,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
             })}
           </IonList>
           <IonRow className="ion-margin-vertical-x2">
-            <IonCol size="10" offset="1">
+            <IonCol size="9" offset="1.5">
               <IonButton
                 className="main-button"
                 onClick={() => setNewProvider(true)}

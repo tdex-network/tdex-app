@@ -1,6 +1,6 @@
 import React from 'react';
 import { RouteComponentProps, useLocation } from 'react-router';
-import { IonContent, IonPage, IonIcon } from '@ionic/react';
+import { IonContent, IonPage, IonIcon, IonGrid } from '@ionic/react';
 import { addCircleOutline } from 'ionicons/icons';
 import { AssetConfig } from '../../utils/constants';
 import { network } from '../../redux/config';
@@ -67,10 +67,12 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage>
       <IonContent>
-        <Header title="DEPOSIT" hasBackButton={true} />
-        <div className="deposit-grid ion-margin-vertical ion-text-center">
-          {generateGridItems()}
-        </div>
+        <IonGrid>
+          <Header title="DEPOSIT" hasBackButton={true} />
+          <div className="deposit-grid ion-margin-vertical ion-text-center">
+            {generateGridItems()}
+          </div>
+        </IonGrid>
       </IonContent>
     </IonPage>
   );

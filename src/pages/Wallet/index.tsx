@@ -253,7 +253,7 @@ const Wallet: React.FC<WalletProps> = ({
           {!totalLBTC.amount && (
             <div className="ion-text-center ion-padding-vertical">
               <IonRow>
-                <IonCol size="8" offset="2" sizeMd="6" offsetMd="3">
+                <IonCol size="9" offset="1.5" sizeMd="6" offsetMd="3">
                   <IonButton
                     className="main-button"
                     onClick={() => {

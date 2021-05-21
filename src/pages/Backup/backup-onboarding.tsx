@@ -24,8 +24,8 @@ const BackupOnboarding: React.FC<BackupProps> = () => {
   return (
     <IonPage>
       <IonContent className="backup-onboarding-content">
-        <Header hasBackButton={true} title="BACKUP WALLET" />
         <IonGrid className="ion-text-center ion-justify-content-center">
+          <Header hasBackButton={true} title="BACKUP WALLET" />
           <IonRow className="icon-row ion-margin-vertical">
             <IonCol>
               <IonIcon icon={warningOutline} color="success" />
