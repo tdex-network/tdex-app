@@ -28,9 +28,8 @@ jobs:
           java-version: 1.8
 
       # Build Ionic App
-      - name: install node dependencies
-        run: yarn install
-          
+      - run: yarn install --frozen-lockfile
+
       - name: build ionic android
         run: yarn build:android
 
@@ -68,7 +67,7 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
-      
+
       - name: Upload release
         uses: actions/upload-release-asset@v1
         env:
