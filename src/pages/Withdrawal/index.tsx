@@ -89,7 +89,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
 
   useIonViewDidLeave(() => {
     setRecipientAddress('');
-  })
+  });
 
   // effect to select the balance of withdrawal
   useEffect(() => {
@@ -120,6 +120,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     }
   }, [location]);
 
+  // Check amount validity
   useEffect(() => {
     try {
       if (!balance) return;
@@ -133,22 +134,23 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         setError('Amount is greater than your balance');
         return;
       }
-
+      //
       const fee = estimateFeeAmount(utxos, [getRecipient()]);
       const LBTCBalance = balances.find((b) => b.coinGeckoID === 'bitcoin');
       if (!LBTCBalance || LBTCBalance.amount === 0) {
         setError('You need LBTC in order to pay fees');
         return;
       }
-
+      //
       let needLBTC = fee;
       if (balance.coinGeckoID === 'bitcoin') {
         needLBTC += toSatoshi(amount, 8, lbtcUnit);
       }
-
       if (needLBTC > LBTCBalance.amount) {
         setError('You cannot pay fees');
       }
+      // No error
+      setError('');
     } catch (err) {
       console.error(err);
     }
@@ -160,12 +162,11 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     value: toSatoshi(
       amount,
       balance?.precision,
-      balance?.ticker === 'L-BTC' ? lbtcUnit : undefined,
+      balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
     ),
   });
 
   const onAmountChange = (newAmount: number | undefined) => {
-    setError('');
     setAmount(newAmount || 0);
   };
 
@@ -283,7 +284,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
           />
           {balance && (
             <WithdrawRow
-              amount={amount !== 0 ? amount : undefined}
+              amount={amount === 0 ? undefined : amount}
               balance={balance}
               price={price}
               onAmountChange={onAmountChange}
