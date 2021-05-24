@@ -22,7 +22,8 @@ platform :ios do
     gym(
       scheme: 'App', 
       workspace: "./ios/App/App.xcworkspace", 
-      include_bitcode: false
+      include_bitcode: false,
+      skip_profile_detection: true
     )
   end
 

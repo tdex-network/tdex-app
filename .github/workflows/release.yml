@@ -10,19 +10,11 @@ jobs:
   testflight:
     runs-on: macos-latest
 
-    env:
-      FASTLANE_USER: marco@sevenlabs.io
-      FASTLANE_PASSWORD: ${{ secrets.APPSTORE_PASSWORD }}
-      FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_PASSWORD}}
-
     steps:
       - uses: actions/checkout@v2
 
       - name: Bundle Install
         run: bundle install
-
-      - name: Set Appstore Connect User
-        run: bundle exec fastlane fastlane-credentials add --username marco@sevenlabs.io
 
       # Build Ionic App
       - name: install node dependencies
@@ -35,6 +27,9 @@ jobs:
         run: bundle exec fastlane ios beta_ci
         env:
           MATCH_PASSWORD: ${{ secrets.KEYSTORE_PASSPHRASE }}
+          FASTLANE_USER: marco@sevenlabs.io
+          FASTLANE_PASSWORD: ${{ secrets.APPSTORE_PASSWORD }}
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_PASSWORD}}
 
   # This workflow contains a single job called "build"
   apk:
