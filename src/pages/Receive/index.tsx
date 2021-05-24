@@ -116,13 +116,13 @@ const Receive: React.FC = () => {
     <IonPage>
       <IonLoading isOpen={loading} />
       <IonContent className="receive">
-        <Header
-          hasBackButton={true}
-          title={`${
-            locationState.depositAsset.name?.toUpperCase() ?? ''
-          } DEPOSIT`}
-        />
         <IonGrid>
+          <Header
+            hasBackButton={true}
+            title={`${
+              locationState.depositAsset.name?.toUpperCase() ?? ''
+            } DEPOSIT`}
+          />
           <div className="ion-text-center">
             <CurrencyIcon
               currency={locationState.depositAsset.ticker}

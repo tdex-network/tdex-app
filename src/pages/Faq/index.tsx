@@ -6,8 +6,8 @@ const Faq: React.FC = () => {
   return (
     <IonPage id="faq">
       <IonContent>
-        <Header title="FAQ" hasBackButton={true} />
         <IonGrid>
+          <Header title="FAQ" hasBackButton={true} />
           <IonRow>
             <IonCol>
               <h2>What is TDEX App?</h2>

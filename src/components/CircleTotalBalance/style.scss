@@ -5,16 +5,16 @@
     rgba(15, 15, 15, 1) 100%
   );
   border-radius: 50%;
-  width: 16.5rem;
-  height: 16.5rem;
+  width: 60vw;
+  height: 60vw;
   div {
     display: flex;
     position: relative;
-    top: 20px;
+    top: 5vw;
     left: 50%;
     transform: translateX(-50%);
-    width: 14rem;
-    height: 14rem;
+    width: 50vw;
+    height: 50vw;
     background: linear-gradient(100deg, black 0%, rgba(51, 51, 51, 1) 100%);
     border-radius: 50%;
 
@@ -24,23 +24,25 @@
     }
 
     ion-row:nth-child(1) {
-      font-family: 'DMSans-Bold';
-      font-size: 1.2rem;
-      color: #898989;
+      font-family: var(--ion-font-heading);
+      font-size: var(--ion-font-size-main);
+      color: var(--ion-color-medium);
     }
     ion-row:nth-child(2) {
-      font-family: 'DMMono';
-      font-size: 1.8rem;
-      color: #dbdbdb;
+      font-family: var(--ion-font-sub);
+      font-size: var(--ion-font-size-md);
+      color: var(--ion-color-tertiary-tint);
     }
     ion-row:nth-child(3) {
-      font-family: 'DMMono';
-      font-size: 1rem;
-      color: #898989;
+      font-family: var(--ion-font-sub);
+      font-size: var(--ion-font-size-main);
+      color: var(--ion-color-medium);
+      margin-bottom: 4px;
     }
     ion-row:nth-child(4) {
-      font-family: 'DMMono-Medium';
-      color: #a0a0a0;
+      font-family: var(--ion-font-sub-heading);
+      font-size: var(--ion-font-size-sub);
+      color: var(--ion-color-tertiary);
     }
   }
 }
@@ -51,9 +53,9 @@
   position: absolute;
   animation: rotation 6s infinite linear;
   border-radius: 50%;
-  width: 16.5rem;
-  height: 16.5rem;
-  box-shadow: 6px 5px 12px 0 rgba(15, 255, 1, 0.7);
+  width: 60vw;
+  height: 60vw;
+  box-shadow: 6px 6px 9px -4px rgba(15, 255, 1, 0.6);
 
   @keyframes rotation {
     from {

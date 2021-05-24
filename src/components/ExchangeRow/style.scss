@@ -1,23 +1,4 @@
 .exchange-coin-container {
-  &:nth-child(3):before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 1px;
-    width: calc(50% - 16px);
-    border-top: 1px solid rgb(15, 255, 0);
-  }
-  &:nth-child(3):after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 0;
-    height: 1px;
-    width: calc(50% - 16px);
-    border-top: 1px solid rgb(15, 255, 0);
-  }
-  position: relative;
   @media (max-height: 700px) {
     padding: 32px 24px;
   }
@@ -30,10 +11,11 @@
     &.sub-row .balance {
       display: flex;
       flex-direction: column;
-      flex: 1;
+      flex: 40%;
     }
     &.sub-row > span:nth-child(2) {
-      flex: 1;
+      margin-left: 5vw;
+      flex: 60%;
     }
     &.sub-row span {
       font-family: var(--ion-font-sub-heading);
@@ -139,6 +121,5 @@
 }
 
 .icon {
-  margin-left: 10px;
   width: 20px;
 }

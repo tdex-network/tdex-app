@@ -135,23 +135,23 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
     <IonPage id="pin-setting-page">
       <IonLoading isOpen={loading} />
       <IonContent>
-        <Header
-          hasBackButton={true}
-          handleBack={() => {
-            if (state?.mnemonic) {
-              // Pass mnemonic to avoid regenerate it
-              history.replace({
-                pathname: '/onboarding/show-mnemonic',
-                state: { mnemonic: state?.mnemonic },
-              });
-            } else {
-              history.goBack();
-            }
-          }}
-          hasCloseButton={false}
-          title="SETUP WALLET"
-        />
         <IonGrid className="ion-text-center ion-justify-content-center">
+          <Header
+            hasBackButton={true}
+            handleBack={() => {
+              if (state?.mnemonic) {
+                // Pass mnemonic to avoid regenerate it
+                history.replace({
+                  pathname: '/onboarding/show-mnemonic',
+                  state: { mnemonic: state?.mnemonic },
+                });
+              } else {
+                history.goBack();
+              }
+            }}
+            hasCloseButton={false}
+            title="SETUP WALLET"
+          />
           <PageDescription
             description={
               isRepeatScreen
@@ -187,7 +187,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
                 }
               />
               <IonRow className="ion-margin-vertical-x2">
-                <IonCol size="8" offset="2">
+                <IonCol size="9" offset="1.5">
                   <IonButton
                     className="main-button"
                     disabled={!isPinValidated || !isTermsAccepted}

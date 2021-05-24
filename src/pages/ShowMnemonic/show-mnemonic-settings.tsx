@@ -44,8 +44,8 @@ const ShowMnemonicSettings: React.FC = () => {
   return (
     <IonPage>
       <IonContent className="show-mnemonic-content">
-        <Header hasBackButton={true} title="SHOW MNEMONIC" />
         <IonGrid className="ion-text-center ion-justify-content-center">
+          <Header hasBackButton={true} title="SHOW MNEMONIC" />
           <h2 className="ion-text-center">Secret Phrase</h2>
           <IonRow>
             <IonCol>
@@ -62,7 +62,7 @@ const ShowMnemonicSettings: React.FC = () => {
           />
 
           <IonRow className="ion-margin-bottom">
-            <IonCol size="8" offset="2">
+            <IonCol size="9" offset="1.5">
               <IonButton className="main-button" onClick={copyMnemonic}>
                 {copied ? 'Copied' : 'Copy'}
               </IonButton>

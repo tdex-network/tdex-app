@@ -8,8 +8,8 @@ const Terms: React.FC<RouteComponentProps> = () => {
   return (
     <IonPage id="terms">
       <IonContent>
-        <Header title="TERMS & CONDITIONS" hasBackButton={true} />
         <IonGrid>
+          <Header title="TERMS & CONDITIONS" hasBackButton={true} />
           <IonRow>
             <IonCol>
               <h2>Premise</h2>

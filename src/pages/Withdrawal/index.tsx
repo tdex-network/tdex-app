@@ -275,12 +275,12 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         isOpen={loading}
         message={'Please wait...'}
       />
-      <IonContent>
-        <Header
-          title={`${balance ? balance.ticker.toUpperCase() : ''} Withdrawal`}
-          hasBackButton={true}
-        />
+      <IonContent className="withdrawal">
         <IonGrid>
+          <Header
+            title={`${balance ? balance.ticker.toUpperCase() : ''} Withdrawal`}
+            hasBackButton={true}
+          />
           {balance && (
             <WithdrawRow
               amount={amount !== 0 ? amount : undefined}

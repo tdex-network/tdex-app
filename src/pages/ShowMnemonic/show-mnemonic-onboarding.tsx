@@ -45,8 +45,8 @@ const ShowMnemonicOnboarding: React.FC<ShowMnemonicProps> = ({
   return (
     <IonPage>
       <IonContent className="show-mnemonic-content">
-        <Header hasBackButton={true} title="SHOW MNEMONIC" />
         <IonGrid className="ion-text-center ion-justify-content-center">
+          <Header hasBackButton={true} title="SHOW MNEMONIC" />
           <PageDescription
             description="Save your 12 words recovery phrase in the correct order"
             title="Secret Phrase"
@@ -68,7 +68,7 @@ const ShowMnemonicOnboarding: React.FC<ShowMnemonicProps> = ({
             label={<span>I have saved my secret phrase</span>}
           />
           <IonRow className="ion-margin-vertical-x2">
-            <IonCol size="8" offset="2">
+            <IonCol size="9" offset="1.5">
               <IonButton
                 className="main-button"
                 disabled={!isSeedSaved}

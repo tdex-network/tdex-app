@@ -42,14 +42,14 @@ const DeleteMnemonic: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage id="delete-menemonic">
       <IonContent>
-        <Header hasBackButton={true} title="CLEAR MY KEY" />
         <IonGrid>
+          <Header hasBackButton={true} title="CLEAR MY KEY" />
           <PageDescription
             description='Clicking on "Delete" will delete your mnemonic on this device. Be sure to back it up!'
             title="Delete your mnemonic"
           />
           <IonRow className="ion-margin-vertical-x2">
-            <IonCol size="10" offset="1" sizeMd="8" offsetMd="2">
+            <IonCol size="9" offset="1.5" sizeMd="8" offsetMd="2">
               <IonButton
                 onClick={deleteMnemonic}
                 disabled={isLoading}

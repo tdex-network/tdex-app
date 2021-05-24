@@ -60,7 +60,7 @@ const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({
             title="Delete your mnemonic"
           />
           <IonRow className="ion-margin-vertical-x2">
-            <IonCol size="10" offset="1" sizeMd="8" offsetMd="2">
+            <IonCol size="9" offset="1.5" sizeMd="8" offsetMd="2">
               <IonButton
                 onClick={deleteMnemonic}
                 disabled={isLoading}

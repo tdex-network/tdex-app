@@ -25,7 +25,7 @@ const ButtonsMainSub: React.FC<ButtonsMainSubProps> = ({
 }) => {
   return (
     <IonRow className={`buttonsMainSub ${props.className}`}>
-      <IonCol size="8" offset="2" sizeMd="6" offsetMd="3">
+      <IonCol size="9" offset="1.5" sizeMd="6" offsetMd="3">
         <IonRow className="ion-justify-content-center">
           <IonButton
             className="main-button"
