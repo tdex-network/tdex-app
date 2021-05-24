@@ -142,8 +142,8 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
         setNeedReset={setNeedReset}
       />
       <IonContent className="restore-wallet">
-        <Header hasBackButton={true} title="SECRET PHRASE" />
         <IonGrid className="ion-text-center">
+          <Header hasBackButton={true} title="SECRET PHRASE" />
           <PageDescription
             description="Paste your 12 words recovery phrase in the correct order"
             title="Restore Wallet"
@@ -177,7 +177,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
           </div>
 
           <IonRow className="restore-btn-container">
-            <IonCol size="8" offset="2" sizeMd="6" offsetMd="3">
+            <IonCol size="9" offset="1.5" sizeMd="6" offsetMd="3">
               <IonButton
                 disabled={mnemonic.includes('')}
                 onClick={handleConfirm}

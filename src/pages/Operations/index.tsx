@@ -112,11 +112,11 @@ const Operations: React.FC<OperationsProps> = ({
     <IonPage>
       <IonContent className="operations">
         <Refresher />
-        <Header
-          title={`${balance?.ticker ?? ''} ${balance?.coinGeckoID ?? ''}`}
-          hasBackButton={true}
-        />
         <IonGrid>
+          <Header
+            title={`${balance?.ticker ?? ''} ${balance?.coinGeckoID ?? ''}`}
+            hasBackButton={true}
+          />
           <IonRow className="ion-margin-bottom header-info ion-text-center ion-margin">
             <IonCol>
               {balance ? (

@@ -92,8 +92,8 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
     <IonPage id="trade-summary">
       <IonContent>
         <Refresher />
-        <Header title="TRADE SUMMARY" hasBackButton={true} />
         <IonGrid>
+          <Header title="TRADE SUMMARY" hasBackButton={true} />
           {(transaction || preview) && (
             <>
               <IonRow className="ion-margin-bottom ion-text-center">
@@ -210,7 +210,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
               </IonRow>
 
               <IonRow className="ion-margin-vertical-x2">
-                <IonCol size="8" offset="2">
+                <IonCol size="9" offset="1.5">
                   <IonButton
                     className="main-button"
                     onClick={() => history.push('/history')}

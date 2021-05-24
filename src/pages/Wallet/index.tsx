@@ -136,7 +136,7 @@ const Wallet: React.FC<WalletProps> = ({
       <IonContent className="wallet-content">
         <Refresher />
         <IonGrid>
-          <Header title="Wallet" hasBackButton={false} />
+          <Header title="Wallet" hasBackButton={false} isTitleLarge={true} />
           <IonRow className="ion-margin-vertical ion-justify-content-center">
             <CircleTotalBalance
               totalBalance={
@@ -228,7 +228,7 @@ const Wallet: React.FC<WalletProps> = ({
                           <div className="sub-row">
                             {fiatValue < 0
                               ? fiatValue === UNKNOWN
-                                ? ''
+                                ? 0
                                 : 'loading'
                               : fiatValue?.toFixed(2)}
                           </div>
@@ -239,11 +239,9 @@ const Wallet: React.FC<WalletProps> = ({
                               ? lbtcUnit
                               : balance.ticker}
                           </div>
-                          {fiatValue >= 0 && (
-                            <div className="sub-row">
-                              {currency.toUpperCase()}
-                            </div>
-                          )}
+                          <div className="sub-row">
+                            {currency.toUpperCase()}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -255,7 +253,7 @@ const Wallet: React.FC<WalletProps> = ({
           {!totalLBTC.amount && (
             <div className="ion-text-center ion-padding-vertical">
               <IonRow>
-                <IonCol size="8" offset="2" sizeMd="6" offsetMd="3">
+                <IonCol size="9" offset="1.5" sizeMd="6" offsetMd="3">
                   <IonButton
                     className="main-button"
                     onClick={() => {

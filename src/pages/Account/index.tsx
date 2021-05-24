@@ -89,8 +89,8 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
       />
       {/* IDENTITY */}
       <IonContent className="account">
-        <Header title="ACCOUNT" hasBackButton={true} />
         <IonGrid>
+          <Header title="ACCOUNT" hasBackButton={true} />
           <IonRow>
             <IonCol>
               {/* Show Mnemonic */}

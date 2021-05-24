@@ -40,10 +40,8 @@ const WithdrawalDetails: React.FC<
   const { txid } = useParams<{ txid: string }>();
   const transaction = useSelector(transactionSelector(txid));
 
-  const [
-    locationState,
-    setLocationState,
-  ] = useState<WithdrawalDetailsLocationState>();
+  const [locationState, setLocationState] =
+    useState<WithdrawalDetailsLocationState>();
 
   useEffect(() => {
     if (location.state) {
@@ -79,8 +77,8 @@ const WithdrawalDetails: React.FC<
     <IonPage id="withdrawal-details">
       <IonContent>
         <Refresher />
-        <Header hasBackButton={true} title="WITHDRAWAL DETAILS" />
         <IonGrid>
+          <Header hasBackButton={true} title="WITHDRAWAL DETAILS" />
           <IonRow>
             <IonCol className="header-info ion-text-center">
               <CurrencyIcon
@@ -161,7 +159,7 @@ const WithdrawalDetails: React.FC<
           </IonRow>
 
           <IonRow className="ion-margin-vertical-x2">
-            <IonCol size="10" offset="1">
+            <IonCol size="9" offset="1.5">
               <IonButton
                 routerLink={`/operations/${locationState?.asset}`}
                 className="main-button"
