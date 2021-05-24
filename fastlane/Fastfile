@@ -24,7 +24,7 @@ platform :ios do
       workspace: "./ios/App/App.xcworkspace", 
       include_bitcode: false,
       skip_profile_detection: true,
-      #codesigning_identity: 'match AppStore io.sevenlabs.app'
+      codesigning_identity: 'match AppStore io.sevenlabs.app'
     )
   end
 
