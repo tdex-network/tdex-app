@@ -19,7 +19,11 @@ import {
   makeTrade,
   getTradablesAssets,
 } from '../../utils/tdex';
-import { customCoinSelector, toSatoshi } from '../../utils/helpers';
+import {
+  customCoinSelector,
+  getAssetHashLBTC,
+  toSatoshi,
+} from '../../utils/helpers';
 import {
   addErrorToast,
   addSuccessToast,
@@ -145,8 +149,9 @@ const Exchange: React.FC<ExchangeProps> = ({
       history.goBack();
       return;
     }
-
-    setAssetSent(balances.length > 0 ? balances[0] : allAssets[0]);
+    const lbtcHash = getAssetHashLBTC();
+    const lbtcAsset = allAssets.find((h) => h.asset === lbtcHash);
+    setAssetSent(lbtcAsset);
     setSentAmount(undefined);
     setReceivedAmount(undefined);
   }, [balances, markets]);
