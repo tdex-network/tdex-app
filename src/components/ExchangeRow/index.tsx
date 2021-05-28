@@ -88,10 +88,13 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
 
   useIonViewDidEnter(() => {
     setAccessoryBar(true).catch(console.error);
+    setError('');
+    setAmount('');
   });
 
   useIonViewDidLeave(() => {
     setAccessoryBar(false).catch(console.error);
+    setAmount('');
   });
 
   useEffect(() => {
