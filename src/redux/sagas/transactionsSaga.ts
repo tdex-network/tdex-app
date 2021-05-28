@@ -63,6 +63,7 @@ function* updateTransactions({ type }: { type: string }) {
  * Saga launched in order to update the transactions state
  * @param addresses a set of addresses to search transactions.
  * @param scriptsToAddressInterface a record using to build a BlindingKeyGetter.
+ * @param currentTxs
  * @param explorerUrl esplora URL used to fetch transactions.
  */
 export function* fetchAndUpdateTxs(
@@ -144,11 +145,16 @@ function* watchTransaction(action: ActionType) {
         ({ wallet }: { wallet: WalletState }) => wallet.addresses
       );
       const blindKeyGetter = blindKeyGetterFactory(scriptsToAddress);
-      const unblindedTx: TxInterface = yield call(
+      const { unblindedTx, errors } = yield call(
         unblindTransaction,
         tx,
         blindKeyGetter
       );
+      if (errors.length > 0) {
+        errors.forEach((err: { message?: string }) => {
+          console.error(err.message);
+        });
+      }
       yield put(setTransaction(unblindedTx));
       yield put(removeWatcherTransaction(txID));
       break;
