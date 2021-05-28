@@ -171,7 +171,11 @@ const Exchange: React.FC<ExchangeProps> = ({
   const sentAmountGreaterThanBalance = () => {
     const balance = balances.find((b) => b.asset === assetSent?.asset);
     if (!balance || !sentAmount) return true;
-    const amountAsSats = toSatoshi(sentAmount, balance.precision);
+    const amountAsSats = toSatoshi(
+      sentAmount,
+      balance.precision,
+      balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+    );
     return amountAsSats > balance.amount;
   };
 
