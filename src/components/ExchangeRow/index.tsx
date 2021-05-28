@@ -223,12 +223,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
                   );
                   setAmount(val);
                   onChangeAmount(parseFloat(val));
-                  const balanceSats = toSatoshi(
-                    balance?.amount || 0,
-                    balance?.precision,
-                    isLbtc(asset.asset) ? lbtcUnit : undefined
-                  );
-                  if (checkBalance && valSats > balanceSats) {
+                  if (checkBalance && valSats > (balance?.amount ?? 0)) {
                     setError(ERROR_BALANCE_TOO_LOW);
                   }
                 }
