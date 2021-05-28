@@ -4,6 +4,12 @@
   }
   padding: 54px 24px;
   color: #fff;
+  .subtitle {
+    font-family: var(--ion-font-sub-heading);
+    font-size: var(--ion-font-size-sub);
+    color: var(--ion-color-tertiary);
+    margin: 0 0 10px 0;
+  }
   .exchanger-row {
     display: flex;
     justify-content: space-between;
