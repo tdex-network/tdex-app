@@ -38,7 +38,7 @@ import { useSelector } from 'react-redux';
 const ERROR_BALANCE_TOO_LOW = 'Amount is greater than your balance';
 
 interface ExchangeRowInterface {
-  checkBalance: boolean;
+  sendInput: boolean;
   // the asset handled by the component.
   asset: AssetWithTicker;
   // using to auto-update with best trade price
@@ -80,7 +80,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   setAsset,
   setFocus,
   focused,
-  checkBalance,
+  sendInput,
   error,
   setError,
 }) => {
@@ -178,6 +178,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
 
   return (
     <div className="exchange-coin-container">
+      <h2 className="subtitle">{`You ${sendInput ? 'Send' : 'Receive'}`}</h2>
       <div className="exchanger-row">
         <div className="coin-name" onClick={() => setIsSearchOpen(true)}>
           <span className="icon-wrapper">
@@ -228,7 +229,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
                     balance?.precision,
                     isLbtc(asset.asset) ? lbtcUnit : undefined
                   );
-                  if (checkBalance && valSats > balanceSats) {
+                  if (sendInput && valSats > balanceSats) {
                     setError(ERROR_BALANCE_TOO_LOW);
                   }
                 }

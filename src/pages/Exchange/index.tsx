@@ -266,7 +266,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               isTitleLarge={true}
             />
             <ExchangeRow
-              checkBalance={true}
+              sendInput={true}
               focused={isFocused === 'sent'}
               setFocus={() => setIsFocused('sent')}
               setTrade={(t: TDEXTrade) => setTrade(t)}
@@ -301,7 +301,7 @@ const Exchange: React.FC<ExchangeProps> = ({
 
             {assetReceived && (
               <ExchangeRow
-                checkBalance={false}
+                sendInput={false}
                 focused={isFocused === 'receive'}
                 setFocus={() => setIsFocused('receive')}
                 setTrade={(t: TDEXTrade) => setTrade(t)}
