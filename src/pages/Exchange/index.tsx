@@ -94,7 +94,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   // errors
   const [errorSent, setErrorSent] = useState('');
   const [errorReceived, setErrorReceived] = useState('');
-
+  //
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
@@ -266,7 +266,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               isTitleLarge={true}
             />
             <ExchangeRow
-              checkBalance
+              checkBalance={true}
               focused={isFocused === 'sent'}
               setFocus={() => setIsFocused('sent')}
               setTrade={(t: TDEXTrade) => setTrade(t)}
@@ -274,6 +274,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               relatedAssetHash={assetReceived?.asset || ''}
               asset={assetSent}
               trades={trades}
+              trade={trade}
               onChangeAmount={(newAmount: number) => {
                 setSentAmount(newAmount);
                 checkAvailableAmountSent();
@@ -291,9 +292,8 @@ const Exchange: React.FC<ExchangeProps> = ({
             <div
               className="exchange-divider"
               onClick={() => {
-                const firstAsset = { ...assetSent };
                 setAssetSent(assetReceived);
-                setAssetReceived(firstAsset);
+                setAssetReceived(assetSent);
               }}
             >
               <img src={swap} alt="swap" />
@@ -301,10 +301,12 @@ const Exchange: React.FC<ExchangeProps> = ({
 
             {assetReceived && (
               <ExchangeRow
+                checkBalance={false}
                 focused={isFocused === 'receive'}
                 setFocus={() => setIsFocused('receive')}
                 setTrade={(t: TDEXTrade) => setTrade(t)}
                 trades={trades}
+                trade={trade}
                 relatedAssetAmount={sentAmount || 0}
                 relatedAssetHash={assetSent?.asset || ''}
                 asset={assetReceived}
