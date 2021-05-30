@@ -71,7 +71,7 @@ export function toLBTCwithUnit(lbtcValue: number, unit?: string): number {
     case 'L-bits':
       return lbtcValue / 1000000;
     case 'L-sats':
-      return fromSatoshi(lbtcValue, 8);
+      return lbtcValue / 100000000;
     default:
       return lbtcValue;
   }
@@ -221,10 +221,14 @@ export function customCoinSelector(dispatch?: Dispatch): CoinSelector {
   };
 }
 
-function getAssetHashLBTC() {
+export function getAssetHashLBTC() {
   if (network.chain === 'regtest')
     return '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225';
   return '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d';
+}
+
+export function isLbtc(asset: string) {
+  return asset === getAssetHashLBTC();
 }
 
 /**

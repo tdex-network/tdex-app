@@ -147,12 +147,17 @@ function* watchUtxoSaga(action: ActionType) {
         explorer
       );
       if (utxos.length === 0) throw new Error();
-      const unblindedUtxo: UtxoInterface = yield call(
-        fetchPrevoutAndTryToUnblindUtxo,
-        utxos[0],
-        address.blindingPrivateKey,
-        explorer
-      );
+      const {
+        unblindedUtxo,
+        error,
+      }: { unblindedUtxo: UtxoInterface; error?: { message?: string } } =
+        yield call(
+          fetchPrevoutAndTryToUnblindUtxo,
+          utxos[0],
+          address.blindingPrivateKey,
+          explorer
+        );
+      error && console.error(error);
       yield put(setUtxo(unblindedUtxo));
       break;
     } catch {

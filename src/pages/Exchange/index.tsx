@@ -19,7 +19,11 @@ import {
   makeTrade,
   getTradablesAssets,
 } from '../../utils/tdex';
-import { customCoinSelector, toSatoshi } from '../../utils/helpers';
+import {
+  customCoinSelector,
+  getAssetHashLBTC,
+  toSatoshi,
+} from '../../utils/helpers';
 import {
   addErrorToast,
   addSuccessToast,
@@ -90,7 +94,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   // errors
   const [errorSent, setErrorSent] = useState('');
   const [errorReceived, setErrorReceived] = useState('');
-
+  //
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
@@ -145,8 +149,9 @@ const Exchange: React.FC<ExchangeProps> = ({
       history.goBack();
       return;
     }
-
-    setAssetSent(balances.length > 0 ? balances[0] : allAssets[0]);
+    const lbtcHash = getAssetHashLBTC();
+    const lbtcAsset = allAssets.find((h) => h.asset === lbtcHash);
+    setAssetSent(lbtcAsset);
     setSentAmount(undefined);
     setReceivedAmount(undefined);
   }, [balances, markets]);
@@ -166,7 +171,11 @@ const Exchange: React.FC<ExchangeProps> = ({
   const sentAmountGreaterThanBalance = () => {
     const balance = balances.find((b) => b.asset === assetSent?.asset);
     if (!balance || !sentAmount) return true;
-    const amountAsSats = toSatoshi(sentAmount, balance.precision);
+    const amountAsSats = toSatoshi(
+      sentAmount,
+      balance.precision,
+      balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+    );
     return amountAsSats > balance.amount;
   };
 
@@ -261,7 +270,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               isTitleLarge={true}
             />
             <ExchangeRow
-              checkBalance
+              sendInput={true}
               focused={isFocused === 'sent'}
               setFocus={() => setIsFocused('sent')}
               setTrade={(t: TDEXTrade) => setTrade(t)}
@@ -269,6 +278,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               relatedAssetHash={assetReceived?.asset || ''}
               asset={assetSent}
               trades={trades}
+              trade={trade}
               onChangeAmount={(newAmount: number) => {
                 setSentAmount(newAmount);
                 checkAvailableAmountSent();
@@ -286,9 +296,8 @@ const Exchange: React.FC<ExchangeProps> = ({
             <div
               className="exchange-divider"
               onClick={() => {
-                const firstAsset = { ...assetSent };
                 setAssetSent(assetReceived);
-                setAssetReceived(firstAsset);
+                setAssetReceived(assetSent);
               }}
             >
               <img src={swap} alt="swap" />
@@ -296,10 +305,12 @@ const Exchange: React.FC<ExchangeProps> = ({
 
             {assetReceived && (
               <ExchangeRow
+                sendInput={false}
                 focused={isFocused === 'receive'}
                 setFocus={() => setIsFocused('receive')}
                 setTrade={(t: TDEXTrade) => setTrade(t)}
                 trades={trades}
+                trade={trade}
                 relatedAssetAmount={sentAmount || 0}
                 relatedAssetHash={assetSent?.asset || ''}
                 asset={assetReceived}

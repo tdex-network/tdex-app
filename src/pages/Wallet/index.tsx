@@ -122,6 +122,18 @@ const Wallet: React.FC<WalletProps> = ({
       });
       main.push(lbtc);
     }
+    // Delete L-BTC from array
+    const lbtcIndex = main.findIndex((a) => a.ticker === 'L-BTC');
+    const [lbtc] = main.splice(lbtcIndex, 1);
+    // Sort by balance
+    main.sort((a, b) => {
+      if (a.amount < b.amount) return 1;
+      if (a.amount > b.amount) return -1;
+      return 0;
+    });
+    // Add lbtc back to the beginning
+    main.splice(0, 0, lbtc);
+
     setMainAssets(main);
     setSecondaryAssets(secondary);
     setDepositAssets(getDepositAssets());

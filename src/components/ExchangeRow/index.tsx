@@ -5,7 +5,9 @@ import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import {
   fromSatoshi,
   fromSatoshiFixed,
+  isLbtc,
   toLBTCwithUnit,
+  toSatoshi,
 } from '../../utils/helpers';
 import {
   IonIcon,
@@ -36,7 +38,7 @@ import { useSelector } from 'react-redux';
 const ERROR_BALANCE_TOO_LOW = 'Amount is greater than your balance';
 
 interface ExchangeRowInterface {
-  checkBalance?: boolean;
+  sendInput: boolean;
   // the asset handled by the component.
   asset: AssetWithTicker;
   // using to auto-update with best trade price
@@ -46,6 +48,7 @@ interface ExchangeRowInterface {
   // actions to parent component.
   onChangeAmount: (newAmount: number) => void;
   setTrade: (trade: TDEXTrade) => void;
+  trade?: TDEXTrade;
   // for exchange search
   assetsWithTicker: AssetWithTicker[];
   setAsset: (newAsset: AssetWithTicker) => void;
@@ -63,6 +66,7 @@ interface ExchangeRowInterface {
 
 const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   trades,
+  trade,
   relatedAssetHash,
   relatedAssetAmount,
   asset,
@@ -76,7 +80,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   setAsset,
   setFocus,
   focused,
-  checkBalance,
+  sendInput,
   error,
   setError,
 }) => {
@@ -88,10 +92,13 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
 
   useIonViewDidEnter(() => {
     setAccessoryBar(true).catch(console.error);
+    setError('');
+    setAmount('');
   });
 
   useIonViewDidLeave(() => {
     setAccessoryBar(false).catch(console.error);
+    setAmount('');
   });
 
   useEffect(() => {
@@ -100,8 +107,9 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
 
   useEffect(() => {
     void (async (): Promise<void> => {
-      let trade;
+      let newTrade;
       let bestPriceRes;
+      let updatedAmount;
       if (focused || trades.length === 0 || !relatedAssetHash) return; // skip the effect if the input field is focused
       if (relatedAssetAmount === 0) {
         onChangeAmount(0);
@@ -109,7 +117,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       }
       setIsUpdating(true);
       try {
-        trade = await bestBalance(trades);
+        newTrade = await bestBalance(trades);
       } catch (err) {
         console.error(err);
         setError(err.message);
@@ -122,32 +130,55 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           trades,
           console.error
         );
-        trade = bestPriceRes.trade;
+        newTrade = bestPriceRes.trade;
       }
-      setTrade(trade);
-      const price = await calculatePrice(
+      const priceInSats = await calculatePrice(
         {
           amount: relatedAssetAmount,
           asset: relatedAssetHash,
           precision: assets[relatedAssetHash]?.precision || defaultPrecision,
         },
-        trade
+        newTrade
       );
-      const precision = assets[price.asset]?.precision || defaultPrecision;
-      const updatedAmount = fromSatoshiFixed(
-        price.amount,
-        precision,
-        precision,
-        balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
-      );
+      setTrade(newTrade);
+      //
+      if (isLbtc(asset.asset)) {
+        const precision =
+          assets[priceInSats.asset]?.precision || defaultPrecision;
+        updatedAmount = fromSatoshiFixed(
+          priceInSats.amount,
+          precision,
+          precision,
+          isLbtc(asset.asset) ? lbtcUnit : undefined
+        );
+      } else {
+        // Convert fiat
+        const priceInBtc = fromSatoshi(
+          priceInSats.amount,
+          assets[priceInSats.asset]?.precision || defaultPrecision,
+          'L-BTC'
+        );
+        updatedAmount = toLBTCwithUnit(priceInBtc, lbtcUnit).toLocaleString(
+          'en-US',
+          {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: assets[relatedAssetHash]?.precision,
+            useGrouping: false,
+          }
+        );
+      }
       setAmount(updatedAmount);
-      onChangeAmount(fromSatoshi(price.amount, precision));
+      onChangeAmount(parseFloat(updatedAmount));
       setIsUpdating(false);
     })();
-  }, [relatedAssetAmount, relatedAssetHash, asset]);
+    // Need 'trade' to compute price based on last trade with proper type
+    // Need 'asset' which is accurate faster than balance
+    // Need 'balance' to display quote asset price
+  }, [relatedAssetAmount, relatedAssetHash, asset, balance, trade]);
 
   return (
     <div className="exchange-coin-container">
+      <h2 className="subtitle">{`You ${sendInput ? 'Send' : 'Receive'}`}</h2>
       <div className="exchanger-row">
         <div className="coin-name" onClick={() => setIsSearchOpen(true)}>
           <span className="icon-wrapper">
@@ -176,6 +207,9 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
               debounce={200}
               onIonChange={(e) => {
                 if (!isUpdating) {
+                  if (e.detail.value && e.detail.value.length >= 12) {
+                    return;
+                  }
                   if (!e.detail.value) {
                     setError('');
                     setAmount('');
@@ -183,18 +217,14 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
                     return;
                   }
                   const val = e.detail.value.replace(',', '.');
-                  const inputAmount = toLBTCwithUnit(
+                  const valSats = toSatoshi(
                     parseFloat(val),
-                    balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
+                    balance?.precision,
+                    isLbtc(asset.asset) ? lbtcUnit : undefined
                   );
                   setAmount(val);
-                  onChangeAmount(inputAmount);
-                  const sats = fromSatoshi(
-                    balance?.amount || 0,
-                    balance?.precision
-                  );
-
-                  if (checkBalance && inputAmount > sats) {
+                  onChangeAmount(parseFloat(val));
+                  if (sendInput && valSats > (balance?.amount ?? 0)) {
                     setError(ERROR_BALANCE_TOO_LOW);
                   }
                 }
