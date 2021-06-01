@@ -51,6 +51,7 @@ import {
   NoMarketsProvidedError,
 } from '../../utils/errors';
 import swap from '../../assets/img/swap.svg';
+import tradeHistory from '../../assets/img/trade-history.svg';
 import Header from '../../components/Header';
 import classNames from 'classnames';
 import './style.scss';
@@ -266,6 +267,11 @@ const Exchange: React.FC<ExchangeProps> = ({
           <IonGrid className="ion-no-padding ion-padding-top">
             <Header
               hasBackButton={false}
+              hasCloseButton={true}
+              customRightButton={tradeHistory}
+              handleCustomRightButton={() => {
+                history.push('/history');
+              }}
               title="Exchange"
               isTitleLarge={true}
             />
