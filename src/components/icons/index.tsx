@@ -1,4 +1,5 @@
 import React, { CSSProperties } from 'react';
+import BtcIcon from '../../assets/img/coins/btc.svg';
 import LbtcIcon from '../../assets/img/coins/lbtc.svg';
 import UsdtIcon from '../../assets/img/coins/usdt.svg';
 import BtseIcon from '../../assets/img/coins/btse.svg';
@@ -9,6 +10,7 @@ import DepositIconBlack from '../../assets/img/deposit-black.svg';
 import { TxTypeEnum } from '../../utils/types';
 import { useSelector } from 'react-redux';
 import {
+  BTC_TICKER,
   BTSE_TICKER,
   LBTC_TICKER,
   LCAD_TICKER,
@@ -174,16 +176,18 @@ export const IconQR = (props: IconInterface) => (
 
 export const CurrencyIcon = ({ currency, ...props }: any) => {
   switch (currency?.toUpperCase()) {
+    case BTC_TICKER:
+      return <img src={BtcIcon} {...props} alt="BTC" />;
     case LBTC_TICKER:
-      return <img src={LbtcIcon} {...props} />;
+      return <img src={LbtcIcon} {...props} alt="L-BTC" />;
     case USDT_TICKER:
-      return <img src={UsdtIcon} {...props} />;
+      return <img src={UsdtIcon} {...props} alt="USDt" />;
     case LCAD_TICKER:
-      return <img src={LcadIcon} {...props} />;
+      return <img src={LcadIcon} {...props} alt="LCAD" />;
     case BTSE_TICKER:
-      return <img src={BtseIcon} {...props} />;
+      return <img src={BtseIcon} {...props} alt="BTSE" />;
     default:
-      return <img src={CurrencyPlaceholderIcon} {...props} />;
+      return <img src={CurrencyPlaceholderIcon} {...props} alt="placeholder" />;
   }
 };
 

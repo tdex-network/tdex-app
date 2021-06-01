@@ -2,6 +2,7 @@ import { CurrencyInterface } from '../redux/reducers/settingsReducer';
 
 export const defaultPrecision = 8;
 
+export const BTC_TICKER = 'BTC';
 export const LBTC_TICKER = 'L-BTC';
 export const USDT_TICKER = 'USDT';
 export const LCAD_TICKER = 'LCAD';
@@ -72,6 +73,15 @@ export const MAIN_ASSETS: AssetConfig[] = [
     name: 'BTSE Token',
   },
 ];
+
+export const BTC_ASSET: AssetConfig = {
+  coinGeckoID: LBTC_COINGECKOID,
+  ticker: BTC_TICKER,
+  assetHash: '',
+  color: LBTC_COLOR,
+  precision: 8,
+  name: 'Bitcoin',
+};
 
 export function getColor(assetHash: string): string | undefined {
   return MAIN_ASSETS.find(

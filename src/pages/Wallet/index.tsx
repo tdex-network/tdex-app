@@ -25,6 +25,7 @@ import {
 } from '../../utils/helpers';
 import {
   AssetConfig,
+  BTC_ASSET,
   getMainAsset,
   LBTC_COINGECKOID,
   MAIN_ASSETS,
@@ -72,7 +73,7 @@ const Wallet: React.FC<WalletProps> = ({
   };
 
   const getDepositAssets = () => {
-    const assets: AssetConfig[] = [...MAIN_ASSETS];
+    const assets: AssetConfig[] = [...MAIN_ASSETS, BTC_ASSET];
     secondaryAssets.forEach(({ asset, ticker, coinGeckoID, precision }) => {
       assets.push({
         assetHash: asset,

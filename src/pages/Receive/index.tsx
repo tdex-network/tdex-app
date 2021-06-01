@@ -8,30 +8,31 @@ import {
 } from '@ionic/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { withRouter, useLocation } from 'react-router';
-import { IconCopy, CurrencyIcon } from '../../components/icons';
-import PageDescription from '../../components/PageDescription';
 import { useDispatch, useSelector } from 'react-redux';
 import { Clipboard } from '@ionic-native/clipboard';
 import { QRCodeImg } from '@cheprasov/react-qrcode';
 import { checkmarkOutline } from 'ionicons/icons';
 import {
-  AddressInterface,
   IdentityOpts,
   IdentityType,
   MasterPublicKey,
+  address as addressLDK,
 } from 'ldk';
+import ElementsPegin from 'pegin';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import { WalletState } from '../../redux/reducers/walletReducer';
 import { network } from '../../redux/config';
-import { IdentityRestorerFromState } from '../../utils/identity';
 import { addAddress } from '../../redux/actions/walletActions';
 import { AddressGenerationError } from '../../utils/errors';
-import { AssetConfig } from '../../utils/constants';
-import './style.scss';
+import { AssetConfig, BTC_TICKER } from '../../utils/constants';
+import { IdentityRestorerFromState } from '../../utils/identity';
 import Header from '../../components/Header';
+import { IconCopy, CurrencyIcon } from '../../components/icons';
+import PageDescription from '../../components/PageDescription';
+import './style.scss';
 
 interface LocationState {
   depositAsset: AssetConfig;
@@ -39,7 +40,7 @@ interface LocationState {
 
 const Receive: React.FC = () => {
   const [copied, setCopied] = useState(false);
-  const [address, setAddress] = useState<AddressInterface>();
+  const [address, setAddress] = useState<string>();
   const [loading, setLoading] = useState(false);
   const addressRef: any = useRef(null);
   const dispatch = useDispatch();
@@ -71,7 +72,7 @@ const Receive: React.FC = () => {
 
   const copyAddress = () => {
     if (address) {
-      Clipboard.copy(address.confidentialAddress)
+      Clipboard.copy(address)
         .then((res: any) => {
           setCopied(true);
           dispatch(addSuccessToast('Address copied.'));
@@ -101,9 +102,20 @@ const Receive: React.FC = () => {
       );
       await masterPublicKey.isRestored;
       const addr = await masterPublicKey.getNextAddress();
-      dispatch(addAddress(addr));
-      dispatch(addSuccessToast('New address added to your account.'));
-      setAddress(addr);
+      if (locationState.depositAsset.ticker === BTC_TICKER) {
+        const peginModule = new ElementsPegin(
+          await ElementsPegin.withGoElements(),
+          await ElementsPegin.withLibwally()
+        );
+        const btcAddress = await peginModule.getMainchainAddress(
+          addressLDK.toOutputScript(addr.confidentialAddress).toString('hex')
+        );
+        setAddress(btcAddress);
+      } else {
+        dispatch(addAddress(addr));
+        dispatch(addSuccessToast('New address added to your account.'));
+        setAddress(addr.confidentialAddress);
+      }
     } catch (e) {
       console.error(e);
       dispatch(addErrorToast(AddressGenerationError));
@@ -130,29 +142,34 @@ const Receive: React.FC = () => {
               height="48"
             />
           </div>
-          <PageDescription
-            description={`To provide this address to the person sending you ${
-              locationState.depositAsset.name ||
-              locationState.depositAsset.coinGeckoID ||
-              locationState.depositAsset.ticker
-            } simply tap to copy it or scan your
+          {locationState.depositAsset.ticker === BTC_TICKER ? (
+            <PageDescription
+              description="Send any amount of Bitcoin to receive Liquid Bitcoin."
+              title={`Your Bitcoin Pegin address`}
+            />
+          ) : (
+            <PageDescription
+              description={`To provide this address to the person sending you ${
+                locationState.depositAsset.name ||
+                locationState.depositAsset.coinGeckoID ||
+                locationState.depositAsset.ticker
+              } simply tap to copy it or scan your
               wallet QR code with their device.`}
-            title={`Your ${locationState.depositAsset.ticker} address`}
-          />
+              title={`Your ${locationState.depositAsset.ticker} address`}
+            />
+          )}
           {address && (
             <div>
               <input
                 readOnly
                 type="text"
                 ref={addressRef}
-                value={address?.confidentialAddress}
+                value={address}
                 className="hidden-input"
               />
               <IonItem>
                 <div className="item-main-info">
-                  <div className="item-start conf-addr">
-                    {address?.confidentialAddress}
-                  </div>
+                  <div className="item-start conf-addr">{address}</div>
                   <div className="copy-icon" onClick={copyAddress}>
                     {copied ? (
                       <IonIcon
@@ -172,7 +189,7 @@ const Receive: React.FC = () => {
                 </div>
               </IonItem>
               <div className="qr-code-container">
-                <QRCodeImg value={address.confidentialAddress} size={192} />
+                <QRCodeImg value={address} size={192} />
               </div>
             </div>
           )}
