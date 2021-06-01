@@ -17,7 +17,7 @@ import {
   clearStorage,
   setMnemonicInSecureStorage,
 } from '../../utils/storage-helper';
-import { setIsBackupDone, signIn } from '../../redux/actions/appActions';
+import { signIn } from '../../redux/actions/appActions';
 import { useFocus, useMnemonic } from '../../utils/custom-hooks';
 import PinModal from '../../components/PinModal';
 import {
