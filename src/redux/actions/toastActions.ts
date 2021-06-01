@@ -1,6 +1,6 @@
-import { AppError } from '../../utils/errors';
-import { ActionType } from '../../utils/types';
-import { ToastType, ToastOpts } from '../reducers/toastReducer';
+import type { AppError } from '../../utils/errors';
+import type { ActionType } from '../../utils/types';
+import type { ToastType, ToastOpts } from '../reducers/toastReducer';
 
 export const ADD_TOAST = 'ADD_TOAST';
 export const REMOVE_TOAST = 'REMOVE_TOAST';

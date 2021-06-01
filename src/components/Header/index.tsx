@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   IonBackButton,
   IonButton,
@@ -8,8 +7,9 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
-import { chevronBackOutline, closeOutline } from 'ionicons/icons';
 import classNames from 'classnames';
+import { chevronBackOutline, closeOutline } from 'ionicons/icons';
+import React from 'react';
 import './style.scss';
 
 interface HeaderProps {

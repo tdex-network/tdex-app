@@ -1,5 +1,5 @@
-import { TDEXProvider, TDEXMarket } from '../actionTypes/tdexActionTypes';
-import { ActionType } from '../../utils/types';
+import type { ActionType } from '../../utils/types';
+import type { TDEXProvider, TDEXMarket } from '../actionTypes/tdexActionTypes';
 
 export const ADD_PROVIDER = 'ADD_PROVIDER_ENDPOINT';
 export const DELETE_PROVIDER = 'DELETE_PROVIDER';

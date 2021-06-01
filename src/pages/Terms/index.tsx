@@ -1,6 +1,7 @@
-import React from 'react';
-import { RouteComponentProps } from 'react-router';
 import { IonCol, IonContent, IonGrid, IonPage, IonRow } from '@ionic/react';
+import React from 'react';
+import type { RouteComponentProps } from 'react-router';
+
 import Header from '../../components/Header';
 import './style.scss';
 

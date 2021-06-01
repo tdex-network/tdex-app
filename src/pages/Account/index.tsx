@@ -10,27 +10,28 @@ import {
   IonRow,
   IonCol,
 } from '@ionic/react';
-import React, { useState } from 'react';
-import { RouteComponentProps, withRouter } from 'react-router';
-import './style.scss';
 import {
   chevronForwardOutline,
   eye,
   lockOpen,
   trashOutline,
 } from 'ionicons/icons';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import type { RouteComponentProps } from 'react-router';
+import { withRouter } from 'react-router';
 
 import ChangePinModals from '../../components/ChangePinModals';
-import { useDispatch } from 'react-redux';
 import Header from '../../components/Header';
 import PinModal from '../../components/PinModal';
-import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
+import { addErrorToast } from '../../redux/actions/toastActions';
 import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
-import { addErrorToast } from '../../redux/actions/toastActions';
 import { IncorrectPINError } from '../../utils/errors';
+import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
+import './style.scss';
 
 const Account: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
@@ -44,7 +45,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
 
   const handlePinConfirm = (pin: string) => {
     getMnemonicFromSecureStorage(pin)
-      .then((mnemonic) => {
+      .then(mnemonic => {
         setIsWrongPin(false);
         setTimeout(() => {
           setPinModalOpen(false);
@@ -63,7 +64,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
           }
         }, PIN_TIMEOUT_SUCCESS);
       })
-      .catch((e) => {
+      .catch(e => {
         setIsWrongPin(true);
         setTimeout(() => {
           setIsWrongPin(null);

@@ -1,3 +1,17 @@
+import { KeyboardStyle } from '@capacitor/core';
+import { takeLatest, call, put } from 'redux-saga/effects';
+
+import { setKeyboardTheme } from '../../utils/keyboard';
+import {
+  getCurrencyFromStorage,
+  getExplorerFromStorage,
+  getLBTCDenominationFromStorage,
+  setCurrencyInStorage,
+  setExplorerInStorage,
+  setLBTCDenominationInStorage,
+} from '../../utils/storage-helper';
+import type { ActionType } from '../../utils/types';
+import { SIGN_IN } from '../actions/appActions';
 import {
   setCurrency,
   setElectrumServer,
@@ -10,23 +24,10 @@ import {
   SET_THEME,
   STORE_THEME,
 } from '../actions/settingsActions';
-import { takeLatest, call, put } from 'redux-saga/effects';
-import { ActionType } from '../../utils/types';
 import {
   setThemeToStorage,
   getThemeFromStorage,
 } from '../services/settingsService';
-import { SIGN_IN } from '../actions/appActions';
-import {
-  getCurrencyFromStorage,
-  getExplorerFromStorage,
-  getLBTCDenominationFromStorage,
-  setCurrencyInStorage,
-  setExplorerInStorage,
-  setLBTCDenominationInStorage,
-} from '../../utils/storage-helper';
-import { setKeyboardTheme } from '../../utils/keyboard';
-import { KeyboardStyle } from '@capacitor/core';
 
 function* storeThemeSaga({ payload }: ActionType) {
   try {
@@ -102,7 +103,7 @@ function* setKeyboardStyle(action: ActionType) {
   }
 }
 
-export function* settingsWatcherSaga() {
+export function* settingsWatcherSaga(): Generator<any, any, any> {
   yield takeLatest(STORE_THEME, storeThemeSaga);
   yield takeLatest(SIGN_IN, restoreThemeSaga);
   yield takeLatest(SIGN_IN, restoreExplorer);

@@ -1,14 +1,16 @@
-import { CoinSelector, IdentityInterface, UtxoInterface } from 'ldk';
+import axios from 'axios';
+import type { CoinSelector, IdentityInterface, UtxoInterface } from 'ldk';
 import { Trade, TraderClient, TradeType } from 'tdex-sdk';
-import {
+
+import type {
   TDEXTrade,
   TDEXMarket,
   TDEXProvider,
 } from '../redux/actionTypes/tdexActionTypes';
-import { toSatoshi } from './helpers';
-import axios from 'axios';
+
 import { getMainAsset } from './constants';
 import { InvalidTradeTypeError, MakeTradeError } from './errors';
+import { toSatoshi } from './helpers';
 
 export interface AssetWithTicker {
   asset: string;
@@ -25,27 +27,29 @@ export interface AssetWithTicker {
 export async function bestPrice(
   known: { amount: number; asset: string; precision: number },
   trades: TDEXTrade[],
-  onError: (e: string) => void
+  onError: (e: string) => void,
 ): Promise<{ amount: number; asset: string; trade: TDEXTrade }> {
   if (trades.length === 0) throw new Error('trades array should not be empty');
 
   const toPrice = async (trade: TDEXTrade) =>
     calculatePrice(known, trade)
-      .then((res) => ({ ...res, trade }))
+      .then(res => ({ ...res, trade }))
       .catch(onError);
   const pricesPromises = trades.map(toPrice);
 
   const results = (await Promise.allSettled(pricesPromises))
     .filter(({ status }) => status === 'fulfilled')
     .map(
-      (p) =>
-        (p as PromiseFulfilledResult<{
-          amount: number;
-          asset: string;
-          trade: TDEXTrade;
-        }>).value
+      p =>
+        (
+          p as PromiseFulfilledResult<{
+            amount: number;
+            asset: string;
+            trade: TDEXTrade;
+          }>
+        ).value,
     )
-    .filter((res) => res !== undefined);
+    .filter(res => res !== undefined);
 
   if (results.length === 0)
     throw new Error('Unable to preview price from providers.');
@@ -79,7 +83,7 @@ export async function bestBalance(trades: TDEXTrade[]): Promise<TDEXTrade> {
  */
 export async function calculatePrice(
   known: { amount: number; asset: string; precision: number },
-  trade: TDEXTrade
+  trade: TDEXTrade,
 ): Promise<{ amount: number; asset: string }> {
   if (known.amount <= 0) {
     return {
@@ -95,7 +99,7 @@ export async function calculatePrice(
     trade.market,
     trade.type,
     toSatoshi(known.amount, known.precision),
-    known.asset
+    known.asset,
   );
   return {
     amount: response[0].amount,
@@ -118,7 +122,7 @@ export async function makeTrade(
   explorerUrl: string,
   utxos: UtxoInterface[],
   identity: IdentityInterface,
-  coinSelector: CoinSelector
+  coinSelector: CoinSelector,
 ): Promise<string> {
   const trader = new Trade({
     explorerUrl,
@@ -159,7 +163,7 @@ export async function makeTrade(
 export function allTrades(
   markets: TDEXMarket[],
   sentAsset?: string,
-  receivedAsset?: string
+  receivedAsset?: string,
 ): TDEXTrade[] {
   if (!sentAsset || !receivedAsset) return [];
   const trades: TDEXTrade[] = [];
@@ -183,14 +187,14 @@ export function allTrades(
  */
 export function getTradablesAssets(
   markets: TDEXMarket[],
-  sentAsset: string
+  sentAsset: string,
 ): AssetWithTicker[] {
   const results: AssetWithTicker[] = [];
 
   for (const market of markets) {
     if (
       sentAsset === market.baseAsset &&
-      !results.map((r) => r.asset).includes(market.quoteAsset)
+      !results.map(r => r.asset).includes(market.quoteAsset)
     ) {
       const mainAsset = getMainAsset(market.quoteAsset);
       const ticker = mainAsset
@@ -207,7 +211,7 @@ export function getTradablesAssets(
 
     if (
       sentAsset === market.quoteAsset &&
-      !results.map((r) => r.asset).includes(market.baseAsset)
+      !results.map(r => r.asset).includes(market.baseAsset)
     ) {
       const mainAsset = getMainAsset(market.baseAsset);
       const ticker = mainAsset

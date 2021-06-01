@@ -1,6 +1,7 @@
-import React from 'react';
-import { KeyboardInfo, KeyboardStyle, Plugins } from '@capacitor/core';
+import type { KeyboardInfo, KeyboardStyle } from '@capacitor/core';
+import { Plugins } from '@capacitor/core';
 import { isPlatform } from '@ionic/react';
+import type React from 'react';
 
 const { Keyboard } = Plugins;
 
@@ -25,7 +26,7 @@ Keyboard.addListener('keyboardDidHide', () => {
  * @param action a function to launch if the enter button is pressed
  */
 export function onPressEnterKeyFactory(
-  action: () => void
+  action: () => void,
 ): (e: React.KeyboardEvent<HTMLIonInputElement>) => void {
   return function (e: React.KeyboardEvent<HTMLIonInputElement>) {
     if (e.key === 'Enter') {
@@ -39,8 +40,8 @@ export function onPressEnterKeyFactory(
  * @param e
  */
 export function onPressEnterKeyCloseKeyboard(
-  e: React.KeyboardEvent<HTMLIonInputElement>
-) {
+  e: React.KeyboardEvent<HTMLIonInputElement>,
+): void {
   return onPressEnterKeyFactory(async () => {
     try {
       await Keyboard.hide();
@@ -50,7 +51,7 @@ export function onPressEnterKeyCloseKeyboard(
   })(e);
 }
 
-export async function setAccessoryBar(isVisible: boolean) {
+export async function setAccessoryBar(isVisible: boolean): Promise<void> {
   try {
     if (isPlatform('mobile')) {
       await Keyboard.setAccessoryBarVisible({ isVisible });
@@ -60,7 +61,7 @@ export async function setAccessoryBar(isVisible: boolean) {
   }
 }
 
-export async function setKeyboardTheme(style: KeyboardStyle) {
+export async function setKeyboardTheme(style: KeyboardStyle): Promise<void> {
   try {
     if (isPlatform('ios')) {
       // only available on iOS devices

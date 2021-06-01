@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
   IonContent,
   IonList,
@@ -8,9 +7,11 @@ import {
   IonInput,
   IonIcon,
 } from '@ionic/react';
-import { CurrencyIcon } from '../icons';
 import { closeSharp, searchSharp } from 'ionicons/icons';
-import { AssetWithTicker } from '../../utils/tdex';
+import React, { useState } from 'react';
+
+import type { AssetWithTicker } from '../../utils/tdex';
+import { CurrencyIcon } from '../icons';
 
 interface ExchangeSearchProps {
   prices: Record<string, number>;
@@ -46,7 +47,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({
               color="light-contrast"
               placeholder="Search currency"
               value={searchString}
-              onIonChange={(e) =>
+              onIonChange={e =>
                 setSearchString(e.detail.value?.toLowerCase() || '')
               }
             />
@@ -61,7 +62,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({
               (asset: AssetWithTicker) =>
                 asset.asset.toLowerCase().includes(searchString) ||
                 asset.ticker.toLowerCase().includes(searchString) ||
-                asset.coinGeckoID?.toLowerCase().includes(searchString)
+                asset.coinGeckoID?.toLowerCase().includes(searchString),
             )
             .map((asset: AssetWithTicker, index: number) => {
               return (

@@ -1,4 +1,4 @@
-import { CurrencyInterface } from '../redux/reducers/settingsReducer';
+import type { CurrencyInterface } from '../redux/reducers/settingsReducer';
 
 export const defaultPrecision = 8;
 
@@ -76,20 +76,20 @@ export const MAIN_ASSETS: AssetConfig[] = [
 export function getColor(assetHash: string): string | undefined {
   return MAIN_ASSETS.find(
     (assetConfig: AssetConfig) =>
-      assetConfig.assetHash.valueOf() === assetHash.valueOf()
+      assetConfig.assetHash.valueOf() === assetHash.valueOf(),
   )?.color;
 }
 
 export function getMainAsset(assetHash: string): AssetConfig | undefined {
   return MAIN_ASSETS.find(
     (assetConfig: AssetConfig) =>
-      assetConfig.assetHash.valueOf() === assetHash.valueOf()
+      assetConfig.assetHash.valueOf() === assetHash.valueOf(),
   );
 }
 
 export function getCoinGeckoIDsToFeed(): string[] {
   const ids = [];
-  for (const id of MAIN_ASSETS.map((a) => a.coinGeckoID)) {
+  for (const id of MAIN_ASSETS.map(a => a.coinGeckoID)) {
     if (id) ids.push(id);
   }
   return ids;

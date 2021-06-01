@@ -1,13 +1,14 @@
-import { AssetConfig, MAIN_ASSETS } from '../../utils/constants';
-import { ActionType } from '../../utils/types';
+import type { AssetConfig } from '../../utils/constants';
+import { MAIN_ASSETS } from '../../utils/constants';
+import type { ActionType } from '../../utils/types';
 import { SET_ASSET } from '../actions/assetsActions';
 
 type AssetsState = Record<string, AssetConfig>;
 
 const assetsReducer = (
   state: AssetsState = initialAssets(),
-  action: ActionType
-) => {
+  action: ActionType,
+): AssetsState => {
   switch (action.type) {
     case SET_ASSET: {
       return {

@@ -1,5 +1,5 @@
 import { CURRENCIES, LBTC_DENOMINATIONS } from '../../utils/constants';
-import { ActionType } from '../../utils/types';
+import type { ActionType } from '../../utils/types';
 import {
   SET_CURRENCY,
   SET_ELECTRUM_SERVER,
@@ -30,8 +30,8 @@ const initialState: SettingsState = {
 
 const settingsReducer = (
   state: SettingsState = initialState,
-  action: ActionType
-) => {
+  action: ActionType,
+): SettingsState => {
   switch (action.type) {
     case SET_LBTC_DENOMINATION:
       return {

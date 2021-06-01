@@ -1,21 +1,24 @@
 import { Storage, Plugins } from '@capacitor/core';
-import {
+import { stringify, parse } from 'buffer-json';
+import { IdentityType, Mnemonic } from 'ldk';
+import type {
   AddressInterface,
   IdentityOpts,
-  IdentityType,
-  Mnemonic,
   TxInterface,
   UtxoInterface,
 } from 'ldk';
 import 'capacitor-secure-storage-plugin';
-import { decrypt, encrypt, Encrypted } from './crypto';
+import type { Dispatch } from 'redux';
+
+import type { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 import { network } from '../redux/config';
+import type { CurrencyInterface } from '../redux/reducers/settingsReducer';
+
+import type { AssetConfig } from './constants';
+import { CURRENCIES, LBTC_DENOMINATIONS } from './constants';
+import type { Encrypted } from './crypto';
+import { decrypt, encrypt } from './crypto';
 import { IdentityRestorerFromState, MnemonicRedux } from './identity';
-import { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
-import { Dispatch } from 'redux';
-import { AssetConfig, CURRENCIES, LBTC_DENOMINATIONS } from './constants';
-import { CurrencyInterface } from '../redux/reducers/settingsReducer';
-import { stringify, parse } from 'buffer-json';
 
 const { SecureStoragePlugin } = Plugins;
 
@@ -37,7 +40,7 @@ export async function getLBTCDenominationFromStorage(): Promise<string> {
   );
 }
 
-export function setLBTCDenominationInStorage(denomination: string) {
+export function setLBTCDenominationInStorage(denomination: string): void {
   Storage.set({
     key: LBTC_DENOMINATION_KEY,
     value: denomination,
@@ -48,7 +51,7 @@ export async function getCurrencyFromStorage(): Promise<CurrencyInterface> {
   return getFromStorage<CurrencyInterface>(CURRENCY_KEY, CURRENCIES[0]);
 }
 
-export function setCurrencyInStorage(currency: CurrencyInterface) {
+export function setCurrencyInStorage(currency: CurrencyInterface): void {
   Storage.set({
     key: CURRENCY_KEY,
     value: stringify(currency),
@@ -59,7 +62,7 @@ export async function getExplorerFromStorage(): Promise<string> {
   return (await Storage.get({ key: EXPLORER_KEY })).value;
 }
 
-export function setExplorerInStorage(explorer: string) {
+export function setExplorerInStorage(explorer: string): void {
   Storage.set({ key: EXPLORER_KEY, value: explorer });
 }
 
@@ -67,7 +70,7 @@ export async function getTransactionsFromStorage(): Promise<TxInterface[]> {
   return getFromStorage<TxInterface[]>(TRANSACTIONS_KEY, []);
 }
 
-export function setTransactionsInStorage(txs: TxInterface[]) {
+export function setTransactionsInStorage(txs: TxInterface[]): void {
   Storage.set({ key: TRANSACTIONS_KEY, value: stringify(txs) });
 }
 
@@ -75,7 +78,7 @@ export async function getUtxosFromStorage(): Promise<UtxoInterface[]> {
   return getFromStorage<UtxoInterface[]>(UTXOS_KEY, []);
 }
 
-export function setUtxosInStorage(utxos: UtxoInterface[]) {
+export function setUtxosInStorage(utxos: UtxoInterface[]): void {
   Storage.set({ key: UTXOS_KEY, value: stringify(utxos) });
 }
 
@@ -83,14 +86,14 @@ export async function getAssetsFromStorage(): Promise<AssetConfig[]> {
   return getFromStorage<AssetConfig[]>(ASSETS_KEY, []);
 }
 
-export function setAssetsInStorage(assets: AssetConfig[]) {
+export function setAssetsInStorage(assets: AssetConfig[]): void {
   Storage.set({ key: ASSETS_KEY, value: stringify(assets) });
 }
 
 /**
  * a function using to set the backup flag.
  */
-export function setSeedBackupFlag(flag: boolean) {
+export function setSeedBackupFlag(flag: boolean): void {
   if (flag) {
     Storage.set({ key: SEED_BACKUP_FLAG_KEY, value: '1' }).catch(console.error);
   } else {
@@ -114,7 +117,9 @@ export async function seedBackupFlag(): Promise<boolean> {
  * Persist providers in Storage
  * @param providers
  */
-export function setProvidersInStorage(providers: TDEXProvider[]) {
+export function setProvidersInStorage(
+  providers: TDEXProvider[],
+): Promise<void> {
   return Storage.set({
     key: PROVIDERS_KEY,
     value: stringify(providers),
@@ -125,7 +130,9 @@ export async function getProvidersFromStorage(): Promise<TDEXProvider[]> {
   return getFromStorage<TDEXProvider[]>(PROVIDERS_KEY, []);
 }
 
-export function setAddressesInStorage(addresses: AddressInterface[]) {
+export function setAddressesInStorage(
+  addresses: AddressInterface[],
+): Promise<void> {
   return Storage.set({
     key: ADDRESSES_KEY,
     value: stringify(addresses),
@@ -142,9 +149,12 @@ export async function getAddressesFromStorage(): Promise<AddressInterface[]> {
  * @param currentPIN the current PIN used to decrypt the current mnemonic.
  * @param newPIN new PIN.
  */
-export async function changePin(currentPIN: string, newPIN: string) {
+export async function changePin(
+  currentPIN: string,
+  newPIN: string,
+): Promise<boolean> {
   const mnemonic = await removeMnemonicFromSecureStorage(currentPIN);
-  await setMnemonicInSecureStorage(mnemonic, newPIN);
+  return setMnemonicInSecureStorage(mnemonic, newPIN);
 }
 
 /**
@@ -154,7 +164,7 @@ export async function changePin(currentPIN: string, newPIN: string) {
  */
 export async function setMnemonicInSecureStorage(
   mnemonic: string,
-  pin: string
+  pin: string,
 ): Promise<boolean> {
   try {
     const encryptedData = await encrypt(mnemonic, pin);
@@ -179,7 +189,7 @@ export async function setMnemonicInSecureStorage(
  * @param pin password pin
  */
 export async function getMnemonicFromSecureStorage(
-  pin: string
+  pin: string,
 ): Promise<string> {
   const { value } = await SecureStoragePlugin.get({ key: MNEMONIC_KEY });
   const encryptedData: Encrypted = JSON.parse(value);
@@ -204,7 +214,7 @@ export async function mnemonicInSecureStorage(): Promise<boolean> {
  * @param pin using to decrypt the existing mnemonic.
  */
 export async function removeMnemonicFromSecureStorage(
-  pin: string
+  pin: string,
 ): Promise<string> {
   const mnemonic = await getMnemonicFromSecureStorage(pin); // will throw an error if the pin can't decrypt the mnemonic
   await clearStorage();
@@ -214,7 +224,7 @@ export async function removeMnemonicFromSecureStorage(
 /**
  * function using to remove all TDEX data from storage
  */
-export async function clearStorage() {
+export async function clearStorage(): Promise<void> {
   await SecureStoragePlugin.clear();
   await Storage.clear();
 }
@@ -226,7 +236,7 @@ export async function clearStorage() {
  */
 export async function getConnectedIdentity(
   pin: string,
-  dispatch: Dispatch
+  dispatch: Dispatch,
 ): Promise<MnemonicRedux> {
   const opts = await getIdentityOpts(pin);
   return new MnemonicRedux(opts, dispatch);
@@ -256,7 +266,7 @@ export async function getIdentityOpts(pin: string): Promise<IdentityOpts> {
 
 function prepareIdentityOpts(
   mnemonic: string,
-  addresses: Array<AddressInterface>
+  addresses: AddressInterface[],
 ): IdentityOpts {
   return {
     chain: network.chain,

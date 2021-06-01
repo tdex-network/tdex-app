@@ -1,3 +1,4 @@
+import { Plugins } from '@capacitor/core';
 import {
   IonButton,
   IonCol,
@@ -9,15 +10,16 @@ import {
   useIonViewWillLeave,
 } from '@ionic/react';
 import React from 'react';
-import { RouteComponentProps, useParams, withRouter } from 'react-router';
-import { Plugins } from '@capacitor/core';
 import { useDispatch } from 'react-redux';
+import type { RouteComponentProps } from 'react-router';
+import { useParams, withRouter } from 'react-router';
+
+import Header from '../../components/Header';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import { QRCodeScanError } from '../../utils/errors';
-import Header from '../../components/Header';
 import './style.scss';
 
 const { BarcodeScanner } = Plugins;

@@ -1,5 +1,5 @@
+import type { ActionType } from '../../utils/types';
 import { ADD_TOAST, REMOVE_TOAST } from '../actions/toastActions';
-import { ActionType } from '../../utils/types';
 
 export type ToastType = 'success' | 'error';
 
@@ -9,7 +9,7 @@ export interface ToastOpts {
   message: string;
 }
 
-const toastReducer = (state: ToastOpts[] = [], action: ActionType) => {
+const toastReducer = (state: ToastOpts[] = [], action: ActionType): any[] => {
   switch (action.type) {
     case ADD_TOAST:
       return [action.payload, ...state];

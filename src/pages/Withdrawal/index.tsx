@@ -9,49 +9,46 @@ import {
   IonRow,
   IonCol,
 } from '@ionic/react';
-import React, { useState, useEffect } from 'react';
-import { RouteComponentProps, useParams, withRouter } from 'react-router';
-import { IconQR } from '../../components/icons';
-import { useDispatch, useSelector } from 'react-redux';
-import WithdrawRow from '../../components/WithdrawRow';
-import './style.scss';
-import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import {
-  address,
-  psetToUnsignedTx,
-  RecipientInterface,
-  UtxoInterface,
-  walletFromCoins,
-} from 'ldk';
-import { broadcastTx } from '../../redux/services/walletService';
-import { network } from '../../redux/config';
-import {
-  customCoinSelector,
-  estimateFeeAmount,
-  fromSatoshi,
-  toSatoshi,
-} from '../../utils/helpers';
+import type { RecipientInterface, UtxoInterface } from 'ldk';
+import { address, psetToUnsignedTx, walletFromCoins } from 'ldk';
 import { Psbt } from 'liquidjs-lib';
-import { getConnectedIdentity } from '../../utils/storage-helper';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import type { RouteComponentProps } from 'react-router';
+import { useParams, withRouter } from 'react-router';
+
+import ButtonsMainSub from '../../components/ButtonsMainSub';
+import Header from '../../components/Header';
 import PinModal from '../../components/PinModal';
+import WithdrawRow from '../../components/WithdrawRow';
+import { IconQR } from '../../components/icons';
+import './style.scss';
+import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
+import { network } from '../../redux/config';
+import { broadcastTx } from '../../redux/services/walletService';
+import {
+  PIN_TIMEOUT_FAILURE,
+  PIN_TIMEOUT_SUCCESS,
+} from '../../utils/constants';
 import {
   AppError,
   IncorrectPINError,
   WithdrawTxError,
 } from '../../utils/errors';
 import {
-  PIN_TIMEOUT_FAILURE,
-  PIN_TIMEOUT_SUCCESS,
-} from '../../utils/constants';
-import Header from '../../components/Header';
-import ButtonsMainSub from '../../components/ButtonsMainSub';
+  customCoinSelector,
+  estimateFeeAmount,
+  fromSatoshi,
+  toSatoshi,
+} from '../../utils/helpers';
+import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
+import { getConnectedIdentity } from '../../utils/storage-helper';
 
 interface WithdrawalProps
   extends RouteComponentProps<
@@ -95,7 +92,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     value: toSatoshi(
       amount,
       balance?.precision,
-      balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
+      balance?.ticker === 'L-BTC' ? lbtcUnit : undefined,
     ),
   });
 
@@ -111,7 +108,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         fromSatoshi(
           balance.amount,
           balance.precision,
-          balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+          balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
         ) < amount
       ) {
         setError('Amount is greater than your balance');
@@ -119,7 +116,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       }
 
       const fee = estimateFeeAmount(utxos, [getRecipient()]);
-      const LBTCBalance = balances.find((b) => b.coinGeckoID === 'bitcoin');
+      const LBTCBalance = balances.find(b => b.coinGeckoID === 'bitcoin');
       if (!LBTCBalance || LBTCBalance.amount === 0) {
         setError('You need LBTC in order to pay fees');
         return;
@@ -167,12 +164,12 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         psetBase64,
         [getRecipient()],
         customCoinSelector(dispatch),
-        (_: string) => changeAddress.confidentialAddress,
-        true
+        () => changeAddress.confidentialAddress,
+        true,
       );
       const recipientData = address.fromConfidential(recipientAddress);
       const recipientScript = address.toOutputScript(
-        recipientData.unconfidentialAddress
+        recipientData.unconfidentialAddress,
       );
       const outputsToBlind: number[] = [];
       const blindKeyMap = new Map<number, string>();
@@ -186,7 +183,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       const blindedPset = await identity.blindPset(
         withdrawPset,
         outputsToBlind,
-        blindKeyMap
+        blindKeyMap,
       );
       const signedPset = await identity.signPset(blindedPset);
       const txHex = Psbt.fromBase64(signedPset)
@@ -196,8 +193,8 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       const txid = await broadcastTx(txHex, explorerURL);
       dispatch(
         addSuccessToast(
-          `Transaction broadcasted. ${amount} ${balance?.ticker} sent.`
-        )
+          `Transaction broadcasted. ${amount} ${balance?.ticker} sent.`,
+        ),
       );
       dispatch(watchTransaction(txid));
       setModalOpen(false);
@@ -223,7 +220,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
 
   // effect to select the balance of withdrawal
   useEffect(() => {
-    const balanceSelected = balances.find((bal) => bal.asset === asset_id);
+    const balanceSelected = balances.find(bal => bal.asset === asset_id);
     if (balanceSelected) {
       setBalance(balanceSelected);
     }
@@ -231,7 +228,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
 
   // effect for fiat equivalent
   useEffect(() => {
-    if (balance && balance.coinGeckoID) {
+    if (balance?.coinGeckoID) {
       const p = prices[balance.coinGeckoID];
       if (!p) {
         setPrice(undefined);
@@ -301,7 +298,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
                       onKeyDown={onPressEnterKeyCloseKeyboard}
                       value={recipientAddress}
                       placeholder="Paste address here or scan QR code"
-                      onIonChange={(e) => {
+                      onIonChange={e => {
                         setRecipientAddress(e.detail.value || '');
                       }}
                     />

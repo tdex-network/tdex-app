@@ -1,4 +1,3 @@
-import React, { useEffect, useRef, useState } from 'react';
 import {
   IonContent,
   IonModal,
@@ -6,12 +5,14 @@ import {
   useIonViewWillLeave,
   IonGrid,
 } from '@ionic/react';
-import PageDescription from '../PageDescription';
-import PinInput from '../PinInput';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
+
 import { addErrorToast } from '../../redux/actions/toastActions';
 import { PinDigitsError } from '../../utils/errors';
 import Header from '../Header';
+import PageDescription from '../PageDescription';
+import PinInput from '../PinInput';
 
 interface PinModalProps {
   open: boolean;
@@ -62,7 +63,7 @@ const PinModal: React.FC<PinModalProps> = ({
 
   // Make sure PIN input always has focus when clicking anywhere
   const handleClick = () => {
-    if (inputRef && inputRef.current) {
+    if (inputRef?.current) {
       inputRef.current.setFocus();
     }
   };

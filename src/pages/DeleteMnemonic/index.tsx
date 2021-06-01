@@ -1,6 +1,3 @@
-import React, { useState } from 'react';
-import { RouteComponentProps, useLocation } from 'react-router';
-import { useDispatch } from 'react-redux';
 import {
   IonButton,
   IonCol,
@@ -9,10 +6,15 @@ import {
   IonPage,
   IonRow,
 } from '@ionic/react';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import type { RouteComponentProps } from 'react-router';
+import { useLocation } from 'react-router';
+
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
-import { removeMnemonicFromSecureStorage } from '../../utils/storage-helper';
 import { resetAll } from '../../redux/actions/rootActions';
+import { removeMnemonicFromSecureStorage } from '../../utils/storage-helper';
 
 interface LocationState {
   pin: string;
@@ -29,7 +31,7 @@ const DeleteMnemonic: React.FC<RouteComponentProps> = ({ history }) => {
     const success = await removeMnemonicFromSecureStorage(state?.pin);
     if (!success) {
       setErrorMsg(
-        'Error: your key has not been deleted. Please contact support.'
+        'Error: your key has not been deleted. Please contact support.',
       );
       setIsLoading(false);
       return;

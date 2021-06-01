@@ -1,14 +1,3 @@
-import React, { useEffect, useState } from 'react';
-import classNames from 'classnames';
-import { CurrencyIcon } from '../icons';
-import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import {
-  fromSatoshi,
-  fromSatoshiFixed,
-  isLbtc,
-  toLBTCwithUnit,
-  toSatoshi,
-} from '../../utils/helpers';
 import {
   IonIcon,
   IonInput,
@@ -17,23 +6,31 @@ import {
   useIonViewDidEnter,
   useIonViewDidLeave,
 } from '@ionic/react';
-import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
+import classNames from 'classnames';
 import { chevronDownOutline } from 'ionicons/icons';
-import {
-  AssetWithTicker,
-  bestBalance,
-  bestPrice,
-  calculatePrice,
-} from '../../utils/tdex';
-import { TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
-import { AssetConfig, defaultPrecision } from '../../utils/constants';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 
-import './style.scss';
+import type { TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
+import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
+import { defaultPrecision } from '../../utils/constants';
+import type { AssetConfig } from '../../utils/constants';
+import {
+  fromSatoshi,
+  fromSatoshiFixed,
+  isLbtc,
+  toLBTCwithUnit,
+  toSatoshi,
+} from '../../utils/helpers';
 import {
   onPressEnterKeyCloseKeyboard,
   setAccessoryBar,
 } from '../../utils/keyboard';
-import { useSelector } from 'react-redux';
+import { bestBalance, bestPrice, calculatePrice } from '../../utils/tdex';
+import type { AssetWithTicker } from '../../utils/tdex';
+import { CurrencyIcon } from '../icons';
+import './style.scss';
 
 const ERROR_BALANCE_TOO_LOW = 'Amount is greater than your balance';
 
@@ -102,7 +99,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   });
 
   useEffect(() => {
-    setBalance(balances.find((b) => b.asset === asset.asset));
+    setBalance(balances.find(b => b.asset === asset.asset));
   }, [balances, asset]);
 
   useEffect(() => {
@@ -128,7 +125,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             precision: assets[relatedAssetHash]?.precision || defaultPrecision,
           },
           trades,
-          console.error
+          console.error,
         );
         newTrade = bestPriceRes.trade;
       }
@@ -138,7 +135,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           asset: relatedAssetHash,
           precision: assets[relatedAssetHash]?.precision || defaultPrecision,
         },
-        newTrade
+        newTrade,
       );
       setTrade(newTrade);
       //
@@ -149,14 +146,14 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           priceInSats.amount,
           precision,
           precision,
-          isLbtc(asset.asset) ? lbtcUnit : undefined
+          isLbtc(asset.asset) ? lbtcUnit : undefined,
         );
       } else {
         // Convert fiat
         const priceInBtc = fromSatoshi(
           priceInSats.amount,
           assets[priceInSats.asset]?.precision || defaultPrecision,
-          'L-BTC'
+          'L-BTC',
         );
         updatedAmount = toLBTCwithUnit(priceInBtc, lbtcUnit).toLocaleString(
           'en-US',
@@ -164,7 +161,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             minimumFractionDigits: 0,
             maximumFractionDigits: assets[relatedAssetHash]?.precision,
             useGrouping: false,
-          }
+          },
         );
       }
       setAmount(updatedAmount);
@@ -205,7 +202,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
               placeholder="0"
               color={error && 'danger'}
               debounce={200}
-              onIonChange={(e) => {
+              onIonChange={e => {
                 if (!isUpdating) {
                   if (e.detail.value && e.detail.value.length >= 12) {
                     return;
@@ -220,7 +217,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
                   const valSats = toSatoshi(
                     parseFloat(val),
                     balance?.precision,
-                    isLbtc(asset.asset) ? lbtcUnit : undefined
+                    isLbtc(asset.asset) ? lbtcUnit : undefined,
                   );
                   setAmount(val);
                   onChangeAmount(parseFloat(val));
@@ -246,8 +243,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
                 balance?.amount || 0,
                 balance?.precision,
                 balance?.precision || defaultPrecision,
-                balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
-              )
+                balance?.ticker === 'L-BTC' ? lbtcUnit : undefined,
+              ),
             );
           }}
         >
@@ -256,7 +253,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             balance?.amount || 0,
             balance?.precision,
             balance?.precision || defaultPrecision,
-            balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
+            balance?.ticker === 'L-BTC' ? lbtcUnit : undefined,
           )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : asset.ticker}`}</span>
         </span>
         {amount && asset.coinGeckoID && prices[asset.coinGeckoID] ? (
@@ -268,7 +265,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
                 {(
                   toLBTCwithUnit(
                     parseFloat(amount),
-                    balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
+                    balance?.ticker === 'L-BTC' ? lbtcUnit : undefined,
                   ) * prices[asset.coinGeckoID]
                 ).toFixed(2)}{' '}
                 {currency.toUpperCase()}
@@ -276,7 +273,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             )}
           </span>
         ) : (
-          <span></span>
+          <span />
         )}
       </div>
       <div

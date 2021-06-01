@@ -6,12 +6,13 @@ import {
   IonRow,
   IonCol,
 } from '@ionic/react';
-import React from 'react';
 import { warningOutline } from 'ionicons/icons';
-import { AppError } from '../../utils/errors';
+import React from 'react';
+
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import './style.scss';
 import Header from '../../components/Header';
+import type { AppError } from '../../utils/errors';
 
 interface BackupProps {
   // connected redux props
