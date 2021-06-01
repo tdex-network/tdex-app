@@ -7,7 +7,7 @@ import { initApp } from './redux/actions/appActions';
 import Toasts from './redux/containers/toastsContainer';
 import { Redirect, Route } from 'react-router';
 import Homescreen from './pages/Homescreen';
-import RestoreWallet from './pages/RestoreWallet';
+import RestoreWallet from './redux/containers/restoreWalletContainer';
 import { useAppState } from '@capacitor-community/react-hooks/app';
 import { Capacitor, Plugins } from '@capacitor/core';
 import { unlockUtxos } from './redux/actions/walletActions';
