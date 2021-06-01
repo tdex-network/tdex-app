@@ -24,7 +24,7 @@
     "jetifier": "^1.6.8",
     "liquidjs-lib": "^5.1.12",
     "moment": "^2.29.1",
-    "pegin": "^0.0.1",
+    "pegin": "^0.1.0",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
     "react-redux": "^7.2.4",
