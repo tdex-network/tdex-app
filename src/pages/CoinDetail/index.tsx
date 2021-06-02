@@ -1,6 +1,3 @@
-import React from 'react';
-
-//components
 import {
   IonContent,
   IonList,
@@ -13,6 +10,9 @@ import {
   IonButton,
   IonButtons,
 } from '@ionic/react';
+import React from 'react';
+
+//components
 
 const Exchange: React.FC = () => {
   return (

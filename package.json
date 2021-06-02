@@ -2,6 +2,42 @@
   "name": "tdex-app",
   "version": "0.0.16-build24",
   "private": true,
+  "description": "Mobile app for making trades on TDEX",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "@ionic/eslint-config/recommended"
+  },
+  "prettier": "@ionic/prettier-config",
+  "scripts": {
+    "android": "npx ionic capacitor run android",
+    "android:serve": "npx ionic capacitor run android -l --external",
+    "build": "npx ionic build",
+    "build:android": "npx ionic capacitor build android --no-open",
+    "build:ios": "npx ionic capacitor build ios --no-open",
+    "eslint": "eslint \"./src/**/*.{ts,tsx}\" \"./test/**/*.{ts,tsx}\"",
+    "fmt": "npm run eslint -- --fix && npm run prettier -- --write",
+    "ios": "npx ionic capacitor run ios",
+    "ios:serve": "ionic capacitor run ios -l --external",
+    "lint": "npm run eslint && npm run prettier -- --check",
+    "prettier": "prettier \"./src/**/*.{ts,tsx}\" \"./test/**/*.{ts,tsx}\"",
+    "resources": "npx cordova-res ios --skip-config --copy && npx cordova-res android --skip-config --copy",
+    "serve": "npx ionic serve",
+    "sync": "npx jetify && npx ionic cap sync",
+    "tdex:clean": "bash scripts/tdexd-clean.sh",
+    "tdex:run": "bash scripts/tdexd-run.sh",
+    "test": "BABEL_ENV=test npx jest"
+  },
   "dependencies": {
     "@capacitor-community/barcode-scanner": "^1.2.1",
     "@capacitor-community/react-hooks": "^0.0.11",
@@ -35,38 +71,6 @@
     "scrypt-js": "^3.0.1",
     "tdex-sdk": "1.6.7"
   },
-  "scripts": {
-    "serve": "npx ionic serve",
-    "android": "npx ionic capacitor run android",
-    "android:serve": "npx ionic capacitor run android -l --external",
-    "ios": "npx ionic capacitor run ios",
-    "ios:serve": "ionic capacitor run ios -l --external",
-    "build:android": "npx ionic capacitor build android --no-open",
-    "build:ios": "npx ionic capacitor build ios --no-open",
-    "sync": "npx jetify && npx ionic cap sync",
-    "lint": "npx eslint './src/**/*.ts*'",
-    "lint:fix": "npx eslint './src/**/*.ts*' --fix",
-    "test": "BABEL_ENV=test npx jest",
-    "build": "npx ionic build",
-    "resources": "npx cordova-res ios --skip-config --copy && npx cordova-res android --skip-config --copy",
-    "tdex:run": "bash scripts/tdexd-run.sh",
-    "tdex:clean": "bash scripts/tdexd-clean.sh"
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
   "devDependencies": {
     "@babel/core": "^7.14.3",
     "@babel/preset-env": "^7.14.2",
@@ -74,7 +78,8 @@
     "@babel/preset-typescript": "^7.13.0",
     "@capacitor/cli": "^2.4.7",
     "@ionic/cli": "^6.16.1",
-    "@ionic/eslint-plugin": "0.0.1",
+    "@ionic/eslint-config": "^0.3.0",
+    "@ionic/prettier-config": "^1.0.1",
     "@testing-library/jest-dom": "^5.12.0",
     "@testing-library/react": "^11.2.7",
     "@types/buffer-json": "^2.0.0",
@@ -85,10 +90,7 @@
     "@types/react-redux": "^7.1.16",
     "@types/react-router": "^5.1.14",
     "@types/react-router-dom": "^5.1.7",
-    "@typescript-eslint/eslint-plugin": "^4.24.0",
-    "@typescript-eslint/parser": "^4.24.0",
     "cordova-res": "^0.15.3",
-    "eslint-config-prettier": "^8.3.0",
     "jest-canvas-mock": "^2.3.1",
     "node-sass": "^4.14.1",
     "prettier": "^2.3.0",
@@ -96,14 +98,5 @@
     "tdex-react-scripts": "4.0.3-tdex",
     "ts-jest": "^26.5.6",
     "typescript": "3.8.3"
-  },
-  "description": "Mobile app for making trades on TDEX",
-  "prettier": {
-    "printWidth": 80,
-    "semi": true,
-    "singleQuote": true,
-    "trailingComma": "es5",
-    "tabWidth": 2,
-    "useTabs": false
   }
 }

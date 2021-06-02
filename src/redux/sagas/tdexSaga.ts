@@ -1,5 +1,15 @@
+import { put, takeLatest, select, call, delay } from 'redux-saga/effects';
+import type { MarketInterface } from 'tdex-sdk';
+import { TraderClient } from 'tdex-sdk';
+
+import { TDEXRegistryError } from '../../utils/errors';
+import {
+  getProvidersFromStorage,
+  setProvidersInStorage,
+} from '../../utils/storage-helper';
+import { getProvidersFromTDexRegistry } from '../../utils/tdex';
+import type { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
 import { SIGN_IN } from '../actions/appActions';
-import { TDEXState } from '../reducers/tdexReducer';
 import {
   addMarkets,
   addProvider,
@@ -7,37 +17,29 @@ import {
   UPDATE_MARKETS,
   DELETE_PROVIDER,
 } from '../actions/tdexActions';
-import { put, takeLatest, select, call, delay } from 'redux-saga/effects';
-import { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
-import { TraderClient, MarketInterface } from 'tdex-sdk';
 import { addErrorToast } from '../actions/toastActions';
-import {
-  getProvidersFromStorage,
-  setProvidersInStorage,
-} from '../../utils/storage-helper';
-import { getProvidersFromTDexRegistry } from '../../utils/tdex';
 import { defaultProvider } from '../config';
-import { TDEXRegistryError } from '../../utils/errors';
+import type { TDEXState } from '../reducers/tdexReducer';
 
 function* updateMarketsWithProvidersEndpoints() {
   const { providers, markets }: TDEXState = yield select(
-    ({ tdex }: { tdex: TDEXState }) => tdex
+    ({ tdex }: { tdex: TDEXState }) => tdex,
   );
 
   for (const p of providers) {
     try {
       const providerMarkets: TDEXMarket[] = yield call(
         getMarketsFromProvider,
-        p
+        p,
       );
 
       for (const market of providerMarkets) {
         if (
           !markets.find(
-            (m) =>
+            m =>
               m.baseAsset === market.baseAsset &&
               m.quoteAsset === market.quoteAsset &&
-              m.provider.id === market.provider.id
+              m.provider.id === market.provider.id,
           )
         ) {
           yield put(addMarkets([market]));
@@ -49,13 +51,7 @@ function* updateMarketsWithProvidersEndpoints() {
   }
 }
 
-function* fetchMarkets({
-  type,
-  payload,
-}: {
-  type: string;
-  payload: TDEXProvider;
-}) {
+function* fetchMarkets({ payload }: { payload: TDEXProvider }) {
   try {
     const markets = yield call(getMarketsFromProvider, payload);
     if (markets.length > 0) {
@@ -76,11 +72,11 @@ function* restoreProviders() {
 
     try {
       const providersFromRegistry: TDEXProvider[] = yield call(
-        getProvidersFromTDexRegistry
+        getProvidersFromTDexRegistry,
       );
       const filteredProviders = providersFromRegistry.filter(
         (prov: TDEXProvider) =>
-          providers.find((p) => p.endpoint === prov.endpoint) === undefined
+          providers.find(p => p.endpoint === prov.endpoint) === undefined,
       );
 
       for (const p of filteredProviders) {
@@ -97,7 +93,7 @@ function* restoreProviders() {
       addProvider({
         name: 'Default provider',
         endpoint: defaultProvider.endpoint,
-      })
+      }),
     );
   }
 }
@@ -105,14 +101,16 @@ function* restoreProviders() {
 function* persistProviders() {
   yield delay(2000);
   const providers: TDEXProvider[] = yield select(
-    ({ tdex }: { tdex: TDEXState }) => tdex.providers
+    ({ tdex }: { tdex: TDEXState }) => tdex.providers,
   );
   yield call(setProvidersInStorage, providers);
 }
 
-export function* tdexWatcherSaga() {
+export function* tdexWatcherSaga(): Generator<any, any, any> {
   yield takeLatest(ADD_PROVIDER, persistProviders);
   yield takeLatest(DELETE_PROVIDER, persistProviders);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   yield takeLatest(ADD_PROVIDER, fetchMarkets);
   yield takeLatest(UPDATE_MARKETS, updateMarketsWithProvidersEndpoints);
   yield takeLatest(SIGN_IN, restoreProviders);

@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
   IonContent,
   IonList,
@@ -9,10 +8,12 @@ import {
   IonIcon,
 } from '@ionic/react';
 import { closeSharp, searchSharp } from 'ionicons/icons';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { LBTC_DENOMINATIONS } from '../../utils/constants';
-import { setLBTCDenomination } from '../../redux/actions/settingsActions';
+
 import { updatePrices } from '../../redux/actions/ratesActions';
+import { setLBTCDenomination } from '../../redux/actions/settingsActions';
+import { LBTC_DENOMINATIONS } from '../../utils/constants';
 
 interface DenominationSearchProps {
   isOpen: boolean;
@@ -42,7 +43,7 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({
                 color="light-contrast"
                 placeholder="Search currency"
                 value={searchString}
-                onIonChange={(e) => setSearchString(e.detail.value || '')}
+                onIonChange={e => setSearchString(e.detail.value || '')}
               />
               <IonIcon
                 icon={closeSharp}
@@ -55,7 +56,7 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({
         <IonContent className="search-content">
           <IonList>
             {LBTC_DENOMINATIONS.filter((denomination: string) =>
-              denomination.includes(searchString)
+              denomination.includes(searchString),
             ).map((denomination: string, index: number) => {
               return (
                 <IonItem

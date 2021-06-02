@@ -1,3 +1,5 @@
+import { QRCodeImg } from '@cheprasov/react-qrcode';
+import { Clipboard } from '@ionic-native/clipboard';
 import {
   IonPage,
   IonContent,
@@ -6,32 +8,27 @@ import {
   IonLoading,
   IonGrid,
 } from '@ionic/react';
-import React, { useEffect, useRef, useState } from 'react';
-import { withRouter, useLocation } from 'react-router';
-import { IconCopy, CurrencyIcon } from '../../components/icons';
-import PageDescription from '../../components/PageDescription';
-import { useDispatch, useSelector } from 'react-redux';
-import { Clipboard } from '@ionic-native/clipboard';
-import { QRCodeImg } from '@cheprasov/react-qrcode';
 import { checkmarkOutline } from 'ionicons/icons';
-import {
-  AddressInterface,
-  IdentityOpts,
-  IdentityType,
-  MasterPublicKey,
-} from 'ldk';
+import type { AddressInterface, IdentityOpts } from 'ldk';
+import { IdentityType, MasterPublicKey } from 'ldk';
+import React, { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { withRouter, useLocation } from 'react-router';
+
+import Header from '../../components/Header';
+import PageDescription from '../../components/PageDescription';
+import { IconCopy, CurrencyIcon } from '../../components/icons';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import { WalletState } from '../../redux/reducers/walletReducer';
-import { network } from '../../redux/config';
-import { IdentityRestorerFromState } from '../../utils/identity';
 import { addAddress } from '../../redux/actions/walletActions';
+import { network } from '../../redux/config';
+import type { WalletState } from '../../redux/reducers/walletReducer';
+import type { AssetConfig } from '../../utils/constants';
 import { AddressGenerationError } from '../../utils/errors';
-import { AssetConfig } from '../../utils/constants';
+import { IdentityRestorerFromState } from '../../utils/identity';
 import './style.scss';
-import Header from '../../components/Header';
 
 interface LocationState {
   depositAsset: AssetConfig;
@@ -59,10 +56,10 @@ const Receive: React.FC = () => {
         },
         initializeFromRestorer: true,
         restorer: new IdentityRestorerFromState(
-          Object.values(wallet.addresses)
+          Object.values(wallet.addresses),
         ),
       };
-    }
+    },
   );
 
   useEffect(() => {
@@ -72,15 +69,15 @@ const Receive: React.FC = () => {
   const copyAddress = () => {
     if (address) {
       Clipboard.copy(address.confidentialAddress)
-        .then((res: any) => {
+        .then(() => {
           setCopied(true);
           dispatch(addSuccessToast('Address copied.'));
           setTimeout(() => {
             setCopied(false);
           }, 5000);
         })
-        .catch((e: any) => {
-          if (addressRef && addressRef.current) {
+        .catch(() => {
+          if (addressRef?.current) {
             addressRef.current.select();
             document.execCommand('copy');
             setCopied(true);
@@ -97,7 +94,7 @@ const Receive: React.FC = () => {
     try {
       setLoading(true);
       const masterPublicKey: MasterPublicKey = new MasterPublicKey(
-        masterPubKeyOpts
+        masterPubKeyOpts,
       );
       await masterPublicKey.isRestored;
       const addr = await masterPublicKey.getNextAddress();

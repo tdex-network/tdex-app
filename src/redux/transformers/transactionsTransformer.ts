@@ -1,28 +1,25 @@
-import {
+import type {
   BlindedOutputInterface,
   InputInterface,
-  isBlindedOutputInterface,
   TxInterface,
   UnblindedOutputInterface,
 } from 'ldk';
-import {
-  Transfer,
-  TxDisplayInterface,
-  TxStatusEnum,
-  TxTypeEnum,
-} from '../../utils/types';
+import { isBlindedOutputInterface } from 'ldk';
 import moment from 'moment';
 
+import type { Transfer, TxDisplayInterface } from '../../utils/types';
+import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
+
 function getTransfers(
-  vin: Array<InputInterface>,
-  vout: Array<BlindedOutputInterface | UnblindedOutputInterface>,
-  walletScripts: string[]
+  vin: InputInterface[],
+  vout: (BlindedOutputInterface | UnblindedOutputInterface)[],
+  walletScripts: string[],
 ): Transfer[] {
   const transfers: Transfer[] = [];
 
   const addToTransfers = (amount: number, asset: string) => {
     const transferIndex = transfers.findIndex(
-      (t) => t.asset.valueOf() === asset.valueOf()
+      t => t.asset.valueOf() === asset.valueOf(),
     );
 
     if (transferIndex >= 0) {
@@ -58,7 +55,7 @@ function getTransfers(
   return transfers;
 }
 
-export function txTypeFromTransfer(transfers: Transfer[]) {
+export function txTypeFromTransfer(transfers: Transfer[]): TxTypeEnum {
   if (transfers.length === 1) {
     if (transfers[0].amount > 0) {
       return TxTypeEnum.Deposit;
@@ -83,7 +80,7 @@ export function txTypeFromTransfer(transfers: Transfer[]) {
  */
 export function toDisplayTransaction(
   tx: TxInterface,
-  walletScripts: string[]
+  walletScripts: string[],
 ): TxDisplayInterface {
   const transfers = getTransfers(tx.vin, tx.vout, walletScripts);
   return {

@@ -32,5 +32,5 @@ export enum TxStatusEnum {
 }
 
 export interface TxsByAssetsInterface {
-  [asset: string]: Array<TxDisplayInterface>;
+  [asset: string]: TxDisplayInterface[];
 }

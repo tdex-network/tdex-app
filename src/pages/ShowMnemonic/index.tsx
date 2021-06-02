@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
   IonContent,
   IonPage,
@@ -7,13 +6,16 @@ import {
   IonButton,
   IonCol,
 } from '@ionic/react';
-import { RouteComponentProps, useLocation } from 'react-router';
-import { AppError } from '../../utils/errors';
-import WordList from '../../components/WordList';
-import Header from '../../components/Header';
+import React, { useState } from 'react';
+import type { RouteComponentProps } from 'react-router';
+import { useLocation } from 'react-router';
+
 import Checkbox from '../../components/Checkbox';
+import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
-import { AssetConfig } from '../../utils/constants';
+import WordList from '../../components/WordList';
+import type { AssetConfig } from '../../utils/constants';
+import type { AppError } from '../../utils/errors';
 
 interface ShowMnemonicProps extends RouteComponentProps {
   // connected redux props
@@ -48,7 +50,7 @@ const ShowMnemonic: React.FC<ShowMnemonicProps> = ({
             </IonCol>
           </IonRow>
           <Checkbox
-            handleChange={(checked) => {
+            handleChange={checked => {
               setIsSeedSaved(checked);
               if (!checked) {
                 setIsBackupDone(false);

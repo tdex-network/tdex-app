@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+
 import TradeSummary from '../../pages/TradeSummary';
 
 const mapStateToProps = (state: any) => {

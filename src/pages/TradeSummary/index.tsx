@@ -1,6 +1,3 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { RouteComponentProps, useParams, withRouter } from 'react-router';
 import {
   IonPage,
   IonContent,
@@ -13,13 +10,18 @@ import {
   IonGrid,
   IonText,
 } from '@ionic/react';
+import { ellipsisHorizontal } from 'ionicons/icons';
+import React from 'react';
+import { useSelector } from 'react-redux';
+import type { RouteComponentProps } from 'react-router';
+import { useParams, withRouter } from 'react-router';
+
+import Header from '../../components/Header';
+import Refresher from '../../components/Refresher';
 import { CurrencyIcon } from '../../components/icons';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
+import type { AssetConfig } from '../../utils/constants';
 import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
-import { ellipsisHorizontal } from 'ionicons/icons';
-import { AssetConfig } from '../../utils/constants';
-import Refresher from '../../components/Refresher';
-import Header from '../../components/Header';
 import './style.scss';
 
 export interface PreviewData {
@@ -123,7 +125,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                             <span>
                               {transaction
                                 ? tickerFromAssetHash(
-                                    transaction.transfers[0].asset
+                                    transaction.transfers[0].asset,
                                   )
                                 : preview?.sent.ticker}
                             </span>
@@ -133,7 +135,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                               ? fromSatoshiFixed(
                                   transaction.transfers[0].amount,
                                   8,
-                                  8
+                                  8,
                                 )
                               : preview?.sent.amount}
                           </p>
@@ -149,7 +151,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                             <span>
                               {transaction
                                 ? tickerFromAssetHash(
-                                    transaction.transfers[1].asset
+                                    transaction.transfers[1].asset,
                                   )
                                 : preview?.received.ticker}
                             </span>
@@ -160,7 +162,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                               ? fromSatoshiFixed(
                                   transaction.transfers[1].amount,
                                   8,
-                                  8
+                                  8,
                                 )
                               : preview?.received.amount}
                           </p>
@@ -170,10 +172,9 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                         <div className="transaction-info-date">
                           {transaction && (
                             <span>
-                              {transaction.blockTime &&
-                                transaction.blockTime.format(
-                                  'DD MMM YYYY hh:mm:ss'
-                                )}
+                              {transaction.blockTime?.format(
+                                'DD MMM YYYY hh:mm:ss',
+                              )}
                             </span>
                           )}
                           {transaction ? (

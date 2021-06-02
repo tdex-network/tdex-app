@@ -1,10 +1,29 @@
-import { ActionType } from '../../utils/types';
-import { updatePrices } from '../actions/ratesActions';
+import type { AddressInterface, UtxoInterface } from 'ldk';
 import {
-  WalletState,
-  outpointToString,
-  addressesSelector,
-} from '../reducers/walletReducer';
+  fetchAndUnblindUtxosGenerator,
+  fetchUtxos,
+  fetchPrevoutAndTryToUnblindUtxo,
+} from 'ldk';
+import {
+  takeLatest,
+  call,
+  put,
+  select,
+  delay,
+  all,
+  takeEvery,
+} from 'redux-saga/effects';
+
+import { UpdateUtxosError } from '../../utils/errors';
+import {
+  getUtxosFromStorage,
+  setAddressesInStorage,
+  setUtxosInStorage,
+} from '../../utils/storage-helper';
+import type { ActionType } from '../../utils/types';
+import { SIGN_IN } from '../actions/appActions';
+import { updatePrices } from '../actions/ratesActions';
+import { addErrorToast } from '../actions/toastActions';
 import {
   UPDATE_UTXOS,
   setUtxo,
@@ -15,45 +34,23 @@ import {
   ADD_ADDRESS,
   WATCH_UTXO,
 } from '../actions/walletActions';
-import {
-  takeLatest,
-  call,
-  put,
-  select,
-  delay,
-  all,
-  takeEvery,
-} from 'redux-saga/effects';
-import {
-  AddressInterface,
-  UtxoInterface,
-  fetchAndUnblindUtxosGenerator,
-  fetchUtxos,
-  fetchPrevoutAndTryToUnblindUtxo,
-} from 'ldk';
-import { addErrorToast } from '../actions/toastActions';
-import {
-  getUtxosFromStorage,
-  setAddressesInStorage,
-  setUtxosInStorage,
-} from '../../utils/storage-helper';
-import { SIGN_IN } from '../actions/appActions';
-import { UpdateUtxosError } from '../../utils/errors';
+import type { WalletState } from '../reducers/walletReducer';
+import { outpointToString, addressesSelector } from '../reducers/walletReducer';
 
-function* persistAddresses({ type }: { type: string }) {
+function* persistAddresses() {
   const addresses = yield select(addressesSelector);
   yield call(setAddressesInStorage, addresses);
 }
 
-function* updateUtxosState({ type }: { type: string }) {
+function* updateUtxosState() {
   try {
     const [addresses, utxos, explorerURL]: [
       AddressInterface[],
       Record<string, UtxoInterface>,
-      string
+      string,
     ] = yield all([
       select(({ wallet }: { wallet: WalletState }) =>
-        Object.values(wallet.addresses)
+        Object.values(wallet.addresses),
       ),
       select(({ wallet }: { wallet: WalletState }) => wallet.utxos),
       select(({ settings }) => settings.explorerUrl),
@@ -69,14 +66,14 @@ function* updateUtxosState({ type }: { type: string }) {
 export function* fetchAndUpdateUtxos(
   addresses: AddressInterface[],
   currentUtxos: Record<string, UtxoInterface>,
-  explorerUrl: string
-) {
+  explorerUrl: string,
+): any {
   const newOutpoints: string[] = [];
 
   const utxoGen = fetchAndUnblindUtxosGenerator(
     addresses,
     explorerUrl,
-    (utxo: UtxoInterface) => currentUtxos[outpointToString(utxo)] != undefined
+    (utxo: UtxoInterface) => currentUtxos[outpointToString(utxo)] != undefined,
   );
   const next = () => utxoGen.next();
 
@@ -114,7 +111,7 @@ export function* fetchAndUpdateUtxos(
   }
 }
 
-function* waitAndUnlock({ type, payload }: { type: string; payload: string }) {
+function* waitAndUnlock({ payload }: { payload: string }) {
   yield delay(60_000); // 1 min
   yield put(unlockUtxo(payload));
 }
@@ -122,7 +119,7 @@ function* waitAndUnlock({ type, payload }: { type: string; payload: string }) {
 function* persistUtxos() {
   yield delay(20_000); // 20 sec
   const utxos = yield select(({ wallet }: { wallet: WalletState }) =>
-    Object.values(wallet.utxos)
+    Object.values(wallet.utxos),
   );
   yield call(setUtxosInStorage, utxos);
 }
@@ -144,7 +141,7 @@ function* watchUtxoSaga(action: ActionType) {
       const utxos: UtxoInterface[] = yield call(
         fetchUtxos,
         address.confidentialAddress,
-        explorer
+        explorer,
       );
       if (utxos.length === 0) throw new Error();
       const {
@@ -155,22 +152,23 @@ function* watchUtxoSaga(action: ActionType) {
           fetchPrevoutAndTryToUnblindUtxo,
           utxos[0],
           address.blindingPrivateKey,
-          explorer
+          explorer,
         );
       error && console.error(error);
       yield put(setUtxo(unblindedUtxo));
       break;
     } catch {
       yield delay(1_000);
-      continue;
     }
   }
 }
 
-export function* walletWatcherSaga() {
+export function* walletWatcherSaga(): Generator {
   yield takeLatest(ADD_ADDRESS, persistAddresses);
   yield takeLatest(UPDATE_UTXOS, updateUtxosState);
   yield takeLatest(UPDATE_UTXOS, persistUtxos);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   yield takeEvery(LOCK_UTXO, waitAndUnlock);
   yield takeLatest(SIGN_IN, restoreUtxos);
   yield takeLatest(WATCH_UTXO, watchUtxoSaga);

@@ -1,14 +1,13 @@
-import { watchUtxo } from './../redux/actions/walletActions';
-import {
+import type {
   AddressInterface,
-  EsploraIdentityRestorer,
   IdentityInterface,
   IdentityOpts,
   IdentityRestorerInterface,
-  Mnemonic,
 } from 'ldk';
-import { Dispatch } from 'redux';
-import { addAddress } from '../redux/actions/walletActions';
+import { EsploraIdentityRestorer, Mnemonic } from 'ldk';
+import type { Dispatch } from 'redux';
+
+import { addAddress, watchUtxo } from '../redux/actions/walletActions';
 import { network } from '../redux/config';
 
 export class MnemonicRedux extends Mnemonic implements IdentityInterface {
@@ -36,27 +35,25 @@ export class MnemonicRedux extends Mnemonic implements IdentityInterface {
 
 export class IdentityRestorerFromState implements IdentityRestorerInterface {
   static esploraIdentityRestorer = new EsploraIdentityRestorer(
-    network.explorer
+    network.explorer,
   );
 
   private cachedAddresses: string[] = [];
 
   constructor(addresses: AddressInterface[]) {
     if (addresses !== null)
-      this.cachedAddresses = addresses.map(
-        (addrI) => addrI.confidentialAddress
-      );
+      this.cachedAddresses = addresses.map(addrI => addrI.confidentialAddress);
   }
 
   async addressHasBeenUsed(address: string): Promise<boolean> {
     const addressInCache = this.cachedAddresses.includes(address);
     if (addressInCache) return true;
     return IdentityRestorerFromState.esploraIdentityRestorer.addressHasBeenUsed(
-      address
+      address,
     );
   }
 
   async addressesHaveBeenUsed(addresses: string[]): Promise<boolean[]> {
-    return Promise.all(addresses.map((addr) => this.addressHasBeenUsed(addr)));
+    return Promise.all(addresses.map(addr => this.addressHasBeenUsed(addr)));
   }
 }

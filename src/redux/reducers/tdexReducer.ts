@@ -1,14 +1,14 @@
+import type { AssetConfig } from '../../utils/constants';
+import { tickerFromAssetHash } from '../../utils/helpers';
+import type { AssetWithTicker } from '../../utils/tdex';
+import type { ActionType } from '../../utils/types';
+import type { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
 import {
   ADD_MARKETS,
   ADD_PROVIDER,
   CLEAR_MARKETS,
   DELETE_PROVIDER,
 } from '../actions/tdexActions';
-import { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
-import { ActionType } from '../../utils/types';
-import { AssetConfig } from '../../utils/constants';
-import { AssetWithTicker } from '../../utils/tdex';
-import { tickerFromAssetHash } from '../../utils/helpers';
 
 export interface TDEXState {
   providers: TDEXProvider[];
@@ -20,7 +20,10 @@ const initialState: TDEXState = {
   markets: [],
 };
 
-const TDEXReducer = (state: TDEXState = initialState, action: ActionType) => {
+const TDEXReducer = (
+  state: TDEXState = initialState,
+  action: ActionType,
+): { providers: any[]; markets: TDEXMarket[] } => {
   switch (action.type) {
     case ADD_PROVIDER:
       return { ...state, providers: [...state.providers, action.payload] };
@@ -31,7 +34,7 @@ const TDEXReducer = (state: TDEXState = initialState, action: ActionType) => {
     case DELETE_PROVIDER:
       return {
         ...state,
-        providers: state.providers.filter((p) => p.id !== action.payload.id),
+        providers: state.providers.filter(p => p.id !== action.payload.id),
       };
     default:
       return state;
@@ -45,8 +48,8 @@ export const allAssets = ({
   assets: Record<string, AssetConfig>;
   tdex: TDEXState;
 }): AssetWithTicker[] => {
-  const quoteAssets = tdex.markets.map((m) => m.quoteAsset);
-  const baseAssets = tdex.markets.map((m) => m.baseAsset);
+  const quoteAssets = tdex.markets.map(m => m.quoteAsset);
+  const baseAssets = tdex.markets.map(m => m.baseAsset);
   const uniqueAssets = [...new Set([...quoteAssets, ...baseAssets])];
   return uniqueAssets.map((assetHash: string) => ({
     asset: assetHash,

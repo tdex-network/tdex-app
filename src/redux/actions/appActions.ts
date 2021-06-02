@@ -1,4 +1,4 @@
-import { ActionType } from '../../utils/types';
+import type { ActionType } from '../../utils/types';
 
 export const INIT_APP = 'INIT_APP';
 export const INIT_APP_SUCCESS = 'INIT_APP_SUCCESS';

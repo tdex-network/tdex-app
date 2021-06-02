@@ -1,4 +1,5 @@
-import { TradeType } from 'tdex-sdk';
+import type { TradeType } from 'tdex-sdk';
+
 export interface TDEXProvider {
   id?: number;
   name: string;

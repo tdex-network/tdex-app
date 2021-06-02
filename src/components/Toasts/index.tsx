@@ -1,7 +1,8 @@
-import React from 'react';
 import { IonToast } from '@ionic/react';
-import { ToastOpts, ToastType } from '../../redux/reducers/toastReducer';
 import { closeCircleOutline } from 'ionicons/icons';
+import React from 'react';
+
+import type { ToastOpts, ToastType } from '../../redux/reducers/toastReducer';
 import {
   TOAST_TIMEOUT_FAILURE,
   TOAST_TIMEOUT_SUCCESS,

@@ -6,23 +6,26 @@ import {
   IonRow,
   IonCol,
 } from '@ionic/react';
-import React, { useState } from 'react';
 import { warningOutline } from 'ionicons/icons';
-import { AppError, IncorrectPINError } from '../../utils/errors';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { useLocation } from 'react-router';
+import type { RouteComponentProps } from 'react-router';
+
 import ButtonsMainSub from '../../components/ButtonsMainSub';
-import Header from '../../components/Header';
-import './style.scss';
 import Checkbox from '../../components/Checkbox';
-import { RouteComponentProps, useLocation } from 'react-router';
+import Header from '../../components/Header';
+import PinModal from '../../components/PinModal';
+import { addErrorToast } from '../../redux/actions/toastActions';
+import type { AssetConfig } from '../../utils/constants';
 import {
-  AssetConfig,
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
-import PinModal from '../../components/PinModal';
+import type { AppError } from '../../utils/errors';
+import { IncorrectPINError } from '../../utils/errors';
+import './style.scss';
 import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
-import { addErrorToast } from '../../redux/actions/toastActions';
-import { useDispatch } from 'react-redux';
 
 interface BackupProps extends RouteComponentProps {
   // connected redux props
@@ -103,7 +106,7 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
           </IonRow>
           <Checkbox
             className="ion-margin-vertical-x2"
-            handleChange={(checked) => {
+            handleChange={checked => {
               setIsSeedSaved(checked);
               if (!checked) {
                 setIsBackupDone(false);

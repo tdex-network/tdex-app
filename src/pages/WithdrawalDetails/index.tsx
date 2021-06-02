@@ -1,3 +1,4 @@
+import { Clipboard } from '@ionic-native/clipboard';
 import {
   IonPage,
   IonContent,
@@ -8,16 +9,17 @@ import {
   IonCol,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-import { withRouter, RouteComponentProps, useParams } from 'react-router';
-import { CurrencyIcon } from '../../components/icons';
 import { useDispatch, useSelector } from 'react-redux';
-import { TxStatusEnum } from '../../utils/types';
-import { transactionSelector } from '../../redux/reducers/transactionsReducer';
-import { Clipboard } from '@ionic-native/clipboard';
-import { addSuccessToast } from '../../redux/actions/toastActions';
-import { nameFromAssetHash, tickerFromAssetHash } from '../../utils/helpers';
-import Refresher from '../../components/Refresher';
+import type { RouteComponentProps } from 'react-router';
+import { withRouter, useParams } from 'react-router';
+
 import Header from '../../components/Header';
+import Refresher from '../../components/Refresher';
+import { CurrencyIcon } from '../../components/icons';
+import { addSuccessToast } from '../../redux/actions/toastActions';
+import { transactionSelector } from '../../redux/reducers/transactionsReducer';
+import { nameFromAssetHash, tickerFromAssetHash } from '../../utils/helpers';
+import { TxStatusEnum } from '../../utils/types';
 import './style.scss';
 
 const statusText = {

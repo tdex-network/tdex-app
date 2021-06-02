@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
+
 import ShowMnemonic from '../../pages/ShowMnemonic';
-import { AppError } from '../../utils/errors';
+import type { AppError } from '../../utils/errors';
 import { setSeedBackupFlag } from '../../utils/storage-helper';
 import { setIsBackupDone } from '../actions/appActions';
 import { addErrorToast } from '../actions/toastActions';
