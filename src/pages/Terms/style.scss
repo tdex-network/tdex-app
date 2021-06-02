@@ -2,22 +2,22 @@
   ol {
     padding-inline-start: 30px;
   }
-  
+
   ol li {
     margin-bottom: 20px;
   }
-  
-  ol[type="a"] {
+
+  ol[type='a'] {
     margin-top: 5px;
     li {
       margin-bottom: 15px;
     }
   }
-  
-  ol[type="i"] {
+
+  ol[type='i'] {
     margin-top: 5px;
     li {
-     margin-bottom: 10px;
-   }
+      margin-bottom: 10px;
+    }
   }
 }
