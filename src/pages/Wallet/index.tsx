@@ -68,7 +68,9 @@ const Wallet: React.FC<WalletProps> = ({
   const UNKNOWN = -1;
 
   const getFiatValue = (balance: BalanceInterface) => {
-    const balanceIndex = balances.findIndex(b => b.ticker === balance.ticker);
+    const balanceIndex = balances?.findIndex(
+      b => b?.ticker === balance?.ticker,
+    );
     if (balanceIndex < 0) return UNKNOWN;
     return fiats[balanceIndex];
   };
@@ -202,6 +204,7 @@ const Wallet: React.FC<WalletProps> = ({
 
             {mainAssets
               .concat(secondaryAssets)
+              .filter(b => b !== undefined)
               .map((balance: BalanceInterface) => {
                 const fiatValue = getFiatValue(balance);
                 return (
