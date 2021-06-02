@@ -8,6 +8,7 @@ import {
   IonGrid,
   IonRow,
   IonCol,
+  useIonViewDidLeave,
 } from '@ionic/react';
 import React, { useState, useEffect } from 'react';
 import { RouteComponentProps, useParams, withRouter } from 'react-router';
@@ -74,9 +75,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   location,
 }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
-  // route parameter asset_id
   const { asset_id } = useParams<{ asset_id: string }>();
-
   // UI state
   const [balance, setBalance] = useState<BalanceInterface>();
   const [price, setPrice] = useState<number>();
@@ -86,24 +85,42 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   const [recipientAddress, setRecipientAddress] = useState<string>('');
   const [modalOpen, setModalOpen] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
-
   const dispatch = useDispatch();
 
-  const getRecipient = (): RecipientInterface => ({
-    address: recipientAddress.trim(),
-    asset: balance?.asset || '',
-    value: toSatoshi(
-      amount,
-      balance?.precision,
-      balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
-    ),
+  useIonViewDidLeave(() => {
+    setRecipientAddress('');
   });
 
-  const onAmountChange = (newAmount: number | undefined) => {
-    setError('');
-    setAmount(newAmount || 0);
-  };
+  // effect to select the balance of withdrawal
+  useEffect(() => {
+    const balanceSelected = balances.find((bal) => bal.asset === asset_id);
+    if (balanceSelected) {
+      setBalance(balanceSelected);
+    }
+  }, [balances, asset_id]);
 
+  // effect for fiat equivalent
+  useEffect(() => {
+    if (balance && balance.coinGeckoID) {
+      const p = prices[balance.coinGeckoID];
+      if (!p) {
+        setPrice(undefined);
+        return;
+      }
+      setPrice(p);
+      return;
+    }
+    setPrice(undefined);
+  }, [prices]);
+
+  useEffect(() => {
+    if (location.state) {
+      setRecipientAddress(location.state.address);
+      setAmount(location.state.amount);
+    }
+  }, [location]);
+
+  // Check amount validity
   useEffect(() => {
     try {
       if (!balance) return;
@@ -117,32 +134,46 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         setError('Amount is greater than your balance');
         return;
       }
-
+      //
       const fee = estimateFeeAmount(utxos, [getRecipient()]);
       const LBTCBalance = balances.find((b) => b.coinGeckoID === 'bitcoin');
       if (!LBTCBalance || LBTCBalance.amount === 0) {
         setError('You need LBTC in order to pay fees');
         return;
       }
-
+      //
       let needLBTC = fee;
       if (balance.coinGeckoID === 'bitcoin') {
         needLBTC += toSatoshi(amount, 8, lbtcUnit);
       }
-
       if (needLBTC > LBTCBalance.amount) {
         setError('You cannot pay fees');
       }
+      // No error
+      setError('');
     } catch (err) {
       console.error(err);
     }
   }, [amount]);
 
+  const getRecipient = (): RecipientInterface => ({
+    address: recipientAddress?.trim(),
+    asset: balance?.asset || '',
+    value: toSatoshi(
+      amount,
+      balance?.precision,
+      balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
+    ),
+  });
+
+  const onAmountChange = (newAmount: number | undefined) => {
+    setAmount(newAmount || 0);
+  };
+
   const isValid = (): boolean => {
     if (error) return false;
     if (!balance || amount <= 0) return false;
-    if (recipientAddress === '') return false;
-    return true;
+    return recipientAddress !== '';
   };
 
   const createTxAndBroadcast = async (pin: string) => {
@@ -221,43 +252,13 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     }
   };
 
-  // effect to select the balance of withdrawal
-  useEffect(() => {
-    const balanceSelected = balances.find((bal) => bal.asset === asset_id);
-    if (balanceSelected) {
-      setBalance(balanceSelected);
-    }
-  }, [balances]);
-
-  // effect for fiat equivalent
-  useEffect(() => {
-    if (balance && balance.coinGeckoID) {
-      const p = prices[balance.coinGeckoID];
-      if (!p) {
-        setPrice(undefined);
-        return;
-      }
-      setPrice(p);
-      return;
-    }
-
-    setPrice(undefined);
-  }, [prices]);
-
-  useEffect(() => {
-    if (location.state) {
-      setRecipientAddress(location.state.address);
-      setAmount(location.state.amount);
-    }
-  }, [location]);
-
   const onPinConfirm = (pin: string) => {
     if (!isValid()) return;
-    createTxAndBroadcast(pin);
+    createTxAndBroadcast(pin).catch(console.error);
   };
 
   return (
-    <IonPage>
+    <IonPage id="withdrawal">
       <PinModal
         open={modalOpen}
         title="Unlock your seed"
@@ -283,6 +284,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
           />
           {balance && (
             <WithdrawRow
+              amount={amount === 0 ? undefined : amount}
               balance={balance}
               price={price}
               onAmountChange={onAmountChange}
@@ -290,40 +292,30 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
             />
           )}
 
-          <IonRow>
-            <IonCol>
-              <IonItem className="list-item">
-                <div className="item-main-info">
-                  <div className="item-start">
-                    <IonInput
-                      inputmode="text"
-                      enterkeyhint="done"
-                      onKeyDown={onPressEnterKeyCloseKeyboard}
-                      value={recipientAddress}
-                      placeholder="Paste address here or scan QR code"
-                      onIonChange={(e) => {
-                        setRecipientAddress(e.detail.value || '');
-                      }}
-                    />
-                  </div>
-                  <div className="item-end">
-                    <IonButton
-                      className="scan-btn"
-                      onClick={() =>
-                        history.replace(`/qrscanner/${asset_id}`, {
-                          amount,
-                          address: '',
-                          asset: asset_id,
-                        })
-                      }
-                    >
-                      <IconQR fill="#fff" />
-                    </IonButton>
-                  </div>
-                </div>
-              </IonItem>
-            </IonCol>
-          </IonRow>
+          <IonItem className="address-input">
+            <IonInput
+              inputmode="text"
+              enterkeyhint="done"
+              onKeyDown={onPressEnterKeyCloseKeyboard}
+              value={recipientAddress}
+              placeholder="Paste address here or scan QR code"
+              onIonChange={(e) => {
+                setRecipientAddress(e.detail.value || '');
+              }}
+            />
+            <IonButton
+              className="scan-btn"
+              onClick={() =>
+                history.replace(`/qrscanner/${asset_id}`, {
+                  amount,
+                  address: '',
+                  asset: asset_id,
+                })
+              }
+            >
+              <IconQR fill="#fff" />
+            </IonButton>
+          </IonItem>
 
           <IonRow className="ion-margin-vertical-x2">
             <IonCol>

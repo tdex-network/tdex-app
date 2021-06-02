@@ -39,11 +39,13 @@ export async function bestPrice(
     .filter(({ status }) => status === 'fulfilled')
     .map(
       (p) =>
-        (p as PromiseFulfilledResult<{
-          amount: number;
-          asset: string;
-          trade: TDEXTrade;
-        }>).value
+        (
+          p as PromiseFulfilledResult<{
+            amount: number;
+            asset: string;
+            trade: TDEXTrade;
+          }>
+        ).value
     )
     .filter((res) => res !== undefined);
 

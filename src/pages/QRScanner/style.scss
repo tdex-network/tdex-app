@@ -1,29 +1,16 @@
-.qr-scanner {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 80vh;
-  margin: 0;
-
-  .rect {
-    height: 40vh;
-    .rect-border {
-      background-color: rgba(255, 255, 255, 0);
-      border: 1px solid rgba(255, 255, 255, 0.692);
-      border-radius: 2px;
-      height: 80%;
-    }
+#qr-scanner {
+  ion-header {
+    margin-bottom: 10vh;
   }
-
-  .btn-container {
-    text-align: center;
+  .scan-box {
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.5);
+    height: 70vw;
+    width: 70vw;
+    margin: 0 auto;
   }
-
-  .cancel-btn {
-    --background: transparent;
-    color: var(--ion-color-secondary);
+  ion-button.sub-button {
+    --color: var(--ion-color-secondary);
+    --ripple-color: rgba(255, 255, 255, 0.5);
   }
-}
-.semitransparent {
-  background: transparent;
 }
