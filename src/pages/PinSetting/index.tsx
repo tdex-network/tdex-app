@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { Plugins } from '@capacitor/core';
 import {
   IonContent,
   useIonViewWillEnter,
@@ -10,33 +10,35 @@ import {
   IonGrid,
   IonLoading,
 } from '@ionic/react';
-import PinInput from '../../components/PinInput';
+import * as bip39 from 'bip39';
+import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import type { RouteComponentProps } from 'react-router';
+import { useLocation } from 'react-router';
+
+import Checkbox from '../../components/Checkbox';
+import Header from '../../components/Header';
+import PageDescription from '../../components/PageDescription';
+import PinInput from '../../components/PinInput';
+import { signIn } from '../../redux/actions/appActions';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import {
-  AppError,
+  PIN_TIMEOUT_FAILURE,
+  PIN_TIMEOUT_SUCCESS,
+} from '../../utils/constants';
+import type { AppError } from '../../utils/errors';
+import {
   PinDigitsError,
   PINsDoNotMatchError,
   SecureStorageError,
 } from '../../utils/errors';
-import Header from '../../components/Header';
-import PageDescription from '../../components/PageDescription';
-import Checkbox from '../../components/Checkbox';
-import {
-  PIN_TIMEOUT_FAILURE,
-  PIN_TIMEOUT_SUCCESS,
-} from '../../utils/constants';
 import {
   clearStorage,
   setMnemonicInSecureStorage,
 } from '../../utils/storage-helper';
-import { signIn } from '../../redux/actions/appActions';
-import { RouteComponentProps, useLocation } from 'react-router';
-import * as bip39 from 'bip39';
-import { Plugins } from '@capacitor/core';
 
 const { Keyboard } = Plugins;
 
@@ -67,13 +69,13 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
           setMnemonicInSecureStorage(
             // Coming from Show Mnemonic or from Backup Wallet 'do it later'
             state?.mnemonic ?? bip39.generateMnemonic(),
-            secondPin
+            secondPin,
           )
             .then(() => {
               dispatch(
                 addSuccessToast(
-                  'Mnemonic generated and encrypted with your PIN.'
-                )
+                  'Mnemonic generated and encrypted with your PIN.',
+                ),
               );
               setIsWrongPin(false);
               setIsPinValidated(true);
@@ -112,7 +114,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
 
   // Make sure PIN input always has focus when clicking anywhere
   const handleClick = () => {
-    if (inputRef && inputRef.current) {
+    if (inputRef?.current) {
       inputRef.current.setFocus();
     }
   };

@@ -1,14 +1,17 @@
-import { AddressInterface, fetchAndUnblindUtxos, UtxoInterface } from 'ldk';
-import { ActionType } from './../../src/utils/types';
-import { CallEffect, PutEffect } from 'redux-saga/effects';
-import { fetchAndUpdateUtxos } from '../../src/redux/sagas/walletSaga';
-import { faucet, firstAddress, APIURL, sleep } from '../test-utils';
+import type { AddressInterface, UtxoInterface } from 'ldk';
+import { fetchAndUnblindUtxos } from 'ldk';
+import type { CallEffect, PutEffect } from 'redux-saga/effects';
+
 import {
   SET_UTXO,
   DELETE_UTXO,
   RESET_UTXOS,
 } from '../../src/redux/actions/walletActions';
 import { outpointToString } from '../../src/redux/reducers/walletReducer';
+import { fetchAndUpdateUtxos } from '../../src/redux/sagas/walletSaga';
+import { faucet, firstAddress, APIURL, sleep } from '../test-utils';
+
+import type { ActionType } from './../../src/utils/types';
 
 jest.setTimeout(15000);
 
@@ -21,7 +24,7 @@ describe('wallet saga', () => {
       await sleep(5000);
       const txid = await faucet(addr.confidentialAddress);
       utxo = (
-        await fetchAndUnblindUtxos([addr], APIURL, (utxo) => utxo.txid !== txid)
+        await fetchAndUnblindUtxos([addr], APIURL, utxo => utxo.txid !== txid)
       )[0];
     });
 
@@ -59,7 +62,7 @@ describe('wallet saga', () => {
 
       expect(next.value.payload.action.type).toEqual(DELETE_UTXO);
       expect(outpointToString(next.value.payload.action.payload)).toEqual(
-        'fakeTxid:8'
+        'fakeTxid:8',
       );
     });
 

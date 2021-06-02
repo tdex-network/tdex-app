@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+
 import RestoreWallet from '../../pages/RestoreWallet';
 import { setSeedBackupFlag } from '../../utils/storage-helper';
 import { setIsBackupDone } from '../actions/appActions';

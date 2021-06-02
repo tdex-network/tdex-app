@@ -1,12 +1,14 @@
+import type { AddressInterface, UtxoInterface, Outpoint, Mnemonic } from 'ldk';
+
 import {
   defaultPrecision,
   LBTC_COINGECKOID,
   LBTC_TICKER,
   getMainAsset,
 } from '../../utils/constants';
-import { transactionsAssets } from './transactionsReducer';
-import { AddressInterface, UtxoInterface, Outpoint, Mnemonic } from 'ldk';
-import { ActionType } from '../../utils/types';
+import { tickerFromAssetHash, balancesFromUtxos } from '../../utils/helpers';
+import type { ActionType } from '../../utils/types';
+import type { BalanceInterface } from '../actionTypes/walletActionTypes';
 import {
   SET_IS_AUTH,
   SET_UTXO,
@@ -18,8 +20,8 @@ import {
   UNLOCK_UTXO,
   UNLOCK_UTXOS,
 } from '../actions/walletActions';
-import { tickerFromAssetHash, balancesFromUtxos } from '../../utils/helpers';
-import { BalanceInterface } from '../actionTypes/walletActionTypes';
+
+import { transactionsAssets } from './transactionsReducer';
 
 export interface WalletState {
   isAuth: boolean;
@@ -73,7 +75,7 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
       return {
         ...state,
         utxosLocks: state.utxosLocks.filter(
-          (outpoint: string) => outpoint !== action.payload
+          (outpoint: string) => outpoint !== action.payload,
         ),
       };
     case UNLOCK_UTXOS:
@@ -98,23 +100,25 @@ const addUtxoInState = (state: WalletState, utxo: UtxoInterface) => {
 
 const deleteUtxoInState = (
   state: WalletState,
-  outpoint: Outpoint
+  outpoint: Outpoint,
 ): WalletState => {
   const newUtxosMap = { ...state.utxos };
   delete newUtxosMap[outpointToString(outpoint)];
   return { ...state, utxos: newUtxosMap };
 };
 
-export const allUtxosSelector = ({ wallet }: { wallet: WalletState }) => {
+export const allUtxosSelector = ({
+  wallet,
+}: {
+  wallet: WalletState;
+}): UtxoInterface[] => {
   if (Object.keys(wallet.utxosLocks).length === 0)
     return Object.values(wallet.utxos);
-
   const utxos = [];
   for (const [outpoint, utxo] of Object.entries(wallet.utxos)) {
     if (wallet.utxosLocks.includes(outpoint)) continue;
     utxos.push(utxo);
   }
-
   return utxos;
 };
 
@@ -122,12 +126,12 @@ export const allUtxosSelector = ({ wallet }: { wallet: WalletState }) => {
  * Redux selector returning balance interfaces array
  * @param state
  */
-export const balancesSelector = (state: any) => {
+export const balancesSelector = (state: any): BalanceInterface[] => {
   const assets = state.assets;
   const utxos = allUtxosSelector(state);
   const txsAssets = transactionsAssets(state);
   const balances = balancesFromUtxos(utxos, assets);
-  const balancesAssets = balances.map((b) => b.asset);
+  const balancesAssets = balances.map(b => b.asset);
   for (const asset of txsAssets) {
     if (balancesAssets.includes(asset)) continue;
     // include a 'zero' balance if the user has previous transactions.
@@ -139,7 +143,6 @@ export const balancesSelector = (state: any) => {
       precision: assets[asset]?.precision || defaultPrecision,
     });
   }
-
   return balances;
 };
 
@@ -149,12 +152,11 @@ export const balancesSelector = (state: any) => {
  */
 export const aggregatedLBTCBalanceSelector = (state: any): BalanceInterface => {
   const toAggregateBalancesInBTC = balancesSelector(state)
-    .filter((b) => b.amount > 0 && b.coinGeckoID)
+    .filter(b => b.amount > 0 && b.coinGeckoID)
     .map((balance: BalanceInterface) => {
       if (balance.coinGeckoID === LBTC_COINGECKOID) {
         return balance.amount;
       }
-
       const price: number | undefined =
         state.rates.lbtcPrices[balance.coinGeckoID || ''];
       return (price || 0) * balance.amount;
@@ -170,7 +172,11 @@ export const aggregatedLBTCBalanceSelector = (state: any): BalanceInterface => {
   };
 };
 
-export const addressesSelector = ({ wallet }: { wallet: WalletState }) => {
+export const addressesSelector = ({
+  wallet,
+}: {
+  wallet: WalletState;
+}): AddressInterface[] => {
   return Object.values(wallet.addresses);
 };
 

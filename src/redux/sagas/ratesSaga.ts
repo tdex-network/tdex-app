@@ -1,16 +1,14 @@
-import {
-  CoinGeckoPriceResult,
-  getPriceFromCoinGecko,
-} from '../services/ratesService';
+import { takeLatest, call, put, select } from 'redux-saga/effects';
+
 import {
   setLBTCPrices,
   setPrices,
   UPDATE_PRICES,
 } from '../actions/ratesActions';
-import { takeLatest, call, put, select } from 'redux-saga/effects';
-import { ActionType } from '../../utils/types';
+import { getPriceFromCoinGecko } from '../services/ratesService';
+import type { CoinGeckoPriceResult } from '../services/ratesService';
 
-function* fetchRates({ type }: ActionType) {
+function* fetchRates() {
   const currency = yield select((state: any) => state.settings.currency.value);
   const currencies = [currency];
   if (currency !== 'btc') {
@@ -19,7 +17,7 @@ function* fetchRates({ type }: ActionType) {
 
   const coinGeckoResult: CoinGeckoPriceResult = yield call(
     getPriceFromCoinGecko,
-    currencies
+    currencies,
   );
 
   const prices: Record<string, number> = {};
@@ -34,6 +32,6 @@ function* fetchRates({ type }: ActionType) {
   yield put(setLBTCPrices(lbtcPrices));
 }
 
-export function* ratesWatcherSaga() {
+export function* ratesWatcherSaga(): Generator<any, any, any> {
   yield takeLatest(UPDATE_PRICES, fetchRates);
 }

@@ -1,7 +1,8 @@
-import React from 'react';
-import { IonItem, IonSkeletonText, IonSpinner } from '@ionic/react';
 import { Clipboard } from '@ionic-native/clipboard';
+import { IonItem, IonSkeletonText, IonSpinner } from '@ionic/react';
+import React from 'react';
 import { useDispatch } from 'react-redux';
+
 import {
   addErrorToast,
   addSuccessToast,
@@ -22,7 +23,7 @@ const TransactionLoader: React.FC<TransactionLoaderProps> = ({ txID }) => {
       onClick={() => {
         Clipboard.copy(txID)
           .then(() => dispatch(addSuccessToast('Tx ID copied in clipboard')))
-          .catch((err) => {
+          .catch(err => {
             console.error(err);
             dispatch(addErrorToast(UnableToCopyTxIDError));
           });

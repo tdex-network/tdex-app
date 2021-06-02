@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
-import ExchangeRow from '../../components/ExchangeRow';
 
+import ExchangeRow from '../../components/ExchangeRow';
 import { balancesSelector } from '../reducers/walletReducer';
 
 const mapStateToProps = (state: any) => {

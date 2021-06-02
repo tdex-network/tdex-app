@@ -1,13 +1,8 @@
-import { updateMarkets } from '../actions/tdexActions';
-import {
-  addAddress,
-  setIsAuth,
-  setPublicKeys,
-  updateUtxos,
-} from '../actions/walletActions';
-import { ActionType } from '../../utils/types';
-import { waitForRestore } from '../services/walletService';
+import type { Mnemonic } from 'ldk';
 import { takeLatest, put, call, all } from 'redux-saga/effects';
+
+import { getIdentity, seedBackupFlag } from '../../utils/storage-helper';
+import type { ActionType } from '../../utils/types';
 import {
   INIT_APP,
   initAppFail,
@@ -17,10 +12,16 @@ import {
   UPDATE,
   setIsBackupDone,
 } from '../actions/appActions';
-import { Mnemonic } from 'ldk';
-import { getIdentity, seedBackupFlag } from '../../utils/storage-helper';
-import { updateTransactions } from '../actions/transactionsActions';
 import { updatePrices } from '../actions/ratesActions';
+import { updateMarkets } from '../actions/tdexActions';
+import { updateTransactions } from '../actions/transactionsActions';
+import {
+  addAddress,
+  setIsAuth,
+  setPublicKeys,
+  updateUtxos,
+} from '../actions/walletActions';
+import { waitForRestore } from '../services/walletService';
 
 function* initAppSaga() {
   try {
@@ -67,7 +68,7 @@ function* updateState() {
   ]);
 }
 
-export function* appWatcherSaga() {
+export function* appWatcherSaga(): Generator<any, any, any> {
   yield takeLatest(INIT_APP, initAppSaga);
   yield takeLatest(SIGN_IN, signInSaga);
   yield takeLatest(UPDATE, updateState);

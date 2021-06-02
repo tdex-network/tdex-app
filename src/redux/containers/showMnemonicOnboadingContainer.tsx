@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
+
 import ShowMnemonicOnboarding from '../../pages/ShowMnemonic/show-mnemonic-onboarding';
-import { AppError } from '../../utils/errors';
+import type { AppError } from '../../utils/errors';
 import { setSeedBackupFlag } from '../../utils/storage-helper';
 import { setIsBackupDone } from '../actions/appActions';
 import { addErrorToast } from '../actions/toastActions';
@@ -23,5 +24,5 @@ const mapDispatchToProps = (dispatch: any) => {
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps
+  mapDispatchToProps,
 )(ShowMnemonicOnboarding);

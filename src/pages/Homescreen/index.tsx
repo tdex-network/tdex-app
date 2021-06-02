@@ -1,3 +1,4 @@
+import { KeyboardStyle } from '@capacitor/core';
 import {
   IonContent,
   IonPage,
@@ -8,21 +9,21 @@ import {
   IonCol,
 } from '@ionic/react';
 import React, { useState } from 'react';
-import { RouteComponentProps } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
-import { initApp, signIn } from '../../redux/actions/appActions';
+import type { RouteComponentProps } from 'react-router';
+
+import logo from '../../assets/img/tdex_3d_logo.svg';
+import ButtonsMainSub from '../../components/ButtonsMainSub';
 import PinModal from '../../components/PinModal';
+import { initApp, signIn } from '../../redux/actions/appActions';
+import { addErrorToast } from '../../redux/actions/toastActions';
+import { PIN_TIMEOUT_FAILURE } from '../../utils/constants';
+import { IncorrectPINError } from '../../utils/errors';
+import { setKeyboardTheme } from '../../utils/keyboard';
 import {
   getIdentity,
   mnemonicInSecureStorage,
 } from '../../utils/storage-helper';
-import { addErrorToast } from '../../redux/actions/toastActions';
-import { setKeyboardTheme } from '../../utils/keyboard';
-import { KeyboardStyle } from '@capacitor/core';
-import { IncorrectPINError } from '../../utils/errors';
-import { PIN_TIMEOUT_FAILURE } from '../../utils/constants';
-import logo from '../../assets/img/tdex_3d_logo.svg';
-import ButtonsMainSub from '../../components/ButtonsMainSub';
 import './style.scss';
 
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
@@ -31,7 +32,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
   const [loading, setLoading] = useState(true);
   const [needReset, setNeedReset] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState(
-    'Searching mnemonic in secure storage...'
+    'Searching mnemonic in secure storage...',
   );
   const appInit = useSelector((state: any) => state.app.appInit);
   const dispatch = useDispatch();
@@ -48,7 +49,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
           setIsWrongPin(null);
         }, 1500);
       })
-      .catch((e) => {
+      .catch(e => {
         console.error(e);
         setIsWrongPin(true);
         setTimeout(() => {

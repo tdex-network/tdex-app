@@ -1,5 +1,3 @@
-import React, { useState, useEffect } from 'react';
-import { RouteComponentProps } from 'react-router';
 import {
   IonContent,
   IonPage,
@@ -11,49 +9,52 @@ import {
   IonCol,
   IonButton,
 } from '@ionic/react';
-import ExchangeRow from '../../redux/containers/exchangeRowContainer';
-import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import {
-  allTrades,
-  AssetWithTicker,
-  makeTrade,
-  getTradablesAssets,
-} from '../../utils/tdex';
-import {
-  customCoinSelector,
-  getAssetHashLBTC,
-  toSatoshi,
-} from '../../utils/helpers';
+import classNames from 'classnames';
+import type { UtxoInterface } from 'ldk';
+import React, { useState, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import type { RouteComponentProps } from 'react-router';
+import type { Dispatch } from 'redux';
+import { TradeType } from 'tdex-sdk';
+
+import swap from '../../assets/img/swap.svg';
+import tradeHistory from '../../assets/img/trade-history.svg';
+import Header from '../../components/Header';
+import PinModal from '../../components/PinModal';
+import Refresher from '../../components/Refresher';
+import type {
+  TDEXMarket,
+  TDEXTrade,
+} from '../../redux/actionTypes/tdexActionTypes';
+import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import PinModal from '../../components/PinModal';
-import { getConnectedIdentity } from '../../utils/storage-helper';
-import { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
-import { PreviewData } from '../TradeSummary';
-import Refresher from '../../components/Refresher';
-import { UtxoInterface } from 'ldk';
+import { watchTransaction } from '../../redux/actions/transactionsActions';
+import { unlockUtxos } from '../../redux/actions/walletActions';
+import ExchangeRow from '../../redux/containers/exchangeRowContainer';
+import type { AssetConfig } from '../../utils/constants';
 import {
-  AssetConfig,
   defaultPrecision,
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
-import { Dispatch } from 'redux';
-import { watchTransaction } from '../../redux/actions/transactionsActions';
-import { TradeType } from 'tdex-sdk';
-import { useSelector } from 'react-redux';
-import { unlockUtxos } from '../../redux/actions/walletActions';
 import {
   AppError,
   IncorrectPINError,
   NoMarketsProvidedError,
 } from '../../utils/errors';
-import swap from '../../assets/img/swap.svg';
-import tradeHistory from '../../assets/img/trade-history.svg';
-import Header from '../../components/Header';
-import classNames from 'classnames';
+import {
+  customCoinSelector,
+  getAssetHashLBTC,
+  toSatoshi,
+} from '../../utils/helpers';
+import { getConnectedIdentity } from '../../utils/storage-helper';
+import type { AssetWithTicker } from '../../utils/tdex';
+import { allTrades, makeTrade, getTradablesAssets } from '../../utils/tdex';
+import type { PreviewData } from '../TradeSummary';
+
 import './style.scss';
 
 const ERROR_LIQUIDITY = 'Not enough liquidity in market';
@@ -111,7 +112,7 @@ const Exchange: React.FC<ExchangeProps> = ({
     const sats = toSatoshi(
       sentAmount,
       assets[assetSent.asset]?.precision || defaultPrecision,
-      assetSent.ticker === 'L-BTC' ? lbtcUnit : undefined
+      assetSent.ticker === 'L-BTC' ? lbtcUnit : undefined,
     );
 
     if (availableAmount && availableAmount < sats) {
@@ -133,7 +134,7 @@ const Exchange: React.FC<ExchangeProps> = ({
     const sats = toSatoshi(
       receivedAmount,
       assets[assetReceived.asset]?.precision || defaultPrecision,
-      assetReceived.ticker === 'L-BTC' ? lbtcUnit : undefined
+      assetReceived.ticker === 'L-BTC' ? lbtcUnit : undefined,
     );
 
     if (availableAmount && availableAmount < sats) {
@@ -151,7 +152,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       return;
     }
     const lbtcHash = getAssetHashLBTC();
-    const lbtcAsset = allAssets.find((h) => h.asset === lbtcHash);
+    const lbtcAsset = allAssets.find(h => h.asset === lbtcHash);
     setAssetSent(lbtcAsset);
     setSentAmount(undefined);
     setReceivedAmount(undefined);
@@ -170,12 +171,12 @@ const Exchange: React.FC<ExchangeProps> = ({
   }, [assetSent, markets]);
 
   const sentAmountGreaterThanBalance = () => {
-    const balance = balances.find((b) => b.asset === assetSent?.asset);
+    const balance = balances.find(b => b.asset === assetSent?.asset);
     if (!balance || !sentAmount) return true;
     const amountAsSats = toSatoshi(
       sentAmount,
       balance.precision,
-      balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+      balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
     );
     return amountAsSats > balance.amount;
   };
@@ -204,14 +205,14 @@ const Exchange: React.FC<ExchangeProps> = ({
         {
           amount: toSatoshi(
             sentAmount,
-            assets[assetSent.asset]?.precision || defaultPrecision
+            assets[assetSent.asset]?.precision || defaultPrecision,
           ),
           asset: assetSent.asset,
         },
         explorerUrl,
         utxos,
         identity,
-        customCoinSelector(dispatch)
+        customCoinSelector(dispatch),
       );
 
       dispatch(watchTransaction(txid));
@@ -290,7 +291,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                 checkAvailableAmountSent();
               }}
               assetsWithTicker={allAssets}
-              setAsset={(asset) => {
+              setAsset={asset => {
                 if (assetReceived && asset.asset === assetReceived.asset)
                   setAssetReceived(assetSent);
                 setAssetSent(asset);
@@ -325,7 +326,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                   checkAvailableAmountReceived();
                 }}
                 assetsWithTicker={tradableAssets}
-                setAsset={(asset) => {
+                setAsset={asset => {
                   if (asset.asset === assetSent.asset)
                     setAssetSent(assetReceived);
                   setAssetReceived(asset);

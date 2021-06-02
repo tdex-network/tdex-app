@@ -6,9 +6,11 @@ import {
   IonTabButton,
   IonRouterOutlet,
 } from '@ionic/react';
-import React from 'react';
-import { Redirect, Route, RouteComponentProps, withRouter } from 'react-router';
 import classNames from 'classnames';
+import React from 'react';
+import type { RouteComponentProps } from 'react-router';
+import { Redirect, Route, withRouter } from 'react-router';
+
 import { ROUTES, TABS } from '../../routes';
 import './style.scss';
 
@@ -33,7 +35,7 @@ const Tabs: React.FC<RouteComponentProps> = ({ history, location }) => {
       <IonContent>
         <IonTabs>
           <IonRouterOutlet animated={false}>
-            {ROUTES.map((item) => (
+            {ROUTES.map(item => (
               <Route
                 key={item.path}
                 path={item.path}

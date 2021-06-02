@@ -1,5 +1,5 @@
-import { ActionType } from '../../utils/types';
-import { CurrencyInterface } from '../reducers/settingsReducer';
+import type { ActionType } from '../../utils/types';
+import type { CurrencyInterface } from '../reducers/settingsReducer';
 
 export const SET_ELECTRUM_SERVER = 'SET_ELECTRUM_SERVER';
 export const SET_THEME = 'SET_THEME';

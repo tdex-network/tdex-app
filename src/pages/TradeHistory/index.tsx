@@ -1,5 +1,3 @@
-import React from 'react';
-import { RouteComponentProps, withRouter } from 'react-router';
 import {
   IonPage,
   IonContent,
@@ -14,19 +12,23 @@ import {
   IonCol,
 } from '@ionic/react';
 import classNames from 'classnames';
-import { CurrencyIcon } from '../../components/icons';
 import { checkmarkOutline } from 'ionicons/icons';
-import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
-import { TxDisplayInterface } from '../../utils/types';
-import { LBTC_TICKER } from '../../utils/constants';
+import React from 'react';
+import type { RouteComponentProps } from 'react-router';
+import { withRouter } from 'react-router';
+
 import Header from '../../components/Header';
+import { CurrencyIcon } from '../../components/icons';
+import { LBTC_TICKER } from '../../utils/constants';
+import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
+import type { TxDisplayInterface } from '../../utils/types';
 import './style.scss';
 
 interface TradeHistoryProps extends RouteComponentProps {
   swaps: TxDisplayInterface[];
 }
 
-const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
+const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
   const renderStatus: any = (status: string) => {
     return status === 'pending' ? (
       <div className="status pending">
@@ -54,10 +56,10 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
               <IonListHeader>Swaps</IonListHeader>
               {swaps.map((transaction: TxDisplayInterface) => {
                 const transferSent = transaction.transfers.find(
-                  (t) => t.amount < 0
+                  t => t.amount < 0,
                 );
                 const transferReceived = transaction.transfers.find(
-                  (t) => t.amount > 0
+                  t => t.amount > 0,
                 );
 
                 if (!transferReceived || !transferSent) {
@@ -66,7 +68,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
 
                 const tickerSent = tickerFromAssetHash(transferSent.asset);
                 const tickerReceived = tickerFromAssetHash(
-                  transferReceived.asset
+                  transferReceived.asset,
                 );
                 return (
                   <IonItem
@@ -86,7 +88,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ history, swaps }) => {
                             <div className="main-row">{`${tickerSent} / ${tickerReceived}`}</div>
                             <div className="sub-row">
                               {transaction.blockTime?.format(
-                                'DD MMM YYYY hh:mm:ss'
+                                'DD MMM YYYY hh:mm:ss',
                               )}
                             </div>
                           </div>

@@ -1,3 +1,4 @@
+// eslint-disable-next-line import/no-mutable-exports
 let network: any, defaultProvider: any;
 
 if (process.env.NODE_ENV === 'production') {

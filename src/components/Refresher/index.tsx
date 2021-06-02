@@ -1,7 +1,8 @@
-import React from 'react';
 import { IonRefresher, IonRefresherContent } from '@ionic/react';
 import { chevronDownCircleOutline } from 'ionicons/icons';
+import React from 'react';
 import { useDispatch } from 'react-redux';
+
 import { update } from '../../redux/actions/appActions';
 
 const Refresher: React.FC<{ onRefresh?: () => void }> = ({ onRefresh }) => {
@@ -10,7 +11,7 @@ const Refresher: React.FC<{ onRefresh?: () => void }> = ({ onRefresh }) => {
   return (
     <IonRefresher
       slot="fixed"
-      onIonRefresh={(e) => {
+      onIonRefresh={e => {
         dispatch(update());
         if (onRefresh) onRefresh();
         setTimeout(() => e.detail.complete(), 2000);

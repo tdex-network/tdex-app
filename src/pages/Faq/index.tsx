@@ -1,5 +1,6 @@
-import React from 'react';
 import { IonContent, IonPage, IonGrid, IonRow, IonCol } from '@ionic/react';
+import React from 'react';
+
 import Header from '../../components/Header';
 
 const Faq: React.FC = () => {

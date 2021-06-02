@@ -1,8 +1,10 @@
-import React, { FC, ReactElement } from 'react';
-import { render, RenderOptions } from '@testing-library/react';
-import { MemoryRouter } from 'react-router';
+import type { RenderOptions, RenderResult } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import axios from 'axios';
 import { IdentityType, PrivateKey } from 'ldk';
+import React from 'react';
+import type { FC, ReactElement } from 'react';
+import { MemoryRouter } from 'react-router';
 
 const AllTheProviders: FC = ({ children }) => {
   return <MemoryRouter>{children}</MemoryRouter>;
@@ -10,8 +12,8 @@ const AllTheProviders: FC = ({ children }) => {
 
 const customRender = (
   ui: ReactElement,
-  options?: Omit<RenderOptions, 'queries'>
-) => render(ui, { wrapper: AllTheProviders, ...options });
+  options?: Omit<RenderOptions, 'queries'>,
+): RenderResult => render(ui, { wrapper: AllTheProviders, ...options });
 
 export * from '@testing-library/react';
 
@@ -52,6 +54,6 @@ export const privKeyIdentity = new PrivateKey({
 
 export const firstAddress = privKeyIdentity.getNextAddress();
 
-export function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+export function sleep(ms: number): Promise<any> {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }

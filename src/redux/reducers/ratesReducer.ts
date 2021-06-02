@@ -1,4 +1,4 @@
-import { ActionType } from '../../utils/types';
+import type { ActionType } from '../../utils/types';
 import { SET_LBTC_PRICES, SET_PRICES } from '../actions/ratesActions';
 
 export interface RateState {
@@ -13,7 +13,7 @@ const initialState: RateState = {
 
 const ratesReducer = (
   state: RateState = initialState,
-  action: ActionType
+  action: ActionType,
 ): RateState => {
   switch (action.type) {
     case SET_LBTC_PRICES:
@@ -27,7 +27,7 @@ const ratesReducer = (
 
 export const rateSelectorFactory =
   (crypto: string) =>
-  ({ rates }: { rates: RateState }) =>
+  ({ rates }: { rates: RateState }): number =>
     rates.prices[crypto];
 
 export default ratesReducer;

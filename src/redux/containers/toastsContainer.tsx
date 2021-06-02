@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+
 import Toasts from '../../components/Toasts';
 import { removeToast } from '../actions/toastActions';
 

@@ -1,24 +1,24 @@
 import { IconExchange, IconSettings, IconWallet } from './components/icons';
-import Exchange from './redux/containers/exchangeContainer';
-import Operations from './redux/containers/operationsContainer';
+import Account from './pages/Account';
+import DeleteMnemonic from './pages/DeleteMnemonic';
+import Deposit from './pages/Deposit';
+import Faq from './pages/Faq';
+import Privacy from './pages/Privacy';
 import QRScanner from './pages/QRScanner';
 import Receive from './pages/Receive';
 import Settings from './pages/Settings';
+import ShowMnemonicSettings from './pages/ShowMnemonic/show-mnemonic-settings';
+import Terms from './pages/Terms';
+import WithdrawalDetails from './pages/WithdrawalDetails';
+import Backup from './redux/containers/backupContainer';
+import Exchange from './redux/containers/exchangeContainer';
 import TradeHistory from './redux/containers/exchangeHistoryContainer';
+import LiquidityProviders from './redux/containers/liquidityProvidersContainer';
+import Operations from './redux/containers/operationsContainer';
+import ShowMnemonic from './redux/containers/showMnemonicContainer';
 import TradeSummary from './redux/containers/tradeSummaryContainer';
 import Wallet from './redux/containers/walletContainer';
 import Withdrawal from './redux/containers/withdrawalContainer';
-import WithdrawalDetails from './pages/WithdrawalDetails';
-import Account from './pages/Account';
-import LiquidityProviders from './redux/containers/liquidityProvidersContainer';
-import Faq from './pages/Faq';
-import Privacy from './pages/Privacy';
-import Terms from './pages/Terms';
-import Deposit from './pages/Deposit';
-import Backup from './redux/containers/backupContainer';
-import ShowMnemonic from './redux/containers/showMnemonicContainer';
-import ShowMnemonicSettings from './pages/ShowMnemonic/show-mnemonic-settings';
-import DeleteMnemonic from './pages/DeleteMnemonic';
 
 export const routerLinks = {
   wallet: '/wallet',

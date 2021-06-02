@@ -1,7 +1,8 @@
 // Main Flow Back Up Page Container
 import { connect } from 'react-redux';
+
 import Backup from '../../pages/Backup';
-import { AppError } from '../../utils/errors';
+import type { AppError } from '../../utils/errors';
 import { setSeedBackupFlag } from '../../utils/storage-helper';
 import { setIsBackupDone } from '../actions/appActions';
 import { addErrorToast } from '../actions/toastActions';

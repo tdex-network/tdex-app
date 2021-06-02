@@ -1,5 +1,4 @@
-import React, { useRef, useState } from 'react';
-import { useLocation } from 'react-router';
+import { Clipboard } from '@ionic-native/clipboard';
 import {
   IonContent,
   IonPage,
@@ -8,9 +7,11 @@ import {
   IonButton,
   IonCol,
 } from '@ionic/react';
-import { Clipboard } from '@ionic-native/clipboard';
-import WordList from '../../components/WordList';
+import React, { useRef, useState } from 'react';
+import { useLocation } from 'react-router';
+
 import Header from '../../components/Header';
+import WordList from '../../components/WordList';
 
 interface LocationState {
   mnemonic: string;
@@ -24,13 +25,13 @@ const ShowMnemonicSettings: React.FC = () => {
   const copyMnemonic = () => {
     if (mnemonicRef && state?.mnemonic) {
       Clipboard.copy(state?.mnemonic)
-        .then((res: any) => {
+        .then(() => {
           setCopied(true);
           setTimeout(() => {
             setCopied(false);
           }, 2000);
         })
-        .catch((e: any) => {
+        .catch(() => {
           mnemonicRef.current.select();
           document.execCommand('copy');
           setCopied(true);
