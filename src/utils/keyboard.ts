@@ -1,5 +1,5 @@
 import type { KeyboardInfo, KeyboardStyle } from '@capacitor/core';
-import { Plugins } from '@capacitor/core';
+import { Capacitor, Plugins } from '@capacitor/core';
 import { isPlatform } from '@ionic/react';
 import type React from 'react';
 
@@ -53,7 +53,7 @@ export function onPressEnterKeyCloseKeyboard(
 
 export async function setAccessoryBar(isVisible: boolean): Promise<void> {
   try {
-    if (isPlatform('mobile')) {
+    if (isPlatform('mobile') && Capacitor.platform !== 'web') {
       await Keyboard.setAccessoryBarVisible({ isVisible });
     }
   } catch (e) {

@@ -10,10 +10,10 @@ import { Redirect, Route } from 'react-router';
 import BackupOnboarding from './pages/Backup/backup-onboarding';
 import Homescreen from './pages/Homescreen';
 import PinSetting from './pages/PinSetting';
-import RestoreWallet from './pages/RestoreWallet';
 import Tabs from './pages/Tabs';
 import { initApp } from './redux/actions/appActions';
 import { unlockUtxos } from './redux/actions/walletActions';
+import RestoreWallet from './redux/containers/restoreWalletContainer';
 import ShowMnemonicOnboarding from './redux/containers/showMnemonicOnboadingContainer';
 import Toasts from './redux/containers/toastsContainer';
 

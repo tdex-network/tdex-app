@@ -18,7 +18,7 @@ import { withRouter } from 'react-router';
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
 import PinModal from '../../components/PinModal';
-import { setIsBackupDone, signIn } from '../../redux/actions/appActions';
+import { signIn } from '../../redux/actions/appActions';
 import {
   addErrorToast,
   addSuccessToast,
@@ -41,7 +41,16 @@ import {
 } from '../../utils/storage-helper';
 import './style.scss';
 
-const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
+interface RestoreWalletProps extends RouteComponentProps {
+  // connected redux props
+  backupDone: boolean;
+  setIsBackupDone: (done: boolean) => void;
+}
+
+const RestoreWallet: React.FC<RestoreWalletProps> = ({
+  history,
+  setIsBackupDone,
+}) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [firstPin, setFirstPin] = useState<string>();
@@ -82,7 +91,7 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
           );
           setIsWrongPin(false);
           dispatch(signIn(newPin));
-          dispatch(setIsBackupDone(true));
+          setIsBackupDone(true);
           setTimeout(() => {
             // we don't need to ask backup if the mnemonic is restored
             history.push('/wallet');

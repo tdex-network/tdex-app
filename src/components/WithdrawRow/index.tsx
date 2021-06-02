@@ -24,6 +24,7 @@ import {
 import { CurrencyIcon } from '../icons';
 
 interface WithdrawRowInterface {
+  amount: number | undefined;
   balance: BalanceInterface;
   price: number | undefined;
   onAmountChange: (amount: number | undefined) => void;
@@ -31,6 +32,7 @@ interface WithdrawRowInterface {
 }
 
 const WithdrawRow: React.FC<WithdrawRowInterface> = ({
+  amount,
   balance,
   price,
   onAmountChange,
@@ -50,16 +52,32 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   const dispatch = useDispatch();
 
   useIonViewDidEnter(() => {
-    setAccessoryBar(true);
+    setAccessoryBar(true).catch(console.error);
   });
 
   useIonViewDidLeave(() => {
-    setAccessoryBar(false);
+    setAccessoryBar(false).catch(console.error);
+    reset();
   });
+
+  useEffect(() => {
+    setResidualBalance(
+      fromSatoshiFixed(
+        balance.amount,
+        balance.precision,
+        balance.precision,
+        balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
+      ),
+    );
+  }, [lbtcUnit]);
 
   useEffect(() => {
     dispatch(updatePrices());
   }, []);
+
+  useEffect(() => {
+    handleAmountChange(amount?.toString());
+  }, [price]);
 
   const reset = () => {
     setResidualBalance(
@@ -89,8 +107,9 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
         balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
       ) - val;
     setResidualBalance(
-      residualAmount.toLocaleString(undefined, {
+      residualAmount.toLocaleString('en-US', {
         maximumFractionDigits: balance.precision,
+        useGrouping: false,
       }),
     );
     if (price)
@@ -126,6 +145,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
         >
           <div className="ion-text-end">
             <IonInput
+              value={amount}
               type="number"
               inputmode="decimal"
               placeholder="0.00"
