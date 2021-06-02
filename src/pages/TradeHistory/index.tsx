@@ -8,6 +8,8 @@ import {
   IonLabel,
   IonText,
   IonGrid,
+  IonRow,
+  IonCol,
 } from '@ionic/react';
 import classNames from 'classnames';
 import { checkmarkOutline } from 'ionicons/icons';
@@ -47,8 +49,8 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
   return (
     <IonPage id="trade-history">
       <IonContent>
-        <Header hasBackButton={true} title="TRADE HISTORY" />
         <IonGrid>
+          <Header hasBackButton={true} title="TRADE HISTORY" />
           {swaps.length > 0 ? (
             <IonList>
               <IonListHeader>Swaps</IonListHeader>
@@ -127,11 +129,13 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
               })}
             </IonList>
           ) : (
-            <div className="no-swaps">
-              <IonText color="light">
-                You don't have any trades transactions. They will appear here.{' '}
-              </IonText>
-            </div>
+            <IonRow className="ion-text-center ion-margin">
+              <IonCol size="10" offset="1">
+                <p>
+                  You don't have any trades transactions. They will appear here.
+                </p>
+              </IonCol>
+            </IonRow>
           )}
         </IonGrid>
       </IonContent>

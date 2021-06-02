@@ -18,6 +18,7 @@ import type { Dispatch } from 'redux';
 import { TradeType } from 'tdex-sdk';
 
 import swap from '../../assets/img/swap.svg';
+import tradeHistory from '../../assets/img/trade-history.svg';
 import Header from '../../components/Header';
 import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
@@ -267,6 +268,11 @@ const Exchange: React.FC<ExchangeProps> = ({
           <IonGrid className="ion-no-padding ion-padding-top">
             <Header
               hasBackButton={false}
+              hasCloseButton={true}
+              customRightButton={tradeHistory}
+              handleCustomRightButton={() => {
+                history.push('/history');
+              }}
               title="Exchange"
               isTitleLarge={true}
             />
