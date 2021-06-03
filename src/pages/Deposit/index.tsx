@@ -1,12 +1,14 @@
-import React from 'react';
-import { RouteComponentProps, useLocation } from 'react-router';
 import { IonContent, IonPage, IonIcon, IonGrid } from '@ionic/react';
 import { addCircleOutline } from 'ionicons/icons';
-import { AssetConfig } from '../../utils/constants';
-import { network } from '../../redux/config';
-import { CurrencyIcon } from '../../components/icons';
-import './style.scss';
+import React from 'react';
+import type { RouteComponentProps } from 'react-router';
+import { useLocation } from 'react-router';
+
 import Header from '../../components/Header';
+import { CurrencyIcon } from '../../components/icons';
+import { network } from '../../redux/config';
+import type { AssetConfig } from '../../utils/constants';
+import './style.scss';
 
 interface LocationState {
   depositAssets: AssetConfig[];
@@ -60,7 +62,7 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
             color="success"
           />
           <span className="deposit-grid-item-name">Add Liquid Asset</span>
-        </button>
+        </button>,
       );
   };
 

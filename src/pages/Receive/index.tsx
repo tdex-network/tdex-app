@@ -1,3 +1,5 @@
+import { QRCodeImg } from '@cheprasov/react-qrcode';
+import { Clipboard } from '@ionic-native/clipboard';
 import {
   IonPage,
   IonContent,
@@ -6,32 +8,28 @@ import {
   IonLoading,
   IonGrid,
 } from '@ionic/react';
-import React, { useEffect, useRef, useState } from 'react';
-import { withRouter, useLocation } from 'react-router';
-import { useDispatch, useSelector } from 'react-redux';
-import { Clipboard } from '@ionic-native/clipboard';
-import { QRCodeImg } from '@cheprasov/react-qrcode';
 import { checkmarkOutline } from 'ionicons/icons';
-import {
-  IdentityOpts,
-  IdentityType,
-  MasterPublicKey,
-  address as addressLDK,
-} from 'ldk';
+import type { IdentityOpts } from 'ldk';
+import { IdentityType, MasterPublicKey, address as addressLDK } from 'ldk';
 import ElementsPegin from 'pegin';
+import React, { useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { withRouter, useLocation } from 'react-router';
+
+import Header from '../../components/Header';
+import PageDescription from '../../components/PageDescription';
+import { IconCopy, CurrencyIcon } from '../../components/icons';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import { WalletState } from '../../redux/reducers/walletReducer';
-import { network } from '../../redux/config';
 import { addAddress } from '../../redux/actions/walletActions';
+import { network } from '../../redux/config';
+import type { WalletState } from '../../redux/reducers/walletReducer';
+import type { AssetConfig } from '../../utils/constants';
+import { BTC_TICKER } from '../../utils/constants';
 import { AddressGenerationError } from '../../utils/errors';
-import { AssetConfig, BTC_TICKER } from '../../utils/constants';
 import { IdentityRestorerFromState } from '../../utils/identity';
-import Header from '../../components/Header';
-import { IconCopy, CurrencyIcon } from '../../components/icons';
-import PageDescription from '../../components/PageDescription';
 import './style.scss';
 
 interface LocationState {
@@ -60,10 +58,10 @@ const Receive: React.FC = () => {
         },
         initializeFromRestorer: true,
         restorer: new IdentityRestorerFromState(
-          Object.values(wallet.addresses)
+          Object.values(wallet.addresses),
         ),
       };
-    }
+    },
   );
 
   useEffect(() => {
@@ -73,15 +71,15 @@ const Receive: React.FC = () => {
   const copyAddress = () => {
     if (address) {
       Clipboard.copy(address)
-        .then((res: any) => {
+        .then(() => {
           setCopied(true);
           dispatch(addSuccessToast('Address copied.'));
           setTimeout(() => {
             setCopied(false);
           }, 5000);
         })
-        .catch((e: any) => {
-          if (addressRef && addressRef.current) {
+        .catch(() => {
+          if (addressRef?.current) {
             addressRef.current.select();
             document.execCommand('copy');
             setCopied(true);
@@ -98,17 +96,17 @@ const Receive: React.FC = () => {
     try {
       setLoading(true);
       const masterPublicKey: MasterPublicKey = new MasterPublicKey(
-        masterPubKeyOpts
+        masterPubKeyOpts,
       );
       await masterPublicKey.isRestored;
       const addr = await masterPublicKey.getNextAddress();
       if (locationState.depositAsset.ticker === BTC_TICKER) {
         const peginModule = new ElementsPegin(
           await ElementsPegin.withGoElements(),
-          await ElementsPegin.withLibwally()
+          await ElementsPegin.withLibwally(),
         );
         const btcAddress = await peginModule.getMainchainAddress(
-          addressLDK.toOutputScript(addr.confidentialAddress).toString('hex')
+          addressLDK.toOutputScript(addr.confidentialAddress).toString('hex'),
         );
         setAddress(btcAddress);
       } else {

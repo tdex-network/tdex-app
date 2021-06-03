@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
   IonContent,
   IonList,
@@ -9,11 +8,13 @@ import {
   IonIcon,
 } from '@ionic/react';
 import { closeSharp, searchSharp } from 'ionicons/icons';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { CurrencyInterface } from '../../redux/reducers/settingsReducer';
-import { CURRENCIES } from '../../utils/constants';
-import { setCurrency } from '../../redux/actions/settingsActions';
+
 import { updatePrices } from '../../redux/actions/ratesActions';
+import { setCurrency } from '../../redux/actions/settingsActions';
+import type { CurrencyInterface } from '../../redux/reducers/settingsReducer';
+import { CURRENCIES } from '../../utils/constants';
 
 interface CurrencySearchProps {
   isOpen: boolean;
@@ -40,7 +41,7 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
                 color="light-contrast"
                 placeholder="Search currency"
                 value={searchString}
-                onIonChange={(e) => setSearchString(e.detail.value || '')}
+                onIonChange={e => setSearchString(e.detail.value || '')}
               />
               <IonIcon
                 icon={closeSharp}
@@ -56,7 +57,7 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
               (currency: CurrencyInterface) =>
                 currency.name.includes(searchString) ||
                 currency.symbol.includes(searchString) ||
-                currency.value.includes(searchString)
+                currency.value.includes(searchString),
             ).map((currency: CurrencyInterface, index: number) => {
               return (
                 <IonItem

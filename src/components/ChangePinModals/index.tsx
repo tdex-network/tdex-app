@@ -1,20 +1,22 @@
 import { IonLoading } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+
 import PinModal from '../../components/PinModal';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import { AppError, IncorrectPINError } from '../../utils/errors';
-import {
-  changePin,
-  getMnemonicFromSecureStorage,
-} from '../../utils/storage-helper';
 import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
+import type { AppError } from '../../utils/errors';
+import { IncorrectPINError } from '../../utils/errors';
+import {
+  changePin,
+  getMnemonicFromSecureStorage,
+} from '../../utils/storage-helper';
 
 interface ChangePinModalsProps {
   open: boolean;

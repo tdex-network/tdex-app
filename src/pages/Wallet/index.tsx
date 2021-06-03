@@ -11,31 +11,33 @@ import {
   IonRow,
   IonCol,
 } from '@ionic/react';
-import React, { useEffect, useState } from 'react';
-import { RouteComponentProps, withRouter } from 'react-router';
-import { useSelector } from 'react-redux';
 import { addCircleOutline } from 'ionicons/icons';
-import { network } from '../../redux/config';
+import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import type { RouteComponentProps } from 'react-router';
+import { withRouter } from 'react-router';
+
+import CircleTotalBalance from '../../components/CircleTotalBalance';
+import Header from '../../components/Header';
+import Refresher from '../../components/Refresher';
 import { CurrencyIcon } from '../../components/icons';
-import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import { update } from '../../redux/actions/appActions';
+import { updateUtxos } from '../../redux/actions/walletActions';
+import { network } from '../../redux/config';
+import type { AssetConfig } from '../../utils/constants';
 import {
-  capitalizeFirstLetter,
-  fromSatoshi,
-  fromSatoshiFixed,
-} from '../../utils/helpers';
-import {
-  AssetConfig,
   BTC_ASSET,
   getMainAsset,
   LBTC_COINGECKOID,
   MAIN_ASSETS,
 } from '../../utils/constants';
-import { ActionType } from '../../utils/types';
-import { update } from '../../redux/actions/appActions';
-import CircleTotalBalance from '../../components/CircleTotalBalance';
-import Refresher from '../../components/Refresher';
-import Header from '../../components/Header';
-import { updateUtxos } from '../../redux/actions/walletActions';
+import {
+  capitalizeFirstLetter,
+  fromSatoshi,
+  fromSatoshiFixed,
+} from '../../utils/helpers';
+import type { ActionType } from '../../utils/types';
 import './style.scss';
 
 interface WalletProps extends RouteComponentProps {
@@ -60,14 +62,16 @@ const Wallet: React.FC<WalletProps> = ({
   const [mainAssets, setMainAssets] = useState<BalanceInterface[]>([]);
   const [fiats, setFiats] = useState<number[]>([]);
   const [secondaryAssets, setSecondaryAssets] = useState<BalanceInterface[]>(
-    []
+    [],
   );
   const [depositAssets, setDepositAssets] = useState<AssetConfig[]>([]);
 
   const UNKNOWN = -1;
 
   const getFiatValue = (balance: BalanceInterface) => {
-    const balanceIndex = balances.findIndex((b) => b.ticker === balance.ticker);
+    const balanceIndex = balances?.findIndex(
+      b => b?.ticker === balance?.ticker,
+    );
     if (balanceIndex < 0) return UNKNOWN;
     return fiats[balanceIndex];
   };
@@ -112,8 +116,8 @@ const Wallet: React.FC<WalletProps> = ({
     } else {
       // Display L-BTC with empty balance
       const [lbtc] = MAIN_ASSETS.filter(
-        (a) => a.ticker === 'L-BTC' && a.chain === network.chain
-      ).map((a) => {
+        a => a.ticker === 'L-BTC' && a.chain === network.chain,
+      ).map(a => {
         return {
           asset: a.assetHash,
           ticker: a.ticker,
@@ -124,7 +128,7 @@ const Wallet: React.FC<WalletProps> = ({
       main.push(lbtc);
     }
     // Delete L-BTC from array
-    const lbtcIndex = main.findIndex((a) => a.ticker === 'L-BTC');
+    const lbtcIndex = main.findIndex(a => a.ticker === 'L-BTC');
     const [lbtc] = main.splice(lbtcIndex, 1);
     // Sort by balance
     main.sort((a, b) => {
@@ -201,6 +205,7 @@ const Wallet: React.FC<WalletProps> = ({
 
             {mainAssets
               .concat(secondaryAssets)
+              .filter(b => b !== undefined)
               .map((balance: BalanceInterface) => {
                 const fiatValue = getFiatValue(balance);
                 return (
@@ -235,7 +240,7 @@ const Wallet: React.FC<WalletProps> = ({
                               balance.amount,
                               balance.precision,
                               balance.precision,
-                              balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+                              balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
                             )}
                           </div>
                           <div className="sub-row">

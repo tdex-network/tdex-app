@@ -1,14 +1,15 @@
-import React, { CSSProperties } from 'react';
-import BtcIcon from '../../assets/img/coins/btc.svg';
-import LbtcIcon from '../../assets/img/coins/lbtc.svg';
-import UsdtIcon from '../../assets/img/coins/usdt.svg';
-import BtseIcon from '../../assets/img/coins/btse.svg';
-import LcadIcon from '../../assets/img/coins/lcad.svg';
-import CurrencyPlaceholderIcon from '../../assets/img/coins/currency-placeholder.svg';
-import DepositIcon from '../../assets/img/deposit.svg';
-import DepositIconBlack from '../../assets/img/deposit-black.svg';
-import { TxTypeEnum } from '../../utils/types';
+import type { CSSProperties } from 'react';
+import React from 'react';
 import { useSelector } from 'react-redux';
+
+import BtcIcon from '../../assets/img/coins/btc.svg';
+import BtseIcon from '../../assets/img/coins/btse.svg';
+import CurrencyPlaceholderIcon from '../../assets/img/coins/currency-placeholder.svg';
+import LbtcIcon from '../../assets/img/coins/lbtc.svg';
+import LcadIcon from '../../assets/img/coins/lcad.svg';
+import UsdtIcon from '../../assets/img/coins/usdt.svg';
+import DepositIconBlack from '../../assets/img/deposit-black.svg';
+import DepositIcon from '../../assets/img/deposit.svg';
 import {
   BTC_TICKER,
   BTSE_TICKER,
@@ -16,6 +17,7 @@ import {
   LCAD_TICKER,
   USDT_TICKER,
 } from '../../utils/constants';
+import { TxTypeEnum } from '../../utils/types';
 
 interface IconInterface {
   width?: string;
@@ -90,7 +92,7 @@ export const IconCheck = (props: IconInterface): any => (
   </svg>
 );
 
-export const IconCopy = (props: IconInterface) => (
+export const IconCopy = (props: IconInterface): JSX.Element => (
   <svg
     width="20"
     height="20"
@@ -107,7 +109,7 @@ export const IconCopy = (props: IconInterface) => (
   </svg>
 );
 
-export const IconQR = (props: IconInterface) => (
+export const IconQR = (props: IconInterface): JSX.Element => (
   <svg
     width="20"
     height="20"
@@ -174,7 +176,7 @@ export const IconQR = (props: IconInterface) => (
   </svg>
 );
 
-export const CurrencyIcon = ({ currency, ...props }: any) => {
+export const CurrencyIcon = ({ currency, ...props }: any): any => {
   switch (currency?.toUpperCase()) {
     case BTC_TICKER:
       return <img src={BtcIcon} {...props} alt="BTC" />;
@@ -191,10 +193,9 @@ export const CurrencyIcon = ({ currency, ...props }: any) => {
   }
 };
 
-export const TxIcon = ({ type, ...props }: any) => {
+export const TxIcon = ({ type }: any): any => {
   const theme = useSelector((state: any) => state.settings.theme);
   const themeIcon = theme === 'light' ? DepositIconBlack : DepositIcon;
-
   switch (type) {
     case TxTypeEnum.Deposit:
       return <img className="deposit" src={themeIcon} alt="deposit" />;

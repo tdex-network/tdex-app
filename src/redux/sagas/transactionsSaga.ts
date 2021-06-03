@@ -1,18 +1,6 @@
+import type { BlindingKeyGetter, TxInterface, AddressInterface } from 'ldk';
 import {
-  addWatcherTransaction,
-  removeWatcherTransaction,
-  setTransaction,
-  SET_TRANSACTION,
-  UPDATE_TRANSACTIONS,
-  WATCH_TRANSACTION,
-} from '../actions/transactionsActions';
-import { ActionType } from '../../utils/types';
-import { WalletState } from '../reducers/walletReducer';
-import {
-  BlindingKeyGetter,
-  TxInterface,
   fetchAndUnblindTxsGenerator,
-  AddressInterface,
   isBlindedOutputInterface,
   fetchTx,
   unblindTransaction,
@@ -26,21 +14,32 @@ import {
   takeEvery,
   delay,
 } from 'redux-saga/effects';
-import { addErrorToast } from '../actions/toastActions';
-import { addAsset } from '../actions/assetsActions';
+
+import { UpdateTransactionsError } from '../../utils/errors';
 import {
   getTransactionsFromStorage,
   setTransactionsInStorage,
 } from '../../utils/storage-helper';
+import type { ActionType } from '../../utils/types';
 import { SIGN_IN } from '../actions/appActions';
-import { UpdateTransactionsError } from '../../utils/errors';
+import { addAsset } from '../actions/assetsActions';
+import { addErrorToast } from '../actions/toastActions';
+import {
+  addWatcherTransaction,
+  removeWatcherTransaction,
+  setTransaction,
+  SET_TRANSACTION,
+  UPDATE_TRANSACTIONS,
+  WATCH_TRANSACTION,
+} from '../actions/transactionsActions';
+import type { WalletState } from '../reducers/walletReducer';
 
-function* updateTransactions({ type }: { type: string }) {
+function* updateTransactions() {
   try {
     const [addresses, explorerURL, currentTxs]: [
       Record<string, AddressInterface>,
       string,
-      Record<string, TxInterface>
+      Record<string, TxInterface>,
     ] = yield all([
       select(({ wallet }: { wallet: WalletState }) => wallet.addresses),
       select(({ settings }) => settings.explorerUrl),
@@ -70,10 +69,10 @@ export function* fetchAndUpdateTxs(
   addresses: string[],
   scriptsToAddressInterface: Record<string, AddressInterface>,
   currentTxs: Record<string, TxInterface>,
-  explorerUrl: string
-) {
+  explorerUrl: string,
+): Generator<any, any, any> {
   const identityBlindKeyGetter = blindKeyGetterFactory(
-    scriptsToAddressInterface
+    scriptsToAddressInterface,
   );
 
   const txsGen = fetchAndUnblindTxsGenerator(
@@ -82,12 +81,9 @@ export function* fetchAndUpdateTxs(
     explorerUrl,
     (tx: TxInterface) => {
       const txInStore = currentTxs[tx.txid];
-      if (txInStore && txInStore.status.confirmed) {
-        // skip if tx is already in store AND confirmed
-        return true;
-      }
-      return false;
-    }
+      // skip if tx is already in store AND confirmed
+      return !!txInStore?.status.confirmed;
+    },
   );
   const next = () => txsGen.next();
   let it: IteratorResult<TxInterface, number> = yield call(next);
@@ -104,13 +100,7 @@ export function* fetchAndUpdateTxs(
 }
 
 // update the assets state when a new transaction is set in tx state
-function* updateAssets({
-  type,
-  payload,
-}: {
-  type: string;
-  payload: TxInterface;
-}) {
+function* updateAssets({ payload }: { payload: TxInterface }) {
   for (const out of payload.vout) {
     if (!isBlindedOutputInterface(out)) {
       yield put(addAsset(out.asset));
@@ -121,7 +111,7 @@ function* updateAssets({
 function* persistTransactions() {
   yield delay(20_000); // 20 sec
   const txs = yield select(({ transactions }) =>
-    Object.values(transactions.txs)
+    Object.values(transactions.txs),
   );
   yield call(setTransactionsInStorage, txs);
 }
@@ -142,13 +132,13 @@ function* watchTransaction(action: ActionType) {
     try {
       const tx: TxInterface = yield call(fetchTx, txID, explorer);
       const scriptsToAddress = yield select(
-        ({ wallet }: { wallet: WalletState }) => wallet.addresses
+        ({ wallet }: { wallet: WalletState }) => wallet.addresses,
       );
       const blindKeyGetter = blindKeyGetterFactory(scriptsToAddress);
       const { unblindedTx, errors } = yield call(
         unblindTransaction,
         tx,
-        blindKeyGetter
+        blindKeyGetter,
       );
       if (errors.length > 0) {
         errors.forEach((err: { message?: string }) => {
@@ -167,7 +157,7 @@ function* watchTransaction(action: ActionType) {
 }
 
 function blindKeyGetterFactory(
-  scriptsToAddressInterface: Record<string, AddressInterface>
+  scriptsToAddressInterface: Record<string, AddressInterface>,
 ): BlindingKeyGetter {
   return (script: string) => {
     try {
@@ -178,9 +168,11 @@ function blindKeyGetterFactory(
   };
 }
 
-export function* transactionsWatcherSaga() {
+export function* transactionsWatcherSaga(): Generator<any, any, any> {
   yield takeLatest(UPDATE_TRANSACTIONS, updateTransactions);
   yield takeLatest(UPDATE_TRANSACTIONS, persistTransactions);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   yield takeEvery(SET_TRANSACTION, updateAssets);
   yield takeLatest(SIGN_IN, restoreTransactions);
   yield takeEvery(WATCH_TRANSACTION, watchTransaction);

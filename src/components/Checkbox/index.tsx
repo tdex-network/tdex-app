@@ -1,6 +1,8 @@
 import { IonCol, IonRow } from '@ionic/react';
+import type { ChangeEvent, HTMLAttributes, PropsWithChildren } from 'react';
+import React from 'react';
+
 import { IconCheck } from '../icons';
-import React, { ChangeEvent, HTMLAttributes, PropsWithChildren } from 'react';
 import './style.scss';
 
 interface CheckboxProps extends PropsWithChildren<HTMLAttributes<any>> {

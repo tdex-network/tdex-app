@@ -1,3 +1,4 @@
+import { Plugins } from '@capacitor/core';
 import {
   IonContent,
   IonList,
@@ -11,19 +12,21 @@ import {
   IonCol,
   IonIcon,
 } from '@ionic/react';
+import { chevronForwardOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
-import { RouteComponentProps, withRouter } from 'react-router';
-import PageDescription from '../../components/PageDescription';
-import { setElectrumServer } from '../../redux/actions/settingsActions';
 import { useDispatch, useSelector } from 'react-redux';
-import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
-import { Plugins } from '@capacitor/core';
+import type { RouteComponentProps } from 'react-router';
+import { withRouter } from 'react-router';
+
+import ButtonsMainSub from '../../components/ButtonsMainSub';
 import CurrencySearch from '../../components/CurrencySearch';
 import DenominationSearch from '../../components/DenominationSearch';
-import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Header from '../../components/Header';
+import PageDescription from '../../components/PageDescription';
+import { setElectrumServer } from '../../redux/actions/settingsActions';
+import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
+
 import './style.scss';
-import { chevronForwardOutline } from 'ionicons/icons';
 
 const { Device } = Plugins;
 
@@ -41,7 +44,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   const [appVersion, setAppVersion] = useState<string>();
 
   useEffect(() => {
-    Device.getInfo().then((info) => {
+    Device.getInfo().then(info => {
       if (info.platform === 'web') {
         setAppVersion('TDex App - web version');
         return;

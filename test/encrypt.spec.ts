@@ -1,5 +1,6 @@
-import { decrypt, encrypt } from '../src/utils/crypto';
 import * as assert from 'assert';
+
+import { decrypt, encrypt } from '../src/utils/crypto';
 
 const PIN = '666666';
 const data = 'secret data';

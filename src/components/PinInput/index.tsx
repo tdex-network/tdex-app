@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
-import classNames from 'classnames';
 import { IonInput, IonGrid, IonRow, IonCol } from '@ionic/react';
+import classNames from 'classnames';
+import React, { useEffect } from 'react';
+
 import { onPressEnterKeyFactory } from '../../utils/keyboard';
 import './style.scss';
 
@@ -23,7 +24,7 @@ const PinInput: React.FC<PinInputProps> = ({
 }) => {
   useEffect(() => {
     setTimeout(() => {
-      if (inputRef && inputRef.current) {
+      if (inputRef?.current) {
         inputRef.current.setFocus().catch(console.error);
       }
     }, 500);
@@ -77,7 +78,7 @@ const PinInput: React.FC<PinInputProps> = ({
               type="number"
               value={pin}
               required={true}
-              onIonChange={(e) => handleNewPinDigit(e.detail.value)}
+              onIonChange={e => handleNewPinDigit(e.detail.value)}
               maxlength={6}
             />
           </IonGrid>

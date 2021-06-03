@@ -18,6 +18,15 @@ ion-header {
       right: 0;
       width: 30px;
     }
+    ion-button.custom-right-button {
+      filter: brightness(65%);
+      position: absolute;
+      right: 0;
+      width: 65px;
+      @media (max-width: 320px) {
+        width: 55px;
+      }
+    }
   }
   ion-title {
     text-align: center;

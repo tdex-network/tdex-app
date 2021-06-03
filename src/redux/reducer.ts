@@ -1,14 +1,16 @@
 import { combineReducers } from 'redux';
-import walletReducer from './reducers/walletReducer';
+
+import type { ActionType } from '../utils/types';
+
+import { RESET_ALL } from './actions/rootActions';
+import appReducer from './reducers/appReducer';
 import assetsReducer from './reducers/assetsReducer';
 import ratesReducer from './reducers/ratesReducer';
-import TDEXReducer from './reducers/tdexReducer';
 import settingsReducer from './reducers/settingsReducer';
-import transactionsReducer from './reducers/transactionsReducer';
-import appReducer from './reducers/appReducer';
+import TDEXReducer from './reducers/tdexReducer';
 import toastReducer from './reducers/toastReducer';
-import { ActionType } from '../utils/types';
-import { RESET_ALL } from './actions/rootActions';
+import transactionsReducer from './reducers/transactionsReducer';
+import walletReducer from './reducers/walletReducer';
 
 const combinedReducers = combineReducers({
   app: appReducer,
@@ -21,7 +23,7 @@ const combinedReducers = combineReducers({
   toasts: toastReducer,
 });
 
-const rootReducer = (state: any, action: ActionType) => {
+const rootReducer = (state: any, action: ActionType): any => {
   if (action.type === RESET_ALL) {
     // eslint-disable-next-line no-param-reassign
     state = undefined;

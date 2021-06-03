@@ -1,5 +1,5 @@
-import { scrypt } from 'scrypt-js';
 import * as crypto from 'crypto';
+import { scrypt } from 'scrypt-js';
 
 export const N = 16384;
 export const r = 8;
@@ -49,7 +49,7 @@ const iv = 'f341557fcf9b9286';
  */
 export async function encrypt(
   payload: string,
-  password: string
+  password: string,
 ): Promise<Encrypted> {
   const options = defaultScryptOptions();
   const passwordDerived = await passwordToKey(password, options);
@@ -71,7 +71,7 @@ export async function encrypt(
  */
 export async function decrypt(
   encryptedData: Encrypted,
-  password: string
+  password: string,
 ): Promise<string> {
   const passwordDerived = await passwordToKey(password, encryptedData.options);
   const hash = crypto.createHash('sha256').update(passwordDerived);
@@ -84,7 +84,7 @@ export async function decrypt(
 
 async function passwordToKey(
   password: string,
-  options: ScryptOptions
+  options: ScryptOptions,
 ): Promise<Uint8Array> {
   return scrypt(
     prepareForScrypt(password),
@@ -92,7 +92,7 @@ async function passwordToKey(
     options.N,
     options.r,
     options.p,
-    options.klen
+    options.klen,
   );
 }
 

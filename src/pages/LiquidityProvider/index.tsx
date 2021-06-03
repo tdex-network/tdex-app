@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
   IonAlert,
   IonButton,
@@ -15,19 +14,22 @@ import {
   IonPage,
   IonRow,
 } from '@ionic/react';
-import { RouteComponentProps, withRouter } from 'react-router';
-import { TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
 import { trash } from 'ionicons/icons';
-import './style.scss';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import type { RouteComponentProps } from 'react-router';
+import { withRouter } from 'react-router';
+
+import ButtonsMainSub from '../../components/ButtonsMainSub';
+import Header from '../../components/Header';
+import type { TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
+import './style.scss';
 import {
   addProvider,
   clearMarkets,
   deleteProvider,
   updateMarkets,
 } from '../../redux/actions/tdexActions';
-import Header from '../../components/Header';
-import ButtonsMainSub from '../../components/ButtonsMainSub';
 
 interface LiquidityProvidersProps extends RouteComponentProps {
   providers: TDEXProvider[];
@@ -95,7 +97,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
                       <IonInput
                         required
                         value={newProviderName}
-                        onIonChange={(e) =>
+                        onIonChange={e =>
                           setNewProviderName(e.detail.value || '')
                         }
                         inputmode="text"
@@ -107,7 +109,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
                       <IonInput
                         required
                         value={newProviderEndpoint}
-                        onIonChange={(e) =>
+                        onIonChange={e =>
                           setNewProviderEndpoint(e.detail.value || '')
                         }
                         inputmode="url"
@@ -133,7 +135,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
                         addProvider({
                           endpoint: newProviderEndpoint.trim(),
                           name: newProviderName.trim(),
-                        })
+                        }),
                       );
                     }}
                     subOnClick={() => setNewProvider(false)}

@@ -7,7 +7,9 @@ import {
   takeEvery,
   takeLatest,
 } from 'redux-saga/effects';
-import { AssetConfig, defaultPrecision } from '../../utils/constants';
+
+import type { AssetConfig } from '../../utils/constants';
+import { defaultPrecision } from '../../utils/constants';
 import { createColorFromHash, tickerFromAssetHash } from '../../utils/helpers';
 import {
   getAssetsFromStorage,
@@ -17,17 +19,17 @@ import { SIGN_IN } from '../actions/appActions';
 import { ADD_ASSET, setAsset, SET_ASSET } from '../actions/assetsActions';
 
 // payload = the assetHash
-function* addAssetSaga({ type, payload }: { type: string; payload: string }) {
+function* addAssetSaga({ payload }: { payload: string }) {
   // check if asset already present in state
   const asset = yield select((state: any) => state.assets[payload]);
   if (!asset) {
     const explorerUrl = yield select(
-      (state: any) => state.settings.explorerUrl
+      (state: any) => state.settings.explorerUrl,
     );
     const { precision, ticker, name } = yield call(
       getAssetData,
       payload,
-      explorerUrl
+      explorerUrl,
     );
 
     const setAssetAction = setAsset({
@@ -44,7 +46,7 @@ function* addAssetSaga({ type, payload }: { type: string; payload: string }) {
 
 async function getAssetData(
   assetHash: string,
-  explorerURL: string
+  explorerURL: string,
 ): Promise<{ precision: number; ticker: string; name: string }> {
   try {
     const { precision, ticker, name } = (
@@ -69,7 +71,7 @@ function* persistAssets() {
   yield delay(5_000);
   const currentAssets = yield select(
     ({ assets }: { assets: Record<string, AssetConfig> }) =>
-      Object.values(assets)
+      Object.values(assets),
   );
   yield call(setAssetsInStorage, currentAssets);
 }
@@ -81,7 +83,9 @@ function* restoreAssets() {
   }
 }
 
-export function* assetsWatcherSaga() {
+export function* assetsWatcherSaga(): Generator<any, any, any> {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   yield takeEvery(ADD_ASSET, addAssetSaga);
   yield takeLatest(SET_ASSET, persistAssets);
   yield takeLatest(SIGN_IN, restoreAssets);

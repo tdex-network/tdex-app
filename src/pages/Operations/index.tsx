@@ -13,26 +13,29 @@ import {
   IonRow,
   IonCol,
 } from '@ionic/react';
-import React, { useEffect, useState } from 'react';
-import { withRouter, RouteComponentProps, useParams } from 'react-router';
 import classNames from 'classnames';
-import { CurrencyIcon, TxIcon } from '../../components/icons';
+import { checkmarkSharp } from 'ionicons/icons';
+import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { TxDisplayInterface, TxStatusEnum } from '../../utils/types';
+import type { RouteComponentProps } from 'react-router';
+import { withRouter, useParams } from 'react-router';
+
+import depositIcon from '../../assets/img/deposit-green.svg';
+import swapIcon from '../../assets/img/swap-circle.svg';
+import Header from '../../components/Header';
+import Refresher from '../../components/Refresher';
+import { CurrencyIcon, TxIcon } from '../../components/icons';
+import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import WatchersLoader from '../../redux/containers/watchersLoaderContainer';
+import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
+import { LBTC_TICKER, MAIN_ASSETS } from '../../utils/constants';
 import {
   compareTxDisplayInterfaceByDate,
   fromSatoshi,
   fromSatoshiFixed,
 } from '../../utils/helpers';
-import { checkmarkSharp } from 'ionicons/icons';
-import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
-import { LBTC_TICKER, MAIN_ASSETS } from '../../utils/constants';
-import Refresher from '../../components/Refresher';
-import WatchersLoader from '../../redux/containers/watchersLoaderContainer';
-import Header from '../../components/Header';
-import depositIcon from '../../assets/img/deposit-green.svg';
-import swapIcon from '../../assets/img/swap-circle.svg';
+import type { TxDisplayInterface } from '../../utils/types';
+import { TxStatusEnum } from '../../utils/types';
 import './style.scss';
 
 const txTypes = ['deposit', 'withdrawal', 'swap', 'trade'];
@@ -59,16 +62,16 @@ const Operations: React.FC<OperationsProps> = ({
   const [opened, setOpened] = useState<string[]>([]);
 
   const transactionsToDisplay = useSelector(
-    transactionsByAssetSelector(asset_id)
+    transactionsByAssetSelector(asset_id),
   );
 
   // effect to select the balance
   useEffect(() => {
-    const balanceSelected = balances.find((bal) => bal.asset === asset_id);
+    const balanceSelected = balances.find(bal => bal.asset === asset_id);
     if (balanceSelected) {
       setBalance(balanceSelected);
     } else {
-      const asset = MAIN_ASSETS.find((a) => a.assetHash === asset_id);
+      const asset = MAIN_ASSETS.find(a => a.assetHash === asset_id);
       setBalance({
         asset: asset?.assetHash ?? '',
         amount: 0,
@@ -80,7 +83,7 @@ const Operations: React.FC<OperationsProps> = ({
   }, [balances, asset_id]);
 
   const open = (txID: string) => setOpened([...opened, txID]);
-  const close = (txID: string) => setOpened(opened.filter((id) => id !== txID));
+  const close = (txID: string) => setOpened(opened.filter(id => id !== txID));
   const isOpen = (txID: string) => opened.includes(txID);
   const onclickTx = (txID: string) => {
     if (isOpen(txID)) {
@@ -130,13 +133,13 @@ const Operations: React.FC<OperationsProps> = ({
                     balance?.amount,
                     balance.precision,
                     balance.precision,
-                    balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+                    balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
                   )}
                 <span>
                   {balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker}
                 </span>
               </p>
-              {balance && balance.coinGeckoID && prices[balance.coinGeckoID] && (
+              {balance?.coinGeckoID && prices[balance.coinGeckoID] && (
                 <span className="info-amount-converted">
                   {(
                     fromSatoshi(balance.amount, balance.precision) *
@@ -205,7 +208,7 @@ const Operations: React.FC<OperationsProps> = ({
                     .sort(compareTxDisplayInterfaceByDate)
                     .map((tx: TxDisplayInterface, index: number) => {
                       const transfer = tx.transfers.find(
-                        (t) => t.asset === asset_id
+                        t => t.asset === asset_id,
                       );
                       return (
                         <IonItem
@@ -228,7 +231,7 @@ const Operations: React.FC<OperationsProps> = ({
                                   <div className="sub-row">
                                     {isOpen(tx.txId)
                                       ? tx.blockTime?.format(
-                                          'DD MMM YYYY hh:mm:ss'
+                                          'DD MMM YYYY hh:mm:ss',
                                         )
                                       : tx.blockTime?.format('DD MMM YYYY')}
                                   </div>
@@ -244,7 +247,7 @@ const Operations: React.FC<OperationsProps> = ({
                                           balance.precision,
                                           balance.ticker === 'L-BTC'
                                             ? lbtcUnit
-                                            : undefined
+                                            : undefined,
                                         )
                                       : 'unknow'}
                                   </div>
@@ -259,7 +262,7 @@ const Operations: React.FC<OperationsProps> = ({
                                     {(
                                       fromSatoshi(
                                         transfer.amount,
-                                        balance.precision
+                                        balance.precision,
                                       ) * prices[balance.coinGeckoID]
                                     ).toFixed(2)}{' '}
                                     {currency.toUpperCase()}

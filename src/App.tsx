@@ -1,20 +1,22 @@
-import React, { useEffect } from 'react';
-import { IonApp, IonLoading, IonRouterOutlet } from '@ionic/react';
-import { IonReactRouter } from '@ionic/react-router';
-import { ScreenOrientation } from '@ionic-native/screen-orientation';
-import { useDispatch, useSelector } from 'react-redux';
-import { initApp } from './redux/actions/appActions';
-import Toasts from './redux/containers/toastsContainer';
-import { Redirect, Route } from 'react-router';
-import Homescreen from './pages/Homescreen';
-import RestoreWallet from './pages/RestoreWallet';
 import { useAppState } from '@capacitor-community/react-hooks/app';
 import { Capacitor, Plugins } from '@capacitor/core';
-import { unlockUtxos } from './redux/actions/walletActions';
+import { ScreenOrientation } from '@ionic-native/screen-orientation';
+import { IonApp, IonLoading, IonRouterOutlet } from '@ionic/react';
+import { IonReactRouter } from '@ionic/react-router';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Redirect, Route } from 'react-router';
+
 import BackupOnboarding from './pages/Backup/backup-onboarding';
-import ShowMnemonicOnboarding from './redux/containers/showMnemonicOnboadingContainer';
+import Homescreen from './pages/Homescreen';
 import PinSetting from './pages/PinSetting';
 import Tabs from './pages/Tabs';
+import { initApp } from './redux/actions/appActions';
+import { unlockUtxos } from './redux/actions/walletActions';
+import RestoreWallet from './redux/containers/restoreWalletContainer';
+import ShowMnemonicOnboarding from './redux/containers/showMnemonicOnboadingContainer';
+import Toasts from './redux/containers/toastsContainer';
+
 const { StatusBar } = Plugins;
 
 const App: React.FC = () => {

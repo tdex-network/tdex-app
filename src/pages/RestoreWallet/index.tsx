@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import {
   IonContent,
   IonButton,
@@ -9,37 +8,49 @@ import {
   IonRow,
   IonCol,
 } from '@ionic/react';
-import { RouteComponentProps, withRouter } from 'react-router';
-import PageDescription from '../../components/PageDescription';
+import * as bip39 from 'bip39';
 import classNames from 'classnames';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import {
-  clearStorage,
-  setMnemonicInSecureStorage,
-} from '../../utils/storage-helper';
-import { setIsBackupDone, signIn } from '../../redux/actions/appActions';
-import { useFocus, useMnemonic } from '../../utils/custom-hooks';
+import type { RouteComponentProps } from 'react-router';
+import { withRouter } from 'react-router';
+
+import Header from '../../components/Header';
+import PageDescription from '../../components/PageDescription';
 import PinModal from '../../components/PinModal';
+import { signIn } from '../../redux/actions/appActions';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import * as bip39 from 'bip39';
-import { onPressEnterKeyFactory } from '../../utils/keyboard';
-import './style.scss';
-import {
-  AppError,
-  InvalidMnemonicError,
-  PINsDoNotMatchError,
-  SecureStorageError,
-} from '../../utils/errors';
 import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
-import Header from '../../components/Header';
+import { useFocus, useMnemonic } from '../../utils/custom-hooks';
+import type { AppError } from '../../utils/errors';
+import {
+  InvalidMnemonicError,
+  PINsDoNotMatchError,
+  SecureStorageError,
+} from '../../utils/errors';
+import { onPressEnterKeyFactory } from '../../utils/keyboard';
+import {
+  clearStorage,
+  setMnemonicInSecureStorage,
+} from '../../utils/storage-helper';
+import './style.scss';
 
-const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
+interface RestoreWalletProps extends RouteComponentProps {
+  // connected redux props
+  backupDone: boolean;
+  setIsBackupDone: (done: boolean) => void;
+}
+
+const RestoreWallet: React.FC<RestoreWalletProps> = ({
+  history,
+  setIsBackupDone,
+}) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [firstPin, setFirstPin] = useState<string>();
@@ -76,11 +87,11 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
       setMnemonicInSecureStorage(restoredMnemonic, newPin)
         .then(() => {
           dispatch(
-            addSuccessToast('Mnemonic generated and encrypted with your PIN.')
+            addSuccessToast('Mnemonic generated and encrypted with your PIN.'),
           );
           setIsWrongPin(false);
           dispatch(signIn(newPin));
-          dispatch(setIsBackupDone(true));
+          setIsBackupDone(true);
           setTimeout(() => {
             // we don't need to ask backup if the mnemonic is restored
             history.push('/wallet');
@@ -162,9 +173,9 @@ const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
                     ref={refs[index]}
                     className="input-word"
                     onKeyDown={onPressEnterKeyFactory(() =>
-                      setFocus(index + 1)
+                      setFocus(index + 1),
                     )}
-                    onIonChange={(e) =>
+                    onIonChange={e =>
                       setMnemonicWord(e.detail.value || '', index)
                     }
                     value={item}

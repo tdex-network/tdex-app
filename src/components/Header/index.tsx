@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   IonBackButton,
   IonButton,
@@ -8,8 +7,9 @@ import {
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
-import { chevronBackOutline, closeOutline } from 'ionicons/icons';
 import classNames from 'classnames';
+import { chevronBackOutline, closeOutline } from 'ionicons/icons';
+import React from 'react';
 import './style.scss';
 
 interface HeaderProps {
@@ -20,6 +20,8 @@ interface HeaderProps {
   hasBackButton: boolean;
   hasCloseButton?: boolean;
   title: string;
+  customRightButton?: string;
+  handleCustomRightButton?: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -30,6 +32,8 @@ const Header: React.FC<HeaderProps> = ({
   hasCloseButton,
   isTitleLarge = false,
   title,
+  customRightButton,
+  handleCustomRightButton,
 }) => {
   return (
     <IonHeader className="ion-no-border">
@@ -39,7 +43,17 @@ const Header: React.FC<HeaderProps> = ({
           'close-button': hasCloseButton,
         })}
       >
-        {hasCloseButton && (
+        {customRightButton && hasCloseButton && (
+          <IonButtons slot="end">
+            <IonButton
+              className="custom-right-button"
+              onClick={handleCustomRightButton}
+            >
+              <img src={customRightButton} alt="custom" />
+            </IonButton>
+          </IonButtons>
+        )}
+        {!customRightButton && hasCloseButton && (
           <IonButtons slot="end">
             <IonButton onClick={handleClose}>
               <IonIcon slot="icon-only" icon={closeOutline} />

@@ -1,4 +1,4 @@
-import { ActionType } from '../../utils/types';
+import type { ActionType } from '../../utils/types';
 import {
   INIT_APP_FAIL,
   INIT_APP_SUCCESS,

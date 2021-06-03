@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+
 import { createColorFromHash } from '../../utils/helpers';
 
 import './style.scss';
@@ -13,7 +14,7 @@ const colors: {
 };
 
 export interface CircleDiagramProps {
-  balances: Array<{ asset: string; ticker: string; amount: number }>;
+  balances: { asset: string; ticker: string; amount: number }[];
 }
 
 const CircleDiagram: React.FC<CircleDiagramProps> = ({ balances }) => {
@@ -35,19 +36,17 @@ const CircleDiagram: React.FC<CircleDiagramProps> = ({ balances }) => {
 
     const checkSmallElements = () => {
       const marginsSum = balances.length * 0.2;
-      balances.forEach(
-        (item: { asset: string; amount: number }, index: number) => {
-          const part = item.amount / total;
-          const realLength = part * (2 * Math.PI - marginsSum);
-          if (part * 100 < minWidthPercent) {
-            minimalCount++;
-            minimalWidthSum += realLength;
-            lengthList.push(minWidth);
-          } else {
-            lengthList.push(realLength);
-          }
+      balances.forEach((item: { asset: string; amount: number }) => {
+        const part = item.amount / total;
+        const realLength = part * (2 * Math.PI - marginsSum);
+        if (part * 100 < minWidthPercent) {
+          minimalCount++;
+          minimalWidthSum += realLength;
+          lengthList.push(minWidth);
+        } else {
+          lengthList.push(realLength);
         }
-      );
+      });
     };
 
     const getElementPosition = (index: number, discrepancy: number) => {
@@ -70,17 +69,19 @@ const CircleDiagram: React.FC<CircleDiagramProps> = ({ balances }) => {
     };
 
     const fillColor = (grad: any, item?: { asset: string; ticker: string }) => {
-      if (!item) {
+      if (item) {
+        if (colors[item.ticker.toLowerCase()]) {
+          const [first, second] = colors[item.ticker.toLowerCase()];
+          grad.addColorStop(0, first);
+          grad.addColorStop(1, second);
+        } else {
+          const color = createColorFromHash(item.asset);
+          grad.addColorStop(0, color);
+          grad.addColorStop(1, color);
+        }
+      } else {
         grad.addColorStop(0, '#CCCCCC');
         grad.addColorStop(1, '#CCCCCC');
-      } else if (colors[item.ticker.toLowerCase()]) {
-        const [first, second] = colors[item.ticker.toLowerCase()];
-        grad.addColorStop(0, first);
-        grad.addColorStop(1, second);
-      } else {
-        const color = createColorFromHash(item.asset);
-        grad.addColorStop(0, color);
-        grad.addColorStop(1, color);
       }
     };
 
@@ -92,7 +93,7 @@ const CircleDiagram: React.FC<CircleDiagramProps> = ({ balances }) => {
         120,
         110,
         withData ? start : -0.5 * Math.PI,
-        withData ? end : 2 * Math.PI
+        withData ? end : 2 * Math.PI,
       );
       ctx.lineWidth = 17;
       ctx.lineCap = 'round';

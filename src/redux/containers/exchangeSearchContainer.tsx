@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+
 import ExchangeSearch from '../../components/ExchangeSearch';
 
 const mapStateToProps = (state: any) => {
