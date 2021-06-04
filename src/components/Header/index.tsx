@@ -75,7 +75,11 @@ const Header: React.FC<HeaderProps> = ({
             )}
           </IonButtons>
         )}
-        <IonTitle className={classNames({ 'title-large': isTitleLarge })}>
+        <IonTitle
+          className={classNames('ion-no-padding', {
+            'title-large': isTitleLarge,
+          })}
+        >
           {title}
         </IonTitle>
       </IonToolbar>

@@ -5,6 +5,7 @@ if (process.env.NODE_ENV === 'production') {
   network = {
     chain: 'liquid',
     explorer: 'https://blockstream.info/liquid/api',
+    explorerBitcoin: 'https://blockstream.info/api',
   };
 
   defaultProvider = {
@@ -14,6 +15,7 @@ if (process.env.NODE_ENV === 'production') {
   network = {
     chain: 'regtest',
     explorer: 'http://localhost:3001',
+    explorerBitcoin: 'http://localhost:3000',
   };
 
   defaultProvider = {

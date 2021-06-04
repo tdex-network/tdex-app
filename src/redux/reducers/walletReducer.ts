@@ -14,6 +14,7 @@ import {
   SET_UTXO,
   DELETE_UTXO,
   ADD_ADDRESS,
+  ADD_PEGIN_ADDRESS,
   RESET_UTXOS,
   SET_PUBLIC_KEYS,
   LOCK_UTXO,
@@ -26,6 +27,7 @@ import { transactionsAssets } from './transactionsReducer';
 export interface WalletState {
   isAuth: boolean;
   addresses: Record<string, AddressInterface>;
+  peginAddresses: Record<string, string>;
   utxos: Record<string, UtxoInterface>;
   utxosLocks: string[];
   masterPubKey: string;
@@ -35,6 +37,7 @@ export interface WalletState {
 const initialState: WalletState = {
   isAuth: false,
   addresses: {},
+  peginAddresses: {},
   utxos: {},
   utxosLocks: [],
   masterPubKey: '',
@@ -49,6 +52,14 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
         addresses: {
           ...state.addresses,
           [action.payload.script]: action.payload.address,
+        },
+      };
+    case ADD_PEGIN_ADDRESS:
+      return {
+        ...state,
+        peginAddresses: {
+          ...state.peginAddresses,
+          [action.payload.claimScript]: action.payload.peginAddress,
         },
       };
     case SET_IS_AUTH:
@@ -178,6 +189,14 @@ export const addressesSelector = ({
   wallet: WalletState;
 }): AddressInterface[] => {
   return Object.values(wallet.addresses);
+};
+
+export const peginAddressesSelector = ({
+  wallet,
+}: {
+  wallet: WalletState;
+}): Record<string, string> => {
+  return wallet.peginAddresses;
 };
 
 export default walletReducer;

@@ -1,5 +1,6 @@
 import { IconExchange, IconSettings, IconWallet } from './components/icons';
 import Account from './pages/Account';
+import ClaimLbtc from './pages/ClaimLbtc';
 import DeleteMnemonic from './pages/DeleteMnemonic';
 import Deposit from './pages/Deposit';
 import Faq from './pages/Faq';
@@ -23,7 +24,6 @@ import Withdrawal from './redux/containers/withdrawalContainer';
 export const routerLinks = {
   wallet: '/wallet',
   exchange: '/exchange',
-  settings: '/settings',
   tradeSummary: '/tradesummary/:txid',
   history: '/history',
   operations: '/operations/:asset_id',
@@ -31,17 +31,19 @@ export const routerLinks = {
   withdrawal: '/withdraw/:asset_id',
   receive: '/receive',
   qrScanner: '/qrscanner/:asset_id',
-  account: '/account',
-  liquidityProvider: '/liquidity-provider',
-  faq: '/faq',
-  privacy: '/privacy',
-  terms: '/terms',
   backup: '/backup',
   showMnemonic: '/show-mnemonic',
   deposit: '/deposit',
   // Settings
+  account: '/account',
+  claimLbtc: '/settings/claim-lbtc',
   deleteMnemonic: '/settings/delete-mnemonic',
+  faq: '/faq',
+  liquidityProvider: '/liquidity-provider',
+  privacy: '/privacy',
+  settings: '/settings',
   showMnemonicSettings: '/settings/show-mnemonic',
+  terms: '/terms',
 };
 
 export const ROUTES = [
@@ -124,6 +126,10 @@ export const ROUTES = [
   {
     path: routerLinks.deleteMnemonic,
     component: DeleteMnemonic,
+  },
+  {
+    path: routerLinks.claimLbtc,
+    component: ClaimLbtc,
   },
 ];
 

@@ -7,12 +7,14 @@ import {
   IonIcon,
   IonLoading,
   IonGrid,
+  useIonViewWillEnter,
+  useIonViewWillLeave,
 } from '@ionic/react';
 import { checkmarkOutline } from 'ionicons/icons';
 import type { IdentityOpts } from 'ldk';
 import { IdentityType, MasterPublicKey, address as addressLDK } from 'ldk';
 import ElementsPegin from 'pegin';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { withRouter, useLocation } from 'react-router';
 
@@ -23,7 +25,7 @@ import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import { addAddress } from '../../redux/actions/walletActions';
+import { addAddress, addPeginAddress } from '../../redux/actions/walletActions';
 import { network } from '../../redux/config';
 import type { WalletState } from '../../redux/reducers/walletReducer';
 import type { AssetConfig } from '../../utils/constants';
@@ -43,8 +45,6 @@ const Receive: React.FC = () => {
   const addressRef: any = useRef(null);
   const dispatch = useDispatch();
   const { state } = useLocation<LocationState>();
-  // Hack to prevent undefined state when hitting back button
-  const [locationState] = useState(state);
 
   // select data for MasterPubKey identity
   const masterPubKeyOpts: IdentityOpts = useSelector(
@@ -64,9 +64,55 @@ const Receive: React.FC = () => {
     },
   );
 
-  useEffect(() => {
-    generateAndSetAddress().catch(console.error);
-  }, []);
+  useIonViewWillEnter(async () => {
+    try {
+      setLoading(true);
+      const masterPublicKey: MasterPublicKey = new MasterPublicKey(
+        masterPubKeyOpts,
+      );
+      await masterPublicKey.isRestored;
+      const lbtcAddress = await masterPublicKey.getNextAddress();
+      let peginModule;
+      dispatch(addAddress(lbtcAddress));
+      if (state?.depositAsset?.ticker === BTC_TICKER) {
+        if (network.chain === 'liquid') {
+          peginModule = new ElementsPegin(
+            await ElementsPegin.withGoElements(),
+            await ElementsPegin.withLibwally(),
+          );
+        } else {
+          peginModule = new ElementsPegin(
+            await ElementsPegin.withGoElements(),
+            await ElementsPegin.withLibwally(),
+            ElementsPegin.withDynamicFederation(false),
+            ElementsPegin.withTestnet(),
+            ElementsPegin.withFederationScript('52'),
+          );
+        }
+        const claimScript = addressLDK
+          .toOutputScript(lbtcAddress.confidentialAddress)
+          .toString('hex');
+        const peginAddress = await peginModule.getMainchainAddress(claimScript);
+        dispatch(addPeginAddress(claimScript, peginAddress));
+        dispatch(addSuccessToast('New pegin address generated'));
+        setAddress(peginAddress);
+      } else {
+        dispatch(addSuccessToast('New address added to your account.'));
+        setAddress(lbtcAddress.confidentialAddress);
+      }
+    } catch (e) {
+      console.error(e);
+      dispatch(addErrorToast(AddressGenerationError));
+    } finally {
+      setLoading(false);
+    }
+    // Need 'state' to ensure new lbtcAddress generation
+  }, [state?.depositAsset]);
+
+  // Necessary to ensure update of QRcode
+  useIonViewWillLeave(() => {
+    setAddress(undefined);
+  });
 
   const copyAddress = () => {
     if (address) {
@@ -86,39 +132,9 @@ const Receive: React.FC = () => {
             dispatch(addSuccessToast('Address copied.'));
             setTimeout(() => {
               setCopied(false);
-            }, 10000);
+            }, 5000);
           }
         });
-    }
-  };
-
-  const generateAndSetAddress = async () => {
-    try {
-      setLoading(true);
-      const masterPublicKey: MasterPublicKey = new MasterPublicKey(
-        masterPubKeyOpts,
-      );
-      await masterPublicKey.isRestored;
-      const addr = await masterPublicKey.getNextAddress();
-      if (locationState.depositAsset.ticker === BTC_TICKER) {
-        const peginModule = new ElementsPegin(
-          await ElementsPegin.withGoElements(),
-          await ElementsPegin.withLibwally(),
-        );
-        const btcAddress = await peginModule.getMainchainAddress(
-          addressLDK.toOutputScript(addr.confidentialAddress).toString('hex'),
-        );
-        setAddress(btcAddress);
-      } else {
-        dispatch(addAddress(addr));
-        dispatch(addSuccessToast('New address added to your account.'));
-        setAddress(addr.confidentialAddress);
-      }
-    } catch (e) {
-      console.error(e);
-      dispatch(addErrorToast(AddressGenerationError));
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -129,18 +145,16 @@ const Receive: React.FC = () => {
         <IonGrid>
           <Header
             hasBackButton={true}
-            title={`${
-              locationState.depositAsset.name?.toUpperCase() ?? ''
-            } DEPOSIT`}
+            title={`${state?.depositAsset?.name?.toUpperCase() ?? ''} DEPOSIT`}
           />
           <div className="ion-text-center">
             <CurrencyIcon
-              currency={locationState.depositAsset.ticker}
+              currency={state?.depositAsset?.ticker}
               width="48"
               height="48"
             />
           </div>
-          {locationState.depositAsset.ticker === BTC_TICKER ? (
+          {state?.depositAsset?.ticker === BTC_TICKER ? (
             <PageDescription
               description="Send any amount of Bitcoin to receive Liquid Bitcoin."
               title={`Your Bitcoin Pegin address`}
@@ -148,12 +162,12 @@ const Receive: React.FC = () => {
           ) : (
             <PageDescription
               description={`To provide this address to the person sending you ${
-                locationState.depositAsset.name ||
-                locationState.depositAsset.coinGeckoID ||
-                locationState.depositAsset.ticker
+                state?.depositAsset?.name ||
+                state?.depositAsset?.coinGeckoID ||
+                state?.depositAsset?.ticker
               } simply tap to copy it or scan your
               wallet QR code with their device.`}
-              title={`Your ${locationState.depositAsset.ticker} address`}
+              title={`Your ${state?.depositAsset?.ticker} address`}
             />
           )}
           {address && (
@@ -187,7 +201,7 @@ const Receive: React.FC = () => {
                 </div>
               </IonItem>
               <div className="qr-code-container">
-                <QRCodeImg value={address} size={192} />
+                <QRCodeImg value={address} size={192} level="M" />
               </div>
             </div>
           )}

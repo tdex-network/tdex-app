@@ -1,5 +1,5 @@
 import type { AddressInterface, Mnemonic, Outpoint, UtxoInterface } from 'ldk';
-import { address as addr } from 'ldk';
+import { address as addrLDK } from 'ldk';
 import type { AnyAction } from 'redux';
 
 import type { ActionType } from '../../utils/types';
@@ -7,6 +7,7 @@ import { outpointToString } from '../reducers/walletReducer';
 
 export const SET_IS_AUTH = 'SET_IS_AUTH';
 export const ADD_ADDRESS = 'ADD_ADDRESS';
+export const ADD_PEGIN_ADDRESS = 'ADD_PEGIN_ADDRESS';
 export const UPDATE_UTXOS = 'UPDATE_UTXOS';
 export const SET_UTXO = 'SET_UTXO';
 export const DELETE_UTXO = 'DELETE_UTXO';
@@ -36,8 +37,23 @@ export const addAddress = (address: AddressInterface): AnyAction => {
   return {
     type: ADD_ADDRESS,
     payload: {
-      script: addr.toOutputScript(address.confidentialAddress).toString('hex'),
+      script: addrLDK
+        .toOutputScript(address.confidentialAddress)
+        .toString('hex'),
       address,
+    },
+  };
+};
+
+export const addPeginAddress = (
+  claimScript: string,
+  peginAddress: string,
+): AnyAction => {
+  return {
+    type: ADD_PEGIN_ADDRESS,
+    payload: {
+      claimScript,
+      peginAddress,
     },
   };
 };

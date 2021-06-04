@@ -24,12 +24,14 @@ const { SecureStoragePlugin } = Plugins;
 
 const MNEMONIC_KEY = 'tdex-app-mnemonic';
 const ADDRESSES_KEY = 'tdex-app-addresses';
+const PEGIN_ADDRESSES_KEY = 'tdex-app-pegin-addresses';
 const PROVIDERS_KEY = 'tdex-app-providers';
 const SEED_BACKUP_FLAG_KEY = 'tdex-app-seed-backup';
 const UTXOS_KEY = 'tdex-app-utxos';
 const TRANSACTIONS_KEY = 'tdex-app-transactions';
 const ASSETS_KEY = 'tdex-app-assets';
 const EXPLORER_KEY = 'tdex-app-explorer';
+const EXPLORER_BITCOIN_KEY = 'tdex-app-explorer-bitcoin';
 const CURRENCY_KEY = 'tdex-app-currency';
 const LBTC_DENOMINATION_KEY = 'tdex-app-lbtc-unit';
 
@@ -64,6 +66,14 @@ export async function getExplorerFromStorage(): Promise<string> {
 
 export function setExplorerInStorage(explorer: string): void {
   Storage.set({ key: EXPLORER_KEY, value: explorer });
+}
+
+export async function getExplorerBitcoinFromStorage(): Promise<string> {
+  return (await Storage.get({ key: EXPLORER_BITCOIN_KEY })).value;
+}
+
+export function setExplorerBitcoinInStorage(explorerBitcoin: string): void {
+  Storage.set({ key: EXPLORER_BITCOIN_KEY, value: explorerBitcoin });
 }
 
 export async function getTransactionsFromStorage(): Promise<TxInterface[]> {
@@ -137,6 +147,21 @@ export function setAddressesInStorage(
     key: ADDRESSES_KEY,
     value: stringify(addresses),
   });
+}
+
+export function setPeginAddressesInStorage(
+  peginAddresses: Record<string, string>,
+): Promise<void> {
+  return Storage.set({
+    key: PEGIN_ADDRESSES_KEY,
+    value: stringify(peginAddresses),
+  });
+}
+
+export async function getPeginAddressesInStorage(): Promise<
+  Record<string, string>
+> {
+  return getFromStorage<Record<string, string>>(PEGIN_ADDRESSES_KEY, {});
 }
 
 export async function getAddressesFromStorage(): Promise<AddressInterface[]> {

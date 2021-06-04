@@ -136,6 +136,20 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               />
             </IonItem>
 
+            <IonItem
+              onClick={() => {
+                history.push('/settings/claim-lbtc');
+              }}
+            >
+              <span>Claim Liquid Bitcoin</span>
+              <IonIcon
+                icon={chevronForwardOutline}
+                color="text-color"
+                slot="end"
+                className="ion-no-margin"
+              />
+            </IonItem>
+
             {/*<IonItem className="list-item">
               <div
                 // https://github.com/ionic-team/ionic-framework/issues/21939#issuecomment-694259307

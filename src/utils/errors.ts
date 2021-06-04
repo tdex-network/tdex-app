@@ -53,3 +53,4 @@ export const UpdateTransactionsError = new AppError(
   'Tx update error occurs',
 );
 export const UpdateUtxosError = new AppError(15, 'Utxo update error occurs');
+export const ClaimError = new AppError(16, 'Claim pegin bitcoin has failed');
