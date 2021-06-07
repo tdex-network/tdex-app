@@ -1,14 +1,12 @@
 {
-  "appId": "io.sevenlabs.app",
-  "appName": "tdex-app",
-  "bundledWebRuntime": false,
-  "npmClient": "yarn",
-  "webDir": "build",
-  "plugins": {
-    "SplashScreen": {
-      "launchShowDuration": 0
-    }
-  },
-  "cordova": {},
-  "linuxAndroidStudioPath": "/usr/local/android-studio/bin/studio.sh"
+	"appId": "io.sevenlabs.app",
+	"appName": "tdex-app",
+	"bundledWebRuntime": false,
+	"webDir": "build",
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 0
+		}
+	},
+	"cordova": {}
 }
