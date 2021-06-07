@@ -1,4 +1,4 @@
-import { Plugins } from '@capacitor/core';
+import { Keyboard } from '@capacitor/keyboard';
 import {
   IonContent,
   useIonViewWillEnter,
@@ -39,8 +39,6 @@ import {
   clearStorage,
   setMnemonicInSecureStorage,
 } from '../../utils/storage-helper';
-
-const { Keyboard } = Plugins;
 
 interface LocationState {
   mnemonic: string;

@@ -1,6 +1,6 @@
 import { useAppState } from '@capacitor-community/react-hooks/app';
-import { Capacitor, Plugins } from '@capacitor/core';
-import { ScreenOrientation } from '@ionic-native/screen-orientation';
+import { Capacitor } from '@capacitor/core';
+import { StatusBar } from '@capacitor/status-bar';
 import { IonApp, IonLoading, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import React, { useEffect } from 'react';
@@ -16,8 +16,6 @@ import { unlockUtxos } from './redux/actions/walletActions';
 import RestoreWallet from './redux/containers/restoreWalletContainer';
 import ShowMnemonicOnboarding from './redux/containers/showMnemonicOnboadingContainer';
 import Toasts from './redux/containers/toastsContainer';
-
-const { StatusBar } = Plugins;
 
 const App: React.FC = () => {
   const { isAuth, appInit, theme } = useSelector((state: any) => ({
@@ -38,7 +36,9 @@ const App: React.FC = () => {
     const setupApp = async () => {
       try {
         document.body.classList.add(theme);
-        await StatusBar.setBackgroundColor({ color: '#333333' });
+        if (Capacitor.isPluginAvailable('StatusBar')) {
+          await StatusBar.setBackgroundColor({ color: '#333333' });
+        }
       } catch (err) {
         console.error(err);
       }
@@ -46,11 +46,6 @@ const App: React.FC = () => {
         if (Capacitor.isPluginAvailable('StatusBar')) {
           await StatusBar.setOverlaysWebView({ overlay: false });
         }
-      } catch (err) {
-        console.error(err);
-      }
-      try {
-        await ScreenOrientation.lock(ScreenOrientation.ORIENTATIONS.PORTRAIT);
       } catch (err) {
         console.error(err);
       }
