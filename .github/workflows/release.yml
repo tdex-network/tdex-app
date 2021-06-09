@@ -7,35 +7,35 @@ name: Release
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  testflight:
-    runs-on: macos-latest
+  #testflight:
+  #  runs-on: macos-latest
 
-    steps:
-      - uses: actions/checkout@v2
+  #  steps:
+  #    - uses: actions/checkout@v2
 
-      - name: Bundle Install
-        run: bundle install
+  #    - name: Bundle Install
+  #      run: bundle install
 
       # Build Ionic App
-      - name: install node dependencies
-        run: yarn install --frozen-lockfile
+  #    - name: install node dependencies
+  #      run: yarn install --frozen-lockfile
 
-      - name: build ionic ios
-        run: yarn build:ios
+  #    - name: build ionic ios
+  #      run: yarn build:ios
 
-      - name: Fastlane Beta CI
-        run: bundle exec fastlane ios beta_ci
-        env:
-          MATCH_PASSWORD: ${{ secrets.KEYSTORE_PASSPHRASE }}
-          FASTLANE_USER: marco@sevenlabs.io
-          FASTLANE_PASSWORD: ${{ secrets.APPSTORE_PASSWORD }}
-          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_PASSWORD}}
+  #    - name: Fastlane Beta CI
+  #      run: bundle exec fastlane ios beta_ci
+  #      env:
+  #        MATCH_PASSWORD: ${{ secrets.KEYSTORE_PASSPHRASE }}
+  #        FASTLANE_USER: marco@sevenlabs.io
+  #        FASTLANE_PASSWORD: ${{ secrets.APPSTORE_PASSWORD }}
+  #        FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_PASSWORD}}
 
   # This workflow contains a single job called "build"
   apk:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    needs: testflight
+    #needs: testflight
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
