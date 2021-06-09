@@ -193,12 +193,6 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         // Hack to trigger a re-render
         setAmount('');
       }
-      if (!e.detail.value) {
-        setError('');
-        setAmount('');
-        onChangeAmount(0);
-        return;
-      }
       const val = e.detail.value
         .replace(',', '.')
         // Remove non numeric chars or period
