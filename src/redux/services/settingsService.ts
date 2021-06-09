@@ -1,6 +1,7 @@
-import { Storage } from '@capacitor/core';
+import type { GetResult } from '@capacitor/storage';
+import { Storage } from '@capacitor/storage';
 
-export const getThemeFromStorage = async (): Promise<{ value: string }> => {
+export const getThemeFromStorage = async (): Promise<GetResult> => {
   return Storage.get({ key: 'theme' });
 };
 

@@ -1,4 +1,4 @@
-import { KeyboardStyle } from '@capacitor/core';
+import { KeyboardStyle } from '@capacitor/keyboard';
 import {
   IonContent,
   IonPage,
@@ -24,6 +24,7 @@ import {
   getIdentity,
   mnemonicInSecureStorage,
 } from '../../utils/storage-helper';
+
 import './style.scss';
 
 const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {

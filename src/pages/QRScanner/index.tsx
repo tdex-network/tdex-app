@@ -1,4 +1,5 @@
-import { Plugins } from '@capacitor/core';
+import type { CheckPermissionResult } from '@capacitor-community/barcode-scanner';
+import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 import {
   IonButton,
   IonCol,
@@ -22,8 +23,6 @@ import {
 import { QRCodeScanError } from '../../utils/errors';
 import './style.scss';
 
-const { BarcodeScanner } = Plugins;
-
 const QRCodeScanner: React.FC<
   RouteComponentProps<any, any, { address: string; amount: number }>
 > = ({ history, location }) => {
@@ -40,7 +39,7 @@ const QRCodeScanner: React.FC<
     BarcodeScanner.hideBackground();
     document.body.classList.add('bg-transparent');
     BarcodeScanner.checkPermission({ force: true })
-      .then(({ granted }: { granted: boolean }) => {
+      .then(({ granted }: CheckPermissionResult) => {
         if (!granted) throw new Error('CAMERA permission not granted.');
         BarcodeScanner.startScan().then((result: any) => {
           if (result.hasContent) {

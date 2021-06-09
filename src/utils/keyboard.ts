@@ -1,25 +1,26 @@
-import type { KeyboardInfo, KeyboardStyle } from '@capacitor/core';
-import { Capacitor, Plugins } from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
+import type { KeyboardInfo, KeyboardStyle } from '@capacitor/keyboard';
+import { Keyboard } from '@capacitor/keyboard';
 import { isPlatform } from '@ionic/react';
 import type React from 'react';
 
-const { Keyboard } = Plugins;
+if (Capacitor.isPluginAvailable('Keyboard')) {
+  Keyboard.addListener('keyboardWillShow', (info: KeyboardInfo) => {
+    console.log('keyboard will show with height', info.keyboardHeight);
+  });
 
-Keyboard.addListener('keyboardWillShow', (info: KeyboardInfo) => {
-  console.log('keyboard will show with height', info.keyboardHeight);
-});
+  Keyboard.addListener('keyboardDidShow', (info: KeyboardInfo) => {
+    console.log('keyboard did show with height', info.keyboardHeight);
+  });
 
-Keyboard.addListener('keyboardDidShow', (info: KeyboardInfo) => {
-  console.log('keyboard did show with height', info.keyboardHeight);
-});
+  Keyboard.addListener('keyboardWillHide', () => {
+    console.log('keyboard will hide');
+  });
 
-Keyboard.addListener('keyboardWillHide', () => {
-  console.log('keyboard will hide');
-});
-
-Keyboard.addListener('keyboardDidHide', () => {
-  console.log('keyboard did hide');
-});
+  Keyboard.addListener('keyboardDidHide', () => {
+    console.log('keyboard did hide');
+  });
+}
 
 /**
  * this using to handle EnterButton in keyboards (should be coupled with onKeyDown)
@@ -44,7 +45,9 @@ export function onPressEnterKeyCloseKeyboard(
 ): void {
   return onPressEnterKeyFactory(async () => {
     try {
-      await Keyboard.hide();
+      if (Capacitor.isPluginAvailable('Keyboard')) {
+        await Keyboard.hide();
+      }
     } catch (err) {
       console.error(err);
     }
@@ -53,7 +56,7 @@ export function onPressEnterKeyCloseKeyboard(
 
 export async function setAccessoryBar(isVisible: boolean): Promise<void> {
   try {
-    if (isPlatform('mobile') && Capacitor.platform !== 'web') {
+    if (Capacitor.isPluginAvailable('Keyboard')) {
       await Keyboard.setAccessoryBarVisible({ isVisible });
     }
   } catch (e) {
@@ -63,7 +66,7 @@ export async function setAccessoryBar(isVisible: boolean): Promise<void> {
 
 export async function setKeyboardTheme(style: KeyboardStyle): Promise<void> {
   try {
-    if (isPlatform('ios')) {
+    if (Capacitor.isPluginAvailable('Keyboard') && isPlatform('ios')) {
       // only available on iOS devices
       await Keyboard.setStyle({ style });
     }
