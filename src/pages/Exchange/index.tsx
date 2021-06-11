@@ -80,6 +80,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   dispatch,
 }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
+  const [hasBeenSwapped, setHasBeenSwapped] = useState<boolean>(false);
   // user inputs amount
   const [sentAmount, setSentAmount] = useState<number>();
   const [receivedAmount, setReceivedAmount] = useState<number>();
@@ -103,46 +104,40 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   const checkAvailableAmountSent = () => {
     if (!trade || !sentAmount || !assetSent) return;
-
     const availableAmount =
       trade.type === TradeType.BUY
         ? trade.market.quoteAmount
         : trade.market.baseAmount;
-
     const sats = toSatoshi(
       sentAmount,
       assets[assetSent.asset]?.precision || defaultPrecision,
       assetSent.ticker === 'L-BTC' ? lbtcUnit : undefined,
     );
-
-    if (availableAmount && availableAmount < sats) {
+    if (!hasBeenSwapped && availableAmount && availableAmount < sats) {
       setErrorSent(ERROR_LIQUIDITY);
       return;
     }
-
     setErrorSent('');
   };
 
   const checkAvailableAmountReceived = () => {
     if (!trade || !receivedAmount || !assetReceived) return;
-
     const availableAmount =
       trade.type === TradeType.BUY
         ? trade.market.baseAmount
         : trade.market.quoteAmount;
-
     const sats = toSatoshi(
       receivedAmount,
       assets[assetReceived.asset]?.precision || defaultPrecision,
       assetReceived.ticker === 'L-BTC' ? lbtcUnit : undefined,
     );
-
-    if (availableAmount && availableAmount < sats) {
+    if (!hasBeenSwapped && availableAmount && availableAmount < sats) {
       setErrorReceived(ERROR_LIQUIDITY);
       return;
     }
-
     setErrorReceived('');
+    // Reset hasBeenSwapped
+    setHasBeenSwapped(false);
   };
 
   useIonViewWillEnter(() => {
@@ -284,6 +279,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               relatedAssetAmount={receivedAmount || 0}
               relatedAssetHash={assetReceived?.asset || ''}
               asset={assetSent}
+              assetAmount={sentAmount}
               trades={trades}
               trade={trade}
               onChangeAmount={(newAmount: number) => {
@@ -303,8 +299,11 @@ const Exchange: React.FC<ExchangeProps> = ({
             <div
               className="exchange-divider"
               onClick={() => {
+                setHasBeenSwapped(true);
                 setAssetSent(assetReceived);
                 setAssetReceived(assetSent);
+                setSentAmount(receivedAmount);
+                setReceivedAmount(sentAmount);
               }}
             >
               <img src={swap} alt="swap" />
@@ -321,6 +320,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                 relatedAssetAmount={sentAmount || 0}
                 relatedAssetHash={assetSent?.asset || ''}
                 asset={assetReceived}
+                assetAmount={receivedAmount}
                 onChangeAmount={(newAmount: number) => {
                   setReceivedAmount(newAmount);
                   checkAvailableAmountReceived();

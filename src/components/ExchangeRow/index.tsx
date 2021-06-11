@@ -39,6 +39,7 @@ interface ExchangeRowInterface {
   sendInput: boolean;
   // the asset handled by the component.
   asset: AssetWithTicker;
+  assetAmount?: number;
   // using to auto-update with best trade price
   trades: TDEXTrade[];
   relatedAssetHash: string;
@@ -63,6 +64,7 @@ interface ExchangeRowInterface {
 }
 
 const ExchangeRow: React.FC<ExchangeRowInterface> = ({
+  assetAmount,
   trades,
   trade,
   relatedAssetHash,
@@ -104,6 +106,12 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   }, [balances, asset]);
 
   useEffect(() => {
+    if (assetAmount) {
+      setAmount(assetAmount.toString());
+    }
+  }, [assetAmount]);
+
+  useEffect(() => {
     void (async (): Promise<void> => {
       let newTrade;
       let bestPriceRes;
@@ -112,6 +120,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       if (relatedAssetAmount === 0) {
         onChangeAmount(0);
         setAmount('');
+        return;
       }
       setIsUpdating(true);
       try {
