@@ -66,7 +66,7 @@ export function setExplorerInStorage(explorer: string): void {
   Storage.set({ key: EXPLORER_KEY, value: explorer });
 }
 
-export async function getExplorerBitcoinFromStorage(): Promise<string> {
+export async function getExplorerBitcoinFromStorage(): Promise<string | null> {
   return (await Storage.get({ key: EXPLORER_BITCOIN_KEY })).value;
 }
 
