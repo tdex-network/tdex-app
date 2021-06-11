@@ -1,5 +1,6 @@
-import { Storage, Plugins } from '@capacitor/core';
+import { Storage } from '@capacitor/storage';
 import { stringify, parse } from 'buffer-json';
+import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
 import { IdentityType, Mnemonic } from 'ldk';
 import type {
   AddressInterface,
@@ -7,7 +8,6 @@ import type {
   TxInterface,
   UtxoInterface,
 } from 'ldk';
-import 'capacitor-secure-storage-plugin';
 import type { Dispatch } from 'redux';
 
 import type { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
@@ -19,8 +19,6 @@ import { CURRENCIES, LBTC_DENOMINATIONS } from './constants';
 import type { Encrypted } from './crypto';
 import { decrypt, encrypt } from './crypto';
 import { IdentityRestorerFromState, MnemonicRedux } from './identity';
-
-const { SecureStoragePlugin } = Plugins;
 
 const MNEMONIC_KEY = 'tdex-app-mnemonic';
 const ADDRESSES_KEY = 'tdex-app-addresses';
@@ -60,7 +58,7 @@ export function setCurrencyInStorage(currency: CurrencyInterface): void {
   });
 }
 
-export async function getExplorerFromStorage(): Promise<string> {
+export async function getExplorerFromStorage(): Promise<string | null> {
   return (await Storage.get({ key: EXPLORER_KEY })).value;
 }
 

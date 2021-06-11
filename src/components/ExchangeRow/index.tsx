@@ -1,3 +1,4 @@
+import type { InputChangeEventDetail } from '@ionic/core';
 import {
   IonIcon,
   IonInput,
@@ -173,6 +174,45 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
     // Need 'balance' to display quote asset price
   }, [relatedAssetAmount, relatedAssetHash, asset, balance, trade]);
 
+  const handleInputChange = (e: CustomEvent<InputChangeEventDetail>) => {
+    if (!isUpdating) {
+      if (!e.detail.value) {
+        setError('');
+        setAmount('');
+        onChangeAmount(0);
+        return;
+      }
+      if (
+        // No more than 12 chars
+        e.detail.value.length >= 12 ||
+        // No letters
+        /[a-zA-Z]/.test(e.detail.value) ||
+        // No more than one dot
+        /(\..*){2,}/.test(e.detail.value)
+      ) {
+        // Hack to trigger a re-render
+        setAmount('');
+      }
+      const val = e.detail.value
+        .replace(',', '.')
+        // Remove non numeric chars or period
+        .replace(/[^0-9.]/g, '')
+        // Remove last dot. Remove all if consecutive.
+        .replace(/\.$/, '');
+      const valSats = toSatoshi(
+        parseFloat(val),
+        balance?.precision,
+        isLbtc(asset.asset) ? lbtcUnit : undefined,
+      );
+      setAmount(val);
+      onChangeAmount(parseFloat(val));
+      // Check balance
+      if (sendInput && valSats > (balance?.amount ?? 0)) {
+        setError(ERROR_BALANCE_TOO_LOW);
+      }
+    }
+  };
+
   return (
     <div className="exchange-coin-container">
       <h2 className="subtitle">{`You ${sendInput ? 'Send' : 'Receive'}`}</h2>
@@ -194,40 +234,18 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         >
           <div className="ion-text-end">
             <IonInput
-              enterkeyhint="done"
-              type="number"
-              onKeyDown={onPressEnterKeyCloseKeyboard}
-              inputmode="decimal"
-              value={amount}
-              placeholder="0"
               color={error && 'danger'}
               debounce={200}
-              onIonChange={e => {
-                if (!isUpdating) {
-                  if (e.detail.value && e.detail.value.length >= 12) {
-                    return;
-                  }
-                  if (!e.detail.value) {
-                    setError('');
-                    setAmount('');
-                    onChangeAmount(0);
-                    return;
-                  }
-                  const val = e.detail.value.replace(',', '.');
-                  const valSats = toSatoshi(
-                    parseFloat(val),
-                    balance?.precision,
-                    isLbtc(asset.asset) ? lbtcUnit : undefined,
-                  );
-                  setAmount(val);
-                  onChangeAmount(parseFloat(val));
-                  if (sendInput && valSats > (balance?.amount ?? 0)) {
-                    setError(ERROR_BALANCE_TOO_LOW);
-                  }
-                }
-              }}
-              onIonFocus={() => setFocus()}
               disabled={isUpdating}
+              enterkeyhint="done"
+              inputmode="decimal"
+              onIonChange={handleInputChange}
+              onIonFocus={setFocus}
+              onKeyDown={onPressEnterKeyCloseKeyboard}
+              pattern="^[0-9]+(([.,][0-9]+)?)$"
+              placeholder="0"
+              type="tel"
+              value={amount}
             />
           </div>
         </div>

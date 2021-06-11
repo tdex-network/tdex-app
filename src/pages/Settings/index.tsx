@@ -1,4 +1,7 @@
-import { Plugins } from '@capacitor/core';
+import type { AppInfo } from '@capacitor/app';
+import { App } from '@capacitor/app';
+import { Device } from '@capacitor/device';
+import type { DeviceInfo } from '@capacitor/device/dist/esm/definitions';
 import {
   IonContent,
   IonList,
@@ -28,8 +31,6 @@ import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 
 import './style.scss';
 
-const { Device } = Plugins;
-
 const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   const { explorerUrl, currency, unitLBTC } = useSelector((state: any) => ({
     explorerUrl: state.settings.explorerUrl,
@@ -44,12 +45,14 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   const [appVersion, setAppVersion] = useState<string>();
 
   useEffect(() => {
-    Device.getInfo().then(info => {
-      if (info.platform === 'web') {
+    Device.getInfo().then(({ platform }: DeviceInfo) => {
+      if (platform === 'web') {
         setAppVersion('TDex App - web version');
         return;
       }
-      setAppVersion(`${info.appName} ${info.appVersion} ${info.appBuild}`);
+      App.getInfo().then(({ name, version, build }: AppInfo) => {
+        setAppVersion(`${name} ${version} ${build}`);
+      });
     });
   });
 

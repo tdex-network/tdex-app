@@ -1,4 +1,5 @@
-import { Storage } from '@capacitor/core';
+import type { GetResult } from '@capacitor/storage';
+import { Storage } from '@capacitor/storage';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import type { Mnemonic } from 'ldk';
@@ -21,7 +22,7 @@ export const getAssetsRequest = (
   });
 };
 
-export const getAddress = async (): Promise<{ value: string }> => {
+export const getAddress = async (): Promise<GetResult> => {
   return Storage.get({ key: 'address' });
 };
 

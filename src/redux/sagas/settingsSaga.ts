@@ -1,4 +1,4 @@
-import { KeyboardStyle } from '@capacitor/core';
+import { KeyboardStyle } from '@capacitor/keyboard';
 import { takeLatest, call, put } from 'redux-saga/effects';
 
 import { setKeyboardTheme } from '../../utils/keyboard';

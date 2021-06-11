@@ -10,16 +10,5 @@ import com.whitestein.securestorage.SecureStoragePlugin;
 import com.dutchconcepts.capacitor.barcodescanner.BarcodeScanner;
 
 public class MainActivity extends BridgeActivity {
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-
-    // Initializes the Bridge
-    this.init(savedInstanceState, new ArrayList<Class<? extends Plugin>>() {{
-      // Additional plugins you've installed go here
-      // Ex: add(TotallyAwesomePlugin.class);
-      add(SecureStoragePlugin.class);
-      add(BarcodeScanner.class);
-    }});
-  }
+  // https://capacitorjs.com/docs/updating/3-0#switch-to-automatic-android-plugin-loading
 }
