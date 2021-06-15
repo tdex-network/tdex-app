@@ -282,7 +282,6 @@ export function getIndexAndIsChangeFromAddress(addr: AddressInterface): {
     throw new Error('need derivation path to be defined');
   }
   const derivationPathSplitted = addr.derivationPath.split('/');
-  console.log('derivationPathSplitted', derivationPathSplitted);
   return {
     index: parseInt(derivationPathSplitted[derivationPathSplitted.length - 1]),
     isChange:
