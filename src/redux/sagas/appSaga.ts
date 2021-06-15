@@ -1,5 +1,5 @@
 import type { Mnemonic } from 'ldk';
-import { takeLatest, put, call, all } from 'redux-saga/effects';
+import { takeLatest, put, call, all, select } from 'redux-saga/effects';
 
 import { getIdentity, seedBackupFlag } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
@@ -36,10 +36,14 @@ function* initAppSaga() {
 
 function* signInSaga(action: ActionType) {
   try {
-    // decode mnemonic and store public key
     const identity: Mnemonic = yield call(getIdentity, action.payload);
-    yield all([call(waitForRestore, identity), put(setPublicKeys(identity))]);
-
+    const explorerUrl = yield select(
+      (state: any) => state.settings.explorerUrl,
+    );
+    yield all([
+      call(waitForRestore, identity, explorerUrl),
+      put(setPublicKeys(identity)),
+    ]);
     const addresses = yield call(() => identity.getAddresses());
     for (const addr of addresses) {
       yield put(addAddress(addr));

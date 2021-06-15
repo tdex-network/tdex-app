@@ -46,7 +46,7 @@ export async function faucet(address: string): Promise<string> {
 export const privKeyIdentity = new PrivateKey({
   chain: 'regtest',
   type: IdentityType.PrivateKey,
-  value: {
+  opts: {
     signingKeyWIF: 'cPNMJD4VyFnQjGbGs3kcydRzAbDCXrLAbvH6wTCqs88qg1SkZT3J',
     blindingKeyWIF: 'cRdrvnPMLV7CsEak2pGrgG4MY7S3XN1vjtcgfemCrF7KJRPeGgW6',
   },

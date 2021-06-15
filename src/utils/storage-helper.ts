@@ -2,12 +2,8 @@ import { Storage } from '@capacitor/storage';
 import { stringify, parse } from 'buffer-json';
 import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
 import { IdentityType, Mnemonic } from 'ldk';
-import type {
-  AddressInterface,
-  IdentityOpts,
-  TxInterface,
-  UtxoInterface,
-} from 'ldk';
+import type { AddressInterface, TxInterface, UtxoInterface } from 'ldk';
+import type { StateRestorerOpts } from 'ldk/dist/restorer/mnemonic-restorer';
 import type { Dispatch } from 'redux';
 
 import type { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
@@ -18,7 +14,7 @@ import type { AssetConfig } from './constants';
 import { CURRENCIES, LBTC_DENOMINATIONS } from './constants';
 import type { Encrypted } from './crypto';
 import { decrypt, encrypt } from './crypto';
-import { IdentityRestorerFromState, MnemonicRedux } from './identity';
+import { MnemonicRedux } from './identity';
 
 const MNEMONIC_KEY = 'tdex-app-mnemonic';
 const ADDRESSES_KEY = 'tdex-app-addresses';
@@ -30,6 +26,7 @@ const ASSETS_KEY = 'tdex-app-assets';
 const EXPLORER_KEY = 'tdex-app-explorer';
 const CURRENCY_KEY = 'tdex-app-currency';
 const LBTC_DENOMINATION_KEY = 'tdex-app-lbtc-unit';
+const LAST_USED_INDEXES_KEY = 'tdex-app-last-used-indexes';
 
 export async function getLBTCDenominationFromStorage(): Promise<string> {
   return (
@@ -137,6 +134,21 @@ export function setAddressesInStorage(
   });
 }
 
+export function setLastUsedIndexesInStorage(
+  lastUsedIndexes: StateRestorerOpts,
+): Promise<void> {
+  return Storage.set({
+    key: LAST_USED_INDEXES_KEY,
+    value: stringify(lastUsedIndexes),
+  });
+}
+
+export async function getLastUsedIndexesInStorage(): Promise<StateRestorerOpts> {
+  const idx = await Storage.get({ key: LAST_USED_INDEXES_KEY });
+  console.log('idx', idx);
+  return idx.value ? parse(idx.value) : null;
+}
+
 export async function getAddressesFromStorage(): Promise<AddressInterface[]> {
   return getFromStorage<AddressInterface[]>(ADDRESSES_KEY, []);
 }
@@ -228,7 +240,7 @@ export async function clearStorage(): Promise<void> {
 }
 
 /**
- * get the identityOpts object and construct a new Mnemonic Identity connected to redux store
+ * Construct a new Mnemonic Identity connected to redux store
  * @param pin using to decrypt the mnemonic
  * @param dispatch using to dispatch action to store
  */
@@ -236,45 +248,32 @@ export async function getConnectedIdentity(
   pin: string,
   dispatch: Dispatch,
 ): Promise<MnemonicRedux> {
-  const opts = await getIdentityOpts(pin);
-  return new MnemonicRedux(opts, dispatch);
+  const toRestoreMnemonic = await getMnemonicFromSecureStorage(pin);
+  return new MnemonicRedux(
+    {
+      chain: network.chain,
+      type: IdentityType.Mnemonic,
+      opts: {
+        mnemonic: toRestoreMnemonic,
+      },
+    },
+    dispatch,
+  );
 }
 
 /**
- * get the identityOpts object and construct a new Mnemonic Identity
+ * Construct a new Mnemonic Identity
  * @param pin using to decrypt the mnemonic
  */
 export async function getIdentity(pin: string): Promise<Mnemonic> {
-  const opts = await getIdentityOpts(pin);
-  return new Mnemonic(opts);
-}
-
-/**
- * Return the identityOpts from cached addresses + mnemonic encryted
- * @param pin the pin using to decrypt the mnemonic
- */
-export async function getIdentityOpts(pin: string): Promise<IdentityOpts> {
-  const [mnemonic, cachedAddresses] = await Promise.all([
-    getMnemonicFromSecureStorage(pin),
-    getAddressesFromStorage(),
-  ]);
-
-  return prepareIdentityOpts(mnemonic, cachedAddresses);
-}
-
-function prepareIdentityOpts(
-  mnemonic: string,
-  addresses: AddressInterface[],
-): IdentityOpts {
-  return {
+  const toRestoreMnemonic = await getMnemonicFromSecureStorage(pin);
+  return new Mnemonic({
     chain: network.chain,
     type: IdentityType.Mnemonic,
-    value: {
-      mnemonic,
+    opts: {
+      mnemonic: toRestoreMnemonic,
     },
-    initializeFromRestorer: true,
-    restorer: new IdentityRestorerFromState(addresses || []),
-  };
+  });
 }
 
 async function getFromStorage<T>(key: string, defaultValue: T): Promise<T> {

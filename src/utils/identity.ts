@@ -1,19 +1,14 @@
-import type {
-  AddressInterface,
-  IdentityInterface,
-  IdentityOpts,
-  IdentityRestorerInterface,
-} from 'ldk';
-import { EsploraIdentityRestorer, Mnemonic } from 'ldk';
+import type { AddressInterface, IdentityInterface, IdentityOpts } from 'ldk';
+import { Mnemonic } from 'ldk';
 import type { Dispatch } from 'redux';
 
 import { addAddress, watchUtxo } from '../redux/actions/walletActions';
-import { network } from '../redux/config';
 
+// Used when coins will be received
 export class MnemonicRedux extends Mnemonic implements IdentityInterface {
-  private dispatch: Dispatch;
+  private readonly dispatch: Dispatch;
 
-  constructor(args: IdentityOpts, dispatch: Dispatch) {
+  constructor(args: IdentityOpts<any>, dispatch: Dispatch) {
     super(args);
     this.dispatch = dispatch;
   }
@@ -30,30 +25,5 @@ export class MnemonicRedux extends Mnemonic implements IdentityInterface {
     this.dispatch(addAddress(nextAddr));
     this.dispatch(watchUtxo(nextAddr));
     return nextAddr;
-  }
-}
-
-export class IdentityRestorerFromState implements IdentityRestorerInterface {
-  static esploraIdentityRestorer = new EsploraIdentityRestorer(
-    network.explorer,
-  );
-
-  private cachedAddresses: string[] = [];
-
-  constructor(addresses: AddressInterface[]) {
-    if (addresses !== null)
-      this.cachedAddresses = addresses.map(addrI => addrI.confidentialAddress);
-  }
-
-  async addressHasBeenUsed(address: string): Promise<boolean> {
-    const addressInCache = this.cachedAddresses.includes(address);
-    if (addressInCache) return true;
-    return IdentityRestorerFromState.esploraIdentityRestorer.addressHasBeenUsed(
-      address,
-    );
-  }
-
-  async addressesHaveBeenUsed(addresses: string[]): Promise<boolean[]> {
-    return Promise.all(addresses.map(addr => this.addressHasBeenUsed(addr)));
   }
 }
