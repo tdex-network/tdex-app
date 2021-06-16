@@ -18,6 +18,7 @@ import { UpdateUtxosError } from '../../utils/errors';
 import {
   getUtxosFromStorage,
   setAddressesInStorage,
+  setLastUsedIndexesInStorage,
   setUtxosInStorage,
 } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
@@ -40,6 +41,14 @@ import { outpointToString, addressesSelector } from '../reducers/walletReducer';
 function* persistAddresses() {
   const addresses = yield select(addressesSelector);
   yield call(setAddressesInStorage, addresses);
+}
+
+function* persistLastUsedIndexes() {
+  const lastIndexes = yield select(({ wallet }: { wallet: WalletState }) => ({
+    lastUsedInternalIndex: wallet.lastUsedInternalIndex,
+    lastUsedExternalIndex: wallet.lastUsedExternalIndex,
+  }));
+  yield call(setLastUsedIndexesInStorage, lastIndexes);
 }
 
 function* updateUtxosState() {
@@ -165,6 +174,7 @@ function* watchUtxoSaga(action: ActionType) {
 
 export function* walletWatcherSaga(): Generator {
   yield takeLatest(ADD_ADDRESS, persistAddresses);
+  yield takeLatest(ADD_ADDRESS, persistLastUsedIndexes);
   yield takeLatest(UPDATE_UTXOS, updateUtxosState);
   yield takeLatest(UPDATE_UTXOS, persistUtxos);
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment

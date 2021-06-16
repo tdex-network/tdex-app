@@ -1,9 +1,12 @@
-import type { GetResult } from '@capacitor/storage';
-import { Storage } from '@capacitor/storage';
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import type { Mnemonic } from 'ldk';
+import {
+  mnemonicRestorerFromEsplora,
+  mnemonicRestorerFromState,
+} from 'tdex-sdk';
 
+import { getLastUsedIndexesInStorage } from '../../utils/storage-helper';
 import { defaultProvider } from '../config';
 
 export const axiosProviderObject = axios.create({
@@ -22,12 +25,24 @@ export const getAssetsRequest = (
   });
 };
 
-export const getAddress = async (): Promise<GetResult> => {
-  return Storage.get({ key: 'address' });
-};
-
-export const waitForRestore = async (identity: Mnemonic): Promise<boolean> => {
-  return identity.isRestored;
+export const waitForRestore = async (
+  identity: Mnemonic,
+  explorerUrlValue: string,
+): Promise<boolean> => {
+  try {
+    const indexes = await getLastUsedIndexesInStorage();
+    if (indexes && Object.values(indexes).length) {
+      await mnemonicRestorerFromState(identity)(indexes);
+    } else {
+      await mnemonicRestorerFromEsplora(identity)({
+        gapLimit: 20,
+        esploraURL: explorerUrlValue,
+      });
+    }
+  } catch (err) {
+    console.error(err);
+  }
+  return true;
 };
 
 export const signTx = async (identity: any, unsignedTx: any): Promise<any> => {

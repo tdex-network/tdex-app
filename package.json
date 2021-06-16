@@ -39,7 +39,7 @@
     "test": "BABEL_ENV=test npx jest"
   },
   "dependencies": {
-    "@capacitor-community/barcode-scanner": "^2.0.0",
+    "@capacitor-community/barcode-scanner": "^2.0.1",
     "@capacitor-community/react-hooks": "^0.0.11",
     "@capacitor/android": "^3.0.1",
     "@capacitor/app": "^1.0.1",
@@ -75,7 +75,7 @@
     "redux-saga": "^1.1.3",
     "reselect": "^4.0.0",
     "scrypt-js": "^3.0.1",
-    "tdex-sdk": "1.6.7"
+    "tdex-sdk": "1.6.10"
   },
   "devDependencies": {
     "@babel/core": "^7.14.5",
@@ -85,7 +85,7 @@
     "@ionic/cli": "^6.16.3",
     "@ionic/eslint-config": "^0.3.0",
     "@ionic/prettier-config": "^1.0.1",
-    "@testing-library/jest-dom": "^5.13.0",
+    "@testing-library/jest-dom": "^5.14.0",
     "@testing-library/react": "^11.2.7",
     "@types/buffer-json": "^2.0.0",
     "@types/jest": "^26.0.23",

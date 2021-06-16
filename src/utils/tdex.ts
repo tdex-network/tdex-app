@@ -130,16 +130,11 @@ export async function makeTrade(
     utxos,
     coinSelector,
   });
-
-  await identity.isRestored;
-
   let txid = '';
-
   try {
     if (trade.type === TradeType.BUY) {
       txid = await trader.buy({ ...known, market: trade.market, identity });
     }
-
     if (trade.type === TradeType.SELL) {
       txid = await trader.sell({ ...known, market: trade.market, identity });
     }
@@ -147,7 +142,6 @@ export async function makeTrade(
     console.error(e);
     throw MakeTradeError;
   }
-
   if (txid === '') {
     throw InvalidTradeTypeError;
   }

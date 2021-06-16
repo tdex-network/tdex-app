@@ -17,6 +17,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
+import { mnemonicRestorerFromState } from 'tdex-sdk';
 
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Header from '../../components/Header';
@@ -32,6 +33,7 @@ import {
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import { network } from '../../redux/config';
+import { lastUsedIndexesSelector } from '../../redux/selectors/walletSelectors';
 import { broadcastTx } from '../../redux/services/walletService';
 import {
   PIN_TIMEOUT_FAILURE,
@@ -153,6 +155,8 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     }
   }, [amount]);
 
+  const lastUsedIndexes = useSelector(lastUsedIndexesSelector);
+
   const getRecipient = (): RecipientInterface => ({
     address: recipientAddress?.trim(),
     asset: balance?.asset || '',
@@ -189,7 +193,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       }
       const wallet = walletFromCoins(utxos, network.chain);
       const psetBase64 = wallet.createTx();
-      await identity.isRestored;
+      await mnemonicRestorerFromState(identity)(lastUsedIndexes);
       const changeAddress = await identity.getNextChangeAddress();
       const withdrawPset = wallet.buildTx(
         psetBase64,
