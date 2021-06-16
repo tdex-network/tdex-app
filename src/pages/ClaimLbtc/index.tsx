@@ -7,7 +7,13 @@ import {
   IonButton,
 } from '@ionic/react';
 import axios from 'axios';
-import { Transaction } from 'liquidjs-lib';
+import * as btclib from 'bitcoinjs-lib';
+import {
+  confidential,
+  ECPair,
+  script as bscript,
+  Transaction,
+} from 'liquidjs-lib';
 import ElementsPegin from 'pegin';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -78,11 +84,36 @@ const ClaimLbtc: React.FC = () => {
               )
             ).data;
             // Construct claim tx
-            const claimTxHex = await peginModule.claimTx(
+            let claimTxHex = await peginModule.claimTx(
               btcPeginTxHex,
               btcBlockProof,
               claimScript,
             );
+            //
+            const ecPair = ECPair.fromWIF(signingKeyWIF, network);
+
+            // Sign
+            const transaction = Transaction.fromHex(claimTxHex);
+            const prevoutTx = btclib.Transaction.fromHex(btcPeginTxHex);
+            const amountPegin = prevoutTx.outs[transaction.ins[0].index].value;
+            const sigHash = transaction.hashForWitnessV0(
+              0,
+              Buffer.from(`76a9${claimScript.slice(2)}88ac`, 'hex'),
+              confidential.satoshiToConfidentialValue(amountPegin),
+              Transaction.SIGHASH_ALL,
+            );
+
+            const sig = ecPair.sign(sigHash);
+            const signatureWithHashType = bscript.signature.encode(
+              sig,
+              Transaction.SIGHASH_ALL,
+            );
+            transaction.ins[0].witness = [
+              signatureWithHashType,
+              ecPair.publicKey,
+            ];
+            claimTxHex = transaction.toHex();
+            // Broadcast
             await broadcastTx(claimTxHex, explorerUrl);
             setClaimTxs([...claimTxs, Transaction.fromHex(claimTxHex)]);
             dispatch(addSuccessToast(`Claim Transaction broadcasted`));
