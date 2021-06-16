@@ -23,8 +23,8 @@ interface PinModalProps {
   onClose?: () => void;
   onDidDismiss?: boolean;
   isWrongPin: boolean | null;
-  needReset?: boolean;
-  setNeedReset?: (b: boolean) => void;
+  needReset: boolean;
+  setNeedReset: (b: boolean) => void;
 }
 
 const PinModal: React.FC<PinModalProps> = ({
