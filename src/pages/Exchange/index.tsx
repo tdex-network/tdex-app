@@ -97,6 +97,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   // errors
   const [errorSent, setErrorSent] = useState('');
   const [errorReceived, setErrorReceived] = useState('');
+  const [needReset, setNeedReset] = useState<boolean>(false);
   //
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -227,13 +228,12 @@ const Exchange: React.FC<ExchangeProps> = ({
     } catch (e) {
       console.error(e);
       dispatch(unlockUtxos());
+      setIsWrongPin(true);
+      setTimeout(() => {
+        setIsWrongPin(null);
+        setNeedReset(true);
+      }, PIN_TIMEOUT_FAILURE);
       if (e instanceof AppError) {
-        if (e.code === 6) {
-          setIsWrongPin(true);
-          setTimeout(() => {
-            setIsWrongPin(null);
-          }, PIN_TIMEOUT_FAILURE);
-        }
         dispatch(addErrorToast(e));
       }
     } finally {
@@ -254,6 +254,8 @@ const Exchange: React.FC<ExchangeProps> = ({
             setModalOpen(false);
           }}
           isWrongPin={isWrongPin}
+          needReset={needReset}
+          setNeedReset={setNeedReset}
         />
       )}
 

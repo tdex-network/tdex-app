@@ -39,11 +39,7 @@ import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
-import {
-  AppError,
-  IncorrectPINError,
-  WithdrawTxError,
-} from '../../utils/errors';
+import { IncorrectPINError, WithdrawTxError } from '../../utils/errors';
 import {
   customCoinSelector,
   estimateFeeAmount,
@@ -80,6 +76,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   const [price, setPrice] = useState<number>();
   const [amount, setAmount] = useState<number>(0);
   const [error, setError] = useState('');
+  const [needReset, setNeedReset] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [recipientAddress, setRecipientAddress] = useState<string>('');
   const [modalOpen, setModalOpen] = useState(false);
@@ -240,22 +237,16 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       });
     } catch (err) {
       console.error(err);
-      if (err instanceof AppError && err.code === 6) {
-        setIsWrongPin(true);
-        setTimeout(() => {
-          setIsWrongPin(null);
-        }, PIN_TIMEOUT_FAILURE);
-      }
+      setIsWrongPin(true);
+      setTimeout(() => {
+        setIsWrongPin(null);
+        setNeedReset(true);
+      }, PIN_TIMEOUT_FAILURE);
       dispatch(unlockUtxos());
       dispatch(addErrorToast(WithdrawTxError));
     } finally {
       setLoading(false);
     }
-  };
-
-  const onPinConfirm = (pin: string) => {
-    if (!isValid()) return;
-    createTxAndBroadcast(pin).catch(console.error);
   };
 
   return (
@@ -266,11 +257,13 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         description={`Enter your secret PIN to send ${amount} ${
           balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker
         }.`}
-        onConfirm={onPinConfirm}
+        onConfirm={createTxAndBroadcast}
         onClose={() => {
           setModalOpen(false);
         }}
         isWrongPin={isWrongPin}
+        needReset={needReset}
+        setNeedReset={setNeedReset}
       />
       <IonLoading
         cssClass="my-custom-class"
