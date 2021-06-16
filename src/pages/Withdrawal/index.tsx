@@ -39,11 +39,7 @@ import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
-import {
-  AppError,
-  IncorrectPINError,
-  WithdrawTxError,
-} from '../../utils/errors';
+import { IncorrectPINError, WithdrawTxError } from '../../utils/errors';
 import {
   customCoinSelector,
   estimateFeeAmount,
