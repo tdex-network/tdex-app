@@ -7,13 +7,16 @@ import {
   IonIcon,
   IonLoading,
   IonGrid,
+  useIonViewWillEnter,
 } from '@ionic/react';
 import { checkmarkOutline } from 'ionicons/icons';
 import type { AddressInterface, IdentityOpts } from 'ldk';
 import { IdentityType, MasterPublicKey } from 'ldk';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { withRouter, useLocation } from 'react-router';
+import type { MasterPublicKeyOpts } from 'tdex-sdk';
+import { masterPubKeyRestorerFromState } from 'tdex-sdk';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
@@ -25,9 +28,9 @@ import {
 import { addAddress } from '../../redux/actions/walletActions';
 import { network } from '../../redux/config';
 import type { WalletState } from '../../redux/reducers/walletReducer';
+import { lastUsedIndexesSelector } from '../../redux/selectors/walletSelectors';
 import type { AssetConfig } from '../../utils/constants';
 import { AddressGenerationError } from '../../utils/errors';
-import { IdentityRestorerFromState } from '../../utils/identity';
 import './style.scss';
 
 interface LocationState {
@@ -45,26 +48,42 @@ const Receive: React.FC = () => {
   const [locationState] = useState(state);
 
   // select data for MasterPubKey identity
-  const masterPubKeyOpts: IdentityOpts = useSelector(
+  const masterPubKeyOpts: IdentityOpts<MasterPublicKeyOpts> = useSelector(
     ({ wallet }: { wallet: WalletState }) => {
       return {
         chain: network.chain,
         type: IdentityType.MasterPublicKey,
-        value: {
+        opts: {
           masterBlindingKey: wallet.masterBlindKey,
           masterPublicKey: wallet.masterPubKey,
         },
-        initializeFromRestorer: true,
-        restorer: new IdentityRestorerFromState(
-          Object.values(wallet.addresses),
-        ),
       };
     },
   );
 
-  useEffect(() => {
-    generateAndSetAddress().catch(console.error);
-  }, []);
+  const lastUsedIndexes = useSelector(lastUsedIndexesSelector);
+
+  useIonViewWillEnter(async () => {
+    try {
+      setLoading(true);
+      const masterPublicKey: MasterPublicKey = new MasterPublicKey(
+        masterPubKeyOpts,
+      );
+      const restoredMasterPubKey = await masterPubKeyRestorerFromState(
+        masterPublicKey,
+      )(lastUsedIndexes);
+      const addr = await restoredMasterPubKey.getNextAddress();
+      dispatch(addAddress(addr));
+      dispatch(addSuccessToast('New address added to your account.'));
+      setAddress(addr);
+    } catch (e) {
+      console.error(e);
+      dispatch(addErrorToast(AddressGenerationError));
+    } finally {
+      setLoading(false);
+    }
+    // Need 'state' to ensure new address generation
+  }, [state?.depositAsset]);
 
   const copyAddress = () => {
     if (address) {
@@ -87,25 +106,6 @@ const Receive: React.FC = () => {
             }, 10000);
           }
         });
-    }
-  };
-
-  const generateAndSetAddress = async () => {
-    try {
-      setLoading(true);
-      const masterPublicKey: MasterPublicKey = new MasterPublicKey(
-        masterPubKeyOpts,
-      );
-      await masterPublicKey.isRestored;
-      const addr = await masterPublicKey.getNextAddress();
-      dispatch(addAddress(addr));
-      dispatch(addSuccessToast('New address added to your account.'));
-      setAddress(addr);
-    } catch (e) {
-      console.error(e);
-      dispatch(addErrorToast(AddressGenerationError));
-    } finally {
-      setLoading(false);
     }
   };
 
