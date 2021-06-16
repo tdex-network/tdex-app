@@ -17,6 +17,8 @@ import ElementsPegin from 'pegin';
 import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { withRouter, useLocation } from 'react-router';
+import type { MasterPublicKeyOpts } from 'tdex-sdk';
+import { masterPubKeyRestorerFromState } from 'tdex-sdk';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
@@ -28,10 +30,10 @@ import {
 import { addAddress, addPeginAddress } from '../../redux/actions/walletActions';
 import { network } from '../../redux/config';
 import type { WalletState } from '../../redux/reducers/walletReducer';
+import { lastUsedIndexesSelector } from '../../redux/selectors/walletSelectors';
 import type { AssetConfig } from '../../utils/constants';
 import { BTC_TICKER } from '../../utils/constants';
 import { AddressGenerationError } from '../../utils/errors';
-import { IdentityRestorerFromState } from '../../utils/identity';
 import './style.scss';
 
 interface LocationState {
@@ -47,22 +49,20 @@ const Receive: React.FC = () => {
   const { state } = useLocation<LocationState>();
 
   // select data for MasterPubKey identity
-  const masterPubKeyOpts: IdentityOpts = useSelector(
+  const masterPubKeyOpts: IdentityOpts<MasterPublicKeyOpts> = useSelector(
     ({ wallet }: { wallet: WalletState }) => {
       return {
         chain: network.chain,
         type: IdentityType.MasterPublicKey,
-        value: {
+        opts: {
           masterBlindingKey: wallet.masterBlindKey,
           masterPublicKey: wallet.masterPubKey,
         },
-        initializeFromRestorer: true,
-        restorer: new IdentityRestorerFromState(
-          Object.values(wallet.addresses),
-        ),
       };
     },
   );
+
+  const lastUsedIndexes = useSelector(lastUsedIndexesSelector);
 
   useIonViewWillEnter(async () => {
     try {
@@ -70,10 +70,12 @@ const Receive: React.FC = () => {
       const masterPublicKey: MasterPublicKey = new MasterPublicKey(
         masterPubKeyOpts,
       );
-      await masterPublicKey.isRestored;
-      const lbtcAddress = await masterPublicKey.getNextAddress();
+      const restoredMasterPubKey = await masterPubKeyRestorerFromState(
+        masterPublicKey,
+      )(lastUsedIndexes);
+      const addr = await restoredMasterPubKey.getNextAddress();
       let peginModule;
-      dispatch(addAddress(lbtcAddress));
+      dispatch(addAddress(addr));
       if (state?.depositAsset?.ticker === BTC_TICKER) {
         if (network.chain === 'liquid') {
           peginModule = new ElementsPegin(
@@ -90,7 +92,7 @@ const Receive: React.FC = () => {
           );
         }
         const claimScript = addressLDK
-          .toOutputScript(lbtcAddress.confidentialAddress)
+          .toOutputScript(addr.confidentialAddress)
           .toString('hex');
         const peginAddress = await peginModule.getMainchainAddress(claimScript);
         dispatch(addPeginAddress(claimScript, peginAddress));
@@ -98,7 +100,7 @@ const Receive: React.FC = () => {
         setAddress(peginAddress);
       } else {
         dispatch(addSuccessToast('New address added to your account.'));
-        setAddress(lbtcAddress.confidentialAddress);
+        setAddress(addr.confidentialAddress);
       }
     } catch (e) {
       console.error(e);

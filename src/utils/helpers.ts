@@ -1,4 +1,5 @@
 import type {
+  AddressInterface,
   ChangeAddressFromAssetGetter,
   CoinSelectionResult,
   CoinSelector,
@@ -271,4 +272,19 @@ export function compareTxDisplayInterfaceByDate(
   b: TxDisplayInterface,
 ): number {
   return b.blockTime?.diff(a.blockTime) || 0;
+}
+
+export function getIndexAndIsChangeFromAddress(addr: AddressInterface): {
+  index: number;
+  isChange: boolean;
+} {
+  if (!addr.derivationPath) {
+    throw new Error('need derivation path to be defined');
+  }
+  const derivationPathSplitted = addr.derivationPath.split('/');
+  return {
+    index: parseInt(derivationPathSplitted[derivationPathSplitted.length - 1]),
+    isChange:
+      parseInt(derivationPathSplitted[derivationPathSplitted.length - 2]) !== 0,
+  };
 }

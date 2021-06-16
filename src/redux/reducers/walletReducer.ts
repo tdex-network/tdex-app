@@ -6,7 +6,11 @@ import {
   LBTC_TICKER,
   getMainAsset,
 } from '../../utils/constants';
-import { tickerFromAssetHash, balancesFromUtxos } from '../../utils/helpers';
+import {
+  tickerFromAssetHash,
+  balancesFromUtxos,
+  getIndexAndIsChangeFromAddress,
+} from '../../utils/helpers';
 import type { ActionType } from '../../utils/types';
 import type { BalanceInterface } from '../actionTypes/walletActionTypes';
 import {
@@ -32,6 +36,8 @@ export interface WalletState {
   utxosLocks: string[];
   masterPubKey: string;
   masterBlindKey: string;
+  lastUsedInternalIndex?: number;
+  lastUsedExternalIndex?: number;
 }
 
 const initialState: WalletState = {
@@ -42,18 +48,26 @@ const initialState: WalletState = {
   utxosLocks: [],
   masterPubKey: '',
   masterBlindKey: '',
+  lastUsedInternalIndex: undefined,
+  lastUsedExternalIndex: undefined,
 };
 
 function walletReducer(state = initialState, action: ActionType): WalletState {
   switch (action.type) {
-    case ADD_ADDRESS:
+    case ADD_ADDRESS: {
+      const { isChange, index } = getIndexAndIsChangeFromAddress(
+        action.payload.address,
+      );
       return {
         ...state,
         addresses: {
           ...state.addresses,
           [action.payload.script]: action.payload.address,
         },
+        lastUsedInternalIndex: isChange ? index : state.lastUsedInternalIndex,
+        lastUsedExternalIndex: isChange ? state.lastUsedExternalIndex : index,
       };
+    }
     case ADD_PEGIN_ADDRESS:
       return {
         ...state,

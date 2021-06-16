@@ -19,7 +19,8 @@
     "noEmit": true,
     "jsx": "react",
     "noFallthroughCasesInSwitch": true,
-    "importHelpers": true
+    "importHelpers": true,
+    "strictNullChecks": true,
   },
   "include": [
     "src/**/*",

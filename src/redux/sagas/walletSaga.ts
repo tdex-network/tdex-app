@@ -20,6 +20,7 @@ import {
   getUtxosFromStorage,
   setAddressesInStorage,
   setPeginAddressesInStorage,
+  setLastUsedIndexesInStorage,
   setUtxosInStorage,
 } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
@@ -48,6 +49,14 @@ import {
 function* persistAddresses() {
   const addresses = yield select(addressesSelector);
   yield call(setAddressesInStorage, addresses);
+}
+
+function* persistLastUsedIndexes() {
+  const lastIndexes = yield select(({ wallet }: { wallet: WalletState }) => ({
+    lastUsedInternalIndex: wallet.lastUsedInternalIndex,
+    lastUsedExternalIndex: wallet.lastUsedExternalIndex,
+  }));
+  yield call(setLastUsedIndexesInStorage, lastIndexes);
 }
 
 function* persistPeginAddresses() {
@@ -187,6 +196,7 @@ function* watchUtxoSaga(action: ActionType) {
 
 export function* walletWatcherSaga(): Generator {
   yield takeLatest(ADD_ADDRESS, persistAddresses);
+  yield takeLatest(ADD_ADDRESS, persistLastUsedIndexes);
   yield takeLatest(ADD_PEGIN_ADDRESS, persistPeginAddresses);
   yield takeLatest(UPDATE_UTXOS, updateUtxosState);
   yield takeLatest(UPDATE_UTXOS, persistUtxos);
