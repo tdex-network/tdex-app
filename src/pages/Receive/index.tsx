@@ -95,7 +95,9 @@ const Receive: React.FC = () => {
           .toOutputScript(addr.confidentialAddress)
           .toString('hex');
         const peginAddress = await peginModule.getMainchainAddress(claimScript);
-        dispatch(addPeginAddress(claimScript, peginAddress));
+        const derivationPath = addr.derivationPath;
+        if (!derivationPath) throw new Error('Derivation path is required');
+        dispatch(addPeginAddress(claimScript, peginAddress, derivationPath));
         dispatch(addSuccessToast('New pegin address generated'));
         setAddress(peginAddress);
       } else {

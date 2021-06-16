@@ -31,7 +31,10 @@ import { transactionsAssets } from './transactionsReducer';
 export interface WalletState {
   isAuth: boolean;
   addresses: Record<string, AddressInterface>;
-  peginAddresses: Record<string, string>;
+  peginAddresses: Record<
+    string,
+    { derivationPath: string; peginAddress: string }
+  >;
   utxos: Record<string, UtxoInterface>;
   utxosLocks: string[];
   masterPubKey: string;
@@ -73,7 +76,10 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
         ...state,
         peginAddresses: {
           ...state.peginAddresses,
-          [action.payload.claimScript]: action.payload.peginAddress,
+          [action.payload.claimScript]: {
+            derivationPath: action.payload.derivationPath,
+            peginAddress: action.payload.peginAddress,
+          },
         },
       };
     case SET_IS_AUTH:
@@ -209,7 +215,7 @@ export const peginAddressesSelector = ({
   wallet,
 }: {
   wallet: WalletState;
-}): Record<string, string> => {
+}): Record<string, { derivationPath: string; peginAddress: string }> => {
   return wallet.peginAddresses;
 };
 

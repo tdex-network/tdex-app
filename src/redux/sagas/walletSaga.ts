@@ -154,11 +154,19 @@ function* restoreUtxos() {
 }
 
 function* restorePeginAddresses() {
-  const peginAddresses: Record<string, string> = yield call(
+  const peginAddresses: WalletState['peginAddresses'] = yield call(
     getPeginAddressesInStorage,
   );
   for (const claimScript in peginAddresses) {
-    yield put(addPeginAddress(claimScript, peginAddresses[claimScript]));
+    if (Object.prototype.hasOwnProperty.call(peginAddresses, claimScript)) {
+      yield put(
+        addPeginAddress(
+          claimScript,
+          peginAddresses[claimScript].peginAddress,
+          peginAddresses[claimScript].derivationPath,
+        ),
+      );
+    }
   }
 }
 

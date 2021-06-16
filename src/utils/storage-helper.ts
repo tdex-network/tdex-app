@@ -9,6 +9,7 @@ import type { Dispatch } from 'redux';
 import type { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 import { network } from '../redux/config';
 import type { CurrencyInterface } from '../redux/reducers/settingsReducer';
+import type { WalletState } from '../redux/reducers/walletReducer';
 
 import type { AssetConfig } from './constants';
 import { CURRENCIES, LBTC_DENOMINATIONS } from './constants';
@@ -159,7 +160,7 @@ export async function getLastUsedIndexesInStorage(): Promise<StateRestorerOpts> 
 }
 
 export function setPeginAddressesInStorage(
-  peginAddresses: Record<string, string>,
+  peginAddresses: WalletState['peginAddresses'],
 ): Promise<void> {
   return Storage.set({
     key: PEGIN_ADDRESSES_KEY,

@@ -48,12 +48,14 @@ export const addAddress = (address: AddressInterface): AnyAction => {
 export const addPeginAddress = (
   claimScript: string,
   peginAddress: string,
+  derivationPath: string,
 ): AnyAction => {
   return {
     type: ADD_PEGIN_ADDRESS,
     payload: {
       claimScript,
       peginAddress,
+      derivationPath,
     },
   };
 };
