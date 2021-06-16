@@ -12,10 +12,10 @@ import {
 import { checkmarkOutline } from 'ionicons/icons';
 import type { AddressInterface, IdentityOpts } from 'ldk';
 import { IdentityType, MasterPublicKey } from 'ldk';
-import type { StateRestorerOpts } from 'ldk/dist/restorer/mnemonic-restorer';
 import React, { useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { withRouter, useLocation } from 'react-router';
+import type { MasterPublicKeyOpts } from 'tdex-sdk';
 import { masterPubKeyRestorerFromState } from 'tdex-sdk';
 
 import Header from '../../components/Header';
@@ -28,6 +28,7 @@ import {
 import { addAddress } from '../../redux/actions/walletActions';
 import { network } from '../../redux/config';
 import type { WalletState } from '../../redux/reducers/walletReducer';
+import { lastUsedIndexesSelector } from '../../redux/selectors/walletSelectors';
 import type { AssetConfig } from '../../utils/constants';
 import { AddressGenerationError } from '../../utils/errors';
 import './style.scss';
@@ -47,26 +48,20 @@ const Receive: React.FC = () => {
   const [locationState] = useState(state);
 
   // select data for MasterPubKey identity
-  const masterPubKeyOpts: IdentityOpts<{
-    masterBlindingKey: string;
-    masterPublicKey: string;
-  }> = useSelector(({ wallet }: { wallet: WalletState }) => {
-    return {
-      chain: network.chain,
-      type: IdentityType.MasterPublicKey,
-      opts: {
-        masterBlindingKey: wallet.masterBlindKey,
-        masterPublicKey: wallet.masterPubKey,
-      },
-    };
-  });
-
-  const lastUsedIndexes: StateRestorerOpts = useSelector(
-    ({ wallet }: { wallet: WalletState }) => ({
-      lastUsedInternalIndex: wallet.lastUsedInternalIndex,
-      lastUsedExternalIndex: wallet.lastUsedExternalIndex,
-    }),
+  const masterPubKeyOpts: IdentityOpts<MasterPublicKeyOpts> = useSelector(
+    ({ wallet }: { wallet: WalletState }) => {
+      return {
+        chain: network.chain,
+        type: IdentityType.MasterPublicKey,
+        opts: {
+          masterBlindingKey: wallet.masterBlindKey,
+          masterPublicKey: wallet.masterPubKey,
+        },
+      };
+    },
   );
+
+  const lastUsedIndexes = useSelector(lastUsedIndexesSelector);
 
   useIonViewWillEnter(async () => {
     try {

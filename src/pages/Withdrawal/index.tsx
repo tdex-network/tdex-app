@@ -12,7 +12,6 @@ import {
 } from '@ionic/react';
 import type { RecipientInterface, UtxoInterface } from 'ldk';
 import { address, psetToUnsignedTx, walletFromCoins } from 'ldk';
-import type { StateRestorerOpts } from 'ldk/dist/restorer/mnemonic-restorer';
 import { Psbt } from 'liquidjs-lib';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -34,7 +33,7 @@ import {
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import { network } from '../../redux/config';
-import type { WalletState } from '../../redux/reducers/walletReducer';
+import { lastUsedIndexesSelector } from '../../redux/selectors/walletSelectors';
 import { broadcastTx } from '../../redux/services/walletService';
 import {
   PIN_TIMEOUT_FAILURE,
@@ -156,12 +155,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     }
   }, [amount]);
 
-  const lastUsedIndexes: StateRestorerOpts = useSelector(
-    ({ wallet }: { wallet: WalletState }) => ({
-      lastUsedInternalIndex: wallet.lastUsedInternalIndex,
-      lastUsedExternalIndex: wallet.lastUsedExternalIndex,
-    }),
-  );
+  const lastUsedIndexes = useSelector(lastUsedIndexesSelector);
 
   const getRecipient = (): RecipientInterface => ({
     address: recipientAddress?.trim(),

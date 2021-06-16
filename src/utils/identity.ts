@@ -1,6 +1,7 @@
 import type { AddressInterface, IdentityInterface, IdentityOpts } from 'ldk';
 import { Mnemonic } from 'ldk';
 import type { Dispatch } from 'redux';
+import type { MnemonicOpts } from 'tdex-sdk';
 
 import { addAddress, watchUtxo } from '../redux/actions/walletActions';
 
@@ -8,7 +9,7 @@ import { addAddress, watchUtxo } from '../redux/actions/walletActions';
 export class MnemonicRedux extends Mnemonic implements IdentityInterface {
   private readonly dispatch: Dispatch;
 
-  constructor(args: IdentityOpts<any>, dispatch: Dispatch) {
+  constructor(args: IdentityOpts<MnemonicOpts>, dispatch: Dispatch) {
     super(args);
     this.dispatch = dispatch;
   }

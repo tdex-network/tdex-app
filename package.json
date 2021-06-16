@@ -75,7 +75,7 @@
     "redux-saga": "^1.1.3",
     "reselect": "^4.0.0",
     "scrypt-js": "^3.0.1",
-    "tdex-sdk": "1.6.9"
+    "tdex-sdk": "1.6.10"
   },
   "devDependencies": {
     "@babel/core": "^7.14.5",
