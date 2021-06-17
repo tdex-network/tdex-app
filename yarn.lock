@@ -3175,12 +3175,12 @@ babel-plugin-polyfill-corejs2@^0.2.2:
     semver "^6.1.1"
 
 babel-plugin-polyfill-corejs3@^0.2.2:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/babel-plugin-polyfill-corejs3/-/babel-plugin-polyfill-corejs3-0.2.2.tgz#7424a1682ee44baec817327710b1b094e5f8f7f5"
-  integrity sha512-l1Cf8PKk12eEk5QP/NQ6TH8A1pee6wWDJ96WjxrMXFLHLOBFzYM4moG80HFgduVhTqAFez4alnZKEhP/bYHg0A==
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/babel-plugin-polyfill-corejs3/-/babel-plugin-polyfill-corejs3-0.2.3.tgz#72add68cf08a8bf139ba6e6dfc0b1d504098e57b"
+  integrity sha512-rCOFzEIJpJEAU14XCcV/erIf/wZQMmMT5l5vXOpL5uoznyOGfDIjPj6FVytMvtzaKSTSVKouOCTPJ5OMUZH30g==
   dependencies:
     "@babel/helper-define-polyfill-provider" "^0.2.2"
-    core-js-compat "^3.9.1"
+    core-js-compat "^3.14.0"
 
 babel-plugin-polyfill-regenerator@^0.2.2:
   version "0.2.2"
@@ -3349,7 +3349,7 @@ bip174@^2.0.1:
   resolved "https://registry.yarnpkg.com/bip174/-/bip174-2.0.1.tgz#39cf8ca99e50ce538fb762589832f4481d07c254"
   integrity sha512-i3X26uKJOkDTAalYAp0Er+qGMDhrbbh2o93/xiPyAN2s25KrClSpe3VXo/7mNJoqA5qfko8rLS2l3RWZgYmjKQ==
 
-bip174@vulpemventures/bip174.git:
+"bip174@github:vulpemventures/bip174":
   version "1.0.1"
   resolved "https://codeload.github.com/vulpemventures/bip174/tar.gz/32811dd32788e97059b3b978b19228156c3a3d64"
 
@@ -3418,7 +3418,7 @@ bl@^4.0.3:
     inherits "^2.0.4"
     readable-stream "^3.4.0"
 
-blech32@vulpemventures/blech32.git:
+"blech32@github:vulpemventures/blech32":
   version "1.0.0"
   resolved "https://codeload.github.com/vulpemventures/blech32/tar.gz/1c9acd89bdd2a2a5016fb942cf7d898579f84c8d"
 
@@ -4258,7 +4258,7 @@ cordova-res@^0.15.3:
     sharp "^0.27.1"
     tslib "^2.0.3"
 
-core-js-compat@^3.14.0, core-js-compat@^3.6.2, core-js-compat@^3.9.1:
+core-js-compat@^3.14.0, core-js-compat@^3.6.2:
   version "3.14.0"
   resolved "https://registry.yarnpkg.com/core-js-compat/-/core-js-compat-3.14.0.tgz#b574dabf29184681d5b16357bd33d104df3d29a5"
   integrity sha512-R4NS2eupxtiJU+VwgkF9WTpnSfZW4pogwKHd8bclWU2sp93Pr5S1uYJI84cMOubJRou7bcfL0vmwtLslWN5p3A==
@@ -9238,10 +9238,10 @@ pbkdf2@^3.0.3, pbkdf2@^3.0.9:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-pegin@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/pegin/-/pegin-0.1.0.tgz#06757a862f24edb10ab54d545744606b408f3ea6"
-  integrity sha512-X737ng5JFbmcmXc4aIhKxOHbWTA31KEXtMf2Khgae1CaV9228tQ0J4cXQaLcCbi0/LUqQD3XnqOA00XIZq9d5g==
+pegin@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/pegin/-/pegin-0.1.1.tgz#384f675ea48c35b4e8644e1925b428c79be02439"
+  integrity sha512-FPafD7O8cCEJ3tUgUjzck5YvvtxTmBsmqe8zDaGfbq3xRKKJ7dDgJYMA+GmcCC0jT12NtviB7gAXyW8RjAghmw==
 
 pend@~1.2.0:
   version "1.2.0"
@@ -10016,9 +10016,9 @@ postcss@^7, postcss@^7.0.0, postcss@^7.0.1, postcss@^7.0.14, postcss@^7.0.17, po
     supports-color "^6.1.0"
 
 postcss@^8.1.0:
-  version "8.3.4"
-  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.3.4.tgz#41ece1c43f2f7c74dc7d90144047ce052757b822"
-  integrity sha512-/tZY0PXExXXnNhKv3TOvZAOUYRyuqcCbBm2c17YMDK0PlVII3K7/LKdt3ScHL+hhouddjUWi+1sKDf9xXW+8YA==
+  version "8.3.5"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.3.5.tgz#982216b113412bc20a86289e91eb994952a5b709"
+  integrity sha512-NxTuJocUhYGsMiMFHDUkmjSKT3EdH4/WbGF6GCi1NDGk+vbcUTun4fpbOqaPtD8IIsztA2ilZm2DhYCuyN58gA==
   dependencies:
     colorette "^1.2.2"
     nanoid "^3.1.23"
