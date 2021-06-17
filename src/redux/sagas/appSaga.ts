@@ -1,7 +1,6 @@
-import type { Mnemonic } from 'ldk';
 import { takeLatest, put, call, all, select } from 'redux-saga/effects';
 
-import { getIdentity, seedBackupFlag } from '../../utils/storage-helper';
+import { seedBackupFlag } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
 import {
   INIT_APP,
@@ -36,33 +35,32 @@ function* initAppSaga() {
 
 function* signInSaga(action: ActionType) {
   try {
-    const identity: Mnemonic = yield call(getIdentity, action.payload);
+    // Start by setting isAuth to true, which causes redirection to auth guarded pages
+    yield put(setIsAuth(true));
+    // Get backup flag from storage and set Redux state
+    const backup = yield call(seedBackupFlag);
+    if (backup) yield put(setIsBackupDone(true));
+    // Wallet Restoration
     const explorerUrl = yield select(
       (state: any) => state.settings.explorerUrl,
     );
     yield all([
-      call(waitForRestore, identity, explorerUrl),
-      put(setPublicKeys(identity)),
+      call(waitForRestore, action.payload.mnemonic, explorerUrl),
+      put(setPublicKeys(action.payload.mnemonic)),
     ]);
-    const addresses = yield call(() => identity.getAddresses());
+    const addresses = yield call(() => action.payload.mnemonic.getAddresses());
     for (const addr of addresses) {
       yield put(addAddress(addr));
     }
-
-    // Get backup flag from storage and set Redux state
-    const backup = yield call(seedBackupFlag);
-    if (backup) {
-      yield put(setIsBackupDone(true));
-    }
-
-    yield put(setIsAuth(true));
-    yield put(updateMarkets());
+    // Update all state
+    yield updateState();
   } catch (e) {
     yield put(initAppFail());
     console.error(e);
   }
 }
 
+// Triggered by <Refresher />
 function* updateState() {
   yield all([
     put(updateMarkets()),

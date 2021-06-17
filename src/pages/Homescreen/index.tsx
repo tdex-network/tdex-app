@@ -10,14 +10,16 @@ import {
 } from '@ionic/react';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import type { RouteComponentProps } from 'react-router';
 
 import logo from '../../assets/img/tdex_3d_logo.svg';
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import PinModal from '../../components/PinModal';
 import { initApp, signIn } from '../../redux/actions/appActions';
 import { addErrorToast } from '../../redux/actions/toastActions';
-import { PIN_TIMEOUT_FAILURE } from '../../utils/constants';
+import {
+  PIN_TIMEOUT_FAILURE,
+  PIN_TIMEOUT_SUCCESS,
+} from '../../utils/constants';
 import { IncorrectPINError } from '../../utils/errors';
 import { setKeyboardTheme } from '../../utils/keyboard';
 import {
@@ -27,7 +29,7 @@ import {
 
 import './style.scss';
 
-const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
+const Homescreen: React.FC = () => {
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [pinModalIsOpen, setPinModalIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -42,13 +44,15 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
     setLoadingMessage('Unlocking wallet...');
     setLoading(true);
     getIdentity(pin)
-      .then(() => {
+      .then(mnemonic => {
         setIsWrongPin(false);
-        dispatch(signIn(pin));
         setTimeout(() => {
-          history.push('/wallet');
           setIsWrongPin(null);
-        }, 1500);
+          setLoading(false);
+          // setIsAuth will cause redirect to /wallet
+          // Restore state
+          dispatch(signIn(mnemonic));
+        }, PIN_TIMEOUT_SUCCESS);
       })
       .catch(e => {
         console.error(e);
@@ -58,8 +62,7 @@ const Homescreen: React.FC<RouteComponentProps> = ({ history }) => {
           setNeedReset(true);
         }, PIN_TIMEOUT_FAILURE);
         dispatch(addErrorToast(IncorrectPINError));
-      })
-      .finally(() => setLoading(false));
+      });
   };
 
   useIonViewWillEnter(() => {

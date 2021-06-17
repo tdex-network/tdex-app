@@ -47,6 +47,7 @@ const Tabs: React.FC<RouteComponentProps> = ({ history, location }) => {
             <Redirect exact from="/login" to="/wallet" />
             <Redirect exact from="/homescreen" to="/wallet" />
             <Redirect exact from="/restore" to="/wallet" />
+            <Redirect exact from="/onboarding/pin-setting" to="/wallet" />
           </IonRouterOutlet>
           <IonTabBar slot="bottom">
             {TABS.map((item, index) => (
