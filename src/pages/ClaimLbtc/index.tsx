@@ -143,7 +143,10 @@ const ClaimLbtc: React.FC = () => {
             const amountPegin = prevoutTx.outs[transaction.ins[0].index].value;
             const sigHash = transaction.hashForWitnessV0(
               0,
-              Buffer.from(`76a9${claimScript.slice(2)}88ac`, 'hex'),
+              Buffer.from(
+                ElementsPegin.claimScriptToP2PKHScript(claimScript),
+                'hex',
+              ),
               confidential.satoshiToConfidentialValue(amountPegin),
               Transaction.SIGHASH_ALL,
             );
