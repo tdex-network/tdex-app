@@ -88,7 +88,7 @@ const Receive: React.FC = () => {
             await ElementsPegin.withLibwally(),
             ElementsPegin.withDynamicFederation(false),
             ElementsPegin.withTestnet(),
-            ElementsPegin.withFederationScript('52'),
+            ElementsPegin.withFederationScript('51'),
           );
         }
         const claimScript = addressLDK
