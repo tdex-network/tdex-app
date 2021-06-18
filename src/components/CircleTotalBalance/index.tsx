@@ -5,7 +5,7 @@ import TdexLogo from '../../assets/img/tdex_logo_black.svg';
 import './style.scss';
 
 interface CircleTotalBalanceProps {
-  fiatBalance: string | undefined;
+  fiatBalance: string;
   lbtcUnit: string;
   totalBalance: string;
 }
