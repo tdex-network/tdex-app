@@ -1,3 +1,5 @@
+import type { Mnemonic } from 'ldk';
+
 import type { ActionType } from '../../utils/types';
 
 export const INIT_APP = 'INIT_APP';
@@ -15,7 +17,7 @@ export const setIsBackupDone = (done: boolean): ActionType => {
   };
 };
 
-export const update = (): ActionType => {
+export const updateState = (): ActionType => {
   return {
     type: UPDATE,
   };
@@ -46,9 +48,9 @@ export const setSignedUp = (signedUp: boolean): ActionType => {
   };
 };
 
-export const signIn = (pin: string): ActionType => {
+export const signIn = (mnemonic: Mnemonic): ActionType => {
   return {
     type: SIGN_IN,
-    payload: pin,
+    payload: { mnemonic },
   };
 };

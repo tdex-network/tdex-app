@@ -37,6 +37,7 @@ import {
 } from '../../utils/errors';
 import {
   clearStorage,
+  getIdentity,
   setMnemonicInSecureStorage,
 } from '../../utils/storage-helper';
 
@@ -194,9 +195,15 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
                     onClick={() => {
                       if (isPinValidated && isTermsAccepted) {
                         setLoading(true);
-                        dispatch(signIn(firstPin));
-                        setIsWrongPin(null);
-                        history.push('/wallet');
+                        getIdentity(firstPin)
+                          .then(mnemonic => {
+                            setIsWrongPin(null);
+                            setLoading(false);
+                            // setIsAuth will cause redirect to /wallet
+                            // Restore state
+                            dispatch(signIn(mnemonic));
+                          })
+                          .catch(console.error);
                       }
                     }}
                   >
