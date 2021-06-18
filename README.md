@@ -3,8 +3,8 @@
 
 ## ⬇️ Install
 
-* Download iOS from [App Store](#)
-* Download Android from [Play Store](#) or install the latest [APK from Github Releases](#)
+* Download iOS from [TestFlight](https://testflight.apple.com/join/qEvbAuII)
+* Download Android via the latest debug [APK from Github Releases](https://github.com/TDex-network/tdex-app/releases)
 
 
 ## 🖥 Local Development
