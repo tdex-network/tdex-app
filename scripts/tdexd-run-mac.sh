@@ -11,6 +11,7 @@ docker run -it -d --name tdexd \
 -e TDEX_NETWORK="regtest" \
 -e TDEX_BASE_ASSET="5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225" \
 -e TDEX_EXPLORER_ENDPOINT="http://10.10.0.17:3000" \
+-e TDEX_NO_MACAROONS=true \
 --network="resources_local" \
 ghcr.io/tdex-network/tdexd:latest
 
@@ -18,7 +19,7 @@ echo ""
 echo "init wallet"
 
 tdex='docker exec -it tdexd tdex '
-$tdex config init --network "regtest"
+$tdex config init --network "regtest" --explorer_url "http://localhost:3001" --no_macaroons
 $tdex init --seed "wrestle actress dirt spice ridge bone depart leisure fruit shoot elite mistake play supply inhale million tennis harvest merit anchor shaft desert organ salute" --password secret &>/dev/null
 
 echo ""
