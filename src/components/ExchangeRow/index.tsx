@@ -61,6 +61,7 @@ interface ExchangeRowInterface {
   // error
   error: string;
   setError: (msg: string) => void;
+  setOtherInputError: (msg: string) => void;
 }
 
 const ExchangeRow: React.FC<ExchangeRowInterface> = ({
@@ -83,6 +84,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   sendInput,
   error,
   setError,
+  setOtherInputError,
 }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const [balance, setBalance] = useState<BalanceInterface>();
@@ -116,7 +118,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       let newTrade;
       let bestPriceRes;
       let updatedAmount;
-      if (focused || trades.length === 0 || !relatedAssetHash) return; // skip the effect if the input field is focused
+      // skip the effect if the input field is focused
+      if (focused || trades.length === 0 || !relatedAssetHash) return;
       if (relatedAssetAmount === 0) {
         onChangeAmount(0);
         setAmount('');
@@ -139,44 +142,52 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         );
         newTrade = bestPriceRes.trade;
       }
-      const priceInSats = await calculatePrice(
-        {
-          amount: relatedAssetAmount,
-          asset: relatedAssetHash,
-          precision: assets[relatedAssetHash]?.precision || defaultPrecision,
-        },
-        newTrade,
-      );
-      setTrade(newTrade);
       //
-      if (isLbtc(asset.asset)) {
-        const precision =
-          assets[priceInSats.asset]?.precision || defaultPrecision;
-        updatedAmount = fromSatoshiFixed(
-          priceInSats.amount,
-          precision,
-          precision,
-          isLbtc(asset.asset) ? lbtcUnit : undefined,
-        );
-      } else {
-        // Convert fiat
-        const priceInBtc = fromSatoshi(
-          priceInSats.amount,
-          assets[priceInSats.asset]?.precision || defaultPrecision,
-          'L-BTC',
-        );
-        updatedAmount = toLBTCwithUnit(priceInBtc, lbtcUnit).toLocaleString(
-          'en-US',
+      let priceInSats;
+      try {
+        priceInSats = await calculatePrice(
           {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: assets[relatedAssetHash]?.precision,
-            useGrouping: false,
+            amount: relatedAssetAmount,
+            asset: relatedAssetHash,
+            precision: assets[relatedAssetHash]?.precision || defaultPrecision,
           },
+          newTrade,
         );
+        setTrade(newTrade);
+        //
+        if (isLbtc(asset.asset)) {
+          const precision =
+            assets[priceInSats.asset]?.precision || defaultPrecision;
+          updatedAmount = fromSatoshiFixed(
+            priceInSats.amount,
+            precision,
+            precision,
+            isLbtc(asset.asset) ? lbtcUnit : undefined,
+          );
+        } else {
+          // Convert fiat
+          const priceInBtc = fromSatoshi(
+            priceInSats.amount,
+            assets[priceInSats.asset]?.precision || defaultPrecision,
+            'L-BTC',
+          );
+          updatedAmount = toLBTCwithUnit(priceInBtc, lbtcUnit).toLocaleString(
+            'en-US',
+            {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: assets[relatedAssetHash]?.precision,
+              useGrouping: false,
+            },
+          );
+        }
+        setAmount(updatedAmount);
+        onChangeAmount(parseFloat(updatedAmount));
+        setIsUpdating(false);
+      } catch (err) {
+        console.error(err);
+        setOtherInputError(err.message);
+        setIsUpdating(false);
       }
-      setAmount(updatedAmount);
-      onChangeAmount(parseFloat(updatedAmount));
-      setIsUpdating(false);
     })();
     // Need 'trade' to compute price based on last trade with proper type
     // Need 'asset' which is accurate faster than balance

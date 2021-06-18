@@ -166,7 +166,7 @@ const WithdrawalDetails: React.FC<
                 routerLink={`/operations/${locationState?.asset}`}
                 className="main-button"
               >
-                GO TO TRANSACTION HISTORY
+                TRANSACTION HISTORY
               </IonButton>
             </IonCol>
           </IonRow>

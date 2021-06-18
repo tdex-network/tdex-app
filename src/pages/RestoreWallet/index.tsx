@@ -37,6 +37,7 @@ import {
 import { onPressEnterKeyFactory } from '../../utils/keyboard';
 import {
   clearStorage,
+  getIdentity,
   setMnemonicInSecureStorage,
 } from '../../utils/storage-helper';
 import './style.scss';
@@ -86,20 +87,24 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({
       const restoredMnemonic = mnemonic.join(' ');
       setMnemonicInSecureStorage(restoredMnemonic, newPin)
         .then(() => {
+          setIsBackupDone(true);
           dispatch(
             addSuccessToast('Mnemonic generated and encrypted with your PIN.'),
           );
-          setIsWrongPin(false);
-          dispatch(signIn(newPin));
-          setIsBackupDone(true);
-          setTimeout(() => {
-            // we don't need to ask backup if the mnemonic is restored
-            history.push('/wallet');
-            setIsWrongPin(null);
-          }, PIN_TIMEOUT_SUCCESS);
+          getIdentity(newPin)
+            .then(mnemonic => {
+              setIsWrongPin(false);
+              setTimeout(() => {
+                setIsWrongPin(null);
+                setLoading(false);
+                // setIsAuth will cause redirect to /wallet
+                // Restore state
+                dispatch(signIn(mnemonic));
+              }, PIN_TIMEOUT_SUCCESS);
+            })
+            .catch(console.error);
         })
-        .catch(() => onError(SecureStorageError))
-        .finally(() => setLoading(false));
+        .catch(() => onError(SecureStorageError));
       return;
     }
     onError(PINsDoNotMatchError);

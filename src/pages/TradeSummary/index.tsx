@@ -194,7 +194,9 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                         </div>
                         <div className="transaction-info-values">
                           <span className="transaction-col-name">{''}</span>
-                          {transaction?.blockTime || (
+                          {transaction?.blockTime ? (
+                            <></>
+                          ) : (
                             <span className="transaction-col-value pending">
                               <IonText color="warning">PENDING</IonText>
                               <IonIcon

@@ -5,7 +5,6 @@ import {
   IonPage,
   IonListHeader,
   IonButton,
-  useIonViewWillEnter,
   IonIcon,
   IonGrid,
   IonRow,
@@ -22,8 +21,6 @@ import Header from '../../components/Header';
 import Refresher from '../../components/Refresher';
 import { CurrencyIcon } from '../../components/icons';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { update } from '../../redux/actions/appActions';
-import { updateUtxos } from '../../redux/actions/walletActions';
 import { network } from '../../redux/config';
 import type { AssetConfig } from '../../utils/constants';
 import {
@@ -55,7 +52,6 @@ const Wallet: React.FC<WalletProps> = ({
   prices,
   currency,
   history,
-  dispatch,
   totalLBTC,
 }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
@@ -89,8 +85,6 @@ const Wallet: React.FC<WalletProps> = ({
     });
     return assets;
   };
-
-  useIonViewWillEnter(() => dispatch(updateUtxos()));
 
   useEffect(() => {
     const fiatsValues = balances.map(({ amount, coinGeckoID }) => {
@@ -144,10 +138,6 @@ const Wallet: React.FC<WalletProps> = ({
     setDepositAssets(getDepositAssets());
   }, [balances]);
 
-  useEffect(() => {
-    dispatch(update());
-  }, []);
-
   return (
     <IonPage>
       <IonContent className="wallet-content">
@@ -167,7 +157,7 @@ const Wallet: React.FC<WalletProps> = ({
                   ? `${(
                       fromSatoshi(totalLBTC.amount) * prices[LBTC_COINGECKOID]
                     ).toFixed(2)} ${currency.toUpperCase()}`
-                  : undefined
+                  : `0.00 ${currency.toUpperCase()}`
               }
             />
           </IonRow>
