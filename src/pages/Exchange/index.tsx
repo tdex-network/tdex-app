@@ -296,6 +296,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               }}
               error={errorSent}
               setError={setErrorSent}
+              setOtherInputError={setErrorReceived}
             />
 
             <div
@@ -335,6 +336,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                 }}
                 error={errorReceived}
                 setError={setErrorReceived}
+                setOtherInputError={setErrorSent}
               />
             )}
 
