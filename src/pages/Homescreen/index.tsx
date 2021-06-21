@@ -48,7 +48,7 @@ const Homescreen: React.FC = () => {
         setIsWrongPin(false);
         setTimeout(() => {
           setIsWrongPin(null);
-          setLoading(false);
+          setNeedReset(true);
           // setIsAuth will cause redirect to /wallet
           // Restore state
           dispatch(signIn(mnemonic));
@@ -62,7 +62,8 @@ const Homescreen: React.FC = () => {
           setNeedReset(true);
         }, PIN_TIMEOUT_FAILURE);
         dispatch(addErrorToast(IncorrectPINError));
-      });
+      })
+      .finally(() => setLoading(false));
   };
 
   useIonViewWillEnter(() => {
