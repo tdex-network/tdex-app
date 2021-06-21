@@ -206,9 +206,11 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       }
       const MAX_DIGITS = 11;
       const MAX_DECIMAL_DIGITS = 8;
+
+      // If value is one of those cases, provoke re-rendering with sanitized value
       if (
         // First comma is always replaced by dot. Reset if user types a second comma
-        e.detail.value.includes('.') && e.detail.value.includes(',') ||
+        (e.detail.value.includes('.') && e.detail.value.includes(',')) ||
         // If focused input, no more than MAX_DIGITS digits
         (focused && e.detail.value.length > MAX_DIGITS) ||
         // No more than MAX_DECIMAL_DIGITS digits
@@ -218,7 +220,6 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         // No more than one dot
         /(\..*){2,}/.test(e.detail.value)
       ) {
-        // Hack to trigger a re-render
         setAmount('');
       }
       // Sanitize
