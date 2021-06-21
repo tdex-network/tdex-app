@@ -8,6 +8,7 @@ import {
   IonLoading,
   IonGrid,
   useIonViewWillEnter,
+  useIonViewWillLeave,
 } from '@ionic/react';
 import { checkmarkOutline } from 'ionicons/icons';
 import type { AddressInterface, IdentityOpts } from 'ldk';
@@ -84,6 +85,11 @@ const Receive: React.FC = () => {
     }
     // Need 'state' to ensure new address generation
   }, [state?.depositAsset]);
+
+  // Necessary to ensure update of QRcode
+  useIonViewWillLeave(() => {
+    setAddress(undefined);
+  });
 
   const copyAddress = () => {
     if (address) {
