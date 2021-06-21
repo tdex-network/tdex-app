@@ -204,11 +204,15 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         onChangeAmount('0');
         return;
       }
+      const MAX_DIGITS = 11;
+      const MAX_DECIMAL_DIGITS = 8;
       if (
-        // No more than 12 chars
-        e.detail.value.length >= 12 ||
-        // No more than 8 decimal digits
-        !/^\d+(\.?\d{0,8})?$/.test(e.detail.value) ||
+        // First comma is always replaced by dot. Reset if user types a second comma
+        e.detail.value.includes('.') && e.detail.value.includes(',') ||
+        // If focused input, no more than MAX_DIGITS digits
+        (focused && e.detail.value.length > MAX_DIGITS) ||
+        // No more than MAX_DECIMAL_DIGITS digits
+        e.detail.value.split(/[,.]/, 2)[1]?.length > MAX_DECIMAL_DIGITS ||
         // No letters
         /[a-zA-Z]/.test(e.detail.value) ||
         // No more than one dot
@@ -217,24 +221,31 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         // Hack to trigger a re-render
         setAmount('');
       }
-      let val = e.detail.value
-        .replace(',', '.')
+      // Sanitize
+      let val: string = (e.detail.value as any)
+        .replaceAll(',', '.')
         // Remove non numeric chars or period
-        .replace(/[^0-9.]/g, '')
+        .replaceAll(/[^0-9.]/g, '')
         // Remove last dot. Remove all if consecutive.
         .replace(/\.$/, '');
-      // No more than 8 decimal digits
-      if (!/^\d+(\.?\d{0,8})?$/.test(e.detail.value)) {
-        val = Number(e.detail.value).toFixed(8);
+
+      // No more than MAX_DECIMAL_DIGITS decimal digits
+      if (e.detail.value.split(/[,.]/, 2)[1]?.length > MAX_DECIMAL_DIGITS) {
+        val = Number(e.detail.value).toFixed(MAX_DECIMAL_DIGITS);
       }
+      // If focused input, no more than MAX_DIGITS digits
+      if (focused && e.detail.value.length > MAX_DIGITS) {
+        val = val.substring(0, MAX_DIGITS);
+      }
+      // Set
+      setAmount(val);
+      onChangeAmount(val);
+      // Check balance
       const valSats = toSatoshi(
         val,
         balance?.precision,
         isLbtc(asset.asset) ? lbtcUnit : undefined,
       );
-      setAmount(val);
-      onChangeAmount(val);
-      // Check balance
       if (sendInput && valSats.greaterThan(balance?.amount ?? 0)) {
         setError(ERROR_BALANCE_TOO_LOW);
       }
