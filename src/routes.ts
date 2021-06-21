@@ -1,6 +1,5 @@
 import { IconExchange, IconSettings, IconWallet } from './components/icons';
 import Account from './pages/Account';
-import ClaimLbtc from './pages/ClaimLbtc';
 import DeleteMnemonic from './pages/DeleteMnemonic';
 import Deposit from './pages/Deposit';
 import Faq from './pages/Faq';
@@ -12,6 +11,7 @@ import ShowMnemonicSettings from './pages/ShowMnemonic/show-mnemonic-settings';
 import Terms from './pages/Terms';
 import WithdrawalDetails from './pages/WithdrawalDetails';
 import Backup from './redux/containers/backupContainer';
+import ClaimPegin from './redux/containers/claimPeginContainer';
 import Exchange from './redux/containers/exchangeContainer';
 import TradeHistory from './redux/containers/exchangeHistoryContainer';
 import LiquidityProviders from './redux/containers/liquidityProvidersContainer';
@@ -36,7 +36,7 @@ export const routerLinks = {
   deposit: '/deposit',
   // Settings
   account: '/account',
-  claimLbtc: '/settings/claim-lbtc',
+  claimPegin: '/settings/claim-pegin',
   deleteMnemonic: '/settings/delete-mnemonic',
   faq: '/faq',
   liquidityProvider: '/liquidity-provider',
@@ -128,8 +128,8 @@ export const ROUTES = [
     component: DeleteMnemonic,
   },
   {
-    path: routerLinks.claimLbtc,
-    component: ClaimLbtc,
+    path: routerLinks.claimPegin,
+    component: ClaimPegin,
   },
 ];
 

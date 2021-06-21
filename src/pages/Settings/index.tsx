@@ -27,6 +27,7 @@ import DenominationSearch from '../../components/DenominationSearch';
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
 import { setElectrumServer } from '../../redux/actions/settingsActions';
+import { routerLinks } from '../../routes';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 
 import './style.scss';
@@ -141,7 +142,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
 
             <IonItem
               onClick={() => {
-                history.push('/settings/claim-lbtc');
+                history.push(routerLinks.claimPegin);
               }}
             >
               <span>Claim Liquid Bitcoin</span>
