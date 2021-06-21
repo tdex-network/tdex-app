@@ -122,10 +122,10 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       if (!balance) return;
       if (
         fromSatoshi(
-          balance.amount,
+          balance.amount.toString(),
           balance.precision,
           balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
-        ) < amount
+        ).lessThan(amount)
       ) {
         setError('Amount is greater than your balance');
         return;
@@ -140,7 +140,9 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       //
       let needLBTC = fee;
       if (balance.coinGeckoID === 'bitcoin') {
-        needLBTC += toSatoshi(amount, 8, lbtcUnit);
+        needLBTC = toSatoshi(amount.toString(), 8, lbtcUnit)
+          .plus(needLBTC)
+          .toNumber();
       }
       if (needLBTC > LBTCBalance.amount) {
         setError('You cannot pay fees');
@@ -158,10 +160,10 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     address: recipientAddress?.trim(),
     asset: balance?.asset || '',
     value: toSatoshi(
-      amount,
+      amount.toString(),
       balance?.precision,
       balance?.ticker === 'L-BTC' ? lbtcUnit : undefined,
-    ),
+    ).toNumber(),
   });
 
   const onAmountChange = (newAmount: number | undefined) => {

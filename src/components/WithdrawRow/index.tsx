@@ -6,6 +6,7 @@ import {
   useIonViewDidLeave,
 } from '@ionic/react';
 import classNames from 'classnames';
+import Decimal from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -42,7 +43,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   const currency = useSelector((state: any) => state.settings.currency.value);
   const [residualBalance, setResidualBalance] = useState<string>(
     fromSatoshiFixed(
-      balance.amount,
+      balance.amount.toString(),
       balance.precision,
       balance.precision,
       balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
@@ -63,7 +64,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   useEffect(() => {
     setResidualBalance(
       fromSatoshiFixed(
-        balance.amount,
+        balance.amount.toString(),
         balance.precision,
         balance.precision,
         balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
@@ -82,7 +83,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   const reset = () => {
     setResidualBalance(
       fromSatoshiFixed(
-        balance.amount,
+        balance.amount.toString(),
         balance.precision,
         balance.precision,
         balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
@@ -100,26 +101,25 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
 
     const val = parseFloat(value.replace(',', '.'));
     onAmountChange(val);
-    const residualAmount =
-      fromSatoshi(
-        balance.amount,
-        balance.precision,
-        balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
-      ) - val;
+    const residualAmount = fromSatoshi(
+      balance.amount.toString(),
+      balance.precision,
+      balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
+    ).sub(val);
     setResidualBalance(
-      residualAmount.toLocaleString('en-US', {
+      residualAmount.toNumber().toLocaleString('en-US', {
         maximumFractionDigits: balance.precision,
         useGrouping: false,
       }),
     );
     if (price)
       setFiat(
-        (
-          toLBTCwithUnit(
-            val,
-            balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
-          ) * price
-        ).toFixed(2),
+        toLBTCwithUnit(
+          new Decimal(val),
+          balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
+        )
+          .mul(price)
+          .toFixed(2),
       );
   };
 

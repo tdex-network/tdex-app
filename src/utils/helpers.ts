@@ -1,3 +1,4 @@
+import { Decimal } from 'decimal.js';
 import type {
   AddressInterface,
   ChangeAddressFromAssetGetter,
@@ -34,45 +35,70 @@ export const createColorFromHash = (id: string): string => {
   return `hsl(${hash % 360}, 70%, 50%)`;
 };
 
-export function toSatoshi(x: number, y?: number, unit?: string): number {
-  return toLBTCwithUnit(
-    Math.floor(x * Math.pow(10, y || defaultPrecision)),
-    unit,
-  );
+export function toSatoshi(
+  val: string,
+  precision?: number,
+  unit?: string,
+): Decimal {
+  const v = new Decimal(val)
+    .mul(Decimal.pow(10, precision || defaultPrecision))
+    .floor();
+  return toLBTCwithUnit(v, unit);
 }
 
-export function fromSatoshi(x: number, y?: number, unit?: string): number {
-  return formatLBTCwithUnit(x / Math.pow(10, y || defaultPrecision), unit);
+export function fromSatoshi(
+  val: string,
+  precision?: number,
+  unit?: string,
+): Decimal {
+  const v = new Decimal(val).div(
+    Decimal.pow(10, precision || defaultPrecision),
+  );
+  return formatLBTCwithUnit(v, unit);
 }
 
 export function fromSatoshiFixed(
-  x: number,
-  y?: number,
+  val: string,
+  precision?: number,
   fixed?: number,
   unit?: string,
 ): string {
-  return Number(
-    formatLBTCwithUnit(fromSatoshi(x, y), unit).toFixed(
-      fixed || unitToFixedDigits(unit),
-    ),
-  ).toLocaleString('en-US', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: fixed || unitToFixedDigits(unit),
-    useGrouping: false,
-  });
+  return formatLBTCwithUnit(fromSatoshi(val, precision), unit)
+    .toNumber()
+    .toLocaleString('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: fixed || unitToFixedDigits(unit),
+      useGrouping: false,
+    });
 }
 
-export function toLBTCwithUnit(lbtcValue: number, unit?: string): number {
+export function toLBTCwithUnit(lbtcValue: Decimal, unit?: string): Decimal {
   if (!unit) return lbtcValue;
   switch (unit) {
     case 'L-BTC':
       return lbtcValue;
     case 'L-mBTC':
-      return lbtcValue / 1000;
+      return lbtcValue.div(Decimal.pow(10, 3));
     case 'L-bits':
-      return lbtcValue / 1000000;
+      return lbtcValue.div(Decimal.pow(10, 6));
     case 'L-sats':
-      return lbtcValue / 100000000;
+      return lbtcValue.div(Decimal.pow(10, 8));
+    default:
+      return lbtcValue;
+  }
+}
+
+export function formatLBTCwithUnit(lbtcValue: Decimal, unit?: string): Decimal {
+  if (!unit) return lbtcValue;
+  switch (unit) {
+    case 'L-BTC':
+      return lbtcValue;
+    case 'L-mBTC':
+      return lbtcValue.mul(Decimal.pow(10, 3));
+    case 'L-bits':
+      return lbtcValue.mul(Decimal.pow(10, 6));
+    case 'L-sats':
+      return lbtcValue.mul(Decimal.pow(10, 8));
     default:
       return lbtcValue;
   }
@@ -91,22 +117,6 @@ export function unitToFixedDigits(unit?: string): number {
       return 0;
     default:
       return 2;
-  }
-}
-
-function formatLBTCwithUnit(lbtcValue: number, unit?: string): number {
-  if (!unit) return lbtcValue;
-  switch (unit) {
-    case 'L-BTC':
-      return lbtcValue;
-    case 'L-mBTC':
-      return lbtcValue * 1000;
-    case 'L-bits':
-      return lbtcValue * 1000000;
-    case 'L-sats':
-      return toSatoshi(lbtcValue, 8);
-    default:
-      return lbtcValue;
   }
 }
 

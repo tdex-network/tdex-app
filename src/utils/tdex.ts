@@ -22,17 +22,19 @@ export interface AssetWithTicker {
  * Select the best price in a set of available markets
  * @param known the amount/asset inputs by the user
  * @param trades the set of trades available
+ * @param lbtcUnit
  * @param onError launch if an error happen in getMarketPrice request
  */
 export async function bestPrice(
-  known: { amount: number; asset: string; precision: number },
+  known: { amount: string; asset: string; precision: number },
   trades: TDEXTrade[],
+  lbtcUnit: string,
   onError: (e: string) => void,
 ): Promise<{ amount: number; asset: string; trade: TDEXTrade }> {
   if (trades.length === 0) throw new Error('trades array should not be empty');
 
   const toPrice = async (trade: TDEXTrade) =>
-    calculatePrice(known, trade)
+    calculatePrice(known, trade, lbtcUnit)
       .then(res => ({ ...res, trade }))
       .catch(onError);
   const pricesPromises = trades.map(toPrice);
@@ -80,12 +82,14 @@ export async function bestBalance(trades: TDEXTrade[]): Promise<TDEXTrade> {
  * Wrapper for marketPrice request
  * @param known the amount/asset provided by the user
  * @param trade trade used to compute the price
+ * @param lbtcUnit
  */
 export async function calculatePrice(
-  known: { amount: number; asset: string; precision: number },
+  known: { amount: string; asset: string; precision: number },
   trade: TDEXTrade,
+  lbtcUnit: string,
 ): Promise<{ amount: number; asset: string }> {
-  if (known.amount <= 0) {
+  if (Number(known.amount) <= 0) {
     return {
       amount: 0,
       asset:
@@ -98,7 +102,7 @@ export async function calculatePrice(
   const response = await client.marketPrice(
     trade.market,
     trade.type,
-    toSatoshi(known.amount, known.precision),
+    toSatoshi(known.amount, known.precision, lbtcUnit).toNumber(),
     known.asset,
   );
   return {

@@ -91,7 +91,7 @@ const Wallet: React.FC<WalletProps> = ({
       if (!coinGeckoID) return UNKNOWN;
       const p = prices[coinGeckoID];
       if (!p) return UNKNOWN;
-      return p * fromSatoshi(amount);
+      return fromSatoshi(amount.toString()).mul(p).toNumber();
     });
     setFiats(fiatsValues);
   }, [prices, balances]);
@@ -148,15 +148,20 @@ const Wallet: React.FC<WalletProps> = ({
             <CircleTotalBalance
               totalBalance={
                 totalLBTC.amount
-                  ? fromSatoshiFixed(totalLBTC.amount, 8, undefined, lbtcUnit)
+                  ? fromSatoshiFixed(
+                      totalLBTC.amount.toString(),
+                      8,
+                      undefined,
+                      lbtcUnit,
+                    )
                   : '0.00'
               }
               lbtcUnit={lbtcUnit}
               fiatBalance={
                 totalLBTC && prices[LBTC_COINGECKOID]
-                  ? `${(
-                      fromSatoshi(totalLBTC.amount) * prices[LBTC_COINGECKOID]
-                    ).toFixed(2)} ${currency.toUpperCase()}`
+                  ? `${fromSatoshi(totalLBTC.amount.toString())
+                      .mul(prices[LBTC_COINGECKOID])
+                      .toFixed(2)} ${currency.toUpperCase()}`
                   : `0.00 ${currency.toUpperCase()}`
               }
             />
@@ -227,7 +232,7 @@ const Wallet: React.FC<WalletProps> = ({
                             aria-label={`${balance.ticker}-amount`}
                           >
                             {fromSatoshiFixed(
-                              balance.amount,
+                              balance.amount.toString(),
                               balance.precision,
                               balance.precision,
                               balance.ticker === 'L-BTC' ? lbtcUnit : undefined,

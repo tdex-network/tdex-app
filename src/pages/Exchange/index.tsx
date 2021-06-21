@@ -82,8 +82,8 @@ const Exchange: React.FC<ExchangeProps> = ({
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const [hasBeenSwapped, setHasBeenSwapped] = useState<boolean>(false);
   // user inputs amount
-  const [sentAmount, setSentAmount] = useState<number>();
-  const [receivedAmount, setReceivedAmount] = useState<number>();
+  const [sentAmount, setSentAmount] = useState<string>();
+  const [receivedAmount, setReceivedAmount] = useState<string>();
   // assets selected for trade
   const [assetSent, setAssetSent] = useState<AssetWithTicker>();
   const [assetReceived, setAssetReceived] = useState<AssetWithTicker>();
@@ -114,7 +114,11 @@ const Exchange: React.FC<ExchangeProps> = ({
       assets[assetSent.asset]?.precision || defaultPrecision,
       assetSent.ticker === 'L-BTC' ? lbtcUnit : undefined,
     );
-    if (!hasBeenSwapped && availableAmount && availableAmount < sats) {
+    if (
+      !hasBeenSwapped &&
+      availableAmount &&
+      sats.greaterThan(availableAmount)
+    ) {
       setErrorSent(ERROR_LIQUIDITY);
       return;
     }
@@ -132,7 +136,11 @@ const Exchange: React.FC<ExchangeProps> = ({
       assets[assetReceived.asset]?.precision || defaultPrecision,
       assetReceived.ticker === 'L-BTC' ? lbtcUnit : undefined,
     );
-    if (!hasBeenSwapped && availableAmount && availableAmount < sats) {
+    if (
+      !hasBeenSwapped &&
+      availableAmount &&
+      sats.greaterThan(availableAmount)
+    ) {
       setErrorReceived(ERROR_LIQUIDITY);
       return;
     }
@@ -174,7 +182,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       balance.precision,
       balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
     );
-    return amountAsSats > balance.amount;
+    return amountAsSats.greaterThan(balance.amount);
   };
 
   const onConfirm = () => setModalOpen(true);
@@ -202,7 +210,7 @@ const Exchange: React.FC<ExchangeProps> = ({
           amount: toSatoshi(
             sentAmount,
             assets[assetSent.asset]?.precision || defaultPrecision,
-          ),
+          ).toNumber(),
           asset: assetSent.asset,
         },
         explorerUrl,
@@ -278,13 +286,13 @@ const Exchange: React.FC<ExchangeProps> = ({
               focused={isFocused === 'sent'}
               setFocus={() => setIsFocused('sent')}
               setTrade={(t: TDEXTrade) => setTrade(t)}
-              relatedAssetAmount={receivedAmount || 0}
+              relatedAssetAmount={receivedAmount || '0'}
               relatedAssetHash={assetReceived?.asset || ''}
               asset={assetSent}
               assetAmount={sentAmount}
               trades={trades}
               trade={trade}
-              onChangeAmount={(newAmount: number) => {
+              onChangeAmount={(newAmount: string) => {
                 setSentAmount(newAmount);
                 checkAvailableAmountSent();
               }}
@@ -320,11 +328,11 @@ const Exchange: React.FC<ExchangeProps> = ({
                 setTrade={(t: TDEXTrade) => setTrade(t)}
                 trades={trades}
                 trade={trade}
-                relatedAssetAmount={sentAmount || 0}
+                relatedAssetAmount={sentAmount || '0'}
                 relatedAssetHash={assetSent?.asset || ''}
                 asset={assetReceived}
                 assetAmount={receivedAmount}
-                onChangeAmount={(newAmount: number) => {
+                onChangeAmount={(newAmount: string) => {
                   setReceivedAmount(newAmount);
                   checkAvailableAmountReceived();
                 }}

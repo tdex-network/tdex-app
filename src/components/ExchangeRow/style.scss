@@ -116,14 +116,8 @@
   }
 }
 
-.spinner {
-  opacity: 0;
-  height: 10px;
-  padding-right: 20px;
-  transition: all 50ms ease-in-out;
-  &.visible {
-    opacity: 1;
-  }
+ion-spinner {
+  align-self: center;
 }
 
 .icon {
