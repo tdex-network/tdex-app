@@ -96,7 +96,11 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
                         <div className="item-end">
                           <div className="amount">
                             <div className="main-row">
-                              +{fromSatoshiFixed(transferReceived.amount, 8, 8)}
+                              {fromSatoshiFixed(
+                                transferReceived.amount.toString(),
+                                8,
+                                8,
+                              )}
                             </div>
                             <div className="main-row accent">
                               {tickerReceived}
@@ -114,7 +118,11 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
                             </span>
                           </IonLabel>
                           <IonText>
-                            {fromSatoshiFixed(transferSent.amount, 8, 8)}{' '}
+                            {fromSatoshiFixed(
+                              transferSent.amount.toString(),
+                              8,
+                              8,
+                            )}{' '}
                             <span className="currency">{tickerSent}</span>
                           </IonText>
                         </div>

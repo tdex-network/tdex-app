@@ -130,7 +130,7 @@ const Operations: React.FC<OperationsProps> = ({
               <p className="info-amount ion-no-margin">
                 {balance &&
                   fromSatoshiFixed(
-                    balance?.amount,
+                    balance?.amount.toString(),
                     balance.precision,
                     balance.precision,
                     balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
@@ -141,10 +141,9 @@ const Operations: React.FC<OperationsProps> = ({
               </p>
               {balance?.coinGeckoID && prices[balance.coinGeckoID] && (
                 <span className="info-amount-converted">
-                  {(
-                    fromSatoshi(balance.amount, balance.precision) *
-                    prices[balance.coinGeckoID]
-                  ).toFixed(2)}{' '}
+                  {fromSatoshi(balance.amount.toString(), balance.precision)
+                    .mul(prices[balance.coinGeckoID])
+                    .toFixed(2)}{' '}
                   {currency.toUpperCase()}
                 </span>
               )}
@@ -242,7 +241,7 @@ const Operations: React.FC<OperationsProps> = ({
                                   <div className="main-row">
                                     {transfer
                                       ? fromSatoshiFixed(
-                                          transfer.amount,
+                                          transfer.amount.toString(),
                                           balance.precision,
                                           balance.precision,
                                           balance.ticker === 'L-BTC'
@@ -259,12 +258,12 @@ const Operations: React.FC<OperationsProps> = ({
                                 </div>
                                 {transfer && balance.coinGeckoID && (
                                   <div className="sub-row ta-end">
-                                    {(
-                                      fromSatoshi(
-                                        transfer.amount,
-                                        balance.precision,
-                                      ) * prices[balance.coinGeckoID]
-                                    ).toFixed(2)}{' '}
+                                    {fromSatoshi(
+                                      transfer.amount.toString(),
+                                      balance.precision,
+                                    )
+                                      .mul(prices[balance.coinGeckoID])
+                                      .toFixed(2)}{' '}
                                     {currency.toUpperCase()}
                                   </div>
                                 )}
@@ -275,7 +274,9 @@ const Operations: React.FC<OperationsProps> = ({
                                 <IonLabel>
                                   Fee{' '}
                                   <span className="amount">
-                                    {fromSatoshi(tx.fee, 8).toFixed(8)}{' '}
+                                    {fromSatoshi(tx.fee.toString(), 8).toFixed(
+                                      8,
+                                    )}{' '}
                                     {LBTC_TICKER}
                                   </span>
                                 </IonLabel>
