@@ -1,9 +1,7 @@
 import axios from 'axios';
 import type { CoinSelector, UtxoInterface } from 'ldk';
 import { Trade, TraderClient, TradeType } from 'tdex-sdk';
-import type {
-  TDEXMnemonic
-} from 'tdex-sdk';
+import type { TDEXMnemonic } from 'tdex-sdk';
 
 import type {
   TDEXTrade,

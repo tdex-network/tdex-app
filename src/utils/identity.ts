@@ -2,7 +2,7 @@ import type { AddressInterface, IdentityInterface, IdentityOpts } from 'ldk';
 import { Mnemonic } from 'ldk';
 import type { Dispatch } from 'redux';
 import { TDEXMnemonic } from 'tdex-sdk';
-import type { MnemonicOpts } from 'tdex-sdk'
+import type { MnemonicOpts } from 'tdex-sdk';
 
 import { addAddress, watchUtxo } from '../redux/actions/walletActions';
 
