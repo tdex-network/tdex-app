@@ -1,6 +1,9 @@
 import axios from 'axios';
-import type { CoinSelector, IdentityInterface, UtxoInterface } from 'ldk';
+import type { CoinSelector, UtxoInterface } from 'ldk';
 import { Trade, TraderClient, TradeType } from 'tdex-sdk';
+import type {
+  TDEXMnemonic
+} from 'tdex-sdk';
 
 import type {
   TDEXTrade,
@@ -125,7 +128,7 @@ export async function makeTrade(
   known: { amount: number; asset: string },
   explorerUrl: string,
   utxos: UtxoInterface[],
-  identity: IdentityInterface,
+  identity: TDEXMnemonic,
   coinSelector: CoinSelector,
 ): Promise<string> {
   const trader = new Trade({
