@@ -204,15 +204,11 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         onChangeAmount('0');
         return;
       }
-      const MAX_DIGITS = 11;
       const MAX_DECIMAL_DIGITS = 8;
-
       // If value is one of those cases, provoke re-rendering with sanitized value
       if (
         // First comma is always replaced by dot. Reset if user types a second comma
         (e.detail.value.includes('.') && e.detail.value.includes(',')) ||
-        // If focused input, no more than MAX_DIGITS digits
-        (focused && e.detail.value.length > MAX_DIGITS) ||
         // No more than MAX_DECIMAL_DIGITS digits
         e.detail.value.split(/[,.]/, 2)[1]?.length > MAX_DECIMAL_DIGITS ||
         // No letters
@@ -233,10 +229,6 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       // No more than MAX_DECIMAL_DIGITS decimal digits
       if (e.detail.value.split(/[,.]/, 2)[1]?.length > MAX_DECIMAL_DIGITS) {
         val = Number(e.detail.value).toFixed(MAX_DECIMAL_DIGITS);
-      }
-      // If focused input, no more than MAX_DIGITS digits
-      if (focused && e.detail.value.length > MAX_DIGITS) {
-        val = val.substring(0, MAX_DIGITS);
       }
       // Set
       setAmount(val);
