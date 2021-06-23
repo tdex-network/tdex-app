@@ -5,6 +5,7 @@ import { IdentityType, Mnemonic } from 'ldk';
 import type { AddressInterface, TxInterface, UtxoInterface } from 'ldk';
 import type { StateRestorerOpts } from 'ldk/dist/restorer/mnemonic-restorer';
 import type { Dispatch } from 'redux';
+import type { TDEXMnemonic } from 'tdex-sdk';
 
 import type { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 import { network } from '../redux/config';
@@ -14,7 +15,7 @@ import type { AssetConfig } from './constants';
 import { CURRENCIES, LBTC_DENOMINATIONS } from './constants';
 import type { Encrypted } from './crypto';
 import { decrypt, encrypt } from './crypto';
-import { MnemonicRedux } from './identity';
+import { MnemonicRedux, TDexMnemonicRedux } from './identity';
 
 const MNEMONIC_KEY = 'tdex-app-mnemonic';
 const ADDRESSES_KEY = 'tdex-app-addresses';
@@ -249,6 +250,23 @@ export async function getConnectedIdentity(
 ): Promise<MnemonicRedux> {
   const toRestoreMnemonic = await getMnemonicFromSecureStorage(pin);
   return new MnemonicRedux(
+    {
+      chain: network.chain,
+      type: IdentityType.Mnemonic,
+      opts: {
+        mnemonic: toRestoreMnemonic,
+      },
+    },
+    dispatch,
+  );
+}
+
+export async function getConnectedTDexMnemonic(
+  pin: string,
+  dispatch: Dispatch,
+): Promise<TDEXMnemonic> {
+  const toRestoreMnemonic = await getMnemonicFromSecureStorage(pin);
+  return new TDexMnemonicRedux(
     {
       chain: network.chain,
       type: IdentityType.Mnemonic,
