@@ -50,7 +50,6 @@ import {
 import {
   customCoinSelector,
   getAssetHashLBTC,
-  sleep,
   toSatoshi,
 } from '../../utils/helpers';
 import type { TDexMnemonicRedux } from '../../utils/identity';
