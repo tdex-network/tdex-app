@@ -50,6 +50,7 @@ import {
 import {
   customCoinSelector,
   getAssetHashLBTC,
+  sleep,
   toSatoshi,
 } from '../../utils/helpers';
 import type { TDexMnemonicRedux } from '../../utils/identity';
@@ -259,7 +260,7 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   return (
     <IonPage id="exchange-page">
-      <IonLoading isOpen={loading} />
+      <IonLoading isOpen={loading} message="Please wait..." spinner="lines" />
       {assetSent && assetReceived && markets.length > 0 && (
         <PinModal
           open={modalOpen}

@@ -267,11 +267,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         needReset={needReset}
         setNeedReset={setNeedReset}
       />
-      <IonLoading
-        cssClass="my-custom-class"
-        isOpen={loading}
-        message={'Please wait...'}
-      />
+      <IonLoading isOpen={loading} message="Please wait..." spinner="lines" />
       <IonContent className="withdrawal">
         <IonGrid>
           <Header
