@@ -18,10 +18,12 @@ ion-header {
       right: 0;
       width: 30px;
     }
-    ion-button.custom-right-button {
-      filter: brightness(65%);
+    ion-buttons {
       position: absolute;
       right: 0;
+      filter: brightness(65%);
+    }
+    .custom-right-button {
       width: 65px;
       @media (max-width: 320px) {
         width: 55px;

@@ -48,6 +48,7 @@ const Homescreen: React.FC = () => {
         setIsWrongPin(false);
         setTimeout(() => {
           setIsWrongPin(null);
+          setNeedReset(true);
           setLoading(false);
           // setIsAuth will cause redirect to /wallet
           // Restore state
@@ -60,6 +61,7 @@ const Homescreen: React.FC = () => {
         setTimeout(() => {
           setIsWrongPin(null);
           setNeedReset(true);
+          setLoading(false);
         }, PIN_TIMEOUT_FAILURE);
         dispatch(addErrorToast(IncorrectPINError));
       });

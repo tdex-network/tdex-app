@@ -9,6 +9,7 @@ import {
 } from '@ionic/react';
 import classNames from 'classnames';
 import { chevronBackOutline, closeOutline } from 'ionicons/icons';
+import type { ReactElement } from 'react';
 import React from 'react';
 import './style.scss';
 
@@ -20,8 +21,7 @@ interface HeaderProps {
   hasBackButton: boolean;
   hasCloseButton?: boolean;
   title: string;
-  customRightButton?: string;
-  handleCustomRightButton?: () => void;
+  customRightButton?: ReactElement;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -33,7 +33,6 @@ const Header: React.FC<HeaderProps> = ({
   isTitleLarge = false,
   title,
   customRightButton,
-  handleCustomRightButton,
 }) => {
   return (
     <IonHeader className="ion-no-border">
@@ -44,14 +43,7 @@ const Header: React.FC<HeaderProps> = ({
         })}
       >
         {customRightButton && hasCloseButton && (
-          <IonButtons slot="end">
-            <IonButton
-              className="custom-right-button"
-              onClick={handleCustomRightButton}
-            >
-              <img src={customRightButton} alt="custom" />
-            </IonButton>
-          </IonButtons>
+          <IonButtons slot="end">{customRightButton}</IonButtons>
         )}
         {!customRightButton && hasCloseButton && (
           <IonButtons slot="end">

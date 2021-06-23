@@ -11,6 +11,7 @@ import {
 } from '@ionic/react';
 import classNames from 'classnames';
 import type { UtxoInterface } from 'ldk';
+import { mnemonicRestorerFromState } from 'ldk';
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
@@ -34,6 +35,7 @@ import {
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import ExchangeRow from '../../redux/containers/exchangeRowContainer';
+import { lastUsedIndexesSelector } from '../../redux/selectors/walletSelectors';
 import type { AssetConfig } from '../../utils/constants';
 import {
   defaultPrecision,
@@ -50,7 +52,8 @@ import {
   getAssetHashLBTC,
   toSatoshi,
 } from '../../utils/helpers';
-import { getConnectedIdentity } from '../../utils/storage-helper';
+import type { TDexMnemonicRedux } from '../../utils/identity';
+import { getConnectedTDexMnemonic } from '../../utils/storage-helper';
 import type { AssetWithTicker } from '../../utils/tdex';
 import { allTrades, makeTrade, getTradablesAssets } from '../../utils/tdex';
 import type { PreviewData } from '../TradeSummary';
@@ -102,6 +105,8 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
+
+  const lastUsedIndexes = useSelector(lastUsedIndexesSelector);
 
   const checkAvailableAmountSent = () => {
     if (!trade || !sentAmount || !assetSent) return;
@@ -195,7 +200,10 @@ const Exchange: React.FC<ExchangeProps> = ({
       setLoading(true);
       let identity;
       try {
-        identity = await getConnectedIdentity(pin, dispatch);
+        const toRestore = await getConnectedTDexMnemonic(pin, dispatch);
+        identity = (await mnemonicRestorerFromState(toRestore)(
+          lastUsedIndexes,
+        )) as TDexMnemonicRedux;
         setIsWrongPin(false);
         setTimeout(() => {
           setIsWrongPin(null);
@@ -274,10 +282,14 @@ const Exchange: React.FC<ExchangeProps> = ({
             <Header
               hasBackButton={false}
               hasCloseButton={true}
-              customRightButton={tradeHistory}
-              handleCustomRightButton={() => {
-                history.push('/history');
-              }}
+              customRightButton={
+                <IonButton
+                  className="custom-right-button"
+                  onClick={() => history.push('/history')}
+                >
+                  <img src={tradeHistory} alt="trade history" />
+                </IonButton>
+              }
               title="Exchange"
               isTitleLarge={true}
             />

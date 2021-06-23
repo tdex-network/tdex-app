@@ -3,6 +3,7 @@ import {
   INIT_APP_FAIL,
   INIT_APP_SUCCESS,
   SET_IS_BACKUP_DONE,
+  SET_IS_FETCHING_UTXOS,
   SET_SIGNED_UP,
 } from '../actions/appActions';
 
@@ -10,12 +11,14 @@ export interface AppState {
   appInit: boolean;
   isSignedUp: boolean;
   backupDone: boolean;
+  isFetchingUtxos: boolean;
 }
 
 const initialState: AppState = {
   appInit: false,
   isSignedUp: false,
   backupDone: false,
+  isFetchingUtxos: false,
 };
 
 function appReducer(state = initialState, action: ActionType): AppState {
@@ -35,6 +38,11 @@ function appReducer(state = initialState, action: ActionType): AppState {
       return {
         ...state,
         backupDone: action.payload,
+      };
+    case SET_IS_FETCHING_UTXOS:
+      return {
+        ...state,
+        isFetchingUtxos: action.payload,
       };
     default:
       return state;

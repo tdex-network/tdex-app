@@ -24,8 +24,7 @@ import {
   setUtxosInStorage,
 } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
-import { SIGN_IN } from '../actions/appActions';
-import { updatePrices } from '../actions/ratesActions';
+import { setIsFetchingUtxos, SIGN_IN } from '../actions/appActions';
 import { addErrorToast } from '../actions/toastActions';
 import {
   UPDATE_UTXOS,
@@ -77,7 +76,6 @@ function* updateUtxosState() {
       select(({ wallet }: { wallet: WalletState }) => wallet.utxos),
       select(({ settings }) => settings.explorerUrl),
     ]);
-    yield put(updatePrices());
     yield call(fetchAndUpdateUtxos, addresses, utxos, explorerURL);
   } catch (error) {
     console.error(error);
@@ -131,6 +129,7 @@ export function* fetchAndUpdateUtxos(
   if (utxoUpdatedCount > 0) {
     console.debug(`${utxoUpdatedCount} utxos updated`);
   }
+  yield put(setIsFetchingUtxos(false));
 }
 
 function* waitAndUnlock({ payload }: { payload: string }) {

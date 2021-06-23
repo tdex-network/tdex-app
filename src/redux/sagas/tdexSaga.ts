@@ -18,7 +18,7 @@ import {
   DELETE_PROVIDER,
 } from '../actions/tdexActions';
 import { addErrorToast } from '../actions/toastActions';
-import { defaultProvider } from '../config';
+import { defaultProvider, network } from '../config';
 import type { TDEXState } from '../reducers/tdexReducer';
 
 function* updateMarketsWithProvidersEndpoints() {
@@ -69,18 +69,31 @@ function* restoreProviders() {
     for (const p of providers) {
       yield put(addProvider(p));
     }
-
+    // restore from registry in mainnet
     try {
-      const providersFromRegistry: TDEXProvider[] = yield call(
-        getProvidersFromTDexRegistry,
-      );
-      const filteredProviders = providersFromRegistry.filter(
-        (prov: TDEXProvider) =>
-          providers.find(p => p.endpoint === prov.endpoint) === undefined,
-      );
-
-      for (const p of filteredProviders) {
-        yield put(addProvider(p));
+      if (network.chain === 'liquid') {
+        const providersFromRegistry: TDEXProvider[] = yield call(
+          getProvidersFromTDexRegistry,
+        );
+        const filteredProviders = providersFromRegistry.filter(
+          (prov: TDEXProvider) =>
+            providers.find(p => p.endpoint === prov.endpoint) === undefined,
+        );
+        for (const p of filteredProviders) {
+          yield put(addProvider(p));
+        }
+      } else {
+        if (
+          providers.find(p => p.endpoint === defaultProvider.endpoint) ===
+          undefined
+        ) {
+          yield put(
+            addProvider({
+              name: 'Default provider',
+              endpoint: defaultProvider.endpoint,
+            }),
+          );
+        }
       }
     } catch (e) {
       console.error(e);
@@ -106,16 +119,6 @@ function* persistProviders() {
   yield call(setProvidersInStorage, providers);
 }
 
-export function* tdexWatcherSaga(): Generator<any, any, any> {
-  yield takeLatest(ADD_PROVIDER, persistProviders);
-  yield takeLatest(DELETE_PROVIDER, persistProviders);
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  yield takeLatest(ADD_PROVIDER, fetchMarkets);
-  yield takeLatest(UPDATE_MARKETS, updateMarketsWithProvidersEndpoints);
-  yield takeLatest(SIGN_IN, restoreProviders);
-}
-
 /**
  * make two gRPC calls in order to fetch markets and balances
  * @param p provider
@@ -124,7 +127,6 @@ async function getMarketsFromProvider(p: TDEXProvider): Promise<TDEXMarket[]> {
   const client = new TraderClient(p.endpoint);
   const markets: MarketInterface[] = await client.markets();
   const results: TDEXMarket[] = [];
-
   for (const market of markets) {
     const balance = (await client.balances(market))[0].balance;
     results.push({
@@ -134,6 +136,15 @@ async function getMarketsFromProvider(p: TDEXProvider): Promise<TDEXMarket[]> {
       quoteAmount: balance?.quoteAmount,
     });
   }
-
   return results;
+}
+
+export function* tdexWatcherSaga(): Generator<any, any, any> {
+  yield takeLatest(ADD_PROVIDER, persistProviders);
+  yield takeLatest(DELETE_PROVIDER, persistProviders);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  yield takeLatest(ADD_PROVIDER, fetchMarkets);
+  yield takeLatest(UPDATE_MARKETS, updateMarketsWithProvidersEndpoints);
+  yield takeLatest(SIGN_IN, restoreProviders);
 }
