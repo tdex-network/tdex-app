@@ -1,4 +1,11 @@
-import { takeLatest, put, call, all, select } from 'redux-saga/effects';
+import {
+  takeLatest,
+  takeLeading,
+  put,
+  call,
+  all,
+  select,
+} from 'redux-saga/effects';
 
 import { seedBackupFlag } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
@@ -10,6 +17,7 @@ import {
   SIGN_IN,
   UPDATE,
   setIsBackupDone,
+  setIsFetchingUtxos,
 } from '../actions/appActions';
 import { updatePrices } from '../actions/ratesActions';
 import { updateMarkets } from '../actions/tdexActions';
@@ -41,6 +49,7 @@ function* signInSaga(action: ActionType) {
     const backup = yield call(seedBackupFlag);
     if (backup) yield put(setIsBackupDone(true));
     // Wallet Restoration
+    yield setIsFetchingUtxos(true);
     const explorerUrl = yield select(
       (state: any) => state.settings.explorerUrl,
     );
@@ -62,6 +71,7 @@ function* signInSaga(action: ActionType) {
 
 // Triggered by <Refresher />
 function* updateState() {
+  yield put(setIsFetchingUtxos(true));
   yield all([
     put(updateMarkets()),
     put(updateTransactions()),
@@ -73,5 +83,5 @@ function* updateState() {
 export function* appWatcherSaga(): Generator<any, any, any> {
   yield takeLatest(INIT_APP, initAppSaga);
   yield takeLatest(SIGN_IN, signInSaga);
-  yield takeLatest(UPDATE, updateState);
+  yield takeLeading(UPDATE, updateState);
 }

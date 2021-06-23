@@ -9,6 +9,7 @@ import {
   IonGrid,
   IonRow,
   IonCol,
+  IonSpinner,
 } from '@ionic/react';
 import { addCircleOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
@@ -43,6 +44,7 @@ interface WalletProps extends RouteComponentProps {
   dispatch: (action: ActionType) => void;
   backupDone: boolean;
   totalLBTC: BalanceInterface;
+  isFetchingUtxos: boolean;
 }
 
 const Wallet: React.FC<WalletProps> = ({
@@ -52,6 +54,7 @@ const Wallet: React.FC<WalletProps> = ({
   currency,
   history,
   totalLBTC,
+  isFetchingUtxos,
 }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const [mainAssets, setMainAssets] = useState<BalanceInterface[]>([]);
@@ -142,7 +145,15 @@ const Wallet: React.FC<WalletProps> = ({
       <IonContent className="wallet-content">
         <Refresher />
         <IonGrid>
-          <Header title="Wallet" hasBackButton={false} isTitleLarge={true} />
+          <Header
+            title="Wallet"
+            hasCloseButton={true}
+            hasBackButton={false}
+            isTitleLarge={true}
+            customRightButton={
+              isFetchingUtxos ? <IonSpinner name="lines-small" /> : <></>
+            }
+          />
           <IonRow className="ion-margin-vertical ion-justify-content-center">
             <CircleTotalBalance
               totalBalance={

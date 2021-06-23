@@ -143,7 +143,7 @@ export function setLastUsedIndexesInStorage(
   });
 }
 
-export async function getLastUsedIndexesInStorage(): Promise<StateRestorerOpts> {
+export async function getLastUsedIndexesInStorage(): Promise<StateRestorerOpts | null> {
   const idx = await Storage.get({ key: LAST_USED_INDEXES_KEY });
   return idx.value ? parse(idx.value) : null;
 }
