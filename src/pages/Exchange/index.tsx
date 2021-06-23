@@ -274,10 +274,14 @@ const Exchange: React.FC<ExchangeProps> = ({
             <Header
               hasBackButton={false}
               hasCloseButton={true}
-              customRightButton={tradeHistory}
-              handleCustomRightButton={() => {
-                history.push('/history');
-              }}
+              customRightButton={
+                <IonButton
+                  className="custom-right-button"
+                  onClick={() => history.push('/history')}
+                >
+                  <img src={tradeHistory} alt="trade history" />
+                </IonButton>
+              }
               title="Exchange"
               isTitleLarge={true}
             />

@@ -13,6 +13,7 @@ const mapStateToProps = (state: any) => {
     prices: state.rates.prices,
     currency: state.settings.currency.value,
     backupDone: state.app.backupDone,
+    isFetchingUtxos: state.app.isFetchingUtxos,
   };
 };
 
