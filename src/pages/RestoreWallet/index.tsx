@@ -115,9 +115,11 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({
     clearStorage().catch(console.error);
     dispatch(addErrorToast(e));
     setIsWrongPin(true);
+    setLoading(false);
+    setFirstPin('');
     setTimeout(() => {
+      setModalOpen('first');
       setIsWrongPin(null);
-      setFirstPin('');
       setNeedReset(true);
     }, PIN_TIMEOUT_FAILURE);
   };
