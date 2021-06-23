@@ -89,7 +89,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
 
   return (
     <div>
-      <IonLoading isOpen={loading} />
+      <IonLoading isOpen={loading} message="Please wait..." spinner="lines" />
       <PinModal
         needReset={needReset}
         setNeedReset={setNeedReset}

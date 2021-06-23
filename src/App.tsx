@@ -62,9 +62,9 @@ const App: React.FC = () => {
     <IonApp>
       <IonReactRouter>
         <IonLoading
-          cssClass="my-custom-class"
           isOpen={!appInit}
-          message={'Please wait...'}
+          message="Please wait..."
+          spinner="lines"
         />
         {/* RouterOutlet will render depending on path */}
         {isAuth ? (

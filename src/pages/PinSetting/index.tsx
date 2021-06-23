@@ -134,7 +134,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
 
   return (
     <IonPage id="pin-setting-page">
-      <IonLoading isOpen={loading} />
+      <IonLoading isOpen={loading} message="Please wait..." spinner="lines" />
       <IonContent>
         <IonGrid className="ion-text-center ion-justify-content-center">
           <Header

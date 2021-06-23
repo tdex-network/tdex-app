@@ -82,7 +82,7 @@ const Homescreen: React.FC = () => {
 
   return (
     <IonPage id="homescreen">
-      <IonLoading isOpen={loading} message={loadingMessage} />
+      <IonLoading isOpen={loading} message={loadingMessage} spinner="lines" />
       <PinModal
         onClose={() => setPinModalIsOpen(false)}
         needReset={needReset}

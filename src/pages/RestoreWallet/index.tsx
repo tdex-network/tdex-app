@@ -126,7 +126,7 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({
 
   return (
     <IonPage>
-      <IonLoading isOpen={loading} />
+      <IonLoading isOpen={loading} message="Please wait..." spinner="lines" />
       <PinModal
         open={modalOpen === 'first' || modalOpen === 'second'}
         title={

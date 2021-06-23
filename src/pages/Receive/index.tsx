@@ -117,7 +117,7 @@ const Receive: React.FC = () => {
 
   return (
     <IonPage>
-      <IonLoading isOpen={loading} />
+      <IonLoading isOpen={loading} message="Please wait..." spinner="lines" />
       <IonContent className="receive">
         <IonGrid>
           <Header
