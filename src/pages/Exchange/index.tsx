@@ -50,6 +50,7 @@ import {
 import {
   customCoinSelector,
   getAssetHashLBTC,
+  isLbtc,
   toSatoshi,
 } from '../../utils/helpers';
 import type { TDexMnemonicRedux } from '../../utils/identity';
@@ -103,7 +104,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [needReset, setNeedReset] = useState<boolean>(false);
   //
   const [modalOpen, setModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
 
   const lastUsedIndexes = useSelector(lastUsedIndexesSelector);
@@ -218,6 +219,7 @@ const Exchange: React.FC<ExchangeProps> = ({
           amount: toSatoshi(
             sentAmount,
             assets[assetSent.asset]?.precision || defaultPrecision,
+            isLbtc(assetSent.asset) ? lbtcUnit : undefined,
           ).toNumber(),
           asset: assetSent.asset,
         },
@@ -240,11 +242,13 @@ const Exchange: React.FC<ExchangeProps> = ({
           amount: receivedAmount?.toString() || '??',
         },
       };
+      setLoading(false);
       history.replace(`/tradesummary/${txid}`, { preview });
     } catch (e) {
       console.error(e);
       dispatch(unlockUtxos());
       setIsWrongPin(true);
+      setLoading(false);
       setTimeout(() => {
         setIsWrongPin(null);
         setNeedReset(true);
@@ -252,19 +256,19 @@ const Exchange: React.FC<ExchangeProps> = ({
       if (e instanceof AppError) {
         dispatch(addErrorToast(e));
       }
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
     <IonPage id="exchange-page">
-      <IonLoading isOpen={loading} message="Please wait..." spinner="lines" />
+      <IonLoading isOpen={isLoading} message="Please wait..." spinner="lines" />
       {assetSent && assetReceived && markets.length > 0 && (
         <PinModal
           open={modalOpen}
           title="Unlock your seed"
-          description={`Enter your secret PIN to send ${sentAmount} ${assetSent.ticker} and receive ${receivedAmount} ${assetReceived.ticker}.`}
+          description={`Enter your secret PIN to send ${sentAmount} ${
+            isLbtc(assetSent.asset) ? lbtcUnit : assetSent.ticker
+          } and receive ${receivedAmount} ${assetReceived.ticker}.`}
           onConfirm={onPinConfirm}
           onClose={() => {
             setModalOpen(false);
@@ -317,6 +321,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               error={errorSent}
               setError={setErrorSent}
               setOtherInputError={setErrorReceived}
+              isLoading={isLoading}
             />
 
             <div
@@ -357,6 +362,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                 error={errorReceived}
                 setError={setErrorReceived}
                 setOtherInputError={setErrorSent}
+                isLoading={isLoading}
               />
             )}
 
@@ -367,14 +373,14 @@ const Exchange: React.FC<ExchangeProps> = ({
                     'button-disabled':
                       !assetSent ||
                       !assetReceived ||
-                      loading ||
+                      isLoading ||
                       sentAmountGreaterThanBalance(),
                   })}
                   onClick={onConfirm}
                   disabled={
                     !assetSent ||
                     !assetReceived ||
-                    loading ||
+                    isLoading ||
                     sentAmountGreaterThanBalance()
                   }
                 >

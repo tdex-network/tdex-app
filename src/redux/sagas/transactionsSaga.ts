@@ -124,6 +124,7 @@ function* restoreTransactions() {
 }
 
 function* watchTransaction(action: ActionType) {
+  yield delay(1_000);
   const { txID, maxTry } = action.payload as { txID: string; maxTry: number };
   yield put(addWatcherTransaction(txID));
   const explorer = yield select(({ settings }) => settings.explorerUrl);
@@ -150,7 +151,6 @@ function* watchTransaction(action: ActionType) {
       break;
     } catch {
       yield delay(1_000);
-      continue;
     }
   }
   yield put(removeWatcherTransaction(txID));
