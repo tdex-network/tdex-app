@@ -11,7 +11,7 @@ import type {
 
 import { getMainAsset } from './constants';
 import { InvalidTradeTypeError, MakeTradeError } from './errors';
-import { toSatoshi } from './helpers';
+import { isLbtc, toSatoshi } from './helpers';
 
 export interface AssetWithTicker {
   asset: string;
@@ -103,7 +103,11 @@ export async function calculatePrice(
   const response = await client.marketPrice(
     trade.market,
     trade.type,
-    toSatoshi(known.amount, known.precision, lbtcUnit).toNumber(),
+    toSatoshi(
+      known.amount,
+      known.precision,
+      isLbtc(known.asset) ? lbtcUnit : undefined,
+    ).toNumber(),
     known.asset,
   );
   return {
