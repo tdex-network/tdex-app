@@ -63,6 +63,7 @@ interface ExchangeRowInterface {
   error: string;
   setError: (msg: string) => void;
   setOtherInputError: (msg: string) => void;
+  isLoading: boolean;
 }
 
 const ExchangeRow: React.FC<ExchangeRowInterface> = ({
@@ -86,6 +87,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   error,
   setError,
   setOtherInputError,
+  isLoading,
 }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const [balance, setBalance] = useState<BalanceInterface>();
@@ -120,7 +122,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       let bestPriceRes;
       let updatedAmount;
       // Skip calculating price if the input is focused
-      if (focused || trades.length === 0 || !relatedAssetHash) return;
+      if (isLoading || focused || trades.length === 0 || !relatedAssetHash)
+        return;
       if (relatedAssetAmount === '0') {
         onChangeAmount('0');
         setAmount('');
@@ -194,7 +197,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
     // Need 'trade' to compute price based on last trade with proper type
     // Need 'asset' which is accurate faster than balance
     // Need 'balance' to display quote asset price
-  }, [relatedAssetAmount, relatedAssetHash, asset, balance, trade]);
+    // Need 'isLoading' to prevent running the effect when confirming trade
+  }, [isLoading, relatedAssetAmount, relatedAssetHash, asset, balance, trade]);
 
   const handleInputChange = (e: CustomEvent<InputChangeEventDetail>) => {
     if (!isUpdating) {
