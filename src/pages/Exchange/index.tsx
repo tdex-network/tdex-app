@@ -92,7 +92,11 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [assetSent, setAssetSent] = useState<AssetWithTicker>();
   const [assetReceived, setAssetReceived] = useState<AssetWithTicker>();
   // current trades/tradable assets
-  const [tradableAssets, setTradableAssets] = useState<AssetWithTicker[]>([]);
+  const [tradableAssetsForAssetSent, setTradableAssetsForAssetSent] = useState<
+    AssetWithTicker[]
+  >([]);
+  const [tradableAssetsForAssetReceived, setTradableAssetsForAssetReceived] =
+    useState<AssetWithTicker[]>([]);
   const [trades, setTrades] = useState<TDEXTrade[]>([]);
   // selected trade
   const [trade, setTrade] = useState<TDEXTrade>();
@@ -174,11 +178,27 @@ const Exchange: React.FC<ExchangeProps> = ({
   }, [assetSent, assetReceived, markets]);
 
   useEffect(() => {
-    if (!assetSent || assetReceived) return;
-    const tradable = getTradablesAssets(markets, assetSent.asset);
-    setTradableAssets(tradable);
-    setAssetReceived(tradable[0]);
+    if (!assetSent || hasBeenSwapped) return;
+    const sentTradables = getTradablesAssets(markets, assetSent.asset);
+    // TODO: Add opposite asset and remove current
+    // sentTradables.push(assetSent);
+    // const sentTradables2 = sentTradables.filter(
+    //   t => t.asset !== assetReceived?.asset,
+    // );
+    setTradableAssetsForAssetReceived(sentTradables);
+    setAssetReceived(sentTradables[0]);
   }, [assetSent, markets]);
+
+  useEffect(() => {
+    if (!assetReceived || hasBeenSwapped) return;
+    const receivedTradables = getTradablesAssets(markets, assetReceived.asset);
+    // TODO: Add opposite asset and remove current
+    // receivedTradables.push(assetSent);
+    // const receivedTradables2 = sentTradables.filter(
+    //   t => t.asset !== assetReceived?.asset,
+    // );
+    setTradableAssetsForAssetSent(receivedTradables);
+  }, [assetReceived, markets]);
 
   const sentAmountGreaterThanBalance = () => {
     const balance = balances.find(b => b.asset === assetSent?.asset);
@@ -312,7 +332,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                 setSentAmount(newAmount);
                 checkAvailableAmountSent();
               }}
-              assetsWithTicker={tradableAssets}
+              assetsWithTicker={tradableAssetsForAssetSent}
               setAsset={asset => {
                 if (assetReceived && asset.asset === assetReceived.asset)
                   setAssetReceived(assetSent);
@@ -332,6 +352,8 @@ const Exchange: React.FC<ExchangeProps> = ({
                 setAssetReceived(assetSent);
                 setSentAmount(receivedAmount);
                 setReceivedAmount(sentAmount);
+                setTradableAssetsForAssetSent(tradableAssetsForAssetReceived);
+                setTradableAssetsForAssetReceived(tradableAssetsForAssetSent);
               }}
             >
               <img src={swap} alt="swap" />
@@ -353,7 +375,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                   setReceivedAmount(newAmount);
                   checkAvailableAmountReceived();
                 }}
-                assetsWithTicker={tradableAssets}
+                assetsWithTicker={tradableAssetsForAssetReceived}
                 setAsset={asset => {
                   if (asset.asset === assetSent.asset)
                     setAssetSent(assetReceived);
