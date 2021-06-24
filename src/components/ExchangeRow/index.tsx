@@ -219,12 +219,18 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         setAmount('');
       }
       // Sanitize
-      let val: string = (e.detail.value as any)
-        .replaceAll(',', '.')
+      let val: string = e.detail.value
+        // Replace comma by dot
+        .replace(',', '.')
         // Remove non numeric chars or period
-        .replaceAll(/[^0-9.]/g, '')
-        // Remove last dot. Remove all if consecutive.
-        .replace(/\.$/, '');
+        .replace(/[^0-9.]/g, '');
+
+      if (val === '.') val = '0.';
+
+      // Remove last dot. Remove all if consecutive
+      if ((val.match(/\./g) || []).length > 1) {
+        val = val.replace(/\.$/, '');
+      }
 
       // No more than MAX_DECIMAL_DIGITS decimal digits
       if (e.detail.value.split(/[,.]/, 2)[1]?.length > MAX_DECIMAL_DIGITS) {
