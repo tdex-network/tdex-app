@@ -312,7 +312,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                 setSentAmount(newAmount);
                 checkAvailableAmountSent();
               }}
-              assetsWithTicker={allAssets}
+              assetsWithTicker={tradableAssets}
               setAsset={asset => {
                 if (assetReceived && asset.asset === assetReceived.asset)
                   setAssetReceived(assetSent);
