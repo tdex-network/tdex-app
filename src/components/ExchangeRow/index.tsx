@@ -232,8 +232,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         (e.detail.value.includes('.') && e.detail.value.includes(',')) ||
         // No more than MAX_DECIMAL_DIGITS digits
         e.detail.value.split(/[,.]/, 2)[1]?.length > MAX_DECIMAL_DIGITS ||
-        // No letters
-        /[a-zA-Z]/.test(e.detail.value) ||
+        // If not numbers or dot
+        /[^0-9.]/.test(e.detail.value) ||
         // No more than one dot
         /(\..*){2,}/.test(e.detail.value)
       ) {
@@ -258,11 +258,11 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         val = Number(e.detail.value).toFixed(MAX_DECIMAL_DIGITS);
       }
       // Set
-      setAmount(val);
-      onChangeAmount(val);
+      setAmount(val === '' ? '0' : val);
+      onChangeAmount(val === '' ? '0' : val);
       // Check balance
       const valSats = toSatoshi(
-        val,
+        val === '' ? '0' : val,
         balance?.precision,
         isLbtc(asset.asset) ? lbtcUnit : undefined,
       );
