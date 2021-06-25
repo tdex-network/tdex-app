@@ -178,26 +178,19 @@ const Exchange: React.FC<ExchangeProps> = ({
   }, [assetSent, assetReceived, markets]);
 
   useEffect(() => {
-    if (!assetSent || markets.length === 0) return;
+    if (!assetSent || hasBeenSwapped) return;
     const sentTradables = getTradablesAssets(markets, assetSent.asset);
-    sentTradables.push(assetSent);
-    const sentTradablesFiltered = sentTradables.filter(
-      t => t.asset !== assetReceived?.asset,
-    );
-    setTradableAssetsForAssetReceived(sentTradablesFiltered);
+    // TODO: Add opposite asset and remove current
+    setTradableAssetsForAssetReceived(sentTradables);
     setAssetReceived(sentTradables[0]);
-  }, [assetSent?.asset, assetReceived?.asset, markets]);
+  }, [assetSent, markets]);
 
   useEffect(() => {
-    if (!assetReceived || markets.length === 0) return;
+    if (!assetReceived || hasBeenSwapped) return;
     const receivedTradables = getTradablesAssets(markets, assetReceived.asset);
-    receivedTradables.push(assetReceived);
-    const receivedTradablesFiltered = receivedTradables.filter(
-      t => t.asset !== assetSent?.asset,
-    );
-    setTradableAssetsForAssetSent(receivedTradablesFiltered);
-    setAssetSent(receivedTradables[0]);
-  }, [assetReceived?.asset, assetSent?.asset, markets]);
+    // TODO: Add opposite asset and remove current
+    setTradableAssetsForAssetSent(receivedTradables);
+  }, [assetReceived, markets]);
 
   const sentAmountGreaterThanBalance = () => {
     const balance = balances.find(b => b.asset === assetSent?.asset);
