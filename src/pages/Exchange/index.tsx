@@ -181,10 +181,6 @@ const Exchange: React.FC<ExchangeProps> = ({
     if (!assetSent || hasBeenSwapped) return;
     const sentTradables = getTradablesAssets(markets, assetSent.asset);
     // TODO: Add opposite asset and remove current
-    // sentTradables.push(assetSent);
-    // const sentTradables2 = sentTradables.filter(
-    //   t => t.asset !== assetReceived?.asset,
-    // );
     setTradableAssetsForAssetReceived(sentTradables);
     setAssetReceived(sentTradables[0]);
   }, [assetSent, markets]);
@@ -193,10 +189,6 @@ const Exchange: React.FC<ExchangeProps> = ({
     if (!assetReceived || hasBeenSwapped) return;
     const receivedTradables = getTradablesAssets(markets, assetReceived.asset);
     // TODO: Add opposite asset and remove current
-    // receivedTradables.push(assetSent);
-    // const receivedTradables2 = sentTradables.filter(
-    //   t => t.asset !== assetReceived?.asset,
-    // );
     setTradableAssetsForAssetSent(receivedTradables);
   }, [assetReceived, markets]);
 
