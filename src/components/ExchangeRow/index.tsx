@@ -125,7 +125,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       if (isLoading || focused || trades.length === 0 || !relatedAssetHash)
         return;
       if (relatedAssetAmount === '0') {
-        onChangeAmount('0');
+        onChangeAmount('');
         setAmount('');
         return;
       }
@@ -193,8 +193,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
               useGrouping: false,
             });
         }
-        setAmount(updatedAmount);
-        onChangeAmount(updatedAmount);
+        setAmount(updatedAmount === '0' ? '' : updatedAmount);
+        onChangeAmount(updatedAmount === '0' ? '' : updatedAmount);
         setIsUpdating(false);
       } catch (err) {
         console.error(err);
@@ -219,10 +219,10 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
 
   const handleInputChange = (e: CustomEvent<InputChangeEventDetail>) => {
     if (!isUpdating) {
-      if (!e.detail.value) {
+      if (!e.detail.value || e.detail.value === '0') {
         setError('');
         setAmount('');
-        onChangeAmount('0');
+        onChangeAmount('');
         return;
       }
       const MAX_DECIMAL_DIGITS = 8;
