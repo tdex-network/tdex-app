@@ -314,7 +314,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               focused={isFocused === 'sent'}
               setFocus={() => setIsFocused('sent')}
               setTrade={(t: TDEXTrade) => setTrade(t)}
-              relatedAssetAmount={receivedAmount || '0'}
+              relatedAssetAmount={receivedAmount || ''}
               relatedAssetHash={assetReceived?.asset || ''}
               asset={assetSent}
               assetAmount={sentAmount}
@@ -359,7 +359,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                 setTrade={(t: TDEXTrade) => setTrade(t)}
                 trades={trades}
                 trade={trade}
-                relatedAssetAmount={sentAmount || '0'}
+                relatedAssetAmount={sentAmount || ''}
                 relatedAssetHash={assetSent?.asset || ''}
                 asset={assetReceived}
                 assetAmount={receivedAmount}
