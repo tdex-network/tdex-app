@@ -1221,19 +1221,19 @@
   integrity sha512-cDxzGQLTbWV91uw87DipG8Z3wz6JuEZPIQ22OTU2BaNEWd+nk71+fXv8OmUShbzzZTqFEIyRQjd7V9s24mQXJg==
 
 "@capacitor/android@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-3.0.1.tgz#77deddbde7c3624fdf4b40d3446ac31261f53771"
-  integrity sha512-+bKm0J1/oSln8VlVRfC25AWn+lLFwvC3Q8OeIA7DyI36RPi8WMkGfVPvZ3EIywUKBquj7mVuEXXhiZyM+YlDeQ==
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-3.0.2.tgz#818c98006456e00b34d11c231a8a53ec971b2ee2"
+  integrity sha512-sn2FGCMscXr8q413gSz8p1TAw69D3i4Hb2Bcd0S0SSDbvXwHCtDgwKQfD777+wmLifSkt8fwWVFIOKdbiGVRHw==
 
 "@capacitor/app@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@capacitor/app/-/app-1.0.1.tgz#6237dd48e692701428464075f82024bac8aedaf4"
-  integrity sha512-JSFWGtM2B7gJBlhuC9R++cXIYMrqvHWyouN6tYoz9BwL+eXkzL+t2eJ8Pt+7ZV4n3VZj7xq4yNvnLj8IfRsjsg==
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/app/-/app-1.0.2.tgz#920dbf7055aa8ba060932d6e8dcac6f8bbc821af"
+  integrity sha512-P9PInUnUdkiqYk+7wzd51Oe6AzJ4KyKDRFVebDMGo7UgHFuK2ogDTDLabrv9XQUV1Zk2tXvpEoGmw46dd+2Img==
 
 "@capacitor/cli@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@capacitor/cli/-/cli-3.0.1.tgz#54f47962ca03662ffb874145a801900b8f72c9e5"
-  integrity sha512-OIzpWgtpg0wshdS60Fz6QgXfsYqnWSfQx/9/bmp0eiiKgvtOJa9QmdfFAaGI2BRVoOyiulTMLetSvOAkuTJBPA==
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/cli/-/cli-3.0.2.tgz#46b9aa5fab4f6c61a2220f99b83c85bd906c063c"
+  integrity sha512-vKjfeNlX9h81DQJD9xXeAanLsgjXGgCP2oA25APKj4cuqX5i1naB5g2hJapGT4zpdy+p3FAaVZ62qxsRd0eoJw==
   dependencies:
     "@ionic/cli-framework-output" "^2.2.1"
     "@ionic/utils-fs" "^3.1.5"
@@ -1253,41 +1253,41 @@
     xml2js "^0.4.23"
 
 "@capacitor/core@^3.0.0", "@capacitor/core@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@capacitor/core/-/core-3.0.1.tgz#9e4498034b9e23ac7f3fcfd395fe79185c5d7779"
-  integrity sha512-17iFkpICdOdTqfbKh3oXFYbwXn9dSxLe85PWeptXSW5jkiHN/YhI+iedRpcukv1QXkR1P629B+7kDqBcrzKL9w==
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/core/-/core-3.0.2.tgz#57d20aab346804fdc0499185537c6cb0f8394a25"
+  integrity sha512-uvKvX++uj17pK2LYekPJlxsEprUTmqPk/SdDwczj5I/pmloAV8TkQ/zqwI+yOC9h6hEwRBZ689TGTS1GfPnYuA==
   dependencies:
     tslib "^2.1.0"
 
 "@capacitor/device@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@capacitor/device/-/device-1.0.1.tgz#ddde0c17768469973a8924adb2067eb80016b8a6"
-  integrity sha512-s1ii+ww6V1e8Pd2SSJdjjwQ830GMQ43I/VGZlgU305w/1bzSppaipSwXkiOL6oNtwGPCHuiXnqxicRCydmMc+g==
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/device/-/device-1.0.2.tgz#bcaa8e6fbd06f96ec51670bf157bd107151b3fed"
+  integrity sha512-742Mq/zAjqUcOd9khhP0m/HXsZmWlymJdt09G/gEQkK3s8737Oey4xZwCnjtdjwt3ztEqcP4X8+yR01O80TDsA==
 
 "@capacitor/ios@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@capacitor/ios/-/ios-3.0.1.tgz#189ec4f473424b6435528f7cd68b545b79f1acc0"
-  integrity sha512-g0xQgiGu0MyHl/17tEiMJUAL6sTj76pu3gtqY5wWGLAfTDRodDz2WjmV6i8OQvfrR69IWfdqEvKaFz7MCeHajg==
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/ios/-/ios-3.0.2.tgz#49b3690ce38911ce4254a74860f6ca9dd0ed0303"
+  integrity sha512-BEEwQ7TSGdmTusDPB2+WOOkOFCxYc9C36uzDNNLfwhSdgaDjoKJmVxj0oPb7wpfC1xMPGnTxYPmSjKj5AyKQ/Q==
 
 "@capacitor/keyboard@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@capacitor/keyboard/-/keyboard-1.0.1.tgz#2daa206e1e4d37fe4d6c33734b662d8edfd8bef1"
-  integrity sha512-Xn1eMUfQ/DxvbCm4nedNOcZ2kIEsTlC9vuvHTaDUr+/QC+GciVugTTjflGcCuJ2i4qTTwyf0UNfBKgvEzKKtnQ==
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/keyboard/-/keyboard-1.0.2.tgz#c703f0c9480b1daefc2be60ff4182238b3b98b61"
+  integrity sha512-JdIkYXfrfiuP/iLxO65GJe8rY+VcCoGesPzu/eMHRoWOuRyRcwjw9AtVOPyAXj4qPq1bbmGB8if/m2/R1S1X9A==
 
 "@capacitor/splash-screen@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@capacitor/splash-screen/-/splash-screen-1.0.1.tgz#8569252c193f6ec18ca7e71678de2432e8930e9d"
-  integrity sha512-QObgyrCarZrdIHuX5E8TC/lh52a/1hguKtygVMPZQFel20/T5bydl12y6wnJeWsCAlrXWqI7unLy89u+AH+Zqw==
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/splash-screen/-/splash-screen-1.0.2.tgz#5f44bde70b30570ca0b44c5ede59d8acca47b616"
+  integrity sha512-5pf/K7SKfRfZ7p9AgRqULaL7+PQh+InWCvP7HAbzjgVGzvRhps7tMRCoY9do5GN3vvRl7jY1+yGYQG44s52AAA==
 
 "@capacitor/status-bar@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@capacitor/status-bar/-/status-bar-1.0.1.tgz#08994946acfb31bb2e90136fd9d5fc302215e1d4"
-  integrity sha512-5JwaseLxyhT8P86WiL776+1UTxR3k7klH4hU+gBD5UdAHRP4/jyS1/FiEuUpkMAMy6yvCJcDwZl8b6P1zWbiMQ==
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/status-bar/-/status-bar-1.0.2.tgz#b432403bab8ff5dc4b4f013c35aa1f85cc0651c8"
+  integrity sha512-NgAZIw8Uq2lm6Ln1lWipAqi/YxqIDd92boO4k81Z1WMOdZJt6oLxZB8LfJRDLXU7xNkpW97zHcNBf5pIXJIFqw==
 
 "@capacitor/storage@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@capacitor/storage/-/storage-1.0.1.tgz#5a2ff67e0dc05e6c2c912124bfce3394950089b6"
-  integrity sha512-hY16R8+vygyZx2T2JowiN0VHyQC+Rx9JOMDaJXa8oCwQYoXq+sojNybpTLmZwbcs6pYZBjnGjHiqvNZ9b1ytiA==
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/storage/-/storage-1.0.2.tgz#67600fb7471f327ca9a4c7561e633711ff8c1309"
+  integrity sha512-BGMsThPWuNu1n3soe0nm35lsZp9RQ7wnNaU7QcX3f/XDsrN6OL9Dn3DdKirGB/CtkVkRfyzhAlpQQB0XDfvn5Q==
 
 "@cheprasov/qrcode@^0.1.0":
   version "0.1.0"
@@ -2712,9 +2712,9 @@ acorn@^7.1.0, acorn@^7.1.1, acorn@^7.4.0:
   integrity sha512-nQyp0o1/mNdbTO1PO6kHkwSrmgZ0MT/jCCpNiwbUjGoRN4dlBhqJtoQuCnEOKzgTVwg0ZWiCoQy6SxMebQVh8A==
 
 acorn@^8.2.4:
-  version "8.4.0"
-  resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.4.0.tgz#af53266e698d7cffa416714b503066a82221be60"
-  integrity sha512-ULr0LDaEqQrMFGyQ3bhJkLsbtrQ8QibAseGZeaSUiT/6zb9IvIkomWHJIvgvwad+hinRAgsI51JcWk2yvwyL+w==
+  version "8.4.1"
+  resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.4.1.tgz#56c36251fc7cabc7096adc18f05afe814321a28c"
+  integrity sha512-asabaBSkEKosYKMITunzX177CXxQ4Q8BSSzMTKD+FefUhipQC70gfW5SiUDhYQ3vk8G+81HqQk7Fv9OXwwn9KA==
 
 address@1.1.2, address@^1.0.1:
   version "1.1.2"
@@ -3343,10 +3343,10 @@ bindings@^1.3.0, bindings@^1.5.0:
   dependencies:
     file-uri-to-path "1.0.0"
 
-bip174-liquid@^1.0.1-liquid:
-  version "1.0.1-liquid.revert1"
-  resolved "https://registry.yarnpkg.com/bip174-liquid/-/bip174-liquid-1.0.1-liquid.revert1.tgz#16be96813066207a095979ac0648a14cafc73110"
-  integrity sha512-rvosIa9LmoWTHMuSRch44Iufs9YTii7Z9H1PWXKuYZtijFeNpIm/RmdF7+VcX9USwEZDOw9iPCysZN2rAb9kVw==
+bip174-liquid@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/bip174-liquid/-/bip174-liquid-1.0.3.tgz#5009444091da80277c45ee90c255d7919646f907"
+  integrity sha512-e69sC0Cq2tBJuhG2+wieXv40DN13YBR/wbIjZp4Mqwpar5vQm8Ldqijdd6N33XG7LtfvQi/zKm5fSzdPY/9mgw==
 
 bip32@^2.0.4, bip32@^2.0.6:
   version "2.0.6"
@@ -5035,9 +5035,9 @@ ejs@^2.6.1:
   integrity sha512-7vmuyh5+kuUyJKePhQfRQBhXV5Ce+RnaeeQArKu1EAMpL3WbgMt5WG6uQZpEVvYSSsxMXRKOewtDk9RaTKXRlA==
 
 electron-to-chromium@^1.3.564, electron-to-chromium@^1.3.723:
-  version "1.3.755"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.755.tgz#4b6101f13de910cf3f0a1789ddc57328133b9332"
-  integrity sha512-BJ1s/kuUuOeo1bF/EM2E4yqW9te0Hpof3wgwBx40AWJE18zsD1Tqo0kr7ijnOc+lRsrlrqKPauJAHqaxOItoUA==
+  version "1.3.757"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.757.tgz#ff99436c99ca0fc5d120e11030a868401396e0e1"
+  integrity sha512-kP0ooyrvavDC+Y9UG6G/pUVxfRNM2VTJwtLQLvgsJeyf1V+7shMCb68Wj0/TETmfx8dWv9pToGkVT39udE87wQ==
 
 elementtree@^0.1.7:
   version "0.1.7"
@@ -7809,16 +7809,16 @@ last-call-webpack-plugin@^3.0.0:
     lodash "^4.17.5"
     webpack-sources "^1.1.0"
 
-ldk@^0.3.5:
-  version "0.3.5"
-  resolved "https://registry.yarnpkg.com/ldk/-/ldk-0.3.5.tgz#c4a3dfac60a6e2b526b3834de01dd5892a7906b8"
-  integrity sha512-zzGwZEifdRYNOGaYD2rKwNPn+nGdE7Vxc4fyXtrZRnxLqJ2OxIHa8nhLktvRpovtC5Y9O12d0Bj3karzeClCPg==
+ldk@^0.3.7:
+  version "0.3.7"
+  resolved "https://registry.yarnpkg.com/ldk/-/ldk-0.3.7.tgz#a3f97d77764c31e79755918c338f0368c13c127f"
+  integrity sha512-KPwO/rjgkTrKo8LxNrBZ3hf6K5cYbS/SFDato6WuM44SAQVlJG8K+G/yrPBMt0vjQdRjWIZqWL6HEr25SKx8/Q==
   dependencies:
     axios "^0.21.1"
     bip32 "^2.0.6"
     bip39 "^3.0.3"
     bs58check "^2.1.2"
-    liquidjs-lib "^5.1.13"
+    liquidjs-lib "^5.1.14"
     marina-provider "^1.0.0"
     slip77 "^0.1.1"
 
@@ -7857,14 +7857,14 @@ lines-and-columns@^1.1.6:
   resolved "https://registry.yarnpkg.com/lines-and-columns/-/lines-and-columns-1.1.6.tgz#1c00c743b433cd0a4e80758f7b64a57440d9ff00"
   integrity sha1-HADHQ7QzzQpOgHWPe2SldEDZ/wA=
 
-liquidjs-lib@^5.1.12, liquidjs-lib@^5.1.13:
-  version "5.1.13"
-  resolved "https://registry.yarnpkg.com/liquidjs-lib/-/liquidjs-lib-5.1.13.tgz#3a3d8f8951ac5daf943056c8b2be3db007a738d8"
-  integrity sha512-36S30HKdJxd/8+pNdkuZS6EmH0C3gvDk379KGWtUKRvyVY1ku046tMbJT3n7s8a6zwzmA62EsP8HDNAA/h21DA==
+liquidjs-lib@^5.1.12, liquidjs-lib@^5.1.13, liquidjs-lib@^5.1.14:
+  version "5.1.14"
+  resolved "https://registry.yarnpkg.com/liquidjs-lib/-/liquidjs-lib-5.1.14.tgz#105ab9cdc6c5723897d516d83e726424a2de8e25"
+  integrity sha512-Qwskr6J3+XeItzMG3c/mly0zMmGA9XYM10sBrlnc5/dwAENrUAof7AqWjBDEUk2GuVaEvpSUT+m2wO+vMrP8bQ==
   dependencies:
     "@vulpemventures/secp256k1-zkp" "^2.0.0"
     bech32 "^1.1.2"
-    bip174-liquid "^1.0.1-liquid"
+    bip174-liquid "^1.0.3"
     bip32 "^2.0.4"
     bip66 "^1.1.0"
     bitcoin-ops "^1.4.0"
@@ -11984,15 +11984,15 @@ tdex-react-scripts@4.0.3-tdex:
   optionalDependencies:
     fsevents "^2.1.3"
 
-tdex-sdk@^1.6.11:
-  version "1.6.11"
-  resolved "https://registry.yarnpkg.com/tdex-sdk/-/tdex-sdk-1.6.11.tgz#b4fb6ee9381c491c48538ca241a108b9840825fa"
-  integrity sha512-DxwULeu0jGssx4qewHjTsWjx7pkJadfDh3EgD1k2Ww60iY4rv/6fEKGjVrH+sDtHrx2d8busSVuAmKpbpZ1BQA==
+tdex-sdk@^1.6.12:
+  version "1.6.12"
+  resolved "https://registry.yarnpkg.com/tdex-sdk/-/tdex-sdk-1.6.12.tgz#ac9ea915c01ec745b6ef662eafe4c1924e4b66cd"
+  integrity sha512-Yc/zblRYbojFfZyx57E/Wku1Uy6bjLGg2n1V2NxuX/4PHgkREdeK40TFPXp8fxqOpu6r0bD4KeTv1CNI7XL4Ag==
   dependencies:
     "@grpc/grpc-js" "^1.3.3"
     "@types/google-protobuf" "^3.15.2"
     google-protobuf "^3.17.3"
-    ldk "^0.3.5"
+    ldk "^0.3.7"
     liquidjs-lib "^5.1.13"
     slip77 "^0.1.1"
     tdex-protobuf tdex-network/tdex-protobuf
