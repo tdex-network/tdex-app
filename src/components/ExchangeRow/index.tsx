@@ -131,7 +131,15 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       }
       setIsUpdating(true);
       try {
-        newTrade = await bestBalance(trades);
+        if (
+          relatedAssetHash === trades[0].market.baseAsset ||
+          relatedAssetHash === trades[0].market.quoteAsset
+        ) {
+          newTrade = await bestBalance(trades);
+        } else {
+          setIsUpdating(false);
+          return;
+        }
       } catch (err) {
         console.error(err);
         setError(err.message);
@@ -195,10 +203,19 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       }
     })();
     // Need 'trade' to compute price based on last trade with proper type
+    // Need 'trades' to compute bestBalance trade
     // Need 'asset' which is accurate faster than balance
     // Need 'balance' to display quote asset price
     // Need 'isLoading' to prevent running the effect when confirming trade
-  }, [isLoading, relatedAssetAmount, relatedAssetHash, asset, balance, trade]);
+  }, [
+    isLoading,
+    relatedAssetAmount,
+    relatedAssetHash,
+    asset,
+    balance,
+    trade,
+    trades,
+  ]);
 
   const handleInputChange = (e: CustomEvent<InputChangeEventDetail>) => {
     if (!isUpdating) {
