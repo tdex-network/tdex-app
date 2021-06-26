@@ -123,7 +123,13 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       let bestPriceRes;
       let updatedAmount;
       // Skip calculating price if the input is focused
-      if (isLoading || focused || trades.length === 0 || !relatedAssetHash)
+      if (
+        isUpdating ||
+        isLoading ||
+        focused ||
+        trades.length === 0 ||
+        !relatedAssetHash
+      )
         return;
       if (relatedAssetAmount === '0') {
         onChangeAmount('');
@@ -297,7 +303,6 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           <div className="ion-text-end">
             <IonInput
               color={error && 'danger'}
-              debounce={200}
               disabled={isUpdating}
               enterkeyhint="done"
               inputmode="decimal"
