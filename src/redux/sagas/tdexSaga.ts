@@ -53,7 +53,7 @@ function* updateMarketsWithProvidersEndpoints() {
 
 function* fetchMarkets({ payload }: { payload: TDEXProvider }) {
   try {
-    const markets = yield call(getMarketsFromProvider, payload);
+    const markets: TDEXMarket[] = yield call(getMarketsFromProvider, payload);
     if (markets.length > 0) {
       yield put(addMarkets(markets));
     }

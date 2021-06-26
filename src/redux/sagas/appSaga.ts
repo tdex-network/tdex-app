@@ -1,3 +1,4 @@
+import type { AddressInterface } from 'ldk';
 import {
   takeLatest,
   takeLeading,
@@ -46,18 +47,20 @@ function* signInSaga(action: ActionType) {
     // Start by setting isAuth to true, which causes redirection to auth guarded pages
     yield put(setIsAuth(true));
     // Get backup flag from storage and set Redux state
-    const backup = yield call(seedBackupFlag);
+    const backup: boolean = yield call(seedBackupFlag);
     if (backup) yield put(setIsBackupDone(true));
     // Wallet Restoration
     yield setIsFetchingUtxos(true);
-    const explorerUrl = yield select(
+    const explorerUrl: string = yield select(
       (state: any) => state.settings.explorerUrl,
     );
     yield all([
       call(waitForRestore, action.payload.mnemonic, explorerUrl),
       put(setPublicKeys(action.payload.mnemonic)),
     ]);
-    const addresses = yield call(() => action.payload.mnemonic.getAddresses());
+    const addresses: AddressInterface[] = yield call(() =>
+      action.payload.mnemonic.getAddresses(),
+    );
     for (const addr of addresses) {
       yield put(addAddress(addr));
     }
