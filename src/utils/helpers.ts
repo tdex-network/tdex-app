@@ -41,7 +41,7 @@ export function toSatoshi(
   unit?: string,
 ): Decimal {
   const v = new Decimal(val)
-    .mul(Decimal.pow(10, precision || defaultPrecision))
+    .mul(Decimal.pow(10, precision ?? defaultPrecision))
     .floor();
   return toLBTCwithUnit(v, unit);
 }
@@ -52,7 +52,7 @@ export function fromSatoshi(
   unit?: string,
 ): Decimal {
   const v = new Decimal(val).div(
-    Decimal.pow(10, precision || defaultPrecision),
+    Decimal.pow(10, precision ?? defaultPrecision),
   );
   return formatLBTCwithUnit(v, unit);
 }
@@ -184,7 +184,7 @@ export function balancesFromUtxos(
       amount,
       ticker: assets[asset]?.ticker || tickerFromAssetHash(asset),
       coinGeckoID,
-      precision: assets[asset]?.precision || defaultPrecision,
+      precision: assets[asset]?.precision ?? defaultPrecision,
     });
   }
 

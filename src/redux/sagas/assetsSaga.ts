@@ -53,7 +53,7 @@ async function getAssetData(
       await axios.get(`${explorerURL}/asset/${assetHash}`)
     ).data;
     return {
-      precision: precision || defaultPrecision,
+      precision: precision ?? defaultPrecision,
       ticker: ticker || tickerFromAssetHash(assetHash),
       name: name || '',
     };

@@ -152,9 +152,9 @@ export const balancesSelector = (state: any): BalanceInterface[] => {
     balances.push({
       asset,
       amount: 0,
-      ticker: assets[asset]?.ticker || tickerFromAssetHash(asset),
+      ticker: assets[asset]?.ticker ?? tickerFromAssetHash(asset),
       coinGeckoID: getMainAsset(asset)?.coinGeckoID,
-      precision: assets[asset]?.precision || defaultPrecision,
+      precision: assets[asset]?.precision ?? defaultPrecision,
     });
   }
   return balances;
