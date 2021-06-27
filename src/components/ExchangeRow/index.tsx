@@ -63,6 +63,7 @@ interface ExchangeRowInterface {
   error: string;
   setError: (msg: string) => void;
   setOtherInputError: (msg: string) => void;
+  isLoading: boolean;
 }
 
 const ExchangeRow: React.FC<ExchangeRowInterface> = ({
@@ -86,12 +87,14 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   error,
   setError,
   setOtherInputError,
+  isLoading,
 }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const [balance, setBalance] = useState<BalanceInterface>();
   const [amount, setAmount] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const MAX_DECIMAL_DIGITS = 8;
 
   useIonViewDidEnter(() => {
     setAccessoryBar(true).catch(console.error);
@@ -120,15 +123,24 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       let bestPriceRes;
       let updatedAmount;
       // Skip calculating price if the input is focused
-      if (focused || trades.length === 0 || !relatedAssetHash) return;
+      if (isLoading || focused || trades.length === 0 || !relatedAssetHash)
+        return;
       if (relatedAssetAmount === '0') {
-        onChangeAmount('0');
+        onChangeAmount('');
         setAmount('');
         return;
       }
       setIsUpdating(true);
       try {
-        newTrade = await bestBalance(trades);
+        if (
+          relatedAssetHash === trades[0].market.baseAsset ||
+          relatedAssetHash === trades[0].market.quoteAsset
+        ) {
+          newTrade = await bestBalance(trades);
+        } else {
+          setIsUpdating(false);
+          return;
+        }
       } catch (err) {
         console.error(err);
         setError(err.message);
@@ -182,8 +194,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
               useGrouping: false,
             });
         }
-        setAmount(updatedAmount);
-        onChangeAmount(updatedAmount);
+        setAmount(updatedAmount === '0' ? '' : updatedAmount);
+        onChangeAmount(updatedAmount === '0' ? '' : updatedAmount);
         setIsUpdating(false);
       } catch (err) {
         console.error(err);
@@ -192,50 +204,68 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       }
     })();
     // Need 'trade' to compute price based on last trade with proper type
+    // Need 'trades' to compute bestBalance trade
     // Need 'asset' which is accurate faster than balance
     // Need 'balance' to display quote asset price
-  }, [relatedAssetAmount, relatedAssetHash, asset, balance, trade]);
+    // Need 'isLoading' to prevent running the effect when confirming trade
+  }, [
+    isLoading,
+    relatedAssetAmount,
+    relatedAssetHash,
+    asset,
+    balance,
+    trade,
+    trades,
+  ]);
+
+  const sanitizeValue = (eventDetailValue: string): string => {
+    let sanitizedValue: string = eventDetailValue
+      // Replace comma by dot
+      .replace(',', '.')
+      // Remove non numeric chars or period
+      .replace(/[^0-9.]/g, '');
+    // Prefix single dot
+    if (sanitizedValue === '.') sanitizedValue = '0.';
+    // Remove last dot. Remove all if consecutive
+    if ((sanitizedValue.match(/\./g) || []).length > 1) {
+      sanitizedValue = sanitizedValue.replace(/\.$/, '');
+    }
+    // No more than MAX_DECIMAL_DIGITS decimal digits
+    if (eventDetailValue.split(/[,.]/, 2)[1]?.length > MAX_DECIMAL_DIGITS) {
+      sanitizedValue = Number(eventDetailValue).toFixed(MAX_DECIMAL_DIGITS);
+    }
+    return sanitizedValue === '' ? '0' : sanitizedValue;
+  };
 
   const handleInputChange = (e: CustomEvent<InputChangeEventDetail>) => {
     if (!isUpdating) {
-      if (!e.detail.value) {
+      if (!e.detail.value || e.detail.value === '0') {
         setError('');
         setAmount('');
-        onChangeAmount('0');
+        onChangeAmount('');
         return;
       }
-      const MAX_DECIMAL_DIGITS = 8;
       // If value is one of those cases, provoke re-rendering with sanitized value
       if (
         // First comma is always replaced by dot. Reset if user types a second comma
         (e.detail.value.includes('.') && e.detail.value.includes(',')) ||
         // No more than MAX_DECIMAL_DIGITS digits
         e.detail.value.split(/[,.]/, 2)[1]?.length > MAX_DECIMAL_DIGITS ||
-        // No letters
-        /[a-zA-Z]/.test(e.detail.value) ||
+        // If not numbers or dot
+        /[^0-9.]/.test(e.detail.value) ||
         // No more than one dot
         /(\..*){2,}/.test(e.detail.value)
       ) {
         setAmount('');
       }
       // Sanitize
-      let val: string = (e.detail.value as any)
-        .replaceAll(',', '.')
-        // Remove non numeric chars or period
-        .replaceAll(/[^0-9.]/g, '')
-        // Remove last dot. Remove all if consecutive.
-        .replace(/\.$/, '');
-
-      // No more than MAX_DECIMAL_DIGITS decimal digits
-      if (e.detail.value.split(/[,.]/, 2)[1]?.length > MAX_DECIMAL_DIGITS) {
-        val = Number(e.detail.value).toFixed(MAX_DECIMAL_DIGITS);
-      }
+      const sanitizedValue = sanitizeValue(e.detail.value);
       // Set
-      setAmount(val);
-      onChangeAmount(val);
+      setAmount(sanitizedValue);
+      onChangeAmount(sanitizedValue);
       // Check balance
       const valSats = toSatoshi(
-        val,
+        sanitizedValue,
         balance?.precision,
         isLbtc(asset.asset) ? lbtcUnit : undefined,
       );

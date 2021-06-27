@@ -50,6 +50,7 @@ import {
 import {
   customCoinSelector,
   getAssetHashLBTC,
+  isLbtc,
   toSatoshi,
 } from '../../utils/helpers';
 import type { TDexMnemonicRedux } from '../../utils/identity';
@@ -91,7 +92,11 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [assetSent, setAssetSent] = useState<AssetWithTicker>();
   const [assetReceived, setAssetReceived] = useState<AssetWithTicker>();
   // current trades/tradable assets
-  const [tradableAssets, setTradableAssets] = useState<AssetWithTicker[]>([]);
+  const [tradableAssetsForAssetSent, setTradableAssetsForAssetSent] = useState<
+    AssetWithTicker[]
+  >([]);
+  const [tradableAssetsForAssetReceived, setTradableAssetsForAssetReceived] =
+    useState<AssetWithTicker[]>([]);
   const [trades, setTrades] = useState<TDEXTrade[]>([]);
   // selected trade
   const [trade, setTrade] = useState<TDEXTrade>();
@@ -103,7 +108,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [needReset, setNeedReset] = useState<boolean>(false);
   //
   const [modalOpen, setModalOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
 
   const lastUsedIndexes = useSelector(lastUsedIndexesSelector);
@@ -173,11 +178,19 @@ const Exchange: React.FC<ExchangeProps> = ({
   }, [assetSent, assetReceived, markets]);
 
   useEffect(() => {
-    if (!assetSent || assetReceived) return;
-    const tradable = getTradablesAssets(markets, assetSent.asset);
-    setTradableAssets(tradable);
-    setAssetReceived(tradable[0]);
+    if (!assetSent || hasBeenSwapped) return;
+    const sentTradables = getTradablesAssets(markets, assetSent.asset);
+    // TODO: Add opposite asset and remove current
+    setTradableAssetsForAssetReceived(sentTradables);
+    setAssetReceived(sentTradables[0]);
   }, [assetSent, markets]);
+
+  useEffect(() => {
+    if (!assetReceived || hasBeenSwapped) return;
+    const receivedTradables = getTradablesAssets(markets, assetReceived.asset);
+    // TODO: Add opposite asset and remove current
+    setTradableAssetsForAssetSent(receivedTradables);
+  }, [assetReceived, markets]);
 
   const sentAmountGreaterThanBalance = () => {
     const balance = balances.find(b => b.asset === assetSent?.asset);
@@ -218,6 +231,7 @@ const Exchange: React.FC<ExchangeProps> = ({
           amount: toSatoshi(
             sentAmount,
             assets[assetSent.asset]?.precision || defaultPrecision,
+            isLbtc(assetSent.asset) ? lbtcUnit : undefined,
           ).toNumber(),
           asset: assetSent.asset,
         },
@@ -240,11 +254,13 @@ const Exchange: React.FC<ExchangeProps> = ({
           amount: receivedAmount?.toString() || '??',
         },
       };
+      setLoading(false);
       history.replace(`/tradesummary/${txid}`, { preview });
     } catch (e) {
       console.error(e);
       dispatch(unlockUtxos());
       setIsWrongPin(true);
+      setLoading(false);
       setTimeout(() => {
         setIsWrongPin(null);
         setNeedReset(true);
@@ -252,19 +268,19 @@ const Exchange: React.FC<ExchangeProps> = ({
       if (e instanceof AppError) {
         dispatch(addErrorToast(e));
       }
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
     <IonPage id="exchange-page">
-      <IonLoading isOpen={loading} />
+      <IonLoading isOpen={isLoading} message="Please wait..." spinner="lines" />
       {assetSent && assetReceived && markets.length > 0 && (
         <PinModal
           open={modalOpen}
           title="Unlock your seed"
-          description={`Enter your secret PIN to send ${sentAmount} ${assetSent.ticker} and receive ${receivedAmount} ${assetReceived.ticker}.`}
+          description={`Enter your secret PIN to send ${sentAmount} ${
+            isLbtc(assetSent.asset) ? lbtcUnit : assetSent.ticker
+          } and receive ${receivedAmount} ${assetReceived.ticker}.`}
           onConfirm={onPinConfirm}
           onClose={() => {
             setModalOpen(false);
@@ -298,7 +314,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               focused={isFocused === 'sent'}
               setFocus={() => setIsFocused('sent')}
               setTrade={(t: TDEXTrade) => setTrade(t)}
-              relatedAssetAmount={receivedAmount || '0'}
+              relatedAssetAmount={receivedAmount || ''}
               relatedAssetHash={assetReceived?.asset || ''}
               asset={assetSent}
               assetAmount={sentAmount}
@@ -308,7 +324,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                 setSentAmount(newAmount);
                 checkAvailableAmountSent();
               }}
-              assetsWithTicker={allAssets}
+              assetsWithTicker={tradableAssetsForAssetSent}
               setAsset={asset => {
                 if (assetReceived && asset.asset === assetReceived.asset)
                   setAssetReceived(assetSent);
@@ -317,6 +333,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               error={errorSent}
               setError={setErrorSent}
               setOtherInputError={setErrorReceived}
+              isLoading={isLoading}
             />
 
             <div
@@ -327,6 +344,8 @@ const Exchange: React.FC<ExchangeProps> = ({
                 setAssetReceived(assetSent);
                 setSentAmount(receivedAmount);
                 setReceivedAmount(sentAmount);
+                setTradableAssetsForAssetSent(tradableAssetsForAssetReceived);
+                setTradableAssetsForAssetReceived(tradableAssetsForAssetSent);
               }}
             >
               <img src={swap} alt="swap" />
@@ -340,7 +359,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                 setTrade={(t: TDEXTrade) => setTrade(t)}
                 trades={trades}
                 trade={trade}
-                relatedAssetAmount={sentAmount || '0'}
+                relatedAssetAmount={sentAmount || ''}
                 relatedAssetHash={assetSent?.asset || ''}
                 asset={assetReceived}
                 assetAmount={receivedAmount}
@@ -348,7 +367,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                   setReceivedAmount(newAmount);
                   checkAvailableAmountReceived();
                 }}
-                assetsWithTicker={tradableAssets}
+                assetsWithTicker={tradableAssetsForAssetReceived}
                 setAsset={asset => {
                   if (asset.asset === assetSent.asset)
                     setAssetSent(assetReceived);
@@ -357,6 +376,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                 error={errorReceived}
                 setError={setErrorReceived}
                 setOtherInputError={setErrorSent}
+                isLoading={isLoading}
               />
             )}
 
@@ -367,14 +387,14 @@ const Exchange: React.FC<ExchangeProps> = ({
                     'button-disabled':
                       !assetSent ||
                       !assetReceived ||
-                      loading ||
+                      isLoading ||
                       sentAmountGreaterThanBalance(),
                   })}
                   onClick={onConfirm}
                   disabled={
                     !assetSent ||
                     !assetReceived ||
-                    loading ||
+                    isLoading ||
                     sentAmountGreaterThanBalance()
                   }
                 >

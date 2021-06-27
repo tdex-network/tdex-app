@@ -4,9 +4,8 @@ import type { CallEffect, PutEffect } from 'redux-saga/effects';
 
 import { SET_TRANSACTION } from '../../src/redux/actions/transactionsActions';
 import { fetchAndUpdateTxs } from '../../src/redux/sagas/transactionsSaga';
+import type { ActionType } from '../../src/utils/types';
 import { faucet, firstAddress, APIURL, sleep } from '../test-utils';
-
-import type { ActionType } from './../../src/utils/types';
 
 jest.setTimeout(15000);
 
@@ -36,8 +35,6 @@ describe('Transaction saga', () => {
       >;
       const result = await callEffect.payload.fn();
       // get the put effect
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       const put = gen.next(result).value as PutEffect<ActionType>;
 
       expect(put.payload.action.type).toEqual(SET_TRANSACTION);
@@ -50,8 +47,6 @@ describe('Transaction saga', () => {
         IteratorResult<TxInterface, number>
       >;
       const result = await callEffect.payload.fn();
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       expect(gen.next(result).done).toEqual(true);
     });
   });

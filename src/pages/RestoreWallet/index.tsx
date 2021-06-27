@@ -115,16 +115,18 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({
     clearStorage().catch(console.error);
     dispatch(addErrorToast(e));
     setIsWrongPin(true);
+    setLoading(false);
+    setFirstPin('');
     setTimeout(() => {
+      setModalOpen('first');
       setIsWrongPin(null);
-      setFirstPin('');
       setNeedReset(true);
     }, PIN_TIMEOUT_FAILURE);
   };
 
   return (
     <IonPage>
-      <IonLoading isOpen={loading} />
+      <IonLoading isOpen={loading} message="Please wait..." spinner="lines" />
       <PinModal
         open={modalOpen === 'first' || modalOpen === 'second'}
         title={

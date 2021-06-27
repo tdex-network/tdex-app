@@ -9,9 +9,8 @@ import {
 } from '../../src/redux/actions/walletActions';
 import { outpointToString } from '../../src/redux/reducers/walletReducer';
 import { fetchAndUpdateUtxos } from '../../src/redux/sagas/walletSaga';
+import type { ActionType } from '../../src/utils/types';
 import { faucet, firstAddress, APIURL, sleep } from '../test-utils';
-
-import type { ActionType } from './../../src/utils/types';
 
 jest.setTimeout(15000);
 
