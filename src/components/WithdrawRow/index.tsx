@@ -1,3 +1,4 @@
+import type { InputChangeEventDetail } from '@ionic/core';
 import {
   IonIcon,
   IonInput,
@@ -8,6 +9,7 @@ import {
 import classNames from 'classnames';
 import Decimal from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
+import type { Dispatch } from 'react';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -18,6 +20,7 @@ import {
   fromSatoshiFixed,
   toLBTCwithUnit,
 } from '../../utils/helpers';
+import { sanitizeInputAmount } from '../../utils/input';
 import {
   onPressEnterKeyCloseKeyboard,
   setAccessoryBar,
@@ -25,10 +28,10 @@ import {
 import { CurrencyIcon } from '../icons';
 
 interface WithdrawRowInterface {
-  amount: number | undefined;
+  amount: string;
   balance: BalanceInterface;
   price: number | undefined;
-  onAmountChange: (amount: number | undefined) => void;
+  setAmount: Dispatch<string>;
   error: string;
 }
 
@@ -36,7 +39,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   amount,
   balance,
   price,
-  onAmountChange,
+  setAmount,
   error,
 }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
@@ -70,15 +73,11 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
         balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
       ),
     );
-  }, [lbtcUnit]);
+  }, [lbtcUnit, balance.amount]);
 
   useEffect(() => {
     dispatch(updatePrices());
   }, []);
-
-  useEffect(() => {
-    handleAmountChange(amount?.toString());
-  }, [price]);
 
   const reset = () => {
     setResidualBalance(
@@ -90,37 +89,39 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
       ),
     );
     if (price) setFiat('0.00');
-    onAmountChange(undefined);
+    setAmount('');
   };
 
-  const handleAmountChange = (value: string | undefined | null) => {
-    if (!value) {
+  const handleInputChange = (e: CustomEvent<InputChangeEventDetail>) => {
+    if (!e.detail.value || e.detail.value === '0') {
       reset();
       return;
     }
 
-    const val = parseFloat(value.replace(',', '.'));
-    onAmountChange(val);
+    const sanitizedValue = sanitizeInputAmount(e.detail.value, setAmount);
+    // Set values
+    setAmount(sanitizedValue);
     const residualAmount = fromSatoshi(
       balance.amount.toString(),
       balance.precision,
       balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
-    ).sub(val);
+    ).sub(sanitizedValue);
     setResidualBalance(
       residualAmount.toNumber().toLocaleString('en-US', {
         maximumFractionDigits: balance.precision,
         useGrouping: false,
       }),
     );
-    if (price)
+    if (price) {
       setFiat(
         toLBTCwithUnit(
-          new Decimal(val),
+          new Decimal(sanitizedValue),
           balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
         )
           .mul(price)
           .toFixed(2),
       );
+    }
   };
 
   return (
@@ -145,17 +146,16 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
         >
           <div className="ion-text-end">
             <IonInput
-              value={amount}
-              type="number"
-              inputmode="decimal"
-              placeholder="0.00"
-              className="amount-input"
               autofocus={true}
-              onIonChange={e => handleAmountChange(e.detail.value)}
               color={error && 'danger'}
-              debounce={200}
-              onKeyDown={onPressEnterKeyCloseKeyboard}
               enterkeyhint="done"
+              inputmode="decimal"
+              onIonChange={handleInputChange}
+              onKeyDown={onPressEnterKeyCloseKeyboard}
+              pattern="^[0-9]+(([.,][0-9]+)?)$"
+              placeholder="0"
+              type="tel"
+              value={amount}
             />
           </div>
         </div>

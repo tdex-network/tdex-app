@@ -25,6 +25,7 @@ import {
   toLBTCwithUnit,
   toSatoshi,
 } from '../../utils/helpers';
+import { sanitizeInputAmount } from '../../utils/input';
 import {
   onPressEnterKeyCloseKeyboard,
   setAccessoryBar,
@@ -94,7 +95,6 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   const [amount, setAmount] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const MAX_DECIMAL_DIGITS = 8;
 
   useIonViewDidEnter(() => {
     setAccessoryBar(true).catch(console.error);
@@ -218,25 +218,6 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
     trades,
   ]);
 
-  const sanitizeValue = (eventDetailValue: string): string => {
-    let sanitizedValue: string = eventDetailValue
-      // Replace comma by dot
-      .replace(',', '.')
-      // Remove non numeric chars or period
-      .replace(/[^0-9.]/g, '');
-    // Prefix single dot
-    if (sanitizedValue === '.') sanitizedValue = '0.';
-    // Remove last dot. Remove all if consecutive
-    if ((sanitizedValue.match(/\./g) || []).length > 1) {
-      sanitizedValue = sanitizedValue.replace(/\.$/, '');
-    }
-    // No more than MAX_DECIMAL_DIGITS decimal digits
-    if (eventDetailValue.split(/[,.]/, 2)[1]?.length > MAX_DECIMAL_DIGITS) {
-      sanitizedValue = Number(eventDetailValue).toFixed(MAX_DECIMAL_DIGITS);
-    }
-    return sanitizedValue === '' ? '0' : sanitizedValue;
-  };
-
   const handleInputChange = (e: CustomEvent<InputChangeEventDetail>) => {
     if (!isUpdating) {
       if (!e.detail.value || e.detail.value === '0') {
@@ -245,21 +226,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         onChangeAmount('');
         return;
       }
-      // If value is one of those cases, provoke re-rendering with sanitized value
-      if (
-        // First comma is always replaced by dot. Reset if user types a second comma
-        (e.detail.value.includes('.') && e.detail.value.includes(',')) ||
-        // No more than MAX_DECIMAL_DIGITS digits
-        e.detail.value.split(/[,.]/, 2)[1]?.length > MAX_DECIMAL_DIGITS ||
-        // If not numbers or dot
-        /[^0-9.]/.test(e.detail.value) ||
-        // No more than one dot
-        /(\..*){2,}/.test(e.detail.value)
-      ) {
-        setAmount('');
-      }
       // Sanitize
-      const sanitizedValue = sanitizeValue(e.detail.value);
+      const sanitizedValue = sanitizeInputAmount(e.detail.value, setAmount);
       // Set
       setAmount(sanitizedValue);
       onChangeAmount(sanitizedValue);

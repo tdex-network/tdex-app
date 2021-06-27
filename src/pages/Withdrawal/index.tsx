@@ -10,6 +10,7 @@ import {
   IonCol,
   useIonViewDidLeave,
 } from '@ionic/react';
+import Decimal from 'decimal.js';
 import type { RecipientInterface, UtxoInterface } from 'ldk';
 import { address, psetToUnsignedTx, walletFromCoins } from 'ldk';
 import { Psbt } from 'liquidjs-lib';
@@ -53,7 +54,7 @@ interface WithdrawalProps
   extends RouteComponentProps<
     any,
     any,
-    { address: string; amount: number; asset: string }
+    { address: string; amount: string; asset: string }
   > {
   balances: BalanceInterface[];
   utxos: UtxoInterface[];
@@ -74,7 +75,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   // UI state
   const [balance, setBalance] = useState<BalanceInterface>();
   const [price, setPrice] = useState<number>();
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<string>('');
   const [error, setError] = useState('');
   const [needReset, setNeedReset] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -107,7 +108,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       return;
     }
     setPrice(undefined);
-  }, [prices]);
+  }, [balance?.coinGeckoID, prices]);
 
   useEffect(() => {
     if (location.state) {
@@ -125,7 +126,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
           balance.amount.toString(),
           balance.precision,
           balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
-        ).lessThan(amount)
+        ).lessThan(amount || '0')
       ) {
         setError('Amount is greater than your balance');
         return;
@@ -140,7 +141,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       //
       let needLBTC = fee;
       if (balance.coinGeckoID === 'bitcoin') {
-        needLBTC = toSatoshi(amount.toString(), 8, lbtcUnit)
+        needLBTC = toSatoshi(amount || '0', 8, lbtcUnit)
           .plus(needLBTC)
           .toNumber();
       }
@@ -160,19 +161,16 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     address: recipientAddress?.trim(),
     asset: balance?.asset || '',
     value: toSatoshi(
-      amount.toString(),
+      amount || '0',
       balance?.precision,
       balance?.ticker === 'L-BTC' ? lbtcUnit : undefined,
     ).toNumber(),
   });
 
-  const onAmountChange = (newAmount: number | undefined) => {
-    setAmount(newAmount || 0);
-  };
-
   const isValid = (): boolean => {
     if (error) return false;
-    if (!balance || amount <= 0) return false;
+    if (!balance || new Decimal(amount || '0').lessThanOrEqualTo(0))
+      return false;
     return recipientAddress !== '';
   };
 
@@ -276,10 +274,10 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
           />
           {balance && (
             <WithdrawRow
-              amount={amount === 0 ? undefined : amount}
+              amount={amount}
               balance={balance}
               price={price}
-              onAmountChange={onAmountChange}
+              setAmount={setAmount}
               error={error}
             />
           )}
