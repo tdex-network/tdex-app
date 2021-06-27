@@ -1,7 +1,6 @@
 import {
   IonContent,
   IonPage,
-  IonLoading,
   IonText,
   useIonViewWillEnter,
   IonGrid,
@@ -21,6 +20,7 @@ import { TradeType } from 'tdex-sdk';
 import swap from '../../assets/img/swap.svg';
 import tradeHistory from '../../assets/img/trade-history.svg';
 import Header from '../../components/Header';
+import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
 import type {
@@ -273,7 +273,7 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   return (
     <IonPage id="exchange-page">
-      <IonLoading isOpen={isLoading} message="Please wait..." spinner="lines" />
+      <Loader showLoading={isLoading} />
       {assetSent && assetReceived && markets.length > 0 && (
         <PinModal
           open={modalOpen}

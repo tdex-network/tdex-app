@@ -1,4 +1,3 @@
-import { IonLoading } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -17,6 +16,7 @@ import {
   changePin,
   getMnemonicFromSecureStorage,
 } from '../../utils/storage-helper';
+import Loader from '../Loader';
 
 interface ChangePinModalsProps {
   open: boolean;
@@ -89,7 +89,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
 
   return (
     <div>
-      <IonLoading isOpen={loading} message="Please wait..." spinner="lines" />
+      <Loader showLoading={loading} />
       <PinModal
         needReset={needReset}
         setNeedReset={setNeedReset}

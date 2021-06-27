@@ -2,7 +2,6 @@ import { KeyboardStyle } from '@capacitor/keyboard';
 import {
   IonContent,
   IonPage,
-  IonLoading,
   useIonViewWillEnter,
   IonGrid,
   IonRow,
@@ -13,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import logo from '../../assets/img/tdex_3d_logo.svg';
 import ButtonsMainSub from '../../components/ButtonsMainSub';
+import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import { initApp, signIn } from '../../redux/actions/appActions';
 import { addErrorToast } from '../../redux/actions/toastActions';
@@ -26,7 +26,6 @@ import {
   getIdentity,
   mnemonicInSecureStorage,
 } from '../../utils/storage-helper';
-
 import './style.scss';
 
 const Homescreen: React.FC = () => {
@@ -82,7 +81,7 @@ const Homescreen: React.FC = () => {
 
   return (
     <IonPage id="homescreen">
-      <IonLoading isOpen={loading} message={loadingMessage} spinner="lines" />
+      <Loader message={loadingMessage} showLoading={loading} />
       <PinModal
         onClose={() => setPinModalIsOpen(false)}
         needReset={needReset}

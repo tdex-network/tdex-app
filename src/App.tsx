@@ -1,12 +1,13 @@
 import { useAppState } from '@capacitor-community/react-hooks/app';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar } from '@capacitor/status-bar';
-import { IonApp, IonLoading, IonRouterOutlet } from '@ionic/react';
+import { IonApp, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Redirect, Route } from 'react-router';
 
+import Loader from './components/Loader';
 import BackupOnboarding from './pages/Backup/backup-onboarding';
 import Homescreen from './pages/Homescreen';
 import PinSetting from './pages/PinSetting';
@@ -61,11 +62,7 @@ const App: React.FC = () => {
   return (
     <IonApp>
       <IonReactRouter>
-        <IonLoading
-          isOpen={!appInit}
-          message="Please wait..."
-          spinner="lines"
-        />
+        <Loader showLoading={!appInit} />
         {/* RouterOutlet will render depending on path */}
         {isAuth ? (
           <Tabs />
