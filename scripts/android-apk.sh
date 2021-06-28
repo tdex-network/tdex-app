@@ -5,6 +5,7 @@ set -e
 # Build
 cd android
 chmod +x ./gradlew
+./gradlew clean
 ./gradlew assemble
 cd ..
 
