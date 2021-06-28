@@ -21,9 +21,11 @@ import { ADD_ASSET, setAsset, SET_ASSET } from '../actions/assetsActions';
 // payload = the assetHash
 function* addAssetSaga({ payload }: { payload: string }) {
   // check if asset already present in state
-  const asset = yield select((state: any) => state.assets[payload]);
+  const asset: AssetConfig = yield select(
+    (state: any) => state.assets[payload],
+  );
   if (!asset) {
-    const explorerUrl = yield select(
+    const explorerUrl: string = yield select(
       (state: any) => state.settings.explorerUrl,
     );
     const { precision, ticker, name } = yield call(
@@ -69,7 +71,7 @@ async function getAssetData(
 
 function* persistAssets() {
   yield delay(5_000);
-  const currentAssets = yield select(
+  const currentAssets: AssetConfig[] = yield select(
     ({ assets }: { assets: Record<string, AssetConfig> }) =>
       Object.values(assets),
   );

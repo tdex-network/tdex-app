@@ -17,10 +17,10 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "noFallthroughCasesInSwitch": true,
     "importHelpers": true,
-    "strictNullChecks": true,
+    "strictNullChecks": true
   },
   "include": [
     "src/**/*",

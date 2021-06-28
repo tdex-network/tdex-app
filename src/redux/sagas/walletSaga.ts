@@ -1,4 +1,4 @@
-import type { AddressInterface, UtxoInterface } from 'ldk';
+import type { AddressInterface, StateRestorerOpts, UtxoInterface } from 'ldk';
 import {
   fetchAndUnblindUtxosGenerator,
   fetchUtxos,
@@ -38,15 +38,17 @@ import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString, addressesSelector } from '../reducers/walletReducer';
 
 function* persistAddresses() {
-  const addresses = yield select(addressesSelector);
+  const addresses: AddressInterface[] = yield select(addressesSelector);
   yield call(setAddressesInStorage, addresses);
 }
 
 function* persistLastUsedIndexes() {
-  const lastIndexes = yield select(({ wallet }: { wallet: WalletState }) => ({
-    lastUsedInternalIndex: wallet.lastUsedInternalIndex,
-    lastUsedExternalIndex: wallet.lastUsedExternalIndex,
-  }));
+  const lastIndexes: StateRestorerOpts = yield select(
+    ({ wallet }: { wallet: WalletState }) => ({
+      lastUsedInternalIndex: wallet.lastUsedInternalIndex,
+      lastUsedExternalIndex: wallet.lastUsedExternalIndex,
+    }),
+  );
   yield call(setLastUsedIndexesInStorage, lastIndexes);
 }
 
@@ -126,8 +128,8 @@ function* waitAndUnlock({ payload }: { payload: string }) {
 
 function* persistUtxos() {
   yield delay(20_000); // 20 sec
-  const utxos = yield select(({ wallet }: { wallet: WalletState }) =>
-    Object.values(wallet.utxos),
+  const utxos: UtxoInterface[] = yield select(
+    ({ wallet }: { wallet: WalletState }) => Object.values(wallet.utxos),
   );
   yield call(setUtxosInStorage, utxos);
 }
@@ -142,7 +144,7 @@ function* restoreUtxos() {
 function* watchUtxoSaga(action: ActionType) {
   const { address, maxTry }: { address: AddressInterface; maxTry: number } =
     action.payload;
-  const explorer = yield select(({ settings }) => settings.explorerUrl);
+  const explorer: string = yield select(({ settings }) => settings.explorerUrl);
 
   for (let t = 0; t < maxTry; t++) {
     try {
