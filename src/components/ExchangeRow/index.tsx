@@ -10,7 +10,8 @@ import {
 import classNames from 'classnames';
 import { Decimal } from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
-import React, { useEffect, useState } from 'react';
+import { debounce } from 'lodash';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import type { TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
@@ -95,6 +96,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   const [amount, setAmount] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const inputAmountValueQueue = useRef<string[]>([]);
 
   useIonViewDidEnter(() => {
     setAccessoryBar(true).catch(console.error);
@@ -117,97 +119,106 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
     }
   }, [assetAmount]);
 
+  const updatePriceDebounced = useMemo(
+    () =>
+      debounce(async () => {
+        let newTrade;
+        let bestPriceRes;
+        let updatedAmount;
+        const lastInputAmount = inputAmountValueQueue.current.pop() ?? '0';
+        // Clear array by only keeping the last element
+        inputAmountValueQueue.current = [lastInputAmount];
+        // Get best trade
+        setIsUpdating(true);
+        try {
+          if (
+            relatedAssetHash === trades[0].market.baseAsset ||
+            relatedAssetHash === trades[0].market.quoteAsset
+          ) {
+            newTrade = await bestBalance(trades);
+          } else {
+            setIsUpdating(false);
+            return;
+          }
+        } catch (err) {
+          console.error(err);
+          setError(err.message);
+          bestPriceRes = await bestPrice(
+            {
+              amount: lastInputAmount,
+              asset: relatedAssetHash,
+              precision:
+                assets[relatedAssetHash]?.precision ?? defaultPrecision,
+            },
+            trades,
+            lbtcUnit,
+            console.error,
+          );
+          newTrade = bestPriceRes.trade;
+        }
+        //
+        let priceInSats: { amount: number; asset: string };
+        try {
+          priceInSats = await calculatePrice(
+            {
+              amount: lastInputAmount,
+              asset: relatedAssetHash,
+              precision:
+                assets[relatedAssetHash]?.precision ?? defaultPrecision,
+            },
+            newTrade,
+            lbtcUnit,
+          );
+          setTrade(newTrade);
+          //
+          if (isLbtc(asset.asset)) {
+            const precision =
+              assets[priceInSats.asset]?.precision ?? defaultPrecision;
+            updatedAmount = fromSatoshiFixed(
+              priceInSats.amount.toString(),
+              precision,
+              precision,
+              isLbtc(asset.asset) ? lbtcUnit : undefined,
+            );
+          } else {
+            // Convert fiat
+            const priceInBtc = fromSatoshi(
+              priceInSats.amount.toString(),
+              assets[priceInSats.asset]?.precision ?? defaultPrecision,
+              lbtcUnit,
+            );
+            updatedAmount = toLBTCwithUnit(priceInBtc, lbtcUnit)
+              .toNumber()
+              .toLocaleString('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: assets[relatedAssetHash]?.precision,
+                useGrouping: false,
+              });
+          }
+          setAmount(updatedAmount === '0' ? '' : updatedAmount);
+          onChangeAmount(updatedAmount === '0' ? '' : updatedAmount);
+        } catch (err) {
+          console.error(err);
+          setOtherInputError(err.message);
+        }
+        setIsUpdating(false);
+      }, 500),
+    [relatedAssetHash, trades],
+  );
+
   useEffect(() => {
     void (async (): Promise<void> => {
-      let newTrade;
-      let bestPriceRes;
-      let updatedAmount;
       // Skip calculating price if the input is focused
-      if (
-        isUpdating ||
-        isLoading ||
-        focused ||
-        trades.length === 0 ||
-        !relatedAssetHash
-      )
+      if (isLoading || focused || trades.length === 0 || !relatedAssetHash)
         return;
       if (relatedAssetAmount === '0') {
         onChangeAmount('');
         setAmount('');
         return;
       }
-      setIsUpdating(true);
-      try {
-        if (
-          relatedAssetHash === trades[0].market.baseAsset ||
-          relatedAssetHash === trades[0].market.quoteAsset
-        ) {
-          newTrade = await bestBalance(trades);
-        } else {
-          setIsUpdating(false);
-          return;
-        }
-      } catch (err) {
-        console.error(err);
-        setError(err.message);
-        bestPriceRes = await bestPrice(
-          {
-            amount: relatedAssetAmount,
-            asset: relatedAssetHash,
-            precision: assets[relatedAssetHash]?.precision ?? defaultPrecision,
-          },
-          trades,
-          lbtcUnit,
-          console.error,
-        );
-        newTrade = bestPriceRes.trade;
-      }
       //
-      let priceInSats: { amount: number; asset: string };
-      try {
-        priceInSats = await calculatePrice(
-          {
-            amount: relatedAssetAmount,
-            asset: relatedAssetHash,
-            precision: assets[relatedAssetHash]?.precision ?? defaultPrecision,
-          },
-          newTrade,
-          lbtcUnit,
-        );
-        setTrade(newTrade);
-        //
-        if (isLbtc(asset.asset)) {
-          const precision =
-            assets[priceInSats.asset]?.precision ?? defaultPrecision;
-          updatedAmount = fromSatoshiFixed(
-            priceInSats.amount.toString(),
-            precision,
-            precision,
-            isLbtc(asset.asset) ? lbtcUnit : undefined,
-          );
-        } else {
-          // Convert fiat
-          const priceInBtc = fromSatoshi(
-            priceInSats.amount.toString(),
-            assets[priceInSats.asset]?.precision ?? defaultPrecision,
-            lbtcUnit,
-          );
-          updatedAmount = toLBTCwithUnit(priceInBtc, lbtcUnit)
-            .toNumber()
-            .toLocaleString('en-US', {
-              minimumFractionDigits: 0,
-              maximumFractionDigits: assets[relatedAssetHash]?.precision,
-              useGrouping: false,
-            });
-        }
-        setAmount(updatedAmount === '0' ? '' : updatedAmount);
-        onChangeAmount(updatedAmount === '0' ? '' : updatedAmount);
-        setIsUpdating(false);
-      } catch (err) {
-        console.error(err);
-        setOtherInputError(err.message);
-        setIsUpdating(false);
-      }
+      inputAmountValueQueue.current.push(relatedAssetAmount);
+      await updatePriceDebounced();
     })();
     // Need 'trade' to compute price based on last trade with proper type
     // Need 'trades' to compute bestBalance trade
