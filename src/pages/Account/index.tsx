@@ -47,8 +47,8 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
     getMnemonicFromSecureStorage(pin)
       .then(mnemonic => {
         setIsWrongPin(false);
+        setPinNeedReset(true);
         setTimeout(() => {
-          setPinModalOpen(false);
           setIsWrongPin(null);
           if (routeToGo === '/settings/show-mnemonic') {
             history.replace({
