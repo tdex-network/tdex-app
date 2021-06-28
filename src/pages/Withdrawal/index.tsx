@@ -4,7 +4,6 @@ import {
   IonItem,
   IonButton,
   IonInput,
-  IonLoading,
   IonGrid,
   IonRow,
   IonCol,
@@ -22,6 +21,7 @@ import { mnemonicRestorerFromState } from 'tdex-sdk';
 
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Header from '../../components/Header';
+import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import WithdrawRow from '../../components/WithdrawRow';
 import { IconQR } from '../../components/icons';
@@ -265,7 +265,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         needReset={needReset}
         setNeedReset={setNeedReset}
       />
-      <IonLoading isOpen={loading} message="Please wait..." spinner="lines" />
+      <Loader showLoading={loading} />
       <IonContent className="withdrawal">
         <IonGrid>
           <Header
