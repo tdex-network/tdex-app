@@ -23,7 +23,7 @@ import Refresher from '../../components/Refresher';
 import { CurrencyIcon } from '../../components/icons';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { network } from '../../redux/config';
-import type { AssetConfig } from '../../utils/constants';
+import { routerLinks } from '../../routes';
 import {
   getMainAsset,
   LBTC_COINGECKOID,
@@ -62,8 +62,6 @@ const Wallet: React.FC<WalletProps> = ({
   const [secondaryAssets, setSecondaryAssets] = useState<BalanceInterface[]>(
     [],
   );
-  const [depositAssets, setDepositAssets] = useState<AssetConfig[]>([]);
-
   const UNKNOWN = -1;
 
   const getFiatValue = (balance: BalanceInterface) => {
@@ -72,20 +70,6 @@ const Wallet: React.FC<WalletProps> = ({
     );
     if (balanceIndex < 0) return UNKNOWN;
     return fiats[balanceIndex];
-  };
-
-  const getDepositAssets = () => {
-    const assets: AssetConfig[] = [...MAIN_ASSETS];
-    secondaryAssets.forEach(({ asset, ticker, coinGeckoID, precision }) => {
-      assets.push({
-        assetHash: asset,
-        ticker,
-        coinGeckoID,
-        precision,
-        color: '',
-      });
-    });
-    return assets;
   };
 
   useEffect(() => {
@@ -137,7 +121,6 @@ const Wallet: React.FC<WalletProps> = ({
 
     setMainAssets(main);
     setSecondaryAssets(secondary);
-    setDepositAssets(getDepositAssets());
   }, [balances]);
 
   return (
@@ -186,16 +169,10 @@ const Wallet: React.FC<WalletProps> = ({
                     className="ion-no-padding"
                     onClick={() => {
                       if (backupDone) {
-                        history.push({
-                          pathname: '/deposit',
-                          state: { depositAssets },
-                        });
+                        history.push({ pathname: routerLinks.deposit });
                         return;
                       }
-                      history.push({
-                        pathname: '/backup',
-                        state: { depositAssets },
-                      });
+                      history.push({ pathname: routerLinks.backup });
                     }}
                   >
                     <IonIcon
@@ -281,16 +258,10 @@ const Wallet: React.FC<WalletProps> = ({
                     className="main-button"
                     onClick={() => {
                       if (backupDone) {
-                        history.push({
-                          pathname: '/deposit',
-                          state: { depositAssets },
-                        });
+                        history.push({ pathname: routerLinks.deposit });
                         return;
                       }
-                      history.push({
-                        pathname: '/backup',
-                        state: { depositAssets },
-                      });
+                      history.push({ pathname: routerLinks.backup });
                     }}
                   >
                     DEPOSIT ASSETS

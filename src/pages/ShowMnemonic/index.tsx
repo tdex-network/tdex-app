@@ -14,7 +14,7 @@ import Checkbox from '../../components/Checkbox';
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
 import WordList from '../../components/WordList';
-import type { AssetConfig } from '../../utils/constants';
+import { routerLinks } from '../../routes';
 import type { AppError } from '../../utils/errors';
 
 interface ShowMnemonicProps extends RouteComponentProps {
@@ -24,7 +24,6 @@ interface ShowMnemonicProps extends RouteComponentProps {
 }
 
 interface LocationState {
-  depositAssets: AssetConfig[];
   mnemonic: string;
 }
 
@@ -67,10 +66,7 @@ const ShowMnemonic: React.FC<ShowMnemonicProps> = ({
                 disabled={!isSeedSaved}
                 onClick={() => {
                   setIsBackupDone(true);
-                  history.push({
-                    pathname: '/deposit',
-                    state: { depositAssets: state?.depositAssets },
-                  });
+                  history.push({ pathname: routerLinks.deposit });
                 }}
               >
                 CONTINUE TO DEPOSIT
