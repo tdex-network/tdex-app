@@ -154,7 +154,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           {
             amount: relatedAssetAmount,
             asset: relatedAssetHash,
-            precision: assets[relatedAssetHash]?.precision || defaultPrecision,
+            precision: assets[relatedAssetHash]?.precision ?? defaultPrecision,
           },
           trades,
           lbtcUnit,
@@ -169,7 +169,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           {
             amount: relatedAssetAmount,
             asset: relatedAssetHash,
-            precision: assets[relatedAssetHash]?.precision || defaultPrecision,
+            precision: assets[relatedAssetHash]?.precision ?? defaultPrecision,
           },
           newTrade,
           lbtcUnit,
@@ -178,7 +178,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         //
         if (isLbtc(asset.asset)) {
           const precision =
-            assets[priceInSats.asset]?.precision || defaultPrecision;
+            assets[priceInSats.asset]?.precision ?? defaultPrecision;
           updatedAmount = fromSatoshiFixed(
             priceInSats.amount.toString(),
             precision,
@@ -189,7 +189,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           // Convert fiat
           const priceInBtc = fromSatoshi(
             priceInSats.amount.toString(),
-            assets[priceInSats.asset]?.precision || defaultPrecision,
+            assets[priceInSats.asset]?.precision ?? defaultPrecision,
             lbtcUnit,
           );
           updatedAmount = toLBTCwithUnit(priceInBtc, lbtcUnit)
@@ -327,7 +327,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
               fromSatoshiFixed(
                 balance?.amount.toString() || '0',
                 balance?.precision,
-                balance?.precision || defaultPrecision,
+                balance?.precision ?? defaultPrecision,
                 balance?.ticker === 'L-BTC' ? lbtcUnit : undefined,
               ),
             );
@@ -337,7 +337,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           <span>{`${fromSatoshiFixed(
             balance?.amount.toString() || '0',
             balance?.precision,
-            balance?.precision || defaultPrecision,
+            balance?.precision ?? defaultPrecision,
             balance?.ticker === 'L-BTC' ? lbtcUnit : undefined,
           )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : asset.ticker}`}</span>
         </span>

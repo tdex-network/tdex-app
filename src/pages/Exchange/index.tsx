@@ -121,7 +121,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         : trade.market.baseAmount;
     const sats = toSatoshi(
       sentAmount,
-      assets[assetSent.asset]?.precision || defaultPrecision,
+      assets[assetSent.asset]?.precision ?? defaultPrecision,
       assetSent.ticker === 'L-BTC' ? lbtcUnit : undefined,
     );
     if (
@@ -143,7 +143,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         : trade.market.quoteAmount;
     const sats = toSatoshi(
       receivedAmount,
-      assets[assetReceived.asset]?.precision || defaultPrecision,
+      assets[assetReceived.asset]?.precision ?? defaultPrecision,
       assetReceived.ticker === 'L-BTC' ? lbtcUnit : undefined,
     );
     if (
@@ -230,7 +230,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         {
           amount: toSatoshi(
             sentAmount,
-            assets[assetSent.asset]?.precision || defaultPrecision,
+            assets[assetSent.asset]?.precision ?? defaultPrecision,
             isLbtc(assetSent.asset) ? lbtcUnit : undefined,
           ).toNumber(),
           asset: assetSent.asset,

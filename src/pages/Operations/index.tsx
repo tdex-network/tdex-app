@@ -28,7 +28,11 @@ import { CurrencyIcon, TxIcon } from '../../components/icons';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import WatchersLoader from '../../redux/containers/watchersLoaderContainer';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
-import { LBTC_TICKER, MAIN_ASSETS } from '../../utils/constants';
+import {
+  defaultPrecision,
+  LBTC_TICKER,
+  MAIN_ASSETS,
+} from '../../utils/constants';
 import {
   compareTxDisplayInterfaceByDate,
   fromSatoshi,
@@ -77,7 +81,7 @@ const Operations: React.FC<OperationsProps> = ({
         amount: 0,
         coinGeckoID: asset?.coinGeckoID ?? '',
         ticker: asset?.ticker ?? '',
-        precision: asset?.precision ?? 8,
+        precision: asset?.precision ?? defaultPrecision,
       });
     }
   }, [balances, asset_id]);
@@ -248,7 +252,7 @@ const Operations: React.FC<OperationsProps> = ({
                                             ? lbtcUnit
                                             : undefined,
                                         )
-                                      : 'unknow'}
+                                      : 'unknown'}
                                   </div>
                                   <div className="main-row accent">
                                     {balance.ticker === 'L-BTC'
