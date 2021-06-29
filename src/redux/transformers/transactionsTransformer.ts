@@ -16,14 +16,20 @@ function getTransfers(
   walletScripts: string[],
 ): Transfer[] {
   const transfers: Transfer[] = [];
+  let feeAmount: number;
+  let feeAsset: string;
 
   const addToTransfers = (amount: number, asset: string) => {
-    const transferIndex = transfers.findIndex(
-      t => t.asset.valueOf() === asset.valueOf(),
-    );
+    const transferIndex = transfers.findIndex(t => t.asset === asset);
 
     if (transferIndex >= 0) {
-      transfers[transferIndex].amount += amount;
+      const tmp = transfers[transferIndex].amount + amount;
+      // Check if the transfer is a fee output
+      if (Math.abs(tmp) === feeAmount && asset === feeAsset) {
+        transfers.splice(transferIndex, 1);
+        return;
+      }
+      transfers[transferIndex].amount = tmp;
       return;
     }
 
@@ -39,6 +45,19 @@ function getTransfers(
       walletScripts.includes(input.prevout.script)
     ) {
       addToTransfers(-1 * input.prevout.value, input.prevout.asset);
+    }
+  }
+
+  // Get fee output values
+  for (const output of vout) {
+    if (
+      !isBlindedOutputInterface(output) &&
+      output.script === '' &&
+      Number(output.assetBlinder) === 0 &&
+      Number(output.valueBlinder) === 0
+    ) {
+      feeAmount = output.value;
+      feeAsset = output.asset;
     }
   }
 
