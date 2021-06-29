@@ -8,6 +8,7 @@ const mapStateToProps = (state: any) => {
     balances: balancesSelector(state),
     prices: state.rates.prices,
     currency: state.settings.currency.value,
+    lbtcUnit: state.settings.denominationLBTC,
   };
 };
 
