@@ -9,7 +9,7 @@ import {
   IonButton,
 } from '@ionic/react';
 import classNames from 'classnames';
-import type { UtxoInterface } from 'ldk';
+import type { UtxoInterface, StateRestorerOpts } from 'ldk';
 import { mnemonicRestorerFromState } from 'ldk';
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
@@ -35,7 +35,6 @@ import {
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import ExchangeRow from '../../redux/containers/exchangeRowContainer';
-import { lastUsedIndexesSelector } from '../../redux/selectors/walletSelectors';
 import type { AssetConfig } from '../../utils/constants';
 import {
   defaultPrecision,
@@ -71,6 +70,7 @@ interface ExchangeProps extends RouteComponentProps {
   assets: Record<string, AssetConfig>;
   allAssets: AssetWithTicker[];
   dispatch: Dispatch;
+  lastUsedIndexes: StateRestorerOpts;
 }
 
 const Exchange: React.FC<ExchangeProps> = ({
@@ -82,6 +82,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   assets,
   allAssets,
   dispatch,
+  lastUsedIndexes,
 }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const [hasBeenSwapped, setHasBeenSwapped] = useState<boolean>(false);
@@ -111,7 +112,38 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [isLoading, setLoading] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
 
-  const lastUsedIndexes = useSelector(lastUsedIndexesSelector);
+  useIonViewWillEnter(() => {
+    if (markets.length === 0) {
+      dispatch(addErrorToast(NoMarketsProvidedError));
+      history.goBack();
+      return;
+    }
+    const lbtcHash = getAssetHashLBTC();
+    const lbtcAsset = allAssets.find(h => h.asset === lbtcHash);
+    setAssetSent(lbtcAsset);
+    setSentAmount(undefined);
+    setReceivedAmount(undefined);
+  }, [balances, markets]);
+
+  useEffect(() => {
+    if (markets.length === 0 || !assetSent || !assetReceived) return;
+    setTrades(allTrades(markets, assetSent.asset, assetReceived.asset));
+  }, [assetSent, assetReceived, markets]);
+
+  useEffect(() => {
+    if (!assetSent || hasBeenSwapped) return;
+    const sentTradables = getTradablesAssets(markets, assetSent.asset);
+    // TODO: Add opposite asset and remove current
+    setTradableAssetsForAssetReceived(sentTradables);
+    setAssetReceived(sentTradables[0]);
+  }, [assetSent, markets]);
+
+  useEffect(() => {
+    if (!assetReceived || hasBeenSwapped) return;
+    const receivedTradables = getTradablesAssets(markets, assetReceived.asset);
+    // TODO: Add opposite asset and remove current
+    setTradableAssetsForAssetSent(receivedTradables);
+  }, [assetReceived, markets]);
 
   const checkAvailableAmountSent = () => {
     if (!trade || !sentAmount || !assetSent) return;
@@ -159,39 +191,6 @@ const Exchange: React.FC<ExchangeProps> = ({
     setHasBeenSwapped(false);
   };
 
-  useIonViewWillEnter(() => {
-    if (markets.length === 0) {
-      dispatch(addErrorToast(NoMarketsProvidedError));
-      history.goBack();
-      return;
-    }
-    const lbtcHash = getAssetHashLBTC();
-    const lbtcAsset = allAssets.find(h => h.asset === lbtcHash);
-    setAssetSent(lbtcAsset);
-    setSentAmount(undefined);
-    setReceivedAmount(undefined);
-  }, [balances, markets]);
-
-  useEffect(() => {
-    if (markets.length === 0 || !assetSent || !assetReceived) return;
-    setTrades(allTrades(markets, assetSent.asset, assetReceived.asset));
-  }, [assetSent, assetReceived, markets]);
-
-  useEffect(() => {
-    if (!assetSent || hasBeenSwapped) return;
-    const sentTradables = getTradablesAssets(markets, assetSent.asset);
-    // TODO: Add opposite asset and remove current
-    setTradableAssetsForAssetReceived(sentTradables);
-    setAssetReceived(sentTradables[0]);
-  }, [assetSent, markets]);
-
-  useEffect(() => {
-    if (!assetReceived || hasBeenSwapped) return;
-    const receivedTradables = getTradablesAssets(markets, assetReceived.asset);
-    // TODO: Add opposite asset and remove current
-    setTradableAssetsForAssetSent(receivedTradables);
-  }, [assetReceived, markets]);
-
   const sentAmountGreaterThanBalance = () => {
     const balance = balances.find(b => b.asset === assetSent?.asset);
     if (!balance || !sentAmount) return true;
@@ -220,6 +219,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         setIsWrongPin(false);
         setTimeout(() => {
           setIsWrongPin(null);
+          setNeedReset(true);
         }, PIN_TIMEOUT_SUCCESS);
       } catch (_) {
         throw IncorrectPINError;
@@ -240,9 +240,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         identity,
         customCoinSelector(dispatch),
       );
-
       dispatch(watchTransaction(txid));
-
       addSuccessToast('Trade successfully computed');
       const preview: PreviewData = {
         sent: {
@@ -273,7 +271,7 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   return (
     <IonPage id="exchange-page">
-      <Loader showLoading={isLoading} />
+      <Loader showLoading={isLoading} delay={0} />
       {assetSent && assetReceived && markets.length > 0 && (
         <PinModal
           open={modalOpen}
