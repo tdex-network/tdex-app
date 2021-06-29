@@ -103,6 +103,7 @@ const Wallet: React.FC<WalletProps> = ({
           ticker: a.ticker,
           amount: 0,
           precision: 8,
+          name: a.name,
         };
       });
       main.push(lbtc);

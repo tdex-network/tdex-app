@@ -52,6 +52,7 @@ interface OperationsProps extends RouteComponentProps {
   balances: BalanceInterface[];
   prices: Record<string, number>;
   currency: string;
+  lbtcUnit: string;
 }
 
 const Operations: React.FC<OperationsProps> = ({
@@ -59,8 +60,8 @@ const Operations: React.FC<OperationsProps> = ({
   prices,
   currency,
   history,
+  lbtcUnit,
 }) => {
-  const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const { asset_id } = useParams<{ asset_id: string }>();
   const [balance, setBalance] = useState<BalanceInterface>();
   const [opened, setOpened] = useState<string[]>([]);
@@ -82,6 +83,7 @@ const Operations: React.FC<OperationsProps> = ({
         coinGeckoID: asset?.coinGeckoID ?? '',
         ticker: asset?.ticker ?? '',
         precision: asset?.precision ?? defaultPrecision,
+        name: asset?.name ?? '',
       });
     }
   }, [balances, asset_id]);
@@ -121,7 +123,7 @@ const Operations: React.FC<OperationsProps> = ({
         <Refresher />
         <IonGrid>
           <Header
-            title={`${balance?.ticker ?? ''} ${balance?.coinGeckoID ?? ''}`}
+            title={`${balance?.name || balance?.ticker}`}
             hasBackButton={true}
           />
           <IonRow className="ion-margin-bottom header-info ion-text-center ion-margin">

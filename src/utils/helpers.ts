@@ -185,6 +185,7 @@ export function balancesFromUtxos(
       ticker: assets[asset]?.ticker || tickerFromAssetHash(asset),
       coinGeckoID,
       precision: assets[asset]?.precision ?? defaultPrecision,
+      name: assets[asset].name,
     });
   }
 

@@ -54,7 +54,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
           {swaps.length > 0 ? (
             <IonList>
               <IonListHeader>Swaps</IonListHeader>
-              {swaps.map((transaction: TxDisplayInterface) => {
+              {swaps.map((transaction: TxDisplayInterface, index: number) => {
                 const transferSent = transaction.transfers.find(
                   t => t.amount < 0,
                 );
@@ -63,7 +63,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
                 );
 
                 if (!transferReceived || !transferSent) {
-                  return <></>;
+                  return <React.Fragment key={index} />;
                 }
 
                 const tickerSent = tickerFromAssetHash(transferSent.asset);
