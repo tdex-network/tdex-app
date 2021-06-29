@@ -23,7 +23,7 @@ export interface AssetConfig {
   assetHash: string;
   color: string;
   precision: number;
-  name?: string;
+  name: string;
   chain?: 'liquid' | 'regtest';
 }
 

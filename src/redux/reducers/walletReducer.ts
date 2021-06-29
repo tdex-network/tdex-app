@@ -155,6 +155,7 @@ export const balancesSelector = (state: any): BalanceInterface[] => {
       ticker: assets[asset]?.ticker ?? tickerFromAssetHash(asset),
       coinGeckoID: getMainAsset(asset)?.coinGeckoID,
       precision: assets[asset]?.precision ?? defaultPrecision,
+      name: assets[asset]?.name,
     });
   }
   return balances;
@@ -183,6 +184,7 @@ export const aggregatedLBTCBalanceSelector = (state: any): BalanceInterface => {
     ticker: LBTC_TICKER,
     coinGeckoID: LBTC_COINGECKOID,
     precision: 8,
+    name: 'Liquid Bitcoin',
   };
 };
 
