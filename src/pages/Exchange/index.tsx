@@ -280,7 +280,9 @@ const Exchange: React.FC<ExchangeProps> = ({
           title="Unlock your seed"
           description={`Enter your secret PIN to send ${sentAmount} ${
             isLbtc(assetSent.asset) ? lbtcUnit : assetSent.ticker
-          } and receive ${receivedAmount} ${assetReceived.ticker}.`}
+          } and receive ${receivedAmount} ${
+            isLbtc(assetReceived.asset) ? lbtcUnit : assetReceived.ticker
+          }.`}
           onConfirm={onPinConfirm}
           onClose={() => {
             setModalOpen(false);
