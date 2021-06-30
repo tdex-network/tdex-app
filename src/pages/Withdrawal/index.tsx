@@ -10,7 +10,7 @@ import {
   useIonViewDidLeave,
 } from '@ionic/react';
 import Decimal from 'decimal.js';
-import type { RecipientInterface, UtxoInterface } from 'ldk';
+import type { RecipientInterface, StateRestorerOpts, UtxoInterface } from 'ldk';
 import { address, psetToUnsignedTx, walletFromCoins } from 'ldk';
 import { Psbt } from 'liquidjs-lib';
 import React, { useState, useEffect } from 'react';
@@ -34,7 +34,6 @@ import {
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import { network } from '../../redux/config';
-import { lastUsedIndexesSelector } from '../../redux/selectors/walletSelectors';
 import { broadcastTx } from '../../redux/services/walletService';
 import {
   PIN_TIMEOUT_FAILURE,
@@ -45,6 +44,7 @@ import {
   customCoinSelector,
   estimateFeeAmount,
   fromSatoshi,
+  isLbtc,
   toSatoshi,
 } from '../../utils/helpers';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
@@ -60,6 +60,7 @@ interface WithdrawalProps
   utxos: UtxoInterface[];
   prices: Record<string, number>;
   explorerURL: string;
+  lastUsedIndexes: StateRestorerOpts;
 }
 
 const Withdrawal: React.FC<WithdrawalProps> = ({
@@ -69,6 +70,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   explorerURL,
   history,
   location,
+  lastUsedIndexes,
 }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const { asset_id } = useParams<{ asset_id: string }>();
@@ -125,7 +127,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         fromSatoshi(
           balance.amount.toString(),
           balance.precision,
-          balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
+          isLbtc(balance.asset) ? lbtcUnit : undefined,
         ).lessThan(amount || '0')
       ) {
         setError('Amount is greater than your balance');
@@ -155,8 +157,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     }
   }, [amount]);
 
-  const lastUsedIndexes = useSelector(lastUsedIndexesSelector);
-
   const getRecipient = (): RecipientInterface => ({
     address: recipientAddress?.trim(),
     asset: balance?.asset || '',
@@ -184,6 +184,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         setIsWrongPin(false);
         setTimeout(() => {
           setIsWrongPin(null);
+          setNeedReset(true);
         }, PIN_TIMEOUT_SUCCESS);
       } catch (_) {
         throw IncorrectPINError;
@@ -230,6 +231,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       );
       dispatch(watchTransaction(txid));
       setModalOpen(false);
+      setLoading(false);
       history.push(`/withdraw/${txid}/details`, {
         address: recipientAddress,
         amount,
@@ -237,6 +239,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       });
     } catch (err) {
       console.error(err);
+      setLoading(false);
       setIsWrongPin(true);
       setTimeout(() => {
         setIsWrongPin(null);
@@ -244,8 +247,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       }, PIN_TIMEOUT_FAILURE);
       dispatch(unlockUtxos());
       dispatch(addErrorToast(WithdrawTxError));
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -265,7 +266,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         needReset={needReset}
         setNeedReset={setNeedReset}
       />
-      <Loader showLoading={loading} />
+      <Loader showLoading={loading} delay={0} />
       <IonContent className="withdrawal">
         <IonGrid>
           <Header
