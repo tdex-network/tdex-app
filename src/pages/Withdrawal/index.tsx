@@ -4,13 +4,13 @@ import {
   IonItem,
   IonButton,
   IonInput,
-  IonLoading,
   IonGrid,
   IonRow,
   IonCol,
   useIonViewDidLeave,
 } from '@ionic/react';
-import type { RecipientInterface, UtxoInterface } from 'ldk';
+import Decimal from 'decimal.js';
+import type { RecipientInterface, StateRestorerOpts, UtxoInterface } from 'ldk';
 import { address, psetToUnsignedTx, walletFromCoins } from 'ldk';
 import { Psbt } from 'liquidjs-lib';
 import React, { useState, useEffect } from 'react';
@@ -21,6 +21,7 @@ import { mnemonicRestorerFromState } from 'tdex-sdk';
 
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Header from '../../components/Header';
+import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import WithdrawRow from '../../components/WithdrawRow';
 import { IconQR } from '../../components/icons';
@@ -33,7 +34,6 @@ import {
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import { network } from '../../redux/config';
-import { lastUsedIndexesSelector } from '../../redux/selectors/walletSelectors';
 import { broadcastTx } from '../../redux/services/walletService';
 import {
   PIN_TIMEOUT_FAILURE,
@@ -44,6 +44,7 @@ import {
   customCoinSelector,
   estimateFeeAmount,
   fromSatoshi,
+  isLbtc,
   toSatoshi,
 } from '../../utils/helpers';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
@@ -53,12 +54,13 @@ interface WithdrawalProps
   extends RouteComponentProps<
     any,
     any,
-    { address: string; amount: number; asset: string }
+    { address: string; amount: string; asset: string }
   > {
   balances: BalanceInterface[];
   utxos: UtxoInterface[];
   prices: Record<string, number>;
   explorerURL: string;
+  lastUsedIndexes: StateRestorerOpts;
 }
 
 const Withdrawal: React.FC<WithdrawalProps> = ({
@@ -68,13 +70,14 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   explorerURL,
   history,
   location,
+  lastUsedIndexes,
 }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const { asset_id } = useParams<{ asset_id: string }>();
   // UI state
   const [balance, setBalance] = useState<BalanceInterface>();
   const [price, setPrice] = useState<number>();
-  const [amount, setAmount] = useState<number>(0);
+  const [amount, setAmount] = useState<string>('');
   const [error, setError] = useState('');
   const [needReset, setNeedReset] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -107,7 +110,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       return;
     }
     setPrice(undefined);
-  }, [prices]);
+  }, [balance?.coinGeckoID, prices]);
 
   useEffect(() => {
     if (location.state) {
@@ -124,8 +127,8 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         fromSatoshi(
           balance.amount.toString(),
           balance.precision,
-          balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
-        ).lessThan(amount)
+          isLbtc(balance.asset) ? lbtcUnit : undefined,
+        ).lessThan(amount || '0')
       ) {
         setError('Amount is greater than your balance');
         return;
@@ -140,7 +143,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       //
       let needLBTC = fee;
       if (balance.coinGeckoID === 'bitcoin') {
-        needLBTC = toSatoshi(amount.toString(), 8, lbtcUnit)
+        needLBTC = toSatoshi(amount || '0', 8, lbtcUnit)
           .plus(needLBTC)
           .toNumber();
       }
@@ -154,25 +157,20 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     }
   }, [amount]);
 
-  const lastUsedIndexes = useSelector(lastUsedIndexesSelector);
-
   const getRecipient = (): RecipientInterface => ({
     address: recipientAddress?.trim(),
     asset: balance?.asset || '',
     value: toSatoshi(
-      amount.toString(),
+      amount || '0',
       balance?.precision,
       balance?.ticker === 'L-BTC' ? lbtcUnit : undefined,
     ).toNumber(),
   });
 
-  const onAmountChange = (newAmount: number | undefined) => {
-    setAmount(newAmount || 0);
-  };
-
   const isValid = (): boolean => {
     if (error) return false;
-    if (!balance || amount <= 0) return false;
+    if (!balance || new Decimal(amount || '0').lessThanOrEqualTo(0))
+      return false;
     return recipientAddress !== '';
   };
 
@@ -186,6 +184,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         setIsWrongPin(false);
         setTimeout(() => {
           setIsWrongPin(null);
+          setNeedReset(true);
         }, PIN_TIMEOUT_SUCCESS);
       } catch (_) {
         throw IncorrectPINError;
@@ -232,6 +231,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       );
       dispatch(watchTransaction(txid));
       setModalOpen(false);
+      setLoading(false);
       history.push(`/withdraw/${txid}/details`, {
         address: recipientAddress,
         amount,
@@ -239,6 +239,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       });
     } catch (err) {
       console.error(err);
+      setLoading(false);
       setIsWrongPin(true);
       setTimeout(() => {
         setIsWrongPin(null);
@@ -246,8 +247,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       }, PIN_TIMEOUT_FAILURE);
       dispatch(unlockUtxos());
       dispatch(addErrorToast(WithdrawTxError));
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -267,7 +266,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         needReset={needReset}
         setNeedReset={setNeedReset}
       />
-      <IonLoading isOpen={loading} message="Please wait..." spinner="lines" />
+      <Loader showLoading={loading} delay={0} />
       <IonContent className="withdrawal">
         <IonGrid>
           <Header
@@ -276,10 +275,10 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
           />
           {balance && (
             <WithdrawRow
-              amount={amount === 0 ? undefined : amount}
+              amount={amount}
               balance={balance}
               price={price}
-              onAmountChange={onAmountChange}
+              setAmount={setAmount}
               error={error}
             />
           )}

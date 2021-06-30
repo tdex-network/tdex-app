@@ -5,7 +5,6 @@ import {
   IonContent,
   IonItem,
   IonIcon,
-  IonLoading,
   IonGrid,
   useIonViewWillEnter,
   useIonViewWillLeave,
@@ -21,6 +20,7 @@ import type { MasterPublicKeyOpts } from 'tdex-sdk';
 import { masterPubKeyRestorerFromState } from 'tdex-sdk';
 
 import Header from '../../components/Header';
+import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import { IconCopy, CurrencyIcon } from '../../components/icons';
 import {
@@ -144,7 +144,7 @@ const Receive: React.FC = () => {
 
   return (
     <IonPage>
-      <IonLoading isOpen={loading} message="Please wait..." spinner="lines" />
+      <Loader showLoading={loading} />
       <IonContent className="receive">
         <IonGrid>
           <Header

@@ -7,6 +7,8 @@ export const LBTC_TICKER = 'L-BTC';
 export const USDT_TICKER = 'USDT';
 export const LCAD_TICKER = 'LCAD';
 export const BTSE_TICKER = 'BTSE';
+// Blockstream Jade voucher
+export const BJDE_TICKER = 'B-JDE';
 
 export const LBTC_COINGECKOID = 'bitcoin';
 export const USDT_COINGECKOID = 'tether';
@@ -22,7 +24,7 @@ export interface AssetConfig {
   assetHash: string;
   color: string;
   precision: number;
-  name?: string;
+  name: string;
   chain?: 'liquid' | 'regtest';
 }
 

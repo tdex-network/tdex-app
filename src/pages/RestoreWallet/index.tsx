@@ -2,7 +2,6 @@ import {
   IonContent,
   IonButton,
   IonPage,
-  IonLoading,
   IonInput,
   IonGrid,
   IonRow,
@@ -16,6 +15,7 @@ import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
 
 import Header from '../../components/Header';
+import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import PinModal from '../../components/PinModal';
 import { signIn } from '../../redux/actions/appActions';
@@ -126,7 +126,7 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({
 
   return (
     <IonPage>
-      <IonLoading isOpen={loading} message="Please wait..." spinner="lines" />
+      <Loader showLoading={loading} />
       <PinModal
         open={modalOpen === 'first' || modalOpen === 'second'}
         title={

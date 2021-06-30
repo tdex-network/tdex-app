@@ -10,7 +10,8 @@ import {
 import classNames from 'classnames';
 import { Decimal } from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
-import React, { useEffect, useState } from 'react';
+import { debounce } from 'lodash';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 import type { TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
@@ -25,6 +26,7 @@ import {
   toLBTCwithUnit,
   toSatoshi,
 } from '../../utils/helpers';
+import { sanitizeInputAmount } from '../../utils/input';
 import {
   onPressEnterKeyCloseKeyboard,
   setAccessoryBar,
@@ -94,7 +96,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   const [amount, setAmount] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const MAX_DECIMAL_DIGITS = 8;
+  const inputAmountValueQueue = useRef<string[]>([]);
 
   useIonViewDidEnter(() => {
     setAccessoryBar(true).catch(console.error);
@@ -117,11 +119,95 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
     }
   }, [assetAmount]);
 
+  const updatePriceDebounced = useMemo(
+    () =>
+      debounce(async () => {
+        let newTrade;
+        let bestPriceRes;
+        let updatedAmount;
+        const lastInputAmount = inputAmountValueQueue.current.pop() ?? '0';
+        // Clear array by only keeping the last element
+        inputAmountValueQueue.current = [lastInputAmount];
+        // Get best trade
+        setIsUpdating(true);
+        try {
+          if (
+            relatedAssetHash === trades[0].market.baseAsset ||
+            relatedAssetHash === trades[0].market.quoteAsset
+          ) {
+            newTrade = await bestBalance(trades);
+          } else {
+            setIsUpdating(false);
+            return;
+          }
+        } catch (err) {
+          console.error(err);
+          setError(err.message);
+          bestPriceRes = await bestPrice(
+            {
+              amount: lastInputAmount,
+              asset: relatedAssetHash,
+              precision:
+                assets[relatedAssetHash]?.precision ?? defaultPrecision,
+            },
+            trades,
+            lbtcUnit,
+            console.error,
+          );
+          newTrade = bestPriceRes.trade;
+        }
+        //
+        let priceInSats: { amount: number; asset: string };
+        try {
+          priceInSats = await calculatePrice(
+            {
+              amount: lastInputAmount,
+              asset: relatedAssetHash,
+              precision:
+                assets[relatedAssetHash]?.precision ?? defaultPrecision,
+            },
+            newTrade,
+            lbtcUnit,
+          );
+          setTrade(newTrade);
+          //
+          if (isLbtc(asset.asset)) {
+            const precision =
+              assets[priceInSats.asset]?.precision ?? defaultPrecision;
+            updatedAmount = fromSatoshiFixed(
+              priceInSats.amount.toString(),
+              precision,
+              precision,
+              isLbtc(asset.asset) ? lbtcUnit : undefined,
+            );
+          } else {
+            // Convert fiat
+            const priceInBtc = fromSatoshi(
+              priceInSats.amount.toString(),
+              assets[priceInSats.asset]?.precision ?? defaultPrecision,
+              lbtcUnit,
+            );
+            updatedAmount = toLBTCwithUnit(priceInBtc, lbtcUnit)
+              .toNumber()
+              .toLocaleString('en-US', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: assets[relatedAssetHash]?.precision,
+                useGrouping: false,
+              });
+          }
+          setAmount(updatedAmount === '0' ? '' : updatedAmount);
+          onChangeAmount(updatedAmount === '0' ? '' : updatedAmount);
+        } catch (err) {
+          console.error(err);
+          setOtherInputError(err.message);
+        }
+        setIsUpdating(false);
+      }, 500),
+    [relatedAssetHash, trades],
+  );
+
   useEffect(() => {
     void (async (): Promise<void> => {
-      let newTrade;
-      let bestPriceRes;
-      let updatedAmount;
       // Skip calculating price if the input is focused
       if (isLoading || focused || trades.length === 0 || !relatedAssetHash)
         return;
@@ -130,78 +216,9 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         setAmount('');
         return;
       }
-      setIsUpdating(true);
-      try {
-        if (
-          relatedAssetHash === trades[0].market.baseAsset ||
-          relatedAssetHash === trades[0].market.quoteAsset
-        ) {
-          newTrade = await bestBalance(trades);
-        } else {
-          setIsUpdating(false);
-          return;
-        }
-      } catch (err) {
-        console.error(err);
-        setError(err.message);
-        bestPriceRes = await bestPrice(
-          {
-            amount: relatedAssetAmount,
-            asset: relatedAssetHash,
-            precision: assets[relatedAssetHash]?.precision || defaultPrecision,
-          },
-          trades,
-          lbtcUnit,
-          console.error,
-        );
-        newTrade = bestPriceRes.trade;
-      }
       //
-      let priceInSats: { amount: number; asset: string };
-      try {
-        priceInSats = await calculatePrice(
-          {
-            amount: relatedAssetAmount,
-            asset: relatedAssetHash,
-            precision: assets[relatedAssetHash]?.precision || defaultPrecision,
-          },
-          newTrade,
-          lbtcUnit,
-        );
-        setTrade(newTrade);
-        //
-        if (isLbtc(asset.asset)) {
-          const precision =
-            assets[priceInSats.asset]?.precision || defaultPrecision;
-          updatedAmount = fromSatoshiFixed(
-            priceInSats.amount.toString(),
-            precision,
-            precision,
-            isLbtc(asset.asset) ? lbtcUnit : undefined,
-          );
-        } else {
-          // Convert fiat
-          const priceInBtc = fromSatoshi(
-            priceInSats.amount.toString(),
-            assets[priceInSats.asset]?.precision || defaultPrecision,
-            lbtcUnit,
-          );
-          updatedAmount = toLBTCwithUnit(priceInBtc, lbtcUnit)
-            .toNumber()
-            .toLocaleString('en-US', {
-              minimumFractionDigits: 0,
-              maximumFractionDigits: assets[relatedAssetHash]?.precision,
-              useGrouping: false,
-            });
-        }
-        setAmount(updatedAmount === '0' ? '' : updatedAmount);
-        onChangeAmount(updatedAmount === '0' ? '' : updatedAmount);
-        setIsUpdating(false);
-      } catch (err) {
-        console.error(err);
-        setOtherInputError(err.message);
-        setIsUpdating(false);
-      }
+      inputAmountValueQueue.current.push(relatedAssetAmount);
+      await updatePriceDebounced();
     })();
     // Need 'trade' to compute price based on last trade with proper type
     // Need 'trades' to compute bestBalance trade
@@ -218,25 +235,6 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
     trades,
   ]);
 
-  const sanitizeValue = (eventDetailValue: string): string => {
-    let sanitizedValue: string = eventDetailValue
-      // Replace comma by dot
-      .replace(',', '.')
-      // Remove non numeric chars or period
-      .replace(/[^0-9.]/g, '');
-    // Prefix single dot
-    if (sanitizedValue === '.') sanitizedValue = '0.';
-    // Remove last dot. Remove all if consecutive
-    if ((sanitizedValue.match(/\./g) || []).length > 1) {
-      sanitizedValue = sanitizedValue.replace(/\.$/, '');
-    }
-    // No more than MAX_DECIMAL_DIGITS decimal digits
-    if (eventDetailValue.split(/[,.]/, 2)[1]?.length > MAX_DECIMAL_DIGITS) {
-      sanitizedValue = Number(eventDetailValue).toFixed(MAX_DECIMAL_DIGITS);
-    }
-    return sanitizedValue === '' ? '0' : sanitizedValue;
-  };
-
   const handleInputChange = (e: CustomEvent<InputChangeEventDetail>) => {
     if (!isUpdating) {
       if (!e.detail.value || e.detail.value === '0') {
@@ -245,21 +243,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         onChangeAmount('');
         return;
       }
-      // If value is one of those cases, provoke re-rendering with sanitized value
-      if (
-        // First comma is always replaced by dot. Reset if user types a second comma
-        (e.detail.value.includes('.') && e.detail.value.includes(',')) ||
-        // No more than MAX_DECIMAL_DIGITS digits
-        e.detail.value.split(/[,.]/, 2)[1]?.length > MAX_DECIMAL_DIGITS ||
-        // If not numbers or dot
-        /[^0-9.]/.test(e.detail.value) ||
-        // No more than one dot
-        /(\..*){2,}/.test(e.detail.value)
-      ) {
-        setAmount('');
-      }
       // Sanitize
-      const sanitizedValue = sanitizeValue(e.detail.value);
+      const sanitizedValue = sanitizeInputAmount(e.detail.value, setAmount);
       // Set
       setAmount(sanitizedValue);
       onChangeAmount(sanitizedValue);
@@ -297,14 +282,13 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           <div className="ion-text-end">
             <IonInput
               color={error && 'danger'}
-              debounce={200}
               disabled={isUpdating}
               enterkeyhint="done"
               inputmode="decimal"
               onIonChange={handleInputChange}
               onIonFocus={setFocus}
               onKeyDown={onPressEnterKeyCloseKeyboard}
-              pattern="^[0-9]+(([.,][0-9]+)?)$"
+              pattern="^[0-9]*[.,]?[0-9]*$"
               placeholder="0"
               type="tel"
               value={amount}
@@ -322,7 +306,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
               fromSatoshiFixed(
                 balance?.amount.toString() || '0',
                 balance?.precision,
-                balance?.precision || defaultPrecision,
+                balance?.precision ?? defaultPrecision,
                 balance?.ticker === 'L-BTC' ? lbtcUnit : undefined,
               ),
             );
@@ -332,7 +316,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           <span>{`${fromSatoshiFixed(
             balance?.amount.toString() || '0',
             balance?.precision,
-            balance?.precision || defaultPrecision,
+            balance?.precision ?? defaultPrecision,
             balance?.ticker === 'L-BTC' ? lbtcUnit : undefined,
           )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : asset.ticker}`}</span>
         </span>

@@ -1,19 +1,27 @@
 @font-face {
   font-family: 'DMSans';
-  src: url('../assets/fonts/DMSans-Regular.ttf');
+  font-style: normal;
+  src: url('../assets/fonts/DMSans-Regular.woff2') format('woff2'),
+  url('../assets/fonts/DMSans-Regular.woff') format('woff');
 }
 
 @font-face {
   font-family: 'DMSans-Bold';
-  src: url('../assets/fonts/DMSans-Bold.ttf');
+  font-style: normal;
+  src: url('../assets/fonts/DMSans-Bold.woff2') format('woff2'),
+  url('../assets/fonts/DMSans-Bold.woff') format('woff');
 }
 
 @font-face {
   font-family: 'DMMono';
-  src: url('../assets/fonts/DMMono-Regular.ttf');
+  font-style: normal;
+  src: url('../assets/fonts/DMMono-Regular.woff2') format('woff2'),
+  url('../assets/fonts/DMMono-Regular.woff') format('woff');
 }
 
 @font-face {
   font-family: 'DMMono-Medium';
-  src: url('../assets/fonts/DMMono-Medium.ttf');
+  font-style: normal;
+  src: url('../assets/fonts/DMMono-Medium.woff2') format('woff2'),
+  url('../assets/fonts/DMMono-Medium.woff') format('woff');
 }

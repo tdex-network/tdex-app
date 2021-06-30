@@ -9,7 +9,9 @@ import { getPriceFromCoinGecko } from '../services/ratesService';
 import type { CoinGeckoPriceResult } from '../services/ratesService';
 
 function* fetchRates() {
-  const currency = yield select((state: any) => state.settings.currency.value);
+  const currency: string = yield select(
+    (state: any) => state.settings.currency.value,
+  );
   const currencies = [currency];
   if (currency !== 'btc') {
     currencies.push('btc');

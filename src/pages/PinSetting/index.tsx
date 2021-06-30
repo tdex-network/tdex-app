@@ -8,7 +8,6 @@ import {
   IonCol,
   IonButton,
   IonGrid,
-  IonLoading,
 } from '@ionic/react';
 import * as bip39 from 'bip39';
 import React, { useEffect, useRef, useState } from 'react';
@@ -18,6 +17,7 @@ import { useLocation } from 'react-router';
 
 import Checkbox from '../../components/Checkbox';
 import Header from '../../components/Header';
+import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import PinInput from '../../components/PinInput';
 import { signIn } from '../../redux/actions/appActions';
@@ -134,7 +134,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
 
   return (
     <IonPage id="pin-setting-page">
-      <IonLoading isOpen={loading} message="Please wait..." spinner="lines" />
+      <Loader showLoading={loading} />
       <IonContent>
         <IonGrid className="ion-text-center ion-justify-content-center">
           <Header

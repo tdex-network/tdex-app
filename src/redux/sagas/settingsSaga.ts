@@ -1,4 +1,5 @@
 import { KeyboardStyle } from '@capacitor/keyboard';
+import type { GetResult } from '@capacitor/storage';
 import { takeLatest, call, put } from 'redux-saga/effects';
 
 import { setKeyboardTheme } from '../../utils/keyboard';
@@ -28,6 +29,7 @@ import {
   STORE_THEME,
   SET_EXPLORER_BITCOIN,
 } from '../actions/settingsActions';
+import type { CurrencyInterface } from '../reducers/settingsReducer';
 import {
   setThemeToStorage,
   getThemeFromStorage,
@@ -44,7 +46,7 @@ function* storeThemeSaga({ payload }: ActionType) {
 
 function* restoreThemeSaga() {
   try {
-    const data = yield call(getThemeFromStorage);
+    const data: GetResult = yield call(getThemeFromStorage);
     const theme = data.value || 'dark';
     if (data.value === null) {
       yield put(storeTheme(theme));
@@ -57,7 +59,7 @@ function* restoreThemeSaga() {
 
 function* restoreExplorer() {
   try {
-    const explorerEndpoint = yield call(getExplorerFromStorage);
+    const explorerEndpoint: string | null = yield call(getExplorerFromStorage);
     if (explorerEndpoint) {
       yield put(setElectrumServer(explorerEndpoint));
     }
@@ -91,7 +93,7 @@ function* persistCurrency(action: ActionType) {
 
 function* restoreCurrency() {
   try {
-    const currency = yield call(getCurrencyFromStorage);
+    const currency: CurrencyInterface = yield call(getCurrencyFromStorage);
     yield put(setCurrency(currency));
   } catch (e) {
     console.error(e);
@@ -104,7 +106,7 @@ function* persistDenomination(action: ActionType) {
 
 function* restoreDenomination() {
   try {
-    const denomination = yield call(getLBTCDenominationFromStorage);
+    const denomination: string = yield call(getLBTCDenominationFromStorage);
     yield put(setLBTCDenomination(denomination));
   } catch (e) {
     console.error(e);

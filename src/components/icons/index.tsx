@@ -3,6 +3,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 
 import BtcIcon from '../../assets/img/coins/btc.svg';
+import BjdeIcon from '../../assets/img/coins/blockstream_jade.svg';
 import BtseIcon from '../../assets/img/coins/btse.svg';
 import CurrencyPlaceholderIcon from '../../assets/img/coins/currency-placeholder.svg';
 import LbtcIcon from '../../assets/img/coins/lbtc.svg';
@@ -12,6 +13,7 @@ import DepositIconBlack from '../../assets/img/deposit-black.svg';
 import DepositIcon from '../../assets/img/deposit.svg';
 import {
   BTC_TICKER,
+  BJDE_TICKER,
   BTSE_TICKER,
   LBTC_TICKER,
   LCAD_TICKER,
@@ -188,6 +190,8 @@ export const CurrencyIcon = ({ currency, ...props }: any): any => {
       return <img src={LcadIcon} {...props} alt="LCAD" />;
     case BTSE_TICKER:
       return <img src={BtseIcon} {...props} alt="BTSE" />;
+    case BJDE_TICKER:
+      return <img src={BjdeIcon} {...props} alt="Blockstream Jade" />;
     default:
       return <img src={CurrencyPlaceholderIcon} {...props} alt="placeholder" />;
   }

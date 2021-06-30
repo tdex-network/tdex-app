@@ -4,6 +4,7 @@ import Exchange from '../../pages/Exchange';
 import { getTradablesAssets } from '../../utils/tdex';
 import { allAssets } from '../reducers/tdexReducer';
 import { balancesSelector, allUtxosSelector } from '../reducers/walletReducer';
+import { lastUsedIndexesSelector } from '../selectors/walletSelectors';
 
 const mapStateToProps = (state: any) => {
   return {
@@ -17,6 +18,7 @@ const mapStateToProps = (state: any) => {
     utxos: allUtxosSelector(state),
     assets: state.assets,
     allAssets: allAssets(state),
+    lastUsedIndexes: lastUsedIndexesSelector(state),
   };
 };
 

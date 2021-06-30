@@ -1,4 +1,5 @@
 import type { AddressInterface, UtxoInterface, Outpoint, Mnemonic } from 'ldk';
+import { createSelector } from 'reselect';
 
 import {
   defaultPrecision,
@@ -156,26 +157,32 @@ export const allUtxosSelector = ({
 /**
  * Redux selector returning balance interfaces array
  * @param state
+ * @returns BalanceInterface[]
  */
-export const balancesSelector = (state: any): BalanceInterface[] => {
-  const assets = state.assets;
-  const utxos = allUtxosSelector(state);
-  const txsAssets = transactionsAssets(state);
-  const balances = balancesFromUtxos(utxos, assets);
-  const balancesAssets = balances.map(b => b.asset);
-  for (const asset of txsAssets) {
-    if (balancesAssets.includes(asset)) continue;
-    // include a 'zero' balance if the user has previous transactions.
-    balances.push({
-      asset,
-      amount: 0,
-      ticker: assets[asset]?.ticker || tickerFromAssetHash(asset),
-      coinGeckoID: getMainAsset(asset)?.coinGeckoID,
-      precision: assets[asset]?.precision || defaultPrecision,
-    });
-  }
-  return balances;
-};
+export const balancesSelector = createSelector(
+  [
+    state => (state as any).assets,
+    state => allUtxosSelector(state as any),
+    state => transactionsAssets(state as any),
+  ],
+  (assets, utxos, txsAssets) => {
+    const balances = balancesFromUtxos(utxos, assets);
+    const balancesAssets = balances.map(b => b.asset);
+    for (const asset of txsAssets) {
+      if (balancesAssets.includes(asset)) continue;
+      // include a 'zero' balance if the user has previous transactions.
+      balances.push({
+        asset,
+        amount: 0,
+        ticker: assets[asset]?.ticker ?? tickerFromAssetHash(asset),
+        coinGeckoID: getMainAsset(asset)?.coinGeckoID,
+        precision: assets[asset]?.precision ?? defaultPrecision,
+        name: assets[asset]?.name,
+      });
+    }
+    return balances;
+  },
+);
 
 /**
  * Redux selector returning the total LBTC balance (including featuring assets with CoinGecko support)
@@ -200,6 +207,7 @@ export const aggregatedLBTCBalanceSelector = (state: any): BalanceInterface => {
     ticker: LBTC_TICKER,
     coinGeckoID: LBTC_COINGECKOID,
     precision: 8,
+    name: 'Liquid Bitcoin',
   };
 };
 

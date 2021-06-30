@@ -1,7 +1,6 @@
 import {
   IonContent,
   IonPage,
-  IonLoading,
   IonText,
   useIonViewWillEnter,
   IonGrid,
@@ -10,7 +9,7 @@ import {
   IonButton,
 } from '@ionic/react';
 import classNames from 'classnames';
-import type { UtxoInterface } from 'ldk';
+import type { UtxoInterface, StateRestorerOpts } from 'ldk';
 import { mnemonicRestorerFromState } from 'ldk';
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
@@ -21,6 +20,7 @@ import { TradeType } from 'tdex-sdk';
 import swap from '../../assets/img/swap.svg';
 import tradeHistory from '../../assets/img/trade-history.svg';
 import Header from '../../components/Header';
+import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
 import type {
@@ -35,7 +35,6 @@ import {
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import ExchangeRow from '../../redux/containers/exchangeRowContainer';
-import { lastUsedIndexesSelector } from '../../redux/selectors/walletSelectors';
 import type { AssetConfig } from '../../utils/constants';
 import {
   defaultPrecision,
@@ -71,6 +70,7 @@ interface ExchangeProps extends RouteComponentProps {
   assets: Record<string, AssetConfig>;
   allAssets: AssetWithTicker[];
   dispatch: Dispatch;
+  lastUsedIndexes: StateRestorerOpts;
 }
 
 const Exchange: React.FC<ExchangeProps> = ({
@@ -82,6 +82,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   assets,
   allAssets,
   dispatch,
+  lastUsedIndexes,
 }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const [hasBeenSwapped, setHasBeenSwapped] = useState<boolean>(false);
@@ -110,54 +111,6 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
-
-  const lastUsedIndexes = useSelector(lastUsedIndexesSelector);
-
-  const checkAvailableAmountSent = () => {
-    if (!trade || !sentAmount || !assetSent) return;
-    const availableAmount =
-      trade.type === TradeType.BUY
-        ? trade.market.quoteAmount
-        : trade.market.baseAmount;
-    const sats = toSatoshi(
-      sentAmount,
-      assets[assetSent.asset]?.precision || defaultPrecision,
-      assetSent.ticker === 'L-BTC' ? lbtcUnit : undefined,
-    );
-    if (
-      !hasBeenSwapped &&
-      availableAmount &&
-      sats.greaterThan(availableAmount)
-    ) {
-      setErrorSent(ERROR_LIQUIDITY);
-      return;
-    }
-    setErrorSent('');
-  };
-
-  const checkAvailableAmountReceived = () => {
-    if (!trade || !receivedAmount || !assetReceived) return;
-    const availableAmount =
-      trade.type === TradeType.BUY
-        ? trade.market.baseAmount
-        : trade.market.quoteAmount;
-    const sats = toSatoshi(
-      receivedAmount,
-      assets[assetReceived.asset]?.precision || defaultPrecision,
-      assetReceived.ticker === 'L-BTC' ? lbtcUnit : undefined,
-    );
-    if (
-      !hasBeenSwapped &&
-      availableAmount &&
-      sats.greaterThan(availableAmount)
-    ) {
-      setErrorReceived(ERROR_LIQUIDITY);
-      return;
-    }
-    setErrorReceived('');
-    // Reset hasBeenSwapped
-    setHasBeenSwapped(false);
-  };
 
   useIonViewWillEnter(() => {
     if (markets.length === 0) {
@@ -192,6 +145,52 @@ const Exchange: React.FC<ExchangeProps> = ({
     setTradableAssetsForAssetSent(receivedTradables);
   }, [assetReceived, markets]);
 
+  const checkAvailableAmountSent = () => {
+    if (!trade || !sentAmount || !assetSent) return;
+    const availableAmount =
+      trade.type === TradeType.BUY
+        ? trade.market.quoteAmount
+        : trade.market.baseAmount;
+    const sats = toSatoshi(
+      sentAmount,
+      assets[assetSent.asset]?.precision ?? defaultPrecision,
+      assetSent.ticker === 'L-BTC' ? lbtcUnit : undefined,
+    );
+    if (
+      !hasBeenSwapped &&
+      availableAmount &&
+      sats.greaterThan(availableAmount)
+    ) {
+      setErrorSent(ERROR_LIQUIDITY);
+      return;
+    }
+    setErrorSent('');
+  };
+
+  const checkAvailableAmountReceived = () => {
+    if (!trade || !receivedAmount || !assetReceived) return;
+    const availableAmount =
+      trade.type === TradeType.BUY
+        ? trade.market.baseAmount
+        : trade.market.quoteAmount;
+    const sats = toSatoshi(
+      receivedAmount,
+      assets[assetReceived.asset]?.precision ?? defaultPrecision,
+      assetReceived.ticker === 'L-BTC' ? lbtcUnit : undefined,
+    );
+    if (
+      !hasBeenSwapped &&
+      availableAmount &&
+      sats.greaterThan(availableAmount)
+    ) {
+      setErrorReceived(ERROR_LIQUIDITY);
+      return;
+    }
+    setErrorReceived('');
+    // Reset hasBeenSwapped
+    setHasBeenSwapped(false);
+  };
+
   const sentAmountGreaterThanBalance = () => {
     const balance = balances.find(b => b.asset === assetSent?.asset);
     if (!balance || !sentAmount) return true;
@@ -220,6 +219,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         setIsWrongPin(false);
         setTimeout(() => {
           setIsWrongPin(null);
+          setNeedReset(true);
         }, PIN_TIMEOUT_SUCCESS);
       } catch (_) {
         throw IncorrectPINError;
@@ -230,7 +230,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         {
           amount: toSatoshi(
             sentAmount,
-            assets[assetSent.asset]?.precision || defaultPrecision,
+            assets[assetSent.asset]?.precision ?? defaultPrecision,
             isLbtc(assetSent.asset) ? lbtcUnit : undefined,
           ).toNumber(),
           asset: assetSent.asset,
@@ -240,9 +240,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         identity,
         customCoinSelector(dispatch),
       );
-
       dispatch(watchTransaction(txid));
-
       addSuccessToast('Trade successfully computed');
       const preview: PreviewData = {
         sent: {
@@ -273,14 +271,16 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   return (
     <IonPage id="exchange-page">
-      <IonLoading isOpen={isLoading} message="Please wait..." spinner="lines" />
+      <Loader showLoading={isLoading} delay={0} />
       {assetSent && assetReceived && markets.length > 0 && (
         <PinModal
           open={modalOpen}
           title="Unlock your seed"
           description={`Enter your secret PIN to send ${sentAmount} ${
             isLbtc(assetSent.asset) ? lbtcUnit : assetSent.ticker
-          } and receive ${receivedAmount} ${assetReceived.ticker}.`}
+          } and receive ${receivedAmount} ${
+            isLbtc(assetReceived.asset) ? lbtcUnit : assetReceived.ticker
+          }.`}
           onConfirm={onPinConfirm}
           onClose={() => {
             setModalOpen(false);

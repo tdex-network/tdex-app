@@ -9,7 +9,6 @@ import {
 import { warningOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useLocation } from 'react-router';
 import type { RouteComponentProps } from 'react-router';
 
 import ButtonsMainSub from '../../components/ButtonsMainSub';
@@ -17,7 +16,7 @@ import Checkbox from '../../components/Checkbox';
 import Header from '../../components/Header';
 import PinModal from '../../components/PinModal';
 import { addErrorToast } from '../../redux/actions/toastActions';
-import type { AssetConfig } from '../../utils/constants';
+import { routerLinks } from '../../routes';
 import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
@@ -34,16 +33,11 @@ interface BackupProps extends RouteComponentProps {
   onError: (err: AppError) => void;
 }
 
-interface LocationState {
-  depositAssets: AssetConfig[];
-}
-
 const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
   const [isSeedSaved, setIsSeedSaved] = useState<boolean>(false);
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [needReset, setNeedReset] = useState<boolean>(false);
-  const { state } = useLocation<LocationState>();
   const dispatch = useDispatch();
 
   const handlePinConfirm = async (pin: string) => {
@@ -52,8 +46,8 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
       setIsWrongPin(false);
       setTimeout(() => {
         history.push({
-          pathname: '/show-mnemonic',
-          state: { mnemonic, depositAssets: state?.depositAssets },
+          pathname: routerLinks.showMnemonic,
+          state: { mnemonic },
         });
         setIsPinModalOpen(false);
         setIsWrongPin(null);
@@ -121,12 +115,7 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
             mainTitle="CONTINUE TO DEPOSIT"
             subTitle="BACKUP NOW"
             mainDisabled={!isSeedSaved}
-            mainOnClick={() =>
-              history.push({
-                pathname: '/deposit',
-                state: { depositAssets: state?.depositAssets },
-              })
-            }
+            mainOnClick={() => history.push({ pathname: routerLinks.deposit })}
             subOnClick={() => {
               setIsPinModalOpen(true);
             }}

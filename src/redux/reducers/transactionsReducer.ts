@@ -53,7 +53,7 @@ export const transactionsSelector = ({
   transactions: TransactionState;
 }): TxInterface[] => Object.values(transactions.txs);
 
-// meomized selector, map transactions to TxDisplayInterface[]
+// memoized selector, map transactions to TxDisplayInterface[]
 export const transactionsToDisplaySelector = createSelector(
   transactionsSelector,
   (state: any) => Object.keys(state.wallet.addresses),

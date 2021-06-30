@@ -110,7 +110,7 @@ function* updateAssets({ payload }: { payload: TxInterface }) {
 
 function* persistTransactions() {
   yield delay(20_000); // 20 sec
-  const txs = yield select(({ transactions }) =>
+  const txs: TxInterface[] = yield select(({ transactions }) =>
     Object.values(transactions.txs),
   );
   yield call(setTransactionsInStorage, txs);
@@ -127,12 +127,12 @@ function* watchTransaction(action: ActionType) {
   yield delay(1_000);
   const { txID, maxTry } = action.payload as { txID: string; maxTry: number };
   yield put(addWatcherTransaction(txID));
-  const explorer = yield select(({ settings }) => settings.explorerUrl);
+  const explorer: string = yield select(({ settings }) => settings.explorerUrl);
 
   for (let t = 0; t < maxTry; t++) {
     try {
       const tx: TxInterface = yield call(fetchTx, txID, explorer);
-      const scriptsToAddress = yield select(
+      const scriptsToAddress: Record<string, AddressInterface> = yield select(
         ({ wallet }: { wallet: WalletState }) => wallet.addresses,
       );
       const blindKeyGetter = blindKeyGetterFactory(scriptsToAddress);
