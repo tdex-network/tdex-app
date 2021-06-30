@@ -7,6 +7,7 @@ import type {
 import { isBlindedOutputInterface } from 'ldk';
 import moment from 'moment';
 
+import { isLbtc } from '../../utils/helpers';
 import type { Transfer, TxDisplayInterface } from '../../utils/types';
 import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
 
@@ -24,12 +25,18 @@ function getTransfers(
 
     if (transferIndex >= 0) {
       const tmp = transfers[transferIndex].amount + amount;
-      // Check if the transfer is a fee output
+      // Check if the transfer is a fee output. Remove it for non-LBTC withdrawal.
       if (Math.abs(tmp) === feeAmount && asset === feeAsset) {
         transfers.splice(transferIndex, 1);
         return;
       }
-      transfers[transferIndex].amount = tmp;
+
+      // Deduct feeAmount on LBTC withdrawal
+      if (feeAmount && isLbtc(asset) && transfers.length === 1) {
+        transfers[transferIndex].amount = tmp + feeAmount;
+      } else {
+        transfers[transferIndex].amount = tmp;
+      }
       return;
     }
 
