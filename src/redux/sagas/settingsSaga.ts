@@ -70,7 +70,9 @@ function* restoreExplorer() {
 
 function* restoreExplorerBitcoin() {
   try {
-    const explorerEndpoint = yield call(getExplorerBitcoinFromStorage);
+    const explorerEndpoint: string | null = yield call(
+      getExplorerBitcoinFromStorage,
+    );
     if (explorerEndpoint) {
       yield put(setExplorerBitcoin(explorerEndpoint));
     }

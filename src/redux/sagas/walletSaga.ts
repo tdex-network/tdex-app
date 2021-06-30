@@ -61,7 +61,10 @@ function* persistLastUsedIndexes() {
 }
 
 function* persistPeginAddresses() {
-  const peginAddresses = yield select(peginAddressesSelector);
+  const peginAddresses: Record<
+    string,
+    { derivationPath: string; peginAddress: string }
+  > = yield select(peginAddressesSelector);
   yield call(setPeginAddressesInStorage, peginAddresses);
 }
 

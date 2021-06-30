@@ -2,8 +2,8 @@ import type { CSSProperties } from 'react';
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-import BtcIcon from '../../assets/img/coins/btc.svg';
 import BjdeIcon from '../../assets/img/coins/blockstream_jade.svg';
+import BtcIcon from '../../assets/img/coins/btc.svg';
 import BtseIcon from '../../assets/img/coins/btse.svg';
 import CurrencyPlaceholderIcon from '../../assets/img/coins/currency-placeholder.svg';
 import LbtcIcon from '../../assets/img/coins/lbtc.svg';
