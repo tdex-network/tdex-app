@@ -91,6 +91,7 @@ export function* fetchAndUpdateUtxos(
   // if done = true it means that we do not find any utxos
   if (it.done) {
     yield put(resetUtxos());
+    yield put(setIsFetchingUtxos(false));
     return;
   }
 
