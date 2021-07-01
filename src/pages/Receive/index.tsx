@@ -12,7 +12,7 @@ import {
 import { checkmarkOutline } from 'ionicons/icons';
 import type { AddressInterface, IdentityOpts } from 'ldk';
 import { IdentityType, MasterPublicKey } from 'ldk';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { withRouter, useLocation } from 'react-router';
 import type { MasterPublicKeyOpts } from 'tdex-sdk';
@@ -42,7 +42,6 @@ const Receive: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [address, setAddress] = useState<AddressInterface>();
   const [loading, setLoading] = useState(false);
-  const addressRef: any = useRef(null);
   const dispatch = useDispatch();
   const { state } = useLocation<LocationState>();
   // Hack to prevent undefined state when hitting back button
@@ -96,21 +95,21 @@ const Receive: React.FC = () => {
       Clipboard.copy(address.confidentialAddress)
         .then(() => {
           setCopied(true);
-          dispatch(addSuccessToast('Address copied.'));
+          dispatch(addSuccessToast('Address copied'));
           setTimeout(() => {
             setCopied(false);
           }, 5000);
         })
         .catch(() => {
-          if (addressRef?.current) {
-            addressRef.current.select();
-            document.execCommand('copy');
-            setCopied(true);
-            dispatch(addSuccessToast('Address copied.'));
-            setTimeout(() => {
-              setCopied(false);
-            }, 10000);
-          }
+          // For web platform
+          navigator.clipboard
+            .writeText(address.confidentialAddress)
+            .catch(console.error);
+          setCopied(true);
+          dispatch(addSuccessToast('Address copied'));
+          setTimeout(() => {
+            setCopied(false);
+          }, 5000);
         });
     }
   };
@@ -147,7 +146,6 @@ const Receive: React.FC = () => {
               <input
                 readOnly
                 type="text"
-                ref={addressRef}
                 value={address?.confidentialAddress}
                 className="hidden-input"
               />

@@ -1,3 +1,4 @@
+import { Clipboard } from '@ionic-native/clipboard';
 import {
   IonPage,
   IonContent,
@@ -14,14 +15,17 @@ import {
 import classNames from 'classnames';
 import { checkmarkOutline } from 'ionicons/icons';
 import React from 'react';
+import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
 
 import Header from '../../components/Header';
 import { CurrencyIcon } from '../../components/icons';
+import { addSuccessToast } from '../../redux/actions/toastActions';
 import { LBTC_TICKER } from '../../utils/constants';
 import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
 import type { TxDisplayInterface } from '../../utils/types';
+
 import './style.scss';
 
 interface TradeHistoryProps extends RouteComponentProps {
@@ -29,6 +33,8 @@ interface TradeHistoryProps extends RouteComponentProps {
 }
 
 const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
+  const dispatch = useDispatch();
+
   const renderStatus: any = (status: string) => {
     return status === 'pending' ? (
       <div className="status pending">
@@ -44,6 +50,18 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
         CONFIRMED <IonIcon color="success" icon={checkmarkOutline} />
       </div>
     );
+  };
+
+  const copyTxId = (txid: string) => {
+    Clipboard.copy(txid)
+      .then(() => {
+        dispatch(addSuccessToast('Transaction Id copied'));
+      })
+      .catch(() => {
+        // For web platform
+        navigator.clipboard.writeText(txid).catch(console.error);
+        dispatch(addSuccessToast('Transaction Id copied'));
+      });
   };
 
   return (
@@ -127,8 +145,13 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
                           </IonText>
                         </div>
                         <div className="info-row">
-                          <IonLabel>TxID</IonLabel>
-                          <IonText>{transaction.txId}</IonText>
+                          <IonLabel>Id</IonLabel>
+                          <IonItem
+                            className="tx-item ion-text-right"
+                            onClick={() => copyTxId(transaction.txId)}
+                          >
+                            <IonText>{transaction.txId}</IonText>
+                          </IonItem>
                         </div>
                       </div>
                     </div>
