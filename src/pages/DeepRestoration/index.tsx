@@ -66,11 +66,12 @@ const DeepRestoration: React.FC = () => {
         gapLimit: Number(rangeValue),
         esploraURL: explorerUrl,
       });
-      setLoading(false);
       dispatch(addSuccessToast('Account discovery successful'));
     } catch (err) {
-      dispatch(addErrorToast(DeepRestorationError));
       console.error(err);
+      dispatch(addErrorToast(DeepRestorationError));
+    } finally {
+      setLoading(false);
     }
   };
 
