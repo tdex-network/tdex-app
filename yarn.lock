@@ -1468,10 +1468,10 @@
     tar "^6.0.1"
     tslib "^2.0.1"
 
-"@ionic/core@5.6.10":
-  version "5.6.10"
-  resolved "https://registry.yarnpkg.com/@ionic/core/-/core-5.6.10.tgz#2bbfb2eaafe5e34a1d310550c0f76b15c6e6edaf"
-  integrity sha512-mjrfWa8ahCV8TYqJsWpop5kTyfr3NU1fYnoAhuqwZfuCLaMzYRYFPvSNoGynD4yfveZUyAfZM0NOuSquNZgfKQ==
+"@ionic/core@5.6.11":
+  version "5.6.11"
+  resolved "https://registry.yarnpkg.com/@ionic/core/-/core-5.6.11.tgz#4ec763b7f4a103902161432c661c330ed8c38ba8"
+  integrity sha512-bWn2K3L/QWRUs8SBm+YJcgJhOO6W00eipfxJunlAr/7PbMePdqYnU+PQ2Cv54ufK3yUtLr2b0YdvZ9wZ6pGS3w==
   dependencies:
     "@stencil/core" "^2.4.0"
     ionicons "^5.5.1"
@@ -1493,18 +1493,18 @@
   integrity sha512-/v8UOW7rxkw/hvrRe/QfjlQsdjkm3sfAHoE3uqffO5BoNGijQMARrT32JT9Ei0g6KySXPyxxW+7LzPHrQmfzCw==
 
 "@ionic/react-router@^5.6.10":
-  version "5.6.10"
-  resolved "https://registry.yarnpkg.com/@ionic/react-router/-/react-router-5.6.10.tgz#f38a9ff8fde19f32fab67af9fbada94139ec5ccc"
-  integrity sha512-M1sRERMBZlsg74eMTYjcm68xVnOSt7f8oE4x/virFX881XFzZAlrWKYipP+BQLDTMkDznd16Bu5kbSK9iMNhyQ==
+  version "5.6.11"
+  resolved "https://registry.yarnpkg.com/@ionic/react-router/-/react-router-5.6.11.tgz#9b57209f72f6e21e64166f4440cd524c66cb46d8"
+  integrity sha512-/2FcegTNm5hZcdDjpxgONzQ9XtwLbs3xbK4PU1IqLP8jaHx+/scIPxzwLQbK+isJlbC5726leSbdj/4Z9CFahA==
   dependencies:
     tslib "*"
 
 "@ionic/react@^5.6.10":
-  version "5.6.10"
-  resolved "https://registry.yarnpkg.com/@ionic/react/-/react-5.6.10.tgz#a988124be0cc5d73071aea6dd5451c22eed85ca8"
-  integrity sha512-vgI6aFEUSft08UVsS9mqQ5xCQrOKAAzuzq4qLC8kWUONfn8MFoQbjUE8Jvo9GIFXYzhVwBN/UPfi6mxk+6bqRg==
+  version "5.6.11"
+  resolved "https://registry.yarnpkg.com/@ionic/react/-/react-5.6.11.tgz#01efe06ef1a70f320edb6863139de43ffadb5384"
+  integrity sha512-NR/rOR0bhfGHUuDyGII+L3wW5BZ8gn7R6v3edW7/Ft/Xy1miYpCBs1KIT+gpTAR6XKLY3kr/A1f67T4/mNvIxQ==
   dependencies:
-    "@ionic/core" "5.6.10"
+    "@ionic/core" "5.6.11"
     ionicons "^5.1.2"
     tslib "*"
 
@@ -2031,9 +2031,9 @@
     loader-utils "^2.0.0"
 
 "@testing-library/dom@^8.0.0":
-  version "8.0.0"
-  resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-8.0.0.tgz#2bb994393c566aae021db86dd263ba06e8b71b38"
-  integrity sha512-Ym375MTOpfszlagRnTMO+FOfTt6gRrWiDOWmEnWLu9OvwCPOWtK6i5pBHmZ07wUJiQ7wWz0t8+ZBK2wFo2tlew==
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@testing-library/dom/-/dom-8.1.0.tgz#f8358b1883844ea569ba76b7e94582168df5370d"
+  integrity sha512-kmW9alndr19qd6DABzQ978zKQ+J65gU2Rzkl8hriIetPnwpesRaK4//jEQyYh8fEALmGhomD/LBQqt+o+DL95Q==
   dependencies:
     "@babel/code-frame" "^7.10.4"
     "@babel/runtime" "^7.12.5"
@@ -2315,18 +2315,18 @@
     "@types/react" "*"
 
 "@types/react@*":
-  version "17.0.11"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.11.tgz#67fcd0ddbf5a0b083a0f94e926c7d63f3b836451"
-  integrity sha512-yFRQbD+whVonItSk7ZzP/L+gPTJVBkL/7shLEF+i9GC/1cV3JmUxEQz6+9ylhUpWSDuqo1N9qEvqS6vTj4USUA==
+  version "17.0.13"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-17.0.13.tgz#6b7c9a8f2868586ad87d941c02337c6888fb874f"
+  integrity sha512-D/G3PiuqTfE3IMNjLn/DCp6umjVCSvtZTPdtAFy5+Ved6CsdRvivfKeCzw79W4AatShtU4nGqgvOv5Gro534vQ==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
     csstype "^3.0.2"
 
 "@types/react@^16", "@types/react@^16.14.8":
-  version "16.14.8"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.14.8.tgz#4aee3ab004cb98451917c9b7ada3c7d7e52db3fe"
-  integrity sha512-QN0/Qhmx+l4moe7WJuTxNiTsjBwlBGHqKGvInSQCBdo7Qio0VtOqwsC0Wq7q3PbJlB0cR4Y4CVo1OOe6BOsOmA==
+  version "16.14.10"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.14.10.tgz#76bc1c42ed5ab0d2ab13e5c58faaccaad3449477"
+  integrity sha512-QadBsMyF6ldjEAXEhsmEW/L0uBDJT8yw7Qoe5sRnEKVrzMkiYoJwqoL5TKJOlArsn/wvIJM/XdVzkdL6+AS64Q==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -5052,9 +5052,9 @@ ejs@^2.6.1:
   integrity sha512-7vmuyh5+kuUyJKePhQfRQBhXV5Ce+RnaeeQArKu1EAMpL3WbgMt5WG6uQZpEVvYSSsxMXRKOewtDk9RaTKXRlA==
 
 electron-to-chromium@^1.3.564, electron-to-chromium@^1.3.723:
-  version "1.3.762"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.762.tgz#3fa4e3bcbda539b50e3aa23041627063a5cffe61"
-  integrity sha512-LehWjRpfPcK8F1Lf/NZoAwWLWnjJVo0SZeQ9j/tvnBWYcT99qDqgo4raAfS2oTKZjPrR/jxruh85DGgDUmywEA==
+  version "1.3.763"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.763.tgz#93f6f02506d099941f557b9db9ba50b30215bf15"
+  integrity sha512-UyvEPae0wvzsyNJhVfGeFSOlUkHEze8xSIiExO5tZQ8QTr7obFiJWGk3U4e7afFOJMQJDszqU/3Pk5jtKiaSEg==
 
 elementtree@^0.1.7:
   version "0.1.7"
@@ -12415,9 +12415,9 @@ typescript-tuple@^2.2.1:
     typescript-compare "^0.0.2"
 
 typescript@^4.3.4:
-  version "4.3.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.4.tgz#3f85b986945bcf31071decdd96cf8bfa65f9dcbc"
-  integrity sha512-uauPG7XZn9F/mo+7MrsRjyvbxFpzemRjKEZXS4AK83oP2KKOJPvb+9cO/gmnv8arWZvhnjVOXz7B49m1l0e9Ew==
+  version "4.3.5"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.3.5.tgz#4d1c37cc16e893973c45a06886b7113234f119f4"
+  integrity sha512-DqQgihaQ9cUrskJo9kIyW/+g0Vxsk8cDtZ52a3NGh0YNTfpUSArXSohyUGnvbPazEPLu398C0UxmKSOrPumUzA==
 
 unbox-primitive@^1.0.1:
   version "1.0.1"
