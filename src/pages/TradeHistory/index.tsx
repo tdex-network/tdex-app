@@ -59,7 +59,9 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
       })
       .catch(() => {
         // For web platform
-        navigator.clipboard.writeText(txid).catch(console.error);
+        navigator.clipboard
+          .writeText(`https://blockstream.info/liquid/tx/${txid}`)
+          .catch(console.error);
         dispatch(addSuccessToast('Transaction Id copied'));
       });
   };
