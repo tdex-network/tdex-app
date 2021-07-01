@@ -27,6 +27,7 @@ import DenominationSearch from '../../components/DenominationSearch';
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
 import { setElectrumServer } from '../../redux/actions/settingsActions';
+import { routerLinks } from '../../routes';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 
 import './style.scss';
@@ -131,6 +132,16 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               }}
             >
               <span>Electrum server</span>
+              <IonIcon
+                icon={chevronForwardOutline}
+                color="text-color"
+                slot="end"
+                className="ion-no-margin"
+              />
+            </IonItem>
+
+            <IonItem onClick={() => history.push(routerLinks.deepRestoration)}>
+              <span>Deep restoration</span>
               <IonIcon
                 icon={chevronForwardOutline}
                 color="text-color"
