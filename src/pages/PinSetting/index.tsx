@@ -8,6 +8,7 @@ import {
   IonCol,
   IonButton,
   IonGrid,
+  IonModal,
 } from '@ionic/react';
 import * as bip39 from 'bip39';
 import React, { useEffect, useRef, useState } from 'react';
@@ -40,6 +41,9 @@ import {
   getIdentity,
   setMnemonicInSecureStorage,
 } from '../../utils/storage-helper';
+import { TermsContent } from '../Terms';
+
+import './styles.scss';
 
 interface LocationState {
   mnemonic: string;
@@ -55,6 +59,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [isPinInputLocked, setIsPinInputLocked] = useState<boolean>(false);
+  const [termsModalIsOpen, setTermsModalIsOpen] = useState(false);
   const dispatch = useDispatch();
   const inputRef = useRef<any>(null);
 
@@ -135,6 +140,19 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage id="pin-setting-page">
       <Loader showLoading={loading} />
+      <IonModal id="terms-modal" cssClass="modal-big" isOpen={termsModalIsOpen}>
+        <IonContent>
+          <IonGrid>
+            <Header
+              title="TERMS & CONDITIONS"
+              hasBackButton={false}
+              hasCloseButton={true}
+              handleClose={() => setTermsModalIsOpen(false)}
+            />
+            {TermsContent}
+          </IonGrid>
+        </IonContent>
+      </IonModal>
       <IonContent>
         <IonGrid className="ion-text-center ion-justify-content-center">
           <Header
@@ -182,8 +200,15 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
                 inputName="agreement"
                 isChecked={isTermsAccepted}
                 label={
-                  <span>
-                    I agree with the <a href="/terms">Terms and Conditions</a>
+                  <span className="terms-txt">
+                    <span>I agree with the</span>
+                    <IonButton
+                      className="button-link"
+                      fill="clear"
+                      onClick={() => setTermsModalIsOpen(true)}
+                    >
+                      Terms and Conditions
+                    </IonButton>
                   </span>
                 }
               />

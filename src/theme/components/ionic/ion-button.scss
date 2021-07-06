@@ -41,9 +41,16 @@ ion-button.sub-button {
   margin-top: 15px;
 }
 
-.light {
-  ion-button.main-button {
-    border-color: var(--ion-color-secondary);
-    --color: var(--ion-color-secondary);
-  }
+// Button styled as a link
+ion-button.button-link {
+  --background: transparent;
+  --background-hover: transparent;
+  --background-focused: transparent;
+  --background-activated: transparent;
+  --padding-start: 3px;
+  --padding-end: 3px;
+  color: var(--ion-text-color);
+  font-family: var(--ion-font-main);
+  text-decoration: underline;
+  text-transform: none;
 }
