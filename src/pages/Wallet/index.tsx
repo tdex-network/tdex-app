@@ -244,6 +244,7 @@ const Wallet: React.FC<WalletProps> = ({
                 <IonCol size="9" offset="1.5" sizeMd="6" offsetMd="3">
                   <IonButton
                     className="main-button"
+                    data-cy="main-button"
                     onClick={() => {
                       if (backupDone) {
                         history.push({ pathname: routerLinks.deposit });

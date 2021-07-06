@@ -1,3 +1,5 @@
+/// <reference types="jest" />
+
 import type { TxInterface, AddressInterface } from 'ldk';
 import { address } from 'ldk';
 import type { CallEffect, PutEffect } from 'redux-saga/effects';

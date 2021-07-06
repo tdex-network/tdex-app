@@ -101,9 +101,9 @@ const Homescreen: React.FC = () => {
           </IonRow>
 
           <ButtonsMainSub
-            mainTitle="Setup wallet"
+            mainTitle="SETUP WALLET"
             mainLink="/onboarding/backup"
-            subTitle="Restore wallet"
+            subTitle="RESTORE WALLET"
             subLink="/restore"
             className="btn-container"
           />

@@ -72,6 +72,7 @@ const PinInput: React.FC<PinInputProps> = ({
             <IonInput
               autofocus={true}
               ref={inputRef}
+              data-cy="pin-input"
               enterkeyhint="done"
               onKeyDown={onPressEnterKeyFactory(on6digits)}
               inputmode="numeric"

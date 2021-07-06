@@ -16,7 +16,10 @@
     ]
   },
   "eslintConfig": {
-    "extends": "@ionic/eslint-config/recommended"
+    "extends": [
+      "@ionic/eslint-config/recommended",
+      "plugin:cypress/recommended"
+    ]
   },
   "prettier": "@ionic/prettier-config",
   "scripts": {
@@ -25,6 +28,7 @@
     "build": "ionic build",
     "build:android": "ionic capacitor build android --no-open",
     "build:ios": "ionic capacitor build ios --no-open",
+    "cypress:open": "cypress open",
     "eslint": "eslint \"./src/**/*.{ts,tsx}\" \"./test/**/*.{ts,tsx}\"",
     "fmt": "npm run eslint -- --fix && npm run prettier -- --write",
     "ios": "ionic capacitor run ios",
@@ -99,6 +103,9 @@
     "@types/react-router": "^5.1.15",
     "@types/react-router-dom": "^5.1.7",
     "cordova-res": "^0.15.3",
+    "cypress": "^7.6.0",
+    "cypress-localstorage-commands": "^1.4.5",
+    "eslint-plugin-cypress": "^2.11.3",
     "jest-canvas-mock": "^2.3.1",
     "prettier": "^2.3.2",
     "redux-devtools-extension": "^2.13.9",
