@@ -19,7 +19,10 @@
     "extends": [
       "@ionic/eslint-config/recommended",
       "plugin:cypress/recommended"
-    ]
+    ],
+    "env": {
+      "cypress/globals": true
+    }
   },
   "prettier": "@ionic/prettier-config",
   "scripts": {
