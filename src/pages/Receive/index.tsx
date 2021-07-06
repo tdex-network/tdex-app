@@ -129,9 +129,7 @@ const Receive: React.FC = () => {
         })
         .catch(() => {
           // For web platform
-          navigator.clipboard
-            .writeText(address)
-            .catch(console.error);
+          navigator.clipboard.writeText(address).catch(console.error);
           setCopied(true);
           dispatch(addSuccessToast('Address copied'));
           setTimeout(() => {
