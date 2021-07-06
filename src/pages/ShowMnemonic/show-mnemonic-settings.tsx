@@ -7,7 +7,7 @@ import {
   IonButton,
   IonCol,
 } from '@ionic/react';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'react-router';
 
 import Header from '../../components/Header';
@@ -20,10 +20,9 @@ interface LocationState {
 const ShowMnemonicSettings: React.FC = () => {
   const { state } = useLocation<LocationState>();
   const [copied, setCopied] = useState<boolean>(false);
-  const mnemonicRef: any = useRef(null);
 
   const copyMnemonic = () => {
-    if (mnemonicRef && state?.mnemonic) {
+    if (state?.mnemonic) {
       Clipboard.copy(state?.mnemonic)
         .then(() => {
           setCopied(true);
@@ -32,8 +31,8 @@ const ShowMnemonicSettings: React.FC = () => {
           }, 2000);
         })
         .catch(() => {
-          mnemonicRef.current.select();
-          document.execCommand('copy');
+          // For web platform
+          navigator.clipboard.writeText(state?.mnemonic).catch(console.error);
           setCopied(true);
           setTimeout(() => {
             setCopied(false);
@@ -53,15 +52,6 @@ const ShowMnemonicSettings: React.FC = () => {
               <WordList mnemonic={state?.mnemonic ?? ''} />
             </IonCol>
           </IonRow>
-
-          <input
-            type="text"
-            ref={mnemonicRef}
-            value={state?.mnemonic}
-            onChange={() => null}
-            className="hidden-input"
-          />
-
           <IonRow className="ion-margin-bottom">
             <IonCol size="9" offset="1.5">
               <IonButton className="main-button" onClick={copyMnemonic}>
