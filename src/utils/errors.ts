@@ -53,7 +53,11 @@ export const UpdateTransactionsError = new AppError(
   'Tx update error occurs',
 );
 export const UpdateUtxosError = new AppError(15, 'Utxo update error occurs');
-export const ClaimPeginError = new AppError(
+export const DeepRestorationError = new AppError(
   16,
+  'Account discovery has failed',
+);
+export const ClaimPeginError = new AppError(
+  17,
   'Claim pegin bitcoin has failed',
 );

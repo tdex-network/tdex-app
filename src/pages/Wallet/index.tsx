@@ -199,50 +199,37 @@ const Wallet: React.FC<WalletProps> = ({
                       history.push(`/operations/${balance.asset}`);
                     }}
                   >
-                    <div className="item-main-info">
-                      <div className="item-start">
+                    <div className="asset-container">
+                      <div className="asset-details">
                         <CurrencyIcon currency={balance.ticker} />
-                        <div className="item-name">
-                          <div
-                            className="main-row"
-                            aria-label={`${balance.ticker}-asset`}
-                          >
-                            {balance.coinGeckoID
-                              ? capitalizeFirstLetter(balance.coinGeckoID)
-                              : balance.ticker}
-                          </div>
+                        <div>
+                          {balance.coinGeckoID
+                            ? capitalizeFirstLetter(balance.coinGeckoID)
+                            : balance.ticker}
                         </div>
                       </div>
-                      <div className="item-end">
-                        <div className="first-col">
-                          <div
-                            className="main-row"
-                            aria-label={`${balance.ticker}-amount`}
-                          >
-                            {fromSatoshiFixed(
-                              balance.amount.toString(),
-                              balance.precision,
-                              balance.precision,
-                              balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
-                            )}
-                          </div>
-                          <div className="sub-row">
-                            {fiatValue < 0
-                              ? fiatValue === UNKNOWN
-                                ? 0
-                                : 'loading'
-                              : fiatValue?.toFixed(2)}
-                          </div>
-                        </div>
-                        <div className="second-col">
-                          <div className="main-row accent">
+                      <div className="amount-container ion-text-right">
+                        <div className="amount-token">
+                          {fromSatoshiFixed(
+                            balance.amount.toString(),
+                            balance.precision,
+                            balance.precision,
+                            balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
+                          )}{' '}
+                          <span className="ticker">
                             {balance.ticker === 'L-BTC'
                               ? lbtcUnit
                               : balance.ticker}
-                          </div>
-                          <div className="sub-row">
-                            {currency.toUpperCase()}
-                          </div>
+                          </span>
+                        </div>
+                        <div className="amount-fiat">
+                          {fiatValue < 0
+                            ? fiatValue === UNKNOWN
+                              ? ''
+                              : 'loading'
+                            : `${fiatValue?.toFixed(
+                                2,
+                              )} ${currency.toUpperCase()}`}
                         </div>
                       </div>
                     </div>

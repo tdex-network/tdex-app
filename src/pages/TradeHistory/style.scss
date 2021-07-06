@@ -9,6 +9,18 @@
 		font-size: var(--ion-font-size-sub);
 	}
 	
+	.info-row {
+		align-items: baseline;
+	}
+	
+	ion-item.tx-item {
+		font-size: var(--ion-font-size-sub);
+		--padding-top: 0;
+		--padding-bottom: 0;
+		--padding-end: 0;
+		--padding-start: 0;
+	}
+	
 	.item-main-info {
 		align-items: end;
 		

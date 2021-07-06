@@ -13,7 +13,7 @@ import { checkmarkOutline } from 'ionicons/icons';
 import type { IdentityOpts } from 'ldk';
 import { IdentityType, MasterPublicKey, address as addressLDK } from 'ldk';
 import ElementsPegin from 'pegin';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { withRouter, useLocation } from 'react-router';
 import type { MasterPublicKeyOpts } from 'tdex-sdk';
@@ -44,7 +44,6 @@ const Receive: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [address, setAddress] = useState<string>();
   const [loading, setLoading] = useState(false);
-  const addressRef: any = useRef(null);
   const dispatch = useDispatch();
   const { state } = useLocation<LocationState>();
 
@@ -110,7 +109,7 @@ const Receive: React.FC = () => {
     } finally {
       setLoading(false);
     }
-    // Need 'state' to ensure new lbtcAddress generation
+    // Need 'state' to ensure new address generation
   }, [state?.depositAsset]);
 
   // Necessary to ensure update of QRcode
@@ -123,21 +122,21 @@ const Receive: React.FC = () => {
       Clipboard.copy(address)
         .then(() => {
           setCopied(true);
-          dispatch(addSuccessToast('Address copied.'));
+          dispatch(addSuccessToast('Address copied'));
           setTimeout(() => {
             setCopied(false);
           }, 5000);
         })
         .catch(() => {
-          if (addressRef?.current) {
-            addressRef.current.select();
-            document.execCommand('copy');
-            setCopied(true);
-            dispatch(addSuccessToast('Address copied.'));
-            setTimeout(() => {
-              setCopied(false);
-            }, 5000);
-          }
+          // For web platform
+          navigator.clipboard
+            .writeText(address)
+            .catch(console.error);
+          setCopied(true);
+          dispatch(addSuccessToast('Address copied'));
+          setTimeout(() => {
+            setCopied(false);
+          }, 5000);
         });
     }
   };
@@ -179,7 +178,6 @@ const Receive: React.FC = () => {
               <input
                 readOnly
                 type="text"
-                ref={addressRef}
                 value={address}
                 className="hidden-input"
               />

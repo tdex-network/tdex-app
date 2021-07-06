@@ -20,6 +20,10 @@
   max-height: 0;
 }
 
+.conf-addr:focus-visible {
+  outline: 0;
+}
+
 .conf-addr.item-start {
   display: block;
   line-height: 30px;

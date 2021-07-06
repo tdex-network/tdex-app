@@ -140,6 +140,16 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               />
             </IonItem>
 
+            <IonItem onClick={() => history.push(routerLinks.deepRestoration)}>
+              <span>Deep restoration</span>
+              <IonIcon
+                icon={chevronForwardOutline}
+                color="text-color"
+                slot="end"
+                className="ion-no-margin"
+              />
+            </IonItem>
+
             <IonItem
               onClick={() => {
                 history.push(routerLinks.claimPegin);

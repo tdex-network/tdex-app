@@ -1,5 +1,6 @@
 import { IconExchange, IconSettings, IconWallet } from './components/icons';
 import Account from './pages/Account';
+import DeepRestoration from './pages/DeepRestoration';
 import DeleteMnemonic from './pages/DeleteMnemonic';
 import Deposit from './pages/Deposit';
 import Faq from './pages/Faq';
@@ -44,6 +45,7 @@ export const routerLinks = {
   settings: '/settings',
   showMnemonicSettings: '/settings/show-mnemonic',
   terms: '/terms',
+  deepRestoration: '/settings/deep-restoration',
 };
 
 export const ROUTES = [
@@ -126,6 +128,10 @@ export const ROUTES = [
   {
     path: routerLinks.deleteMnemonic,
     component: DeleteMnemonic,
+  },
+  {
+    path: routerLinks.deepRestoration,
+    component: DeepRestoration,
   },
   {
     path: routerLinks.claimPegin,
