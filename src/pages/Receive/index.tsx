@@ -143,12 +143,6 @@ const Receive: React.FC = () => {
           />
           {address && (
             <div>
-              <input
-                readOnly
-                type="text"
-                value={address?.confidentialAddress}
-                className="hidden-input"
-              />
               <IonItem>
                 <div className="item-main-info">
                   <div className="item-start conf-addr">
