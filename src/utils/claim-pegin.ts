@@ -29,7 +29,7 @@ export async function claimPegin(
   dispatch: Dispatch,
   managePinSuccess: any,
   managePinError: any,
-): Promise<Transaction[]> {
+): Promise<string[]> {
   if (!Object.values(peginAddresses).length) {
     dispatch(
       addSuccessToast(`No pegin addresses have been found in this wallet`),
@@ -38,7 +38,7 @@ export async function claimPegin(
     await sleep(1500);
     return [];
   }
-  const claimTxs: Transaction[] = [];
+  const claimTxs: string[] = [];
   try {
     let peginModule;
     if (network.chain === 'liquid') {
@@ -116,8 +116,10 @@ export async function claimPegin(
           ];
           claimTxHex = transaction.toHex();
           // Broadcast
-          await broadcastTx(claimTxHex, explorerUrl);
-          claimTxs[claimTxs.length] = Transaction.fromHex(claimTxHex);
+          claimTxs[claimTxs.length] = await broadcastTx(
+            claimTxHex,
+            explorerUrl,
+          );
           dispatch(addSuccessToast(`Claim Transaction broadcasted`));
           managePinSuccess();
         }

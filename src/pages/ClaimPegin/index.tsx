@@ -7,7 +7,6 @@ import {
   IonButton,
 } from '@ionic/react';
 import type { Mnemonic } from 'ldk';
-import type { Transaction } from 'liquidjs-lib';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
@@ -41,7 +40,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   //
-  const [claimTxs, setClaimTxs] = useState<Transaction[]>([]);
+  const [claimTxs, setClaimTxs] = useState<string[]>([]);
   const dispatch = useDispatch();
 
   const managePinError = () => {
@@ -134,11 +133,9 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
                   {`You can see your claim transaction${
                     claimTxs.length > 1 ? 's' : ''
                   } at:`}
-                  {claimTxs.map((tx, i) => (
+                  {claimTxs.map((txid, i) => (
                     <li key={i}>
-                      <a href={`${explorerUrl}/tx/${tx.getId()}`}>
-                        {tx.getId()}
-                      </a>
+                      <a href={`${explorerUrl}/tx/${txid}`}>{txid}</a>
                     </li>
                   ))}
                 </ul>
