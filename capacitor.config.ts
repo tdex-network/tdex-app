@@ -4,7 +4,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'io.sevenlabs.app',
-  appName: 'tdex-app',
+  appName: 'TDEX',
   bundledWebRuntime: false,
   webDir: 'build',
   plugins: {

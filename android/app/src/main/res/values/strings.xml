@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">tdex-app</string>
-    <string name="title_activity_main">tdex-app</string>
+    <string name="app_name">TDEX</string>
+    <string name="title_activity_main">TDEX</string>
     <string name="package_name">io.sevenlabs.app</string>
     <string name="custom_url_scheme">io.sevenlabs.app</string>
 </resources>

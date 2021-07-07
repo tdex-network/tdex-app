@@ -1,6 +1,6 @@
 {
 	"appId": "io.sevenlabs.app",
-	"appName": "tdex-app",
+	"appName": "TDEX",
 	"bundledWebRuntime": false,
 	"webDir": "build",
 	"plugins": {
