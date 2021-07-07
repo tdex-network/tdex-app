@@ -9262,10 +9262,10 @@ pbkdf2@^3.0.3, pbkdf2@^3.0.9:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-pegin@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/pegin/-/pegin-0.1.1.tgz#384f675ea48c35b4e8644e1925b428c79be02439"
-  integrity sha512-FPafD7O8cCEJ3tUgUjzck5YvvtxTmBsmqe8zDaGfbq3xRKKJ7dDgJYMA+GmcCC0jT12NtviB7gAXyW8RjAghmw==
+pegin@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/pegin/-/pegin-0.1.2.tgz#1f287387cf7b51b16779b99102b72a8aa432c1d3"
+  integrity sha512-vc5CiiTW71jUM5M5MNGhOrb3d5Osf+GXJb5RtAG2FSOOX+u5eUO/orZnn3t/qV6uhUJNb1CvUNkphenCpYPoxg==
 
 pend@~1.2.0:
   version "1.2.0"

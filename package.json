@@ -71,7 +71,7 @@
     "liquidjs-lib": "^5.1.14",
     "lodash.debounce": "^4.0.8",
     "moment": "^2.29.1",
-    "pegin": "^0.1.1",
+    "pegin": "^0.1.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.4",
