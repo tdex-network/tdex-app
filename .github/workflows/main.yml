@@ -21,7 +21,6 @@ jobs:
         with:
           start: yarn run serve:no-open
           wait-on: 'http://localhost:8100'
-          record: false
 
       - name: Install Nigiri
         run: |
