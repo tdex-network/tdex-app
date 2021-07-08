@@ -56,80 +56,82 @@ export async function claimPegin(
       );
     }
     for (const claimScript in peginAddresses) {
-      // Get pegin txs for each pegin address in state
-      const btcPeginTxs = (
-        await axios.get(
-          `${explorerBitcoinUrl}/address/${peginAddresses[claimScript].peginAddress}/txs`,
-        )
-      ).data;
-      if (btcPeginTxs.length) {
-        for (const btcPeginTx of btcPeginTxs) {
-          const btcPeginTxHex = (
-            await axios.get(`${explorerBitcoinUrl}/tx/${btcPeginTx.txid}/hex`)
-          ).data;
-          // Get Merkle block proof for each tx
-          const btcBlockProof = (
-            await axios.get(
-              `${explorerBitcoinUrl}/tx/${btcPeginTx?.txid}/merkleblock-proof`,
-            )
-          ).data;
-          // Construct claim tx
-          let claimTxHex = await peginModule.claimTx(
-            btcPeginTxHex,
-            btcBlockProof,
-            claimScript,
-          );
-          // Generate signing privKey
-          const node: BIP32Interface = bip32.fromBase58(
-            mnemonic.masterPrivateKeyNode.toBase58(),
-            getNetwork(network.chain),
-          );
-          const child: BIP32Interface = node.derivePath(
-            peginAddresses[claimScript].derivationPath,
-          );
-          const ecPair = ECPair.fromWIF(
-            child.toWIF(),
-            getNetwork(network.chain),
-          );
-          // Sign
-          const transaction = Transaction.fromHex(claimTxHex);
-          const prevoutTx = btclib.Transaction.fromHex(btcPeginTxHex);
-          const amountPegin = prevoutTx.outs[transaction.ins[0].index].value;
-          const sigHash = transaction.hashForWitnessV0(
-            0,
-            Buffer.from(
-              ElementsPegin.claimScriptToP2PKHScript(claimScript),
-              'hex',
-            ),
-            confidential.satoshiToConfidentialValue(amountPegin),
-            Transaction.SIGHASH_ALL,
-          );
+      if (Object.prototype.hasOwnProperty.call(peginAddresses, claimScript)) {
+        // Get pegin txs for each pegin address in state
+        const btcPeginTxs = (
+          await axios.get(
+            `${explorerBitcoinUrl}/address/${peginAddresses[claimScript].peginAddress}/txs`,
+          )
+        ).data;
+        if (btcPeginTxs.length) {
+          for (const btcPeginTx of btcPeginTxs) {
+            const btcPeginTxHex = (
+              await axios.get(`${explorerBitcoinUrl}/tx/${btcPeginTx.txid}/hex`)
+            ).data;
+            // Get Merkle block proof for each tx
+            const btcBlockProof = (
+              await axios.get(
+                `${explorerBitcoinUrl}/tx/${btcPeginTx?.txid}/merkleblock-proof`,
+              )
+            ).data;
+            // Construct claim tx
+            let claimTxHex = await peginModule.claimTx(
+              btcPeginTxHex,
+              btcBlockProof,
+              claimScript,
+            );
+            // Generate signing privKey
+            const node: BIP32Interface = bip32.fromBase58(
+              mnemonic.masterPrivateKeyNode.toBase58(),
+              getNetwork(network.chain),
+            );
+            const child: BIP32Interface = node.derivePath(
+              peginAddresses[claimScript].derivationPath,
+            );
+            const ecPair = ECPair.fromWIF(
+              child.toWIF(),
+              getNetwork(network.chain),
+            );
+            // Sign
+            const transaction = Transaction.fromHex(claimTxHex);
+            const prevoutTx = btclib.Transaction.fromHex(btcPeginTxHex);
+            const amountPegin = prevoutTx.outs[transaction.ins[0].index].value;
+            const sigHash = transaction.hashForWitnessV0(
+              0,
+              Buffer.from(
+                ElementsPegin.claimScriptToP2PKHScript(claimScript),
+                'hex',
+              ),
+              confidential.satoshiToConfidentialValue(amountPegin),
+              Transaction.SIGHASH_ALL,
+            );
 
-          const sig = ecPair.sign(sigHash);
-          const signatureWithHashType = bscript.signature.encode(
-            sig,
-            Transaction.SIGHASH_ALL,
+            const sig = ecPair.sign(sigHash);
+            const signatureWithHashType = bscript.signature.encode(
+              sig,
+              Transaction.SIGHASH_ALL,
+            );
+            transaction.ins[0].witness = [
+              signatureWithHashType,
+              ecPair.publicKey,
+            ];
+            claimTxHex = transaction.toHex();
+            // Broadcast
+            const txid = await broadcastTx(claimTxHex, explorerUrl);
+            claimTxs[claimTxs.length] = txid;
+            // TODO: https://github.com/vulpemventures/ldk/issues/71
+            //dispatch(watchTransaction(txid));
+            dispatch(addSuccessToast(`Claim Transaction broadcasted`));
+            managePinSuccess();
+          }
+        } else {
+          managePinError();
+          dispatch(
+            addSuccessToast(
+              `No pending claim transactions have been found for address ${peginAddresses[claimScript]}`,
+            ),
           );
-          transaction.ins[0].witness = [
-            signatureWithHashType,
-            ecPair.publicKey,
-          ];
-          claimTxHex = transaction.toHex();
-          // Broadcast
-          claimTxs[claimTxs.length] = await broadcastTx(
-            claimTxHex,
-            explorerUrl,
-          );
-          dispatch(addSuccessToast(`Claim Transaction broadcasted`));
-          managePinSuccess();
         }
-      } else {
-        managePinError();
-        dispatch(
-          addSuccessToast(
-            `No pending claim transactions have been found for address ${peginAddresses[claimScript]}`,
-          ),
-        );
       }
     }
   } catch (err) {
