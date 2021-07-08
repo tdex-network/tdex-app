@@ -3,6 +3,7 @@
  * https://jestjs.io/docs/en/configuration.html
  */
 
+// eslint-disable-next-line no-undef
 module.exports = {
   coverageProvider: 'v8',
   transform: {
