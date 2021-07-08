@@ -137,6 +137,11 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
       handleConfirm();
   }, [firstPin, secondPin]);
 
+  const handleClickTerms = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+    ev.preventDefault();
+    setTermsModalIsOpen(true);
+  };
+
   return (
     <IonPage id="pin-setting-page">
       <Loader showLoading={loading} />
@@ -200,15 +205,11 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
                 inputName="agreement"
                 isChecked={isTermsAccepted}
                 label={
-                  <span className="terms-txt">
-                    <span>I agree with the</span>
-                    <IonButton
-                      className="button-link"
-                      fill="clear"
-                      onClick={() => setTermsModalIsOpen(true)}
-                    >
+                  <span className="terms-label">
+                    I agree with the{' '}
+                    <a href="#" onClick={handleClickTerms}>
                       Terms and Conditions
-                    </IonButton>
+                    </a>
                   </span>
                 }
               />
