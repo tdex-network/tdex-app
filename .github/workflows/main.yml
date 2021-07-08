@@ -18,6 +18,9 @@ jobs:
 
       - name: Cypress run
         uses: cypress-io/github-action@v2
+        with:
+          start: yarn run serve:no-open
+          wait-on: 'http://localhost:8100'
 
       - name: Install Nigiri
         run: |
