@@ -1,9 +1,7 @@
 #pin-setting-page {
-	.terms-txt {
-	  display: flex;
-		align-items: center;
-		ion-button {
-			flex: 1;
-		}
+	.terms-label {
+	 a {
+		 display: inline-block;
+	 }
 	}
 }

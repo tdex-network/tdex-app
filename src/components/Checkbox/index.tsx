@@ -21,7 +21,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
 }) => {
   return (
     <IonRow className={`checkbox ion-text-center ${props.className}`}>
-      <IonCol>
+      <IonCol size="10" offset="1">
         <label>
           <input
             type="checkbox"
