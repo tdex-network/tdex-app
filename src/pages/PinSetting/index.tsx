@@ -90,7 +90,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
           onError(PINsDoNotMatchError);
         }
       } else {
-        dispatch(addErrorToast(PinDigitsError));
+        onPinDigitsError(false);
       }
     } else {
       if (validRegexp.test(firstPin)) {
@@ -100,9 +100,22 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
           setIsWrongPin(null);
         }, PIN_TIMEOUT_SUCCESS);
       } else {
-        dispatch(addErrorToast(PinDigitsError));
+        onPinDigitsError(true);
       }
     }
+  };
+
+  const onPinDigitsError = (isFirstPin: boolean) => {
+    dispatch(addErrorToast(PinDigitsError));
+    setIsWrongPin(true);
+    setTimeout(() => {
+      setIsWrongPin(null);
+      if (isFirstPin) {
+        setFirstPin('');
+      } else {
+        setSecondPin('');
+      }
+    }, PIN_TIMEOUT_FAILURE);
   };
 
   const onError = (e: AppError) => {
@@ -136,6 +149,11 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
     )
       handleConfirm();
   }, [firstPin, secondPin]);
+
+  const handleClickTerms = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+    ev.preventDefault();
+    setTermsModalIsOpen(true);
+  };
 
   return (
     <IonPage id="pin-setting-page">
@@ -200,15 +218,11 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
                 inputName="agreement"
                 isChecked={isTermsAccepted}
                 label={
-                  <span className="terms-txt">
-                    <span>I agree with the</span>
-                    <IonButton
-                      className="button-link"
-                      fill="clear"
-                      onClick={() => setTermsModalIsOpen(true)}
-                    >
+                  <span className="terms-label">
+                    I agree with the{' '}
+                    <a href="#" onClick={handleClickTerms}>
                       Terms and Conditions
-                    </IonButton>
+                    </a>
                   </span>
                 }
               />

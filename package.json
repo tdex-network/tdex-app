@@ -16,7 +16,10 @@
     ]
   },
   "eslintConfig": {
-    "extends": "@ionic/eslint-config/recommended"
+    "extends": "@ionic/eslint-config/recommended",
+    "globals": {
+      "module": true
+    }
   },
   "prettier": "@ionic/prettier-config",
   "scripts": {
