@@ -1,4 +1,4 @@
-import { IonInput, IonGrid, IonRow, IonCol } from '@ionic/react';
+import { IonInput, IonGrid, IonRow, IonCol, isPlatform } from '@ionic/react';
 import classNames from 'classnames';
 import React, { useEffect } from 'react';
 
@@ -75,8 +75,8 @@ const PinInput: React.FC<PinInputProps> = ({
               data-cy="pin-input"
               enterkeyhint="done"
               onKeyDown={onPressEnterKeyFactory(on6digits)}
-              inputmode="numeric"
-              type="number"
+              inputmode={isPlatform('android') ? 'tel' : 'numeric'}
+              type={isPlatform('android') ? 'tel' : 'number'}
               value={pin}
               required={true}
               onIonChange={e => handleNewPinDigit(e.detail.value)}

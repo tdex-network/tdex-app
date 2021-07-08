@@ -8,6 +8,7 @@ import {
   IonCol,
   IonButton,
   IonGrid,
+  IonModal,
 } from '@ionic/react';
 import * as bip39 from 'bip39';
 import React, { useEffect, useRef, useState } from 'react';
@@ -40,6 +41,9 @@ import {
   getIdentity,
   setMnemonicInSecureStorage,
 } from '../../utils/storage-helper';
+import { TermsContent } from '../Terms';
+
+import './styles.scss';
 
 interface LocationState {
   mnemonic: string;
@@ -55,6 +59,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(false);
   const [isPinInputLocked, setIsPinInputLocked] = useState<boolean>(false);
+  const [termsModalIsOpen, setTermsModalIsOpen] = useState(false);
   const dispatch = useDispatch();
   const inputRef = useRef<any>(null);
 
@@ -85,7 +90,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
           onError(PINsDoNotMatchError);
         }
       } else {
-        dispatch(addErrorToast(PinDigitsError));
+        onPinDigitsError(false);
       }
     } else {
       if (validRegexp.test(firstPin)) {
@@ -95,9 +100,22 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
           setIsWrongPin(null);
         }, PIN_TIMEOUT_SUCCESS);
       } else {
-        dispatch(addErrorToast(PinDigitsError));
+        onPinDigitsError(true);
       }
     }
+  };
+
+  const onPinDigitsError = (isFirstPin: boolean) => {
+    dispatch(addErrorToast(PinDigitsError));
+    setIsWrongPin(true);
+    setTimeout(() => {
+      setIsWrongPin(null);
+      if (isFirstPin) {
+        setFirstPin('');
+      } else {
+        setSecondPin('');
+      }
+    }, PIN_TIMEOUT_FAILURE);
   };
 
   const onError = (e: AppError) => {
@@ -132,9 +150,27 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
       handleConfirm();
   }, [firstPin, secondPin]);
 
+  const handleClickTerms = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+    ev.preventDefault();
+    setTermsModalIsOpen(true);
+  };
+
   return (
     <IonPage id="pin-setting-page">
       <Loader showLoading={loading} />
+      <IonModal id="terms-modal" cssClass="modal-big" isOpen={termsModalIsOpen}>
+        <IonContent>
+          <IonGrid>
+            <Header
+              title="TERMS & CONDITIONS"
+              hasBackButton={false}
+              hasCloseButton={true}
+              handleClose={() => setTermsModalIsOpen(false)}
+            />
+            {TermsContent}
+          </IonGrid>
+        </IonContent>
+      </IonModal>
       <IonContent>
         <IonGrid className="ion-text-center ion-justify-content-center">
           <Header
@@ -182,8 +218,11 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
                 inputName="agreement"
                 isChecked={isTermsAccepted}
                 label={
-                  <span>
-                    I agree with the <a href="/terms">Terms and Conditions</a>
+                  <span className="terms-label">
+                    I agree with the{' '}
+                    <a href="#" onClick={handleClickTerms}>
+                      Terms and Conditions
+                    </a>
                   </span>
                 }
               />
