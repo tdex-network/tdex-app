@@ -90,7 +90,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
           onError(PINsDoNotMatchError);
         }
       } else {
-        dispatch(addErrorToast(PinDigitsError));
+        onPinDigitsError(false);
       }
     } else {
       if (validRegexp.test(firstPin)) {
@@ -100,9 +100,22 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
           setIsWrongPin(null);
         }, PIN_TIMEOUT_SUCCESS);
       } else {
-        dispatch(addErrorToast(PinDigitsError));
+        onPinDigitsError(true);
       }
     }
+  };
+
+  const onPinDigitsError = (isFirstPin: boolean) => {
+    dispatch(addErrorToast(PinDigitsError));
+    setIsWrongPin(true);
+    setTimeout(() => {
+      setIsWrongPin(null);
+      if (isFirstPin) {
+        setFirstPin('');
+      } else {
+        setSecondPin('');
+      }
+    }, PIN_TIMEOUT_FAILURE);
   };
 
   const onError = (e: AppError) => {
