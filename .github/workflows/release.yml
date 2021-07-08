@@ -62,7 +62,7 @@ jobs:
         run: |
           cd android
           chmod +x ./gradlew
-          ./gradlew assembleDebug
+          ./gradlew assemble
           cd ..
 
       # get current  tag
@@ -82,25 +82,15 @@ jobs:
           jq '.version = "${{ steps.next_version.outputs.version }}"' package.json  > package.tmp.json
           mv package.tmp.json package.json
 
-      # Release to github
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            ./android/app/build/outputs/apk/debug/app-debug.apk
+            ./android/app/build/outputs/apk/release/app-release-unsigned.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-
-      - name: Upload release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./android/app/build/outputs/apk/debug/app-debug.apk
-          asset_name: tdex-app-${{ steps.next_tag.outputs.tag }}.apk
-          asset_content_type: application/apk
 
       # Comit manifest and package.json to master
       - name: Commit & Push
