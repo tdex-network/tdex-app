@@ -1,3 +1,5 @@
+/// <reference types="jest" />
+
 import type { AddressInterface, UtxoInterface } from 'ldk';
 import { fetchAndUnblindUtxos } from 'ldk';
 import type { CallEffect, PutEffect } from 'redux-saga/effects';

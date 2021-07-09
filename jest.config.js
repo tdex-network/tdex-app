@@ -5,6 +5,7 @@
 
 module.exports = {
   coverageProvider: 'v8',
+  testPathIgnorePatterns: ['<rootDir>/cypress/'],
   transform: {
     '^.+\\.(js|jsx|ts|tsx)$': '<rootDir>/node_modules/babel-jest',
     '^.+\\.tsx?$': 'ts-jest',
