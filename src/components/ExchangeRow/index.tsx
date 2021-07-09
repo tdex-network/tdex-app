@@ -12,13 +12,12 @@ import { Decimal } from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
 import { debounce } from 'lodash';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useSelector } from 'react-redux';
 
 import type { TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
 import { defaultPrecision } from '../../utils/constants';
-import type { AssetConfig } from '../../utils/constants';
+import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
 import {
   fromSatoshi,
   fromSatoshiFixed,
@@ -66,6 +65,7 @@ interface ExchangeRowInterface {
   setError: (msg: string) => void;
   setOtherInputError: (msg: string) => void;
   isLoading: boolean;
+  lbtcUnit: LbtcDenomination;
 }
 
 const ExchangeRow: React.FC<ExchangeRowInterface> = ({
@@ -90,8 +90,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   setError,
   setOtherInputError,
   isLoading,
+  lbtcUnit,
 }) => {
-  const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const [balance, setBalance] = useState<BalanceInterface>();
   const [amount, setAmount] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -244,7 +244,11 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         return;
       }
       // Sanitize
-      const sanitizedValue = sanitizeInputAmount(e.detail.value, setAmount);
+      const sanitizedValue = sanitizeInputAmount(
+        e.detail.value,
+        setAmount,
+        isLbtc(asset.asset) ? lbtcUnit : undefined,
+      );
       // Set
       setAmount(sanitizedValue);
       onChangeAmount(sanitizedValue);
