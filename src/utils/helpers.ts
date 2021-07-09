@@ -40,10 +40,10 @@ export function toSatoshi(
   precision?: number,
   unit?: string,
 ): Decimal {
-  const v = new Decimal(val)
-    .mul(Decimal.pow(10, precision ?? defaultPrecision))
-    .floor();
-  return toLBTCwithUnit(v, unit);
+  const v = new Decimal(val).mul(
+    Decimal.pow(10, precision ?? defaultPrecision),
+  );
+  return toLBTCwithUnit(v, unit).floor();
 }
 
 export function fromSatoshi(
