@@ -25,6 +25,7 @@ import {
   LOCK_UTXO,
   UNLOCK_UTXO,
   UNLOCK_UTXOS,
+  DELETE_PEGIN_ADDRESSES,
 } from '../actions/walletActions';
 
 import { transactionsAssets } from './transactionsReducer';
@@ -82,6 +83,11 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
             peginAddress: action.payload.peginAddress,
           },
         },
+      };
+    case DELETE_PEGIN_ADDRESSES:
+      return {
+        ...state,
+        peginAddresses: {},
       };
     case SET_IS_AUTH:
       return { ...state, isAuth: action.payload };
