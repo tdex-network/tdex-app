@@ -99,6 +99,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
         onConfirm={onFirstPinConfirm}
         onClose={onClose}
         isWrongPin={isWrongPin}
+        setIsWrongPin={setIsWrongPin}
       />
       <PinModal
         needReset={needReset}
@@ -109,6 +110,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({
         onConfirm={onSecondPinConfirm}
         onClose={onClose}
         isWrongPin={isWrongPin}
+        setIsWrongPin={setIsWrongPin}
       />
     </div>
   );

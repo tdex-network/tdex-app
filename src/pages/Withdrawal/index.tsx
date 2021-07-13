@@ -273,6 +273,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         isWrongPin={isWrongPin}
         needReset={needReset}
         setNeedReset={setNeedReset}
+        setIsWrongPin={setIsWrongPin}
       />
       <Loader showLoading={loading} delay={0} />
       <IonContent className="withdrawal">

@@ -74,6 +74,7 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
         onConfirm={handlePinConfirm}
         onClose={() => setIsPinModalOpen(false)}
         isWrongPin={isWrongPin}
+        setIsWrongPin={setIsWrongPin}
       />
       {/* /// */}
       <IonContent className="backup-content">

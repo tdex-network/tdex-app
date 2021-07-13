@@ -9,6 +9,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { addErrorToast } from '../../redux/actions/toastActions';
+import { PIN_TIMEOUT_FAILURE } from '../../utils/constants';
 import { PinDigitsError } from '../../utils/errors';
 import Header from '../Header';
 import PageDescription from '../PageDescription';
@@ -23,6 +24,7 @@ interface PinModalProps {
   onClose?: () => void;
   onDidDismiss?: boolean;
   isWrongPin: boolean | null;
+  setIsWrongPin: (b: boolean | null) => void;
   needReset: boolean;
   setNeedReset: (b: boolean) => void;
 }
@@ -35,6 +37,7 @@ const PinModal: React.FC<PinModalProps> = ({
   onConfirm,
   onDidDismiss,
   isWrongPin,
+  setIsWrongPin,
   needReset,
   setNeedReset,
 }) => {
@@ -82,6 +85,11 @@ const PinModal: React.FC<PinModalProps> = ({
       onConfirm(pin);
     } else {
       dispatch(addErrorToast(PinDigitsError));
+      setIsWrongPin(true);
+      setTimeout(() => {
+        setIsWrongPin(null);
+        setNeedReset(true);
+      }, PIN_TIMEOUT_FAILURE);
     }
   };
 

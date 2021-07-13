@@ -159,6 +159,7 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({
         isWrongPin={isWrongPin}
         needReset={needReset}
         setNeedReset={setNeedReset}
+        setIsWrongPin={setIsWrongPin}
       />
       <IonContent className="restore-wallet">
         <IonGrid className="ion-text-center">

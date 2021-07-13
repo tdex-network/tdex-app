@@ -40,10 +40,10 @@ const Homescreen: React.FC = () => {
   const dispatch = useDispatch();
 
   const onConfirmPinModal = (pin: string) => {
-    setLoadingMessage('Unlocking wallet...');
-    setLoading(true);
     getIdentity(pin)
       .then(mnemonic => {
+        setLoadingMessage('Unlocking wallet...');
+        setLoading(true);
         setIsWrongPin(false);
         setTimeout(() => {
           setIsWrongPin(null);
@@ -91,6 +91,7 @@ const Homescreen: React.FC = () => {
         description="Unlock your wallet"
         onConfirm={onConfirmPinModal}
         isWrongPin={isWrongPin}
+        setIsWrongPin={setIsWrongPin}
       />
       <IonContent>
         <IonGrid className="ion-text-center ion-justify-content-evenly">
