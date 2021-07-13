@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { Keyboard } from '@capacitor/keyboard';
 import {
   IonContent,
@@ -83,7 +84,9 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
               );
               setIsWrongPin(false);
               setIsPinValidated(true);
-              Keyboard.hide().catch(console.error);
+              if (Capacitor.isPluginAvailable('Keyboard')) {
+                Keyboard.hide().catch(console.error);
+              }
             })
             .catch(() => onError(SecureStorageError));
         } else {
