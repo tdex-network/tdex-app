@@ -3079,9 +3079,9 @@ autoprefixer@^9.6.1:
     postcss-value-parser "^4.1.0"
 
 axe-core@^4.0.2:
-  version "4.2.3"
-  resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.2.3.tgz#2a3afc332f0031b42f602f4a3de03c211ca98f72"
-  integrity sha512-pXnVMfJKSIWU2Ml4JHP7pZEPIrgBO1Fd3WGx+fPBsS+KRGhE4vxooD8XBGWbQOIVSZsVK7pUDBBkCicNu80yzQ==
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/axe-core/-/axe-core-4.3.0.tgz#7ce5a7899d4fce08bc0d1d9603c41dc4b8b70ed4"
+  integrity sha512-99FZt8qS/xukgxU/8daV8WT7wAakqBzt6lF3XCweO6pwcf50/NgxxBj6ZC7/ejR+F4PWeFpkb9lAMH3y2quBXA==
 
 axios@^0.21.1:
   version "0.21.1"
@@ -7853,9 +7853,9 @@ last-call-webpack-plugin@^3.0.0:
     webpack-sources "^1.1.0"
 
 ldk@^0.3.7:
-  version "0.3.7"
-  resolved "https://registry.yarnpkg.com/ldk/-/ldk-0.3.7.tgz#a3f97d77764c31e79755918c338f0368c13c127f"
-  integrity sha512-KPwO/rjgkTrKo8LxNrBZ3hf6K5cYbS/SFDato6WuM44SAQVlJG8K+G/yrPBMt0vjQdRjWIZqWL6HEr25SKx8/Q==
+  version "0.3.8"
+  resolved "https://registry.yarnpkg.com/ldk/-/ldk-0.3.8.tgz#21413998bd72591f121221dee1f9adec82dd0b05"
+  integrity sha512-XTHVNKMq7cjZMpV/c28lN0LnhAEXhpZyiEYGHZdU2RmTh9eCxSK0LHg6cl4jP0nYVF+aYE5z8zQ/U8z1cbqo4w==
   dependencies:
     axios "^0.21.1"
     bip32 "^2.0.6"
