@@ -10,11 +10,11 @@ import {
   useIonViewWillLeave,
 } from '@ionic/react';
 import { checkmarkOutline } from 'ionicons/icons';
-import type { AddressInterface, IdentityOpts } from 'ldk';
-import { IdentityType, MasterPublicKey } from 'ldk';
+import type { AddressInterface, IdentityOpts, StateRestorerOpts } from 'ldk';
+import { MasterPublicKey } from 'ldk';
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { withRouter, useLocation } from 'react-router';
+import { useDispatch } from 'react-redux';
+import { useLocation } from 'react-router';
 import type { MasterPublicKeyOpts } from 'tdex-sdk';
 import { masterPubKeyRestorerFromState } from 'tdex-sdk';
 
@@ -27,9 +27,6 @@ import {
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import { addAddress } from '../../redux/actions/walletActions';
-import { network } from '../../redux/config';
-import type { WalletState } from '../../redux/reducers/walletReducer';
-import { lastUsedIndexesSelector } from '../../redux/selectors/walletSelectors';
 import type { AssetConfig } from '../../utils/constants';
 import { AddressGenerationError } from '../../utils/errors';
 import './style.scss';
@@ -38,7 +35,15 @@ interface LocationState {
   depositAsset: AssetConfig;
 }
 
-const Receive: React.FC = () => {
+interface ReceiveProps {
+  lastUsedIndexes: StateRestorerOpts;
+  masterPubKeyOpts: IdentityOpts<MasterPublicKeyOpts>;
+}
+
+const Receive: React.FC<ReceiveProps> = ({
+  lastUsedIndexes,
+  masterPubKeyOpts,
+}) => {
   const [copied, setCopied] = useState(false);
   const [address, setAddress] = useState<AddressInterface>();
   const [loading, setLoading] = useState(false);
@@ -46,22 +51,6 @@ const Receive: React.FC = () => {
   const { state } = useLocation<LocationState>();
   // Hack to prevent undefined state when hitting back button
   const [locationState] = useState(state);
-
-  // select data for MasterPubKey identity
-  const masterPubKeyOpts: IdentityOpts<MasterPublicKeyOpts> = useSelector(
-    ({ wallet }: { wallet: WalletState }) => {
-      return {
-        chain: network.chain,
-        type: IdentityType.MasterPublicKey,
-        opts: {
-          masterBlindingKey: wallet.masterBlindKey,
-          masterPublicKey: wallet.masterPubKey,
-        },
-      };
-    },
-  );
-
-  const lastUsedIndexes = useSelector(lastUsedIndexesSelector);
 
   useIonViewWillEnter(async () => {
     try {
@@ -177,4 +166,4 @@ const Receive: React.FC = () => {
   );
 };
 
-export default withRouter(Receive);
+export default Receive;

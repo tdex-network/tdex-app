@@ -3,8 +3,11 @@ import { connect } from 'react-redux';
 import Exchange from '../../pages/Exchange';
 import { getTradablesAssets } from '../../utils/tdex';
 import { allAssets } from '../reducers/tdexReducer';
-import { balancesSelector, allUtxosSelector } from '../reducers/walletReducer';
-import { lastUsedIndexesSelector } from '../selectors/walletSelectors';
+import {
+  allUtxosSelector,
+  balancesSelector,
+  lastUsedIndexesSelector,
+} from '../reducers/walletReducer';
 
 const mapStateToProps = (state: any) => {
   return {
