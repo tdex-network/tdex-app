@@ -10,10 +10,11 @@ import {
 const mapStateToProps = (state: any) => {
   return {
     balances: balancesSelector(state),
-    utxos: allUtxosSelector(state),
-    prices: state.rates.prices,
     explorerURL: state.settings.explorerUrl,
     lastUsedIndexes: lastUsedIndexesSelector(state),
+    lbtcUnit: state.settings.denominationLBTC,
+    prices: state.rates.prices,
+    utxos: allUtxosSelector(state),
   };
 };
 
