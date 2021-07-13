@@ -49,8 +49,6 @@ const Receive: React.FC<ReceiveProps> = ({
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const { state } = useLocation<LocationState>();
-  // Hack to prevent undefined state when hitting back button
-  const [locationState] = useState(state);
 
   useIonViewWillEnter(async () => {
     try {
@@ -110,25 +108,23 @@ const Receive: React.FC<ReceiveProps> = ({
         <IonGrid>
           <Header
             hasBackButton={true}
-            title={`${
-              locationState.depositAsset.name?.toUpperCase() ?? ''
-            } DEPOSIT`}
+            title={`${state?.depositAsset?.name?.toUpperCase() ?? ''} DEPOSIT`}
           />
           <div className="ion-text-center">
             <CurrencyIcon
-              currency={locationState.depositAsset.ticker}
+              currency={state?.depositAsset?.ticker}
               width="48"
               height="48"
             />
           </div>
           <PageDescription
             description={`To provide this address to the person sending you ${
-              locationState.depositAsset.name ||
-              locationState.depositAsset.coinGeckoID ||
-              locationState.depositAsset.ticker
+              state?.depositAsset?.name ||
+              state?.depositAsset?.coinGeckoID ||
+              state?.depositAsset?.ticker
             } simply tap to copy it or scan your
               wallet QR code with their device.`}
-            title={`Your ${locationState.depositAsset.ticker} address`}
+            title={`Your ${state?.depositAsset?.ticker} address`}
           />
           {address && (
             <div>
