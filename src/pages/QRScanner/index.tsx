@@ -1,5 +1,5 @@
-import type { CheckPermissionResult } from '@capacitor-community/barcode-scanner';
 import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
+import { Capacitor } from '@capacitor/core';
 import {
   IonButton,
   IonCol,
@@ -29,38 +29,50 @@ const QRCodeScanner: React.FC<
   const dispatch = useDispatch();
   const { asset_id } = useParams<{ asset_id: string }>();
 
-  const stopScan = () => {
+  const stopScan = async () => {
     document.body.classList.remove('bg-transparent');
-    BarcodeScanner.showBackground();
-    BarcodeScanner.stopScan();
+    if (
+      Capacitor.isPluginAvailable('BarcodeScanner') &&
+      Capacitor.isNativePlatform()
+    ) {
+      try {
+        await BarcodeScanner.showBackground();
+        await BarcodeScanner.stopScan();
+      } catch (err) {
+        console.error(err);
+      }
+    }
   };
 
-  useIonViewDidEnter(() => {
-    BarcodeScanner.hideBackground();
-    document.body.classList.add('bg-transparent');
-    BarcodeScanner.checkPermission({ force: true })
-      .then(({ granted }: CheckPermissionResult) => {
+  useIonViewDidEnter(async () => {
+    if (
+      Capacitor.isPluginAvailable('BarcodeScanner') &&
+      Capacitor.isNativePlatform()
+    ) {
+      try {
+        await BarcodeScanner.hideBackground();
+        document.body.classList.add('bg-transparent');
+        const granted = await BarcodeScanner.checkPermission({ force: true });
         if (!granted) throw new Error('CAMERA permission not granted.');
-        BarcodeScanner.startScan().then((result: any) => {
-          if (result.hasContent) {
-            console.debug('scanned: ', result.content);
-            history.replace(`/withdraw/${asset_id}`, {
-              address: result.content,
-              amount: location.state.amount,
-            });
-            dispatch(addSuccessToast('Address scanned!'));
-            stopScan();
-          }
-        });
-      })
-      .catch((e: any) => {
-        console.error(e);
+        const result = await BarcodeScanner.startScan();
+        if (result.hasContent) {
+          console.debug('scanned: ', result.content);
+          history.replace(`/withdraw/${asset_id}`, {
+            address: result.content!,
+            amount: location.state.amount,
+          });
+          dispatch(addSuccessToast('Address scanned!'));
+        }
+        await stopScan();
+      } catch (err) {
+        console.error(err);
         dispatch(addErrorToast(QRCodeScanError));
-      });
+      }
+    }
   });
 
-  useIonViewWillLeave(() => {
-    stopScan();
+  useIonViewWillLeave(async () => {
+    await stopScan();
   });
 
   return (
