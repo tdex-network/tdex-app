@@ -5,10 +5,11 @@ import { balancesSelector } from '../reducers/walletReducer';
 
 const mapStateToProps = (state: any) => {
   return {
-    prices: state.rates.prices,
-    currency: state.settings.currency.value,
-    balances: balancesSelector(state),
     assets: state.assets,
+    balances: balancesSelector(state),
+    currency: state.settings.currency.value,
+    lbtcUnit: state.settings.denominationLBTC,
+    prices: state.rates.prices,
   };
 };
 

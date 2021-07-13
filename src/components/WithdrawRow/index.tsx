@@ -18,6 +18,7 @@ import { updatePrices } from '../../redux/actions/ratesActions';
 import {
   fromSatoshi,
   fromSatoshiFixed,
+  isLbtc,
   toLBTCwithUnit,
 } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
@@ -70,7 +71,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
         balance.amount.toString(),
         balance.precision,
         balance.precision,
-        balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
+        isLbtc(balance.asset) ? lbtcUnit : undefined,
       ),
     );
   }, [lbtcUnit, balance.amount]);
@@ -85,7 +86,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
         balance.amount.toString(),
         balance.precision,
         balance.precision,
-        balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
+        isLbtc(balance.asset) ? lbtcUnit : undefined,
       ),
     );
     if (price) setFiat('0.00');
@@ -97,14 +98,14 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
       reset();
       return;
     }
-
-    const sanitizedValue = sanitizeInputAmount(e.detail.value, setAmount);
+    const unit = isLbtc(balance.asset) ? lbtcUnit : undefined;
+    const sanitizedValue = sanitizeInputAmount(e.detail.value, setAmount, unit);
     // Set values
     setAmount(sanitizedValue);
     const residualAmount = fromSatoshi(
       balance.amount.toString(),
       balance.precision,
-      balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
+      unit,
     ).sub(sanitizedValue);
     setResidualBalance(
       residualAmount.toNumber().toLocaleString('en-US', {
@@ -114,12 +115,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
     );
     if (price) {
       setFiat(
-        toLBTCwithUnit(
-          new Decimal(sanitizedValue),
-          balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
-        )
-          .mul(price)
-          .toFixed(2),
+        toLBTCwithUnit(new Decimal(sanitizedValue), unit).mul(price).toFixed(2),
       );
     }
   };

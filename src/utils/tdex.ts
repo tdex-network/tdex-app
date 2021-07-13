@@ -9,6 +9,7 @@ import type {
   TDEXProvider,
 } from '../redux/actionTypes/tdexActionTypes';
 
+import type { LbtcDenomination } from './constants';
 import { getMainAsset } from './constants';
 import { InvalidTradeTypeError, MakeTradeError } from './errors';
 import { isLbtc, toSatoshi } from './helpers';
@@ -29,7 +30,7 @@ export interface AssetWithTicker {
 export async function bestPrice(
   known: { amount: string; asset: string; precision: number },
   trades: TDEXTrade[],
-  lbtcUnit: string,
+  lbtcUnit: LbtcDenomination,
   onError: (e: string) => void,
 ): Promise<{ amount: number; asset: string; trade: TDEXTrade }> {
   if (trades.length === 0) throw new Error('trades array should not be empty');
@@ -88,7 +89,7 @@ export async function bestBalance(trades: TDEXTrade[]): Promise<TDEXTrade> {
 export async function calculatePrice(
   known: { amount: string; asset: string; precision: number },
   trade: TDEXTrade,
-  lbtcUnit: string,
+  lbtcUnit: LbtcDenomination,
 ): Promise<{ amount: number; asset: string }> {
   if (Number(known.amount) <= 0) {
     return {

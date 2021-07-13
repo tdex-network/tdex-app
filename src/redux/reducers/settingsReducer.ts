@@ -1,3 +1,4 @@
+import type { LbtcDenomination } from '../../utils/constants';
 import { CURRENCIES, LBTC_DENOMINATIONS } from '../../utils/constants';
 import type { ActionType } from '../../utils/types';
 import {
@@ -18,7 +19,7 @@ export interface SettingsState {
   currency: CurrencyInterface;
   explorerUrl: string;
   theme: string;
-  denominationLBTC: string;
+  denominationLBTC: LbtcDenomination;
 }
 
 const initialState: SettingsState = {

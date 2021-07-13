@@ -28,6 +28,7 @@ import { CurrencyIcon, TxIcon } from '../../components/icons';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import WatchersLoader from '../../redux/containers/watchersLoaderContainer';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
+import type { LbtcDenomination } from '../../utils/constants';
 import {
   defaultPrecision,
   LBTC_TICKER,
@@ -52,7 +53,7 @@ interface OperationsProps extends RouteComponentProps {
   balances: BalanceInterface[];
   prices: Record<string, number>;
   currency: string;
-  lbtcUnit: string;
+  lbtcUnit: LbtcDenomination;
 }
 
 const Operations: React.FC<OperationsProps> = ({
