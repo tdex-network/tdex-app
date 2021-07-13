@@ -43,24 +43,6 @@ const PinModal: React.FC<PinModalProps> = ({
   const dispatch = useDispatch();
   const inputRef = useRef<any>(null);
 
-  useEffect(() => {
-    if (needReset) {
-      setPin('');
-      setIsPinInputLocked(false);
-      setNeedReset?.(false);
-    }
-  }, [needReset]);
-
-  const handleConfirm = () => {
-    const validRegexp = new RegExp('\\d{6}');
-    if (validRegexp.test(pin)) {
-      setIsPinInputLocked(true);
-      onConfirm(pin);
-    } else {
-      dispatch(addErrorToast(PinDigitsError));
-    }
-  };
-
   // Make sure PIN input always has focus when clicking anywhere
   const handleClick = () => {
     if (inputRef?.current) {
@@ -79,6 +61,29 @@ const PinModal: React.FC<PinModalProps> = ({
   useEffect(() => {
     if (pin.trim().length === 6) handleConfirm();
   }, [pin]);
+
+  useEffect(() => {
+    if (needReset) {
+      setPin('');
+      setIsPinInputLocked(false);
+      setNeedReset?.(false);
+    }
+    return () => {
+      setPin('');
+      setIsPinInputLocked(false);
+      setNeedReset?.(false);
+    };
+  }, [needReset]);
+
+  const handleConfirm = () => {
+    const validRegexp = new RegExp('\\d{6}');
+    if (validRegexp.test(pin)) {
+      setIsPinInputLocked(true);
+      onConfirm(pin);
+    } else {
+      dispatch(addErrorToast(PinDigitsError));
+    }
+  };
 
   return (
     <IonModal
