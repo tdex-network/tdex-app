@@ -55,10 +55,10 @@ const QRCodeScanner: React.FC<
         const granted = await BarcodeScanner.checkPermission({ force: true });
         if (!granted) throw new Error('CAMERA permission not granted.');
         const result = await BarcodeScanner.startScan();
-        if (result.hasContent) {
+        if (result.hasContent && result.content) {
           console.debug('scanned: ', result.content);
           history.replace(`/withdraw/${asset_id}`, {
-            address: result.content!,
+            address: result.content,
             amount: location.state.amount,
           });
           dispatch(addSuccessToast('Address scanned!'));
