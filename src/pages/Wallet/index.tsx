@@ -13,7 +13,6 @@ import {
 } from '@ionic/react';
 import { addCircleOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
 
@@ -24,6 +23,7 @@ import { CurrencyIcon } from '../../components/icons';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { network } from '../../redux/config';
 import { routerLinks } from '../../routes';
+import type { LbtcDenomination } from '../../utils/constants';
 import {
   getMainAsset,
   LBTC_COINGECKOID,
@@ -34,29 +34,28 @@ import {
   fromSatoshi,
   fromSatoshiFixed,
 } from '../../utils/helpers';
-import type { ActionType } from '../../utils/types';
 import './style.scss';
 
 interface WalletProps extends RouteComponentProps {
+  backupDone: boolean;
   balances: BalanceInterface[];
   currency: string;
-  prices: Record<string, number>;
-  dispatch: (action: ActionType) => void;
-  backupDone: boolean;
-  totalLBTC: BalanceInterface;
   isFetchingUtxos: boolean;
+  lbtcUnit: LbtcDenomination;
+  prices: Record<string, number>;
+  totalLBTC: BalanceInterface;
 }
 
 const Wallet: React.FC<WalletProps> = ({
   backupDone,
   balances,
-  prices,
   currency,
-  history,
-  totalLBTC,
   isFetchingUtxos,
+  history,
+  lbtcUnit,
+  prices,
+  totalLBTC,
 }) => {
-  const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const [mainAssets, setMainAssets] = useState<BalanceInterface[]>([]);
   const [fiats, setFiats] = useState<number[]>([]);
   const [secondaryAssets, setSecondaryAssets] = useState<BalanceInterface[]>(
@@ -244,6 +243,7 @@ const Wallet: React.FC<WalletProps> = ({
                 <IonCol size="9" offset="1.5" sizeMd="6" offsetMd="3">
                   <IonButton
                     className="main-button"
+                    data-cy="main-button"
                     onClick={() => {
                       if (backupDone) {
                         history.push({ pathname: routerLinks.deposit });

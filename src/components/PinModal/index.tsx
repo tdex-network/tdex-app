@@ -9,6 +9,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { addErrorToast } from '../../redux/actions/toastActions';
+import { PIN_TIMEOUT_FAILURE } from '../../utils/constants';
 import { PinDigitsError } from '../../utils/errors';
 import Header from '../Header';
 import PageDescription from '../PageDescription';
@@ -23,6 +24,7 @@ interface PinModalProps {
   onClose?: () => void;
   onDidDismiss?: boolean;
   isWrongPin: boolean | null;
+  setIsWrongPin: (b: boolean | null) => void;
   needReset: boolean;
   setNeedReset: (b: boolean) => void;
 }
@@ -35,6 +37,7 @@ const PinModal: React.FC<PinModalProps> = ({
   onConfirm,
   onDidDismiss,
   isWrongPin,
+  setIsWrongPin,
   needReset,
   setNeedReset,
 }) => {
@@ -42,24 +45,6 @@ const PinModal: React.FC<PinModalProps> = ({
   const [isPinInputLocked, setIsPinInputLocked] = useState<boolean>(false);
   const dispatch = useDispatch();
   const inputRef = useRef<any>(null);
-
-  useEffect(() => {
-    if (needReset) {
-      setPin('');
-      setIsPinInputLocked(false);
-      setNeedReset?.(false);
-    }
-  }, [needReset]);
-
-  const handleConfirm = () => {
-    const validRegexp = new RegExp('\\d{6}');
-    if (validRegexp.test(pin)) {
-      setIsPinInputLocked(true);
-      onConfirm(pin);
-    } else {
-      dispatch(addErrorToast(PinDigitsError));
-    }
-  };
 
   // Make sure PIN input always has focus when clicking anywhere
   const handleClick = () => {
@@ -79,6 +64,34 @@ const PinModal: React.FC<PinModalProps> = ({
   useEffect(() => {
     if (pin.trim().length === 6) handleConfirm();
   }, [pin]);
+
+  useEffect(() => {
+    if (needReset) {
+      setPin('');
+      setIsPinInputLocked(false);
+      setNeedReset?.(false);
+    }
+    return () => {
+      setPin('');
+      setIsPinInputLocked(false);
+      setNeedReset?.(false);
+    };
+  }, [needReset]);
+
+  const handleConfirm = () => {
+    const validRegexp = new RegExp('\\d{6}');
+    if (validRegexp.test(pin)) {
+      setIsPinInputLocked(true);
+      onConfirm(pin);
+    } else {
+      dispatch(addErrorToast(PinDigitsError));
+      setIsWrongPin(true);
+      setTimeout(() => {
+        setIsWrongPin(null);
+        setNeedReset(true);
+      }, PIN_TIMEOUT_FAILURE);
+    }
+  };
 
   return (
     <IonModal

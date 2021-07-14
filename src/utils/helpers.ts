@@ -19,7 +19,7 @@ import type { BalanceInterface } from '../redux/actionTypes/walletActionTypes';
 import { lockUtxo } from '../redux/actions/walletActions';
 import { network } from '../redux/config';
 
-import type { AssetConfig } from './constants';
+import type { AssetConfig, LbtcDenomination } from './constants';
 import { defaultPrecision, getColor, getMainAsset } from './constants';
 import type { TxDisplayInterface } from './types';
 
@@ -37,23 +37,20 @@ export const createColorFromHash = (id: string): string => {
 
 export function toSatoshi(
   val: string,
-  precision?: number,
-  unit?: string,
+  precision = defaultPrecision,
+  unit: LbtcDenomination = 'L-BTC',
 ): Decimal {
-  const v = new Decimal(val)
-    .mul(Decimal.pow(10, precision ?? defaultPrecision))
-    .floor();
-  return toLBTCwithUnit(v, unit);
+  return new Decimal(val).mul(
+    Decimal.pow(10, new Decimal(precision).minus(unitToExponent(unit))),
+  );
 }
 
 export function fromSatoshi(
   val: string,
-  precision?: number,
-  unit?: string,
+  precision = defaultPrecision,
+  unit: LbtcDenomination = 'L-BTC',
 ): Decimal {
-  const v = new Decimal(val).div(
-    Decimal.pow(10, precision ?? defaultPrecision),
-  );
+  const v = new Decimal(val).div(Decimal.pow(10, precision));
   return formatLBTCwithUnit(v, unit);
 }
 
@@ -61,7 +58,7 @@ export function fromSatoshiFixed(
   val: string,
   precision?: number,
   fixed?: number,
-  unit?: string,
+  unit?: LbtcDenomination,
 ): string {
   return formatLBTCwithUnit(fromSatoshi(val, precision), unit)
     .toNumber()
@@ -72,8 +69,10 @@ export function fromSatoshiFixed(
     });
 }
 
-export function toLBTCwithUnit(lbtcValue: Decimal, unit?: string): Decimal {
-  if (!unit) return lbtcValue;
+export function toLBTCwithUnit(
+  lbtcValue: Decimal,
+  unit?: LbtcDenomination,
+): Decimal {
   switch (unit) {
     case 'L-BTC':
       return lbtcValue;
@@ -88,8 +87,10 @@ export function toLBTCwithUnit(lbtcValue: Decimal, unit?: string): Decimal {
   }
 }
 
-export function formatLBTCwithUnit(lbtcValue: Decimal, unit?: string): Decimal {
-  if (!unit) return lbtcValue;
+export function formatLBTCwithUnit(
+  lbtcValue: Decimal,
+  unit?: LbtcDenomination,
+): Decimal {
   switch (unit) {
     case 'L-BTC':
       return lbtcValue;
@@ -117,6 +118,21 @@ export function unitToFixedDigits(unit?: string): number {
       return 0;
     default:
       return 2;
+  }
+}
+
+export function unitToExponent(unit: LbtcDenomination): number {
+  switch (unit) {
+    case 'L-BTC':
+      return 0;
+    case 'L-mBTC':
+      return 3;
+    case 'L-bits':
+      return 6;
+    case 'L-sats':
+      return 8;
+    default:
+      return 0;
   }
 }
 

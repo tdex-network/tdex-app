@@ -25,6 +25,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
         <label>
           <input
             type="checkbox"
+            data-cy="checkbox"
             name={inputName}
             checked={isChecked}
             onChange={(e: ChangeEvent<HTMLInputElement>) =>

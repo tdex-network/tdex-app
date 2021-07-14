@@ -87,6 +87,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
         onConfirm={handlePinConfirm}
         onClose={() => setPinModalOpen(false)}
         isWrongPin={isWrongPin}
+        setIsWrongPin={setIsWrongPin}
       />
       {/* IDENTITY */}
       <IonContent className="account">

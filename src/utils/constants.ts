@@ -125,7 +125,13 @@ export const CURRENCIES: CurrencyInterface[] = [
   },
 ];
 
-export const LBTC_DENOMINATIONS = ['L-BTC', 'L-mBTC', 'L-bits', 'L-sats'];
+export const LBTC_DENOMINATIONS = [
+  'L-BTC',
+  'L-mBTC',
+  'L-bits',
+  'L-sats',
+] as const;
+export type LbtcDenomination = typeof LBTC_DENOMINATIONS[number];
 
 export const TOAST_TIMEOUT_SUCCESS = 800;
 export const TOAST_TIMEOUT_FAILURE = 2000;

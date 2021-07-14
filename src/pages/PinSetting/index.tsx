@@ -1,3 +1,4 @@
+import { Capacitor } from '@capacitor/core';
 import { Keyboard } from '@capacitor/keyboard';
 import {
   IonContent,
@@ -83,7 +84,9 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
               );
               setIsWrongPin(false);
               setIsPinValidated(true);
-              Keyboard.hide().catch(console.error);
+              if (Capacitor.isPluginAvailable('Keyboard')) {
+                Keyboard.hide().catch(console.error);
+              }
             })
             .catch(() => onError(SecureStorageError));
         } else {
@@ -230,6 +233,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
                 <IonCol size="9" offset="1.5">
                   <IonButton
                     className="main-button"
+                    data-cy="main-button"
                     disabled={!isPinValidated || !isTermsAccepted}
                     onClick={() => {
                       if (isPinValidated && isTermsAccepted) {

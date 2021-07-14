@@ -12,7 +12,6 @@ import classNames from 'classnames';
 import type { UtxoInterface, StateRestorerOpts } from 'ldk';
 import { mnemonicRestorerFromState } from 'ldk';
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import type { Dispatch } from 'redux';
 import { TradeType } from 'tdex-sdk';
@@ -35,7 +34,7 @@ import {
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import ExchangeRow from '../../redux/containers/exchangeRowContainer';
-import type { AssetConfig } from '../../utils/constants';
+import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
 import {
   defaultPrecision,
   PIN_TIMEOUT_FAILURE,
@@ -63,14 +62,15 @@ import './style.scss';
 const ERROR_LIQUIDITY = 'Not enough liquidity in market';
 
 interface ExchangeProps extends RouteComponentProps {
-  balances: BalanceInterface[];
-  utxos: UtxoInterface[];
-  explorerUrl: string;
-  markets: TDEXMarket[];
-  assets: Record<string, AssetConfig>;
   allAssets: AssetWithTicker[];
+  assets: Record<string, AssetConfig>;
+  balances: BalanceInterface[];
   dispatch: Dispatch;
+  explorerUrl: string;
   lastUsedIndexes: StateRestorerOpts;
+  lbtcUnit: LbtcDenomination;
+  markets: TDEXMarket[];
+  utxos: UtxoInterface[];
 }
 
 const Exchange: React.FC<ExchangeProps> = ({
@@ -83,8 +83,8 @@ const Exchange: React.FC<ExchangeProps> = ({
   allAssets,
   dispatch,
   lastUsedIndexes,
+  lbtcUnit,
 }) => {
-  const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const [hasBeenSwapped, setHasBeenSwapped] = useState<boolean>(false);
   // user inputs amount
   const [sentAmount, setSentAmount] = useState<string>();
@@ -139,10 +139,11 @@ const Exchange: React.FC<ExchangeProps> = ({
   }, [assetSent, markets]);
 
   useEffect(() => {
-    if (!assetReceived || hasBeenSwapped) return;
+    if (!assetReceived || hasBeenSwapped) return undefined;
     const receivedTradables = getTradablesAssets(markets, assetReceived.asset);
     // TODO: Add opposite asset and remove current
     setTradableAssetsForAssetSent(receivedTradables);
+    return () => setAssetReceived(undefined);
   }, [assetReceived, markets]);
 
   const checkAvailableAmountSent = () => {
@@ -288,6 +289,7 @@ const Exchange: React.FC<ExchangeProps> = ({
           isWrongPin={isWrongPin}
           needReset={needReset}
           setNeedReset={setNeedReset}
+          setIsWrongPin={setIsWrongPin}
         />
       )}
 

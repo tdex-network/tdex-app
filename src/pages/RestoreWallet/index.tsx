@@ -18,6 +18,8 @@ import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import PinModal from '../../components/PinModal';
+import { useFocus } from '../../hooks/useFocus';
+import { useMnemonic } from '../../hooks/useMnemonic';
 import { signIn } from '../../redux/actions/appActions';
 import {
   addErrorToast,
@@ -27,7 +29,6 @@ import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
-import { useFocus, useMnemonic } from '../../utils/custom-hooks';
 import type { AppError } from '../../utils/errors';
 import {
   InvalidMnemonicError,
@@ -158,6 +159,7 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({
         isWrongPin={isWrongPin}
         needReset={needReset}
         setNeedReset={setNeedReset}
+        setIsWrongPin={setIsWrongPin}
       />
       <IonContent className="restore-wallet">
         <IonGrid className="ion-text-center">

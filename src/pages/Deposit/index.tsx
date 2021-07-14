@@ -1,6 +1,6 @@
 import { IonContent, IonPage, IonIcon, IonGrid } from '@ionic/react';
 import { addCircleOutline } from 'ionicons/icons';
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { RouteComponentProps } from 'react-router';
 
 import Header from '../../components/Header';
@@ -11,7 +11,7 @@ import { routerLinks } from '../../routes';
 import { BTC_ASSET, MAIN_ASSETS } from '../../utils/constants';
 
 const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
-  const generateGridItems = () => {
+  const generateGridItems = useMemo(() => {
     return MAIN_ASSETS.concat(BTC_ASSET)
       .map((asset, i) => {
         if (asset.ticker === 'L-BTC' && network.chain !== asset?.chain)
@@ -58,7 +58,7 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
           <span className="deposit-grid-item-name">Add Liquid Asset</span>
         </button>,
       );
-  };
+  }, []);
 
   return (
     <IonPage>
@@ -66,7 +66,7 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
         <IonGrid>
           <Header title="DEPOSIT" hasBackButton={true} />
           <div className="deposit-grid ion-margin-vertical ion-text-center">
-            {generateGridItems()}
+            {generateGridItems}
           </div>
         </IonGrid>
       </IonContent>
