@@ -117,6 +117,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
     if (assetAmount) {
       setAmount(assetAmount.toString());
     }
+    return () => setAmount('');
   }, [assetAmount]);
 
   const updatePriceDebounced = useMemo(
