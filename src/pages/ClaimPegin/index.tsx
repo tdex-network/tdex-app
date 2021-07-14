@@ -161,6 +161,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
         isWrongPin={isWrongPin}
         needReset={needReset}
         setNeedReset={setNeedReset}
+        setIsWrongPin={setIsWrongPin}
       />
       <IonContent className="backup-content">
         <IonGrid className="ion-text-center ion-justify-content-center">
