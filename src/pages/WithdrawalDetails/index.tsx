@@ -18,6 +18,7 @@ import Refresher from '../../components/Refresher';
 import { CurrencyIcon } from '../../components/icons';
 import { addSuccessToast } from '../../redux/actions/toastActions';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
+import type { LbtcDenomination } from '../../utils/constants';
 import { nameFromAssetHash, tickerFromAssetHash } from '../../utils/helpers';
 import { TxStatusEnum } from '../../utils/types';
 import './style.scss';
@@ -29,15 +30,14 @@ const statusText = {
 
 interface WithdrawalDetailsLocationState {
   address: string;
-  asset: string;
-  ticker: string;
   amount: number;
+  asset: string;
+  lbtcUnit: LbtcDenomination;
 }
 
 const WithdrawalDetails: React.FC<
   RouteComponentProps<any, any, WithdrawalDetailsLocationState>
 > = ({ location }) => {
-  const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();
   const transaction = useSelector(transactionSelector(txid));
@@ -68,7 +68,7 @@ const WithdrawalDetails: React.FC<
 
   const ticker = () => {
     const t = tickerFromAssetHash(locationState?.asset);
-    return t === 'L-BTC' ? lbtcUnit : t;
+    return t === 'L-BTC' ? locationState?.lbtcUnit : t;
   };
 
   const Skeleton = () => (

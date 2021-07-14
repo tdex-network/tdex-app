@@ -289,6 +289,7 @@ const Exchange: React.FC<ExchangeProps> = ({
           isWrongPin={isWrongPin}
           needReset={needReset}
           setNeedReset={setNeedReset}
+          setIsWrongPin={setIsWrongPin}
         />
       )}
 

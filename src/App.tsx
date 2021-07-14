@@ -4,7 +4,7 @@ import { StatusBar } from '@capacitor/status-bar';
 import { IonApp, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { Redirect, Route } from 'react-router';
 
 import Loader from './components/Loader';
@@ -18,12 +18,13 @@ import RestoreWallet from './redux/containers/restoreWalletContainer';
 import ShowMnemonicOnboarding from './redux/containers/showMnemonicOnboadingContainer';
 import Toasts from './redux/containers/toastsContainer';
 
-const App: React.FC = () => {
-  const { isAuth, appInit, theme } = useSelector((state: any) => ({
-    isAuth: state.wallet.isAuth,
-    appInit: state.app.appInit,
-    theme: state.settings.theme,
-  }));
+interface AppProps {
+  appInit: boolean;
+  isAuth: boolean;
+  theme: string;
+}
+
+const App: React.FC<AppProps> = ({ appInit, isAuth, theme }) => {
   const dispatch = useDispatch();
   const appState = useAppState();
 

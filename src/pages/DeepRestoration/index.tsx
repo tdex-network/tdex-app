@@ -87,6 +87,7 @@ const DeepRestoration: React.FC = () => {
         onConfirm={handlePinConfirm}
         onClose={() => setIsPinModalOpen(false)}
         isWrongPin={isWrongPin}
+        setIsWrongPin={setIsWrongPin}
       />
       <IonContent>
         <IonGrid className="ion-text-center ion-justify-content-center">

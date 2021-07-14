@@ -14,7 +14,7 @@ import type { RecipientInterface, StateRestorerOpts, UtxoInterface } from 'ldk';
 import { address, psetToUnsignedTx, walletFromCoins } from 'ldk';
 import { Psbt } from 'liquidjs-lib';
 import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
 import { mnemonicRestorerFromState } from 'tdex-sdk';
@@ -35,6 +35,7 @@ import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import { network } from '../../redux/config';
 import { broadcastTx } from '../../redux/services/walletService';
+import type { LbtcDenomination } from '../../utils/constants';
 import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
@@ -54,13 +55,19 @@ interface WithdrawalProps
   extends RouteComponentProps<
     any,
     any,
-    { address: string; amount: string; asset: string }
+    {
+      address: string;
+      amount: string;
+      asset: string;
+      lbtcUnit?: LbtcDenomination;
+    }
   > {
   balances: BalanceInterface[];
   utxos: UtxoInterface[];
   prices: Record<string, number>;
   explorerURL: string;
   lastUsedIndexes: StateRestorerOpts;
+  lbtcUnit: LbtcDenomination;
 }
 
 const Withdrawal: React.FC<WithdrawalProps> = ({
@@ -71,8 +78,8 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   history,
   location,
   lastUsedIndexes,
+  lbtcUnit,
 }) => {
-  const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const { asset_id } = useParams<{ asset_id: string }>();
   // UI state
   const [balance, setBalance] = useState<BalanceInterface>();
@@ -236,6 +243,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         address: recipientAddress,
         amount,
         asset: asset_id,
+        lbtcUnit,
       });
     } catch (err) {
       console.error(err);
@@ -265,6 +273,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         isWrongPin={isWrongPin}
         needReset={needReset}
         setNeedReset={setNeedReset}
+        setIsWrongPin={setIsWrongPin}
       />
       <Loader showLoading={loading} delay={0} />
       <IonContent className="withdrawal">

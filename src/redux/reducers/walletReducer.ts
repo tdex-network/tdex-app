@@ -1,4 +1,10 @@
-import type { AddressInterface, UtxoInterface, Outpoint, Mnemonic } from 'ldk';
+import type {
+  AddressInterface,
+  UtxoInterface,
+  Outpoint,
+  Mnemonic,
+  StateRestorerOpts,
+} from 'ldk';
 import { createSelector } from 'reselect';
 
 import {
@@ -201,5 +207,16 @@ export const addressesSelector = ({
 }): AddressInterface[] => {
   return Object.values(wallet.addresses);
 };
+
+export function lastUsedIndexesSelector({
+  wallet,
+}: {
+  wallet: WalletState;
+}): StateRestorerOpts {
+  return {
+    lastUsedInternalIndex: wallet.lastUsedInternalIndex,
+    lastUsedExternalIndex: wallet.lastUsedExternalIndex,
+  };
+}
 
 export default walletReducer;

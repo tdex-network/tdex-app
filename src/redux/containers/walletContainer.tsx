@@ -8,12 +8,13 @@ import {
 
 const mapStateToProps = (state: any) => {
   return {
-    totalLBTC: aggregatedLBTCBalanceSelector(state),
-    balances: balancesSelector(state),
-    prices: state.rates.prices,
-    currency: state.settings.currency.value,
     backupDone: state.app.backupDone,
+    balances: balancesSelector(state),
+    currency: state.settings.currency.value,
     isFetchingUtxos: state.app.isFetchingUtxos,
+    lbtcUnit: state.settings.denominationLBTC,
+    prices: state.rates.prices,
+    totalLBTC: aggregatedLBTCBalanceSelector(state),
   };
 };
 
