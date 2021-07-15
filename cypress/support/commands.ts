@@ -17,10 +17,8 @@ Cypress.Commands.add('launchWallet', () => {
         }
       }
     })
-    .then(async () => {
-      const txid = await faucet(firstAddress, 100);
-      console.log('Funding 100 L-BTC to first wallet address');
-      console.log(txid);
+    .then(() => {
+      faucet(firstAddress, 100).catch(console.error);
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(1000);
     })
