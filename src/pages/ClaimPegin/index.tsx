@@ -37,6 +37,7 @@ import {
 } from '../../utils/errors';
 import { sleep } from '../../utils/helpers';
 import { getIdentity } from '../../utils/storage-helper';
+import './style.scss';
 
 interface ClaimPeginProps extends RouteComponentProps {
   addresses: Record<string, AddressInterface>;
@@ -114,7 +115,13 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
           }
         }
         if (peginAddr) {
-          claimPegin(explorerBitcoinUrl, explorerUrl, peginAddr, mnemonic)
+          claimPegin(
+            explorerBitcoinUrl,
+            explorerUrl,
+            peginAddr,
+            mnemonic,
+            dispatch,
+          )
             .then(txs => {
               if (txs?.length) {
                 setClaimTxs(txs);
@@ -163,7 +170,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
         setNeedReset={setNeedReset}
         setIsWrongPin={setIsWrongPin}
       />
-      <IonContent className="backup-content">
+      <IonContent id="claim-pegin">
         <IonGrid className="ion-text-center ion-justify-content-center">
           <Header hasBackButton={true} title="CLAIM LIQUID BITCOIN" />
           <PageDescription
@@ -203,9 +210,9 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
             <IonRow className="ion-text-left">
               <IonCol size="10" offset="1">
                 <ul className="ion-no-padding">
-                  {`You can see your claim transaction${
+                  <h6>{`Liquid Bitcoin pegin transaction${
                     claimTxs.length > 1 ? 's' : ''
-                  } at:`}
+                  }:`}</h6>
                   {claimTxs.map((txid, i) => (
                     <li key={i}>
                       <a
