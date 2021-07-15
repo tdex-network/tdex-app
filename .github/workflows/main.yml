@@ -16,25 +16,29 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Cypress run
-        uses: cypress-io/github-action@v2
-        with:
-          start: yarn run serve:no-open
-          wait-on: 'http://localhost:8100'
-
       - name: Install Nigiri
         run: |
           mkdir -p tmp; cd tmp
           curl https://travis.nigiri.network | bash; cd ..
           docker-compose -f  tmp/docker-compose.yml up -d
 
+      - name: Install and Run TDEX Daemon
+        shell: 'script -q -e -c "bash {0}"'
+        run: bash ./scripts/tdexd-run.sh
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v2
+        with:
+          start: yarn run serve:no-open
+          wait-on: 'http://localhost:8100'
+
       - run: yarn install --frozen-lockfile
 
-      - name: lint
+      - name: Lint
         run: yarn lint
 
-      - name: test
+      - name: Test
         run: yarn test --ci --maxWorkers=2
 
-      - name: build
+      - name: Build
         run: yarn build

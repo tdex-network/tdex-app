@@ -287,6 +287,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           <div className="ion-text-end">
             <IonInput
               color={error && 'danger'}
+              data-cy={`exchange-${sendInput ? 'send' : 'receive'}-input`}
               disabled={isUpdating}
               enterkeyhint="done"
               inputmode="decimal"

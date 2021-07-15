@@ -27,9 +27,17 @@ export const fakePrices = {
 
 export const APIURL = process.env.EXPLORER || `http://localhost:3001`;
 
-export async function faucet(address: string): Promise<string> {
+export async function faucet(
+  address: string,
+  amount?: number,
+  asset?: string,
+): Promise<any> {
   try {
-    const { status, data } = await axios.post(`${APIURL}/faucet`, { address });
+    const { status, data } = await axios.post(`${APIURL}/faucet`, {
+      address,
+      amount,
+      asset,
+    });
     if (status !== 200) {
       throw new Error('faucet network error: ' + status);
     }
