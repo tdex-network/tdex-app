@@ -52,6 +52,7 @@ const Tabs: React.FC<RouteComponentProps> = ({ history, location }) => {
           <IonTabBar slot="bottom">
             {TABS.map((item, index) => (
               <IonTabButton
+                data-cy={`tab-${item.name}`}
                 selected={isActive(item.name)}
                 tab={item.path}
                 key={index}

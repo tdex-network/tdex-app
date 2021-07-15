@@ -25,6 +25,9 @@
     },
     "globals": {
       "module": true
+    },
+    "rules": {
+      "@typescript-eslint/no-namespace": "off"
     }
   },
   "prettier": "@ionic/prettier-config",
@@ -34,7 +37,8 @@
     "build": "ionic build",
     "build:android": "ionic capacitor build android --no-open",
     "build:ios": "ionic capacitor build ios --no-open",
-    "cypress:open": "cypress open",
+    "cy:open": "cypress open",
+    "cy:run": "cypress run",
     "eslint": "eslint \"./src/**/*.{ts,tsx}\" \"./test/**/*.{ts,tsx}\"",
     "fmt": "npm run eslint -- --fix && npm run prettier -- --write",
     "ios": "ionic capacitor run ios",
@@ -46,7 +50,8 @@
     "serve:no-open": "ionic serve --no-open",
     "sync": "ionic cap sync",
     "tdex:clean": "bash scripts/tdexd-clean.sh",
-    "tdex:run": "bash scripts/tdexd-run.sh",
+    "tdex:run": "curl https://raw.githubusercontent.com/TDex-network/tdex-sdk/master/scripts/tdexd-run -o tdex-run && bash tdex-run && rm tdex-run",
+    "tdex:run-mac": "curl https://raw.githubusercontent.com/TDex-network/tdex-sdk/master/scripts/tdexd-run-mac -o tdex-run-mac && bash tdex-run-mac && rm tdex-run-mac",
     "test": "BABEL_ENV=test npx jest"
   },
   "dependencies": {

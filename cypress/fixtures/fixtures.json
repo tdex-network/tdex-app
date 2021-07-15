@@ -1,0 +1,13 @@
+{
+  "localStorage": {
+    "CapacitorStorage.tdex-app-lbtc-unit": "L-BTC",
+    "CapacitorStorage.tdex-app-providers": "[{\"name\":\"Default provider\",\"endpoint\":\"http://localhost:9945\",\"id\":1}]",
+    "CapacitorStorage.tdex-app-seed-backup": "1",
+    "CapacitorStorage.tdex-app-currency": "{\"name\":\"euro\",\"symbol\":\"€\",\"value\":\"eur\"}",
+    "cap_sec_tdex-app-mnemonic": "eyJkYXRhIjoiM21INzlFaEtwSG1Bb1FLbHlsVTJIcUJRdjkzVGpKSDZyeC9wNWwyRmFmM3FhdEt0ZHB2MzFiQ2NvYzZPRWpSVlpPM1EvZVVBWTNKVERGNnYyWTlxKy9NT3NGWDIxbFV5UHVLR1BPSXZVZFp1cXl4WHg3dUczSW01WDFDVzlYOW0iLCJvcHRpb25zIjp7Ik4iOjE2Mzg0LCJyIjo4LCJwIjoxLCJrbGVuIjozMiwic2FsdCI6IklmcG12RTluYnlYM2ZYMU5mY2ZRMTVkZmF6VXFHczNhIn19",
+    "CapacitorStorage.tdex-app-addresses": "[{\"confidentialAddress\":\"el1qqfytm4tcevxh5swmdd0wn0d3l4mhswz4k2l3mju9z9glqsv5gnq583hpdg57kdqtpqc8ml6k45d80yycdy2dgqx6qmu0rmw3j\",\"blindingPrivateKey\":\"97ec41f3aa4b718fff67ecb2cf429da16e662a601d2994b043de1d8d04a3fd05\",\"derivationPath\":\"m/84'/0'/0'/0/0\"}]"
+  },
+  "mnemonic": "maple potato solution canyon runway together thumb trip slogan noble umbrella license",
+  "pin": "000000",
+  "firstAddress": "el1qqfytm4tcevxh5swmdd0wn0d3l4mhswz4k2l3mju9z9glqsv5gnq583hpdg57kdqtpqc8ml6k45d80yycdy2dgqx6qmu0rmw3j"
+}

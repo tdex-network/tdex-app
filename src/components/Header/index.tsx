@@ -67,7 +67,10 @@ const Header: React.FC<HeaderProps> = ({
             )}
           </IonButtons>
         )}
-        <IonTitle className={classNames({ 'title-large': isTitleLarge })}>
+        <IonTitle
+          className={classNames({ 'title-large': isTitleLarge })}
+          data-cy="header-title"
+        >
           {title}
         </IonTitle>
       </IonToolbar>
