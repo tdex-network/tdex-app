@@ -26,11 +26,15 @@ jobs:
         shell: 'script -q -e -c "bash {0}"'
         run: yarn tdex:run
 
+      - name: Sleep for 5 seconds
+        run: sleep 5s
+        shell: bash
+
       - name: Cypress run
         uses: cypress-io/github-action@v2
         with:
           start: yarn run serve:no-open
-          wait-on: 'http://localhost:8100, http://localhost:3001, http://localhost:9945'
+          wait-on: 'http://localhost:8100'
 
       - run: yarn install --frozen-lockfile
 
