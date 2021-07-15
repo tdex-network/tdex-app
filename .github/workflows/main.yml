@@ -22,6 +22,10 @@ jobs:
           curl https://travis.nigiri.network | bash; cd ..
           docker-compose -f  tmp/docker-compose.yml up -d
 
+      - name: Sleep for 5 seconds
+        run: sleep 5s
+        shell: bash
+
       - name: Install and Run TDEX Daemon
         shell: 'script -q -e -c "bash {0}"'
         run: yarn tdex:run
