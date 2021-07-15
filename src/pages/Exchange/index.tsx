@@ -392,13 +392,14 @@ const Exchange: React.FC<ExchangeProps> = ({
                       isLoading ||
                       sentAmountGreaterThanBalance(),
                   })}
-                  onClick={onConfirm}
+                  data-cy="exchange-confirm-btn"
                   disabled={
                     !assetSent ||
                     !assetReceived ||
                     isLoading ||
                     sentAmountGreaterThanBalance()
                   }
+                  onClick={onConfirm}
                 >
                   CONFIRM
                 </IonButton>

@@ -130,7 +130,10 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                                 : preview?.sent.ticker}
                             </span>
                           </div>
-                          <p className="trade-price">
+                          <p
+                            className="trade-price"
+                            data-cy="trade-summary-sent-amount"
+                          >
                             {transaction
                               ? fromSatoshiFixed(
                                   transaction.transfers[0].amount,
@@ -216,6 +219,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                 <IonCol size="9" offset="1.5">
                   <IonButton
                     className="main-button"
+                    data-cy="trade-summary-btn"
                     onClick={() => history.push('/history')}
                   >
                     GO TO TRADE HISTORY

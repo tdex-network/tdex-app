@@ -48,3 +48,6 @@ resources/windows/splash
 
 # keys
 *.keystore*
+
+# Cypress
+cypress/videos
