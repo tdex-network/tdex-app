@@ -68,7 +68,9 @@ const Header: React.FC<HeaderProps> = ({
           </IonButtons>
         )}
         <IonTitle
-          className={classNames({ 'title-large': isTitleLarge })}
+          className={classNames('ion-no-padding', {
+            'title-large': isTitleLarge,
+          })}
           data-cy="header-title"
         >
           {title}

@@ -14,4 +14,8 @@ ion-item {
   --inner-padding-top: 0;
   --border-style: none;
   margin: 6px 0;
+  &.input {
+    --padding-top: 5px;
+    --padding-bottom: 5px;
+  }
 }

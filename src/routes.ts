@@ -11,6 +11,7 @@ import ShowMnemonicSettings from './pages/ShowMnemonic/show-mnemonic-settings';
 import Terms from './pages/Terms';
 import WithdrawalDetails from './pages/WithdrawalDetails';
 import Backup from './redux/containers/backupContainer';
+import ClaimPegin from './redux/containers/claimPeginContainer';
 import Exchange from './redux/containers/exchangeContainer';
 import TradeHistory from './redux/containers/exchangeHistoryContainer';
 import LiquidityProviders from './redux/containers/liquidityProvidersContainer';
@@ -24,7 +25,6 @@ import Withdrawal from './redux/containers/withdrawalContainer';
 export const routerLinks = {
   wallet: '/wallet',
   exchange: '/exchange',
-  settings: '/settings',
   tradeSummary: '/tradesummary/:txid',
   history: '/history',
   operations: '/operations/:asset_id',
@@ -32,17 +32,19 @@ export const routerLinks = {
   withdrawal: '/withdraw/:asset_id',
   receive: '/receive',
   qrScanner: '/qrscanner/:asset_id',
-  account: '/account',
-  liquidityProvider: '/liquidity-provider',
-  faq: '/faq',
-  privacy: '/privacy',
-  terms: '/terms',
   backup: '/backup',
   showMnemonic: '/show-mnemonic',
   deposit: '/deposit',
   // Settings
+  account: '/account',
+  claimPegin: '/settings/claim-pegin',
   deleteMnemonic: '/settings/delete-mnemonic',
+  faq: '/faq',
+  liquidityProvider: '/liquidity-provider',
+  privacy: '/privacy',
+  settings: '/settings',
   showMnemonicSettings: '/settings/show-mnemonic',
+  terms: '/terms',
   deepRestoration: '/settings/deep-restoration',
 };
 
@@ -130,6 +132,10 @@ export const ROUTES = [
   {
     path: routerLinks.deepRestoration,
     component: DeepRestoration,
+  },
+  {
+    path: routerLinks.claimPegin,
+    component: ClaimPegin,
   },
 ];
 

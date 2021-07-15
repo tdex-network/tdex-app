@@ -10,8 +10,9 @@ import {
   useIonViewWillLeave,
 } from '@ionic/react';
 import { checkmarkOutline } from 'ionicons/icons';
-import type { AddressInterface, IdentityOpts, StateRestorerOpts } from 'ldk';
-import { MasterPublicKey } from 'ldk';
+import type { IdentityOpts, StateRestorerOpts } from 'ldk';
+import { MasterPublicKey, address as addressLDK } from 'ldk';
+import ElementsPegin from 'pegin';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router';
@@ -26,8 +27,10 @@ import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import { addAddress } from '../../redux/actions/walletActions';
+import { addAddress, addPeginAddress } from '../../redux/actions/walletActions';
+import { network } from '../../redux/config';
 import type { AssetConfig } from '../../utils/constants';
+import { BTC_TICKER } from '../../utils/constants';
 import { AddressGenerationError } from '../../utils/errors';
 import './style.scss';
 
@@ -45,7 +48,7 @@ const Receive: React.FC<ReceiveProps> = ({
   masterPubKeyOpts,
 }) => {
   const [copied, setCopied] = useState(false);
-  const [address, setAddress] = useState<AddressInterface>();
+  const [address, setAddress] = useState<string>();
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const { state } = useLocation<LocationState>();
@@ -60,9 +63,36 @@ const Receive: React.FC<ReceiveProps> = ({
         masterPublicKey,
       )(lastUsedIndexes);
       const addr = await restoredMasterPubKey.getNextAddress();
+      let peginModule;
       dispatch(addAddress(addr));
-      dispatch(addSuccessToast('New address added to your account.'));
-      setAddress(addr);
+      if (state?.depositAsset?.ticker === BTC_TICKER) {
+        if (network.chain === 'liquid') {
+          peginModule = new ElementsPegin(
+            await ElementsPegin.withGoElements(),
+            await ElementsPegin.withLibwally(),
+          );
+        } else {
+          peginModule = new ElementsPegin(
+            await ElementsPegin.withGoElements(),
+            await ElementsPegin.withLibwally(),
+            ElementsPegin.withDynamicFederation(false),
+            ElementsPegin.withTestnet(),
+            ElementsPegin.withFederationScript('51'),
+          );
+        }
+        const claimScript = addressLDK
+          .toOutputScript(addr.confidentialAddress)
+          .toString('hex');
+        const peginAddress = await peginModule.getMainchainAddress(claimScript);
+        const derivationPath = addr.derivationPath;
+        if (!derivationPath) throw new Error('Derivation path is required');
+        dispatch(addPeginAddress(claimScript, peginAddress, derivationPath));
+        dispatch(addSuccessToast('New pegin address generated'));
+        setAddress(peginAddress);
+      } else {
+        dispatch(addSuccessToast('New address added to your account.'));
+        setAddress(addr.confidentialAddress);
+      }
     } catch (e) {
       console.error(e);
       dispatch(addErrorToast(AddressGenerationError));
@@ -79,7 +109,7 @@ const Receive: React.FC<ReceiveProps> = ({
 
   const copyAddress = () => {
     if (address) {
-      Clipboard.copy(address.confidentialAddress)
+      Clipboard.copy(address)
         .then(() => {
           setCopied(true);
           dispatch(addSuccessToast('Address copied'));
@@ -89,9 +119,7 @@ const Receive: React.FC<ReceiveProps> = ({
         })
         .catch(() => {
           // For web platform
-          navigator.clipboard
-            .writeText(address.confidentialAddress)
-            .catch(console.error);
+          navigator.clipboard.writeText(address).catch(console.error);
           setCopied(true);
           dispatch(addSuccessToast('Address copied'));
           setTimeout(() => {
@@ -117,22 +145,27 @@ const Receive: React.FC<ReceiveProps> = ({
               height="48"
             />
           </div>
-          <PageDescription
-            description={`To provide this address to the person sending you ${
-              state?.depositAsset?.name ||
-              state?.depositAsset?.coinGeckoID ||
-              state?.depositAsset?.ticker
-            } simply tap to copy it or scan your
+          {state?.depositAsset?.ticker === BTC_TICKER ? (
+            <PageDescription
+              description="Send any amount of Bitcoin to receive Liquid Bitcoin."
+              title={`Your Bitcoin Pegin address`}
+            />
+          ) : (
+            <PageDescription
+              description={`To provide this address to the person sending you ${
+                state?.depositAsset?.name ||
+                state?.depositAsset?.coinGeckoID ||
+                state?.depositAsset?.ticker
+              } simply tap to copy it or scan your
               wallet QR code with their device.`}
-            title={`Your ${state?.depositAsset?.ticker} address`}
-          />
+              title={`Your ${state?.depositAsset?.ticker} address`}
+            />
+          )}
           {address && (
             <div>
               <IonItem>
                 <div className="item-main-info">
-                  <div className="item-start conf-addr">
-                    {address?.confidentialAddress}
-                  </div>
+                  <div className="item-start conf-addr">{address}</div>
                   <div className="copy-icon" onClick={copyAddress}>
                     {copied ? (
                       <IonIcon
@@ -152,7 +185,7 @@ const Receive: React.FC<ReceiveProps> = ({
                 </div>
               </IonItem>
               <div className="qr-code-container">
-                <QRCodeImg value={address.confidentialAddress} size={192} />
+                <QRCodeImg value={address} size={192} level="M" />
               </div>
             </div>
           )}

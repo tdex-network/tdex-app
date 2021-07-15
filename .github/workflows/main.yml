@@ -49,4 +49,4 @@ jobs:
         run: yarn test --ci --maxWorkers=2
 
       - name: Build
-        run: yarn build
+        run: CI="" yarn build
