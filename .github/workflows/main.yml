@@ -30,7 +30,7 @@ jobs:
         uses: cypress-io/github-action@v2
         with:
           start: yarn run serve:no-open
-          wait-on: 'http://localhost:8100'
+          wait-on: 'http://localhost:8100, http://localhost:3001, http://localhost:9945'
 
       - run: yarn install --frozen-lockfile
 
