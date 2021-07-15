@@ -5288,9 +5288,9 @@ ejs@^2.6.1:
   integrity sha512-7vmuyh5+kuUyJKePhQfRQBhXV5Ce+RnaeeQArKu1EAMpL3WbgMt5WG6uQZpEVvYSSsxMXRKOewtDk9RaTKXRlA==
 
 electron-to-chromium@^1.3.564, electron-to-chromium@^1.3.723:
-  version "1.3.775"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.775.tgz#046517d1f2cea753e06fff549995b9dc45e20082"
-  integrity sha512-EGuiJW4yBPOTj2NtWGZcX93ZE8IGj33HJAx4d3ouE2zOfW2trbWU+t1e0yzLr1qQIw81++txbM3BH52QwSRE6Q==
+  version "1.3.776"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.3.776.tgz#33f6e2423b61f1bdaa8d2a103aae78a09764a75f"
+  integrity sha512-V0w7eFSBoFPpdw4xexjVPZ770UDZIevSwkkj4W97XbE3IsCsTRFpa7/yXGZ88EOQAUEA09JMMsWK0xsw0kRAYw==
 
 elementtree@^0.1.7:
   version "0.1.7"
@@ -8222,7 +8222,7 @@ lazy-ass@^1.6.0:
   resolved "https://registry.yarnpkg.com/lazy-ass/-/lazy-ass-1.6.0.tgz#7999655e8646c17f089fdd187d150d3324d54513"
   integrity sha1-eZllXoZGwX8In90YfRUNMyTVRRM=
 
-ldk@^0.3.7:
+ldk@^0.3.8:
   version "0.3.8"
   resolved "https://registry.yarnpkg.com/ldk/-/ldk-0.3.8.tgz#21413998bd72591f121221dee1f9adec82dd0b05"
   integrity sha512-XTHVNKMq7cjZMpV/c28lN0LnhAEXhpZyiEYGHZdU2RmTh9eCxSK0LHg6cl4jP0nYVF+aYE5z8zQ/U8z1cbqo4w==
@@ -8614,9 +8614,9 @@ map-visit@^1.0.0:
     object-visit "^1.0.0"
 
 marina-provider@^1.0.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/marina-provider/-/marina-provider-1.2.0.tgz#db5a59092978a4a010c0cf99f86be9624666b8c8"
-  integrity sha512-Z4uh9v6JifXfxTdkFKM2rhoBny3wcroQ1m9Swi78+17qVHB4VW0+h3DW4GNrXX+cHaTlzR2gMQvz1nIxP1gclQ==
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/marina-provider/-/marina-provider-1.3.0.tgz#ee26222816570e5649457c5eb6f3078433af5cd8"
+  integrity sha512-J00cMcynnNwLut8GdbLNHSHR7jKUGcaiJfExgomIDbIMXJD/nZZQlxg8/zzPsAnujMx/aAEqqfEj+h4PIohp9g==
 
 md5.js@^1.3.4:
   version "1.3.5"
@@ -9678,10 +9678,10 @@ pbkdf2@^3.0.3, pbkdf2@^3.0.9:
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
 
-pegin@^0.1.3:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/pegin/-/pegin-0.1.3.tgz#238b981f257e138b5230edac2f8a86e34d2638e5"
-  integrity sha512-WSWPkrle/5EPFSd6qSBjuHWisrss2I0zZ148mE/c9U88PKtSxeuTpfpCK43CHp8V84OSxax9tlsPI43of/yIwg==
+pegin@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/pegin/-/pegin-0.1.4.tgz#3f7fea670a52511f4cdbcd20e4e2bece0acca7bf"
+  integrity sha512-SNm0qHWn8ahSOueboNJ/id4vw5uiloEt2QXMZZhAITCJ9WMdaLVmzoNQw/gHlbATfr+3Y3+a2U5rrpVodzu7zg==
 
 pend@~1.2.0:
   version "1.2.0"
@@ -12504,15 +12504,15 @@ tdex-react-scripts@4.0.3-tdex:
   optionalDependencies:
     fsevents "^2.1.3"
 
-tdex-sdk@^1.6.12:
-  version "1.6.12"
-  resolved "https://registry.yarnpkg.com/tdex-sdk/-/tdex-sdk-1.6.12.tgz#ac9ea915c01ec745b6ef662eafe4c1924e4b66cd"
-  integrity sha512-Yc/zblRYbojFfZyx57E/Wku1Uy6bjLGg2n1V2NxuX/4PHgkREdeK40TFPXp8fxqOpu6r0bD4KeTv1CNI7XL4Ag==
+tdex-sdk@^1.6.13:
+  version "1.6.13"
+  resolved "https://registry.yarnpkg.com/tdex-sdk/-/tdex-sdk-1.6.13.tgz#9030e91d9b2d729d1fc9269aaa5e18d19183429d"
+  integrity sha512-tKWzkBLmmHC2YczngFTejupn463HtgvJARN50tKOVwoDFX1ocj70iPoD1juJMxXCk39VEXnta/2O0xIjyvvCUg==
   dependencies:
     "@grpc/grpc-js" "^1.3.3"
     "@types/google-protobuf" "^3.15.2"
     google-protobuf "^3.17.3"
-    ldk "^0.3.7"
+    ldk "^0.3.8"
     liquidjs-lib "^5.1.13"
     slip77 "^0.1.1"
     tdex-protobuf tdex-network/tdex-protobuf
