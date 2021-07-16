@@ -128,23 +128,23 @@ const Exchange: React.FC<ExchangeProps> = ({
   useEffect(() => {
     if (markets.length === 0 || !assetSent || !assetReceived) return;
     setTrades(allTrades(markets, assetSent.asset, assetReceived.asset));
-  }, [assetSent, assetReceived, markets]);
+  }, [assetSent?.asset, assetReceived?.asset, markets]);
 
   useEffect(() => {
-    if (!assetSent || hasBeenSwapped) return;
+    if (!assetSent) return;
     const sentTradables = getTradablesAssets(markets, assetSent.asset);
     // TODO: Add opposite asset and remove current
     setTradableAssetsForAssetReceived(sentTradables);
     setAssetReceived(sentTradables[0]);
-  }, [assetSent, markets]);
+  }, [assetSent?.asset, markets]);
 
   useEffect(() => {
-    if (!assetReceived || hasBeenSwapped) return undefined;
+    if (!assetReceived) return undefined;
     const receivedTradables = getTradablesAssets(markets, assetReceived.asset);
     // TODO: Add opposite asset and remove current
     setTradableAssetsForAssetSent(receivedTradables);
     return () => setAssetReceived(undefined);
-  }, [assetReceived, markets]);
+  }, [assetReceived?.asset, markets]);
 
   const checkAvailableAmountSent = () => {
     if (!trade || !sentAmount || !assetSent) return;
@@ -270,6 +270,14 @@ const Exchange: React.FC<ExchangeProps> = ({
     }
   };
 
+  const swapAssetsAndAmounts = () => {
+    setHasBeenSwapped(true);
+    setAssetSent(assetReceived);
+    setAssetReceived(assetSent);
+    setSentAmount(receivedAmount);
+    setReceivedAmount(sentAmount);
+  };
+
   return (
     <IonPage id="exchange-page">
       <Loader showLoading={isLoading} delay={0} />
@@ -338,18 +346,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               isLoading={isLoading}
             />
 
-            <div
-              className="exchange-divider"
-              onClick={() => {
-                setHasBeenSwapped(true);
-                setAssetSent(assetReceived);
-                setAssetReceived(assetSent);
-                setSentAmount(receivedAmount);
-                setReceivedAmount(sentAmount);
-                setTradableAssetsForAssetSent(tradableAssetsForAssetReceived);
-                setTradableAssetsForAssetReceived(tradableAssetsForAssetSent);
-              }}
-            >
+            <div className="exchange-divider" onClick={swapAssetsAndAmounts}>
               <img src={swap} alt="swap" />
             </div>
 
