@@ -27,7 +27,10 @@ import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import { addAddress, addPeginAddress } from '../../redux/actions/walletActions';
+import {
+  addAddress,
+  addOrUpdatePegins,
+} from '../../redux/actions/walletActions';
 import { network } from '../../redux/config';
 import type { AssetConfig } from '../../utils/constants';
 import { BTC_TICKER } from '../../utils/constants';
@@ -86,7 +89,17 @@ const Receive: React.FC<ReceiveProps> = ({
         const peginAddress = await peginModule.getMainchainAddress(claimScript);
         const derivationPath = addr.derivationPath;
         if (!derivationPath) throw new Error('Derivation path is required');
-        dispatch(addPeginAddress(claimScript, peginAddress, derivationPath));
+        dispatch(
+          addOrUpdatePegins({
+            [claimScript]: {
+              depositAddress: {
+                claimScript,
+                address: peginAddress,
+                derivationPath,
+              },
+            },
+          }),
+        );
         dispatch(addSuccessToast('New pegin address generated'));
         setAddress(peginAddress);
       } else {

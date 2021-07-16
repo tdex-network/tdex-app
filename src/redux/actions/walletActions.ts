@@ -3,12 +3,12 @@ import { address as addrLDK } from 'ldk';
 import type { AnyAction } from 'redux';
 
 import type { ActionType } from '../../utils/types';
+import type { Pegins } from '../reducers/walletReducer';
 import { outpointToString } from '../reducers/walletReducer';
 
 export const SET_IS_AUTH = 'SET_IS_AUTH';
 export const ADD_ADDRESS = 'ADD_ADDRESS';
-export const ADD_PEGIN_ADDRESS = 'ADD_PEGIN_ADDRESS';
-export const DELETE_PEGIN_ADDRESSES = 'DELETE_PEGIN_ADDRESSES';
+export const ADD_OR_UPDATE_PEGINS = 'ADD_OR_UPDATE_PEGINS';
 export const UPDATE_UTXOS = 'UPDATE_UTXOS';
 export const SET_UTXO = 'SET_UTXO';
 export const DELETE_UTXO = 'DELETE_UTXO';
@@ -46,24 +46,14 @@ export const addAddress = (address: AddressInterface): AnyAction => {
   };
 };
 
-export const addPeginAddress = (
-  claimScript: string,
-  peginAddress: string,
-  derivationPath: string,
-): AnyAction => {
+/**
+ * Add a single or multiple pegins
+ * @param pegins
+ */
+export const addOrUpdatePegins = (pegins: Pegins): AnyAction => {
   return {
-    type: ADD_PEGIN_ADDRESS,
-    payload: {
-      claimScript,
-      peginAddress,
-      derivationPath,
-    },
-  };
-};
-
-export const deletePeginAddresses = (): AnyAction => {
-  return {
-    type: DELETE_PEGIN_ADDRESSES,
+    type: ADD_OR_UPDATE_PEGINS,
+    payload: { pegins },
   };
 };
 

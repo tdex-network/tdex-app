@@ -25,24 +25,34 @@ import {
   SET_UTXO,
   DELETE_UTXO,
   ADD_ADDRESS,
-  ADD_PEGIN_ADDRESS,
+  ADD_OR_UPDATE_PEGINS,
   RESET_UTXOS,
   SET_PUBLIC_KEYS,
   LOCK_UTXO,
   UNLOCK_UTXO,
   UNLOCK_UTXOS,
-  DELETE_PEGIN_ADDRESSES,
 } from '../actions/walletActions';
 
 import { transactionsAssets } from './transactionsReducer';
 
+export type ClaimScript = string;
+export type Pegin = {
+  claimTxId?: string;
+  depositAddress: {
+    address: string;
+    claimScript: string;
+    derivationPath: string;
+  };
+  depositAmount?: number;
+  depositBlockHeight?: number;
+  depositTxId?: string;
+};
+export type Pegins = Record<ClaimScript, Pegin>;
+
 export interface WalletState {
   isAuth: boolean;
   addresses: Record<string, AddressInterface>;
-  peginAddresses: Record<
-    string,
-    { derivationPath: string; peginAddress: string }
-  >;
+  pegins: Pegins;
   utxos: Record<string, UtxoInterface>;
   utxosLocks: string[];
   masterPubKey: string;
@@ -54,7 +64,7 @@ export interface WalletState {
 const initialState: WalletState = {
   isAuth: false,
   addresses: {},
-  peginAddresses: {},
+  pegins: {},
   utxos: {},
   utxosLocks: [],
   masterPubKey: '',
@@ -79,22 +89,21 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
         lastUsedExternalIndex: isChange ? state.lastUsedExternalIndex : index,
       };
     }
-    case ADD_PEGIN_ADDRESS:
-      return {
-        ...state,
-        peginAddresses: {
-          ...state.peginAddresses,
-          [action.payload.claimScript]: {
-            derivationPath: action.payload.derivationPath,
-            peginAddress: action.payload.peginAddress,
-          },
+    case ADD_OR_UPDATE_PEGINS: {
+      let updatedPegins: Pegins = {};
+      (Object.entries(action.payload.pegins) as [string, Pegin][]).forEach(
+        ([claimScript, pegin]) => {
+          updatedPegins = {
+            ...state.pegins,
+            [claimScript]: pegin,
+          };
         },
-      };
-    case DELETE_PEGIN_ADDRESSES:
+      );
       return {
         ...state,
-        peginAddresses: {},
+        pegins: updatedPegins,
       };
+    }
     case SET_IS_AUTH:
       return { ...state, isAuth: action.payload };
     case SET_UTXO:
@@ -241,13 +250,5 @@ export function lastUsedIndexesSelector({
     lastUsedExternalIndex: wallet.lastUsedExternalIndex,
   };
 }
-
-export const peginAddressesSelector = ({
-  wallet,
-}: {
-  wallet: WalletState;
-}): Record<string, { derivationPath: string; peginAddress: string }> => {
-  return wallet.peginAddresses;
-};
 
 export default walletReducer;

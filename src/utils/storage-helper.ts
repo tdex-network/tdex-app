@@ -10,7 +10,7 @@ import type { TDEXMnemonic } from 'tdex-sdk';
 import type { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 import { network } from '../redux/config';
 import type { CurrencyInterface } from '../redux/reducers/settingsReducer';
-import type { WalletState } from '../redux/reducers/walletReducer';
+import type { Pegins } from '../redux/reducers/walletReducer';
 
 import type { AssetConfig } from './constants';
 import { CURRENCIES, LBTC_DENOMINATIONS } from './constants';
@@ -20,7 +20,7 @@ import { MnemonicRedux, TDexMnemonicRedux } from './identity';
 
 const MNEMONIC_KEY = 'tdex-app-mnemonic';
 const ADDRESSES_KEY = 'tdex-app-addresses';
-const PEGIN_ADDRESSES_KEY = 'tdex-app-pegin-addresses';
+const PEGINS_KEY = 'tdex-app-pegins';
 const PROVIDERS_KEY = 'tdex-app-providers';
 const SEED_BACKUP_FLAG_KEY = 'tdex-app-seed-backup';
 const UTXOS_KEY = 'tdex-app-utxos';
@@ -160,19 +160,15 @@ export async function getLastUsedIndexesInStorage(): Promise<StateRestorerOpts |
   return idx.value ? parse(idx.value) : null;
 }
 
-export function setPeginAddressesInStorage(
-  peginAddresses: WalletState['peginAddresses'],
-): Promise<void> {
+export function setPeginsInStorage(pegins: Pegins): Promise<void> {
   return Storage.set({
-    key: PEGIN_ADDRESSES_KEY,
-    value: stringify(peginAddresses),
+    key: PEGINS_KEY,
+    value: stringify(pegins),
   });
 }
 
-export async function getPeginAddressesInStorage(): Promise<
-  Record<string, string>
-> {
-  return getFromStorage<Record<string, string>>(PEGIN_ADDRESSES_KEY, {});
+export async function getPeginsFromStorage(): Promise<Pegins> {
+  return getFromStorage<Pegins>(PEGINS_KEY, {});
 }
 
 export async function getAddressesFromStorage(): Promise<AddressInterface[]> {

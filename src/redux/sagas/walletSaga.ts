@@ -16,10 +16,10 @@ import {
 
 import { UpdateUtxosError } from '../../utils/errors';
 import {
-  getPeginAddressesInStorage,
+  getPeginsFromStorage,
   getUtxosFromStorage,
   setAddressesInStorage,
-  setPeginAddressesInStorage,
+  setPeginsInStorage,
   setLastUsedIndexesInStorage,
   setUtxosInStorage,
 } from '../../utils/storage-helper';
@@ -27,23 +27,19 @@ import type { ActionType } from '../../utils/types';
 import { setIsFetchingUtxos, SIGN_IN } from '../actions/appActions';
 import { addErrorToast } from '../actions/toastActions';
 import {
-  UPDATE_UTXOS,
-  setUtxo,
+  addOrUpdatePegins,
   deleteUtxo,
   resetUtxos,
-  LOCK_UTXO,
+  setUtxo,
   unlockUtxo,
   ADD_ADDRESS,
+  ADD_OR_UPDATE_PEGINS,
+  LOCK_UTXO,
+  UPDATE_UTXOS,
   WATCH_UTXO,
-  ADD_PEGIN_ADDRESS,
-  addPeginAddress,
 } from '../actions/walletActions';
-import type { WalletState } from '../reducers/walletReducer';
-import {
-  outpointToString,
-  addressesSelector,
-  peginAddressesSelector,
-} from '../reducers/walletReducer';
+import type { Pegins, WalletState } from '../reducers/walletReducer';
+import { outpointToString, addressesSelector } from '../reducers/walletReducer';
 
 function* persistAddresses() {
   const addresses: AddressInterface[] = yield select(addressesSelector);
@@ -60,12 +56,9 @@ function* persistLastUsedIndexes() {
   yield call(setLastUsedIndexesInStorage, lastIndexes);
 }
 
-function* persistPeginAddresses() {
-  const peginAddresses: Record<
-    string,
-    { derivationPath: string; peginAddress: string }
-  > = yield select(peginAddressesSelector);
-  yield call(setPeginAddressesInStorage, peginAddresses);
+function* persistPegins() {
+  const pegins: Pegins = yield select(state => state.wallet.pegins);
+  yield call(setPeginsInStorage, pegins);
 }
 
 function* updateUtxosState() {
@@ -158,21 +151,9 @@ function* restoreUtxos() {
   }
 }
 
-function* restorePeginAddresses() {
-  const peginAddresses: WalletState['peginAddresses'] = yield call(
-    getPeginAddressesInStorage,
-  );
-  for (const claimScript in peginAddresses) {
-    if (Object.prototype.hasOwnProperty.call(peginAddresses, claimScript)) {
-      yield put(
-        addPeginAddress(
-          claimScript,
-          peginAddresses[claimScript].peginAddress,
-          peginAddresses[claimScript].derivationPath,
-        ),
-      );
-    }
-  }
+function* restorePegins() {
+  const pegins: Pegins = yield call(getPeginsFromStorage);
+  yield put(addOrUpdatePegins(pegins));
 }
 
 function* watchUtxoSaga(action: ActionType) {
@@ -210,13 +191,13 @@ function* watchUtxoSaga(action: ActionType) {
 export function* walletWatcherSaga(): Generator {
   yield takeLatest(ADD_ADDRESS, persistAddresses);
   yield takeLatest(ADD_ADDRESS, persistLastUsedIndexes);
-  yield takeLatest(ADD_PEGIN_ADDRESS, persistPeginAddresses);
+  yield takeLatest(ADD_OR_UPDATE_PEGINS, persistPegins);
   yield takeLatest(UPDATE_UTXOS, updateUtxosState);
   yield takeLatest(UPDATE_UTXOS, persistUtxos);
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   yield takeEvery(LOCK_UTXO, waitAndUnlock);
   yield takeLatest(SIGN_IN, restoreUtxos);
-  yield takeLatest(SIGN_IN, restorePeginAddresses);
+  yield takeLatest(SIGN_IN, restorePegins);
   yield takeLatest(WATCH_UTXO, watchUtxoSaga);
 }

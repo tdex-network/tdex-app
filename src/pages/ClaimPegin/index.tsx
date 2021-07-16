@@ -21,9 +21,12 @@ import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import { deletePeginAddresses } from '../../redux/actions/walletActions';
-import type { WalletState } from '../../redux/reducers/walletReducer';
-import { claimPegin, searchPeginAddressData } from '../../utils/claim-pegin';
+import { addOrUpdatePegins } from '../../redux/actions/walletActions';
+import type { Pegins } from '../../redux/reducers/walletReducer';
+import {
+  claimPegin,
+  searchPeginDepositAddresses,
+} from '../../utils/claim-pegin';
 import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
@@ -43,14 +46,14 @@ interface ClaimPeginProps extends RouteComponentProps {
   addresses: Record<string, AddressInterface>;
   explorerUrl: string;
   explorerBitcoinUrl: string;
-  peginAddresses: WalletState['peginAddresses'];
+  pegins: Pegins;
 }
 
 const ClaimPegin: React.FC<ClaimPeginProps> = ({
   addresses,
   explorerUrl,
   explorerBitcoinUrl,
-  peginAddresses,
+  pegins,
 }) => {
   // Pin Modal
   const [needReset, setNeedReset] = useState<boolean>(false);
@@ -58,8 +61,8 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   //
   const [isLoading, setIsLoading] = useState(false);
-  const [claimTxs, setClaimTxs] = useState<string[]>([]);
-  const [btcPeginAddress, setBtcPeginAddress] = useState<string>();
+  const [claimedPegins, setClaimedPegins] = useState<Pegins>({});
+  const [inputBtcPeginAddress, setInputBtcPeginAddress] = useState<string>();
   const dispatch = useDispatch();
 
   const managePinError = async (closeModal = false) => {
@@ -93,12 +96,12 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
     getIdentity(pin)
       .then(async (mnemonic: Mnemonic) => {
         setIsLoading(true);
-        let peginAddr: WalletState['peginAddresses'] | undefined;
-        if (btcPeginAddress) {
+        let pendingPegins: Pegins | undefined;
+        if (inputBtcPeginAddress) {
           try {
-            peginAddr = await searchPeginAddressData(
+            pendingPegins = await searchPeginDepositAddresses(
               addresses,
-              btcPeginAddress,
+              inputBtcPeginAddress,
             );
           } catch (err) {
             console.error(err);
@@ -106,29 +109,29 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
             await managePinError(true);
           }
         } else {
-          if (Object.values(peginAddresses).length) {
-            peginAddr = peginAddresses;
+          if (Object.values(pegins).length) {
+            pendingPegins = pegins;
           } else {
             dispatch(addErrorToast(NoPeginAddressFoundError));
             await managePinError(true);
             return;
           }
         }
-        if (peginAddr) {
+        if (pendingPegins) {
           claimPegin(
             explorerBitcoinUrl,
             explorerUrl,
-            peginAddr,
+            pendingPegins,
             mnemonic,
             dispatch,
           )
-            .then(txs => {
-              if (txs?.length) {
-                setClaimTxs(txs);
+            .then(successPegins => {
+              if (Object.keys(successPegins).length) {
+                setClaimedPegins(successPegins);
+                dispatch(addOrUpdatePegins(successPegins));
                 dispatch(addSuccessToast(`Claim Transaction broadcasted`));
                 managePinSuccess();
-                dispatch(deletePeginAddresses());
-                setBtcPeginAddress(undefined);
+                setInputBtcPeginAddress(undefined);
               } else {
                 dispatch(addErrorToast(NoClaimFoundError));
                 managePinError(true);
@@ -184,9 +187,11 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
                 <IonInput
                   className="ion-text-left"
                   inputmode="text"
-                  onIonChange={e => setBtcPeginAddress(e.detail.value || '')}
+                  onIonChange={e =>
+                    setInputBtcPeginAddress(e.detail.value || '')
+                  }
                   placeholder="Optional BTC Pegin Address"
-                  value={btcPeginAddress}
+                  value={inputBtcPeginAddress}
                 />
               </IonItem>
             </IonCol>
@@ -206,19 +211,19 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
               </IonRow>
             </IonCol>
           </IonRow>
-          {claimTxs.length > 0 && (
+          {Object.keys(claimedPegins).length > 0 && (
             <IonRow className="ion-text-left">
               <IonCol size="10" offset="1">
                 <ul className="ion-no-padding">
                   <h6>{`Liquid Bitcoin pegin transaction${
-                    claimTxs.length > 1 ? 's' : ''
+                    Object.keys(claimedPegins).length > 1 ? 's' : ''
                   }:`}</h6>
-                  {claimTxs.map((txid, i) => (
+                  {Object.values(claimedPegins).map(({ claimTxId }, i) => (
                     <li key={i}>
                       <a
-                        href={`${explorerUrl}/tx/${txid}`}
+                        href={`${explorerUrl}/tx/${claimTxId}`}
                         target="_blank"
-                      >{`${explorerUrl}/tx/${txid}`}</a>
+                      >{`${explorerUrl}/tx/${claimTxId}`}</a>
                     </li>
                   ))}
                 </ul>
