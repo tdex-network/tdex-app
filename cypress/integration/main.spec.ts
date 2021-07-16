@@ -30,7 +30,7 @@ describe('trade', () => {
     cy.launchWallet();
     cy.get('[data-cy=tab-exchange]').click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
+    cy.wait(3000);
     cy.get('[data-cy=exchange-send-input]').children().type('1');
     cy.get('[data-cy=exchange-confirm-btn]').contains('CONFIRM').click();
     cy.get('[data-cy=description-p]').should(
