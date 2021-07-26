@@ -61,7 +61,7 @@ export interface WalletState {
   lastUsedExternalIndex?: number;
 }
 
-const initialState: WalletState = {
+export const initialState: WalletState = {
   isAuth: false,
   addresses: {},
   pegins: {},
@@ -90,24 +90,11 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
       };
     }
     case ADD_OR_UPDATE_PEGINS: {
-      let updatedPegins: Pegins = {};
-      (Object.entries(action.payload.pegins) as [string, Pegin][]).forEach(
-        ([claimScript, pegin]) => {
-          updatedPegins = {
-            ...state.pegins,
-            [claimScript]: pegin,
-          };
-        },
-      );
-      return {
-        ...state,
-        pegins: updatedPegins,
-      };
+      return addOrUpdatePeginsInState(state, action.payload.pegins);
     }
     case SET_IS_AUTH:
       return { ...state, isAuth: action.payload };
     case SET_UTXO:
-      // TO DO replace by Object.assign
       return addUtxoInState(state, action.payload);
     case DELETE_UTXO:
       return deleteUtxoInState(state, action.payload);
@@ -149,6 +136,22 @@ const addUtxoInState = (state: WalletState, utxo: UtxoInterface) => {
   const newUtxosMap = { ...state.utxos };
   newUtxosMap[outpointToString(utxo)] = utxo;
   return { ...state, utxos: newUtxosMap };
+};
+
+const addOrUpdatePeginsInState = (state: WalletState, pegins: Pegins) => {
+  let updatedPegins: Pegins = state.pegins;
+  (Object.entries(pegins) as [string, Pegin][]).forEach(
+    ([claimScript, pegin]) => {
+      updatedPegins = {
+        ...updatedPegins,
+        [claimScript]: pegin,
+      };
+    },
+  );
+  return {
+    ...state,
+    pegins: updatedPegins,
+  };
 };
 
 const deleteUtxoInState = (
