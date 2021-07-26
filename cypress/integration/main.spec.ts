@@ -38,6 +38,8 @@ describe('trade', () => {
       'Enter your secret PIN to send 1 L-BTC and receive',
     );
     cy.get('[data-cy=pin-input]').children().type(pin);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
     cy.get('[data-cy=header-title]').should('contain.text', 'TRADE SUMMARY');
     cy.get('[data-cy=trade-summary-sent-amount]').should('contain.text', '-1');
     cy.get('[data-cy=trade-summary-btn]')
