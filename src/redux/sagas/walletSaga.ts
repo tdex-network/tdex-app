@@ -27,13 +27,13 @@ import type { ActionType } from '../../utils/types';
 import { setIsFetchingUtxos, SIGN_IN } from '../actions/appActions';
 import { addErrorToast } from '../actions/toastActions';
 import {
-  addOrUpdatePegins,
+  upsertPegins,
   deleteUtxo,
   resetUtxos,
   setUtxo,
   unlockUtxo,
   ADD_ADDRESS,
-  ADD_OR_UPDATE_PEGINS,
+  UPSERT_PEGINS,
   LOCK_UTXO,
   UPDATE_UTXOS,
   WATCH_UTXO,
@@ -153,7 +153,7 @@ function* restoreUtxos() {
 
 function* restorePegins() {
   const pegins: Pegins = yield call(getPeginsFromStorage);
-  yield put(addOrUpdatePegins(pegins));
+  yield put(upsertPegins(pegins));
 }
 
 function* watchUtxoSaga(action: ActionType) {
@@ -191,7 +191,7 @@ function* watchUtxoSaga(action: ActionType) {
 export function* walletWatcherSaga(): Generator {
   yield takeLatest(ADD_ADDRESS, persistAddresses);
   yield takeLatest(ADD_ADDRESS, persistLastUsedIndexes);
-  yield takeLatest(ADD_OR_UPDATE_PEGINS, persistPegins);
+  yield takeLatest(UPSERT_PEGINS, persistPegins);
   yield takeLatest(UPDATE_UTXOS, updateUtxosState);
   yield takeLatest(UPDATE_UTXOS, persistUtxos);
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment

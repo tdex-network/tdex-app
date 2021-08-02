@@ -8,7 +8,7 @@ import { outpointToString } from '../reducers/walletReducer';
 
 export const SET_IS_AUTH = 'SET_IS_AUTH';
 export const ADD_ADDRESS = 'ADD_ADDRESS';
-export const ADD_OR_UPDATE_PEGINS = 'ADD_OR_UPDATE_PEGINS';
+export const UPSERT_PEGINS = 'UPSERT_PEGINS';
 export const UPDATE_UTXOS = 'UPDATE_UTXOS';
 export const SET_UTXO = 'SET_UTXO';
 export const DELETE_UTXO = 'DELETE_UTXO';
@@ -47,12 +47,12 @@ export const addAddress = (address: AddressInterface): AnyAction => {
 };
 
 /**
- * Add a single or multiple pegins
+ * Add or update a single or multiple pegins
  * @param pegins
  */
-export const addOrUpdatePegins = (pegins: Pegins): AnyAction => {
+export const upsertPegins = (pegins: Pegins): AnyAction => {
   return {
-    type: ADD_OR_UPDATE_PEGINS,
+    type: UPSERT_PEGINS,
     payload: { pegins },
   };
 };

@@ -21,7 +21,7 @@ import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import { addOrUpdatePegins } from '../../redux/actions/walletActions';
+import { upsertPegins } from '../../redux/actions/walletActions';
 import type { Pegins } from '../../redux/reducers/walletReducer';
 import {
   claimPegin,
@@ -128,7 +128,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
             .then(successPegins => {
               if (Object.keys(successPegins).length) {
                 setClaimedPegins(successPegins);
-                dispatch(addOrUpdatePegins(successPegins));
+                dispatch(upsertPegins(successPegins));
                 dispatch(addSuccessToast(`Claim Transaction broadcasted`));
                 managePinSuccess();
                 setInputBtcPeginAddress(undefined);

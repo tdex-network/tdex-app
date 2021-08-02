@@ -25,7 +25,7 @@ import {
   SET_UTXO,
   DELETE_UTXO,
   ADD_ADDRESS,
-  ADD_OR_UPDATE_PEGINS,
+  UPSERT_PEGINS,
   RESET_UTXOS,
   SET_PUBLIC_KEYS,
   LOCK_UTXO,
@@ -89,8 +89,8 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
         lastUsedExternalIndex: isChange ? state.lastUsedExternalIndex : index,
       };
     }
-    case ADD_OR_UPDATE_PEGINS: {
-      return addOrUpdatePeginsInState(state, action.payload.pegins);
+    case UPSERT_PEGINS: {
+      return upsertPeginsInState(state, action.payload.pegins);
     }
     case SET_IS_AUTH:
       return { ...state, isAuth: action.payload };
@@ -138,7 +138,7 @@ const addUtxoInState = (state: WalletState, utxo: UtxoInterface) => {
   return { ...state, utxos: newUtxosMap };
 };
 
-const addOrUpdatePeginsInState = (state: WalletState, pegins: Pegins) => {
+const upsertPeginsInState = (state: WalletState, pegins: Pegins) => {
   let updatedPegins: Pegins = state.pegins;
   (Object.entries(pegins) as [string, Pegin][]).forEach(
     ([claimScript, pegin]) => {

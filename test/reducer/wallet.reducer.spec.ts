@@ -1,4 +1,4 @@
-import { addOrUpdatePegins } from '../../src/redux/actions/walletActions';
+import { upsertPegins } from '../../src/redux/actions/walletActions';
 import walletReducer, {
   initialState,
 } from '../../src/redux/reducers/walletReducer';
@@ -33,7 +33,7 @@ describe('Wallet reducer', () => {
         },
       },
     };
-    expect(walletReducer(state, addOrUpdatePegins(pegins))).toEqual({
+    expect(walletReducer(state, upsertPegins(pegins))).toEqual({
       ...initialState,
       pegins: {
         '00145f30a83267653cc442298fbca3f3137dae8e88da': {
@@ -91,7 +91,7 @@ describe('Wallet reducer', () => {
     expect(
       walletReducer(
         state,
-        addOrUpdatePegins({
+        upsertPegins({
           '00146a010acf97d317e0c22cc622c789dbee7f40876c': {
             claimTxId:
               '334a48f635942e3a35c284b9787144826bed4692a2423005513490540dbb7dff',

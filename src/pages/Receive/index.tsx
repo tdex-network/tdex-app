@@ -27,10 +27,7 @@ import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import {
-  addAddress,
-  addOrUpdatePegins,
-} from '../../redux/actions/walletActions';
+import { addAddress, upsertPegins } from '../../redux/actions/walletActions';
 import { network } from '../../redux/config';
 import type { AssetConfig } from '../../utils/constants';
 import { BTC_TICKER } from '../../utils/constants';
@@ -90,7 +87,7 @@ const Receive: React.FC<ReceiveProps> = ({
         const derivationPath = addr.derivationPath;
         if (!derivationPath) throw new Error('Derivation path is required');
         dispatch(
-          addOrUpdatePegins({
+          upsertPegins({
             [claimScript]: {
               depositAddress: {
                 claimScript,
