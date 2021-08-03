@@ -1,9 +1,7 @@
-import { upsertPegins } from '../../src/redux/actions/walletActions';
-import walletReducer, {
-  initialState,
-} from '../../src/redux/reducers/walletReducer';
+import { upsertPegins } from '../../src/redux/actions/btcActions';
+import btcReducer, { initialState } from '../../src/redux/reducers/btcReducer';
 
-describe('Wallet reducer', () => {
+describe('Btc reducer', () => {
   test('should return the initial state of one pegin plus two new pegins', () => {
     const state = {
       ...initialState,
@@ -33,7 +31,7 @@ describe('Wallet reducer', () => {
         },
       },
     };
-    expect(walletReducer(state, upsertPegins(pegins))).toEqual({
+    expect(btcReducer(state, upsertPegins(pegins))).toEqual({
       ...initialState,
       pegins: {
         '00145f30a83267653cc442298fbca3f3137dae8e88da': {
@@ -89,7 +87,7 @@ describe('Wallet reducer', () => {
       },
     };
     expect(
-      walletReducer(
+      btcReducer(
         state,
         upsertPegins({
           '00146a010acf97d317e0c22cc622c789dbee7f40876c': {

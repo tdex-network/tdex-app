@@ -7,7 +7,7 @@ const mapStateToProps = (state: any) => {
     addresses: state.wallet.addresses,
     explorerUrl: state.settings.explorerUrl,
     explorerBitcoinUrl: state.settings.explorerBitcoinUrl,
-    pegins: state.wallet.pegins,
+    pegins: state.btc.pegins,
   };
 };
 

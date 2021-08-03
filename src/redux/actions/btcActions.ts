@@ -1,13 +1,34 @@
 import type { UtxoInterface } from 'ldk';
+import type { AnyAction } from 'redux';
 
 import type { ActionType } from '../../utils/types';
+import type { Pegins } from '../reducers/btcReducer';
 
 export const SET_UTXO_BTC = 'SET_UTXO_BTC';
-export const RESET_UTXOS_BTC = 'RESET_UTXOS_BTC';
 export const UPDATE_UTXOS_BTC = 'UPDATE_UTXOS_BTC';
 export const WATCH_UTXO_BTC = 'WATCH_UTXO_BTC';
 export const SET_CURRENT_BTC_BLOCK_HEIGHT = 'SET_CURRENT_BTC_BLOCK_HEIGHT';
 export const WATCH_CURRENT_BTC_BLOCK_HEIGHT = 'WATCH_CURRENT_BTC_BLOCK_HEIGHT';
+export const UPSERT_PEGINS = 'UPSERT_PEGINS';
+export const CLAIM_PEGINS = 'CLAIM_PEGINS';
+
+/**
+ * Add or update a single or multiple pegins
+ * @param pegins
+ */
+export const upsertPegins = (pegins: Pegins): AnyAction => {
+  return {
+    type: UPSERT_PEGINS,
+    payload: { pegins },
+  };
+};
+
+export const claimPegins = (pegins: Pegins): AnyAction => {
+  return {
+    type: CLAIM_PEGINS,
+    payload: { pegins },
+  };
+};
 
 export const setCurrentBtcBlockHeight = (
   currentBtcBlockHeight: number,

@@ -7,11 +7,13 @@ import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
 import {
   SET_CURRENT_BTC_BLOCK_HEIGHT,
   SET_UTXO_BTC,
+  UPSERT_PEGINS,
 } from '../actions/btcActions';
 
 import { outpointToString } from './walletReducer';
 
-export interface UtxoBtc {
+// Deposit pegin utxos
+export interface DepositPeginUtxo {
   txid: string;
   vout: number;
   status: {
@@ -22,15 +24,32 @@ export interface UtxoBtc {
   };
   value: number;
 }
+export type DepositPeginUtxos = Record<string, DepositPeginUtxo>;
+// Pegin
+export interface Pegin {
+  claimTxId?: string;
+  depositAddress: {
+    address: string;
+    claimScript: string;
+    derivationPath: string;
+  };
+  depositAmount?: number;
+  depositBlockHeight?: number;
+  depositTxId?: string;
+}
+export type ClaimScript = string;
+export type Pegins = Record<ClaimScript, Pegin>;
 
 export interface BtcState {
   currentBlockHeight: number;
-  utxosBtc: Record<string, UtxoBtc>;
+  depositPeginUtxos: DepositPeginUtxos;
+  pegins: Pegins;
 }
 
 export const initialState: BtcState = {
   currentBlockHeight: 0,
-  utxosBtc: {},
+  depositPeginUtxos: {},
+  pegins: {},
 };
 
 function btcReducer(state = initialState, action: ActionType): BtcState {
@@ -43,21 +62,24 @@ function btcReducer(state = initialState, action: ActionType): BtcState {
         currentBlockHeight: action.payload,
       };
     }
+    case UPSERT_PEGINS: {
+      return upsertPeginsInState(state, action.payload.pegins);
+    }
     default:
       return state;
   }
 }
 
-const addUtxoBtcInState = (state: BtcState, utxo: UtxoBtc) => {
-  const newUtxosBtcMap = { ...state.utxosBtc };
+const addUtxoBtcInState = (state: BtcState, utxo: DepositPeginUtxo) => {
+  const newUtxosBtcMap = { ...state.depositPeginUtxos };
   newUtxosBtcMap[outpointToString(utxo)] = utxo;
-  return { ...state, utxosBtc: newUtxosBtcMap };
+  return { ...state, depositPeginUtxos: newUtxosBtcMap };
 };
 
-export const utxosBtcToDisplayTxSelector = createSelector(
-  ({ btc }: { btc: BtcState }) => btc.utxosBtc,
-  (utxosBtc): TxDisplayInterface[] => {
-    return Object.values(utxosBtc).map(({ txid, value, status }) => {
+export const depositPeginUtxosToDisplayTxSelector = createSelector(
+  ({ btc }: { btc: BtcState }) => btc.depositPeginUtxos,
+  (depositPeginUtxos): TxDisplayInterface[] => {
+    return Object.values(depositPeginUtxos).map(({ txid, value, status }) => {
       return {
         type: TxTypeEnum.DepositBtc,
         fee: 0,
@@ -78,5 +100,21 @@ export const utxosBtcToDisplayTxSelector = createSelector(
     });
   },
 );
+
+const upsertPeginsInState = (state: BtcState, pegins: Pegins) => {
+  let updatedPegins: Pegins = state.pegins;
+  (Object.entries(pegins) as [string, Pegin][]).forEach(
+    ([claimScript, pegin]) => {
+      updatedPegins = {
+        ...updatedPegins,
+        [claimScript]: pegin,
+      };
+    },
+  );
+  return {
+    ...state,
+    pegins: updatedPegins,
+  };
+};
 
 export default btcReducer;

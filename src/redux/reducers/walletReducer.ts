@@ -25,7 +25,6 @@ import {
   SET_UTXO,
   DELETE_UTXO,
   ADD_ADDRESS,
-  UPSERT_PEGINS,
   RESET_UTXOS,
   SET_PUBLIC_KEYS,
   LOCK_UTXO,
@@ -35,24 +34,9 @@ import {
 
 import { transactionsAssets } from './transactionsReducer';
 
-export type ClaimScript = string;
-export type Pegin = {
-  claimTxId?: string;
-  depositAddress: {
-    address: string;
-    claimScript: string;
-    derivationPath: string;
-  };
-  depositAmount?: number;
-  depositBlockHeight?: number;
-  depositTxId?: string;
-};
-export type Pegins = Record<ClaimScript, Pegin>;
-
 export interface WalletState {
   isAuth: boolean;
   addresses: Record<string, AddressInterface>;
-  pegins: Pegins;
   utxos: Record<string, UtxoInterface>;
   utxosLocks: string[];
   masterPubKey: string;
@@ -64,7 +48,6 @@ export interface WalletState {
 export const initialState: WalletState = {
   isAuth: false,
   addresses: {},
-  pegins: {},
   utxos: {},
   utxosLocks: [],
   masterPubKey: '',
@@ -88,9 +71,6 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
         lastUsedInternalIndex: isChange ? index : state.lastUsedInternalIndex,
         lastUsedExternalIndex: isChange ? state.lastUsedExternalIndex : index,
       };
-    }
-    case UPSERT_PEGINS: {
-      return upsertPeginsInState(state, action.payload.pegins);
     }
     case SET_IS_AUTH:
       return { ...state, isAuth: action.payload };
@@ -136,22 +116,6 @@ const addUtxoInState = (state: WalletState, utxo: UtxoInterface) => {
   const newUtxosMap = { ...state.utxos };
   newUtxosMap[outpointToString(utxo)] = utxo;
   return { ...state, utxos: newUtxosMap };
-};
-
-const upsertPeginsInState = (state: WalletState, pegins: Pegins) => {
-  let updatedPegins: Pegins = state.pegins;
-  (Object.entries(pegins) as [string, Pegin][]).forEach(
-    ([claimScript, pegin]) => {
-      updatedPegins = {
-        ...updatedPegins,
-        [claimScript]: pegin,
-      };
-    },
-  );
-  return {
-    ...state,
-    pegins: updatedPegins,
-  };
 };
 
 const deleteUtxoInState = (

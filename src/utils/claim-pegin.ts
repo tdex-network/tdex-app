@@ -17,7 +17,7 @@ import { getNetwork } from 'tdex-sdk';
 
 import { watchTransaction } from '../redux/actions/transactionsActions';
 import { network } from '../redux/config';
-import type { Pegins } from '../redux/reducers/walletReducer';
+import type { Pegins } from '../redux/reducers/btcReducer';
 import { broadcastTx } from '../redux/services/walletService';
 
 export async function claimPegin(
@@ -46,7 +46,7 @@ export async function claimPegin(
   for (const claimScript in pegins) {
     if (Object.prototype.hasOwnProperty.call(pegins, claimScript)) {
       // Skip if pegin is already claimed
-      if (!pegins[claimScript].depositBlockHeight) {
+      if (!pegins[claimScript].claimTxId) {
         try {
           // Get pegin txs for each pegin address in state
           // Warning: In Regtest same pegin address is used in all pegins

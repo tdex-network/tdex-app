@@ -16,10 +16,8 @@ import {
 
 import { UpdateUtxosError } from '../../utils/errors';
 import {
-  getPeginsFromStorage,
   getUtxosFromStorage,
   setAddressesInStorage,
-  setPeginsInStorage,
   setLastUsedIndexesInStorage,
   setUtxosInStorage,
 } from '../../utils/storage-helper';
@@ -27,18 +25,16 @@ import type { ActionType } from '../../utils/types';
 import { setIsFetchingUtxos, SIGN_IN } from '../actions/appActions';
 import { addErrorToast } from '../actions/toastActions';
 import {
-  upsertPegins,
   deleteUtxo,
   resetUtxos,
   setUtxo,
   unlockUtxo,
   ADD_ADDRESS,
-  UPSERT_PEGINS,
   LOCK_UTXO,
   UPDATE_UTXOS,
   WATCH_UTXO,
 } from '../actions/walletActions';
-import type { Pegins, WalletState } from '../reducers/walletReducer';
+import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString, addressesSelector } from '../reducers/walletReducer';
 
 function* persistAddresses() {
@@ -54,11 +50,6 @@ function* persistLastUsedIndexes() {
     }),
   );
   yield call(setLastUsedIndexesInStorage, lastIndexes);
-}
-
-function* persistPegins() {
-  const pegins: Pegins = yield select(state => state.wallet.pegins);
-  yield call(setPeginsInStorage, pegins);
 }
 
 function* updateUtxosState() {
@@ -151,11 +142,6 @@ function* restoreUtxos() {
   }
 }
 
-function* restorePegins() {
-  const pegins: Pegins = yield call(getPeginsFromStorage);
-  yield put(upsertPegins(pegins));
-}
-
 function* watchUtxoSaga(action: ActionType) {
   const { address, maxTry }: { address: AddressInterface; maxTry: number } =
     action.payload;
@@ -191,13 +177,11 @@ function* watchUtxoSaga(action: ActionType) {
 export function* walletWatcherSaga(): Generator {
   yield takeLatest(ADD_ADDRESS, persistAddresses);
   yield takeLatest(ADD_ADDRESS, persistLastUsedIndexes);
-  yield takeLatest(UPSERT_PEGINS, persistPegins);
   yield takeLatest(UPDATE_UTXOS, updateUtxosState);
   yield takeLatest(UPDATE_UTXOS, persistUtxos);
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   yield takeEvery(LOCK_UTXO, waitAndUnlock);
   yield takeLatest(SIGN_IN, restoreUtxos);
-  yield takeLatest(SIGN_IN, restorePegins);
   yield takeLatest(WATCH_UTXO, watchUtxoSaga);
 }

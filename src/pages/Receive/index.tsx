@@ -23,11 +23,12 @@ import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import { IconCopy, CurrencyIcon } from '../../components/icons';
+import { upsertPegins } from '../../redux/actions/btcActions';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import { addAddress, upsertPegins } from '../../redux/actions/walletActions';
+import { addAddress } from '../../redux/actions/walletActions';
 import { network } from '../../redux/config';
 import type { AssetConfig } from '../../utils/constants';
 import { BTC_TICKER } from '../../utils/constants';

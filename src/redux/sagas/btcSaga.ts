@@ -4,19 +4,48 @@ import { fetchUtxos } from 'ldk';
 import { all, call, delay, put, select, takeLatest } from 'redux-saga/effects';
 
 import { UpdateUtxosError } from '../../utils/errors';
-import { setUtxosBtcInStorage } from '../../utils/storage-helper';
-import type { ActionType } from '../../utils/types';
 import {
+  getPeginsFromStorage,
+  setPeginsInStorage,
+  setUtxosBtcInStorage,
+} from '../../utils/storage-helper';
+import type { ActionType } from '../../utils/types';
+import { SIGN_IN } from '../actions/appActions';
+import {
+  CLAIM_PEGINS,
   setCurrentBtcBlockHeight,
   setUtxoBtc,
   UPDATE_UTXOS_BTC,
+  UPSERT_PEGINS,
+  upsertPegins,
   WATCH_CURRENT_BTC_BLOCK_HEIGHT,
   WATCH_UTXO_BTC,
 } from '../actions/btcActions';
 import { addErrorToast } from '../actions/toastActions';
-import type { BtcState } from '../reducers/btcReducer';
+import type {
+  BtcState,
+  DepositPeginUtxos,
+  Pegins,
+} from '../reducers/btcReducer';
 import { outpointToString } from '../reducers/walletReducer';
-import type { WalletState } from '../reducers/walletReducer';
+
+function* persistPegins() {
+  const pegins: Pegins = yield select(state => state.btc.pegins);
+  yield call(setPeginsInStorage, pegins);
+}
+
+// function* claimPegins() {
+//   const pegins: Pegins = yield select(state => state.btc.pegins);
+//   const btcCurrentBlockHeight: number = yield select(
+//     state => state.btc.currentBlockHeight,
+//   );
+//   yield call(setPeginsInStorage, pegins);
+// }
+
+function* restorePegins() {
+  const pegins: Pegins = yield call(getPeginsFromStorage);
+  yield put(upsertPegins(pegins));
+}
 
 // Fetch block height continuously every minute
 function* watchCurrentBtcBlockHeight() {
@@ -50,29 +79,37 @@ async function getCurrentBtcBlockHeight(
 
 function* persistUtxosBtc() {
   yield delay(15_000);
-  const utxosBtc: UtxoInterface[] = yield select(({ btc }: { btc: BtcState }) =>
-    Object.values(btc.utxosBtc),
+  const depositPeginUtxos: UtxoInterface[] = yield select(
+    ({ btc }: { btc: BtcState }) => Object.values(btc.depositPeginUtxos),
   );
-  yield call(setUtxosBtcInStorage, utxosBtc);
+  yield call(setUtxosBtcInStorage, depositPeginUtxos);
 }
 
 function* updateUtxosBtcState() {
   try {
-    const [btcAddresses, utxosBtc, explorerBitcoinURL]: [
+    const [btcDepositAddresses, depositPeginUtxos, explorerBitcoinURL]: [
       string[],
-      Record<string, UtxoInterface>,
+      DepositPeginUtxos,
       string,
     ] = yield all([
-      select(({ wallet }: { wallet: WalletState }) =>
-        Object.values(wallet.pegins).map(p => p.depositAddress.address),
+      select(({ btc }: { btc: BtcState }) =>
+        Object.values(btc.pegins)
+          .map(p => {
+            // If pegin not already claimed, check its address for deposit
+            if (!p.claimTxId) {
+              return p.depositAddress.address;
+            }
+            return undefined;
+          })
+          .filter(addr => addr !== undefined),
       ),
-      select(({ btc }: { btc: BtcState }) => btc.utxosBtc),
+      select(({ btc }: { btc: BtcState }) => btc.depositPeginUtxos),
       select(({ settings }) => settings.explorerBitcoinUrl),
     ]);
     yield call(
       fetchAndUpdateUtxosBtc,
-      btcAddresses,
-      utxosBtc,
+      btcDepositAddresses,
+      depositPeginUtxos,
       explorerBitcoinURL,
     );
   } catch (error) {
@@ -83,9 +120,10 @@ function* updateUtxosBtcState() {
 
 export function* fetchAndUpdateUtxosBtc(
   btcAddresses: string[],
-  currentUtxos: Record<string, UtxoInterface>,
+  currentUtxos: DepositPeginUtxos,
   explorerBitcoinUrl: string,
 ): any {
+  if (!btcAddresses.length) return;
   let utxos;
   for (const btcAddress of btcAddresses) {
     utxos = yield call(fetchUtxos, btcAddress, explorerBitcoinUrl);
@@ -93,7 +131,10 @@ export function* fetchAndUpdateUtxosBtc(
   if (utxos.length === 0) return;
   let utxoBtcUpdatedCount = 0;
   for (const utxo of utxos) {
-    if (!currentUtxos[outpointToString(utxo)]) {
+    if (
+      !currentUtxos[outpointToString(utxo)] ||
+      !currentUtxos[outpointToString(utxo)].status.confirmed
+    ) {
       utxoBtcUpdatedCount++;
       yield put(setUtxoBtc(utxo));
     }
@@ -126,8 +167,11 @@ function* watchUtxoBtcSaga(action: ActionType) {
 }
 
 export function* btcWatcherSaga(): Generator {
+  yield takeLatest(SIGN_IN, restorePegins);
   yield takeLatest(UPDATE_UTXOS_BTC, updateUtxosBtcState);
   yield takeLatest(UPDATE_UTXOS_BTC, persistUtxosBtc);
   yield takeLatest(WATCH_UTXO_BTC, watchUtxoBtcSaga);
   yield takeLatest(WATCH_CURRENT_BTC_BLOCK_HEIGHT, watchCurrentBtcBlockHeight);
+  yield takeLatest(UPSERT_PEGINS, persistPegins);
+  //yield takeLatest(CLAIM_PEGINS, claimPegins);
 }

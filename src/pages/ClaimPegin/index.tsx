@@ -17,12 +17,12 @@ import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import PinModal from '../../components/PinModal';
+import { upsertPegins } from '../../redux/actions/btcActions';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import { upsertPegins } from '../../redux/actions/walletActions';
-import type { Pegins } from '../../redux/reducers/walletReducer';
+import type { Pegins } from '../../redux/reducers/btcReducer';
 import {
   claimPegin,
   searchPeginDepositAddresses,

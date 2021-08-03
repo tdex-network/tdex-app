@@ -3,12 +3,10 @@ import { address as addrLDK } from 'ldk';
 import type { AnyAction } from 'redux';
 
 import type { ActionType } from '../../utils/types';
-import type { Pegins } from '../reducers/walletReducer';
 import { outpointToString } from '../reducers/walletReducer';
 
 export const SET_IS_AUTH = 'SET_IS_AUTH';
 export const ADD_ADDRESS = 'ADD_ADDRESS';
-export const UPSERT_PEGINS = 'UPSERT_PEGINS';
 export const UPDATE_UTXOS = 'UPDATE_UTXOS';
 export const SET_UTXO = 'SET_UTXO';
 export const DELETE_UTXO = 'DELETE_UTXO';
@@ -43,17 +41,6 @@ export const addAddress = (address: AddressInterface): AnyAction => {
         .toString('hex'),
       address,
     },
-  };
-};
-
-/**
- * Add or update a single or multiple pegins
- * @param pegins
- */
-export const upsertPegins = (pegins: Pegins): AnyAction => {
-  return {
-    type: UPSERT_PEGINS,
-    payload: { pegins },
   };
 };
 

@@ -9,8 +9,8 @@ import type { TDEXMnemonic } from 'tdex-sdk';
 
 import type { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 import { network } from '../redux/config';
+import type { Pegins } from '../redux/reducers/btcReducer';
 import type { CurrencyInterface } from '../redux/reducers/settingsReducer';
-import type { Pegins } from '../redux/reducers/walletReducer';
 
 import type { AssetConfig } from './constants';
 import { CURRENCIES, LBTC_DENOMINATIONS } from './constants';
@@ -94,8 +94,8 @@ export async function getUtxosBtcFromStorage(): Promise<UtxoInterface[]> {
   return getFromStorage<UtxoInterface[]>(UTXOS_BTC_KEY, []);
 }
 
-export function setUtxosBtcInStorage(utxosBtc: UtxoInterface[]): void {
-  Storage.set({ key: UTXOS_BTC_KEY, value: stringify(utxosBtc) });
+export function setUtxosBtcInStorage(depositPeginUtxos: UtxoInterface[]): void {
+  Storage.set({ key: UTXOS_BTC_KEY, value: stringify(depositPeginUtxos) });
 }
 
 export async function getAssetsFromStorage(): Promise<AssetConfig[]> {
