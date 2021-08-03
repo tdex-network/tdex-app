@@ -9,7 +9,6 @@ import {
   setPeginsInStorage,
   setUtxosBtcInStorage,
 } from '../../utils/storage-helper';
-import type { ActionType } from '../../utils/types';
 import { SIGN_IN } from '../actions/appActions';
 import {
   setCurrentBtcBlockHeight,
@@ -18,7 +17,6 @@ import {
   UPSERT_PEGINS,
   upsertPegins,
   WATCH_CURRENT_BTC_BLOCK_HEIGHT,
-  WATCH_UTXO_BTC,
 } from '../actions/btcActions';
 import { addErrorToast } from '../actions/toastActions';
 import type {
@@ -106,13 +104,7 @@ function* updateUtxosBtcState() {
     ] = yield all([
       select(({ btc }: { btc: BtcState }) =>
         Object.values(btc.pegins)
-          .map(p => {
-            // If pegin not already claimed, check its address for deposit
-            if (!p.claimTxId) {
-              return p.depositAddress.address;
-            }
-            return undefined;
-          })
+          .map(p => p.depositAddress.address)
           .filter(addr => addr !== undefined),
       ),
       select(({ btc }: { btc: BtcState }) => btc.depositPeginUtxos),
@@ -156,33 +148,10 @@ export function* fetchAndUpdateUtxosBtc(
   }
 }
 
-function* watchUtxoBtcSaga(action: ActionType) {
-  const { btcAddress, maxTry }: { btcAddress: string; maxTry: number } =
-    action.payload;
-  const explorerBitcoinUrl: string = yield select(
-    ({ settings }) => settings.explorerBitcoinUrl,
-  );
-  for (let t = 0; t < maxTry; t++) {
-    try {
-      const utxos: UtxoInterface[] = yield call(
-        fetchUtxos,
-        btcAddress,
-        explorerBitcoinUrl,
-      );
-      if (utxos.length === 0) throw new Error();
-      yield put(setUtxoBtc(utxos[0]));
-      break;
-    } catch {
-      yield delay(1_000);
-    }
-  }
-}
-
 export function* btcWatcherSaga(): Generator {
   yield takeLatest(SIGN_IN, restorePegins);
   yield takeLatest(UPDATE_UTXOS_BTC, updateUtxosBtcState);
   yield takeLatest(UPDATE_UTXOS_BTC, persistUtxosBtc);
-  yield takeLatest(WATCH_UTXO_BTC, watchUtxoBtcSaga);
   yield takeLatest(WATCH_CURRENT_BTC_BLOCK_HEIGHT, watchCurrentBtcBlockHeight);
   yield takeLatest(UPSERT_PEGINS, persistPegins);
   //yield takeLatest(CLAIM_PEGINS, claimPeginsSaga);

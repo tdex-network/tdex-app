@@ -6,7 +6,6 @@ import type { Pegins } from '../reducers/btcReducer';
 
 export const SET_UTXO_BTC = 'SET_UTXO_BTC';
 export const UPDATE_UTXOS_BTC = 'UPDATE_UTXOS_BTC';
-export const WATCH_UTXO_BTC = 'WATCH_UTXO_BTC';
 export const SET_CURRENT_BTC_BLOCK_HEIGHT = 'SET_CURRENT_BTC_BLOCK_HEIGHT';
 export const WATCH_CURRENT_BTC_BLOCK_HEIGHT = 'WATCH_CURRENT_BTC_BLOCK_HEIGHT';
 export const UPSERT_PEGINS = 'UPSERT_PEGINS';
@@ -57,11 +56,3 @@ export const updateUtxosBtc = (): ActionType => {
     type: UPDATE_UTXOS_BTC,
   };
 };
-
-export const watchUtxoBtc = (btcAddress: string, maxTry = 100): ActionType => ({
-  type: WATCH_UTXO_BTC,
-  payload: {
-    btcAddress,
-    maxTry,
-  },
-});
