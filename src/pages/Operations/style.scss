@@ -1,38 +1,4 @@
-ion-button.coin-action-button {
-  background: var(--ion-color-secondary-transparent);
-  border-radius: 10px;
-  color: var(--ion-color-secondary);
-  height: 85px;
-  padding: 0;
-  margin: 0;
-  font-family: var(--ion-font-heading);
-  font-size: 0.9rem;
-
-  div {
-    display: flex;
-    flex-flow: column nowrap;
-    align-items: center;
-
-    img {
-      margin-bottom: 7px;
-      width: 27px;
-
-      &:nth-child(2) {
-        rotate: 180deg;
-      }
-    }
-  }
-
-  &:nth-child(1) {
-    margin-right: 10px !important;
-  }
-
-  &:nth-child(3) {
-    margin-left: 10px !important;
-  }
-}
-
-.operations {
+#operations {
   .header-info {
     img {
       width: 48px;
@@ -40,46 +6,127 @@ ion-button.coin-action-button {
       margin-bottom: 14px;
     }
 
-    .info-amount {
-      font-family: var(--ion-font-sub);
-      font-size: var(--ion-font-size-l);
-
-      span {
+    .asset-balance {
+      .info-amount {
         font-family: var(--ion-font-sub);
-        font-size: var(--ion-font-size-main);
-        margin-left: 10px;
+        font-size: var(--ion-font-size-l);
+    
+        span {
+          font-family: var(--ion-font-sub);
+          font-size: var(--ion-font-size-main);
+          margin-left: 10px;
+        }
+      }
+  
+      .info-amount-converted {
+        font-family: var(--ion-font-sub-heading);
+        font-size: var(--ion-font-size-sub);
+        color: var(--ion-color-tertiary);
       }
     }
-
-    .info-amount-converted {
+  }
+  
+  ion-button.coin-action-button {
+    background: var(--ion-color-secondary-transparent);
+    border-radius: 10px;
+    color: var(--ion-color-secondary);
+    height: 85px;
+    padding: 0;
+    margin: 0;
+    font-family: var(--ion-font-heading);
+    font-size: 0.9rem;
+    
+    div {
+      display: flex;
+      flex-flow: column nowrap;
+      align-items: center;
+      
+      img {
+        margin-bottom: 7px;
+        width: 27px;
+        
+        &:nth-child(2) {
+          rotate: 180deg;
+        }
+      }
+    }
+    
+    &:nth-child(1) {
+      margin-right: 10px !important;
+    }
+    
+    &:nth-child(3) {
+      margin-left: 10px !important;
+    }
+  }
+  
+  .operation-item {
+    .pl-5 {
+      padding-left: 5px;
+    }
+    .mt-5 {
+      margin-top: 5px;
+    }
+    .ml-2 {
+      margin-left: 2px;
+    }
+    &::part(native) {
+      width: 100%;
+      flex-direction: column;
+      flex: 1;
+    }
+    ion-row {
+      align-items: end;
+      width: 100%;
+    }
+    .icon img {
+      height: 24px;
+      width: 24px;
+    }
+    .asset {
+      font-family: var(--ion-font-main);
+      font-size: var(--ion-font-size-main);
+    }
+    .time {
       font-family: var(--ion-font-sub-heading);
       font-size: var(--ion-font-size-sub);
       color: var(--ion-color-tertiary);
+      line-height: 18px;
     }
-  }
-
-  .list-item {
-    &.pending {
-      background-color: rgba(255, 220, 0, 0.15);
+    .operation-amount {
+      text-align: right;
+      .operation-amount__lbtc {
+        font-family: var(--ion-font-sub-heading);
+        font-size: var(--ion-font-size-sub-l);
+        span.ticker {
+          font-family: var(--ion-font-sub);
+          font-size: var(--ion-font-size-sub-s);
+          margin-left: 8px;
+        }
+      }
+      .operation-amount__fiat {
+        font-family: var(--ion-font-sub-heading);
+        font-size: var(--ion-font-size-sub);
+        color: var(--ion-color-tertiary);
+        line-height: 18px;
+      }
     }
-
+    &:not(.open) {
+      .extra-infos {
+        display: none;
+      }
+    }
     &.open {
-      font-size: 10px;
-
-      .sub-info {
-        display: block;
+      .extra-infos {
+        font-family: var(--ion-font-sub-heading);
+        font-size: var(--ion-font-size-sub-xs);
+        color: var(--ion-color-tertiary);
+        line-break: anywhere;
+        
+        .confirmations-pending {
+          color: rgba(var(--ion-color-warning-rgb), .6);
+        }
       }
-    }
-
-    .item-main-info .item-start {
-      align-items: end;
-      img {
-        margin-top: 5px;
-      }
-    }
-
-    .sub-info {
-      display: none;
     }
   }
 }

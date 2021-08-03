@@ -1,3 +1,4 @@
+import { network } from '../redux/config';
 import type { CurrencyInterface } from '../redux/reducers/settingsReducer';
 
 export const defaultPrecision = 8;
@@ -28,27 +29,40 @@ export interface AssetConfig {
   chain?: 'liquid' | 'regtest';
 }
 
+export const LBTC_ASSET: AssetConfig =
+  network.chain === 'regtest'
+    ? {
+        coinGeckoID: LBTC_COINGECKOID,
+        ticker: LBTC_TICKER,
+        assetHash:
+          '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225',
+        color: LBTC_COLOR,
+        precision: 8,
+        chain: 'regtest',
+        name: 'Liquid Bitcoin',
+      }
+    : {
+        coinGeckoID: LBTC_COINGECKOID,
+        ticker: LBTC_TICKER,
+        assetHash:
+          '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d',
+        color: LBTC_COLOR,
+        precision: 8,
+        chain: 'liquid',
+        name: 'Liquid Bitcoin',
+      };
+
+export const BTC_ASSET: AssetConfig = {
+  coinGeckoID: LBTC_COINGECKOID,
+  ticker: BTC_TICKER,
+  assetHash: '',
+  color: LBTC_COLOR,
+  precision: 8,
+  name: 'Bitcoin',
+};
+
 export const MAIN_ASSETS: AssetConfig[] = [
-  {
-    coinGeckoID: LBTC_COINGECKOID,
-    ticker: LBTC_TICKER,
-    assetHash:
-      '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225',
-    color: LBTC_COLOR,
-    precision: 8,
-    chain: 'regtest',
-    name: 'Liquid Bitcoin',
-  },
-  {
-    coinGeckoID: LBTC_COINGECKOID,
-    ticker: LBTC_TICKER,
-    assetHash:
-      '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d',
-    color: LBTC_COLOR,
-    precision: 8,
-    chain: 'liquid',
-    name: 'Liquid Bitcoin',
-  },
+  LBTC_ASSET,
   {
     coinGeckoID: USDT_COINGECKOID,
     ticker: USDT_TICKER,
@@ -75,15 +89,6 @@ export const MAIN_ASSETS: AssetConfig[] = [
     name: 'BTSE Token',
   },
 ];
-
-export const BTC_ASSET: AssetConfig = {
-  coinGeckoID: LBTC_COINGECKOID,
-  ticker: BTC_TICKER,
-  assetHash: '',
-  color: LBTC_COLOR,
-  precision: 8,
-  name: 'Bitcoin',
-};
 
 export function getColor(assetHash: string): string | undefined {
   return MAIN_ASSETS.find(

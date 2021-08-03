@@ -20,6 +20,10 @@ import {
   setIsBackupDone,
   setIsFetchingUtxos,
 } from '../actions/appActions';
+import {
+  updateUtxosBtc,
+  watchCurrentBtcBlockHeight,
+} from '../actions/btcActions';
 import { updatePrices } from '../actions/ratesActions';
 import { updateMarkets } from '../actions/tdexActions';
 import { updateTransactions } from '../actions/transactionsActions';
@@ -76,6 +80,8 @@ function* signInSaga(action: ActionType) {
 function* updateState() {
   yield put(setIsFetchingUtxos(true));
   yield all([
+    put(watchCurrentBtcBlockHeight()),
+    put(updateUtxosBtc()),
     put(updateMarkets()),
     put(updateTransactions()),
     put(updatePrices()),

@@ -145,10 +145,19 @@
 
 .status-text {
   text-transform: uppercase;
+  align-items: center;
+  display: flex;
+  justify-content: flex-end;
   &.confirmed {
     color: var(--ion-color-secondary);
+    span {
+      color: var(--ion-color-secondary);
+    }
   }
   &.pending {
     color: var(--ion-color-warning);
+    span {
+      color: var(--ion-color-warning);
+    }
   }
 }

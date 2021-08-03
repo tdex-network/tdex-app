@@ -1,0 +1,133 @@
+import axios from 'axios';
+import type { UtxoInterface } from 'ldk';
+import { fetchUtxos } from 'ldk';
+import { all, call, delay, put, select, takeLatest } from 'redux-saga/effects';
+
+import { UpdateUtxosError } from '../../utils/errors';
+import { setUtxosBtcInStorage } from '../../utils/storage-helper';
+import type { ActionType } from '../../utils/types';
+import {
+  setCurrentBtcBlockHeight,
+  setUtxoBtc,
+  UPDATE_UTXOS_BTC,
+  WATCH_CURRENT_BTC_BLOCK_HEIGHT,
+  WATCH_UTXO_BTC,
+} from '../actions/btcActions';
+import { addErrorToast } from '../actions/toastActions';
+import type { BtcState } from '../reducers/btcReducer';
+import { outpointToString } from '../reducers/walletReducer';
+import type { WalletState } from '../reducers/walletReducer';
+
+// Fetch block height continuously every minute
+function* watchCurrentBtcBlockHeight() {
+  const explorerBitcoinUrl: string = yield select(
+    (state: any) => state.settings.explorerBitcoinUrl,
+  );
+  const { currentBlockHeight } = yield call(
+    getCurrentBtcBlockHeight,
+    explorerBitcoinUrl,
+  );
+  const setCurrentBtcBlockHeightAction =
+    setCurrentBtcBlockHeight(currentBlockHeight);
+  yield put(setCurrentBtcBlockHeightAction);
+  yield delay(60_000);
+  yield put({ type: 'WATCH_CURRENT_BTC_BLOCK_HEIGHT' });
+}
+
+async function getCurrentBtcBlockHeight(
+  explorerBitcoinURL: string,
+): Promise<{ currentBlockHeight: number }> {
+  let currentBlockHeight;
+  try {
+    currentBlockHeight = (
+      await axios.get(`${explorerBitcoinURL}/blocks/tip/height`)
+    ).data;
+  } catch (err) {
+    console.error(err);
+  }
+  return { currentBlockHeight };
+}
+
+function* persistUtxosBtc() {
+  yield delay(15_000);
+  const utxosBtc: UtxoInterface[] = yield select(({ btc }: { btc: BtcState }) =>
+    Object.values(btc.utxosBtc),
+  );
+  yield call(setUtxosBtcInStorage, utxosBtc);
+}
+
+function* updateUtxosBtcState() {
+  try {
+    const [btcAddresses, utxosBtc, explorerBitcoinURL]: [
+      string[],
+      Record<string, UtxoInterface>,
+      string,
+    ] = yield all([
+      select(({ wallet }: { wallet: WalletState }) =>
+        Object.values(wallet.pegins).map(p => p.depositAddress.address),
+      ),
+      select(({ btc }: { btc: BtcState }) => btc.utxosBtc),
+      select(({ settings }) => settings.explorerBitcoinUrl),
+    ]);
+    yield call(
+      fetchAndUpdateUtxosBtc,
+      btcAddresses,
+      utxosBtc,
+      explorerBitcoinURL,
+    );
+  } catch (error) {
+    console.error(error);
+    yield put(addErrorToast(UpdateUtxosError));
+  }
+}
+
+export function* fetchAndUpdateUtxosBtc(
+  btcAddresses: string[],
+  currentUtxos: Record<string, UtxoInterface>,
+  explorerBitcoinUrl: string,
+): any {
+  let utxos;
+  for (const btcAddress of btcAddresses) {
+    utxos = yield call(fetchUtxos, btcAddress, explorerBitcoinUrl);
+  }
+  if (utxos.length === 0) return;
+  let utxoBtcUpdatedCount = 0;
+  for (const utxo of utxos) {
+    if (!currentUtxos[outpointToString(utxo)]) {
+      utxoBtcUpdatedCount++;
+      yield put(setUtxoBtc(utxo));
+    }
+  }
+  if (utxoBtcUpdatedCount > 0) {
+    console.debug(`${utxoBtcUpdatedCount} btc utxos updated`);
+  }
+}
+
+function* watchUtxoBtcSaga(action: ActionType) {
+  const { btcAddress, maxTry }: { btcAddress: string; maxTry: number } =
+    action.payload;
+  const explorerBitcoinUrl: string = yield select(
+    ({ settings }) => settings.explorerBitcoinUrl,
+  );
+  for (let t = 0; t < maxTry; t++) {
+    try {
+      const utxos: UtxoInterface[] = yield call(
+        fetchUtxos,
+        btcAddress,
+        explorerBitcoinUrl,
+      );
+      if (utxos.length === 0) throw new Error();
+      yield put(setUtxoBtc(utxos[0]));
+      break;
+    } catch {
+      yield delay(1_000);
+    }
+  }
+}
+
+export function* btcWatcherSaga(): Generator {
+  yield takeLatest(UPDATE_UTXOS_BTC, updateUtxosBtcState);
+  yield takeLatest(UPDATE_UTXOS_BTC, persistUtxosBtc);
+  yield takeLatest(WATCH_UTXO_BTC, watchUtxoBtcSaga);
+  yield takeLatest(WATCH_CURRENT_BTC_BLOCK_HEIGHT, watchCurrentBtcBlockHeight);
+}

@@ -205,6 +205,8 @@ export const TxIcon = ({ type }: any): any => {
       return <img className="deposit" src={themeIcon} alt="deposit" />;
     case TxTypeEnum.Withdraw:
       return <img className="withdraw" src={themeIcon} alt="withdraw" />;
+    case TxTypeEnum.DepositBtc:
+      return <img className="deposit-btc" src={BtcIcon} alt="DepositBtc" />;
     default:
       return <img src={CurrencyPlaceholderIcon} alt="currency placeholder" />;
   }
