@@ -76,12 +76,15 @@
       flex: 1;
     }
     ion-row {
-      align-items: end;
+      align-items: center;
       width: 100%;
     }
-    .icon img {
-      height: 24px;
-      width: 24px;
+    .icon {
+      padding-right: 7px;
+      img {
+        height: 24px;
+        width: 24px;
+      }
     }
     .asset {
       font-family: var(--ion-font-main);
