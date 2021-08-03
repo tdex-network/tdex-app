@@ -12,7 +12,6 @@ import {
 import type { ActionType } from '../../utils/types';
 import { SIGN_IN } from '../actions/appActions';
 import {
-  CLAIM_PEGINS,
   setCurrentBtcBlockHeight,
   setUtxoBtc,
   UPDATE_UTXOS_BTC,
@@ -29,18 +28,31 @@ import type {
 } from '../reducers/btcReducer';
 import { outpointToString } from '../reducers/walletReducer';
 
+// function* claimPeginsSaga() {
+//   const pegins: Pegins = yield select(state => state.btc.pegins);
+//   const explorerBitcoinUrl: string = yield select(
+//     state => state.settings.explorerBitcoinUrl,
+//   );
+//   const explorerUrl: string = yield select(state => state.settings.explorerUrl);
+//   const btcCurrentBlockHeight: number = yield select(
+//     state => state.btc.currentBlockHeight,
+//   );
+//   yield call(claimPeginsFn, explorerBitcoinUrl, explorerUrl, pegins, '');
+// }
+//
+// async function claimPeginsFn(
+//   explorerBitcoinUrl: string,
+//   explorerUrl: string,
+//   pendingPegins: Pegins,
+//   mnemonic: Mnemonic,
+// ) {
+//   await claimPegin(explorerBitcoinUrl, explorerUrl, pendingPegins, mnemonic);
+// }
+
 function* persistPegins() {
   const pegins: Pegins = yield select(state => state.btc.pegins);
   yield call(setPeginsInStorage, pegins);
 }
-
-// function* claimPegins() {
-//   const pegins: Pegins = yield select(state => state.btc.pegins);
-//   const btcCurrentBlockHeight: number = yield select(
-//     state => state.btc.currentBlockHeight,
-//   );
-//   yield call(setPeginsInStorage, pegins);
-// }
 
 function* restorePegins() {
   const pegins: Pegins = yield call(getPeginsFromStorage);
@@ -173,5 +185,5 @@ export function* btcWatcherSaga(): Generator {
   yield takeLatest(WATCH_UTXO_BTC, watchUtxoBtcSaga);
   yield takeLatest(WATCH_CURRENT_BTC_BLOCK_HEIGHT, watchCurrentBtcBlockHeight);
   yield takeLatest(UPSERT_PEGINS, persistPegins);
-  //yield takeLatest(CLAIM_PEGINS, claimPegins);
+  //yield takeLatest(CLAIM_PEGINS, claimPeginsSaga);
 }

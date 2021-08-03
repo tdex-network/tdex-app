@@ -22,7 +22,8 @@ import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import type { Pegins } from '../../redux/reducers/btcReducer';
+import { watchTransaction } from '../../redux/actions/transactionsActions';
+import type { Pegin, Pegins } from '../../redux/reducers/btcReducer';
 import {
   claimPegin,
   searchPeginDepositAddresses,
@@ -40,6 +41,7 @@ import {
 } from '../../utils/errors';
 import { sleep } from '../../utils/helpers';
 import { getIdentity } from '../../utils/storage-helper';
+
 import './style.scss';
 
 interface ClaimPeginProps extends RouteComponentProps {
@@ -118,16 +120,15 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
           }
         }
         if (pendingPegins) {
-          claimPegin(
-            explorerBitcoinUrl,
-            explorerUrl,
-            pendingPegins,
-            mnemonic,
-            dispatch,
-          )
+          claimPegin(explorerBitcoinUrl, explorerUrl, pendingPegins, mnemonic)
             .then(successPegins => {
               if (Object.keys(successPegins).length) {
                 setClaimedPegins(successPegins);
+                Object.values(successPegins).forEach((p: Pegin) => {
+                  if (p.claimTxId) {
+                    dispatch(watchTransaction(p.claimTxId));
+                  }
+                });
                 dispatch(upsertPegins(successPegins));
                 dispatch(addSuccessToast(`Claim Transaction broadcasted`));
                 managePinSuccess();

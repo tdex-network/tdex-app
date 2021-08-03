@@ -11,11 +11,8 @@ import {
 } from 'liquidjs-lib';
 import type { ECPairInterface } from 'liquidjs-lib/types/ecpair';
 import ElementsPegin from 'pegin';
-import type { Dispatch } from 'react';
-import type { AnyAction } from 'redux';
 import { getNetwork } from 'tdex-sdk';
 
-import { watchTransaction } from '../redux/actions/transactionsActions';
 import { network } from '../redux/config';
 import type { Pegins } from '../redux/reducers/btcReducer';
 import { broadcastTx } from '../redux/services/walletService';
@@ -25,7 +22,6 @@ export async function claimPegin(
   explorerUrl: string,
   pegins: Pegins,
   mnemonic: Mnemonic,
-  dispatch: Dispatch<AnyAction>,
 ): Promise<Pegins> {
   let claimedPegins: Pegins = {};
   let peginModule: ElementsPegin;
@@ -106,7 +102,6 @@ export async function claimPegin(
                 depositBlockHeight: btcPeginTx.status.block_height,
               },
             });
-            dispatch(watchTransaction(claimTxId));
           }
         } catch (err) {
           // Prevent propagating error to caller to allow failure of claims but still return the claimTxs that succeeded
