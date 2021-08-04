@@ -24,7 +24,6 @@ const PEGINS_KEY = 'tdex-app-pegins';
 const PROVIDERS_KEY = 'tdex-app-providers';
 const SEED_BACKUP_FLAG_KEY = 'tdex-app-seed-backup';
 const UTXOS_KEY = 'tdex-app-utxos';
-const UTXOS_BTC_KEY = 'tdex-app-utxos-btc';
 const TRANSACTIONS_KEY = 'tdex-app-transactions';
 const ASSETS_KEY = 'tdex-app-assets';
 const EXPLORER_KEY = 'tdex-app-explorer';
@@ -88,14 +87,6 @@ export async function getUtxosFromStorage(): Promise<UtxoInterface[]> {
 
 export function setUtxosInStorage(utxos: UtxoInterface[]): void {
   Storage.set({ key: UTXOS_KEY, value: stringify(utxos) });
-}
-
-export async function getUtxosBtcFromStorage(): Promise<UtxoInterface[]> {
-  return getFromStorage<UtxoInterface[]>(UTXOS_BTC_KEY, []);
-}
-
-export function setUtxosBtcInStorage(depositPeginUtxos: UtxoInterface[]): void {
-  Storage.set({ key: UTXOS_BTC_KEY, value: stringify(depositPeginUtxos) });
 }
 
 export async function getAssetsFromStorage(): Promise<AssetConfig[]> {

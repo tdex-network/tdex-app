@@ -1,11 +1,10 @@
-import type { UtxoInterface } from 'ldk';
 import type { AnyAction } from 'redux';
 
 import type { ActionType } from '../../utils/types';
-import type { Pegins } from '../reducers/btcReducer';
+import type { DepositPeginUtxo, Pegin, Pegins } from '../reducers/btcReducer';
 
-export const SET_UTXO_BTC = 'SET_UTXO_BTC';
-export const UPDATE_UTXOS_BTC = 'UPDATE_UTXOS_BTC';
+export const SET_DEPOSIT_PEGIN_UTXO = 'SET_DEPOSIT_PEGIN_UTXO';
+export const UPDATE_DEPOSIT_PEGIN_UTXOS = 'UPDATE_DEPOSIT_PEGIN_UTXOS';
 export const SET_CURRENT_BTC_BLOCK_HEIGHT = 'SET_CURRENT_BTC_BLOCK_HEIGHT';
 export const WATCH_CURRENT_BTC_BLOCK_HEIGHT = 'WATCH_CURRENT_BTC_BLOCK_HEIGHT';
 export const UPSERT_PEGINS = 'UPSERT_PEGINS';
@@ -44,15 +43,18 @@ export const watchCurrentBtcBlockHeight = (): ActionType => {
   };
 };
 
-export const setUtxoBtc = (utxo: UtxoInterface): ActionType => {
+export const setDepositPeginUtxo = (
+  utxo: DepositPeginUtxo,
+  depositAddress: Pegin['depositAddress'],
+): ActionType => {
   return {
-    type: SET_UTXO_BTC,
-    payload: utxo,
+    type: SET_DEPOSIT_PEGIN_UTXO,
+    payload: { utxo, depositAddress },
   };
 };
 
-export const updateUtxosBtc = (): ActionType => {
+export const updateDepositPeginUtxos = (): ActionType => {
   return {
-    type: UPDATE_UTXOS_BTC,
+    type: UPDATE_DEPOSIT_PEGIN_UTXOS,
   };
 };

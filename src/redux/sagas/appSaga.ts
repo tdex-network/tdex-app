@@ -21,7 +21,7 @@ import {
   setIsFetchingUtxos,
 } from '../actions/appActions';
 import {
-  updateUtxosBtc,
+  updateDepositPeginUtxos,
   watchCurrentBtcBlockHeight,
 } from '../actions/btcActions';
 import { updatePrices } from '../actions/ratesActions';
@@ -81,7 +81,7 @@ function* updateState() {
   yield put(setIsFetchingUtxos(true));
   yield all([
     put(watchCurrentBtcBlockHeight()),
-    put(updateUtxosBtc()),
+    put(updateDepositPeginUtxos()),
     put(updateMarkets()),
     put(updateTransactions()),
     put(updatePrices()),
