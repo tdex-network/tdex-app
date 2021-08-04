@@ -27,15 +27,17 @@ export interface DepositPeginUtxo {
 export type DepositPeginUtxos = Record<string, DepositPeginUtxo>;
 // Pegin
 export interface Pegin {
-  claimTxId?: string;
   depositAddress: {
     address: string;
     claimScript: string;
     derivationPath: string;
   };
+  // Infos added after successful claim
+  claimTxId?: string;
   depositAmount?: number;
   depositBlockHeight?: number;
   depositTxId?: string;
+  depositVout?: number;
 }
 export type ClaimScript = string;
 export type Pegins = Record<ClaimScript, Pegin>;

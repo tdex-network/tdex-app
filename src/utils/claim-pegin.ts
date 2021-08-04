@@ -14,7 +14,7 @@ import ElementsPegin from 'pegin';
 import { getNetwork } from 'tdex-sdk';
 
 import { network } from '../redux/config';
-import type { Pegins } from '../redux/reducers/btcReducer';
+import type { DepositPeginUtxo, Pegins } from '../redux/reducers/btcReducer';
 import { broadcastTx } from '../redux/services/walletService';
 
 export async function claimPegin(
@@ -47,12 +47,12 @@ export async function claimPegin(
           // Get pegin txs for each pegin address in state
           // Warning: In Regtest same pegin address is used in all pegins
           // So final `claimedPegins` only contains update data of last pegin in pegins array
-          const btcPeginTxs = (
+          const btcPeginUtxos: DepositPeginUtxo[] = (
             await axios.get(
-              `${explorerBitcoinUrl}/address/${pegins[claimScript].depositAddress.address}/txs`,
+              `${explorerBitcoinUrl}/address/${pegins[claimScript].depositAddress.address}/utxo`,
             )
           ).data;
-          if (btcPeginTxs.length === 0)
+          if (btcPeginUtxos.length === 0)
             console.log(
               `No pending claim transactions have been found for address ${pegins[claimScript].depositAddress.address}`,
             );
@@ -60,16 +60,15 @@ export async function claimPegin(
             mnemonic,
             pegins[claimScript].depositAddress.derivationPath,
           );
-          for (const btcPeginTx of btcPeginTxs) {
+          for (const btcPeginUtxo of btcPeginUtxos) {
             const btcPeginTxHex = (
-              await axios.get(`${explorerBitcoinUrl}/tx/${btcPeginTx.txid}/hex`)
-            ).data;
-            const btcPeginTxJson = (
-              await axios.get(`${explorerBitcoinUrl}/tx/${btcPeginTx.txid}`)
+              await axios.get(
+                `${explorerBitcoinUrl}/tx/${btcPeginUtxo.txid}/hex`,
+              )
             ).data;
             const btcBlockProof = (
               await axios.get(
-                `${explorerBitcoinUrl}/tx/${btcPeginTx?.txid}/merkleblock-proof`,
+                `${explorerBitcoinUrl}/tx/${btcPeginUtxo.txid}/merkleblock-proof`,
               )
             ).data;
             const claimTxHex = await peginModule.claimTx(
@@ -87,19 +86,16 @@ export async function claimPegin(
               signedClaimedTxHex,
               explorerUrl,
             );
-            const depositAmount = getDepositAmount(
-              btcPeginTxJson,
-              pegins[claimScript].depositAddress.address,
-            );
-            if (depositAmount === 0)
+            if (btcPeginUtxo.value === 0)
               throw new Error('Failure to retrieve pegin deposit amount');
             claimedPegins = Object.assign({}, claimedPegins, {
               [claimScript]: {
                 claimTxId: claimTxId,
                 depositAddress: pegins[claimScript].depositAddress,
-                depositAmount: depositAmount,
-                depositTxId: btcPeginTx.txid,
-                depositBlockHeight: btcPeginTx.status.block_height,
+                depositAmount: btcPeginUtxo.value,
+                depositTxId: btcPeginUtxo.txid,
+                depositVout: btcPeginUtxo.vout,
+                depositBlockHeight: btcPeginUtxo.status.block_height,
               },
             });
           }
@@ -153,16 +149,6 @@ export async function searchPeginDepositAddresses(
   } else {
     return undefined;
   }
-}
-
-function getDepositAmount(tx: any, depositAddress: string): number {
-  let depositAmount = 0;
-  tx?.vout?.forEach((vout: any) => {
-    if (vout.scriptpubkey_address === depositAddress) {
-      depositAmount = vout.value;
-    }
-  });
-  return depositAmount;
 }
 
 function generateSigningPrivKey(
