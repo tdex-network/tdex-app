@@ -1,12 +1,13 @@
 import type { ActionType } from '../../utils/types';
 import { ADD_TOAST, REMOVE_TOAST } from '../actions/toastActions';
 
-export type ToastType = 'success' | 'error';
+export type ToastType = 'success' | 'error' | 'warning';
 
 export interface ToastOpts {
   type: ToastType;
   ID: number;
   message: string;
+  duration?: number;
 }
 
 const toastReducer = (state: ToastOpts[] = [], action: ActionType): any[] => {

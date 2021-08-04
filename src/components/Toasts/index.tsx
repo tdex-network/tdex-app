@@ -21,7 +21,7 @@ const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast }) => {
           key={toast.ID}
           isOpen={true}
           color={toastColor(toast.type)}
-          duration={toastDuration(toast.type)}
+          duration={toast?.duration ?? toastDuration(toast.type)}
           message={toast.message}
           onDidDismiss={() => removeToast(toast.ID)}
           position="top"
@@ -47,6 +47,8 @@ function toastDuration(toastType: ToastType): number {
       return TOAST_TIMEOUT_FAILURE;
     case 'success':
       return TOAST_TIMEOUT_SUCCESS;
+    case 'warning':
+      return TOAST_TIMEOUT_FAILURE;
     default:
       return toastDuration('success');
   }
@@ -58,6 +60,8 @@ function toastColor(toastType: ToastType): string {
       return 'danger';
     case 'success':
       return 'success';
+    case 'warning':
+      return 'warning';
     default:
       return toastColor('success');
   }
