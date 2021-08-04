@@ -36,12 +36,8 @@ export interface Pegin {
   };
   // Info added after utxo fetching
   depositUtxos?: DepositPeginUtxos;
-  // Infos added after successful claim
+  // Info added after successful claim
   claimTxId?: string;
-  depositAmount?: number;
-  depositBlockHeight?: number;
-  depositTxId?: string;
-  depositVout?: number;
 }
 type ClaimScript = string;
 export type Pegins = Record<ClaimScript, Pegin>;

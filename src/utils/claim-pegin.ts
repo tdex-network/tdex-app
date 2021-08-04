@@ -92,10 +92,7 @@ export async function claimPegin(
               [claimScript]: {
                 claimTxId: claimTxId,
                 depositAddress: pegins[claimScript].depositAddress,
-                depositAmount: btcPeginUtxo.value,
-                depositTxId: btcPeginUtxo.txid,
-                depositVout: btcPeginUtxo.vout,
-                depositBlockHeight: btcPeginUtxo.status.block_height,
+                depositUtxos: pegins[claimScript].depositUtxos,
               },
             });
           }

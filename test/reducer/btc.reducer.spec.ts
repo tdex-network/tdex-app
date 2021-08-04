@@ -98,10 +98,6 @@ describe('Btc reducer', () => {
               address: 'bcrt1qkcdq27w3zy5g8zekwreuzp4n9vd2jryjnql7dq',
               derivationPath: "m/84'/0'/0'/0/1",
             },
-            depositAmount: 350000000,
-            depositTxId:
-              '0df345842e793881fdd1e91ee89bd7177485a09672582234e87a8540742c5dce',
-            depositBlockHeight: 203,
           },
           '0014d863bb0f322219f3b0647a21d17ed44bf8fa9ae8': {
             claimTxId:
@@ -111,10 +107,6 @@ describe('Btc reducer', () => {
               address: 'bcrt1qjg2rhft36x2zfskmndvmelmdzf4dxfq5ud0953',
               derivationPath: "m/84'/0'/0'/0/0",
             },
-            depositAmount: 100000000,
-            depositTxId:
-              '5ddad322e325207e87deeb25436c4604342c7ab3d3f3588bbafe0f2dfb1c5440',
-            depositBlockHeight: 102,
           },
         }),
       ),
@@ -136,10 +128,6 @@ describe('Btc reducer', () => {
             address: 'bcrt1qkcdq27w3zy5g8zekwreuzp4n9vd2jryjnql7dq',
             derivationPath: "m/84'/0'/0'/0/1",
           },
-          depositAmount: 350000000,
-          depositTxId:
-            '0df345842e793881fdd1e91ee89bd7177485a09672582234e87a8540742c5dce',
-          depositBlockHeight: 203,
         },
         '0014d863bb0f322219f3b0647a21d17ed44bf8fa9ae8': {
           claimTxId:
@@ -149,10 +137,6 @@ describe('Btc reducer', () => {
             address: 'bcrt1qjg2rhft36x2zfskmndvmelmdzf4dxfq5ud0953',
             derivationPath: "m/84'/0'/0'/0/0",
           },
-          depositAmount: 100000000,
-          depositTxId:
-            '5ddad322e325207e87deeb25436c4604342c7ab3d3f3588bbafe0f2dfb1c5440',
-          depositBlockHeight: 102,
         },
       },
     });
