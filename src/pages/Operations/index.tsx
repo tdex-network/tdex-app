@@ -236,14 +236,17 @@ const Operations: React.FC<OperationsProps> = ({
         </span>
       </div>
       <div className="operation-amount__fiat">
-        {transfer && balance.coinGeckoID && (
-          <div>
-            {fromSatoshi(transfer.amount.toString(), balance.precision)
-              .mul(prices[balance.coinGeckoID])
-              .toFixed(2)}{' '}
-            {currency.toUpperCase()}
-          </div>
-        )}
+        {transfer?.amount &&
+          balance.coinGeckoID &&
+          balance.precision &&
+          prices && (
+            <div>
+              {fromSatoshi(transfer.amount.toString(), balance.precision)
+                .mul(prices[balance.coinGeckoID])
+                .toFixed(2)}{' '}
+              {currency.toUpperCase()}
+            </div>
+          )}
       </div>
     </div>
   );
@@ -307,7 +310,7 @@ const Operations: React.FC<OperationsProps> = ({
                               </div>
                               <div className="time">
                                 {isOpen(tx.txId)
-                                  ? tx.blockTime?.format('DD MMM YYYY hh:mm:ss')
+                                  ? tx.blockTime?.format('DD MMM YYYY HH:mm:ss')
                                   : tx.blockTime?.format('DD MMM YYYY')}
                               </div>
                             </IonCol>

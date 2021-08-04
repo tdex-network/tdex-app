@@ -1,10 +1,13 @@
-import axios from 'axios'
-import {fetchUtxos} from 'ldk'
-import {all, call, delay, put, select, takeLatest} from 'redux-saga/effects'
+import axios from 'axios';
+import { fetchUtxos } from 'ldk';
+import { all, call, delay, put, select, takeLatest } from 'redux-saga/effects';
 
-import {UpdateUtxosError} from '../../utils/errors'
-import {getPeginsFromStorage, setPeginsInStorage} from '../../utils/storage-helper'
-import {SIGN_IN} from '../actions/appActions'
+import { UpdateUtxosError } from '../../utils/errors';
+import {
+  getPeginsFromStorage,
+  setPeginsInStorage,
+} from '../../utils/storage-helper';
+import { SIGN_IN } from '../actions/appActions';
 import {
   setCurrentBtcBlockHeight,
   setDepositPeginUtxo,
@@ -12,10 +15,10 @@ import {
   UPSERT_PEGINS,
   upsertPegins,
   WATCH_CURRENT_BTC_BLOCK_HEIGHT,
-} from '../actions/btcActions'
-import {addErrorToast} from '../actions/toastActions'
-import type {BtcState, Pegin, Pegins} from '../reducers/btcReducer'
-import {outpointToString} from '../reducers/walletReducer'
+} from '../actions/btcActions';
+import { addErrorToast } from '../actions/toastActions';
+import type { BtcState, Pegin, Pegins } from '../reducers/btcReducer';
+import { outpointToString } from '../reducers/walletReducer';
 
 // function* claimPeginsSaga() {
 //   const pegins: Pegins = yield select(state => state.btc.pegins);

@@ -88,7 +88,7 @@ const upsertDepositUtxoInState = (
   };
   return {
     ...state,
-    pegins: state.pegins,
+    pegins: { ...state.pegins },
   };
 };
 
@@ -103,16 +103,18 @@ export const depositPeginUtxosToDisplayTxSelector = createSelector(
           type: TxTypeEnum.DepositBtc,
           fee: 0,
           txId: utxo.txid,
-          status: TxStatusEnum.Confirmed,
+          status: utxo.status.confirmed
+            ? TxStatusEnum.Confirmed
+            : TxStatusEnum.Pending,
           transfers: [
             {
-              // In order to display btc deposit in LBTC operations
+              // LBTC hash in order to display btc deposit in LBTC operations
               asset: LBTC_ASSET.assetHash,
               amount: utxo.value ?? 0,
             },
           ],
-          blockHeight: utxo.status.block_height,
-          blockTime: utxo.status.block_time
+          blockHeight: utxo.status?.block_height,
+          blockTime: utxo.status?.block_time
             ? moment(utxo.status.block_time * 1000)
             : undefined,
         };
