@@ -35,7 +35,7 @@ export const LBTC_ASSET: AssetConfig =
         coinGeckoID: LBTC_COINGECKOID,
         ticker: LBTC_TICKER,
         assetHash:
-          '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225',
+          '056293ee681516f2d61bb7ce63030351d5e02d61aef9fb00d30f27f55d935b18',
         color: LBTC_COLOR,
         precision: 8,
         chain: 'regtest',
@@ -142,3 +142,6 @@ export const TOAST_TIMEOUT_SUCCESS = 800;
 export const TOAST_TIMEOUT_FAILURE = 2000;
 export const PIN_TIMEOUT_SUCCESS = 800;
 export const PIN_TIMEOUT_FAILURE = 2000;
+
+export const FEDPEGSCRIPT_CUSTOM =
+  '51210269e0180bc9e0be7648d6e9c17f3664bc3ebcee40f3a46cf4b42e583e96b911b951ae';

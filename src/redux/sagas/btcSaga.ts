@@ -54,14 +54,15 @@ function* getClaimablePegins() {
   );
   return Object.values(pegins)
     .map(pegin => {
-      // Check if already claimed
-      if (pegin.claimTxId) return undefined;
-      // Check if pegin is claimable
       const utxos = Object.values(pegin.depositUtxos ?? []);
-      const peginHasMatureUtxo = utxos.some(
-        utxo => currentBlockHeight - utxo.status.block_height > 101,
+      const peginHasClaimableUtxo = utxos.some(
+        // Check if pegin utxo not already claimed and utxo is mature
+        utxo =>
+          !utxo?.claimTxId &&
+          utxo.status?.block_height &&
+          currentBlockHeight - utxo.status.block_height > 101,
       );
-      if (peginHasMatureUtxo) return pegin;
+      if (peginHasClaimableUtxo) return pegin;
       return undefined;
     })
     .filter((pegin): pegin is Pegin => Boolean(pegin));

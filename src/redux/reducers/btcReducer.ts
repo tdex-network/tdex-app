@@ -17,12 +17,14 @@ export interface DepositPeginUtxo {
   txid: string;
   vout: number;
   status: {
-    confirmed: TxStatusEnum;
-    block_height: number;
-    block_hash: string;
-    block_time: number;
+    confirmed: boolean;
+    block_height?: number;
+    block_hash?: string;
+    block_time?: number;
   };
   value: number;
+  // Info added after successful claim
+  claimTxId?: string;
 }
 type Outpoint = string;
 export type DepositPeginUtxos = Record<Outpoint, DepositPeginUtxo>;
@@ -36,8 +38,6 @@ export interface Pegin {
   };
   // Info added after utxo fetching
   depositUtxos?: DepositPeginUtxos;
-  // Info added after successful claim
-  claimTxId?: string;
 }
 type ClaimScript = string;
 export type Pegins = Record<ClaimScript, Pegin>;
@@ -80,6 +80,7 @@ const upsertDepositUtxoInState = (
   depositAddress: Pegin['depositAddress'],
 ) => {
   state.pegins[depositAddress.claimScript].depositUtxos = {
+    ...state.pegins[depositAddress.claimScript].depositUtxos,
     [outpointToString(utxo)]: utxo,
   };
   return {

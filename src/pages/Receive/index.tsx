@@ -12,7 +12,6 @@ import {
 import { checkmarkOutline } from 'ionicons/icons';
 import type { IdentityOpts, StateRestorerOpts } from 'ldk';
 import { MasterPublicKey, address as addressLDK } from 'ldk';
-import ElementsPegin from 'pegin';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router';
@@ -29,7 +28,7 @@ import {
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import { addAddress } from '../../redux/actions/walletActions';
-import { network } from '../../redux/config';
+import { getPeginModule } from '../../redux/services/btcService';
 import type { AssetConfig } from '../../utils/constants';
 import { BTC_TICKER } from '../../utils/constants';
 import { AddressGenerationError } from '../../utils/errors';
@@ -64,23 +63,9 @@ const Receive: React.FC<ReceiveProps> = ({
         masterPublicKey,
       )(lastUsedIndexes);
       const addr = await restoredMasterPubKey.getNextAddress();
-      let peginModule;
       dispatch(addAddress(addr));
       if (state?.depositAsset?.ticker === BTC_TICKER) {
-        if (network.chain === 'liquid') {
-          peginModule = new ElementsPegin(
-            await ElementsPegin.withGoElements(),
-            await ElementsPegin.withLibwally(),
-          );
-        } else {
-          peginModule = new ElementsPegin(
-            await ElementsPegin.withGoElements(),
-            await ElementsPegin.withLibwally(),
-            ElementsPegin.withDynamicFederation(false),
-            ElementsPegin.withTestnet(),
-            ElementsPegin.withFederationScript('51'),
-          );
-        }
+        const peginModule = await getPeginModule();
         const claimScript = addressLDK
           .toOutputScript(addr.confidentialAddress)
           .toString('hex');

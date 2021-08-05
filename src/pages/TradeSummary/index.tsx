@@ -176,7 +176,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                           {transaction && (
                             <span>
                               {transaction.blockTime?.format(
-                                'DD MMM YYYY hh:mm:ss',
+                                'DD MMM YYYY HH:mm:ss',
                               )}
                             </span>
                           )}

@@ -30,7 +30,6 @@
       "@typescript-eslint/no-namespace": "off"
     }
   },
-  "prettier": "@ionic/prettier-config",
   "scripts": {
     "android": "ionic capacitor run android",
     "android:serve": "ionic capacitor run android -l --external",
@@ -87,7 +86,7 @@
     "liquidjs-lib": "^5.1.15",
     "lodash.debounce": "^4.0.8",
     "moment": "^2.29.1",
-    "pegin": "^0.1.4",
+    "pegin": "^0.1.5",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^7.2.4",

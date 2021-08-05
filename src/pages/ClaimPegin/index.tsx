@@ -27,7 +27,7 @@ import type { Pegin, Pegins } from '../../redux/reducers/btcReducer';
 import {
   claimPegin,
   searchPeginDepositAddresses,
-} from '../../utils/claim-pegin';
+} from '../../redux/services/btcService';
 import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
@@ -125,9 +125,12 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
               if (Object.keys(successPegins).length) {
                 setClaimedPegins(successPegins);
                 Object.values(successPegins).forEach((p: Pegin) => {
-                  if (p.claimTxId) {
-                    dispatch(watchTransaction(p.claimTxId));
-                  }
+                  const utxos = Object.values(p.depositUtxos ?? []);
+                  utxos.forEach(utxo => {
+                    if (utxo.claimTxId) {
+                      dispatch(watchTransaction(utxo.claimTxId));
+                    }
+                  });
                 });
                 dispatch(upsertPegins(successPegins));
                 dispatch(addSuccessToast(`Claim Transaction broadcasted`));
@@ -219,14 +222,17 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
                   <h6>{`Liquid Bitcoin pegin transaction${
                     Object.keys(claimedPegins).length > 1 ? 's' : ''
                   }:`}</h6>
-                  {Object.values(claimedPegins).map(({ claimTxId }, i) => (
-                    <li key={i}>
-                      <a
-                        href={`${explorerUrl}/tx/${claimTxId}`}
-                        target="_blank"
-                      >{`${explorerUrl}/tx/${claimTxId}`}</a>
-                    </li>
-                  ))}
+                  {Object.values(claimedPegins)
+                    .map(pegin => pegin.depositUtxos)
+                    .flatMap(depositUtxos => Object.values(depositUtxos ?? []))
+                    .map(({ claimTxId }, i) => (
+                      <li key={i}>
+                        <a
+                          href={`${explorerUrl}/tx/${claimTxId}`}
+                          target="_blank"
+                        >{`${explorerUrl}/tx/${claimTxId}`}</a>
+                      </li>
+                    ))}
                 </ul>
               </IonCol>
             </IonRow>
