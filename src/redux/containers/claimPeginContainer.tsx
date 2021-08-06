@@ -4,10 +4,10 @@ import ClaimPegin from '../../pages/ClaimPegin';
 
 const mapStateToProps = (state: any) => {
   return {
-    addresses: state.wallet.addresses,
+    pegins: state.btc.pegins,
     explorerUrl: state.settings.explorerUrl,
     explorerBitcoinUrl: state.settings.explorerBitcoinUrl,
-    pegins: state.btc.pegins,
+    toasts: state.toasts,
   };
 };
 

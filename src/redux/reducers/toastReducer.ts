@@ -7,6 +7,7 @@ export interface ToastOpts {
   type: ToastType;
   ID: number;
   message: string;
+  errorCode?: number;
   duration?: number;
 }
 

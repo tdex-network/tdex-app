@@ -92,11 +92,12 @@ const upsertDepositUtxoInState = (
 export const depositPeginUtxosToDisplayTxSelector = createSelector(
   ({ btc }: { btc: BtcState }) => btc.pegins,
   (pegins): TxDisplayInterface[] => {
-    return Object.values(pegins)
-      .map(p => p.depositUtxos)
-      .flatMap(depositUtxos => Object.values(depositUtxos ?? []))
-      .map(utxo => {
-        return {
+    const txs: TxDisplayInterface[] = [];
+    for (const claimScript in pegins) {
+      const pegin = pegins[claimScript];
+      const depositUtxos = Object.values(pegin.depositUtxos ?? []);
+      for (const utxo of depositUtxos) {
+        txs.push({
           type: TxTypeEnum.DepositBtc,
           fee: 0,
           txId: utxo.txid,
@@ -114,8 +115,12 @@ export const depositPeginUtxosToDisplayTxSelector = createSelector(
           blockTime: utxo.status?.block_time
             ? moment(utxo.status.block_time * 1000)
             : undefined,
-        };
-      });
+          claimScript: claimScript,
+          claimTxId: utxo.claimTxId,
+        });
+      }
+    }
+    return txs;
   },
 );
 

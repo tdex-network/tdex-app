@@ -11,14 +11,19 @@ export function addSuccessToast(
 ): ActionType {
   return {
     type: ADD_TOAST,
-    payload: createToast(message, 'success', duration),
+    payload: createToast({ message, type: 'success', duration }),
   };
 }
 
 export function addErrorToast(error: AppError, duration?: number): ActionType {
   return {
     type: ADD_TOAST,
-    payload: createToast(error.toToastMessage(), 'error', duration),
+    payload: createToast({
+      message: error.toToastMessage(),
+      type: 'error',
+      duration,
+      errorCode: error.code,
+    }),
   };
 }
 
@@ -28,7 +33,7 @@ export function addWarningToast(
 ): ActionType {
   return {
     type: ADD_TOAST,
-    payload: createToast(message, 'warning', duration),
+    payload: createToast({ message, type: 'warning', duration }),
   };
 }
 
@@ -42,15 +47,22 @@ export function removeToast(ID: number): ActionType {
 // using to increment toast ID
 let nextID = 0;
 
-function createToast(
-  message: string,
-  type: ToastType,
-  duration?: number,
-): ToastOpts {
+function createToast({
+  message,
+  type,
+  errorCode,
+  duration,
+}: {
+  message: string;
+  type: ToastType;
+  errorCode?: number;
+  duration?: number;
+}): ToastOpts {
   return {
     ID: nextID++,
     message,
     type,
+    errorCode,
     duration,
   };
 }

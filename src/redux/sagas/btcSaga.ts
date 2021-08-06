@@ -1,72 +1,39 @@
 import axios from 'axios';
-import { fetchUtxos } from 'ldk';
+import type { AddressInterface, StateRestorerOpts } from 'ldk';
+import { fetchUtxos, IdentityType, MasterPublicKey } from 'ldk';
+import { address as addrLDK } from 'liquidjs-lib';
+import type ElementsPegin from 'pegin';
 import { all, call, delay, put, select, takeLatest } from 'redux-saga/effects';
+import type { Restorer } from 'tdex-sdk';
+import { masterPubKeyRestorerFromState } from 'tdex-sdk';
 
-import { UpdateUtxosError } from '../../utils/errors';
+import {
+  NoClaimFoundError,
+  PeginRestorationError,
+  UpdateUtxosError,
+} from '../../utils/errors';
 import {
   getPeginsFromStorage,
   setPeginsInStorage,
 } from '../../utils/storage-helper';
+import type { ActionType } from '../../utils/types';
 import { SIGN_IN } from '../actions/appActions';
 import {
   setCurrentBtcBlockHeight,
   setDepositPeginUtxo,
+  upsertPegins,
+  RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS,
   UPDATE_DEPOSIT_PEGIN_UTXOS,
   UPSERT_PEGINS,
-  upsertPegins,
   WATCH_CURRENT_BTC_BLOCK_HEIGHT,
 } from '../actions/btcActions';
 import { addErrorToast } from '../actions/toastActions';
-import type { BtcState, Pegin, Pegins } from '../reducers/btcReducer';
+import { addAddress } from '../actions/walletActions';
+import { network } from '../config';
+import type { BtcState, Pegins } from '../reducers/btcReducer';
+import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString } from '../reducers/walletReducer';
-
-// function* claimPeginsSaga() {
-//   const pegins: Pegins = yield select(state => state.btc.pegins);
-//   const explorerBitcoinUrl: string = yield select(
-//     state => state.settings.explorerBitcoinUrl,
-//   );
-//   const explorerUrl: string = yield select(state => state.settings.explorerUrl);
-//   const btcCurrentBlockHeight: number = yield select(
-//     state => state.btc.currentBlockHeight,
-//   );
-//   yield call(claimPeginsFn, explorerBitcoinUrl, explorerUrl, pegins, '');
-// }
-//
-// async function claimPeginsFn(
-//   explorerBitcoinUrl: string,
-//   explorerUrl: string,
-//   pendingPegins: Pegins,
-//   mnemonic: Mnemonic,
-// ) {
-//   await claimPegin(explorerBitcoinUrl, explorerUrl, pendingPegins, mnemonic);
-// }
-
-function* getClaimablePegins() {
-  const pegins: Pegins = yield select(
-    ({ btc }: { btc: BtcState }) => btc.pegins,
-  );
-  const explorerBitcoinUrl: string = yield select(
-    (state: any) => state.settings.explorerBitcoinUrl,
-  );
-  const { currentBlockHeight } = yield call(
-    getCurrentBtcBlockHeight,
-    explorerBitcoinUrl,
-  );
-  return Object.values(pegins)
-    .map(pegin => {
-      const utxos = Object.values(pegin.depositUtxos ?? []);
-      const peginHasClaimableUtxo = utxos.some(
-        // Check if pegin utxo not already claimed and utxo is mature
-        utxo =>
-          !utxo?.claimTxId &&
-          utxo.status?.block_height &&
-          currentBlockHeight - utxo.status.block_height > 101,
-      );
-      if (peginHasClaimableUtxo) return pegin;
-      return undefined;
-    })
-    .filter((pegin): pegin is Pegin => Boolean(pegin));
-}
+import { getPeginModule } from '../services/btcService';
 
 function* persistPegins() {
   yield delay(5_000);
@@ -155,11 +122,100 @@ export function* fetchAndUpdateDepositPeginUtxos(
   }
 }
 
+/**
+ * Restore pegins
+ * @description Used when wallet doesn't have storage data anymore. After deep restoration of Liquid addresses, search for Bitcoin
+ * deposit address match and recreate pegin with associated data.
+ * @param action
+ * @returns pegins Pegins of provided depositAddressSearch
+ */
+function* restorePeginsFromDepositAddress(action: ActionType) {
+  try {
+    const [
+      addresses,
+      masterBlindKey,
+      masterPubKey,
+      lastUsedIndexes,
+      explorerBitcoinURL,
+    ]: [WalletState['addresses'], string, string, StateRestorerOpts, string] =
+      yield all([
+        select(({ wallet }: { wallet: WalletState }) => wallet.addresses),
+        select(({ wallet }: { wallet: WalletState }) => wallet.masterBlindKey),
+        select(({ wallet }: { wallet: WalletState }) => wallet.masterPubKey),
+        select(({ wallet }: { wallet: WalletState }) => ({
+          lastUsedExternalIndex: wallet.lastUsedExternalIndex,
+          lastUsedInternalIndex: wallet.lastUsedInternalIndex,
+        })),
+        select(({ settings }) => settings.explorerBitcoinUrl),
+      ]);
+    const peginModule: ElementsPegin = yield call(getPeginModule);
+    const pegins: Pegins = {};
+    const addrs = Object.entries(addresses).reverse();
+    // Search extra 5 addresses
+    // Needed if last action of user before losing wallet data was to generate addresses that received btc funds but not Liquid assets.
+    // Those addresses are not restored by LDK
+    const masterPublicKey: MasterPublicKey = new MasterPublicKey({
+      chain: network.chain,
+      type: IdentityType.MasterPublicKey,
+      opts: {
+        masterBlindingKey: masterBlindKey,
+        masterPublicKey: masterPubKey,
+      },
+    });
+    const restoredMasterPubKeyFn: Restorer<StateRestorerOpts, MasterPublicKey> =
+      yield call(masterPubKeyRestorerFromState, masterPublicKey);
+    const restoredMasterPubKey: MasterPublicKey = yield call(
+      restoredMasterPubKeyFn,
+      lastUsedIndexes,
+    );
+    for (let i = 0; i < 5; i++) {
+      const addr: AddressInterface = yield call(() =>
+        restoredMasterPubKey.getNextAddress(),
+      );
+      addrs.push([
+        addrLDK.toOutputScript(addr.confidentialAddress).toString('hex'),
+        addr,
+      ]);
+    }
+    // Search match
+    for (const [claimScript, addr] of addrs) {
+      const peginAddress: string = yield call(() =>
+        peginModule.getMainchainAddress(claimScript),
+      );
+      if (action.payload.depositAddress === peginAddress) {
+        pegins[claimScript] = {
+          depositAddress: {
+            address: peginAddress,
+            claimScript: claimScript,
+            derivationPath: addr.derivationPath ?? '',
+          },
+        };
+        // Save used address in state so that the wallet can be aware of new LBTC deposits after claim
+        yield put(addAddress(addr));
+      }
+    }
+    if (!Object.keys(pegins).length) {
+      yield put(addErrorToast(NoClaimFoundError));
+      return;
+    }
+    // Update pegin state
+    yield put(upsertPegins(pegins));
+    yield call(fetchAndUpdateDepositPeginUtxos, pegins, explorerBitcoinURL);
+    yield call(persistPegins);
+  } catch (err) {
+    console.error(err);
+    yield put(addErrorToast(PeginRestorationError));
+  }
+}
+
 export function* btcWatcherSaga(): Generator {
   yield takeLatest(SIGN_IN, restorePegins);
   yield takeLatest(UPDATE_DEPOSIT_PEGIN_UTXOS, updateDepositPeginUtxosState);
   yield takeLatest(UPDATE_DEPOSIT_PEGIN_UTXOS, persistPegins);
   yield takeLatest(WATCH_CURRENT_BTC_BLOCK_HEIGHT, watchCurrentBtcBlockHeight);
   yield takeLatest(UPSERT_PEGINS, persistPegins);
-  //yield takeLatest(CLAIM_PEGINS, claimPeginsSaga);
+  yield takeLatest(
+    RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS,
+    restorePeginsFromDepositAddress,
+  );
 }

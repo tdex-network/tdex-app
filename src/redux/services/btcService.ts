@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { BIP32Interface } from 'bip32';
 import * as bip32 from 'bip32';
 import * as btclib from 'bitcoinjs-lib';
-import type { AddressInterface, Mnemonic } from 'ldk';
+import type { Mnemonic } from 'ldk';
 import {
   confidential,
   ECPair,
@@ -38,7 +38,7 @@ export async function getPeginModule(): Promise<ElementsPegin> {
   return peginModule;
 }
 
-export async function claimPegin(
+export async function claimPegins(
   explorerBitcoinUrl: string,
   explorerUrl: string,
   pegins: Pegins,
@@ -47,97 +47,54 @@ export async function claimPegin(
   let claimedPegins: Pegins = {};
   const peginModule = await getPeginModule();
   for (const claimScript in pegins) {
-    if (Object.prototype.hasOwnProperty.call(pegins, claimScript)) {
-      const pegin = pegins[claimScript];
-      for (const outpoint in pegin.depositUtxos) {
-        if (
-          Object.prototype.hasOwnProperty.call(pegin.depositUtxos, outpoint)
-        ) {
-          const depositUtxo = pegin.depositUtxos[outpoint];
-          // Skip if pegin has no deposit utxo or utxo is already claimed
-          if (
-            (pegin?.depositUtxos &&
-              Object.keys(pegin.depositUtxos).length === 0) ||
-            !depositUtxo.claimTxId
-          ) {
-            try {
-              const ecPair = generateSigningPrivKey(
-                mnemonic,
-                pegins[claimScript].depositAddress.derivationPath,
-              );
-              const btcPeginTxHex = (
-                await axios.get(
-                  `${explorerBitcoinUrl}/tx/${depositUtxo.txid}/hex`,
-                )
-              ).data;
-              const btcBlockProof = (
-                await axios.get(
-                  `${explorerBitcoinUrl}/tx/${depositUtxo.txid}/merkleblock-proof`,
-                )
-              ).data;
-              const claimTxHex = await peginModule.claimTx(
-                btcPeginTxHex,
-                btcBlockProof,
-                claimScript,
-              );
-              const signedClaimTxHex = signClaimTx(
-                claimTxHex,
-                btcPeginTxHex,
-                claimScript,
-                ecPair,
-              );
-              const claimTxId = await broadcastTx(
-                signedClaimTxHex,
-                explorerUrl,
-              );
-              pegin.depositUtxos[outpoint] = {
-                ...depositUtxo,
-                claimTxId: claimTxId,
-              };
-              claimedPegins = Object.assign({}, claimedPegins, {
-                [claimScript]: {
-                  depositAddress: pegin.depositAddress,
-                  depositUtxos: pegin.depositUtxos,
-                },
-              });
-            } catch (err) {
-              // Prevent propagating error to caller to allow failure of claims but still return the claimTxs that succeeded
-              console.error(err);
-            }
-          }
+    const pegin = pegins[claimScript];
+    for (const outpoint in pegin?.depositUtxos) {
+      const depositUtxo = pegin.depositUtxos[outpoint];
+      // Skip if utxo is already claimed
+      if (!depositUtxo.claimTxId) {
+        try {
+          const ecPair = generateSigningPrivKey(
+            mnemonic,
+            pegin.depositAddress.derivationPath,
+          );
+          const btcPeginTxHex = (
+            await axios.get(`${explorerBitcoinUrl}/tx/${depositUtxo.txid}/hex`)
+          ).data;
+          const btcBlockProof = (
+            await axios.get(
+              `${explorerBitcoinUrl}/tx/${depositUtxo.txid}/merkleblock-proof`,
+            )
+          ).data;
+          const claimTxHex = await peginModule.claimTx(
+            btcPeginTxHex,
+            btcBlockProof,
+            claimScript,
+          );
+          const signedClaimTxHex = signClaimTx(
+            claimTxHex,
+            btcPeginTxHex,
+            claimScript,
+            ecPair,
+          );
+          const claimTxId = await broadcastTx(signedClaimTxHex, explorerUrl);
+          pegin.depositUtxos[outpoint] = {
+            ...depositUtxo,
+            claimTxId: claimTxId,
+          };
+          claimedPegins = Object.assign({}, claimedPegins, {
+            [claimScript]: {
+              depositAddress: pegin.depositAddress,
+              depositUtxos: pegin.depositUtxos,
+            },
+          });
+        } catch (err) {
+          // Prevent propagating error to caller to allow failure of claims but still return the claimTxs that succeeded
+          console.error(err);
         }
       }
     }
   }
   return claimedPegins;
-}
-
-export async function searchPeginDepositAddresses(
-  addresses: Record<string, AddressInterface>,
-  peginAddressSearch: string,
-): Promise<Pegins | undefined> {
-  const peginModule = await getPeginModule();
-  const pegins: Pegins = {};
-  const addrs = Object.entries(addresses).reverse();
-  for (const [claimScript, { derivationPath }] of addrs) {
-    const peginAddress = await peginModule.getMainchainAddress(claimScript);
-    if (peginAddressSearch === peginAddress) {
-      pegins[claimScript] = {
-        depositAddress: {
-          address: peginAddress,
-          claimScript: claimScript,
-          derivationPath: derivationPath ?? '',
-        },
-      };
-    }
-  }
-  if (Object.keys(pegins).length) {
-    if (Object.values(pegins)[0].depositAddress.derivationPath === '')
-      throw new Error('Claim data must contain derivation path');
-    return pegins;
-  } else {
-    return undefined;
-  }
 }
 
 function generateSigningPrivKey(

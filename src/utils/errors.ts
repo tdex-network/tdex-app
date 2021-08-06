@@ -63,12 +63,13 @@ export const ClaimPeginError = new AppError(
   17,
   'Claim pegin bitcoin has failed',
 );
-// When btc pegin address is not in app state
-export const NoPeginAddressFoundError = new AppError(
-  18,
-  'No btc pegin address has been found in this wallet. Try specifying the address manually',
-);
-export const NoClaimFoundError = new AppError(
+export const NoClaimFoundError = new AppError(18, 'No claims have been found');
+export const PeginRestorationError = new AppError(
   19,
-  'No claims have been found for this wallet',
+  'Pegin restoration has failed',
+);
+//
+export const InvalidBitcoinAddress = new AppError(
+  20,
+  'Invalid Bitcoin address',
 );

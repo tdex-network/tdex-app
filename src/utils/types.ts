@@ -21,6 +21,9 @@ export interface TxDisplayInterface {
   transfers: Transfer[];
   blockHeight?: number;
   blockTime?: moment.Moment;
+  // Only used in pegin deposits
+  claimScript?: string;
+  claimTxId?: string;
 }
 
 export interface Transfer {

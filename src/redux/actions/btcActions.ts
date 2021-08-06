@@ -9,6 +9,8 @@ export const SET_CURRENT_BTC_BLOCK_HEIGHT = 'SET_CURRENT_BTC_BLOCK_HEIGHT';
 export const WATCH_CURRENT_BTC_BLOCK_HEIGHT = 'WATCH_CURRENT_BTC_BLOCK_HEIGHT';
 export const UPSERT_PEGINS = 'UPSERT_PEGINS';
 export const CLAIM_PEGINS = 'CLAIM_PEGINS';
+export const RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS =
+  'RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS';
 
 /**
  * Add or update a single or multiple pegins
@@ -56,5 +58,14 @@ export const setDepositPeginUtxo = (
 export const updateDepositPeginUtxos = (): ActionType => {
   return {
     type: UPDATE_DEPOSIT_PEGIN_UTXOS,
+  };
+};
+
+export const restorePeginFromDepositAddress = (
+  depositAddress: string,
+): ActionType => {
+  return {
+    type: RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS,
+    payload: { depositAddress },
   };
 };

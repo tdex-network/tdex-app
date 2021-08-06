@@ -12,6 +12,9 @@ const mapStateToProps = (state: any) => {
     lbtcUnit: state.settings.denominationLBTC,
     btcTxs: depositPeginUtxosToDisplayTxSelector(state),
     currentBtcBlockHeight: state.btc.currentBlockHeight,
+    pegins: state.btc.pegins,
+    explorerUrl: state.settings.explorerUrl,
+    explorerBitcoinUrl: state.settings.explorerBitcoinUrl,
   };
 };
 

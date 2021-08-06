@@ -17,7 +17,6 @@ import type { Dispatch } from 'redux';
 
 import type { BalanceInterface } from '../redux/actionTypes/walletActionTypes';
 import { lockUtxo } from '../redux/actions/walletActions';
-import { network } from '../redux/config';
 
 import type { AssetConfig, LbtcDenomination } from './constants';
 import {
