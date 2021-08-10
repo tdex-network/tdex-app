@@ -22,7 +22,11 @@ import {
   setUtxosInStorage,
 } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
-import { setIsFetchingUtxos, SIGN_IN } from '../actions/appActions';
+import {
+  setIsFetchingUtxos,
+  SIGN_IN,
+  updateState,
+} from '../actions/appActions';
 import { addErrorToast } from '../actions/toastActions';
 import {
   deleteUtxo,
@@ -166,7 +170,10 @@ function* watchUtxoSaga(action: ActionType) {
           explorer,
         );
       error && console.error(error);
-      yield put(setUtxo(unblindedUtxo));
+      if (!error) {
+        yield put(setUtxo(unblindedUtxo));
+        yield put(updateState());
+      }
       break;
     } catch {
       yield delay(1_000);
