@@ -14,6 +14,7 @@ import PinSetting from './pages/PinSetting';
 import Tabs from './pages/Tabs';
 import { initApp } from './redux/actions/appActions';
 import { unlockUtxos } from './redux/actions/walletActions';
+import PinModalClaimPegin from './redux/containers/pinModalClaimPeginContainer';
 import RestoreWallet from './redux/containers/restoreWalletContainer';
 import ShowMnemonicOnboarding from './redux/containers/showMnemonicOnboadingContainer';
 import Toasts from './redux/containers/toastsContainer';
@@ -83,6 +84,7 @@ const App: React.FC<AppProps> = ({ appInit, isAuth, theme }) => {
 
         {/* Toasts component displays toasts from redux state */}
         <Toasts />
+        <PinModalClaimPegin />
       </IonReactRouter>
     </IonApp>
   );

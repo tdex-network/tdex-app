@@ -8,8 +8,8 @@ import {
   IonInput,
   IonItem,
 } from '@ionic/react';
-import type { Mnemonic, AddressInterface } from 'ldk';
-import React, { useState } from 'react';
+import type { Mnemonic } from 'ldk';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 
@@ -17,13 +17,24 @@ import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import PinModal from '../../components/PinModal';
+import { updateState } from '../../redux/actions/appActions';
+import {
+  checkIfClaimablePeginUtxo,
+  restorePeginFromDepositAddress,
+  upsertPegins,
+} from '../../redux/actions/btcActions';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import { deletePeginAddresses } from '../../redux/actions/walletActions';
-import type { WalletState } from '../../redux/reducers/walletReducer';
-import { claimPegin, searchPeginAddressData } from '../../utils/claim-pegin';
+import { watchTransaction } from '../../redux/actions/transactionsActions';
+import type {
+  DepositPeginUtxo,
+  Pegin,
+  Pegins,
+} from '../../redux/reducers/btcReducer';
+import type { ToastOpts } from '../../redux/reducers/toastReducer';
+import { claimPegins } from '../../redux/services/btcService';
 import {
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
@@ -31,26 +42,32 @@ import {
 import {
   ClaimPeginError,
   IncorrectPINError,
+  InvalidBitcoinAddress,
   NoClaimFoundError,
-  NoPeginAddressFoundError,
   PinDigitsError,
 } from '../../utils/errors';
 import { sleep } from '../../utils/helpers';
 import { getIdentity } from '../../utils/storage-helper';
+
 import './style.scss';
 
 interface ClaimPeginProps extends RouteComponentProps {
-  addresses: Record<string, AddressInterface>;
-  explorerUrl: string;
+  pegins: Pegins;
+  explorerLiquidUI: string;
   explorerBitcoinUrl: string;
-  peginAddresses: WalletState['peginAddresses'];
+  explorerUrl: string;
+  toasts: ToastOpts[];
+  currentBtcBlockHeight: number;
 }
 
+// Claim Pegin Settings Page
 const ClaimPegin: React.FC<ClaimPeginProps> = ({
-  addresses,
-  explorerUrl,
+  pegins,
+  explorerLiquidUI,
   explorerBitcoinUrl,
-  peginAddresses,
+  explorerUrl,
+  toasts,
+  currentBtcBlockHeight,
 }) => {
   // Pin Modal
   const [needReset, setNeedReset] = useState<boolean>(false);
@@ -58,11 +75,68 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   //
   const [isLoading, setIsLoading] = useState(false);
-  const [claimTxs, setClaimTxs] = useState<string[]>([]);
-  const [btcPeginAddress, setBtcPeginAddress] = useState<string>();
+  const [claimedPegins, setClaimedPegins] = useState<Pegins>({});
+  const [inputBtcPeginAddress, setInputBtcPeginAddress] = useState<string>();
+  const [mnemonic, setMnemonic] = useState<Mnemonic>();
   const dispatch = useDispatch();
 
+  useEffect(() => {
+    toasts.map(t => {
+      if (t.type === 'error' && t.errorCode === 18) {
+        managePinError(true).catch(console.error);
+      }
+    });
+  }, [toasts]);
+
+  // claimPegins effect with pegins in sync with store when claiming
+  useEffect(() => {
+    if (inputBtcPeginAddress) {
+      if (mnemonic) {
+        claimPegins(
+          explorerBitcoinUrl,
+          explorerUrl,
+          pegins,
+          mnemonic,
+          currentBtcBlockHeight,
+        )
+          .then(successPegins => {
+            if (Object.keys(successPegins).length) {
+              setClaimedPegins(successPegins);
+              Object.values(successPegins).forEach((p: Pegin) => {
+                const utxos = Object.values(p.depositUtxos ?? []);
+                utxos.forEach((utxo: DepositPeginUtxo) => {
+                  if (utxo.claimTxId) {
+                    dispatch(watchTransaction(utxo.claimTxId));
+                  }
+                });
+              });
+              dispatch(upsertPegins(successPegins));
+              dispatch(addSuccessToast(`Claim transaction successful`));
+              managePinSuccess().catch(console.error);
+              setInputBtcPeginAddress(undefined);
+              dispatch(checkIfClaimablePeginUtxo());
+              dispatch(updateState());
+            } else {
+              dispatch(addErrorToast(NoClaimFoundError));
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            dispatch(addErrorToast(ClaimPeginError));
+            managePinError(true).catch(console.error);
+          });
+      } else {
+        dispatch(addErrorToast(NoClaimFoundError));
+        managePinError(true).catch(console.error);
+      }
+    }
+    return () => {
+      setInputBtcPeginAddress(undefined);
+    };
+  }, [pegins]);
+
   const managePinError = async (closeModal = false) => {
+    setIsLoading(false);
     setIsWrongPin(true);
     setTimeout(() => {
       setIsWrongPin(null);
@@ -75,6 +149,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
   };
 
   const managePinSuccess = async () => {
+    setIsLoading(false);
     setIsWrongPin(false);
     setTimeout(() => {
       setIsWrongPin(null);
@@ -84,73 +159,34 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
     setModalOpen(false);
   };
 
-  const handleConfirm = async (pin: string) => {
+  const handleClaimModalConfirm = async (pin: string) => {
     const validRegexp = new RegExp('\\d{6}');
     if (!validRegexp.test(pin)) {
       dispatch(addErrorToast(PinDigitsError));
       await managePinError();
     }
-    getIdentity(pin)
+    await getIdentity(pin)
       .then(async (mnemonic: Mnemonic) => {
-        setIsLoading(true);
-        let peginAddr: WalletState['peginAddresses'] | undefined;
-        if (btcPeginAddress) {
-          try {
-            peginAddr = await searchPeginAddressData(
-              addresses,
-              btcPeginAddress,
-            );
-          } catch (err) {
-            console.error(err);
-            dispatch(addErrorToast(ClaimPeginError));
-            await managePinError(true);
-          }
+        const addrSanitized = inputBtcPeginAddress?.trim();
+        // No whitespace and length 35
+        if (
+          addrSanitized &&
+          !(addrSanitized.indexOf(' ') >= 0) &&
+          // TODO: check if other length are possible
+          addrSanitized.length === 35
+        ) {
+          setIsLoading(true);
+          setMnemonic(mnemonic);
+          dispatch(restorePeginFromDepositAddress(addrSanitized));
         } else {
-          if (Object.values(peginAddresses).length) {
-            peginAddr = peginAddresses;
-          } else {
-            dispatch(addErrorToast(NoPeginAddressFoundError));
-            await managePinError(true);
-            return;
-          }
-        }
-        if (peginAddr) {
-          claimPegin(
-            explorerBitcoinUrl,
-            explorerUrl,
-            peginAddr,
-            mnemonic,
-            dispatch,
-          )
-            .then(txs => {
-              if (txs?.length) {
-                setClaimTxs(txs);
-                dispatch(addSuccessToast(`Claim Transaction broadcasted`));
-                managePinSuccess();
-                dispatch(deletePeginAddresses());
-                setBtcPeginAddress(undefined);
-              } else {
-                dispatch(addErrorToast(NoClaimFoundError));
-                managePinError(true);
-              }
-            })
-            .catch(err => {
-              console.error(err);
-              dispatch(addErrorToast(ClaimPeginError));
-              managePinError(true);
-            });
-        } else {
-          dispatch(addErrorToast(NoClaimFoundError));
-          await managePinError(true);
+          dispatch(addErrorToast(InvalidBitcoinAddress));
+          managePinError(true).catch(console.error);
         }
       })
       .catch(e => {
         console.error(e);
         dispatch(addErrorToast(IncorrectPINError));
         managePinError();
-      })
-      .finally(() => {
-        setIsLoading(false);
       });
   };
 
@@ -161,7 +197,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
         open={modalOpen}
         title="Enter your secret PIN"
         description={`Enter your secret PIN to claim funds`}
-        onConfirm={handleConfirm}
+        onConfirm={handleClaimModalConfirm}
         onClose={() => {
           setModalOpen(false);
         }}
@@ -174,7 +210,10 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
         <IonGrid className="ion-text-center ion-justify-content-center">
           <Header hasBackButton={true} title="CLAIM LIQUID BITCOIN" />
           <PageDescription
-            description="In case you think that TDEX automatic pegin functionality has failed, you can claim your Liquid Bitcoin manually."
+            description={
+              'In case you erased your wallet data you can claim your Liquid Bitcoin by manually specifying the Bitcoin ' +
+              'deposit address you sent funds to. Also make sure you did a deep restoration of your wallet addresses.'
+            }
             title="Claim your Liquid Bitcoin"
           />
           {/**/}
@@ -184,9 +223,11 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
                 <IonInput
                   className="ion-text-left"
                   inputmode="text"
-                  onIonChange={e => setBtcPeginAddress(e.detail.value || '')}
-                  placeholder="Optional BTC Pegin Address"
-                  value={btcPeginAddress}
+                  onIonChange={e =>
+                    setInputBtcPeginAddress(e.detail.value || '')
+                  }
+                  placeholder="BTC deposit address"
+                  value={inputBtcPeginAddress}
                 />
               </IonItem>
             </IonCol>
@@ -197,6 +238,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
               <IonRow className="ion-justify-content-center">
                 <IonButton
                   className="main-button"
+                  disabled={!inputBtcPeginAddress}
                   onClick={() => {
                     setModalOpen(true);
                   }}
@@ -206,21 +248,25 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
               </IonRow>
             </IonCol>
           </IonRow>
-          {claimTxs.length > 0 && (
+          {Object.keys(claimedPegins).length > 0 && (
             <IonRow className="ion-text-left">
               <IonCol size="10" offset="1">
                 <ul className="ion-no-padding">
                   <h6>{`Liquid Bitcoin pegin transaction${
-                    claimTxs.length > 1 ? 's' : ''
+                    Object.keys(claimedPegins).length > 1 ? 's' : ''
                   }:`}</h6>
-                  {claimTxs.map((txid, i) => (
-                    <li key={i}>
-                      <a
-                        href={`${explorerUrl}/tx/${txid}`}
-                        target="_blank"
-                      >{`${explorerUrl}/tx/${txid}`}</a>
-                    </li>
-                  ))}
+                  {Object.values(claimedPegins)
+                    .map(pegin => pegin.depositUtxos)
+                    .flatMap(depositUtxos => Object.values(depositUtxos ?? []))
+                    .filter(utxo => utxo.claimTxId !== undefined)
+                    .map(({ claimTxId }, i) => (
+                      <li key={i}>
+                        <a
+                          href={`${explorerLiquidUI}/tx/${claimTxId}`}
+                          target="_blank"
+                        >{`${explorerLiquidUI}/tx/${claimTxId}`}</a>
+                      </li>
+                    ))}
                 </ul>
               </IonCol>
             </IonRow>

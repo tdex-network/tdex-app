@@ -7,8 +7,6 @@ import { outpointToString } from '../reducers/walletReducer';
 
 export const SET_IS_AUTH = 'SET_IS_AUTH';
 export const ADD_ADDRESS = 'ADD_ADDRESS';
-export const ADD_PEGIN_ADDRESS = 'ADD_PEGIN_ADDRESS';
-export const DELETE_PEGIN_ADDRESSES = 'DELETE_PEGIN_ADDRESSES';
 export const UPDATE_UTXOS = 'UPDATE_UTXOS';
 export const SET_UTXO = 'SET_UTXO';
 export const DELETE_UTXO = 'DELETE_UTXO';
@@ -43,27 +41,6 @@ export const addAddress = (address: AddressInterface): AnyAction => {
         .toString('hex'),
       address,
     },
-  };
-};
-
-export const addPeginAddress = (
-  claimScript: string,
-  peginAddress: string,
-  derivationPath: string,
-): AnyAction => {
-  return {
-    type: ADD_PEGIN_ADDRESS,
-    payload: {
-      claimScript,
-      peginAddress,
-      derivationPath,
-    },
-  };
-};
-
-export const deletePeginAddresses = (): AnyAction => {
-  return {
-    type: DELETE_PEGIN_ADDRESSES,
   };
 };
 

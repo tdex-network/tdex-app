@@ -12,7 +12,8 @@ import { BTC_ASSET, MAIN_ASSETS } from '../../utils/constants';
 
 const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
   const generateGridItems = useMemo(() => {
-    return MAIN_ASSETS.concat(BTC_ASSET)
+    return [BTC_ASSET]
+      .concat(MAIN_ASSETS)
       .map((asset, i) => {
         if (asset.ticker === 'L-BTC' && network.chain !== asset?.chain)
           return null;

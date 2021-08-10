@@ -154,7 +154,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                             <span>
                               {transaction
                                 ? tickerFromAssetHash(
-                                    transaction.transfers[1].asset,
+                                    transaction.transfers[1]?.asset,
                                   )
                                 : preview?.received.ticker}
                             </span>
@@ -163,7 +163,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                             +
                             {transaction
                               ? fromSatoshiFixed(
-                                  transaction.transfers[1].amount,
+                                  transaction.transfers[1]?.amount,
                                   8,
                                   8,
                                 )
@@ -176,7 +176,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                           {transaction && (
                             <span>
                               {transaction.blockTime?.format(
-                                'DD MMM YYYY hh:mm:ss',
+                                'DD MMM YYYY HH:mm:ss',
                               )}
                             </span>
                           )}

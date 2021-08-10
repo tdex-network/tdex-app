@@ -118,7 +118,7 @@ const WithdrawalDetails: React.FC<
                   <div className="item-start main-row">Date</div>
                   <div className="item-end sub-row">
                     {transaction ? (
-                      transaction.blockTime?.format('DD MMM YYYY hh:mm:ss')
+                      transaction.blockTime?.format('DD MMM YYYY HH:mm:ss')
                     ) : (
                       <Skeleton />
                     )}

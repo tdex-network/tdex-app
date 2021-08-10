@@ -1,16 +1,15 @@
 import { connect } from 'react-redux';
 
-import ClaimPegin from '../../pages/ClaimPegin';
+import PinModalClaimPegin from '../../components/PinModal/PinModalClaimPegin';
 
 const mapStateToProps = (state: any) => {
   return {
     currentBtcBlockHeight: state.btc.currentBlockHeight,
-    explorerLiquidUI: state.settings.explorerLiquidUI,
     explorerBitcoinUrl: state.settings.explorerBitcoinUrl,
     explorerUrl: state.settings.explorerUrl,
+    modalClaimPegins: state.btc.modalClaimPegins,
     pegins: state.btc.pegins,
-    toasts: state.toasts,
   };
 };
 
-export default connect(mapStateToProps)(ClaimPegin);
+export default connect(mapStateToProps)(PinModalClaimPegin);

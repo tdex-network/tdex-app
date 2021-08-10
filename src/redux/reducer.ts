@@ -5,6 +5,7 @@ import type { ActionType } from '../utils/types';
 import { RESET_ALL } from './actions/rootActions';
 import appReducer from './reducers/appReducer';
 import assetsReducer from './reducers/assetsReducer';
+import btcReducer from './reducers/btcReducer';
 import ratesReducer from './reducers/ratesReducer';
 import settingsReducer from './reducers/settingsReducer';
 import TDEXReducer from './reducers/tdexReducer';
@@ -14,6 +15,7 @@ import walletReducer from './reducers/walletReducer';
 
 const combinedReducers = combineReducers({
   app: appReducer,
+  btc: btcReducer,
   wallet: walletReducer,
   assets: assetsReducer,
   rates: ratesReducer,

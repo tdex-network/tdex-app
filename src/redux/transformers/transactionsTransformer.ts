@@ -96,7 +96,7 @@ export function txTypeFromTransfer(transfers: Transfer[]): TxTypeEnum {
     return TxTypeEnum.Swap;
   }
 
-  return TxTypeEnum.Unknow;
+  return TxTypeEnum.Unknown;
 }
 
 /**

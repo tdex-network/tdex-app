@@ -1,4 +1,5 @@
-/* eslint-disable no-shadow */
+import type moment from 'moment';
+
 export type ActionType = {
   type: string;
   payload?: any;
@@ -8,7 +9,8 @@ export enum TxTypeEnum {
   Deposit = 1,
   Withdraw = 2,
   Swap = 3,
-  Unknow = 4,
+  DepositBtc = 4,
+  Unknown = 5,
 }
 
 export interface TxDisplayInterface {
@@ -17,7 +19,11 @@ export interface TxDisplayInterface {
   txId: string;
   status: TxStatusEnum;
   transfers: Transfer[];
+  blockHeight?: number;
   blockTime?: moment.Moment;
+  // Only used in pegin deposits
+  claimScript?: string;
+  claimTxId?: string;
 }
 
 export interface Transfer {

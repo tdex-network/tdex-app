@@ -2,6 +2,7 @@ import { all } from 'redux-saga/effects';
 
 import { appWatcherSaga } from './sagas/appSaga';
 import { assetsWatcherSaga } from './sagas/assetsSaga';
+import { btcWatcherSaga } from './sagas/btcSaga';
 import { ratesWatcherSaga } from './sagas/ratesSaga';
 import { settingsWatcherSaga } from './sagas/settingsSaga';
 import { tdexWatcherSaga } from './sagas/tdexSaga';
@@ -17,5 +18,6 @@ export default function* rootSaga(): Generator<any, any, any> {
     appWatcherSaga(),
     tdexWatcherSaga(),
     assetsWatcherSaga(),
+    btcWatcherSaga(),
   ]);
 }

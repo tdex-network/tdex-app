@@ -16,34 +16,30 @@ import {
 
 import { UpdateUtxosError } from '../../utils/errors';
 import {
-  getPeginAddressesInStorage,
   getUtxosFromStorage,
   setAddressesInStorage,
-  setPeginAddressesInStorage,
   setLastUsedIndexesInStorage,
   setUtxosInStorage,
 } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
-import { setIsFetchingUtxos, SIGN_IN } from '../actions/appActions';
+import {
+  setIsFetchingUtxos,
+  SIGN_IN,
+  updateState,
+} from '../actions/appActions';
 import { addErrorToast } from '../actions/toastActions';
 import {
-  UPDATE_UTXOS,
-  setUtxo,
   deleteUtxo,
   resetUtxos,
-  LOCK_UTXO,
+  setUtxo,
   unlockUtxo,
   ADD_ADDRESS,
+  LOCK_UTXO,
+  UPDATE_UTXOS,
   WATCH_UTXO,
-  ADD_PEGIN_ADDRESS,
-  addPeginAddress,
 } from '../actions/walletActions';
 import type { WalletState } from '../reducers/walletReducer';
-import {
-  outpointToString,
-  addressesSelector,
-  peginAddressesSelector,
-} from '../reducers/walletReducer';
+import { outpointToString, addressesSelector } from '../reducers/walletReducer';
 
 function* persistAddresses() {
   const addresses: AddressInterface[] = yield select(addressesSelector);
@@ -58,14 +54,6 @@ function* persistLastUsedIndexes() {
     }),
   );
   yield call(setLastUsedIndexesInStorage, lastIndexes);
-}
-
-function* persistPeginAddresses() {
-  const peginAddresses: Record<
-    string,
-    { derivationPath: string; peginAddress: string }
-  > = yield select(peginAddressesSelector);
-  yield call(setPeginAddressesInStorage, peginAddresses);
 }
 
 function* updateUtxosState() {
@@ -158,23 +146,6 @@ function* restoreUtxos() {
   }
 }
 
-function* restorePeginAddresses() {
-  const peginAddresses: WalletState['peginAddresses'] = yield call(
-    getPeginAddressesInStorage,
-  );
-  for (const claimScript in peginAddresses) {
-    if (Object.prototype.hasOwnProperty.call(peginAddresses, claimScript)) {
-      yield put(
-        addPeginAddress(
-          claimScript,
-          peginAddresses[claimScript].peginAddress,
-          peginAddresses[claimScript].derivationPath,
-        ),
-      );
-    }
-  }
-}
-
 function* watchUtxoSaga(action: ActionType) {
   const { address, maxTry }: { address: AddressInterface; maxTry: number } =
     action.payload;
@@ -199,7 +170,10 @@ function* watchUtxoSaga(action: ActionType) {
           explorer,
         );
       error && console.error(error);
-      yield put(setUtxo(unblindedUtxo));
+      if (!error) {
+        yield put(setUtxo(unblindedUtxo));
+        yield put(updateState());
+      }
       break;
     } catch {
       yield delay(1_000);
@@ -210,13 +184,11 @@ function* watchUtxoSaga(action: ActionType) {
 export function* walletWatcherSaga(): Generator {
   yield takeLatest(ADD_ADDRESS, persistAddresses);
   yield takeLatest(ADD_ADDRESS, persistLastUsedIndexes);
-  yield takeLatest(ADD_PEGIN_ADDRESS, persistPeginAddresses);
   yield takeLatest(UPDATE_UTXOS, updateUtxosState);
   yield takeLatest(UPDATE_UTXOS, persistUtxos);
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   yield takeEvery(LOCK_UTXO, waitAndUnlock);
   yield takeLatest(SIGN_IN, restoreUtxos);
-  yield takeLatest(SIGN_IN, restorePeginAddresses);
   yield takeLatest(WATCH_UTXO, watchUtxoSaga);
 }

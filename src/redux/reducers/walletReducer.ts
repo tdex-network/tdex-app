@@ -25,13 +25,11 @@ import {
   SET_UTXO,
   DELETE_UTXO,
   ADD_ADDRESS,
-  ADD_PEGIN_ADDRESS,
   RESET_UTXOS,
   SET_PUBLIC_KEYS,
   LOCK_UTXO,
   UNLOCK_UTXO,
   UNLOCK_UTXOS,
-  DELETE_PEGIN_ADDRESSES,
 } from '../actions/walletActions';
 
 import { transactionsAssets } from './transactionsReducer';
@@ -39,10 +37,6 @@ import { transactionsAssets } from './transactionsReducer';
 export interface WalletState {
   isAuth: boolean;
   addresses: Record<string, AddressInterface>;
-  peginAddresses: Record<
-    string,
-    { derivationPath: string; peginAddress: string }
-  >;
   utxos: Record<string, UtxoInterface>;
   utxosLocks: string[];
   masterPubKey: string;
@@ -51,10 +45,9 @@ export interface WalletState {
   lastUsedExternalIndex?: number;
 }
 
-const initialState: WalletState = {
+export const initialState: WalletState = {
   isAuth: false,
   addresses: {},
-  peginAddresses: {},
   utxos: {},
   utxosLocks: [],
   masterPubKey: '',
@@ -79,26 +72,9 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
         lastUsedExternalIndex: isChange ? state.lastUsedExternalIndex : index,
       };
     }
-    case ADD_PEGIN_ADDRESS:
-      return {
-        ...state,
-        peginAddresses: {
-          ...state.peginAddresses,
-          [action.payload.claimScript]: {
-            derivationPath: action.payload.derivationPath,
-            peginAddress: action.payload.peginAddress,
-          },
-        },
-      };
-    case DELETE_PEGIN_ADDRESSES:
-      return {
-        ...state,
-        peginAddresses: {},
-      };
     case SET_IS_AUTH:
       return { ...state, isAuth: action.payload };
     case SET_UTXO:
-      // TO DO replace by Object.assign
       return addUtxoInState(state, action.payload);
     case DELETE_UTXO:
       return deleteUtxoInState(state, action.payload);
@@ -241,13 +217,5 @@ export function lastUsedIndexesSelector({
     lastUsedExternalIndex: wallet.lastUsedExternalIndex,
   };
 }
-
-export const peginAddressesSelector = ({
-  wallet,
-}: {
-  wallet: WalletState;
-}): Record<string, { derivationPath: string; peginAddress: string }> => {
-  return wallet.peginAddresses;
-};
 
 export default walletReducer;

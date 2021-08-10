@@ -34,10 +34,7 @@ const TransactionLoader: React.FC<TransactionLoaderProps> = ({ txID }) => {
           <div className="item-start">
             <IonSpinner className="spinner-tx" name="crescent" />
             <div className="item-name">
-              <div className="main-row text-loader">{txID}</div>
-              <div className="sub-row">
-                <IonSkeletonText animated style={{ width: '80px' }} />
-              </div>
+              <IonSkeletonText animated style={{ width: '80px' }} />
             </div>
           </div>
           <div className="item-end">

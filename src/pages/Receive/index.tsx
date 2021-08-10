@@ -12,7 +12,6 @@ import {
 import { checkmarkOutline } from 'ionicons/icons';
 import type { IdentityOpts, StateRestorerOpts } from 'ldk';
 import { MasterPublicKey, address as addressLDK } from 'ldk';
-import ElementsPegin from 'pegin';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router';
@@ -23,12 +22,13 @@ import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import { IconCopy, CurrencyIcon } from '../../components/icons';
+import { upsertPegins } from '../../redux/actions/btcActions';
 import {
   addErrorToast,
   addSuccessToast,
 } from '../../redux/actions/toastActions';
-import { addAddress, addPeginAddress } from '../../redux/actions/walletActions';
-import { network } from '../../redux/config';
+import { addAddress } from '../../redux/actions/walletActions';
+import { getPeginModule } from '../../redux/services/btcService';
 import type { AssetConfig } from '../../utils/constants';
 import { BTC_TICKER } from '../../utils/constants';
 import { AddressGenerationError } from '../../utils/errors';
@@ -63,30 +63,26 @@ const Receive: React.FC<ReceiveProps> = ({
         masterPublicKey,
       )(lastUsedIndexes);
       const addr = await restoredMasterPubKey.getNextAddress();
-      let peginModule;
       dispatch(addAddress(addr));
       if (state?.depositAsset?.ticker === BTC_TICKER) {
-        if (network.chain === 'liquid') {
-          peginModule = new ElementsPegin(
-            await ElementsPegin.withGoElements(),
-            await ElementsPegin.withLibwally(),
-          );
-        } else {
-          peginModule = new ElementsPegin(
-            await ElementsPegin.withGoElements(),
-            await ElementsPegin.withLibwally(),
-            ElementsPegin.withDynamicFederation(false),
-            ElementsPegin.withTestnet(),
-            ElementsPegin.withFederationScript('51'),
-          );
-        }
+        const peginModule = await getPeginModule();
         const claimScript = addressLDK
           .toOutputScript(addr.confidentialAddress)
           .toString('hex');
         const peginAddress = await peginModule.getMainchainAddress(claimScript);
         const derivationPath = addr.derivationPath;
         if (!derivationPath) throw new Error('Derivation path is required');
-        dispatch(addPeginAddress(claimScript, peginAddress, derivationPath));
+        dispatch(
+          upsertPegins({
+            [claimScript]: {
+              depositAddress: {
+                claimScript,
+                address: peginAddress,
+                derivationPath,
+              },
+            },
+          }),
+        );
         dispatch(addSuccessToast('New pegin address generated'));
         setAddress(peginAddress);
       } else {

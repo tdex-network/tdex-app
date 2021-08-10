@@ -51,3 +51,4 @@ resources/windows/splash
 
 # Cypress
 cypress/videos
+cypress/screenshots

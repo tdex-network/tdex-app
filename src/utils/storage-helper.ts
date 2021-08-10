@@ -9,8 +9,8 @@ import type { TDEXMnemonic } from 'tdex-sdk';
 
 import type { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 import { network } from '../redux/config';
+import type { Pegins } from '../redux/reducers/btcReducer';
 import type { CurrencyInterface } from '../redux/reducers/settingsReducer';
-import type { WalletState } from '../redux/reducers/walletReducer';
 
 import type { AssetConfig } from './constants';
 import { CURRENCIES, LBTC_DENOMINATIONS } from './constants';
@@ -20,7 +20,7 @@ import { MnemonicRedux, TDexMnemonicRedux } from './identity';
 
 const MNEMONIC_KEY = 'tdex-app-mnemonic';
 const ADDRESSES_KEY = 'tdex-app-addresses';
-const PEGIN_ADDRESSES_KEY = 'tdex-app-pegin-addresses';
+const PEGINS_KEY = 'tdex-app-pegins';
 const PROVIDERS_KEY = 'tdex-app-providers';
 const SEED_BACKUP_FLAG_KEY = 'tdex-app-seed-backup';
 const UTXOS_KEY = 'tdex-app-utxos';
@@ -28,6 +28,8 @@ const TRANSACTIONS_KEY = 'tdex-app-transactions';
 const ASSETS_KEY = 'tdex-app-assets';
 const EXPLORER_KEY = 'tdex-app-explorer';
 const EXPLORER_BITCOIN_KEY = 'tdex-app-explorer-bitcoin';
+const EXPLORER_LIQUID_UI_KEY = 'tdex-app-explorer-liquid-ui';
+const EXPLORER_BITCOIN_UI_KEY = 'tdex-app-explorer-bitcoin-ui';
 const CURRENCY_KEY = 'tdex-app-currency';
 const LBTC_DENOMINATION_KEY = 'tdex-app-lbtc-unit';
 const LAST_USED_INDEXES_KEY = 'tdex-app-last-used-indexes';
@@ -71,6 +73,24 @@ export async function getExplorerBitcoinFromStorage(): Promise<string | null> {
 
 export function setExplorerBitcoinInStorage(explorerBitcoin: string): void {
   Storage.set({ key: EXPLORER_BITCOIN_KEY, value: explorerBitcoin });
+}
+
+export async function getExplorerLiquidUIFromStorage(): Promise<string | null> {
+  return (await Storage.get({ key: EXPLORER_LIQUID_UI_KEY })).value;
+}
+
+export function setExplorerLiquidUIInStorage(explorer: string): void {
+  Storage.set({ key: EXPLORER_LIQUID_UI_KEY, value: explorer });
+}
+
+export async function getExplorerBitcoinUIFromStorage(): Promise<
+  string | null
+> {
+  return (await Storage.get({ key: EXPLORER_BITCOIN_UI_KEY })).value;
+}
+
+export function setExplorerBitcoinUIInStorage(explorerBitcoin: string): void {
+  Storage.set({ key: EXPLORER_BITCOIN_UI_KEY, value: explorerBitcoin });
 }
 
 export async function getTransactionsFromStorage(): Promise<TxInterface[]> {
@@ -160,19 +180,15 @@ export async function getLastUsedIndexesInStorage(): Promise<StateRestorerOpts |
   return idx.value ? parse(idx.value) : null;
 }
 
-export function setPeginAddressesInStorage(
-  peginAddresses: WalletState['peginAddresses'],
-): Promise<void> {
+export function setPeginsInStorage(pegins: Pegins): Promise<void> {
   return Storage.set({
-    key: PEGIN_ADDRESSES_KEY,
-    value: stringify(peginAddresses),
+    key: PEGINS_KEY,
+    value: stringify(pegins),
   });
 }
 
-export async function getPeginAddressesInStorage(): Promise<
-  Record<string, string>
-> {
-  return getFromStorage<Record<string, string>>(PEGIN_ADDRESSES_KEY, {});
+export async function getPeginsFromStorage(): Promise<Pegins> {
+  return getFromStorage<Pegins>(PEGINS_KEY, {});
 }
 
 export async function getAddressesFromStorage(): Promise<AddressInterface[]> {
