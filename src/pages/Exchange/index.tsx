@@ -140,11 +140,14 @@ const Exchange: React.FC<ExchangeProps> = ({
   }, [assetSent?.asset, markets]);
 
   useEffect(() => {
-    if (!assetReceived) return undefined;
-    const receivedTradables = getTradablesAssets(markets, assetReceived.asset);
-    // TODO: Add opposite asset and remove current
-    setTradableAssetsForAssetSent(receivedTradables);
-    return () => setAssetReceived(undefined);
+    if (assetReceived) {
+      const receivedTradables = getTradablesAssets(
+        markets,
+        assetReceived.asset,
+      );
+      // TODO: Add opposite asset and remove current
+      setTradableAssetsForAssetSent(receivedTradables);
+    }
   }, [assetReceived?.asset, markets]);
 
   const checkAvailableAmountSent = () => {
