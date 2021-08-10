@@ -17,6 +17,7 @@ import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import PinModal from '../../components/PinModal';
+import { updateState } from '../../redux/actions/appActions';
 import {
   checkIfClaimablePeginUtxo,
   restorePeginFromDepositAddress,
@@ -54,22 +55,17 @@ interface ClaimPeginProps extends RouteComponentProps {
   pegins: Pegins;
   explorerLiquidUI: string;
   explorerBitcoinUrl: string;
+  explorerUrl: string;
   toasts: ToastOpts[];
   currentBtcBlockHeight: number;
 }
 
-/**
- * Claim Pegin Settings Page
- * @param pegins
- * @param explorerLiquidUI
- * @param explorerBitcoinUrl
- * @param toasts
- * @param currentBtcBlockHeight
- */
+// Claim Pegin Settings Page
 const ClaimPegin: React.FC<ClaimPeginProps> = ({
   pegins,
   explorerLiquidUI,
   explorerBitcoinUrl,
+  explorerUrl,
   toasts,
   currentBtcBlockHeight,
 }) => {
@@ -88,7 +84,6 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
     toasts.map(t => {
       if (t.type === 'error' && t.errorCode === 18) {
         managePinError(true).catch(console.error);
-        setIsLoading(false);
       }
     });
   }, [toasts]);
@@ -99,7 +94,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
       if (mnemonic) {
         claimPegins(
           explorerBitcoinUrl,
-          explorerLiquidUI,
+          explorerUrl,
           pegins,
           mnemonic,
           currentBtcBlockHeight,
@@ -120,6 +115,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
               managePinSuccess().catch(console.error);
               setInputBtcPeginAddress(undefined);
               dispatch(checkIfClaimablePeginUtxo());
+              dispatch(updateState());
             } else {
               dispatch(addErrorToast(NoClaimFoundError));
             }
@@ -132,7 +128,6 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
       } else {
         dispatch(addErrorToast(NoClaimFoundError));
         managePinError(true).catch(console.error);
-        setIsLoading(false);
       }
     }
     return () => {
@@ -141,6 +136,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
   }, [pegins]);
 
   const managePinError = async (closeModal = false) => {
+    setIsLoading(false);
     setIsWrongPin(true);
     setTimeout(() => {
       setIsWrongPin(null);
@@ -153,6 +149,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
   };
 
   const managePinSuccess = async () => {
+    setIsLoading(false);
     setIsWrongPin(false);
     setTimeout(() => {
       setIsWrongPin(null);
@@ -190,7 +187,6 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
         console.error(e);
         dispatch(addErrorToast(IncorrectPINError));
         managePinError();
-        setIsLoading(false);
       });
   };
 

@@ -2,6 +2,7 @@ import type { Mnemonic } from 'ldk';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 
+import { updateState } from '../../redux/actions/appActions';
 import {
   checkIfClaimablePeginUtxo,
   setModalClaimPegin,
@@ -111,6 +112,7 @@ const PinModalClaimPegin: React.FC<PinModalClaimPeginProps> = ({
               await managePinSuccess();
               dispatch(setModalClaimPegin({ claimScriptToClaim: undefined }));
               dispatch(removeToastByType('claim-pegin'));
+              dispatch(updateState());
             } else {
               dispatch(addErrorToast(NoClaimFoundError));
               managePinError(true).catch(console.log);

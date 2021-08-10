@@ -27,7 +27,6 @@ import type {
   TDEXTrade,
 } from '../../redux/actionTypes/tdexActionTypes';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { updateState } from '../../redux/actions/appActions';
 import {
   addErrorToast,
   addSuccessToast,

@@ -7,6 +7,7 @@ const mapStateToProps = (state: any) => {
     currentBtcBlockHeight: state.btc.currentBlockHeight,
     explorerLiquidUI: state.settings.explorerLiquidUI,
     explorerBitcoinUrl: state.settings.explorerBitcoinUrl,
+    explorerUrl: state.settings.explorerUrl,
     pegins: state.btc.pegins,
     toasts: state.toasts,
   };

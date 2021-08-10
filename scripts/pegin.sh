@@ -8,7 +8,7 @@ liquidMinerAddress=el1qqwghjxrw9mehunfk8xf8wzqlapr83jdwmk3kg6a9x3yfvu0kjyzu48p9h
 peginAddress=$(eval "nigiri rpc --liquid getpeginaddress | jq -r '.mainchain_address'")
 echo "Pegin deposit address: $peginAddress"
 
-depositTxId=$(eval "nigiri faucet $peginAddress 1000 | cut -d ':' -f 2 | tr -d ' '")
+depositTxId=$(eval "nigiri faucet $peginAddress 500 | cut -d ':' -f 2 | tr -d ' '")
 echo "Deposit txid: $depositTxId"
 
 newBtcBlock=$(eval "nigiri rpc generatetoaddress 1 $btcMinerAddress | jq '.[0]'")
