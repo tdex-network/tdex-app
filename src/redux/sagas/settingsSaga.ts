@@ -12,6 +12,10 @@ import {
   setExplorerInStorage,
   setExplorerBitcoinInStorage,
   setLBTCDenominationInStorage,
+  getExplorerLiquidUIFromStorage,
+  getExplorerBitcoinUIFromStorage,
+  setExplorerLiquidUIInStorage,
+  setExplorerBitcoinUIInStorage,
 } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
 import { SIGN_IN } from '../actions/appActions';
@@ -19,6 +23,8 @@ import {
   setCurrency,
   setElectrumServer,
   setExplorerBitcoin,
+  setExplorerLiquidUI,
+  setExplorerBitcoinUI,
   setLBTCDenomination,
   setTheme,
   storeTheme,
@@ -28,6 +34,8 @@ import {
   SET_THEME,
   STORE_THEME,
   SET_EXPLORER_BITCOIN,
+  SET_EXPLORER_LIQUID_UI,
+  SET_EXPLORER_BITCOIN_UI,
 } from '../actions/settingsActions';
 import type { CurrencyInterface } from '../reducers/settingsReducer';
 import {
@@ -57,7 +65,7 @@ function* restoreThemeSaga() {
   }
 }
 
-function* restoreExplorer() {
+function* restoreExplorerLiquidAPI() {
   try {
     const explorerEndpoint: string | null = yield call(getExplorerFromStorage);
     if (explorerEndpoint) {
@@ -68,7 +76,7 @@ function* restoreExplorer() {
   }
 }
 
-function* restoreExplorerBitcoin() {
+function* restoreExplorerBitcoinAPI() {
   try {
     const explorerEndpoint: string | null = yield call(
       getExplorerBitcoinFromStorage,
@@ -81,12 +89,46 @@ function* restoreExplorerBitcoin() {
   }
 }
 
+function* restoreExplorerLiquidUI() {
+  try {
+    const explorerLiquidUIEndpoint: string | null = yield call(
+      getExplorerLiquidUIFromStorage,
+    );
+    if (explorerLiquidUIEndpoint) {
+      yield put(setExplorerLiquidUI(explorerLiquidUIEndpoint));
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function* restoreExplorerBitcoinUI() {
+  try {
+    const explorerBitcoinUIEndpoint: string | null = yield call(
+      getExplorerBitcoinUIFromStorage,
+    );
+    if (explorerBitcoinUIEndpoint) {
+      yield put(setExplorerBitcoinUI(explorerBitcoinUIEndpoint));
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 function* persistExplorer(action: ActionType) {
   yield call(setExplorerInStorage, action.payload);
 }
 
 function* persistExplorerBitcoin(action: ActionType) {
   yield call(setExplorerBitcoinInStorage, action.payload);
+}
+
+function* persistExplorerLiquidUI(action: ActionType) {
+  yield call(setExplorerLiquidUIInStorage, action.payload);
+}
+
+function* persistExplorerBitcoinUI(action: ActionType) {
+  yield call(setExplorerBitcoinUIInStorage, action.payload);
 }
 
 function* persistCurrency(action: ActionType) {
@@ -129,13 +171,17 @@ function* setKeyboardStyle(action: ActionType) {
 export function* settingsWatcherSaga(): Generator<any, any, any> {
   yield takeLatest(STORE_THEME, storeThemeSaga);
   yield takeLatest(SIGN_IN, restoreThemeSaga);
-  yield takeLatest(SIGN_IN, restoreExplorer);
-  yield takeLatest(SIGN_IN, restoreExplorerBitcoin);
+  yield takeLatest(SIGN_IN, restoreExplorerLiquidAPI);
+  yield takeLatest(SIGN_IN, restoreExplorerBitcoinAPI);
+  yield takeLatest(SIGN_IN, restoreExplorerLiquidUI);
+  yield takeLatest(SIGN_IN, restoreExplorerBitcoinUI);
   yield takeLatest(SIGN_IN, restoreCurrency);
   yield takeLatest(SIGN_IN, restoreDenomination);
   yield takeLatest(SET_LBTC_DENOMINATION, persistDenomination);
   yield takeLatest(SET_ELECTRUM_SERVER, persistExplorer);
   yield takeLatest(SET_EXPLORER_BITCOIN, persistExplorerBitcoin);
+  yield takeLatest(SET_EXPLORER_LIQUID_UI, persistExplorerLiquidUI);
+  yield takeLatest(SET_EXPLORER_BITCOIN_UI, persistExplorerBitcoinUI);
   yield takeLatest(SET_CURRENCY, persistCurrency);
   yield takeLatest(SET_THEME, setKeyboardStyle);
 }

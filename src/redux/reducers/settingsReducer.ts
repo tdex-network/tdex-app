@@ -5,6 +5,8 @@ import {
   SET_CURRENCY,
   SET_ELECTRUM_SERVER,
   SET_EXPLORER_BITCOIN,
+  SET_EXPLORER_BITCOIN_UI,
+  SET_EXPLORER_LIQUID_UI,
   SET_LBTC_DENOMINATION,
   SET_THEME,
 } from '../actions/settingsActions';
@@ -20,6 +22,8 @@ export interface SettingsState {
   currency: CurrencyInterface;
   explorerUrl: string;
   explorerBitcoinUrl: string;
+  explorerBitcoinUI: string;
+  explorerLiquidUI: string;
   theme: string;
   denominationLBTC: LbtcDenomination;
 }
@@ -28,6 +32,8 @@ const initialState: SettingsState = {
   currency: CURRENCIES[0],
   explorerUrl: network.explorer,
   explorerBitcoinUrl: network.explorerBitcoin,
+  explorerBitcoinUI: network.explorerBitcoinUI,
+  explorerLiquidUI: network.explorerLiquidUI,
   theme: 'dark',
   denominationLBTC: LBTC_DENOMINATIONS[0],
 };
@@ -56,6 +62,16 @@ const settingsReducer = (
       return {
         ...state,
         explorerBitcoinUrl: action.payload,
+      };
+    case SET_EXPLORER_BITCOIN_UI:
+      return {
+        ...state,
+        explorerBitcoinUI: action.payload,
+      };
+    case SET_EXPLORER_LIQUID_UI:
+      return {
+        ...state,
+        explorerLiquidUI: action.payload,
       };
     case SET_THEME:
       return {

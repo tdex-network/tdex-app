@@ -3,6 +3,8 @@ import type { CurrencyInterface } from '../reducers/settingsReducer';
 
 export const SET_ELECTRUM_SERVER = 'SET_ELECTRUM_SERVER';
 export const SET_EXPLORER_BITCOIN = 'SET_EXPLORER_BITCOIN';
+export const SET_EXPLORER_BITCOIN_UI = 'SET_EXPLORER_BITCOIN_UI';
+export const SET_EXPLORER_LIQUID_UI = 'SET_EXPLORER_LIQUID_UI';
 export const SET_THEME = 'SET_THEME';
 export const STORE_THEME = 'STORE_THEME';
 export const SET_CURRENCY = 'SET_CURRENCY';
@@ -30,6 +32,20 @@ export const setElectrumServer = (url: string): ActionType => {
 export const setExplorerBitcoin = (url: string): ActionType => {
   return {
     type: SET_EXPLORER_BITCOIN,
+    payload: url,
+  };
+};
+
+export const setExplorerBitcoinUI = (url: string): ActionType => {
+  return {
+    type: SET_EXPLORER_BITCOIN_UI,
+    payload: url,
+  };
+};
+
+export const setExplorerLiquidUI = (url: string): ActionType => {
+  return {
+    type: SET_EXPLORER_LIQUID_UI,
     payload: url,
   };
 };

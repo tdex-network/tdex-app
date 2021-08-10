@@ -28,6 +28,8 @@ const TRANSACTIONS_KEY = 'tdex-app-transactions';
 const ASSETS_KEY = 'tdex-app-assets';
 const EXPLORER_KEY = 'tdex-app-explorer';
 const EXPLORER_BITCOIN_KEY = 'tdex-app-explorer-bitcoin';
+const EXPLORER_LIQUID_UI_KEY = 'tdex-app-explorer-liquid-ui';
+const EXPLORER_BITCOIN_UI_KEY = 'tdex-app-explorer-bitcoin-ui';
 const CURRENCY_KEY = 'tdex-app-currency';
 const LBTC_DENOMINATION_KEY = 'tdex-app-lbtc-unit';
 const LAST_USED_INDEXES_KEY = 'tdex-app-last-used-indexes';
@@ -71,6 +73,24 @@ export async function getExplorerBitcoinFromStorage(): Promise<string | null> {
 
 export function setExplorerBitcoinInStorage(explorerBitcoin: string): void {
   Storage.set({ key: EXPLORER_BITCOIN_KEY, value: explorerBitcoin });
+}
+
+export async function getExplorerLiquidUIFromStorage(): Promise<string | null> {
+  return (await Storage.get({ key: EXPLORER_LIQUID_UI_KEY })).value;
+}
+
+export function setExplorerLiquidUIInStorage(explorer: string): void {
+  Storage.set({ key: EXPLORER_LIQUID_UI_KEY, value: explorer });
+}
+
+export async function getExplorerBitcoinUIFromStorage(): Promise<
+  string | null
+> {
+  return (await Storage.get({ key: EXPLORER_BITCOIN_UI_KEY })).value;
+}
+
+export function setExplorerBitcoinUIInStorage(explorerBitcoin: string): void {
+  Storage.set({ key: EXPLORER_BITCOIN_UI_KEY, value: explorerBitcoin });
 }
 
 export async function getTransactionsFromStorage(): Promise<TxInterface[]> {

@@ -35,7 +35,10 @@ export const LBTC_ASSET: AssetConfig =
         coinGeckoID: LBTC_COINGECKOID,
         ticker: LBTC_TICKER,
         assetHash:
-          '056293ee681516f2d61bb7ce63030351d5e02d61aef9fb00d30f27f55d935b18',
+          // FedPegScript => OP_TRUE
+          '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225',
+        // FedPegScript => 1 pubKey
+        //'056293ee681516f2d61bb7ce63030351d5e02d61aef9fb00d30f27f55d935b18',
         color: LBTC_COLOR,
         precision: 8,
         chain: 'regtest',

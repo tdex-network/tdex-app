@@ -52,7 +52,7 @@ import './style.scss';
 
 interface ClaimPeginProps extends RouteComponentProps {
   pegins: Pegins;
-  explorerUrl: string;
+  explorerLiquidUI: string;
   explorerBitcoinUrl: string;
   toasts: ToastOpts[];
   currentBtcBlockHeight: number;
@@ -61,14 +61,14 @@ interface ClaimPeginProps extends RouteComponentProps {
 /**
  * Claim Pegin Settings Page
  * @param pegins
- * @param explorerUrl
+ * @param explorerLiquidUI
  * @param explorerBitcoinUrl
  * @param toasts
  * @param currentBtcBlockHeight
  */
 const ClaimPegin: React.FC<ClaimPeginProps> = ({
   pegins,
-  explorerUrl,
+  explorerLiquidUI,
   explorerBitcoinUrl,
   toasts,
   currentBtcBlockHeight,
@@ -99,7 +99,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
       if (mnemonic) {
         claimPegins(
           explorerBitcoinUrl,
-          explorerUrl,
+          explorerLiquidUI,
           pegins,
           mnemonic,
           currentBtcBlockHeight,
@@ -266,9 +266,9 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
                     .map(({ claimTxId }, i) => (
                       <li key={i}>
                         <a
-                          href={`${explorerUrl}/tx/${claimTxId}`}
+                          href={`${explorerLiquidUI}/tx/${claimTxId}`}
                           target="_blank"
-                        >{`${explorerUrl}/tx/${claimTxId}`}</a>
+                        >{`${explorerLiquidUI}/tx/${claimTxId}`}</a>
                       </li>
                     ))}
                 </ul>

@@ -5,7 +5,7 @@ import ClaimPegin from '../../pages/ClaimPegin';
 const mapStateToProps = (state: any) => {
   return {
     currentBtcBlockHeight: state.btc.currentBlockHeight,
-    explorerUrl: state.settings.explorerUrl,
+    explorerLiquidUI: state.settings.explorerLiquidUI,
     explorerBitcoinUrl: state.settings.explorerBitcoinUrl,
     pegins: state.btc.pegins,
     toasts: state.toasts,
