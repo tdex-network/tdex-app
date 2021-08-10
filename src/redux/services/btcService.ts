@@ -43,6 +43,7 @@ export async function claimPegins(
   explorerUrl: string,
   pegins: Pegins,
   mnemonic: Mnemonic,
+  currentBtcBlockHeight: number,
 ): Promise<Pegins> {
   let claimedPegins: Pegins = {};
   const peginModule = await getPeginModule();
@@ -50,8 +51,11 @@ export async function claimPegins(
     const pegin = pegins[claimScript];
     for (const outpoint in pegin?.depositUtxos) {
       const depositUtxo = pegin.depositUtxos[outpoint];
-      // Skip if utxo is already claimed
-      if (!depositUtxo.claimTxId) {
+      const confirmations =
+        depositUtxo.status.block_height &&
+        currentBtcBlockHeight - depositUtxo.status.block_height + 1;
+      // Continue if utxo not claimed and claimable
+      if (!depositUtxo.claimTxId && confirmations && confirmations >= 101) {
         try {
           const ecPair = generateSigningPrivKey(
             mnemonic,
@@ -90,6 +94,12 @@ export async function claimPegins(
         } catch (err) {
           // Prevent propagating error to caller to allow failure of claims but still return the claimTxs that succeeded
           console.error(err);
+          const open = err.response.data.indexOf('{');
+          const close = err.response.data.lastIndexOf('}');
+          const errJson = JSON.parse(
+            err.response.data.substring(open, close + 1),
+          );
+          console.error(errJson.message);
         }
       }
     }

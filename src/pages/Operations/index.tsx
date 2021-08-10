@@ -15,7 +15,6 @@ import {
 } from '@ionic/react';
 import classNames from 'classnames';
 import { checkmarkSharp } from 'ionicons/icons';
-import type { Mnemonic } from 'ldk';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
@@ -24,42 +23,23 @@ import { withRouter, useParams } from 'react-router';
 import depositIcon from '../../assets/img/deposit-green.svg';
 import swapIcon from '../../assets/img/swap-circle.svg';
 import Header from '../../components/Header';
-import Loader from '../../components/Loader';
-import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
 import { CurrencyIcon, TxIcon } from '../../components/icons';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { upsertPegins } from '../../redux/actions/btcActions';
-import {
-  addErrorToast,
-  addSuccessToast,
-} from '../../redux/actions/toastActions';
-import { watchTransaction } from '../../redux/actions/transactionsActions';
+import { setModalClaimPegin } from '../../redux/actions/btcActions';
 import WatchersLoader from '../../redux/containers/watchersLoaderContainer';
-import type { Pegin, Pegins } from '../../redux/reducers/btcReducer';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
-import { claimPegins } from '../../redux/services/btcService';
 import type { LbtcDenomination } from '../../utils/constants';
 import {
   defaultPrecision,
   LBTC_TICKER,
   MAIN_ASSETS,
-  PIN_TIMEOUT_FAILURE,
-  PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
-import {
-  ClaimPeginError,
-  IncorrectPINError,
-  NoClaimFoundError,
-  PinDigitsError,
-} from '../../utils/errors';
 import {
   compareTxDisplayInterfaceByDate,
   fromSatoshi,
   fromSatoshiFixed,
-  sleep,
 } from '../../utils/helpers';
-import { getIdentity } from '../../utils/storage-helper';
 import type { Transfer, TxDisplayInterface } from '../../utils/types';
 import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
 import './style.scss';
@@ -76,9 +56,6 @@ interface OperationsProps extends RouteComponentProps {
   lbtcUnit: LbtcDenomination;
   btcTxs: TxDisplayInterface[];
   currentBtcBlockHeight: number;
-  pegins: Pegins;
-  explorerUrl: string;
-  explorerBitcoinUrl: string;
 }
 
 const Operations: React.FC<OperationsProps> = ({
@@ -89,20 +66,8 @@ const Operations: React.FC<OperationsProps> = ({
   lbtcUnit,
   btcTxs,
   currentBtcBlockHeight,
-  pegins,
-  explorerUrl,
-  explorerBitcoinUrl,
 }) => {
   const dispatch = useDispatch();
-  // Claim Button Pin Modal
-  const [needReset, setNeedReset] = useState<boolean>(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
-  //
-  const [isLoading, setIsLoading] = useState(false);
-  const [peginClaimScriptToClaim, setPeginClaimScriptToClaim] =
-    useState<string>();
-  //
   const { asset_id } = useParams<{ asset_id: string }>();
   const [balance, setBalance] = useState<BalanceInterface>();
   const [txRowOpened, setTxRowOpened] = useState<string[]>([]);
@@ -133,12 +98,12 @@ const Operations: React.FC<OperationsProps> = ({
     }
   }, [balances, asset_id]);
 
-  const open = (txID: string) => setTxRowOpened([...txRowOpened, txID]);
+  const openTxRow = (txID: string) => setTxRowOpened([...txRowOpened, txID]);
 
-  const close = (txID: string) =>
+  const closeTxRow = (txID: string) =>
     setTxRowOpened(txRowOpened.filter(id => id !== txID));
 
-  const isOpen = (tx: TxDisplayInterface): boolean => {
+  const isTxRowOpen = (tx: TxDisplayInterface): boolean => {
     if (TxTypeEnum[tx.type] === 'DepositBtc') {
       const isClaimed = !!tx.claimTxId;
       const isClaimable = checkIfPeginIsClaimable(tx);
@@ -160,88 +125,11 @@ const Operations: React.FC<OperationsProps> = ({
   };
 
   const onclickTx = (tx: TxDisplayInterface) => {
-    if (isOpen(tx)) {
-      close(tx.txId);
+    if (isTxRowOpen(tx)) {
+      closeTxRow(tx.txId);
       return;
     }
-    open(tx.txId);
-  };
-
-  const managePinError = async (closeModal = false) => {
-    setIsWrongPin(true);
-    setTimeout(() => {
-      setIsWrongPin(null);
-      setNeedReset(true);
-    }, PIN_TIMEOUT_FAILURE);
-    if (closeModal) {
-      await sleep(PIN_TIMEOUT_FAILURE);
-      setModalOpen(false);
-    }
-  };
-
-  const managePinSuccess = async () => {
-    setIsWrongPin(false);
-    setTimeout(() => {
-      setIsWrongPin(null);
-      setNeedReset(true);
-    }, PIN_TIMEOUT_SUCCESS);
-    await sleep(PIN_TIMEOUT_SUCCESS);
-    setModalOpen(false);
-  };
-
-  const handleClaimModalConfirm = async (pin: string) => {
-    const validRegexp = new RegExp('\\d{6}');
-    if (!validRegexp.test(pin)) {
-      dispatch(addErrorToast(PinDigitsError));
-      await managePinError();
-    }
-    getIdentity(pin)
-      .then(async (mnemonic: Mnemonic) => {
-        setIsLoading(true);
-        if (peginClaimScriptToClaim) {
-          claimPegins(
-            explorerBitcoinUrl,
-            explorerUrl,
-            { [peginClaimScriptToClaim]: pegins[peginClaimScriptToClaim] },
-            mnemonic,
-          )
-            .then(successPegins => {
-              if (Object.keys(successPegins).length) {
-                Object.values(successPegins).forEach((p: Pegin) => {
-                  const utxos = Object.values(p.depositUtxos ?? []);
-                  utxos.forEach(utxo => {
-                    if (utxo.claimTxId) {
-                      dispatch(watchTransaction(utxo.claimTxId));
-                    }
-                  });
-                });
-                dispatch(upsertPegins(successPegins));
-                dispatch(addSuccessToast(`Claim transaction successful`));
-                managePinSuccess();
-                setPeginClaimScriptToClaim(undefined);
-              } else {
-                dispatch(addErrorToast(NoClaimFoundError));
-                managePinError(true);
-              }
-            })
-            .catch(err => {
-              console.error(err);
-              dispatch(addErrorToast(ClaimPeginError));
-              managePinError(true);
-            });
-        } else {
-          dispatch(addErrorToast(NoClaimFoundError));
-          await managePinError(true);
-        }
-      })
-      .catch(e => {
-        console.error(e);
-        dispatch(addErrorToast(IncorrectPINError));
-        managePinError();
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    openTxRow(tx.txId);
   };
 
   const renderStatusText: any = (status: string) => {
@@ -398,20 +286,6 @@ const Operations: React.FC<OperationsProps> = ({
 
   return (
     <IonPage>
-      <Loader showLoading={isLoading} delay={0} />
-      <PinModal
-        open={modalOpen}
-        title="Enter your secret PIN"
-        description={`Enter your secret PIN to claim funds`}
-        onConfirm={handleClaimModalConfirm}
-        onClose={() => {
-          setModalOpen(false);
-        }}
-        isWrongPin={isWrongPin}
-        needReset={needReset}
-        setNeedReset={setNeedReset}
-        setIsWrongPin={setIsWrongPin}
-      />
       <IonContent
         id="operations"
         scrollEvents={true}
@@ -454,7 +328,7 @@ const Operations: React.FC<OperationsProps> = ({
                           button
                           onClick={() => onclickTx(tx)}
                           className={classNames('operation-item', {
-                            open: isOpen(tx),
+                            open: isTxRowOpen(tx),
                           })}
                         >
                           <IonRow>
@@ -468,7 +342,7 @@ const Operations: React.FC<OperationsProps> = ({
                                   : `${balance.ticker} ${TxTypeEnum[tx.type]}`}
                               </div>
                               <div className="time">
-                                {isOpen(tx)
+                                {isTxRowOpen(tx)
                                   ? tx.blockTime?.format('DD MMM YYYY HH:mm:ss')
                                   : tx.blockTime?.format('DD MMM YYYY')}
                               </div>
@@ -531,9 +405,13 @@ const Operations: React.FC<OperationsProps> = ({
                                       <IonButton
                                         className="main-button"
                                         onClick={() => {
-                                          setModalOpen(true);
-                                          setPeginClaimScriptToClaim(
-                                            tx.claimScript,
+                                          // Trigger global PinModalClaimPegin in App.tsx
+                                          dispatch(
+                                            setModalClaimPegin({
+                                              isOpen: true,
+                                              claimScriptToClaim:
+                                                tx.claimScript,
+                                            }),
                                           );
                                         }}
                                       >

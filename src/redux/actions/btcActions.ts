@@ -11,6 +11,8 @@ export const UPSERT_PEGINS = 'UPSERT_PEGINS';
 export const CLAIM_PEGINS = 'CLAIM_PEGINS';
 export const RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS =
   'RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS';
+export const CHECK_IF_CLAIMABLE_PEGIN_UTXO = 'CHECK_IF_CLAIMABLE_PEGIN_UTXO';
+export const SET_MODAL_CLAIM_PEGIN = 'SET_MODAL_CLAIM_PEGIN';
 
 /**
  * Add or update a single or multiple pegins
@@ -45,6 +47,12 @@ export const watchCurrentBtcBlockHeight = (): ActionType => {
   };
 };
 
+export const checkIfClaimablePeginUtxo = (): ActionType => {
+  return {
+    type: CHECK_IF_CLAIMABLE_PEGIN_UTXO,
+  };
+};
+
 export const setDepositPeginUtxo = (
   utxo: DepositPeginUtxo,
   depositAddress: Pegin['depositAddress'],
@@ -67,5 +75,18 @@ export const restorePeginFromDepositAddress = (
   return {
     type: RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS,
     payload: { depositAddress },
+  };
+};
+
+export const setModalClaimPegin = ({
+  isOpen,
+  claimScriptToClaim,
+}: {
+  isOpen?: boolean;
+  claimScriptToClaim?: string;
+}): ActionType => {
+  return {
+    type: SET_MODAL_CLAIM_PEGIN,
+    payload: { isOpen, claimScriptToClaim },
   };
 };

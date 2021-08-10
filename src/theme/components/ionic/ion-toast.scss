@@ -1,0 +1,16 @@
+ion-toast {
+  font-family: var(--ion-font-sub);
+  font-size: var(--ion-font-size-sub-l);
+  &.claim {
+    transform: translateY(-73px) !important;
+  }
+  &.claim::part(container) {
+    border-radius: 5px;
+  }
+  &.claim::part(toast-button-claim) {
+    border-radius: 5px;
+    color: var(--ion-color-primary);
+    font-size: var(--ion-font-size-sub);
+	  border: 2px solid var(--ion-color-primary);
+  }
+}

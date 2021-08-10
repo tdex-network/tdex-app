@@ -1,9 +1,10 @@
 import type { AppError } from '../../utils/errors';
 import type { ActionType } from '../../utils/types';
-import type { ToastType, ToastOpts } from '../reducers/toastReducer';
+import type { ToastOpts, ToastType } from '../reducers/toastReducer';
 
 export const ADD_TOAST = 'ADD_TOAST';
 export const REMOVE_TOAST = 'REMOVE_TOAST';
+export const REMOVE_TOAST_BY_TYPE = 'REMOVE_TOAST_BY_TYPE';
 
 export function addSuccessToast(
   message: string,
@@ -27,13 +28,16 @@ export function addErrorToast(error: AppError, duration?: number): ActionType {
   };
 }
 
-export function addWarningToast(
-  message: string,
-  duration?: number,
-): ActionType {
+export function addClaimPeginToast(): ActionType {
   return {
     type: ADD_TOAST,
-    payload: createToast({ message, type: 'warning', duration }),
+    payload: createToast({
+      message: 'You have some bitcoins ready to be claimed!',
+      type: 'claim-pegin',
+      duration: 0,
+      cssClass: 'claim',
+      position: 'bottom',
+    }),
   };
 }
 
@@ -41,6 +45,13 @@ export function removeToast(ID: number): ActionType {
   return {
     type: REMOVE_TOAST,
     payload: ID,
+  };
+}
+
+export function removeToastByType(type: ToastType): ActionType {
+  return {
+    type: REMOVE_TOAST_BY_TYPE,
+    payload: type,
   };
 }
 
@@ -52,17 +63,16 @@ function createToast({
   type,
   errorCode,
   duration,
-}: {
-  message: string;
-  type: ToastType;
-  errorCode?: number;
-  duration?: number;
-}): ToastOpts {
+  cssClass,
+  position,
+}: Omit<ToastOpts, 'ID'>): ToastOpts {
   return {
     ID: nextID++,
     message,
     type,
     errorCode,
     duration,
+    cssClass,
+    position,
   };
 }

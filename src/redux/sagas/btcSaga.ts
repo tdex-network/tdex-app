@@ -3,7 +3,15 @@ import type { AddressInterface, StateRestorerOpts } from 'ldk';
 import { fetchUtxos, IdentityType, MasterPublicKey } from 'ldk';
 import { address as addrLDK } from 'liquidjs-lib';
 import type ElementsPegin from 'pegin';
-import { all, call, delay, put, select, takeLatest } from 'redux-saga/effects';
+import {
+  all,
+  call,
+  delay,
+  put,
+  select,
+  takeLatest,
+  takeLeading,
+} from 'redux-saga/effects';
 import type { Restorer } from 'tdex-sdk';
 import { masterPubKeyRestorerFromState } from 'tdex-sdk';
 
@@ -26,11 +34,17 @@ import {
   UPDATE_DEPOSIT_PEGIN_UTXOS,
   UPSERT_PEGINS,
   WATCH_CURRENT_BTC_BLOCK_HEIGHT,
+  CHECK_IF_CLAIMABLE_PEGIN_UTXO,
 } from '../actions/btcActions';
-import { addErrorToast } from '../actions/toastActions';
+import {
+  addErrorToast,
+  addClaimPeginToast,
+  removeToastByType,
+} from '../actions/toastActions';
 import { addAddress } from '../actions/walletActions';
 import { network } from '../config';
 import type { BtcState, Pegins } from '../reducers/btcReducer';
+import type { ToastState } from '../reducers/toastReducer';
 import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString } from '../reducers/walletReducer';
 import { getPeginModule } from '../services/btcService';
@@ -103,7 +117,6 @@ export function* fetchAndUpdateDepositPeginUtxos(
       pegins[claimScript].depositAddress.address,
       explorerBitcoinUrl,
     );
-    if (utxos.length === 0) continue;
     for (const utxo of utxos) {
       if (
         !pegins[claimScript].depositUtxos?.[outpointToString(utxo)] ||
@@ -132,24 +145,32 @@ export function* fetchAndUpdateDepositPeginUtxos(
 function* restorePeginsFromDepositAddress(action: ActionType) {
   try {
     const [
+      pegins,
       addresses,
       masterBlindKey,
       masterPubKey,
       lastUsedIndexes,
       explorerBitcoinURL,
-    ]: [WalletState['addresses'], string, string, StateRestorerOpts, string] =
-      yield all([
-        select(({ wallet }: { wallet: WalletState }) => wallet.addresses),
-        select(({ wallet }: { wallet: WalletState }) => wallet.masterBlindKey),
-        select(({ wallet }: { wallet: WalletState }) => wallet.masterPubKey),
-        select(({ wallet }: { wallet: WalletState }) => ({
-          lastUsedExternalIndex: wallet.lastUsedExternalIndex,
-          lastUsedInternalIndex: wallet.lastUsedInternalIndex,
-        })),
-        select(({ settings }) => settings.explorerBitcoinUrl),
-      ]);
+    ]: [
+      Pegins,
+      WalletState['addresses'],
+      string,
+      string,
+      StateRestorerOpts,
+      string,
+    ] = yield all([
+      select(({ btc }: { btc: BtcState }) => btc.pegins),
+      select(({ wallet }: { wallet: WalletState }) => wallet.addresses),
+      select(({ wallet }: { wallet: WalletState }) => wallet.masterBlindKey),
+      select(({ wallet }: { wallet: WalletState }) => wallet.masterPubKey),
+      select(({ wallet }: { wallet: WalletState }) => ({
+        lastUsedExternalIndex: wallet.lastUsedExternalIndex,
+        lastUsedInternalIndex: wallet.lastUsedInternalIndex,
+      })),
+      select(({ settings }) => settings.explorerBitcoinUrl),
+    ]);
     const peginModule: ElementsPegin = yield call(getPeginModule);
-    const pegins: Pegins = {};
+    const retrievedPegins: Pegins = {};
     const addrs = Object.entries(addresses).reverse();
     // Search extra 5 addresses
     // Needed if last action of user before losing wallet data was to generate addresses that received btc funds but not Liquid assets.
@@ -183,7 +204,7 @@ function* restorePeginsFromDepositAddress(action: ActionType) {
         peginModule.getMainchainAddress(claimScript),
       );
       if (action.payload.depositAddress === peginAddress) {
-        pegins[claimScript] = {
+        retrievedPegins[claimScript] = {
           depositAddress: {
             address: peginAddress,
             claimScript: claimScript,
@@ -194,17 +215,61 @@ function* restorePeginsFromDepositAddress(action: ActionType) {
         yield put(addAddress(addr));
       }
     }
-    if (!Object.keys(pegins).length) {
+    if (!Object.keys(retrievedPegins).length) {
       yield put(addErrorToast(NoClaimFoundError));
       return;
     }
+    // Merge with eventual state
+    const newPegins = Object.assign({}, pegins, retrievedPegins);
     // Update pegin state
-    yield put(upsertPegins(pegins));
-    yield call(fetchAndUpdateDepositPeginUtxos, pegins, explorerBitcoinURL);
+    yield put(upsertPegins(newPegins));
+    yield call(fetchAndUpdateDepositPeginUtxos, newPegins, explorerBitcoinURL);
     yield call(persistPegins);
   } catch (err) {
     console.error(err);
     yield put(addErrorToast(PeginRestorationError));
+  }
+}
+
+function* checkIfClaimablePeginUtxo() {
+  // Delay to make sure pegins are updated at startup
+  yield delay(1500);
+  let hasClaimablePeginUtxo = false;
+  const [pegins, currentBlockHeight, toasts]: [Pegins, number, ToastState] =
+    yield all([
+      select(({ btc }: { btc: BtcState }) => btc.pegins),
+      select(({ btc }: { btc: BtcState }) => btc.currentBlockHeight),
+      select(({ toasts }: { toasts: ToastState }) => toasts),
+    ]);
+  for (const claimScript in pegins) {
+    const pegin = pegins[claimScript];
+    for (const outpoint in pegin?.depositUtxos) {
+      const depositUtxo = pegin.depositUtxos[outpoint];
+      if (depositUtxo.status.block_height) {
+        const confirmations =
+          currentBlockHeight - depositUtxo.status.block_height + 1;
+        // Check if pegin not already claimed and utxo is mature
+        if (!depositUtxo.claimTxId && confirmations >= 101) {
+          hasClaimablePeginUtxo = true;
+        }
+      }
+    }
+  }
+  if (hasClaimablePeginUtxo) {
+    if (!toasts.some(t => t.type === 'claim-pegin')) {
+      yield put(addClaimPeginToast());
+      // UGLY HACK ///
+      // Modify part name of '.toast-button-claim' to target it
+      // ion-toast::part(button) would select all buttons
+      yield delay(100);
+      const toastEl = document.querySelector('ion-toast');
+      const el =
+        toastEl?.shadowRoot &&
+        toastEl.shadowRoot.querySelector('.toast-button-claim');
+      if (el) el.setAttribute('part', 'toast-button-claim');
+    }
+  } else {
+    yield put(removeToastByType('claim-pegin'));
   }
 }
 
@@ -218,4 +283,5 @@ export function* btcWatcherSaga(): Generator {
     RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS,
     restorePeginsFromDepositAddress,
   );
+  yield takeLeading(CHECK_IF_CLAIMABLE_PEGIN_UTXO, checkIfClaimablePeginUtxo);
 }

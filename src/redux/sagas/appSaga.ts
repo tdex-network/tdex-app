@@ -21,6 +21,7 @@ import {
   setIsFetchingUtxos,
 } from '../actions/appActions';
 import {
+  checkIfClaimablePeginUtxo,
   updateDepositPeginUtxos,
   watchCurrentBtcBlockHeight,
 } from '../actions/btcActions';
@@ -82,6 +83,7 @@ function* updateState() {
   yield all([
     put(watchCurrentBtcBlockHeight()),
     put(updateDepositPeginUtxos()),
+    put(checkIfClaimablePeginUtxo()),
     put(updateMarkets()),
     put(updateTransactions()),
     put(updatePrices()),

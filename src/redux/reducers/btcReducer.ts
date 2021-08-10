@@ -1,3 +1,4 @@
+import { merge } from 'lodash';
 import moment from 'moment';
 import { createSelector } from 'reselect';
 
@@ -7,6 +8,7 @@ import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
 import {
   SET_CURRENT_BTC_BLOCK_HEIGHT,
   SET_DEPOSIT_PEGIN_UTXO,
+  SET_MODAL_CLAIM_PEGIN,
   UPSERT_PEGINS,
 } from '../actions/btcActions';
 
@@ -45,11 +47,14 @@ export type Pegins = Record<ClaimScript, Pegin>;
 export interface BtcState {
   currentBlockHeight: number;
   pegins: Pegins;
+  // Global state necessary for modal to be triggered by toast
+  modalClaimPegins: { isOpen: boolean; claimScriptToClaim?: string };
 }
 
 export const initialState: BtcState = {
   currentBlockHeight: 0,
   pegins: {},
+  modalClaimPegins: { isOpen: false, claimScriptToClaim: undefined },
 };
 
 function btcReducer(state = initialState, action: ActionType): BtcState {
@@ -68,6 +73,16 @@ function btcReducer(state = initialState, action: ActionType): BtcState {
     }
     case UPSERT_PEGINS: {
       return upsertPeginsInState(state, action.payload.pegins);
+    }
+    case SET_MODAL_CLAIM_PEGIN: {
+      return {
+        ...state,
+        modalClaimPegins: Object.assign(
+          {},
+          state.modalClaimPegins,
+          action.payload,
+        ),
+      };
     }
     default:
       return state;
@@ -124,19 +139,10 @@ export const depositPeginUtxosToDisplayTxSelector = createSelector(
   },
 );
 
-const upsertPeginsInState = (state: BtcState, pegins: Pegins) => {
-  let updatedPegins: Pegins = state.pegins;
-  (Object.entries(pegins) as [string, Pegin][]).forEach(
-    ([claimScript, pegin]) => {
-      updatedPegins = {
-        ...updatedPegins,
-        [claimScript]: pegin,
-      };
-    },
-  );
+const upsertPeginsInState = (state: BtcState, newPegins: Pegins) => {
   return {
     ...state,
-    pegins: updatedPegins,
+    pegins: merge({ ...newPegins }, state.pegins),
   };
 };
 

@@ -1,7 +1,10 @@
+import type { ToastButton } from '@ionic/react';
 import { IonToast } from '@ionic/react';
 import { closeCircleOutline } from 'ionicons/icons';
 import React from 'react';
+import { useDispatch } from 'react-redux';
 
+import { setModalClaimPegin } from '../../redux/actions/btcActions';
 import type { ToastOpts, ToastType } from '../../redux/reducers/toastReducer';
 import {
   TOAST_TIMEOUT_FAILURE,
@@ -14,6 +17,29 @@ interface ToastsProps {
 }
 
 const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast }) => {
+  const dispatch = useDispatch();
+
+  const buttons = (toast: ToastOpts) => {
+    const btns: ToastButton[] = [
+      {
+        side: 'start',
+        role: 'cancel',
+        icon: closeCircleOutline,
+      },
+    ];
+    if (toast.type === 'claim-pegin') {
+      btns.push({
+        side: 'end',
+        role: 'claim',
+        text: 'Claim',
+        handler: () => {
+          dispatch(setModalClaimPegin({ isOpen: true }));
+        },
+      });
+    }
+    return btns;
+  };
+
   return (
     <div>
       {toasts.map((toast: ToastOpts) => (
@@ -24,17 +50,9 @@ const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast }) => {
           duration={toast?.duration ?? toastDuration(toast.type)}
           message={toast.message}
           onDidDismiss={() => removeToast(toast.ID)}
-          position="top"
-          buttons={[
-            {
-              side: 'start',
-              role: 'cancel',
-              icon: closeCircleOutline,
-              handler: () => {
-                removeToast(toast.ID);
-              },
-            },
-          ]}
+          position={toast?.position ?? 'top'}
+          cssClass={toast?.cssClass}
+          buttons={buttons(toast)}
         />
       ))}
     </div>
@@ -47,8 +65,6 @@ function toastDuration(toastType: ToastType): number {
       return TOAST_TIMEOUT_FAILURE;
     case 'success':
       return TOAST_TIMEOUT_SUCCESS;
-    case 'warning':
-      return TOAST_TIMEOUT_FAILURE;
     default:
       return toastDuration('success');
   }
@@ -60,8 +76,6 @@ function toastColor(toastType: ToastType): string {
       return 'danger';
     case 'success':
       return 'success';
-    case 'warning':
-      return 'warning';
     default:
       return toastColor('success');
   }

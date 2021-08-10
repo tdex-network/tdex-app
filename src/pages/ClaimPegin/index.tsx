@@ -18,6 +18,7 @@ import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import PinModal from '../../components/PinModal';
 import {
+  checkIfClaimablePeginUtxo,
   restorePeginFromDepositAddress,
   upsertPegins,
 } from '../../redux/actions/btcActions';
@@ -54,19 +55,23 @@ interface ClaimPeginProps extends RouteComponentProps {
   explorerUrl: string;
   explorerBitcoinUrl: string;
   toasts: ToastOpts[];
+  currentBtcBlockHeight: number;
 }
 
 /**
  * Claim Pegin Settings Page
- * @param addresses
+ * @param pegins
  * @param explorerUrl
  * @param explorerBitcoinUrl
+ * @param toasts
+ * @param currentBtcBlockHeight
  */
 const ClaimPegin: React.FC<ClaimPeginProps> = ({
   pegins,
   explorerUrl,
   explorerBitcoinUrl,
   toasts,
+  currentBtcBlockHeight,
 }) => {
   // Pin Modal
   const [needReset, setNeedReset] = useState<boolean>(false);
@@ -88,18 +93,17 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
     });
   }, [toasts]);
 
-  // Effect to have up to date pegins when claiming
+  // claimPegins effect with pegins in sync with store when claiming
   useEffect(() => {
-    const pendingPegins = Object.fromEntries(
-      Object.entries(pegins).filter(
-        ([, value]) =>
-          !!value.depositUtxos &&
-          Object.values(value.depositUtxos).some(utxo => !utxo?.claimTxId),
-      ),
-    );
     if (inputBtcPeginAddress) {
-      if (mnemonic && Object.keys(pendingPegins).length > 0) {
-        claimPegins(explorerBitcoinUrl, explorerUrl, pendingPegins, mnemonic)
+      if (mnemonic) {
+        claimPegins(
+          explorerBitcoinUrl,
+          explorerUrl,
+          pegins,
+          mnemonic,
+          currentBtcBlockHeight,
+        )
           .then(successPegins => {
             if (Object.keys(successPegins).length) {
               setClaimedPegins(successPegins);
@@ -115,6 +119,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
               dispatch(addSuccessToast(`Claim transaction successful`));
               managePinSuccess().catch(console.error);
               setInputBtcPeginAddress(undefined);
+              dispatch(checkIfClaimablePeginUtxo());
             } else {
               dispatch(addErrorToast(NoClaimFoundError));
             }
@@ -130,6 +135,9 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
         setIsLoading(false);
       }
     }
+    return () => {
+      setInputBtcPeginAddress(undefined);
+    };
   }, [pegins]);
 
   const managePinError = async (closeModal = false) => {

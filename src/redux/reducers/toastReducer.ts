@@ -1,22 +1,34 @@
-import type { ActionType } from '../../utils/types';
-import { ADD_TOAST, REMOVE_TOAST } from '../actions/toastActions';
+import type { ToastButton } from '@ionic/react';
 
-export type ToastType = 'success' | 'error' | 'warning';
+import type { ActionType } from '../../utils/types';
+import {
+  ADD_TOAST,
+  REMOVE_TOAST,
+  REMOVE_TOAST_BY_TYPE,
+} from '../actions/toastActions';
+
+export type ToastType = 'success' | 'error' | 'warning' | 'claim-pegin';
 
 export interface ToastOpts {
-  type: ToastType;
   ID: number;
   message: string;
-  errorCode?: number;
+  type: ToastType;
+  buttons?: ToastButton[];
+  cssClass?: string;
   duration?: number;
+  errorCode?: number;
+  position?: 'top' | 'middle' | 'bottom';
 }
+export type ToastState = ToastOpts[];
 
-const toastReducer = (state: ToastOpts[] = [], action: ActionType): any[] => {
+const toastReducer = (state: ToastState = [], action: ActionType): any[] => {
   switch (action.type) {
     case ADD_TOAST:
       return [action.payload, ...state];
     case REMOVE_TOAST:
       return state.filter(({ ID }) => ID !== action.payload);
+    case REMOVE_TOAST_BY_TYPE:
+      return state.filter(({ type }) => type !== action.payload);
     default:
       return state;
   }
