@@ -8,6 +8,7 @@ import {
   IonInput,
   IonItem,
 } from '@ionic/react';
+import * as bitcoinJS from 'bitcoinjs-lib';
 import type { Mnemonic } from 'ldk';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -28,6 +29,7 @@ import {
   addSuccessToast,
 } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
+import { network } from '../../redux/config';
 import type {
   DepositPeginUtxo,
   Pegin,
@@ -36,6 +38,7 @@ import type {
 import type { ToastOpts } from '../../redux/reducers/toastReducer';
 import { claimPegins } from '../../redux/services/btcService';
 import {
+  getBitcoinJSNetwork,
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
@@ -167,18 +170,21 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
     }
     await getIdentity(pin)
       .then(async (mnemonic: Mnemonic) => {
-        const addrSanitized = inputBtcPeginAddress?.trim();
-        // No whitespace and length 35
-        if (
-          addrSanitized &&
-          !(addrSanitized.indexOf(' ') >= 0) &&
-          // TODO: check if other length are possible
-          addrSanitized.length === 35
-        ) {
-          setIsLoading(true);
-          setMnemonic(mnemonic);
-          dispatch(restorePeginFromDepositAddress(addrSanitized));
-        } else {
+        const addrTrimmed = inputBtcPeginAddress?.trim();
+        try {
+          if (
+            addrTrimmed &&
+            bitcoinJS.address.toOutputScript(
+              addrTrimmed,
+              getBitcoinJSNetwork(network.chain),
+            )
+          ) {
+            setIsLoading(true);
+            setMnemonic(mnemonic);
+            dispatch(restorePeginFromDepositAddress(addrTrimmed));
+          }
+        } catch (err) {
+          console.error(err);
           dispatch(addErrorToast(InvalidBitcoinAddress));
           managePinError(true).catch(console.error);
         }

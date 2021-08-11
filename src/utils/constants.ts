@@ -1,3 +1,5 @@
+import * as bitcoinJS from 'bitcoinjs-lib';
+
 import { network } from '../redux/config';
 import type { CurrencyInterface } from '../redux/reducers/settingsReducer';
 
@@ -148,3 +150,11 @@ export const PIN_TIMEOUT_FAILURE = 2000;
 
 export const FEDPEGSCRIPT_CUSTOM =
   '51210269e0180bc9e0be7648d6e9c17f3664bc3ebcee40f3a46cf4b42e583e96b911b951ae';
+
+export function getBitcoinJSNetwork(
+  chain: 'liquid' | 'regtest',
+): bitcoinJS.networks.Network {
+  return chain === 'liquid'
+    ? bitcoinJS.networks.bitcoin
+    : bitcoinJS.networks.regtest;
+}
