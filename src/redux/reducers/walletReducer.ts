@@ -11,6 +11,7 @@ import {
   defaultPrecision,
   LBTC_COINGECKOID,
   LBTC_TICKER,
+  LBTC_ASSET,
   getMainAsset,
 } from '../../utils/constants';
 import {
@@ -166,6 +167,17 @@ export const balancesSelector = createSelector(
         coinGeckoID: getMainAsset(asset)?.coinGeckoID,
         precision: assets[asset]?.precision ?? defaultPrecision,
         name: assets[asset]?.name,
+      });
+    }
+    // If no balance, add LBTC with amount zero
+    if (!balances.length) {
+      balances.push({
+        asset: LBTC_ASSET.assetHash,
+        amount: 0,
+        ticker: LBTC_TICKER,
+        coinGeckoID: LBTC_ASSET.coinGeckoID,
+        precision: LBTC_ASSET.precision,
+        name: LBTC_ASSET.name,
       });
     }
     return balances;
