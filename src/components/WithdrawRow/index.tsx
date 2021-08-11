@@ -1,11 +1,5 @@
 import type { InputChangeEventDetail } from '@ionic/core';
-import {
-  IonIcon,
-  IonInput,
-  IonText,
-  useIonViewDidEnter,
-  useIonViewDidLeave,
-} from '@ionic/react';
+import { IonIcon, IonInput, IonText } from '@ionic/react';
 import classNames from 'classnames';
 import Decimal from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
@@ -56,14 +50,14 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
   const [fiat, setFiat] = useState<string>('0.00');
   const dispatch = useDispatch();
 
-  useIonViewDidEnter(() => {
+  useEffect(() => {
     setAccessoryBar(true).catch(console.error);
-  });
-
-  useIonViewDidLeave(() => {
-    setAccessoryBar(false).catch(console.error);
-    reset();
-  });
+    dispatch(updatePrices());
+    return () => {
+      reset();
+      setAccessoryBar(false).catch(console.error);
+    };
+  }, []);
 
   useEffect(() => {
     setResidualBalance(
@@ -75,10 +69,6 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
       ),
     );
   }, [lbtcUnit, balance.amount]);
-
-  useEffect(() => {
-    dispatch(updatePrices());
-  }, []);
 
   const reset = () => {
     setResidualBalance(
@@ -148,7 +138,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
               inputmode="decimal"
               onIonChange={handleInputChange}
               onKeyDown={onPressEnterKeyCloseKeyboard}
-              pattern="^[0-9]+(([.,][0-9]+)?)$"
+              pattern="^[0-9]*[.,]?[0-9]*$"
               placeholder="0"
               type="tel"
               value={amount}

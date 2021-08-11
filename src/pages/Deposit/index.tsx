@@ -5,7 +5,6 @@ import type { RouteComponentProps } from 'react-router';
 
 import Header from '../../components/Header';
 import { CurrencyIcon } from '../../components/icons';
-import { network } from '../../redux/config';
 import './style.scss';
 import { routerLinks } from '../../routes';
 import { BTC_ASSET, MAIN_ASSETS } from '../../utils/constants';
@@ -15,8 +14,6 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
     return [BTC_ASSET]
       .concat(MAIN_ASSETS)
       .map((asset, i) => {
-        if (asset.ticker === 'L-BTC' && network.chain !== asset?.chain)
-          return null;
         return (
           <button
             className="deposit-grid-item ion-justify-content-center ion-align-items-center"

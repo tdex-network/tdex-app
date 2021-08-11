@@ -314,7 +314,7 @@ const Operations: React.FC<OperationsProps> = ({
               <IonList>
                 <IonListHeader>Transactions</IonListHeader>
                 <WatchersLoader />
-                {balance &&
+                {balance && transactionsToDisplay.length ? (
                   transactionsToDisplay
                     .concat(btcTxs)
                     .sort(compareTxDisplayInterfaceByDate)
@@ -426,7 +426,10 @@ const Operations: React.FC<OperationsProps> = ({
                           </div>
                         </IonItem>
                       );
-                    })}
+                    })
+                ) : (
+                  <p>You don't have any transactions yet</p>
+                )}
               </IonList>
             </IonCol>
           </IonRow>
