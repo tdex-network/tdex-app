@@ -1,12 +1,5 @@
 import type { AddressInterface } from 'ldk';
-import {
-  takeLatest,
-  takeLeading,
-  put,
-  call,
-  all,
-  select,
-} from 'redux-saga/effects';
+import { takeLatest, takeLeading, put, call, all, select } from 'redux-saga/effects';
 
 import { seedBackupFlag } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
@@ -20,20 +13,11 @@ import {
   setIsBackupDone,
   setIsFetchingUtxos,
 } from '../actions/appActions';
-import {
-  checkIfClaimablePeginUtxo,
-  updateDepositPeginUtxos,
-  watchCurrentBtcBlockHeight,
-} from '../actions/btcActions';
+import { checkIfClaimablePeginUtxo, updateDepositPeginUtxos, watchCurrentBtcBlockHeight } from '../actions/btcActions';
 import { updatePrices } from '../actions/ratesActions';
 import { updateMarkets } from '../actions/tdexActions';
 import { updateTransactions } from '../actions/transactionsActions';
-import {
-  addAddress,
-  setIsAuth,
-  setPublicKeys,
-  updateUtxos,
-} from '../actions/walletActions';
+import { addAddress, setIsAuth, setPublicKeys, updateUtxos } from '../actions/walletActions';
 import { waitForRestore } from '../services/walletService';
 
 function* initAppSaga() {
@@ -56,16 +40,12 @@ function* signInSaga(action: ActionType) {
     if (backup) yield put(setIsBackupDone(true));
     // Wallet Restoration
     yield setIsFetchingUtxos(true);
-    const explorerUrl: string = yield select(
-      (state: any) => state.settings.explorerUrl,
-    );
+    const explorerUrl: string = yield select((state: any) => state.settings.explorerUrl);
     yield all([
       call(waitForRestore, action.payload.mnemonic, explorerUrl),
       put(setPublicKeys(action.payload.mnemonic)),
     ]);
-    const addresses: AddressInterface[] = yield call(() =>
-      action.payload.mnemonic.getAddresses(),
-    );
+    const addresses: AddressInterface[] = yield call(() => action.payload.mnemonic.getAddresses());
     for (const addr of addresses) {
       yield put(addAddress(addr));
     }

@@ -1,24 +1,8 @@
-import type {
-  AddressInterface,
-  UtxoInterface,
-  Outpoint,
-  Mnemonic,
-  StateRestorerOpts,
-} from 'ldk';
+import type { AddressInterface, UtxoInterface, Outpoint, Mnemonic, StateRestorerOpts } from 'ldk';
 import { createSelector } from 'reselect';
 
-import {
-  defaultPrecision,
-  LBTC_COINGECKOID,
-  LBTC_TICKER,
-  LBTC_ASSET,
-  getMainAsset,
-} from '../../utils/constants';
-import {
-  tickerFromAssetHash,
-  balancesFromUtxos,
-  getIndexAndIsChangeFromAddress,
-} from '../../utils/helpers';
+import { defaultPrecision, LBTC_COINGECKOID, LBTC_TICKER, LBTC_ASSET, getMainAsset } from '../../utils/constants';
+import { tickerFromAssetHash, balancesFromUtxos, getIndexAndIsChangeFromAddress } from '../../utils/helpers';
 import type { ActionType } from '../../utils/types';
 import type { BalanceInterface } from '../actionTypes/walletActionTypes';
 import {
@@ -60,9 +44,7 @@ export const initialState: WalletState = {
 function walletReducer(state = initialState, action: ActionType): WalletState {
   switch (action.type) {
     case ADD_ADDRESS: {
-      const { isChange, index } = getIndexAndIsChangeFromAddress(
-        action.payload.address,
-      );
+      const { isChange, index } = getIndexAndIsChangeFromAddress(action.payload.address);
       return {
         ...state,
         addresses: {
@@ -95,9 +77,7 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
     case UNLOCK_UTXO:
       return {
         ...state,
-        utxosLocks: state.utxosLocks.filter(
-          (outpoint: string) => outpoint !== action.payload,
-        ),
+        utxosLocks: state.utxosLocks.filter((outpoint: string) => outpoint !== action.payload),
       };
     case UNLOCK_UTXOS:
       return {
@@ -119,22 +99,14 @@ const addUtxoInState = (state: WalletState, utxo: UtxoInterface) => {
   return { ...state, utxos: newUtxosMap };
 };
 
-const deleteUtxoInState = (
-  state: WalletState,
-  outpoint: Outpoint,
-): WalletState => {
+const deleteUtxoInState = (state: WalletState, outpoint: Outpoint): WalletState => {
   const newUtxosMap = { ...state.utxos };
   delete newUtxosMap[outpointToString(outpoint)];
   return { ...state, utxos: newUtxosMap };
 };
 
-export const allUtxosSelector = ({
-  wallet,
-}: {
-  wallet: WalletState;
-}): UtxoInterface[] => {
-  if (Object.keys(wallet.utxosLocks).length === 0)
-    return Object.values(wallet.utxos);
+export const allUtxosSelector = ({ wallet }: { wallet: WalletState }): UtxoInterface[] => {
+  if (Object.keys(wallet.utxosLocks).length === 0) return Object.values(wallet.utxos);
   const utxos = [];
   for (const [outpoint, utxo] of Object.entries(wallet.utxos)) {
     if (wallet.utxosLocks.includes(outpoint)) continue;
@@ -150,13 +122,13 @@ export const allUtxosSelector = ({
  */
 export const balancesSelector = createSelector(
   [
-    state => (state as any).assets,
-    state => allUtxosSelector(state as any),
-    state => transactionsAssets(state as any),
+    (state) => (state as any).assets,
+    (state) => allUtxosSelector(state as any),
+    (state) => transactionsAssets(state as any),
   ],
   (assets, utxos, txsAssets) => {
     const balances = balancesFromUtxos(utxos, assets);
-    const balancesAssets = balances.map(b => b.asset);
+    const balancesAssets = balances.map((b) => b.asset);
     for (const asset of txsAssets) {
       if (balancesAssets.includes(asset)) continue;
       // include a 'zero' balance if the user has previous transactions.
@@ -181,7 +153,7 @@ export const balancesSelector = createSelector(
       });
     }
     return balances;
-  },
+  }
 );
 
 /**
@@ -190,13 +162,12 @@ export const balancesSelector = createSelector(
  */
 export const aggregatedLBTCBalanceSelector = (state: any): BalanceInterface => {
   const toAggregateBalancesInBTC = balancesSelector(state)
-    .filter(b => b.amount > 0 && b.coinGeckoID)
+    .filter((b) => b.amount > 0 && b.coinGeckoID)
     .map((balance: BalanceInterface) => {
       if (balance.coinGeckoID === LBTC_COINGECKOID) {
         return balance.amount;
       }
-      const price: number | undefined =
-        state.rates.lbtcPrices[balance.coinGeckoID || ''];
+      const price: number | undefined = state.rates.lbtcPrices[balance.coinGeckoID || ''];
       return (price || 0) * balance.amount;
     });
 
@@ -211,19 +182,11 @@ export const aggregatedLBTCBalanceSelector = (state: any): BalanceInterface => {
   };
 };
 
-export const addressesSelector = ({
-  wallet,
-}: {
-  wallet: WalletState;
-}): AddressInterface[] => {
+export const addressesSelector = ({ wallet }: { wallet: WalletState }): AddressInterface[] => {
   return Object.values(wallet.addresses);
 };
 
-export function lastUsedIndexesSelector({
-  wallet,
-}: {
-  wallet: WalletState;
-}): StateRestorerOpts {
+export function lastUsedIndexesSelector({ wallet }: { wallet: WalletState }): StateRestorerOpts {
   return {
     lastUsedInternalIndex: wallet.lastUsedInternalIndex,
     lastUsedExternalIndex: wallet.lastUsedExternalIndex,

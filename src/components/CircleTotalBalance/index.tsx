@@ -10,29 +10,18 @@ interface CircleTotalBalanceProps {
   totalBalance: string;
 }
 
-const CircleTotalBalance: React.FC<CircleTotalBalanceProps> = ({
-  fiatBalance,
-  lbtcUnit,
-  totalBalance,
-}) => {
+const CircleTotalBalance: React.FC<CircleTotalBalanceProps> = ({ fiatBalance, lbtcUnit, totalBalance }) => {
   return (
     <div className="circle-total-balance">
       <div className="ion-align-items-center ion-justify-content-center">
         <img src={TdexLogo} alt="tdex logo" />
         <IonGrid>
           <IonRow className="ion-justify-content-center">Total Balance</IonRow>
-          <IonRow
-            className="ion-justify-content-center"
-            data-cy="total-balance"
-          >
+          <IonRow className="ion-justify-content-center" data-cy="total-balance">
             {totalBalance}
           </IonRow>
           <IonRow className="ion-justify-content-center">{lbtcUnit}</IonRow>
-          {fiatBalance && (
-            <IonRow className="ion-justify-content-center">
-              {fiatBalance}
-            </IonRow>
-          )}
+          {fiatBalance && <IonRow className="ion-justify-content-center">{fiatBalance}</IonRow>}
         </IonGrid>
       </div>
     </div>

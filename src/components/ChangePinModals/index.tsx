@@ -2,20 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import PinModal from '../../components/PinModal';
-import {
-  addErrorToast,
-  addSuccessToast,
-} from '../../redux/actions/toastActions';
-import {
-  PIN_TIMEOUT_FAILURE,
-  PIN_TIMEOUT_SUCCESS,
-} from '../../utils/constants';
+import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
+import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import type { AppError } from '../../utils/errors';
 import { IncorrectPINError } from '../../utils/errors';
-import {
-  changePin,
-  getMnemonicFromSecureStorage,
-} from '../../utils/storage-helper';
+import { changePin, getMnemonicFromSecureStorage } from '../../utils/storage-helper';
 import Loader from '../Loader';
 
 interface ChangePinModalsProps {
@@ -24,11 +15,7 @@ interface ChangePinModalsProps {
   onClose: () => void;
 }
 
-const ChangePinModals: React.FC<ChangePinModalsProps> = ({
-  open,
-  onDeleted,
-  onClose,
-}) => {
+const ChangePinModals: React.FC<ChangePinModalsProps> = ({ open, onDeleted, onClose }) => {
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [loading, setLoading] = useState(false);
   const [currentPin, setCurrentPin] = useState('');

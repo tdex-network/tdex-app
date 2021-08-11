@@ -1,15 +1,6 @@
 import type { RangeChangeEventDetail } from '@ionic/core';
 import type { RangeValue } from '@ionic/core/dist/types/components/range/range-interface';
-import {
-  IonButton,
-  IonCol,
-  IonContent,
-  IonGrid,
-  IonItem,
-  IonPage,
-  IonRange,
-  IonRow,
-} from '@ionic/react';
+import { IonButton, IonCol, IonContent, IonGrid, IonItem, IonPage, IonRange, IonRow } from '@ionic/react';
 import type { Mnemonic } from 'ldk';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -18,14 +9,8 @@ import { mnemonicRestorerFromEsplora } from 'tdex-sdk';
 import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
-import {
-  addErrorToast,
-  addSuccessToast,
-} from '../../redux/actions/toastActions';
-import {
-  PIN_TIMEOUT_FAILURE,
-  PIN_TIMEOUT_SUCCESS,
-} from '../../utils/constants';
+import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
+import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { DeepRestorationError, IncorrectPINError } from '../../utils/errors';
 import { getIdentity } from '../../utils/storage-helper';
 
@@ -123,10 +108,7 @@ const DeepRestoration: React.FC = () => {
           </IonRow>
           <IonRow>
             <IonCol size="9" offset="1.5" sizeMd="6" offsetMd="3">
-              <IonButton
-                className="main-button"
-                onClick={() => setIsPinModalOpen(true)}
-              >
+              <IonButton className="main-button" onClick={() => setIsPinModalOpen(true)}>
                 Confirm
               </IonButton>
             </IonCol>

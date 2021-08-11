@@ -12,14 +12,8 @@ interface LoaderProps {
 const Loader: React.FC<LoaderProps> = ({ delay, message, showLoading }) => {
   return useDelayedRender(
     delay ?? 500,
-    showLoading,
-  )(() => (
-    <IonLoading
-      isOpen={showLoading}
-      message={message || 'Please wait...'}
-      spinner="lines"
-    />
-  ));
+    showLoading
+  )(() => <IonLoading isOpen={showLoading} message={message || 'Please wait...'} spinner="lines" />);
 };
 
 export default Loader;

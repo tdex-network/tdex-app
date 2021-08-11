@@ -3,7 +3,7 @@ import { useRef } from 'react';
 
 export const useFocus = (
   numberOfInputs: number,
-  onEnd?: () => void,
+  onEnd?: () => void
 ): [React.RefObject<HTMLIonInputElement>[], (i: number) => void] => {
   const refs: React.RefObject<HTMLIonInputElement>[] = [];
   for (let i = 0; i < numberOfInputs; i++) {

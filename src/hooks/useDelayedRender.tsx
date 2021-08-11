@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 
-export function useDelayedRender(
-  delay: number,
-  showLoading: boolean,
-): (fn: any) => any {
+export function useDelayedRender(delay: number, showLoading: boolean): (fn: any) => any {
   const [delayed, setDelayed] = useState(true);
 
   useEffect(() => {
@@ -15,5 +12,5 @@ export function useDelayedRender(
     // Need 'showLoading' to reset 'delayed' after showing the loader
   }, [showLoading]);
 
-  return fn => showLoading && !delayed && fn();
+  return (fn) => showLoading && !delayed && fn();
 }

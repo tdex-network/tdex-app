@@ -11,10 +11,7 @@ const initialState: RateState = {
   lbtcPrices: {},
 };
 
-const ratesReducer = (
-  state: RateState = initialState,
-  action: ActionType,
-): RateState => {
+const ratesReducer = (state: RateState = initialState, action: ActionType): RateState => {
   switch (action.type) {
     case SET_LBTC_PRICES:
       return { ...state, lbtcPrices: action.payload };

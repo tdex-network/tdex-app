@@ -1,13 +1,4 @@
-import {
-  IonContent,
-  IonPage,
-  IonText,
-  useIonViewWillEnter,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonButton,
-} from '@ionic/react';
+import { IonContent, IonPage, IonText, useIonViewWillEnter, IonGrid, IonRow, IonCol, IonButton } from '@ionic/react';
 import classNames from 'classnames';
 import type { UtxoInterface, StateRestorerOpts } from 'ldk';
 import { mnemonicRestorerFromState } from 'ldk';
@@ -22,35 +13,16 @@ import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
-import type {
-  TDEXMarket,
-  TDEXTrade,
-} from '../../redux/actionTypes/tdexActionTypes';
+import type { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import {
-  addErrorToast,
-  addSuccessToast,
-} from '../../redux/actions/toastActions';
+import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import ExchangeRow from '../../redux/containers/exchangeRowContainer';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
-import {
-  defaultPrecision,
-  PIN_TIMEOUT_FAILURE,
-  PIN_TIMEOUT_SUCCESS,
-} from '../../utils/constants';
-import {
-  AppError,
-  IncorrectPINError,
-  NoMarketsProvidedError,
-} from '../../utils/errors';
-import {
-  customCoinSelector,
-  getAssetHashLBTC,
-  isLbtc,
-  toSatoshi,
-} from '../../utils/helpers';
+import { defaultPrecision, PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
+import { AppError, IncorrectPINError, NoMarketsProvidedError } from '../../utils/errors';
+import { customCoinSelector, getAssetHashLBTC, isLbtc, toSatoshi } from '../../utils/helpers';
 import type { TDexMnemonicRedux } from '../../utils/identity';
 import { getConnectedTDexMnemonic } from '../../utils/storage-helper';
 import type { AssetWithTicker } from '../../utils/tdex';
@@ -93,11 +65,8 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [assetSent, setAssetSent] = useState<AssetWithTicker>();
   const [assetReceived, setAssetReceived] = useState<AssetWithTicker>();
   // current trades/tradable assets
-  const [tradableAssetsForAssetSent, setTradableAssetsForAssetSent] = useState<
-    AssetWithTicker[]
-  >([]);
-  const [tradableAssetsForAssetReceived, setTradableAssetsForAssetReceived] =
-    useState<AssetWithTicker[]>([]);
+  const [tradableAssetsForAssetSent, setTradableAssetsForAssetSent] = useState<AssetWithTicker[]>([]);
+  const [tradableAssetsForAssetReceived, setTradableAssetsForAssetReceived] = useState<AssetWithTicker[]>([]);
   const [trades, setTrades] = useState<TDEXTrade[]>([]);
   // selected trade
   const [trade, setTrade] = useState<TDEXTrade>();
@@ -119,7 +88,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       return;
     }
     const lbtcHash = getAssetHashLBTC();
-    const lbtcAsset = allAssets.find(h => h.asset === lbtcHash);
+    const lbtcAsset = allAssets.find((h) => h.asset === lbtcHash);
     setAssetSent(lbtcAsset);
     setSentAmount(undefined);
     setReceivedAmount(undefined);
@@ -140,10 +109,7 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   useEffect(() => {
     if (assetReceived) {
-      const receivedTradables = getTradablesAssets(
-        markets,
-        assetReceived.asset,
-      );
+      const receivedTradables = getTradablesAssets(markets, assetReceived.asset);
       // TODO: Add opposite asset and remove current
       setTradableAssetsForAssetSent(receivedTradables);
     }
@@ -151,20 +117,13 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   const checkAvailableAmountSent = () => {
     if (!trade || !sentAmount || !assetSent) return;
-    const availableAmount =
-      trade.type === TradeType.BUY
-        ? trade.market.quoteAmount
-        : trade.market.baseAmount;
+    const availableAmount = trade.type === TradeType.BUY ? trade.market.quoteAmount : trade.market.baseAmount;
     const sats = toSatoshi(
       sentAmount,
       assets[assetSent.asset]?.precision ?? defaultPrecision,
-      assetSent.ticker === 'L-BTC' ? lbtcUnit : undefined,
+      assetSent.ticker === 'L-BTC' ? lbtcUnit : undefined
     );
-    if (
-      !hasBeenSwapped &&
-      availableAmount &&
-      sats.greaterThan(availableAmount)
-    ) {
+    if (!hasBeenSwapped && availableAmount && sats.greaterThan(availableAmount)) {
       setErrorSent(ERROR_LIQUIDITY);
       return;
     }
@@ -173,20 +132,13 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   const checkAvailableAmountReceived = () => {
     if (!trade || !receivedAmount || !assetReceived) return;
-    const availableAmount =
-      trade.type === TradeType.BUY
-        ? trade.market.baseAmount
-        : trade.market.quoteAmount;
+    const availableAmount = trade.type === TradeType.BUY ? trade.market.baseAmount : trade.market.quoteAmount;
     const sats = toSatoshi(
       receivedAmount,
       assets[assetReceived.asset]?.precision ?? defaultPrecision,
-      assetReceived.ticker === 'L-BTC' ? lbtcUnit : undefined,
+      assetReceived.ticker === 'L-BTC' ? lbtcUnit : undefined
     );
-    if (
-      !hasBeenSwapped &&
-      availableAmount &&
-      sats.greaterThan(availableAmount)
-    ) {
+    if (!hasBeenSwapped && availableAmount && sats.greaterThan(availableAmount)) {
       setErrorReceived(ERROR_LIQUIDITY);
       return;
     }
@@ -196,13 +148,9 @@ const Exchange: React.FC<ExchangeProps> = ({
   };
 
   const sentAmountGreaterThanBalance = () => {
-    const balance = balances.find(b => b.asset === assetSent?.asset);
+    const balance = balances.find((b) => b.asset === assetSent?.asset);
     if (!balance || !sentAmount) return true;
-    const amountAsSats = toSatoshi(
-      sentAmount,
-      balance.precision,
-      balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
-    );
+    const amountAsSats = toSatoshi(sentAmount, balance.precision, balance.ticker === 'L-BTC' ? lbtcUnit : undefined);
     return amountAsSats.greaterThan(balance.amount);
   };
 
@@ -217,9 +165,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       let identity;
       try {
         const toRestore = await getConnectedTDexMnemonic(pin, dispatch);
-        identity = (await mnemonicRestorerFromState(toRestore)(
-          lastUsedIndexes,
-        )) as TDexMnemonicRedux;
+        identity = (await mnemonicRestorerFromState(toRestore)(lastUsedIndexes)) as TDexMnemonicRedux;
         setIsWrongPin(false);
         setTimeout(() => {
           setIsWrongPin(null);
@@ -235,14 +181,14 @@ const Exchange: React.FC<ExchangeProps> = ({
           amount: toSatoshi(
             sentAmount,
             assets[assetSent.asset]?.precision ?? defaultPrecision,
-            isLbtc(assetSent.asset) ? lbtcUnit : undefined,
+            isLbtc(assetSent.asset) ? lbtcUnit : undefined
           ).toNumber(),
           asset: assetSent.asset,
         },
         explorerUrl,
         utxos,
         identity,
-        customCoinSelector(dispatch),
+        customCoinSelector(dispatch)
       );
       dispatch(watchTransaction(txid));
       addSuccessToast('Trade successfully computed');
@@ -290,9 +236,7 @@ const Exchange: React.FC<ExchangeProps> = ({
           title="Unlock your seed"
           description={`Enter your secret PIN to send ${sentAmount} ${
             isLbtc(assetSent.asset) ? lbtcUnit : assetSent.ticker
-          } and receive ${receivedAmount} ${
-            isLbtc(assetReceived.asset) ? lbtcUnit : assetReceived.ticker
-          }.`}
+          } and receive ${receivedAmount} ${isLbtc(assetReceived.asset) ? lbtcUnit : assetReceived.ticker}.`}
           onConfirm={onPinConfirm}
           onClose={() => {
             setModalOpen(false);
@@ -312,10 +256,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               hasBackButton={false}
               hasCloseButton={true}
               customRightButton={
-                <IonButton
-                  className="custom-right-button"
-                  onClick={() => history.push('/history')}
-                >
+                <IonButton className="custom-right-button" onClick={() => history.push('/history')}>
                   <img src={tradeHistory} alt="trade history" />
                 </IonButton>
               }
@@ -338,9 +279,8 @@ const Exchange: React.FC<ExchangeProps> = ({
                 checkAvailableAmountSent();
               }}
               assetsWithTicker={tradableAssetsForAssetSent}
-              setAsset={asset => {
-                if (assetReceived && asset.asset === assetReceived.asset)
-                  setAssetReceived(assetSent);
+              setAsset={(asset) => {
+                if (assetReceived && asset.asset === assetReceived.asset) setAssetReceived(assetSent);
                 setAssetSent(asset);
               }}
               error={errorSent}
@@ -370,9 +310,8 @@ const Exchange: React.FC<ExchangeProps> = ({
                   checkAvailableAmountReceived();
                 }}
                 assetsWithTicker={tradableAssetsForAssetReceived}
-                setAsset={asset => {
-                  if (asset.asset === assetSent.asset)
-                    setAssetSent(assetReceived);
+                setAsset={(asset) => {
+                  if (asset.asset === assetSent.asset) setAssetSent(assetReceived);
                   setAssetReceived(asset);
                 }}
                 error={errorReceived}
@@ -386,19 +325,10 @@ const Exchange: React.FC<ExchangeProps> = ({
               <IonCol size="8.5" offset="1.75">
                 <IonButton
                   className={classNames('main-button', {
-                    'button-disabled':
-                      !assetSent ||
-                      !assetReceived ||
-                      isLoading ||
-                      sentAmountGreaterThanBalance(),
+                    'button-disabled': !assetSent || !assetReceived || isLoading || sentAmountGreaterThanBalance(),
                   })}
                   data-cy="exchange-confirm-btn"
-                  disabled={
-                    !assetSent ||
-                    !assetReceived ||
-                    isLoading ||
-                    sentAmountGreaterThanBalance()
-                  }
+                  disabled={!assetSent || !assetReceived || isLoading || sentAmountGreaterThanBalance()}
                   onClick={onConfirm}
                 >
                   CONFIRM

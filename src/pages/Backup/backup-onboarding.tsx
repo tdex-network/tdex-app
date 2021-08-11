@@ -1,11 +1,4 @@
-import {
-  IonContent,
-  IonIcon,
-  IonPage,
-  IonGrid,
-  IonRow,
-  IonCol,
-} from '@ionic/react';
+import { IonContent, IonIcon, IonPage, IonGrid, IonRow, IonCol } from '@ionic/react';
 import { warningOutline } from 'ionicons/icons';
 import React from 'react';
 
@@ -40,8 +33,8 @@ const BackupOnboarding: React.FC<BackupProps> = () => {
           <IonRow className="ion-text-left">
             <IonCol offset="1" size="10">
               <p className="ion-no-margin">
-                Your secret 12-words recovery phrase is the only way to recover
-                your funds if you lose access to your wallet.
+                Your secret 12-words recovery phrase is the only way to recover your funds if you lose access to your
+                wallet.
               </p>
               <p>Write it down safely and store it in a secure location.</p>
             </IonCol>

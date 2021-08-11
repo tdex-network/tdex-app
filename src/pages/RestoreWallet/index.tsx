@@ -1,12 +1,4 @@
-import {
-  IonContent,
-  IonButton,
-  IonPage,
-  IonInput,
-  IonGrid,
-  IonRow,
-  IonCol,
-} from '@ionic/react';
+import { IonContent, IonButton, IonPage, IonInput, IonGrid, IonRow, IonCol } from '@ionic/react';
 import * as bip39 from 'bip39';
 import classNames from 'classnames';
 import React, { useState } from 'react';
@@ -21,26 +13,12 @@ import PinModal from '../../components/PinModal';
 import { useFocus } from '../../hooks/useFocus';
 import { useMnemonic } from '../../hooks/useMnemonic';
 import { signIn } from '../../redux/actions/appActions';
-import {
-  addErrorToast,
-  addSuccessToast,
-} from '../../redux/actions/toastActions';
-import {
-  PIN_TIMEOUT_FAILURE,
-  PIN_TIMEOUT_SUCCESS,
-} from '../../utils/constants';
+import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
+import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import type { AppError } from '../../utils/errors';
-import {
-  InvalidMnemonicError,
-  PINsDoNotMatchError,
-  SecureStorageError,
-} from '../../utils/errors';
+import { InvalidMnemonicError, PINsDoNotMatchError, SecureStorageError } from '../../utils/errors';
 import { onPressEnterKeyFactory } from '../../utils/keyboard';
-import {
-  clearStorage,
-  getIdentity,
-  setMnemonicInSecureStorage,
-} from '../../utils/storage-helper';
+import { clearStorage, getIdentity, setMnemonicInSecureStorage } from '../../utils/storage-helper';
 import './style.scss';
 
 interface RestoreWalletProps extends RouteComponentProps {
@@ -49,10 +27,7 @@ interface RestoreWalletProps extends RouteComponentProps {
   setIsBackupDone: (done: boolean) => void;
 }
 
-const RestoreWallet: React.FC<RestoreWalletProps> = ({
-  history,
-  setIsBackupDone,
-}) => {
+const RestoreWallet: React.FC<RestoreWalletProps> = ({ history, setIsBackupDone }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [firstPin, setFirstPin] = useState<string>();
@@ -89,11 +64,9 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({
       setMnemonicInSecureStorage(restoredMnemonic, newPin)
         .then(() => {
           setIsBackupDone(true);
-          dispatch(
-            addSuccessToast('Mnemonic generated and encrypted with your PIN.'),
-          );
+          dispatch(addSuccessToast('Mnemonic generated and encrypted with your PIN.'));
           getIdentity(newPin)
-            .then(mnemonic => {
+            .then((mnemonic) => {
               setIsWrongPin(false);
               setTimeout(() => {
                 setIsWrongPin(null);
@@ -130,19 +103,13 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({
       <Loader showLoading={loading} />
       <PinModal
         open={modalOpen === 'first' || modalOpen === 'second'}
-        title={
-          modalOpen === 'first'
-            ? 'Set your secret PIN'
-            : 'Repeat your secret PIN'
-        }
+        title={modalOpen === 'first' ? 'Set your secret PIN' : 'Repeat your secret PIN'}
         description={
           modalOpen === 'first'
             ? "Enter a 6-digit secret PIN to secure your wallet's seed."
             : 'Confirm your secret PIN.'
         }
-        onConfirm={
-          modalOpen === 'first' ? onFirstPinConfirm : onSecondPinConfirm
-        }
+        onConfirm={modalOpen === 'first' ? onFirstPinConfirm : onSecondPinConfirm}
         onClose={
           modalOpen === 'first'
             ? () => {
@@ -181,12 +148,8 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({
                   <IonInput
                     ref={refs[index]}
                     className="input-word"
-                    onKeyDown={onPressEnterKeyFactory(() =>
-                      setFocus(index + 1),
-                    )}
-                    onIonChange={e =>
-                      setMnemonicWord(e.detail.value || '', index)
-                    }
+                    onKeyDown={onPressEnterKeyFactory(() => setFocus(index + 1))}
+                    onIonChange={(e) => setMnemonicWord(e.detail.value || '', index)}
                     value={item}
                     type="text"
                     enterkeyhint={index === refs.length - 1 ? 'done' : 'next'}
@@ -198,11 +161,7 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({
 
           <IonRow className="restore-btn-container">
             <IonCol size="9" offset="1.5" sizeMd="6" offsetMd="3">
-              <IonButton
-                disabled={mnemonic.includes('')}
-                onClick={handleConfirm}
-                className="main-button"
-              >
+              <IonButton disabled={mnemonic.includes('')} onClick={handleConfirm} className="main-button">
                 RESTORE WALLET
               </IonButton>
             </IonCol>

@@ -12,13 +12,7 @@ interface CheckboxProps extends PropsWithChildren<HTMLAttributes<any>> {
   label: React.ReactElement;
 }
 
-const Checkbox: React.FC<CheckboxProps> = ({
-  handleChange,
-  inputName,
-  isChecked,
-  label,
-  ...props
-}) => {
+const Checkbox: React.FC<CheckboxProps> = ({ handleChange, inputName, isChecked, label, ...props }) => {
   return (
     <IonRow className={`checkbox ion-text-center ${props.className}`}>
       <IonCol size="10" offset="1">
@@ -28,9 +22,7 @@ const Checkbox: React.FC<CheckboxProps> = ({
             data-cy="checkbox"
             name={inputName}
             checked={isChecked}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              handleChange(e.target.checked)
-            }
+            onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.checked)}
           />
           <div className="custom-check">
             <div className="check-icon">

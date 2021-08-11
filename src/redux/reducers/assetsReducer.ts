@@ -5,10 +5,7 @@ import { SET_ASSET } from '../actions/assetsActions';
 
 type AssetsState = Record<string, AssetConfig>;
 
-const assetsReducer = (
-  state: AssetsState = initialAssets(),
-  action: ActionType,
-): AssetsState => {
+const assetsReducer = (state: AssetsState = initialAssets(), action: ActionType): AssetsState => {
   switch (action.type) {
     case SET_ASSET: {
       return {

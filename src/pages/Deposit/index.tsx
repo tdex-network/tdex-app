@@ -47,14 +47,9 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
             })
           }
         >
-          <IonIcon
-            class="deposit-grid-item-plus-icon"
-            icon={addCircleOutline}
-            slot="icon-only"
-            color="success"
-          />
+          <IonIcon class="deposit-grid-item-plus-icon" icon={addCircleOutline} slot="icon-only" color="success" />
           <span className="deposit-grid-item-name">Add Liquid Asset</span>
-        </button>,
+        </button>
       );
   }, []);
 
@@ -63,9 +58,7 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
       <IonContent>
         <IonGrid>
           <Header title="DEPOSIT" hasBackButton={true} />
-          <div className="deposit-grid ion-margin-vertical ion-text-center">
-            {generateGridItems}
-          </div>
+          <div className="deposit-grid ion-margin-vertical ion-text-center">{generateGridItems}</div>
         </IonGrid>
       </IonContent>
     </IonPage>

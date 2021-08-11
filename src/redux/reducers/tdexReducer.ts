@@ -3,12 +3,7 @@ import { tickerFromAssetHash } from '../../utils/helpers';
 import type { AssetWithTicker } from '../../utils/tdex';
 import type { ActionType } from '../../utils/types';
 import type { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
-import {
-  ADD_MARKETS,
-  ADD_PROVIDER,
-  CLEAR_MARKETS,
-  DELETE_PROVIDER,
-} from '../actions/tdexActions';
+import { ADD_MARKETS, ADD_PROVIDER, CLEAR_MARKETS, DELETE_PROVIDER } from '../actions/tdexActions';
 
 export interface TDEXState {
   providers: TDEXProvider[];
@@ -22,7 +17,7 @@ const initialState: TDEXState = {
 
 const TDEXReducer = (
   state: TDEXState = initialState,
-  action: ActionType,
+  action: ActionType
 ): { providers: any[]; markets: TDEXMarket[] } => {
   switch (action.type) {
     case ADD_PROVIDER:
@@ -34,7 +29,7 @@ const TDEXReducer = (
     case DELETE_PROVIDER:
       return {
         ...state,
-        providers: state.providers.filter(p => p.id !== action.payload.id),
+        providers: state.providers.filter((p) => p.id !== action.payload.id),
       };
     default:
       return state;
@@ -48,8 +43,8 @@ export const allAssets = ({
   assets: Record<string, AssetConfig>;
   tdex: TDEXState;
 }): AssetWithTicker[] => {
-  const quoteAssets = tdex.markets.map(m => m.quoteAsset);
-  const baseAssets = tdex.markets.map(m => m.baseAsset);
+  const quoteAssets = tdex.markets.map((m) => m.quoteAsset);
+  const baseAssets = tdex.markets.map((m) => m.baseAsset);
   const uniqueAssets = [...new Set([...quoteAssets, ...baseAssets])];
   return uniqueAssets.map((assetHash: string) => ({
     asset: assetHash,

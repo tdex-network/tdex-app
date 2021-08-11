@@ -13,7 +13,7 @@ import { unitToFixedDigits } from './helpers';
 export function sanitizeInputAmount(
   eventDetailValue: string,
   setAmount: Dispatch<string>,
-  unit: LbtcDenomination = 'L-BTC',
+  unit: LbtcDenomination = 'L-BTC'
 ): string {
   // If value is one of those cases, provoke re-rendering with sanitized value
   if (

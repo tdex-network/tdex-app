@@ -8,10 +8,7 @@ export interface PageDescriptionProps extends PropsWithChildren<any> {
   title: string;
 }
 
-const PageDescription: React.FC<PageDescriptionProps> = ({
-  title,
-  description,
-}) => {
+const PageDescription: React.FC<PageDescriptionProps> = ({ title, description }) => {
   return (
     <div className="page-description ion-margin-vertical">
       <IonRow>

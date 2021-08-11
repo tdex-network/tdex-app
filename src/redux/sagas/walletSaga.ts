@@ -1,18 +1,6 @@
 import type { AddressInterface, StateRestorerOpts, UtxoInterface } from 'ldk';
-import {
-  fetchAndUnblindUtxosGenerator,
-  fetchUtxos,
-  fetchPrevoutAndTryToUnblindUtxo,
-} from 'ldk';
-import {
-  takeLatest,
-  call,
-  put,
-  select,
-  delay,
-  all,
-  takeEvery,
-} from 'redux-saga/effects';
+import { fetchAndUnblindUtxosGenerator, fetchUtxos, fetchPrevoutAndTryToUnblindUtxo } from 'ldk';
+import { takeLatest, call, put, select, delay, all, takeEvery } from 'redux-saga/effects';
 
 import { UpdateUtxosError } from '../../utils/errors';
 import {
@@ -22,11 +10,7 @@ import {
   setUtxosInStorage,
 } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
-import {
-  setIsFetchingUtxos,
-  SIGN_IN,
-  updateState,
-} from '../actions/appActions';
+import { setIsFetchingUtxos, SIGN_IN, updateState } from '../actions/appActions';
 import { addErrorToast } from '../actions/toastActions';
 import {
   deleteUtxo,
@@ -47,25 +31,17 @@ function* persistAddresses() {
 }
 
 function* persistLastUsedIndexes() {
-  const lastIndexes: StateRestorerOpts = yield select(
-    ({ wallet }: { wallet: WalletState }) => ({
-      lastUsedInternalIndex: wallet.lastUsedInternalIndex,
-      lastUsedExternalIndex: wallet.lastUsedExternalIndex,
-    }),
-  );
+  const lastIndexes: StateRestorerOpts = yield select(({ wallet }: { wallet: WalletState }) => ({
+    lastUsedInternalIndex: wallet.lastUsedInternalIndex,
+    lastUsedExternalIndex: wallet.lastUsedExternalIndex,
+  }));
   yield call(setLastUsedIndexesInStorage, lastIndexes);
 }
 
 function* updateUtxosState() {
   try {
-    const [addresses, utxos, explorerURL]: [
-      AddressInterface[],
-      Record<string, UtxoInterface>,
-      string,
-    ] = yield all([
-      select(({ wallet }: { wallet: WalletState }) =>
-        Object.values(wallet.addresses),
-      ),
+    const [addresses, utxos, explorerURL]: [AddressInterface[], Record<string, UtxoInterface>, string] = yield all([
+      select(({ wallet }: { wallet: WalletState }) => Object.values(wallet.addresses)),
       select(({ wallet }: { wallet: WalletState }) => wallet.utxos),
       select(({ settings }) => settings.explorerUrl),
     ]);
@@ -79,14 +55,14 @@ function* updateUtxosState() {
 export function* fetchAndUpdateUtxos(
   addresses: AddressInterface[],
   currentUtxos: Record<string, UtxoInterface>,
-  explorerUrl: string,
+  explorerUrl: string
 ): any {
   const newOutpoints: string[] = [];
 
   const utxoGen = fetchAndUnblindUtxosGenerator(
     addresses,
     explorerUrl,
-    (utxo: UtxoInterface) => currentUtxos[outpointToString(utxo)] != undefined,
+    (utxo: UtxoInterface) => currentUtxos[outpointToString(utxo)] != undefined
   );
   const next = () => utxoGen.next();
 
@@ -133,9 +109,7 @@ function* waitAndUnlock({ payload }: { payload: string }) {
 
 function* persistUtxos() {
   yield delay(20_000); // 20 sec
-  const utxos: UtxoInterface[] = yield select(
-    ({ wallet }: { wallet: WalletState }) => Object.values(wallet.utxos),
-  );
+  const utxos: UtxoInterface[] = yield select(({ wallet }: { wallet: WalletState }) => Object.values(wallet.utxos));
   yield call(setUtxosInStorage, utxos);
 }
 
@@ -147,28 +121,19 @@ function* restoreUtxos() {
 }
 
 function* watchUtxoSaga(action: ActionType) {
-  const { address, maxTry }: { address: AddressInterface; maxTry: number } =
-    action.payload;
+  const { address, maxTry }: { address: AddressInterface; maxTry: number } = action.payload;
   const explorer: string = yield select(({ settings }) => settings.explorerUrl);
 
   for (let t = 0; t < maxTry; t++) {
     try {
-      const utxos: UtxoInterface[] = yield call(
-        fetchUtxos,
-        address.confidentialAddress,
-        explorer,
-      );
+      const utxos: UtxoInterface[] = yield call(fetchUtxos, address.confidentialAddress, explorer);
       if (utxos.length === 0) throw new Error();
-      const {
-        unblindedUtxo,
-        error,
-      }: { unblindedUtxo: UtxoInterface; error?: { message?: string } } =
-        yield call(
-          fetchPrevoutAndTryToUnblindUtxo,
-          utxos[0],
-          address.blindingPrivateKey,
-          explorer,
-        );
+      const { unblindedUtxo, error }: { unblindedUtxo: UtxoInterface; error?: { message?: string } } = yield call(
+        fetchPrevoutAndTryToUnblindUtxo,
+        utxos[0],
+        address.blindingPrivateKey,
+        explorer
+      );
       error && console.error(error);
       if (!error) {
         yield put(setUtxo(unblindedUtxo));

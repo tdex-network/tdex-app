@@ -1,11 +1,4 @@
-import {
-  IonPage,
-  IonContent,
-  IonTabs,
-  IonTabBar,
-  IonTabButton,
-  IonRouterOutlet,
-} from '@ionic/react';
+import { IonPage, IonContent, IonTabs, IonTabBar, IonTabButton, IonRouterOutlet } from '@ionic/react';
 import classNames from 'classnames';
 import React from 'react';
 import type { RouteComponentProps } from 'react-router';
@@ -35,13 +28,8 @@ const Tabs: React.FC<RouteComponentProps> = ({ history, location }) => {
       <IonContent>
         <IonTabs>
           <IonRouterOutlet animated={false}>
-            {ROUTES.map(item => (
-              <Route
-                key={item.path}
-                path={item.path}
-                component={item.component}
-                exact
-              />
+            {ROUTES.map((item) => (
+              <Route key={item.path} path={item.path} component={item.component} exact />
             ))}
             <Redirect exact from="/" to="/wallet" />
             <Redirect exact from="/login" to="/wallet" />
@@ -51,16 +39,8 @@ const Tabs: React.FC<RouteComponentProps> = ({ history, location }) => {
           </IonRouterOutlet>
           <IonTabBar slot="bottom">
             {TABS.map((item, index) => (
-              <IonTabButton
-                data-cy={`tab-${item.name}`}
-                selected={isActive(item.name)}
-                tab={item.path}
-                key={index}
-              >
-                <div
-                  className="tab-content"
-                  onClick={() => history.push(item.path)}
-                >
+              <IonTabButton data-cy={`tab-${item.name}`} selected={isActive(item.name)} tab={item.path} key={index}>
+                <div className="tab-content" onClick={() => history.push(item.path)}>
                   <item.icon
                     className={classNames('tab-icon', {
                       active: isActive(item.name),

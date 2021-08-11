@@ -1,12 +1,5 @@
 import { Clipboard } from '@ionic-native/clipboard';
-import {
-  IonContent,
-  IonPage,
-  IonGrid,
-  IonRow,
-  IonButton,
-  IonCol,
-} from '@ionic/react';
+import { IonContent, IonPage, IonGrid, IonRow, IonButton, IonCol } from '@ionic/react';
 import React, { useState } from 'react';
 import { useLocation } from 'react-router';
 

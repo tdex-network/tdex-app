@@ -6,10 +6,7 @@ export const ADD_TOAST = 'ADD_TOAST';
 export const REMOVE_TOAST = 'REMOVE_TOAST';
 export const REMOVE_TOAST_BY_TYPE = 'REMOVE_TOAST_BY_TYPE';
 
-export function addSuccessToast(
-  message: string,
-  duration?: number,
-): ActionType {
+export function addSuccessToast(message: string, duration?: number): ActionType {
   return {
     type: ADD_TOAST,
     payload: createToast({ message, type: 'success', duration }),
@@ -58,14 +55,7 @@ export function removeToastByType(type: ToastType): ActionType {
 // using to increment toast ID
 let nextID = 0;
 
-function createToast({
-  message,
-  type,
-  errorCode,
-  duration,
-  cssClass,
-  position,
-}: Omit<ToastOpts, 'ID'>): ToastOpts {
+function createToast({ message, type, errorCode, duration, cssClass, position }: Omit<ToastOpts, 'ID'>): ToastOpts {
   return {
     ID: nextID++,
     message,

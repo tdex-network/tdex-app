@@ -58,14 +58,8 @@ const CircleDiagram: React.FC<CircleDiagramProps> = ({ balances }) => {
         start = start + length + 0.2;
       }
 
-      length =
-        lengthList[index] > minWidthPercent / 100
-          ? lengthList[index] - discrepancy
-          : lengthList[index];
-      end =
-        start + length > 2 * Math.PI + shift
-          ? 2 * Math.PI + shift - 0.1
-          : start + length;
+      length = lengthList[index] > minWidthPercent / 100 ? lengthList[index] - discrepancy : lengthList[index];
+      end = start + length > 2 * Math.PI + shift ? 2 * Math.PI + shift - 0.1 : start + length;
     };
 
     const fillColor = (grad: any, item?: { asset: string; ticker: string }) => {
@@ -88,13 +82,7 @@ const CircleDiagram: React.FC<CircleDiagramProps> = ({ balances }) => {
     const drawDiagram = (grad: any) => {
       const withData = balances.length;
       ctx.beginPath();
-      ctx.arc(
-        120,
-        120,
-        110,
-        withData ? start : -0.5 * Math.PI,
-        withData ? end : 2 * Math.PI,
-      );
+      ctx.arc(120, 120, 110, withData ? start : -0.5 * Math.PI, withData ? end : 2 * Math.PI);
       ctx.lineWidth = 17;
       ctx.lineCap = 'round';
       ctx.strokeStyle = grad;
@@ -103,9 +91,7 @@ const CircleDiagram: React.FC<CircleDiagramProps> = ({ balances }) => {
 
     if (balances.length) {
       checkSmallElements();
-      const discrepancy =
-        (minimalCount * minWidth - minimalWidthSum) /
-        (balances.length - minimalCount);
+      const discrepancy = (minimalCount * minWidth - minimalWidthSum) / (balances.length - minimalCount);
       balances.forEach((item, index: number) => {
         const grad = ctx.createLinearGradient(100, 0, 200, 200);
         getElementPosition(index, discrepancy);
@@ -123,15 +109,7 @@ const CircleDiagram: React.FC<CircleDiagramProps> = ({ balances }) => {
     renderCircle();
   }, [balances]);
 
-  return (
-    <canvas
-      width="240"
-      height="240"
-      ref={canvasRef}
-      id="#canvas"
-      className="canvas"
-    />
-  );
+  return <canvas width="240" height="240" ref={canvasRef} id="#canvas" className="canvas" />;
 };
 
 export default CircleDiagram;

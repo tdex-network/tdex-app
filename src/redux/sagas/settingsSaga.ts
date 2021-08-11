@@ -38,10 +38,7 @@ import {
   SET_EXPLORER_BITCOIN_UI,
 } from '../actions/settingsActions';
 import type { CurrencyInterface } from '../reducers/settingsReducer';
-import {
-  setThemeToStorage,
-  getThemeFromStorage,
-} from '../services/settingsService';
+import { setThemeToStorage, getThemeFromStorage } from '../services/settingsService';
 
 function* storeThemeSaga({ payload }: ActionType) {
   try {
@@ -78,9 +75,7 @@ function* restoreExplorerLiquidAPI() {
 
 function* restoreExplorerBitcoinAPI() {
   try {
-    const explorerEndpoint: string | null = yield call(
-      getExplorerBitcoinFromStorage,
-    );
+    const explorerEndpoint: string | null = yield call(getExplorerBitcoinFromStorage);
     if (explorerEndpoint) {
       yield put(setExplorerBitcoin(explorerEndpoint));
     }
@@ -91,9 +86,7 @@ function* restoreExplorerBitcoinAPI() {
 
 function* restoreExplorerLiquidUI() {
   try {
-    const explorerLiquidUIEndpoint: string | null = yield call(
-      getExplorerLiquidUIFromStorage,
-    );
+    const explorerLiquidUIEndpoint: string | null = yield call(getExplorerLiquidUIFromStorage);
     if (explorerLiquidUIEndpoint) {
       yield put(setExplorerLiquidUI(explorerLiquidUIEndpoint));
     }
@@ -104,9 +97,7 @@ function* restoreExplorerLiquidUI() {
 
 function* restoreExplorerBitcoinUI() {
   try {
-    const explorerBitcoinUIEndpoint: string | null = yield call(
-      getExplorerBitcoinUIFromStorage,
-    );
+    const explorerBitcoinUIEndpoint: string | null = yield call(getExplorerBitcoinUIFromStorage);
     if (explorerBitcoinUIEndpoint) {
       yield put(setExplorerBitcoinUI(explorerBitcoinUIEndpoint));
     }

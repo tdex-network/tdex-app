@@ -49,8 +49,7 @@ export const LBTC_ASSET: AssetConfig =
     : {
         coinGeckoID: LBTC_COINGECKOID,
         ticker: LBTC_TICKER,
-        assetHash:
-          '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d',
+        assetHash: '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d',
         color: LBTC_COLOR,
         precision: 8,
         chain: 'liquid',
@@ -71,24 +70,21 @@ export const MAIN_ASSETS: AssetConfig[] = [
   {
     coinGeckoID: USDT_COINGECKOID,
     ticker: USDT_TICKER,
-    assetHash:
-      'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2',
+    assetHash: 'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2',
     color: USDT_COLOR,
     precision: 8,
     name: 'Tether USD',
   },
   {
     ticker: LCAD_TICKER,
-    assetHash:
-      '0e99c1a6da379d1f4151fb9df90449d40d0608f6cb33a5bcbfc8c265f42bab0a',
+    assetHash: '0e99c1a6da379d1f4151fb9df90449d40d0608f6cb33a5bcbfc8c265f42bab0a',
     color: LCAD_COLOR,
     precision: 8,
     name: 'Liquid CAD',
   },
   {
     ticker: BTSE_TICKER,
-    assetHash:
-      'b00b0ff0b11ebd47f7c6f57614c046dbbd204e84bf01178baf2be3713a206eb7',
+    assetHash: 'b00b0ff0b11ebd47f7c6f57614c046dbbd204e84bf01178baf2be3713a206eb7',
     color: BTSE_COLOR,
     precision: 8,
     name: 'BTSE Token',
@@ -96,22 +92,16 @@ export const MAIN_ASSETS: AssetConfig[] = [
 ];
 
 export function getColor(assetHash: string): string | undefined {
-  return MAIN_ASSETS.find(
-    (assetConfig: AssetConfig) =>
-      assetConfig.assetHash.valueOf() === assetHash.valueOf(),
-  )?.color;
+  return MAIN_ASSETS.find((assetConfig: AssetConfig) => assetConfig.assetHash.valueOf() === assetHash.valueOf())?.color;
 }
 
 export function getMainAsset(assetHash: string): AssetConfig | undefined {
-  return MAIN_ASSETS.find(
-    (assetConfig: AssetConfig) =>
-      assetConfig.assetHash.valueOf() === assetHash.valueOf(),
-  );
+  return MAIN_ASSETS.find((assetConfig: AssetConfig) => assetConfig.assetHash.valueOf() === assetHash.valueOf());
 }
 
 export function getCoinGeckoIDsToFeed(): string[] {
   const ids = [];
-  for (const id of MAIN_ASSETS.map(a => a.coinGeckoID)) {
+  for (const id of MAIN_ASSETS.map((a) => a.coinGeckoID)) {
     if (id) ids.push(id);
   }
   return ids;
@@ -135,12 +125,7 @@ export const CURRENCIES: CurrencyInterface[] = [
   },
 ];
 
-export const LBTC_DENOMINATIONS = [
-  'L-BTC',
-  'L-mBTC',
-  'L-bits',
-  'L-sats',
-] as const;
+export const LBTC_DENOMINATIONS = ['L-BTC', 'L-mBTC', 'L-bits', 'L-sats'] as const;
 export type LbtcDenomination = typeof LBTC_DENOMINATIONS[number];
 
 export const TOAST_TIMEOUT_SUCCESS = 800;
@@ -148,13 +133,8 @@ export const TOAST_TIMEOUT_FAILURE = 2000;
 export const PIN_TIMEOUT_SUCCESS = 800;
 export const PIN_TIMEOUT_FAILURE = 2000;
 
-export const FEDPEGSCRIPT_CUSTOM =
-  '51210269e0180bc9e0be7648d6e9c17f3664bc3ebcee40f3a46cf4b42e583e96b911b951ae';
+export const FEDPEGSCRIPT_CUSTOM = '51210269e0180bc9e0be7648d6e9c17f3664bc3ebcee40f3a46cf4b42e583e96b911b951ae';
 
-export function getBitcoinJSNetwork(
-  chain: 'liquid' | 'regtest',
-): bitcoinJS.networks.Network {
-  return chain === 'liquid'
-    ? bitcoinJS.networks.bitcoin
-    : bitcoinJS.networks.regtest;
+export function getBitcoinJSNetwork(chain: 'liquid' | 'regtest'): bitcoinJS.networks.Network {
+  return chain === 'liquid' ? bitcoinJS.networks.bitcoin : bitcoinJS.networks.regtest;
 }

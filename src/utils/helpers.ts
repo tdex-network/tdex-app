@@ -7,24 +7,14 @@ import type {
   RecipientInterface,
   UtxoInterface,
 } from 'ldk';
-import {
-  estimateTxSize,
-  fetchTxHex,
-  greedyCoinSelector,
-  isBlindedUtxo,
-} from 'ldk';
+import { estimateTxSize, fetchTxHex, greedyCoinSelector, isBlindedUtxo } from 'ldk';
 import type { Dispatch } from 'redux';
 
 import type { BalanceInterface } from '../redux/actionTypes/walletActionTypes';
 import { lockUtxo } from '../redux/actions/walletActions';
 
 import type { AssetConfig, LbtcDenomination } from './constants';
-import {
-  defaultPrecision,
-  getColor,
-  getMainAsset,
-  LBTC_ASSET,
-} from './constants';
+import { defaultPrecision, getColor, getMainAsset, LBTC_ASSET } from './constants';
 import type { TxDisplayInterface } from './types';
 
 export const createColorFromHash = (id: string): string => {
@@ -39,31 +29,16 @@ export const createColorFromHash = (id: string): string => {
   return `hsl(${hash % 360}, 70%, 50%)`;
 };
 
-export function toSatoshi(
-  val: string,
-  precision = defaultPrecision,
-  unit: LbtcDenomination = 'L-BTC',
-): Decimal {
-  return new Decimal(val).mul(
-    Decimal.pow(10, new Decimal(precision).minus(unitToExponent(unit))),
-  );
+export function toSatoshi(val: string, precision = defaultPrecision, unit: LbtcDenomination = 'L-BTC'): Decimal {
+  return new Decimal(val).mul(Decimal.pow(10, new Decimal(precision).minus(unitToExponent(unit))));
 }
 
-export function fromSatoshi(
-  val: string,
-  precision = defaultPrecision,
-  unit: LbtcDenomination = 'L-BTC',
-): Decimal {
+export function fromSatoshi(val: string, precision = defaultPrecision, unit: LbtcDenomination = 'L-BTC'): Decimal {
   const v = new Decimal(val).div(Decimal.pow(10, precision));
   return formatLBTCwithUnit(v, unit);
 }
 
-export function fromSatoshiFixed(
-  val: string,
-  precision?: number,
-  fixed?: number,
-  unit?: LbtcDenomination,
-): string {
+export function fromSatoshiFixed(val: string, precision?: number, fixed?: number, unit?: LbtcDenomination): string {
   return formatLBTCwithUnit(fromSatoshi(val, precision), unit)
     .toNumber()
     .toLocaleString('en-US', {
@@ -73,10 +48,7 @@ export function fromSatoshiFixed(
     });
 }
 
-export function toLBTCwithUnit(
-  lbtcValue: Decimal,
-  unit?: LbtcDenomination,
-): Decimal {
+export function toLBTCwithUnit(lbtcValue: Decimal, unit?: LbtcDenomination): Decimal {
   switch (unit) {
     case 'L-BTC':
       return lbtcValue;
@@ -91,10 +63,7 @@ export function toLBTCwithUnit(
   }
 }
 
-export function formatLBTCwithUnit(
-  lbtcValue: Decimal,
-  unit?: LbtcDenomination,
-): Decimal {
+export function formatLBTCwithUnit(lbtcValue: Decimal, unit?: LbtcDenomination): Decimal {
   switch (unit) {
     case 'L-BTC':
       return lbtcValue;
@@ -164,10 +133,7 @@ export function capitalizeFirstLetter(string: string): string {
  * @param txid
  * @param explorerURL
  */
-export async function waitForTx(
-  txid: string,
-  explorerURL: string,
-): Promise<void> {
+export async function waitForTx(txid: string, explorerURL: string): Promise<void> {
   let go = true;
   while (go) {
     try {
@@ -180,19 +146,13 @@ export async function waitForTx(
 }
 
 export async function sleep(ms: number): Promise<any> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 // compute balances value from a set of utxos
-export function balancesFromUtxos(
-  utxos: UtxoInterface[],
-  assets: Record<string, AssetConfig>,
-): BalanceInterface[] {
+export function balancesFromUtxos(utxos: UtxoInterface[], assets: Record<string, AssetConfig>): BalanceInterface[] {
   const balances: BalanceInterface[] = [];
-  const utxosGroupedByAsset: Record<string, UtxoInterface[]> = groupBy(
-    utxos,
-    'asset',
-  );
+  const utxosGroupedByAsset: Record<string, UtxoInterface[]> = groupBy(utxos, 'asset');
 
   for (const asset of Object.keys(utxosGroupedByAsset)) {
     const utxosForAsset = utxosGroupedByAsset[asset];
@@ -245,7 +205,7 @@ export function customCoinSelector(dispatch?: Dispatch): CoinSelector {
   return (
     unspents: UtxoInterface[],
     outputs: RecipientInterface[],
-    changeGetter: ChangeAddressFromAssetGetter,
+    changeGetter: ChangeAddressFromAssetGetter
   ): CoinSelectionResult => {
     const result = greedy(unspents, outputs, changeGetter);
     for (const utxo of result.selectedUtxos) {
@@ -272,7 +232,7 @@ export function isLbtc(asset: string): boolean {
 export function estimateFeeAmount(
   setOfUtxos: UtxoInterface[],
   recipients: RecipientInterface[],
-  satsPerByte = 0.1,
+  satsPerByte = 0.1
 ): number {
   const address = 'doesntmatteraddress';
   const { selectedUtxos, changeOutputs } = customCoinSelector()(
@@ -285,21 +245,15 @@ export function estimateFeeAmount(
         value: 300,
       },
     ],
-    () => address,
+    () => address
   );
-  return Math.ceil(
-    estimateTxSize(selectedUtxos.length, changeOutputs.length + 1) *
-      satsPerByte,
-  );
+  return Math.ceil(estimateTxSize(selectedUtxos.length, changeOutputs.length + 1) * satsPerByte);
 }
 
 /**
  * function can be used with sort()
  */
-export function compareTxDisplayInterfaceByDate(
-  a: TxDisplayInterface,
-  b: TxDisplayInterface,
-): number {
+export function compareTxDisplayInterfaceByDate(a: TxDisplayInterface, b: TxDisplayInterface): number {
   return b.blockTime?.diff(a.blockTime) || 0;
 }
 
@@ -313,7 +267,6 @@ export function getIndexAndIsChangeFromAddress(addr: AddressInterface): {
   const derivationPathSplitted = addr.derivationPath.split('/');
   return {
     index: parseInt(derivationPathSplitted[derivationPathSplitted.length - 1]),
-    isChange:
-      parseInt(derivationPathSplitted[derivationPathSplitted.length - 2]) !== 0,
+    isChange: parseInt(derivationPathSplitted[derivationPathSplitted.length - 2]) !== 0,
   };
 }

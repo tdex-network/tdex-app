@@ -1,12 +1,4 @@
-import {
-  IonContent,
-  IonPage,
-  IonGrid,
-  IonRow,
-  IonButton,
-  useIonViewWillEnter,
-  IonCol,
-} from '@ionic/react';
+import { IonContent, IonPage, IonGrid, IonRow, IonButton, useIonViewWillEnter, IonCol } from '@ionic/react';
 import * as bip39 from 'bip39';
 import React, { useState } from 'react';
 import { useLocation } from 'react-router';
@@ -29,11 +21,7 @@ interface LocationState {
   mnemonic: string;
 }
 
-const ShowMnemonicOnboarding: React.FC<ShowMnemonicProps> = ({
-  backupDone,
-  history,
-  setIsBackupDone,
-}) => {
+const ShowMnemonicOnboarding: React.FC<ShowMnemonicProps> = ({ backupDone, history, setIsBackupDone }) => {
   const { state } = useLocation<LocationState>();
   const [isSeedSaved, setIsSeedSaved] = useState(false);
   const [mnemonic, setMnemonic] = useState<string>('');
@@ -59,7 +47,7 @@ const ShowMnemonicOnboarding: React.FC<ShowMnemonicProps> = ({
             </IonCol>
           </IonRow>
           <Checkbox
-            handleChange={checked => {
+            handleChange={(checked) => {
               setIsSeedSaved(checked);
               if (!checked) {
                 setIsBackupDone(false);

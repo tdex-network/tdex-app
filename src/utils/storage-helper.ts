@@ -35,10 +35,7 @@ const LBTC_DENOMINATION_KEY = 'tdex-app-lbtc-unit';
 const LAST_USED_INDEXES_KEY = 'tdex-app-last-used-indexes';
 
 export async function getLBTCDenominationFromStorage(): Promise<string> {
-  return (
-    (await Storage.get({ key: LBTC_DENOMINATION_KEY })).value ||
-    LBTC_DENOMINATIONS[0]
-  );
+  return (await Storage.get({ key: LBTC_DENOMINATION_KEY })).value || LBTC_DENOMINATIONS[0];
 }
 
 export function setLBTCDenominationInStorage(denomination: string): void {
@@ -83,9 +80,7 @@ export function setExplorerLiquidUIInStorage(explorer: string): void {
   Storage.set({ key: EXPLORER_LIQUID_UI_KEY, value: explorer });
 }
 
-export async function getExplorerBitcoinUIFromStorage(): Promise<
-  string | null
-> {
+export async function getExplorerBitcoinUIFromStorage(): Promise<string | null> {
   return (await Storage.get({ key: EXPLORER_BITCOIN_UI_KEY })).value;
 }
 
@@ -144,9 +139,7 @@ export async function seedBackupFlag(): Promise<boolean> {
  * Persist providers in Storage
  * @param providers
  */
-export function setProvidersInStorage(
-  providers: TDEXProvider[],
-): Promise<void> {
+export function setProvidersInStorage(providers: TDEXProvider[]): Promise<void> {
   return Storage.set({
     key: PROVIDERS_KEY,
     value: stringify(providers),
@@ -157,18 +150,14 @@ export async function getProvidersFromStorage(): Promise<TDEXProvider[]> {
   return getFromStorage<TDEXProvider[]>(PROVIDERS_KEY, []);
 }
 
-export function setAddressesInStorage(
-  addresses: AddressInterface[],
-): Promise<void> {
+export function setAddressesInStorage(addresses: AddressInterface[]): Promise<void> {
   return Storage.set({
     key: ADDRESSES_KEY,
     value: stringify(addresses),
   });
 }
 
-export function setLastUsedIndexesInStorage(
-  lastUsedIndexes: StateRestorerOpts,
-): Promise<void> {
+export function setLastUsedIndexesInStorage(lastUsedIndexes: StateRestorerOpts): Promise<void> {
   return Storage.set({
     key: LAST_USED_INDEXES_KEY,
     value: stringify(lastUsedIndexes),
@@ -201,10 +190,7 @@ export async function getAddressesFromStorage(): Promise<AddressInterface[]> {
  * @param currentPIN the current PIN used to decrypt the current mnemonic.
  * @param newPIN new PIN.
  */
-export async function changePin(
-  currentPIN: string,
-  newPIN: string,
-): Promise<boolean> {
+export async function changePin(currentPIN: string, newPIN: string): Promise<boolean> {
   const mnemonic = await removeMnemonicFromSecureStorage(currentPIN);
   return setMnemonicInSecureStorage(mnemonic, newPIN);
 }
@@ -214,10 +200,7 @@ export async function changePin(
  * @param mnemonic the mnemonic to store
  * @param pin the password pin
  */
-export async function setMnemonicInSecureStorage(
-  mnemonic: string,
-  pin: string,
-): Promise<boolean> {
+export async function setMnemonicInSecureStorage(mnemonic: string, pin: string): Promise<boolean> {
   try {
     const encryptedData = await encrypt(mnemonic, pin);
     const { value } = await SecureStoragePlugin.set({
@@ -240,9 +223,7 @@ export async function setMnemonicInSecureStorage(
  * get mnemonic encrypted in secure storage + decrypt it using PIN
  * @param pin password pin
  */
-export async function getMnemonicFromSecureStorage(
-  pin: string,
-): Promise<string> {
+export async function getMnemonicFromSecureStorage(pin: string): Promise<string> {
   const { value } = await SecureStoragePlugin.get({ key: MNEMONIC_KEY });
   const encryptedData: Encrypted = JSON.parse(value);
   return decrypt(encryptedData, pin);
@@ -265,9 +246,7 @@ export async function mnemonicInSecureStorage(): Promise<boolean> {
  * Delete the mnemonic from secure storage + clean all other cached data
  * @param pin using to decrypt the existing mnemonic.
  */
-export async function removeMnemonicFromSecureStorage(
-  pin: string,
-): Promise<string> {
+export async function removeMnemonicFromSecureStorage(pin: string): Promise<string> {
   const mnemonic = await getMnemonicFromSecureStorage(pin); // will throw an error if the pin can't decrypt the mnemonic
   await clearStorage();
   return mnemonic;
@@ -286,10 +265,7 @@ export async function clearStorage(): Promise<void> {
  * @param pin using to decrypt the mnemonic
  * @param dispatch using to dispatch action to store
  */
-export async function getConnectedIdentity(
-  pin: string,
-  dispatch: Dispatch,
-): Promise<MnemonicRedux> {
+export async function getConnectedIdentity(pin: string, dispatch: Dispatch): Promise<MnemonicRedux> {
   const toRestoreMnemonic = await getMnemonicFromSecureStorage(pin);
   return new MnemonicRedux(
     {
@@ -299,14 +275,11 @@ export async function getConnectedIdentity(
         mnemonic: toRestoreMnemonic,
       },
     },
-    dispatch,
+    dispatch
   );
 }
 
-export async function getConnectedTDexMnemonic(
-  pin: string,
-  dispatch: Dispatch,
-): Promise<TDEXMnemonic> {
+export async function getConnectedTDexMnemonic(pin: string, dispatch: Dispatch): Promise<TDEXMnemonic> {
   const toRestoreMnemonic = await getMnemonicFromSecureStorage(pin);
   return new TDexMnemonicRedux(
     {
@@ -316,7 +289,7 @@ export async function getConnectedTDexMnemonic(
         mnemonic: toRestoreMnemonic,
       },
     },
-    dispatch,
+    dispatch
   );
 }
 

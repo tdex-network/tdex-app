@@ -1,12 +1,4 @@
-import {
-  IonBackButton,
-  IonButton,
-  IonButtons,
-  IonHeader,
-  IonIcon,
-  IonTitle,
-  IonToolbar,
-} from '@ionic/react';
+import { IonBackButton, IonButton, IonButtons, IonHeader, IonIcon, IonTitle, IonToolbar } from '@ionic/react';
 import classNames from 'classnames';
 import { chevronBackOutline, closeOutline } from 'ionicons/icons';
 import type { ReactElement } from 'react';
@@ -42,9 +34,7 @@ const Header: React.FC<HeaderProps> = ({
           'close-button': hasCloseButton,
         })}
       >
-        {customRightButton && hasCloseButton && (
-          <IonButtons slot="end">{customRightButton}</IonButtons>
-        )}
+        {customRightButton && hasCloseButton && <IonButtons slot="end">{customRightButton}</IonButtons>}
         {!customRightButton && hasCloseButton && (
           <IonButtons slot="end">
             <IonButton onClick={handleClose}>
@@ -59,11 +49,7 @@ const Header: React.FC<HeaderProps> = ({
                 <IonIcon slot="icon-only" icon={chevronBackOutline} />
               </IonButton>
             ) : (
-              <IonBackButton
-                defaultHref={defaultHref ?? '/homescreen'}
-                text=""
-                icon={chevronBackOutline}
-              />
+              <IonBackButton defaultHref={defaultHref ?? '/homescreen'} text="" icon={chevronBackOutline} />
             )}
           </IonButtons>
         )}

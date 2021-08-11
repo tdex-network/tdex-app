@@ -1,10 +1,7 @@
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import type { Mnemonic } from 'ldk';
-import {
-  mnemonicRestorerFromEsplora,
-  mnemonicRestorerFromState,
-} from 'tdex-sdk';
+import { mnemonicRestorerFromEsplora, mnemonicRestorerFromState } from 'tdex-sdk';
 
 import { getLastUsedIndexesInStorage } from '../../utils/storage-helper';
 import { defaultProvider } from '../config';
@@ -13,11 +10,7 @@ export const axiosProviderObject = axios.create({
   baseURL: defaultProvider.endpoint,
 });
 
-export const getAssetsRequest = (
-  path: string,
-  explorerUrlValue: string,
-  options?: any,
-): Promise<AxiosResponse> => {
+export const getAssetsRequest = (path: string, explorerUrlValue: string, options?: any): Promise<AxiosResponse> => {
   return axios.create({ baseURL: explorerUrlValue }).request({
     method: 'get',
     url: path,
@@ -25,10 +18,7 @@ export const getAssetsRequest = (
   });
 };
 
-export const waitForRestore = async (
-  identity: Mnemonic,
-  explorerUrlValue: string,
-): Promise<boolean> => {
+export const waitForRestore = async (identity: Mnemonic, explorerUrlValue: string): Promise<boolean> => {
   try {
     const indexes = await getLastUsedIndexesInStorage();
     if (indexes && Object.values(indexes).length) {
@@ -49,10 +39,7 @@ export const signTx = async (identity: any, unsignedTx: any): Promise<any> => {
   return identity.signPset(unsignedTx);
 };
 
-export async function broadcastTx(
-  hex: string,
-  explorerUrlValue: string,
-): Promise<string> {
+export async function broadcastTx(hex: string, explorerUrlValue: string): Promise<string> {
   try {
     const response = await axios.post(`${explorerUrlValue}/tx`, hex);
     return response.data;

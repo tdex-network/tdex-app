@@ -3,27 +3,12 @@ import type { AddressInterface, StateRestorerOpts } from 'ldk';
 import { fetchUtxos, IdentityType, MasterPublicKey } from 'ldk';
 import { address as addrLDK } from 'liquidjs-lib';
 import type ElementsPegin from 'pegin';
-import {
-  all,
-  call,
-  delay,
-  put,
-  select,
-  takeLatest,
-  takeLeading,
-} from 'redux-saga/effects';
+import { all, call, delay, put, select, takeLatest, takeLeading } from 'redux-saga/effects';
 import type { Restorer } from 'tdex-sdk';
 import { masterPubKeyRestorerFromState } from 'tdex-sdk';
 
-import {
-  NoClaimFoundError,
-  PeginRestorationError,
-  UpdateUtxosError,
-} from '../../utils/errors';
-import {
-  getPeginsFromStorage,
-  setPeginsInStorage,
-} from '../../utils/storage-helper';
+import { NoClaimFoundError, PeginRestorationError, UpdateUtxosError } from '../../utils/errors';
+import { getPeginsFromStorage, setPeginsInStorage } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
 import { SIGN_IN } from '../actions/appActions';
 import {
@@ -36,11 +21,7 @@ import {
   WATCH_CURRENT_BTC_BLOCK_HEIGHT,
   CHECK_IF_CLAIMABLE_PEGIN_UTXO,
 } from '../actions/btcActions';
-import {
-  addErrorToast,
-  addClaimPeginToast,
-  removeToastByType,
-} from '../actions/toastActions';
+import { addErrorToast, addClaimPeginToast, removeToastByType } from '../actions/toastActions';
 import { addAddress } from '../actions/walletActions';
 import { network } from '../config';
 import type { BtcState, Pegins } from '../reducers/btcReducer';
@@ -51,7 +32,7 @@ import { getPeginModule } from '../services/btcService';
 
 function* persistPegins() {
   yield delay(5_000);
-  const pegins: Pegins = yield select(state => state.btc.pegins);
+  const pegins: Pegins = yield select((state) => state.btc.pegins);
   yield call(setPeginsInStorage, pegins);
 }
 
@@ -62,28 +43,18 @@ function* restorePegins() {
 
 // Fetch block height continuously every minute
 function* watchCurrentBtcBlockHeight() {
-  const explorerBitcoinUrl: string = yield select(
-    (state: any) => state.settings.explorerBitcoinUrl,
-  );
-  const { currentBlockHeight } = yield call(
-    getCurrentBtcBlockHeight,
-    explorerBitcoinUrl,
-  );
-  const setCurrentBtcBlockHeightAction =
-    setCurrentBtcBlockHeight(currentBlockHeight);
+  const explorerBitcoinUrl: string = yield select((state: any) => state.settings.explorerBitcoinUrl);
+  const { currentBlockHeight } = yield call(getCurrentBtcBlockHeight, explorerBitcoinUrl);
+  const setCurrentBtcBlockHeightAction = setCurrentBtcBlockHeight(currentBlockHeight);
   yield put(setCurrentBtcBlockHeightAction);
   yield delay(60_000);
   yield put({ type: 'WATCH_CURRENT_BTC_BLOCK_HEIGHT' });
 }
 
-async function getCurrentBtcBlockHeight(
-  explorerBitcoinURL: string,
-): Promise<{ currentBlockHeight: number }> {
+async function getCurrentBtcBlockHeight(explorerBitcoinURL: string): Promise<{ currentBlockHeight: number }> {
   let currentBlockHeight;
   try {
-    currentBlockHeight = (
-      await axios.get(`${explorerBitcoinURL}/blocks/tip/height`)
-    ).data;
+    currentBlockHeight = (await axios.get(`${explorerBitcoinURL}/blocks/tip/height`)).data;
   } catch (err) {
     console.error(err);
   }
@@ -103,30 +74,20 @@ function* updateDepositPeginUtxosState() {
   }
 }
 
-export function* fetchAndUpdateDepositPeginUtxos(
-  pegins: Pegins,
-  explorerBitcoinUrl: string,
-): any {
-  const depositAddresses = Object.values(pegins).map(p => p.depositAddress);
+export function* fetchAndUpdateDepositPeginUtxos(pegins: Pegins, explorerBitcoinUrl: string): any {
+  const depositAddresses = Object.values(pegins).map((p) => p.depositAddress);
   if (!depositAddresses.length) return;
   let utxos;
   let utxoBtcUpdatedCount = 0;
   for (const claimScript in pegins) {
-    utxos = yield call(
-      fetchUtxos,
-      pegins[claimScript].depositAddress.address,
-      explorerBitcoinUrl,
-    );
+    utxos = yield call(fetchUtxos, pegins[claimScript].depositAddress.address, explorerBitcoinUrl);
     for (const utxo of utxos) {
       if (
         !pegins[claimScript].depositUtxos?.[outpointToString(utxo)] ||
-        !pegins[claimScript].depositUtxos?.[outpointToString(utxo)].status
-          .confirmed
+        !pegins[claimScript].depositUtxos?.[outpointToString(utxo)].status.confirmed
       ) {
         utxoBtcUpdatedCount++;
-        yield put(
-          setDepositPeginUtxo(utxo, pegins[claimScript].depositAddress),
-        );
+        yield put(setDepositPeginUtxo(utxo, pegins[claimScript].depositAddress));
       }
     }
   }
@@ -144,20 +105,13 @@ export function* fetchAndUpdateDepositPeginUtxos(
  */
 function* restorePeginsFromDepositAddress(action: ActionType) {
   try {
-    const [
-      pegins,
-      addresses,
-      masterBlindKey,
-      masterPubKey,
-      lastUsedIndexes,
-      explorerBitcoinURL,
-    ]: [
+    const [pegins, addresses, masterBlindKey, masterPubKey, lastUsedIndexes, explorerBitcoinURL]: [
       Pegins,
       WalletState['addresses'],
       string,
       string,
       StateRestorerOpts,
-      string,
+      string
     ] = yield all([
       select(({ btc }: { btc: BtcState }) => btc.pegins),
       select(({ wallet }: { wallet: WalletState }) => wallet.addresses),
@@ -183,26 +137,18 @@ function* restorePeginsFromDepositAddress(action: ActionType) {
         masterPublicKey: masterPubKey,
       },
     });
-    const restoredMasterPubKeyFn: Restorer<StateRestorerOpts, MasterPublicKey> =
-      yield call(masterPubKeyRestorerFromState, masterPublicKey);
-    const restoredMasterPubKey: MasterPublicKey = yield call(
-      restoredMasterPubKeyFn,
-      lastUsedIndexes,
+    const restoredMasterPubKeyFn: Restorer<StateRestorerOpts, MasterPublicKey> = yield call(
+      masterPubKeyRestorerFromState,
+      masterPublicKey
     );
+    const restoredMasterPubKey: MasterPublicKey = yield call(restoredMasterPubKeyFn, lastUsedIndexes);
     for (let i = 0; i < 5; i++) {
-      const addr: AddressInterface = yield call(() =>
-        restoredMasterPubKey.getNextAddress(),
-      );
-      addrs.push([
-        addrLDK.toOutputScript(addr.confidentialAddress).toString('hex'),
-        addr,
-      ]);
+      const addr: AddressInterface = yield call(() => restoredMasterPubKey.getNextAddress());
+      addrs.push([addrLDK.toOutputScript(addr.confidentialAddress).toString('hex'), addr]);
     }
     // Search match
     for (const [claimScript, addr] of addrs) {
-      const peginAddress: string = yield call(() =>
-        peginModule.getMainchainAddress(claimScript),
-      );
+      const peginAddress: string = yield call(() => peginModule.getMainchainAddress(claimScript));
       if (action.payload.depositAddress === peginAddress) {
         retrievedPegins[claimScript] = {
           depositAddress: {
@@ -235,19 +181,17 @@ function* checkIfClaimablePeginUtxo() {
   // Delay to make sure pegins are updated at startup
   yield delay(1500);
   let hasClaimablePeginUtxo = false;
-  const [pegins, currentBlockHeight, toasts]: [Pegins, number, ToastState] =
-    yield all([
-      select(({ btc }: { btc: BtcState }) => btc.pegins),
-      select(({ btc }: { btc: BtcState }) => btc.currentBlockHeight),
-      select(({ toasts }: { toasts: ToastState }) => toasts),
-    ]);
+  const [pegins, currentBlockHeight, toasts]: [Pegins, number, ToastState] = yield all([
+    select(({ btc }: { btc: BtcState }) => btc.pegins),
+    select(({ btc }: { btc: BtcState }) => btc.currentBlockHeight),
+    select(({ toasts }: { toasts: ToastState }) => toasts),
+  ]);
   for (const claimScript in pegins) {
     const pegin = pegins[claimScript];
     for (const outpoint in pegin?.depositUtxos) {
       const depositUtxo = pegin.depositUtxos[outpoint];
       if (depositUtxo.status.block_height) {
-        const confirmations =
-          currentBlockHeight - depositUtxo.status.block_height + 1;
+        const confirmations = currentBlockHeight - depositUtxo.status.block_height + 1;
         // Check if pegin not already claimed and utxo is mature
         if (!depositUtxo.claimTxId && confirmations >= 101) {
           hasClaimablePeginUtxo = true;
@@ -256,16 +200,14 @@ function* checkIfClaimablePeginUtxo() {
     }
   }
   if (hasClaimablePeginUtxo) {
-    if (!toasts.some(t => t.type === 'claim-pegin')) {
+    if (!toasts.some((t) => t.type === 'claim-pegin')) {
       yield put(addClaimPeginToast());
       // UGLY HACK ///
       // Modify part name of '.toast-button-claim' to target it
       // ion-toast::part(button) would select all buttons
       yield delay(100);
       const toastEl = document.querySelector('ion-toast');
-      const el =
-        toastEl?.shadowRoot &&
-        toastEl.shadowRoot.querySelector('.toast-button-claim');
+      const el = toastEl?.shadowRoot && toastEl.shadowRoot.querySelector('.toast-button-claim');
       if (el) el.setAttribute('part', 'toast-button-claim');
     }
   } else {
@@ -279,9 +221,6 @@ export function* btcWatcherSaga(): Generator {
   yield takeLatest(UPDATE_DEPOSIT_PEGIN_UTXOS, persistPegins);
   yield takeLatest(WATCH_CURRENT_BTC_BLOCK_HEIGHT, watchCurrentBtcBlockHeight);
   yield takeLatest(UPSERT_PEGINS, persistPegins);
-  yield takeLatest(
-    RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS,
-    restorePeginsFromDepositAddress,
-  );
+  yield takeLatest(RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS, restorePeginsFromDepositAddress);
   yield takeLeading(CHECK_IF_CLAIMABLE_PEGIN_UTXO, checkIfClaimablePeginUtxo);
 }

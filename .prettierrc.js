@@ -1,4 +1,5 @@
 module.exports = {
   ...require('@ionic/prettier-config'),
-  printWidth: 80,
+  // Change config here
+  // printWidth: 80,
 };

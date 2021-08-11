@@ -24,16 +24,8 @@ import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes
 import { network } from '../../redux/config';
 import { routerLinks } from '../../routes';
 import type { LbtcDenomination } from '../../utils/constants';
-import {
-  getMainAsset,
-  LBTC_COINGECKOID,
-  MAIN_ASSETS,
-} from '../../utils/constants';
-import {
-  capitalizeFirstLetter,
-  fromSatoshi,
-  fromSatoshiFixed,
-} from '../../utils/helpers';
+import { getMainAsset, LBTC_COINGECKOID, MAIN_ASSETS } from '../../utils/constants';
+import { capitalizeFirstLetter, fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
 import './style.scss';
 
 interface WalletProps extends RouteComponentProps {
@@ -58,15 +50,11 @@ const Wallet: React.FC<WalletProps> = ({
 }) => {
   const [mainAssets, setMainAssets] = useState<BalanceInterface[]>([]);
   const [fiats, setFiats] = useState<number[]>([]);
-  const [secondaryAssets, setSecondaryAssets] = useState<BalanceInterface[]>(
-    [],
-  );
+  const [secondaryAssets, setSecondaryAssets] = useState<BalanceInterface[]>([]);
   const UNKNOWN = -1;
 
   const getFiatValue = (balance: BalanceInterface) => {
-    const balanceIndex = balances?.findIndex(
-      b => b?.ticker === balance?.ticker,
-    );
+    const balanceIndex = balances?.findIndex((b) => b?.ticker === balance?.ticker);
     if (balanceIndex < 0) return UNKNOWN;
     return fiats[balanceIndex];
   };
@@ -94,9 +82,7 @@ const Wallet: React.FC<WalletProps> = ({
       }
     } else {
       // Display L-BTC with empty balance
-      const [lbtc] = MAIN_ASSETS.filter(
-        a => a.ticker === 'L-BTC' && a.chain === network.chain,
-      ).map(a => {
+      const [lbtc] = MAIN_ASSETS.filter((a) => a.ticker === 'L-BTC' && a.chain === network.chain).map((a) => {
         return {
           asset: a.assetHash,
           ticker: a.ticker,
@@ -108,7 +94,7 @@ const Wallet: React.FC<WalletProps> = ({
       main.push(lbtc);
     }
     // Delete L-BTC from array
-    const lbtcIndex = main.findIndex(a => a.ticker === 'L-BTC');
+    const lbtcIndex = main.findIndex((a) => a.ticker === 'L-BTC');
     const [lbtc] = main.splice(lbtcIndex, 1);
     // Sort by balance
     main.sort((a, b) => {
@@ -133,21 +119,12 @@ const Wallet: React.FC<WalletProps> = ({
             hasCloseButton={true}
             hasBackButton={false}
             isTitleLarge={true}
-            customRightButton={
-              isFetchingUtxos ? <IonSpinner name="lines-small" /> : <></>
-            }
+            customRightButton={isFetchingUtxos ? <IonSpinner name="lines-small" /> : <></>}
           />
           <IonRow className="ion-margin-vertical ion-justify-content-center">
             <CircleTotalBalance
               totalBalance={
-                totalLBTC.amount
-                  ? fromSatoshiFixed(
-                      totalLBTC.amount.toString(),
-                      8,
-                      undefined,
-                      lbtcUnit,
-                    )
-                  : '0.00'
+                totalLBTC.amount ? fromSatoshiFixed(totalLBTC.amount.toString(), 8, undefined, lbtcUnit) : '0.00'
               }
               lbtcUnit={lbtcUnit}
               fiatBalance={
@@ -175,11 +152,7 @@ const Wallet: React.FC<WalletProps> = ({
                       history.push({ pathname: routerLinks.backup });
                     }}
                   >
-                    <IonIcon
-                      icon={addCircleOutline}
-                      slot="icon-only"
-                      color="success"
-                    />
+                    <IonIcon icon={addCircleOutline} slot="icon-only" color="success" />
                   </IonButton>
                 </IonCol>
               </IonRow>
@@ -187,7 +160,7 @@ const Wallet: React.FC<WalletProps> = ({
 
             {mainAssets
               .concat(secondaryAssets)
-              .filter(b => b !== undefined)
+              .filter((b) => b !== undefined)
               .map((balance: BalanceInterface) => {
                 const fiatValue = getFiatValue(balance);
                 return (
@@ -201,11 +174,7 @@ const Wallet: React.FC<WalletProps> = ({
                     <div className="asset-container">
                       <div className="asset-details">
                         <CurrencyIcon currency={balance.ticker} />
-                        <div>
-                          {balance.coinGeckoID
-                            ? capitalizeFirstLetter(balance.coinGeckoID)
-                            : balance.ticker}
-                        </div>
+                        <div>{balance.coinGeckoID ? capitalizeFirstLetter(balance.coinGeckoID) : balance.ticker}</div>
                       </div>
                       <div className="amount-container ion-text-right">
                         <div className="amount-token">
@@ -213,22 +182,16 @@ const Wallet: React.FC<WalletProps> = ({
                             balance.amount.toString(),
                             balance.precision,
                             balance.precision,
-                            balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
+                            balance.ticker === 'L-BTC' ? lbtcUnit : undefined
                           )}{' '}
-                          <span className="ticker">
-                            {balance.ticker === 'L-BTC'
-                              ? lbtcUnit
-                              : balance.ticker}
-                          </span>
+                          <span className="ticker">{balance.ticker === 'L-BTC' ? lbtcUnit : balance.ticker}</span>
                         </div>
                         <div className="amount-fiat">
                           {fiatValue < 0
                             ? fiatValue === UNKNOWN
                               ? ''
                               : 'loading'
-                            : `${fiatValue?.toFixed(
-                                2,
-                              )} ${currency.toUpperCase()}`}
+                            : `${fiatValue?.toFixed(2)} ${currency.toUpperCase()}`}
                         </div>
                       </div>
                     </div>

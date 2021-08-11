@@ -1,11 +1,4 @@
-import {
-  IonContent,
-  IonIcon,
-  IonPage,
-  IonGrid,
-  IonRow,
-  IonCol,
-} from '@ionic/react';
+import { IonContent, IonIcon, IonPage, IonGrid, IonRow, IonCol } from '@ionic/react';
 import { warningOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -17,10 +10,7 @@ import Header from '../../components/Header';
 import PinModal from '../../components/PinModal';
 import { addErrorToast } from '../../redux/actions/toastActions';
 import { routerLinks } from '../../routes';
-import {
-  PIN_TIMEOUT_FAILURE,
-  PIN_TIMEOUT_SUCCESS,
-} from '../../utils/constants';
+import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import type { AppError } from '../../utils/errors';
 import { IncorrectPINError } from '../../utils/errors';
 import './style.scss';
@@ -93,15 +83,15 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
           <IonRow className="ion-text-left">
             <IonCol offset="1" size="10">
               <p className="ion-no-margin">
-                Your secret 12-words recovery phrase is the only way to recover
-                your funds if you lose access to your wallet.
+                Your secret 12-words recovery phrase is the only way to recover your funds if you lose access to your
+                wallet.
               </p>
               <p>Write it down safely and store it in a secure location.</p>
             </IonCol>
           </IonRow>
           <Checkbox
             className="ion-margin-vertical-x2"
-            handleChange={checked => {
+            handleChange={(checked) => {
               setIsSeedSaved(checked);
               if (!checked) {
                 setIsBackupDone(false);

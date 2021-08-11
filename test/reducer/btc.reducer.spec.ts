@@ -97,15 +97,14 @@ describe('Btc reducer', () => {
               derivationPath: "m/84'/0'/0'/0/1",
             },
             depositUtxos: {
-              '838228b25bf88186b7e95912afce225a0f05227cacc535e48b3d1030f93c0bff:1':
-                {
-                  txid: '838228b25bf88186b7e95912afce225a0f05227cacc535e48b3d1030f93c0bff',
-                  vout: 1,
-                  status: {
-                    confirmed: false,
-                  },
-                  value: 200000000,
+              '838228b25bf88186b7e95912afce225a0f05227cacc535e48b3d1030f93c0bff:1': {
+                txid: '838228b25bf88186b7e95912afce225a0f05227cacc535e48b3d1030f93c0bff',
+                vout: 1,
+                status: {
+                  confirmed: false,
                 },
+                value: 200000000,
+              },
             },
           },
           '0014d863bb0f322219f3b0647a21d17ed44bf8fa9ae8': {
@@ -115,24 +114,22 @@ describe('Btc reducer', () => {
               derivationPath: "m/84'/0'/0'/0/0",
             },
             depositUtxos: {
-              '838228b25bf88186b7e95912afce225a0f05227cacc535e48b3d1030f93c0bff:1':
-                {
-                  txid: '838228b25bf88186b7e95912afce225a0f05227cacc535e48b3d1030f93c0bff',
-                  vout: 1,
-                  status: {
-                    confirmed: true,
-                    block_height: 102,
-                    block_hash: '',
-                    block_time: 121212,
-                  },
-                  value: 200000000,
-                  claimTxId:
-                    'f5cbb4927c47bc34e41810948a10ca0304a7f293c6c1053058a6d1b3d0329bbd',
+              '838228b25bf88186b7e95912afce225a0f05227cacc535e48b3d1030f93c0bff:1': {
+                txid: '838228b25bf88186b7e95912afce225a0f05227cacc535e48b3d1030f93c0bff',
+                vout: 1,
+                status: {
+                  confirmed: true,
+                  block_height: 102,
+                  block_hash: '',
+                  block_time: 121212,
                 },
+                value: 200000000,
+                claimTxId: 'f5cbb4927c47bc34e41810948a10ca0304a7f293c6c1053058a6d1b3d0329bbd',
+              },
             },
           },
-        }),
-      ),
+        })
+      )
     ).toEqual({
       ...initialState,
       pegins: {
@@ -150,15 +147,14 @@ describe('Btc reducer', () => {
             derivationPath: "m/84'/0'/0'/0/1",
           },
           depositUtxos: {
-            '838228b25bf88186b7e95912afce225a0f05227cacc535e48b3d1030f93c0bff:1':
-              {
-                txid: '838228b25bf88186b7e95912afce225a0f05227cacc535e48b3d1030f93c0bff',
-                vout: 1,
-                status: {
-                  confirmed: false,
-                },
-                value: 200000000,
+            '838228b25bf88186b7e95912afce225a0f05227cacc535e48b3d1030f93c0bff:1': {
+              txid: '838228b25bf88186b7e95912afce225a0f05227cacc535e48b3d1030f93c0bff',
+              vout: 1,
+              status: {
+                confirmed: false,
               },
+              value: 200000000,
+            },
           },
         },
         '0014d863bb0f322219f3b0647a21d17ed44bf8fa9ae8': {
@@ -168,20 +164,18 @@ describe('Btc reducer', () => {
             derivationPath: "m/84'/0'/0'/0/0",
           },
           depositUtxos: {
-            '838228b25bf88186b7e95912afce225a0f05227cacc535e48b3d1030f93c0bff:1':
-              {
-                txid: '838228b25bf88186b7e95912afce225a0f05227cacc535e48b3d1030f93c0bff',
-                vout: 1,
-                status: {
-                  confirmed: true,
-                  block_height: 102,
-                  block_hash: '',
-                  block_time: 121212,
-                },
-                value: 200000000,
-                claimTxId:
-                  'f5cbb4927c47bc34e41810948a10ca0304a7f293c6c1053058a6d1b3d0329bbd',
+            '838228b25bf88186b7e95912afce225a0f05227cacc535e48b3d1030f93c0bff:1': {
+              txid: '838228b25bf88186b7e95912afce225a0f05227cacc535e48b3d1030f93c0bff',
+              vout: 1,
+              status: {
+                confirmed: true,
+                block_height: 102,
+                block_hash: '',
+                block_time: 121212,
               },
+              value: 200000000,
+              claimTxId: 'f5cbb4927c47bc34e41810948a10ca0304a7f293c6c1053058a6d1b3d0329bbd',
+            },
           },
         },
       },
