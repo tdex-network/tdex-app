@@ -326,6 +326,7 @@ const Operations: React.FC<OperationsProps> = ({
                         <IonItem
                           key={tx.txId}
                           button
+                          detail={false}
                           onClick={() => onclickTx(tx)}
                           className={classNames('operation-item', {
                             open: isTxRowOpen(tx),
