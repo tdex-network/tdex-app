@@ -1,9 +1,5 @@
 import type { InputChangeEventDetail } from '@ionic/core';
-import {
-  IonIcon,
-  IonInput,
-  IonText,
-} from '@ionic/react';
+import { IonIcon, IonInput, IonText } from '@ionic/react';
 import classNames from 'classnames';
 import Decimal from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
