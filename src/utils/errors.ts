@@ -17,59 +17,26 @@ export class AppError extends Error {
   }
 }
 
-export const MakeTradeError = new AppError(
-  1,
-  'TradePropose or TradeComplete error',
-);
+export const MakeTradeError = new AppError(1, 'TradePropose or TradeComplete error');
 export const PinDigitsError = new AppError(2, 'PIN must contain 6 digits');
-export const InvalidTradeTypeError = new AppError(
-  3,
-  'Trade type should be BUY or SELL',
-);
-export const NoMarketsProvidedError = new AppError(
-  4,
-  '0 markets provided by liquidity daemons',
-);
+export const InvalidTradeTypeError = new AppError(3, 'Trade type should be BUY or SELL');
+export const NoMarketsProvidedError = new AppError(4, '0 markets provided by liquidity daemons');
 export const UnableToCopyTxIDError = new AppError(5, 'Unable to copy txID');
 export const IncorrectPINError = new AppError(6, 'Incorrect PIN');
 export const SecureStorageError = new AppError(7, 'Secure Storage error');
 export const PINsDoNotMatchError = new AppError(8, 'PINs needs to be equal');
 export const QRCodeScanError = new AppError(9, 'QR Scanner scan failed');
-export const AddressGenerationError = new AppError(
-  10,
-  'Unable to generate new address',
-);
+export const AddressGenerationError = new AppError(10, 'Unable to generate new address');
 export const InvalidMnemonicError = new AppError(11, 'Invalid mnemonic error');
-export const WithdrawTxError = new AppError(
-  12,
-  'An error occcurs while sending withdraw transaction',
-);
-export const TDEXRegistryError = new AppError(
-  13,
-  'Unable to fetch providers from registry',
-);
-export const UpdateTransactionsError = new AppError(
-  14,
-  'Tx update error occurs',
-);
+export const WithdrawTxError = new AppError(12, 'An error occcurs while sending withdraw transaction');
+export const TDEXRegistryError = new AppError(13, 'Unable to fetch providers from registry');
+export const UpdateTransactionsError = new AppError(14, 'Tx update error occurs');
 export const UpdateUtxosError = new AppError(15, 'Utxo update error occurs');
-export const DeepRestorationError = new AppError(
-  16,
-  'Account discovery has failed',
-);
+export const DeepRestorationError = new AppError(16, 'Account discovery has failed');
 
 // Pegin
-export const ClaimPeginError = new AppError(
-  17,
-  'Claim pegin bitcoin has failed',
-);
+export const ClaimPeginError = new AppError(17, 'Claim pegin bitcoin has failed');
 export const NoClaimFoundError = new AppError(18, 'No claims have been found');
-export const PeginRestorationError = new AppError(
-  19,
-  'Pegin restoration has failed',
-);
+export const PeginRestorationError = new AppError(19, 'Pegin restoration has failed');
 //
-export const InvalidBitcoinAddress = new AppError(
-  20,
-  'Invalid Bitcoin address',
-);
+export const InvalidBitcoinAddress = new AppError(20, 'Invalid Bitcoin address');

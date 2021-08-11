@@ -11,17 +11,14 @@ const Refresher: React.FC<{ onRefresh?: () => void }> = ({ onRefresh }) => {
   return (
     <IonRefresher
       slot="fixed"
-      onIonRefresh={e => {
+      onIonRefresh={(e) => {
         dispatch(updateState());
         if (onRefresh) onRefresh();
         // An other top-right spinner shows actual update state
         setTimeout(() => e.detail.complete(), 1000);
       }}
     >
-      <IonRefresherContent
-        pullingIcon={chevronDownCircleOutline}
-        refreshingSpinner="lines-small"
-      />
+      <IonRefresherContent pullingIcon={chevronDownCircleOutline} refreshingSpinner="lines-small" />
     </IonRefresher>
   );
 };

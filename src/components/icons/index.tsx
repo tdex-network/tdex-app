@@ -11,14 +11,7 @@ import LcadIcon from '../../assets/img/coins/lcad.svg';
 import UsdtIcon from '../../assets/img/coins/usdt.svg';
 import DepositIconBlack from '../../assets/img/deposit-black.svg';
 import DepositIcon from '../../assets/img/deposit.svg';
-import {
-  BTC_TICKER,
-  BJDE_TICKER,
-  BTSE_TICKER,
-  LBTC_TICKER,
-  LCAD_TICKER,
-  USDT_TICKER,
-} from '../../utils/constants';
+import { BTC_TICKER, BJDE_TICKER, BTSE_TICKER, LBTC_TICKER, LCAD_TICKER, USDT_TICKER } from '../../utils/constants';
 import { TxTypeEnum } from '../../utils/types';
 
 interface IconInterface {
@@ -32,14 +25,7 @@ interface IconInterface {
 }
 
 export const IconWallet = (props: IconInterface): any => (
-  <svg
-    width="20"
-    height="20"
-    {...props}
-    viewBox="0 0 20 20"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="20" height="20" {...props} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       id="wallet"
       fillRule="evenodd"
@@ -50,13 +36,7 @@ export const IconWallet = (props: IconInterface): any => (
 );
 
 export const IconExchange = (props: IconInterface): any => (
-  <svg
-    width="20"
-    height="20"
-    {...props}
-    viewBox="0 0 20 20"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="20" height="20" {...props} viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -66,13 +46,7 @@ export const IconExchange = (props: IconInterface): any => (
 );
 
 export const IconSettings = (props: IconInterface): any => (
-  <svg
-    width="20"
-    height="20"
-    {...props}
-    viewBox="0 0 20 20"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="20" height="20" {...props} viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -82,27 +56,13 @@ export const IconSettings = (props: IconInterface): any => (
 );
 
 export const IconCheck = (props: IconInterface): any => (
-  <svg
-    width="20"
-    height="20"
-    {...props}
-    viewBox="0 0 20 20"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="20" height="20" {...props} viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M1.89679 6.60094C1.46287 6.1913 0.759353 6.1913 0.325437 6.60094C-0.108479 7.01058 -0.108479 7.67474 0.325437 8.08438L5.88099 13.3291C6.31491 13.7388 7.01842 13.7388 7.45234 13.3291L19.6746 1.79067C20.1085 1.38103 20.1085 0.716872 19.6746 0.307231C19.2406 -0.10241 18.5371 -0.10241 18.1032 0.307231L6.66667 11.104L1.89679 6.60094Z" />
   </svg>
 );
 
 export const IconCopy = (props: IconInterface): JSX.Element => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 20 20"
-    fill="none"
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" {...props} xmlns="http://www.w3.org/2000/svg">
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -112,14 +72,7 @@ export const IconCopy = (props: IconInterface): JSX.Element => (
 );
 
 export const IconQR = (props: IconInterface): JSX.Element => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 20 20"
-    fill="none"
-    {...props}
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" {...props} xmlns="http://www.w3.org/2000/svg">
     <path
       fillRule="evenodd"
       clipRule="evenodd"

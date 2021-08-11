@@ -9,17 +9,9 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { updatePrices } from '../../redux/actions/ratesActions';
-import {
-  fromSatoshi,
-  fromSatoshiFixed,
-  isLbtc,
-  toLBTCwithUnit,
-} from '../../utils/helpers';
+import { fromSatoshi, fromSatoshiFixed, isLbtc, toLBTCwithUnit } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
-import {
-  onPressEnterKeyCloseKeyboard,
-  setAccessoryBar,
-} from '../../utils/keyboard';
+import { onPressEnterKeyCloseKeyboard, setAccessoryBar } from '../../utils/keyboard';
 import { CurrencyIcon } from '../icons';
 
 interface WithdrawRowInterface {
@@ -30,13 +22,7 @@ interface WithdrawRowInterface {
   error: string;
 }
 
-const WithdrawRow: React.FC<WithdrawRowInterface> = ({
-  amount,
-  balance,
-  price,
-  setAmount,
-  error,
-}) => {
+const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, setAmount, error }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const currency = useSelector((state: any) => state.settings.currency.value);
   const [residualBalance, setResidualBalance] = useState<string>(
@@ -44,8 +30,8 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
       balance.amount.toString(),
       balance.precision,
       balance.precision,
-      balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
-    ),
+      balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+    )
   );
   const [fiat, setFiat] = useState<string>('0.00');
   const dispatch = useDispatch();
@@ -65,8 +51,8 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
         balance.amount.toString(),
         balance.precision,
         balance.precision,
-        isLbtc(balance.asset) ? lbtcUnit : undefined,
-      ),
+        isLbtc(balance.asset) ? lbtcUnit : undefined
+      )
     );
   }, [lbtcUnit, balance.amount]);
 
@@ -76,8 +62,8 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
         balance.amount.toString(),
         balance.precision,
         balance.precision,
-        isLbtc(balance.asset) ? lbtcUnit : undefined,
-      ),
+        isLbtc(balance.asset) ? lbtcUnit : undefined
+      )
     );
     if (price) setFiat('0.00');
     setAmount('');
@@ -92,21 +78,15 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
     const sanitizedValue = sanitizeInputAmount(e.detail.value, setAmount, unit);
     // Set values
     setAmount(sanitizedValue);
-    const residualAmount = fromSatoshi(
-      balance.amount.toString(),
-      balance.precision,
-      unit,
-    ).sub(sanitizedValue);
+    const residualAmount = fromSatoshi(balance.amount.toString(), balance.precision, unit).sub(sanitizedValue);
     setResidualBalance(
       residualAmount.toNumber().toLocaleString('en-US', {
         maximumFractionDigits: balance.precision,
         useGrouping: false,
-      }),
+      })
     );
     if (price) {
-      setFiat(
-        toLBTCwithUnit(new Decimal(sanitizedValue), unit).mul(price).toFixed(2),
-      );
+      setFiat(toLBTCwithUnit(new Decimal(sanitizedValue), unit).mul(price).toFixed(2));
     }
   };
 
@@ -117,11 +97,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
           <span className="icon-wrapper">
             <CurrencyIcon currency={balance.ticker} />
           </span>
-          <span>
-            {balance.ticker === 'L-BTC'
-              ? lbtcUnit
-              : balance.ticker.toUpperCase()}
-          </span>
+          <span>{balance.ticker === 'L-BTC' ? lbtcUnit : balance.ticker.toUpperCase()}</span>
           <IonIcon className="icon" icon={chevronDownOutline} />
         </div>
 
@@ -156,9 +132,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({
             ) : (
               <span>
                 {`${residualBalance && residualBalance} ${
-                  balance.ticker === 'L-BTC'
-                    ? lbtcUnit
-                    : balance.ticker.toUpperCase()
+                  balance.ticker === 'L-BTC' ? lbtcUnit : balance.ticker.toUpperCase()
                 }`}
               </span>
             )}

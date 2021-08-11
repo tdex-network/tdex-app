@@ -23,25 +23,11 @@ import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import PinInput from '../../components/PinInput';
 import { signIn } from '../../redux/actions/appActions';
-import {
-  addErrorToast,
-  addSuccessToast,
-} from '../../redux/actions/toastActions';
-import {
-  PIN_TIMEOUT_FAILURE,
-  PIN_TIMEOUT_SUCCESS,
-} from '../../utils/constants';
+import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
+import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import type { AppError } from '../../utils/errors';
-import {
-  PinDigitsError,
-  PINsDoNotMatchError,
-  SecureStorageError,
-} from '../../utils/errors';
-import {
-  clearStorage,
-  getIdentity,
-  setMnemonicInSecureStorage,
-} from '../../utils/storage-helper';
+import { PinDigitsError, PINsDoNotMatchError, SecureStorageError } from '../../utils/errors';
+import { clearStorage, getIdentity, setMnemonicInSecureStorage } from '../../utils/storage-helper';
 import { TermsContent } from '../Terms';
 
 import './styles.scss';
@@ -74,14 +60,10 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
           setMnemonicInSecureStorage(
             // Coming from Show Mnemonic or from Backup Wallet 'do it later'
             state?.mnemonic ?? bip39.generateMnemonic(),
-            secondPin,
+            secondPin
           )
             .then(() => {
-              dispatch(
-                addSuccessToast(
-                  'Mnemonic generated and encrypted with your PIN.',
-                ),
-              );
+              dispatch(addSuccessToast('Mnemonic generated and encrypted with your PIN.'));
               setIsWrongPin(false);
               setIsPinValidated(true);
               if (Capacitor.isPluginAvailable('Keyboard')) {
@@ -146,10 +128,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
   });
 
   useEffect(() => {
-    if (
-      (!isRepeatScreen && firstPin.trim().length === 6) ||
-      (isRepeatScreen && secondPin.trim().length === 6)
-    )
+    if ((!isRepeatScreen && firstPin.trim().length === 6) || (isRepeatScreen && secondPin.trim().length === 6))
       handleConfirm();
   }, [firstPin, secondPin]);
 
@@ -195,8 +174,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
           <PageDescription
             description={
               isRepeatScreen
-                ? 'Insert again the numeric password.\n' +
-                  'It must match the previous entry'
+                ? 'Insert again the numeric password.\n' + 'It must match the previous entry'
                 : 'Your password must be 6 character long and must be set with only numbers'
             }
             title={isRepeatScreen ? 'Repeat PIN' : 'Set security PIN'}
@@ -239,7 +217,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
                       if (isPinValidated && isTermsAccepted) {
                         setLoading(true);
                         getIdentity(firstPin)
-                          .then(mnemonic => {
+                          .then((mnemonic) => {
                             setIsWrongPin(null);
                             setLoading(false);
                             // setIsAuth will cause redirect to /wallet

@@ -38,10 +38,7 @@ const initialState: SettingsState = {
   denominationLBTC: LBTC_DENOMINATIONS[0],
 };
 
-const settingsReducer = (
-  state: SettingsState = initialState,
-  action: ActionType,
-): SettingsState => {
+const settingsReducer = (state: SettingsState = initialState, action: ActionType): SettingsState => {
   switch (action.type) {
     case SET_LBTC_DENOMINATION:
       return {

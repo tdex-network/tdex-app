@@ -1,12 +1,5 @@
 import type { InputChangeEventDetail } from '@ionic/core';
-import {
-  IonIcon,
-  IonInput,
-  IonSpinner,
-  IonText,
-  useIonViewDidEnter,
-  useIonViewDidLeave,
-} from '@ionic/react';
+import { IonIcon, IonInput, IonSpinner, IonText, useIonViewDidEnter, useIonViewDidLeave } from '@ionic/react';
 import classNames from 'classnames';
 import { Decimal } from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
@@ -18,18 +11,9 @@ import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes
 import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
 import { defaultPrecision } from '../../utils/constants';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
-import {
-  fromSatoshi,
-  fromSatoshiFixed,
-  isLbtc,
-  toLBTCwithUnit,
-  toSatoshi,
-} from '../../utils/helpers';
+import { fromSatoshi, fromSatoshiFixed, isLbtc, toLBTCwithUnit, toSatoshi } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
-import {
-  onPressEnterKeyCloseKeyboard,
-  setAccessoryBar,
-} from '../../utils/keyboard';
+import { onPressEnterKeyCloseKeyboard, setAccessoryBar } from '../../utils/keyboard';
 import { bestBalance, bestPrice, calculatePrice } from '../../utils/tdex';
 import type { AssetWithTicker } from '../../utils/tdex';
 import { CurrencyIcon } from '../icons';
@@ -110,7 +94,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   });
 
   useEffect(() => {
-    setBalance(balances.find(b => b.asset === asset.asset));
+    setBalance(balances.find((b) => b.asset === asset.asset));
   }, [balances, asset]);
 
   useEffect(() => {
@@ -132,10 +116,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         // Get best trade
         setIsUpdating(true);
         try {
-          if (
-            relatedAssetHash === trades[0].market.baseAsset ||
-            relatedAssetHash === trades[0].market.quoteAsset
-          ) {
+          if (relatedAssetHash === trades[0].market.baseAsset || relatedAssetHash === trades[0].market.quoteAsset) {
             newTrade = await bestBalance(trades);
           } else {
             setIsUpdating(false);
@@ -148,12 +129,11 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             {
               amount: lastInputAmount,
               asset: relatedAssetHash,
-              precision:
-                assets[relatedAssetHash]?.precision ?? defaultPrecision,
+              precision: assets[relatedAssetHash]?.precision ?? defaultPrecision,
             },
             trades,
             lbtcUnit,
-            console.error,
+            console.error
           );
           newTrade = bestPriceRes.trade;
         }
@@ -164,37 +144,33 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             {
               amount: lastInputAmount,
               asset: relatedAssetHash,
-              precision:
-                assets[relatedAssetHash]?.precision ?? defaultPrecision,
+              precision: assets[relatedAssetHash]?.precision ?? defaultPrecision,
             },
             newTrade,
-            lbtcUnit,
+            lbtcUnit
           );
           setTrade(newTrade);
           //
           if (isLbtc(asset.asset)) {
-            const precision =
-              assets[priceInSats.asset]?.precision ?? defaultPrecision;
+            const precision = assets[priceInSats.asset]?.precision ?? defaultPrecision;
             updatedAmount = fromSatoshiFixed(
               priceInSats.amount.toString(),
               precision,
               precision,
-              isLbtc(asset.asset) ? lbtcUnit : undefined,
+              isLbtc(asset.asset) ? lbtcUnit : undefined
             );
           } else {
             // Convert fiat
             const priceInBtc = fromSatoshi(
               priceInSats.amount.toString(),
               assets[priceInSats.asset]?.precision ?? defaultPrecision,
-              lbtcUnit,
+              lbtcUnit
             );
-            updatedAmount = toLBTCwithUnit(priceInBtc, lbtcUnit)
-              .toNumber()
-              .toLocaleString('en-US', {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: assets[relatedAssetHash]?.precision,
-                useGrouping: false,
-              });
+            updatedAmount = toLBTCwithUnit(priceInBtc, lbtcUnit).toNumber().toLocaleString('en-US', {
+              minimumFractionDigits: 0,
+              maximumFractionDigits: assets[relatedAssetHash]?.precision,
+              useGrouping: false,
+            });
           }
           setAmount(updatedAmount === '0' ? '' : updatedAmount);
           onChangeAmount(updatedAmount === '0' ? '' : updatedAmount);
@@ -204,14 +180,13 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         }
         setIsUpdating(false);
       }, 500),
-    [relatedAssetHash, trades],
+    [relatedAssetHash, trades]
   );
 
   useEffect(() => {
     void (async (): Promise<void> => {
       // Skip calculating price if the input is focused
-      if (isLoading || focused || trades.length === 0 || !relatedAssetHash)
-        return;
+      if (isLoading || focused || trades.length === 0 || !relatedAssetHash) return;
       if (relatedAssetAmount === '0') {
         onChangeAmount('');
         setAmount('');
@@ -226,15 +201,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
     // Need 'asset' which is accurate faster than balance
     // Need 'balance' to display quote asset price
     // Need 'isLoading' to prevent running the effect when confirming trade
-  }, [
-    isLoading,
-    relatedAssetAmount,
-    relatedAssetHash,
-    asset,
-    balance,
-    trade,
-    trades,
-  ]);
+  }, [isLoading, relatedAssetAmount, relatedAssetHash, asset, balance, trade, trades]);
 
   const handleInputChange = (e: CustomEvent<InputChangeEventDetail>) => {
     if (!isUpdating) {
@@ -245,20 +212,12 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         return;
       }
       // Sanitize
-      const sanitizedValue = sanitizeInputAmount(
-        e.detail.value,
-        setAmount,
-        isLbtc(asset.asset) ? lbtcUnit : undefined,
-      );
+      const sanitizedValue = sanitizeInputAmount(e.detail.value, setAmount, isLbtc(asset.asset) ? lbtcUnit : undefined);
       // Set
       setAmount(sanitizedValue);
       onChangeAmount(sanitizedValue);
       // Check balance
-      const valSats = toSatoshi(
-        sanitizedValue,
-        balance?.precision,
-        isLbtc(asset.asset) ? lbtcUnit : undefined,
-      );
+      const valSats = toSatoshi(sanitizedValue, balance?.precision, isLbtc(asset.asset) ? lbtcUnit : undefined);
       if (sendInput && valSats.greaterThan(balance?.amount ?? 0)) {
         setError(ERROR_BALANCE_TOO_LOW);
       }
@@ -273,9 +232,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           <span className="icon-wrapper">
             <CurrencyIcon currency={asset.ticker} />
           </span>
-          <span>
-            {asset.ticker === 'L-BTC' ? lbtcUnit : asset.ticker.toUpperCase()}
-          </span>
+          <span>{asset.ticker === 'L-BTC' ? lbtcUnit : asset.ticker.toUpperCase()}</span>
           <IonIcon className="icon" icon={chevronDownOutline} />
         </div>
 
@@ -313,8 +270,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
                 balance?.amount.toString() || '0',
                 balance?.precision,
                 balance?.precision ?? defaultPrecision,
-                balance?.ticker === 'L-BTC' ? lbtcUnit : undefined,
-              ),
+                balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
+              )
             );
           }}
         >
@@ -323,7 +280,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             balance?.amount.toString() || '0',
             balance?.precision,
             balance?.precision ?? defaultPrecision,
-            balance?.ticker === 'L-BTC' ? lbtcUnit : undefined,
+            balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
           )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : asset.ticker}`}</span>
         </span>
         {isUpdating ? (
@@ -334,10 +291,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
               <IonText color="danger">{error}</IonText>
             ) : (
               <>
-                {toLBTCwithUnit(
-                  new Decimal(amount),
-                  balance?.ticker === 'L-BTC' ? lbtcUnit : undefined,
-                )
+                {toLBTCwithUnit(new Decimal(amount), balance?.ticker === 'L-BTC' ? lbtcUnit : undefined)
                   .mul(prices[asset.coinGeckoID])
                   .toFixed(2)}{' '}
                 {currency.toUpperCase()}

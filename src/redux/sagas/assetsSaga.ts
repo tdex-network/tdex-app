@@ -1,38 +1,20 @@
 import axios from 'axios';
-import {
-  call,
-  delay,
-  put,
-  select,
-  takeEvery,
-  takeLatest,
-} from 'redux-saga/effects';
+import { call, delay, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 
 import type { AssetConfig } from '../../utils/constants';
 import { defaultPrecision } from '../../utils/constants';
 import { createColorFromHash, tickerFromAssetHash } from '../../utils/helpers';
-import {
-  getAssetsFromStorage,
-  setAssetsInStorage,
-} from '../../utils/storage-helper';
+import { getAssetsFromStorage, setAssetsInStorage } from '../../utils/storage-helper';
 import { SIGN_IN } from '../actions/appActions';
 import { ADD_ASSET, setAsset, SET_ASSET } from '../actions/assetsActions';
 
 // payload = the assetHash
 function* addAssetSaga({ payload }: { payload: string }) {
   // check if asset already present in state
-  const asset: AssetConfig = yield select(
-    (state: any) => state.assets[payload],
-  );
+  const asset: AssetConfig = yield select((state: any) => state.assets[payload]);
   if (!asset) {
-    const explorerUrl: string = yield select(
-      (state: any) => state.settings.explorerUrl,
-    );
-    const { precision, ticker, name } = yield call(
-      getAssetData,
-      payload,
-      explorerUrl,
-    );
+    const explorerUrl: string = yield select((state: any) => state.settings.explorerUrl);
+    const { precision, ticker, name } = yield call(getAssetData, payload, explorerUrl);
 
     const setAssetAction = setAsset({
       ticker,
@@ -48,12 +30,10 @@ function* addAssetSaga({ payload }: { payload: string }) {
 
 async function getAssetData(
   assetHash: string,
-  explorerURL: string,
+  explorerURL: string
 ): Promise<{ precision: number; ticker: string; name: string }> {
   try {
-    const { precision, ticker, name } = (
-      await axios.get(`${explorerURL}/asset/${assetHash}`)
-    ).data;
+    const { precision, ticker, name } = (await axios.get(`${explorerURL}/asset/${assetHash}`)).data;
     return {
       precision: precision ?? defaultPrecision,
       ticker: ticker || tickerFromAssetHash(assetHash),
@@ -71,9 +51,8 @@ async function getAssetData(
 
 function* persistAssets() {
   yield delay(5_000);
-  const currentAssets: AssetConfig[] = yield select(
-    ({ assets }: { assets: Record<string, AssetConfig> }) =>
-      Object.values(assets),
+  const currentAssets: AssetConfig[] = yield select(({ assets }: { assets: Record<string, AssetConfig> }) =>
+    Object.values(assets)
   );
   yield call(setAssetsInStorage, currentAssets);
 }

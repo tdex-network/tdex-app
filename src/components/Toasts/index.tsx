@@ -6,10 +6,7 @@ import { useDispatch } from 'react-redux';
 
 import { setModalClaimPegin } from '../../redux/actions/btcActions';
 import type { ToastOpts, ToastType } from '../../redux/reducers/toastReducer';
-import {
-  TOAST_TIMEOUT_FAILURE,
-  TOAST_TIMEOUT_SUCCESS,
-} from '../../utils/constants';
+import { TOAST_TIMEOUT_FAILURE, TOAST_TIMEOUT_SUCCESS } from '../../utils/constants';
 
 interface ToastsProps {
   toasts: ToastOpts[];

@@ -10,12 +10,7 @@ import {
   IonRow,
   IonCol,
 } from '@ionic/react';
-import {
-  chevronForwardOutline,
-  eye,
-  lockOpen,
-  trashOutline,
-} from 'ionicons/icons';
+import { chevronForwardOutline, eye, lockOpen, trashOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
@@ -25,10 +20,7 @@ import ChangePinModals from '../../components/ChangePinModals';
 import Header from '../../components/Header';
 import PinModal from '../../components/PinModal';
 import { addErrorToast } from '../../redux/actions/toastActions';
-import {
-  PIN_TIMEOUT_FAILURE,
-  PIN_TIMEOUT_SUCCESS,
-} from '../../utils/constants';
+import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { IncorrectPINError } from '../../utils/errors';
 import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
 import './style.scss';
@@ -45,7 +37,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
 
   const handlePinConfirm = (pin: string) => {
     getMnemonicFromSecureStorage(pin)
-      .then(mnemonic => {
+      .then((mnemonic) => {
         setIsWrongPin(false);
         setPinNeedReset(true);
         setTimeout(() => {
@@ -64,7 +56,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
           }
         }, PIN_TIMEOUT_SUCCESS);
       })
-      .catch(e => {
+      .catch((e) => {
         setIsWrongPin(true);
         setTimeout(() => {
           setIsWrongPin(null);
@@ -110,8 +102,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
                     <div className="item-start">
                       <div className="main-row">Show mnemonic</div>
                       <IonText className="description">
-                        Display the secret mnemonic stored in your device's
-                        secure storage.
+                        Display the secret mnemonic stored in your device's secure storage.
                       </IonText>
                     </div>
                     <IonIcon icon={chevronForwardOutline} />
@@ -153,8 +144,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
                     <div className="item-start">
                       <div className="main-row">Set new pin</div>
                       <IonText className="description">
-                        Change the secure PIN using to encrypt your wallet's
-                        seed.
+                        Change the secure PIN using to encrypt your wallet's seed.
                       </IonText>
                     </div>
                     <IonIcon icon={chevronForwardOutline} />
@@ -184,9 +174,8 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
                     <div className="item-start">
                       <div className="main-row">Delete Mnemonic</div>
                       <IonText className="description">
-                        Definitively removes your seed from this device. Be
-                        extremely careful, after deletion it will be impossible
-                        to retrieve your key from tdex-app.
+                        Definitively removes your seed from this device. Be extremely careful, after deletion it will be
+                        impossible to retrieve your key from tdex-app.
                       </IonText>
                     </div>
                     <IonIcon icon={chevronForwardOutline} />

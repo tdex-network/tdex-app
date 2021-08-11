@@ -17,10 +17,7 @@ export const UNLOCK_UTXO = 'UNLOCK_UTXO';
 export const WATCH_UTXO = 'WATCH_UTXO';
 export const UNLOCK_UTXOS = 'UNLOCK_UTXOS';
 
-export const watchUtxo = (
-  address: AddressInterface,
-  maxTry = 100,
-): ActionType => ({
+export const watchUtxo = (address: AddressInterface, maxTry = 100): ActionType => ({
   type: WATCH_UTXO,
   payload: {
     address,
@@ -36,9 +33,7 @@ export const addAddress = (address: AddressInterface): AnyAction => {
   return {
     type: ADD_ADDRESS,
     payload: {
-      script: addrLDK
-        .toOutputScript(address.confidentialAddress)
-        .toString('hex'),
+      script: addrLDK.toOutputScript(address.confidentialAddress).toString('hex'),
       address,
     },
   };

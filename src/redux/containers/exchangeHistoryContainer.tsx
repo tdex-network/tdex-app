@@ -6,9 +6,7 @@ import { tradeTransactionsSelector } from '../reducers/transactionsReducer';
 
 const mapStateToProps = (state: any) => {
   return {
-    swaps: tradeTransactionsSelector(state).sort(
-      compareTxDisplayInterfaceByDate,
-    ),
+    swaps: tradeTransactionsSelector(state).sort(compareTxDisplayInterfaceByDate),
   };
 };
 

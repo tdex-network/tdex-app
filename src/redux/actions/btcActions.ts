@@ -9,8 +9,7 @@ export const SET_CURRENT_BTC_BLOCK_HEIGHT = 'SET_CURRENT_BTC_BLOCK_HEIGHT';
 export const WATCH_CURRENT_BTC_BLOCK_HEIGHT = 'WATCH_CURRENT_BTC_BLOCK_HEIGHT';
 export const UPSERT_PEGINS = 'UPSERT_PEGINS';
 export const CLAIM_PEGINS = 'CLAIM_PEGINS';
-export const RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS =
-  'RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS';
+export const RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS = 'RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS';
 export const CHECK_IF_CLAIMABLE_PEGIN_UTXO = 'CHECK_IF_CLAIMABLE_PEGIN_UTXO';
 export const SET_MODAL_CLAIM_PEGIN = 'SET_MODAL_CLAIM_PEGIN';
 
@@ -32,9 +31,7 @@ export const claimPegins = (pegins: Pegins): AnyAction => {
   };
 };
 
-export const setCurrentBtcBlockHeight = (
-  currentBtcBlockHeight: number,
-): ActionType => {
+export const setCurrentBtcBlockHeight = (currentBtcBlockHeight: number): ActionType => {
   return {
     type: SET_CURRENT_BTC_BLOCK_HEIGHT,
     payload: currentBtcBlockHeight,
@@ -53,10 +50,7 @@ export const checkIfClaimablePeginUtxo = (): ActionType => {
   };
 };
 
-export const setDepositPeginUtxo = (
-  utxo: DepositPeginUtxo,
-  depositAddress: Pegin['depositAddress'],
-): ActionType => {
+export const setDepositPeginUtxo = (utxo: DepositPeginUtxo, depositAddress: Pegin['depositAddress']): ActionType => {
   return {
     type: SET_DEPOSIT_PEGIN_UTXO,
     payload: { utxo, depositAddress },
@@ -69,9 +63,7 @@ export const updateDepositPeginUtxos = (): ActionType => {
   };
 };
 
-export const restorePeginFromDepositAddress = (
-  depositAddress: string,
-): ActionType => {
+export const restorePeginFromDepositAddress = (depositAddress: string): ActionType => {
   return {
     type: RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS,
     payload: { depositAddress },

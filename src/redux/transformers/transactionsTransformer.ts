@@ -1,9 +1,4 @@
-import type {
-  BlindedOutputInterface,
-  InputInterface,
-  TxInterface,
-  UnblindedOutputInterface,
-} from 'ldk';
+import type { BlindedOutputInterface, InputInterface, TxInterface, UnblindedOutputInterface } from 'ldk';
 import { isBlindedOutputInterface } from 'ldk';
 import moment from 'moment';
 
@@ -14,14 +9,14 @@ import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
 function getTransfers(
   vin: InputInterface[],
   vout: (BlindedOutputInterface | UnblindedOutputInterface)[],
-  walletScripts: string[],
+  walletScripts: string[]
 ): Transfer[] {
   const transfers: Transfer[] = [];
   let feeAmount: number;
   let feeAsset: string;
 
   const addToTransfers = (amount: number, asset: string) => {
-    const transferIndex = transfers.findIndex(t => t.asset === asset);
+    const transferIndex = transfers.findIndex((t) => t.asset === asset);
 
     if (transferIndex >= 0) {
       const tmp = transfers[transferIndex].amount + amount;
@@ -47,10 +42,7 @@ function getTransfers(
   };
 
   for (const input of vin) {
-    if (
-      !isBlindedOutputInterface(input.prevout) &&
-      walletScripts.includes(input.prevout.script)
-    ) {
+    if (!isBlindedOutputInterface(input.prevout) && walletScripts.includes(input.prevout.script)) {
       addToTransfers(-1 * input.prevout.value, input.prevout.asset);
     }
   }
@@ -69,11 +61,7 @@ function getTransfers(
   }
 
   for (const output of vout) {
-    if (
-      !isBlindedOutputInterface(output) &&
-      walletScripts.includes(output.script) &&
-      output.script !== ''
-    ) {
+    if (!isBlindedOutputInterface(output) && walletScripts.includes(output.script) && output.script !== '') {
       addToTransfers(output.value, output.asset);
     }
   }
@@ -104,16 +92,11 @@ export function txTypeFromTransfer(transfers: Transfer[]): TxTypeEnum {
  * @param tx txInterface
  * @param walletScripts the wallet's scripts i.e wallet scripts from wallet's addresses.
  */
-export function toDisplayTransaction(
-  tx: TxInterface,
-  walletScripts: string[],
-): TxDisplayInterface {
+export function toDisplayTransaction(tx: TxInterface, walletScripts: string[]): TxDisplayInterface {
   const transfers = getTransfers(tx.vin, tx.vout, walletScripts);
   return {
     txId: tx.txid,
-    blockTime: tx.status.blockTime
-      ? moment(tx.status.blockTime * 1000)
-      : undefined,
+    blockTime: tx.status.blockTime ? moment(tx.status.blockTime * 1000) : undefined,
     status: tx.status.confirmed ? TxStatusEnum.Confirmed : TxStatusEnum.Pending,
     fee: tx.fee,
     transfers,

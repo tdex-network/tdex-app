@@ -1,11 +1,4 @@
-import {
-  IonButton,
-  IonContent,
-  IonModal,
-  IonGrid,
-  IonCol,
-  IonRow,
-} from '@ionic/react';
+import { IonButton, IonContent, IonModal, IonGrid, IonCol, IonRow } from '@ionic/react';
 import React, { useState } from 'react';
 
 import { removeMnemonicFromSecureStorage } from '../../utils/storage-helper';
@@ -19,12 +12,7 @@ interface DeleteMnemonicModalProps {
   pin: string;
 }
 
-const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({
-  closeModal,
-  openModal,
-  onConfirm,
-  pin,
-}) => {
+const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({ closeModal, openModal, onConfirm, pin }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -32,9 +20,7 @@ const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({
     setIsLoading(true);
     const success = await removeMnemonicFromSecureStorage(pin);
     if (!success) {
-      setErrorMsg(
-        'Error: your key has not been deleted. Please contact support.',
-      );
+      setErrorMsg('Error: your key has not been deleted. Please contact support.');
       setIsLoading(false);
       return;
     }
@@ -43,30 +29,17 @@ const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({
   };
 
   return (
-    <IonModal
-      isOpen={openModal}
-      cssClass="modal-big withdrawal"
-      keyboardClose={false}
-    >
+    <IonModal isOpen={openModal} cssClass="modal-big withdrawal" keyboardClose={false}>
       <IonContent>
         <IonGrid>
-          <Header
-            title="CLEAR MY KEY"
-            hasBackButton={false}
-            hasCloseButton={true}
-            handleClose={closeModal}
-          />
+          <Header title="CLEAR MY KEY" hasBackButton={false} hasCloseButton={true} handleClose={closeModal} />
           <PageDescription
             description='Clicking on "Delete" will delete your mnemonic on this device. Be sure to back it up!'
             title="Delete your mnemonic"
           />
           <IonRow className="ion-margin-vertical-x2">
             <IonCol size="9" offset="1.5" sizeMd="8" offsetMd="2">
-              <IonButton
-                onClick={deleteMnemonic}
-                disabled={isLoading}
-                className="main-button"
-              >
+              <IonButton onClick={deleteMnemonic} disabled={isLoading} className="main-button">
                 Delete
               </IonButton>
             </IonCol>

@@ -30,17 +30,8 @@ import { setModalClaimPegin } from '../../redux/actions/btcActions';
 import WatchersLoader from '../../redux/containers/watchersLoaderContainer';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
 import type { LbtcDenomination } from '../../utils/constants';
-import {
-  defaultPrecision,
-  LBTC_TICKER,
-  MAIN_ASSETS,
-} from '../../utils/constants';
-import {
-  compareTxDisplayInterfaceByDate,
-  fromSatoshi,
-  fromSatoshiFixed,
-  isLbtc,
-} from '../../utils/helpers';
+import { defaultPrecision, LBTC_TICKER, MAIN_ASSETS } from '../../utils/constants';
+import { compareTxDisplayInterfaceByDate, fromSatoshi, fromSatoshiFixed, isLbtc } from '../../utils/helpers';
 import type { Transfer, TxDisplayInterface } from '../../utils/types';
 import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
 import './style.scss';
@@ -73,12 +64,8 @@ const Operations: React.FC<OperationsProps> = ({
   const [balance, setBalance] = useState<BalanceInterface>();
   const [txRowOpened, setTxRowOpened] = useState<string[]>([]);
 
-  const transactionsByAsset = useSelector(
-    transactionsByAssetSelector(asset_id),
-  );
-  const transactionsToDisplay = isLbtc(asset_id)
-    ? transactionsByAsset.concat(btcTxs)
-    : transactionsByAsset;
+  const transactionsByAsset = useSelector(transactionsByAssetSelector(asset_id));
+  const transactionsToDisplay = isLbtc(asset_id) ? transactionsByAsset.concat(btcTxs) : transactionsByAsset;
 
   useIonViewWillEnter(() => {
     setTxRowOpened([]);
@@ -86,11 +73,11 @@ const Operations: React.FC<OperationsProps> = ({
 
   // effect to select the balance
   useEffect(() => {
-    const balanceSelected = balances.find(bal => bal.asset === asset_id);
+    const balanceSelected = balances.find((bal) => bal.asset === asset_id);
     if (balanceSelected) {
       setBalance(balanceSelected);
     } else {
-      const asset = MAIN_ASSETS.find(a => a.assetHash === asset_id);
+      const asset = MAIN_ASSETS.find((a) => a.assetHash === asset_id);
       setBalance({
         asset: asset?.assetHash ?? '',
         amount: 0,
@@ -104,8 +91,7 @@ const Operations: React.FC<OperationsProps> = ({
 
   const openTxRow = (txID: string) => setTxRowOpened([...txRowOpened, txID]);
 
-  const closeTxRow = (txID: string) =>
-    setTxRowOpened(txRowOpened.filter(id => id !== txID));
+  const closeTxRow = (txID: string) => setTxRowOpened(txRowOpened.filter((id) => id !== txID));
 
   const isTxRowOpen = (tx: TxDisplayInterface): boolean => {
     if (TxTypeEnum[tx.type] === 'DepositBtc') {
@@ -146,9 +132,7 @@ const Operations: React.FC<OperationsProps> = ({
           </span>
         );
       case TxStatusEnum.Pending:
-        return (
-          <span className="status-text pending">{statusText[status]}</span>
-        );
+        return <span className="status-text pending">{statusText[status]}</span>;
       default:
         return <span className="status-text pending" />;
     }
@@ -161,11 +145,7 @@ const Operations: React.FC<OperationsProps> = ({
 
   const checkIfPeginIsClaimable = (btcTx: TxDisplayInterface): boolean => {
     // Check if pegin not already claimed and utxo is mature
-    return !!(
-      !btcTx.claimTxId &&
-      btcTx.blockHeight &&
-      getConfirmationCount(btcTx.blockHeight) >= 101
-    );
+    return !!(!btcTx.claimTxId && btcTx.blockHeight && getConfirmationCount(btcTx.blockHeight) >= 101);
   };
 
   const ActionButtons = useMemo(
@@ -214,7 +194,7 @@ const Operations: React.FC<OperationsProps> = ({
         </IonCol>
       </IonRow>
     ),
-    [balance?.amount],
+    [balance?.amount]
   );
 
   const AssetBalance = useMemo(
@@ -226,23 +206,19 @@ const Operations: React.FC<OperationsProps> = ({
               balance?.amount.toString(),
               balance.precision,
               balance.precision,
-              balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
+              balance.ticker === 'L-BTC' ? lbtcUnit : undefined
             )}
-          <span>
-            {balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker}
-          </span>
+          <span>{balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker}</span>
         </p>
         {balance?.coinGeckoID && prices[balance.coinGeckoID] && (
           <span className="info-amount-converted">
-            {fromSatoshi(balance.amount.toString(), balance.precision)
-              .mul(prices[balance.coinGeckoID])
-              .toFixed(2)}{' '}
+            {fromSatoshi(balance.amount.toString(), balance.precision).mul(prices[balance.coinGeckoID]).toFixed(2)}{' '}
             {currency.toUpperCase()}
           </span>
         )}
       </div>
     ),
-    [balance?.amount, lbtcUnit, prices],
+    [balance?.amount, lbtcUnit, prices]
   );
 
   const OperationAmount = ({
@@ -261,53 +237,33 @@ const Operations: React.FC<OperationsProps> = ({
               transfer.amount.toString(),
               balance.precision,
               balance.precision,
-              balance.ticker === 'L-BTC' ? lbtcUnit : undefined,
+              balance.ticker === 'L-BTC' ? lbtcUnit : undefined
             )
           : 'unknown'}
         <span className="ticker">
-          {TxTypeEnum[tx.type] === 'DepositBtc'
-            ? 'BTC'
-            : balance.ticker === 'L-BTC'
-            ? lbtcUnit
-            : balance.ticker}
+          {TxTypeEnum[tx.type] === 'DepositBtc' ? 'BTC' : balance.ticker === 'L-BTC' ? lbtcUnit : balance.ticker}
         </span>
       </div>
       <div className="operation-amount__fiat">
-        {transfer?.amount &&
-          balance.precision &&
-          balance?.coinGeckoID &&
-          prices[balance.coinGeckoID] && (
-            <div>
-              {fromSatoshi(transfer.amount.toString(), balance.precision)
-                .mul(prices[balance.coinGeckoID])
-                .toFixed(2)}{' '}
-              {currency.toUpperCase()}
-            </div>
-          )}
+        {transfer?.amount && balance.precision && balance?.coinGeckoID && prices[balance.coinGeckoID] && (
+          <div>
+            {fromSatoshi(transfer.amount.toString(), balance.precision).mul(prices[balance.coinGeckoID]).toFixed(2)}{' '}
+            {currency.toUpperCase()}
+          </div>
+        )}
       </div>
     </div>
   );
 
   return (
     <IonPage>
-      <IonContent
-        id="operations"
-        scrollEvents={true}
-        onIonScrollStart={e => e.preventDefault()}
-      >
+      <IonContent id="operations" scrollEvents={true} onIonScrollStart={(e) => e.preventDefault()}>
         <Refresher />
         <IonGrid>
-          <Header
-            title={`${balance?.name || balance?.ticker}`}
-            hasBackButton={true}
-          />
+          <Header title={`${balance?.name || balance?.ticker}`} hasBackButton={true} />
           <IonRow className="ion-margin-bottom header-info ion-text-center ion-margin-vertical">
             <IonCol>
-              {balance ? (
-                <CurrencyIcon currency={balance?.ticker} />
-              ) : (
-                <CurrencyIcon currency={LBTC_TICKER} />
-              )}
+              {balance ? <CurrencyIcon currency={balance?.ticker} /> : <CurrencyIcon currency={LBTC_TICKER} />}
               {AssetBalance}
             </IonCol>
           </IonRow>
@@ -319,117 +275,98 @@ const Operations: React.FC<OperationsProps> = ({
                 <IonListHeader>Transactions</IonListHeader>
                 <WatchersLoader />
                 {balance && transactionsToDisplay.length ? (
-                  transactionsToDisplay
-                    .sort(compareTxDisplayInterfaceByDate)
-                    .map((tx: TxDisplayInterface) => {
-                      const transfer = tx.transfers.find(
-                        t => t.asset === asset_id,
-                      );
-                      return (
-                        <IonItem
-                          key={tx.txId}
-                          button
-                          detail={false}
-                          onClick={() => onclickTx(tx)}
-                          className={classNames('operation-item', {
-                            open: isTxRowOpen(tx),
-                          })}
-                        >
-                          <IonRow>
-                            <IonCol className="icon" size="1">
-                              <TxIcon type={tx.type} />
-                            </IonCol>
-                            <IonCol className="pl-5" size="5.5">
-                              <div className="asset">
-                                {TxTypeEnum[tx.type] === 'DepositBtc'
-                                  ? 'BTC Deposit'
-                                  : `${balance.ticker} ${TxTypeEnum[tx.type]}`}
-                              </div>
-                              <div className="time">
-                                {isTxRowOpen(tx)
-                                  ? tx.blockTime?.format('DD MMM YYYY HH:mm:ss')
-                                  : tx.blockTime?.format('DD MMM YYYY')}
-                              </div>
-                            </IonCol>
-                            <IonCol className="ion-text-right" size="5.5">
-                              <OperationAmount
-                                balance={balance}
-                                transfer={transfer}
-                                tx={tx}
-                              />
-                            </IonCol>
-                          </IonRow>
-                          <div className="extra-infos">
-                            {TxTypeEnum[tx.type] !== 'DepositBtc' && (
-                              <IonRow className="mt-5">
-                                <IonCol className="pl-5" size="6" offset="1">
-                                  {`Fee: ${fromSatoshi(
-                                    tx.fee.toString(),
-                                    8,
-                                  ).toFixed(8)} ${LBTC_TICKER}`}
-                                </IonCol>
-                                <IonCol className="ion-text-right" size="5">
-                                  <IonText>
-                                    {renderStatusText(tx.status)}
-                                  </IonText>
-                                </IonCol>
-                              </IonRow>
-                            )}
+                  transactionsToDisplay.sort(compareTxDisplayInterfaceByDate).map((tx: TxDisplayInterface) => {
+                    const transfer = tx.transfers.find((t) => t.asset === asset_id);
+                    return (
+                      <IonItem
+                        key={tx.txId}
+                        button
+                        detail={false}
+                        onClick={() => onclickTx(tx)}
+                        className={classNames('operation-item', {
+                          open: isTxRowOpen(tx),
+                        })}
+                      >
+                        <IonRow>
+                          <IonCol className="icon" size="1">
+                            <TxIcon type={tx.type} />
+                          </IonCol>
+                          <IonCol className="pl-5" size="5.5">
+                            <div className="asset">
+                              {TxTypeEnum[tx.type] === 'DepositBtc'
+                                ? 'BTC Deposit'
+                                : `${balance.ticker} ${TxTypeEnum[tx.type]}`}
+                            </div>
+                            <div className="time">
+                              {isTxRowOpen(tx)
+                                ? tx.blockTime?.format('DD MMM YYYY HH:mm:ss')
+                                : tx.blockTime?.format('DD MMM YYYY')}
+                            </div>
+                          </IonCol>
+                          <IonCol className="ion-text-right" size="5.5">
+                            <OperationAmount balance={balance} transfer={transfer} tx={tx} />
+                          </IonCol>
+                        </IonRow>
+                        <div className="extra-infos">
+                          {TxTypeEnum[tx.type] !== 'DepositBtc' && (
                             <IonRow className="mt-5">
-                              <IonCol className="pl-5" size="11" offset="1">
-                                TxID: {tx.txId}
+                              <IonCol className="pl-5" size="6" offset="1">
+                                {`Fee: ${fromSatoshi(tx.fee.toString(), 8).toFixed(8)} ${LBTC_TICKER}`}
+                              </IonCol>
+                              <IonCol className="ion-text-right" size="5">
+                                <IonText>{renderStatusText(tx.status)}</IonText>
                               </IonCol>
                             </IonRow>
-                            {TxTypeEnum[tx.type] === 'DepositBtc' && (
-                              <>
-                                <IonRow>
-                                  <IonCol
-                                    className={classNames(
-                                      {
-                                        'confirmations-pending': tx.blockHeight
-                                          ? getConfirmationCount(
-                                              tx.blockHeight,
-                                            ) < 101
-                                          : true,
-                                      },
-                                      'pl-5 mt-5',
-                                    )}
-                                    size="11"
-                                    offset="1"
-                                  >
-                                    Confirmations:{' '}
-                                    {tx.blockHeight
-                                      ? getConfirmationCount(tx.blockHeight)
-                                      : 0}
+                          )}
+                          <IonRow className="mt-5">
+                            <IonCol className="pl-5" size="11" offset="1">
+                              TxID: {tx.txId}
+                            </IonCol>
+                          </IonRow>
+                          {TxTypeEnum[tx.type] === 'DepositBtc' && (
+                            <>
+                              <IonRow>
+                                <IonCol
+                                  className={classNames(
+                                    {
+                                      'confirmations-pending': tx.blockHeight
+                                        ? getConfirmationCount(tx.blockHeight) < 101
+                                        : true,
+                                    },
+                                    'pl-5 mt-5'
+                                  )}
+                                  size="11"
+                                  offset="1"
+                                >
+                                  Confirmations: {tx.blockHeight ? getConfirmationCount(tx.blockHeight) : 0}
+                                </IonCol>
+                              </IonRow>
+                              {checkIfPeginIsClaimable(tx) && (
+                                <IonRow className="ion-margin-top">
+                                  <IonCol size="11" offset="0.5">
+                                    <IonButton
+                                      className="main-button"
+                                      onClick={() => {
+                                        // Trigger global PinModalClaimPegin in App.tsx
+                                        dispatch(
+                                          setModalClaimPegin({
+                                            isOpen: true,
+                                            claimScriptToClaim: tx.claimScript,
+                                          })
+                                        );
+                                      }}
+                                    >
+                                      Claim
+                                    </IonButton>
                                   </IonCol>
                                 </IonRow>
-                                {checkIfPeginIsClaimable(tx) && (
-                                  <IonRow className="ion-margin-top">
-                                    <IonCol size="11" offset="0.5">
-                                      <IonButton
-                                        className="main-button"
-                                        onClick={() => {
-                                          // Trigger global PinModalClaimPegin in App.tsx
-                                          dispatch(
-                                            setModalClaimPegin({
-                                              isOpen: true,
-                                              claimScriptToClaim:
-                                                tx.claimScript,
-                                            }),
-                                          );
-                                        }}
-                                      >
-                                        Claim
-                                      </IonButton>
-                                    </IonCol>
-                                  </IonRow>
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </IonItem>
-                      );
-                    })
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </IonItem>
+                    );
+                  })
                 ) : (
                   <p>You don't have any transactions yet</p>
                 )}

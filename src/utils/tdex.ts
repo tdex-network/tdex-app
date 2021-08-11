@@ -3,11 +3,7 @@ import type { CoinSelector, UtxoInterface } from 'ldk';
 import { Trade, TraderClient, TradeType } from 'tdex-sdk';
 import type { TDEXMnemonic } from 'tdex-sdk';
 
-import type {
-  TDEXTrade,
-  TDEXMarket,
-  TDEXProvider,
-} from '../redux/actionTypes/tdexActionTypes';
+import type { TDEXTrade, TDEXMarket, TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 
 import type { LbtcDenomination } from './constants';
 import { getMainAsset } from './constants';
@@ -31,32 +27,31 @@ export async function bestPrice(
   known: { amount: string; asset: string; precision: number },
   trades: TDEXTrade[],
   lbtcUnit: LbtcDenomination,
-  onError: (e: string) => void,
+  onError: (e: string) => void
 ): Promise<{ amount: number; asset: string; trade: TDEXTrade }> {
   if (trades.length === 0) throw new Error('trades array should not be empty');
 
   const toPrice = async (trade: TDEXTrade) =>
     calculatePrice(known, trade, lbtcUnit)
-      .then(res => ({ ...res, trade }))
+      .then((res) => ({ ...res, trade }))
       .catch(onError);
   const pricesPromises = trades.map(toPrice);
 
   const results = (await Promise.allSettled(pricesPromises))
     .filter(({ status }) => status === 'fulfilled')
     .map(
-      p =>
+      (p) =>
         (
           p as PromiseFulfilledResult<{
             amount: number;
             asset: string;
             trade: TDEXTrade;
           }>
-        ).value,
+        ).value
     )
-    .filter(res => res !== undefined);
+    .filter((res) => res !== undefined);
 
-  if (results.length === 0)
-    throw new Error('Unable to preview price from providers.');
+  if (results.length === 0) throw new Error('Unable to preview price from providers.');
 
   const sorted = results.sort((p0, p1) => p0.amount - p1.amount);
   return sorted[0];
@@ -72,9 +67,7 @@ export async function bestBalance(trades: TDEXTrade[]): Promise<TDEXTrade> {
     if (a.type === TradeType.BUY) {
       return (b.market.baseAmount as number) - (a.market.baseAmount as number);
     } else {
-      return (
-        (b.market.quoteAmount as number) - (a.market.quoteAmount as number)
-      );
+      return (b.market.quoteAmount as number) - (a.market.quoteAmount as number);
     }
   });
   return sorted[0];
@@ -89,27 +82,20 @@ export async function bestBalance(trades: TDEXTrade[]): Promise<TDEXTrade> {
 export async function calculatePrice(
   known: { amount: string; asset: string; precision: number },
   trade: TDEXTrade,
-  lbtcUnit: LbtcDenomination,
+  lbtcUnit: LbtcDenomination
 ): Promise<{ amount: number; asset: string }> {
   if (Number(known.amount) <= 0) {
     return {
       amount: 0,
-      asset:
-        trade.market.baseAsset === known.asset
-          ? trade.market.quoteAsset
-          : trade.market.baseAsset,
+      asset: trade.market.baseAsset === known.asset ? trade.market.quoteAsset : trade.market.baseAsset,
     };
   }
   const client = new TraderClient(trade.market.provider.endpoint);
   const response = await client.marketPrice(
     trade.market,
     trade.type,
-    toSatoshi(
-      known.amount,
-      known.precision,
-      isLbtc(known.asset) ? lbtcUnit : undefined,
-    ).toNumber(),
-    known.asset,
+    toSatoshi(known.amount, known.precision, isLbtc(known.asset) ? lbtcUnit : undefined).toNumber(),
+    known.asset
   );
   return {
     amount: response[0].amount,
@@ -132,7 +118,7 @@ export async function makeTrade(
   explorerUrl: string,
   utxos: UtxoInterface[],
   identity: TDEXMnemonic,
-  coinSelector: CoinSelector,
+  coinSelector: CoinSelector
 ): Promise<string> {
   const trader = new Trade({
     explorerUrl,
@@ -164,11 +150,7 @@ export async function makeTrade(
  * @param sentAsset the asset to sent
  * @param receivedAsset the asset to receive
  */
-export function allTrades(
-  markets: TDEXMarket[],
-  sentAsset?: string,
-  receivedAsset?: string,
-): TDEXTrade[] {
+export function allTrades(markets: TDEXMarket[], sentAsset?: string, receivedAsset?: string): TDEXTrade[] {
   if (!sentAsset || !receivedAsset) return [];
   const trades: TDEXTrade[] = [];
   for (const market of markets) {
@@ -189,21 +171,13 @@ export function allTrades(
  * @param markets
  * @param sentAsset
  */
-export function getTradablesAssets(
-  markets: TDEXMarket[],
-  sentAsset: string,
-): AssetWithTicker[] {
+export function getTradablesAssets(markets: TDEXMarket[], sentAsset: string): AssetWithTicker[] {
   const results: AssetWithTicker[] = [];
 
   for (const market of markets) {
-    if (
-      sentAsset === market.baseAsset &&
-      !results.map(r => r.asset).includes(market.quoteAsset)
-    ) {
+    if (sentAsset === market.baseAsset && !results.map((r) => r.asset).includes(market.quoteAsset)) {
       const mainAsset = getMainAsset(market.quoteAsset);
-      const ticker = mainAsset
-        ? mainAsset.ticker
-        : market.quoteAsset.slice(0, 4).toUpperCase();
+      const ticker = mainAsset ? mainAsset.ticker : market.quoteAsset.slice(0, 4).toUpperCase();
       const coinGeckoID = mainAsset?.coinGeckoID;
 
       results.push({
@@ -213,14 +187,9 @@ export function getTradablesAssets(
       });
     }
 
-    if (
-      sentAsset === market.quoteAsset &&
-      !results.map(r => r.asset).includes(market.baseAsset)
-    ) {
+    if (sentAsset === market.quoteAsset && !results.map((r) => r.asset).includes(market.baseAsset)) {
       const mainAsset = getMainAsset(market.baseAsset);
-      const ticker = mainAsset
-        ? mainAsset.ticker
-        : market.baseAsset.slice(0, 4).toUpperCase();
+      const ticker = mainAsset ? mainAsset.ticker : market.baseAsset.slice(0, 4).toUpperCase();
       const coinGeckoID = mainAsset?.coinGeckoID;
 
       results.push({
@@ -234,8 +203,7 @@ export function getTradablesAssets(
   return results;
 }
 
-const TDexRegistryURL =
-  'https://raw.githubusercontent.com/TDex-network/tdex-registry/master/registry.json';
+const TDexRegistryURL = 'https://raw.githubusercontent.com/TDex-network/tdex-registry/master/registry.json';
 
 export async function getProvidersFromTDexRegistry(): Promise<TDEXProvider[]> {
   return (await axios.get(TDexRegistryURL)).data;

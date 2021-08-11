@@ -1,11 +1,4 @@
-import {
-  IonButton,
-  IonCol,
-  IonContent,
-  IonGrid,
-  IonPage,
-  IonRow,
-} from '@ionic/react';
+import { IonButton, IonCol, IonContent, IonGrid, IonPage, IonRow } from '@ionic/react';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
@@ -30,9 +23,7 @@ const DeleteMnemonic: React.FC<RouteComponentProps> = ({ history }) => {
     setIsLoading(true);
     const success = await removeMnemonicFromSecureStorage(state?.pin);
     if (!success) {
-      setErrorMsg(
-        'Error: your key has not been deleted. Please contact support.',
-      );
+      setErrorMsg('Error: your key has not been deleted. Please contact support.');
       setIsLoading(false);
       return;
     }
@@ -52,11 +43,7 @@ const DeleteMnemonic: React.FC<RouteComponentProps> = ({ history }) => {
           />
           <IonRow className="ion-margin-vertical-x2">
             <IonCol size="9" offset="1.5" sizeMd="8" offsetMd="2">
-              <IonButton
-                onClick={deleteMnemonic}
-                disabled={isLoading}
-                className="main-button"
-              >
+              <IonButton onClick={deleteMnemonic} disabled={isLoading} className="main-button">
                 Delete
               </IonButton>
             </IonCol>

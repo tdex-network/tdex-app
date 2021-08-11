@@ -4,11 +4,7 @@ import type { AddressInterface, UtxoInterface } from 'ldk';
 import { fetchAndUnblindUtxos } from 'ldk';
 import type { CallEffect, PutEffect } from 'redux-saga/effects';
 
-import {
-  SET_UTXO,
-  DELETE_UTXO,
-  RESET_UTXOS,
-} from '../../src/redux/actions/walletActions';
+import { SET_UTXO, DELETE_UTXO, RESET_UTXOS } from '../../src/redux/actions/walletActions';
 import { outpointToString } from '../../src/redux/reducers/walletReducer';
 import { fetchAndUpdateUtxos } from '../../src/redux/sagas/walletSaga';
 import type { ActionType } from '../../src/utils/types';
@@ -24,17 +20,13 @@ describe('wallet saga', () => {
       addr = await firstAddress;
       await sleep(5000);
       const txid = await faucet(addr.confidentialAddress);
-      utxo = (
-        await fetchAndUnblindUtxos([addr], APIURL, utxo => utxo.txid !== txid)
-      )[0];
+      utxo = (await fetchAndUnblindUtxos([addr], APIURL, (utxo) => utxo.txid !== txid))[0];
     });
 
     test('should discover and add utxo', async () => {
       const gen = fetchAndUpdateUtxos([addr], {}, APIURL);
       // simulate the first call
-      const callEffect = gen.next().value as CallEffect<
-        IteratorResult<UtxoInterface, number>
-      >;
+      const callEffect = gen.next().value as CallEffect<IteratorResult<UtxoInterface, number>>;
       const result = await callEffect.payload.fn();
       const put = gen.next(result).value as PutEffect<ActionType>;
 
@@ -47,10 +39,7 @@ describe('wallet saga', () => {
       const gen = fetchAndUpdateUtxos([addr], current, APIURL);
 
       let next = gen.next();
-      while (
-        next.value.type !== 'PUT' ||
-        next.value.payload.action.type !== 'DELETE_UTXO'
-      ) {
+      while (next.value.type !== 'PUT' || next.value.payload.action.type !== 'DELETE_UTXO') {
         if (next.done) break;
         if (next.value.type === 'CALL') {
           const result = await next.value.payload.fn();
@@ -62,9 +51,7 @@ describe('wallet saga', () => {
       }
 
       expect(next.value.payload.action.type).toEqual(DELETE_UTXO);
-      expect(outpointToString(next.value.payload.action.payload)).toEqual(
-        'fakeTxid:8',
-      );
+      expect(outpointToString(next.value.payload.action.payload)).toEqual('fakeTxid:8');
     });
 
     test('should reset utxos if no utxos are discovered', async () => {
@@ -72,9 +59,7 @@ describe('wallet saga', () => {
       current[outpointToString(utxo)] = utxo;
       const gen = fetchAndUpdateUtxos([], current, APIURL);
 
-      const callEffect = gen.next().value as CallEffect<
-        IteratorResult<UtxoInterface, number>
-      >;
+      const callEffect = gen.next().value as CallEffect<IteratorResult<UtxoInterface, number>>;
       const result = await callEffect.payload.fn();
       const put = gen.next(result).value as PutEffect<ActionType>;
 

@@ -10,10 +10,8 @@ const AllTheProviders: FC = ({ children }) => {
   return <MemoryRouter>{children}</MemoryRouter>;
 };
 
-const customRender = (
-  ui: ReactElement,
-  options?: Omit<RenderOptions, 'queries'>,
-): RenderResult => render(ui, { wrapper: AllTheProviders, ...options });
+const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'queries'>): RenderResult =>
+  render(ui, { wrapper: AllTheProviders, ...options });
 
 export * from '@testing-library/react';
 
@@ -27,11 +25,7 @@ export const fakePrices = {
 
 export const APIURL = process.env.EXPLORER || `http://localhost:3001`;
 
-export async function faucet(
-  address: string,
-  amount?: number,
-  asset?: string,
-): Promise<any> {
+export async function faucet(address: string, amount?: number, asset?: string): Promise<any> {
   try {
     const { status, data } = await axios.post(`${APIURL}/faucet`, {
       address,
@@ -63,5 +57,5 @@ export const privKeyIdentity = new PrivateKey({
 export const firstAddress = privKeyIdentity.getNextAddress();
 
 export function sleep(ms: number): Promise<any> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

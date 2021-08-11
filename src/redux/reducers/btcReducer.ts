@@ -60,11 +60,7 @@ export const initialState: BtcState = {
 function btcReducer(state = initialState, action: ActionType): BtcState {
   switch (action.type) {
     case SET_DEPOSIT_PEGIN_UTXO:
-      return upsertDepositUtxoInState(
-        state,
-        action.payload.utxo,
-        action.payload.depositAddress,
-      );
+      return upsertDepositUtxoInState(state, action.payload.utxo, action.payload.depositAddress);
     case SET_CURRENT_BTC_BLOCK_HEIGHT: {
       return {
         ...state,
@@ -77,11 +73,7 @@ function btcReducer(state = initialState, action: ActionType): BtcState {
     case SET_MODAL_CLAIM_PEGIN: {
       return {
         ...state,
-        modalClaimPegins: Object.assign(
-          {},
-          state.modalClaimPegins,
-          action.payload,
-        ),
+        modalClaimPegins: Object.assign({}, state.modalClaimPegins, action.payload),
       };
     }
     default:
@@ -89,11 +81,7 @@ function btcReducer(state = initialState, action: ActionType): BtcState {
   }
 }
 
-const upsertDepositUtxoInState = (
-  state: BtcState,
-  utxo: DepositPeginUtxo,
-  depositAddress: Pegin['depositAddress'],
-) => {
+const upsertDepositUtxoInState = (state: BtcState, utxo: DepositPeginUtxo, depositAddress: Pegin['depositAddress']) => {
   state.pegins[depositAddress.claimScript].depositUtxos = {
     ...state.pegins[depositAddress.claimScript].depositUtxos,
     [outpointToString(utxo)]: utxo,
@@ -116,9 +104,7 @@ export const depositPeginUtxosToDisplayTxSelector = createSelector(
           type: TxTypeEnum.DepositBtc,
           fee: 0,
           txId: utxo.txid,
-          status: utxo.status.confirmed
-            ? TxStatusEnum.Confirmed
-            : TxStatusEnum.Pending,
+          status: utxo.status.confirmed ? TxStatusEnum.Confirmed : TxStatusEnum.Pending,
           transfers: [
             {
               // LBTC hash in order to display btc deposit in LBTC operations
@@ -127,16 +113,14 @@ export const depositPeginUtxosToDisplayTxSelector = createSelector(
             },
           ],
           blockHeight: utxo.status?.block_height,
-          blockTime: utxo.status?.block_time
-            ? moment(utxo.status.block_time * 1000)
-            : undefined,
+          blockTime: utxo.status?.block_time ? moment(utxo.status.block_time * 1000) : undefined,
           claimScript: claimScript,
           claimTxId: utxo.claimTxId,
         });
       }
     }
     return txs;
-  },
+  }
 );
 
 const upsertPeginsInState = (state: BtcState, newPegins: Pegins) => {

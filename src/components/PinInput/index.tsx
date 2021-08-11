@@ -14,14 +14,7 @@ interface PinInputProps {
   isLocked?: boolean;
 }
 
-const PinInput: React.FC<PinInputProps> = ({
-  onPin,
-  on6digits,
-  isWrongPin,
-  inputRef,
-  pin,
-  isLocked,
-}) => {
+const PinInput: React.FC<PinInputProps> = ({ onPin, on6digits, isWrongPin, inputRef, pin, isLocked }) => {
   useEffect(() => {
     setTimeout(() => {
       if (inputRef?.current) {
@@ -79,7 +72,7 @@ const PinInput: React.FC<PinInputProps> = ({
               type={isPlatform('android') ? 'tel' : 'number'}
               value={pin}
               required={true}
-              onIonChange={e => handleNewPinDigit(e.detail.value)}
+              onIonChange={(e) => handleNewPinDigit(e.detail.value)}
               maxlength={6}
             />
           </IonGrid>

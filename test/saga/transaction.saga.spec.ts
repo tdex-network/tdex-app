@@ -25,16 +25,13 @@ describe('Transaction saga', () => {
       const gen = fetchAndUpdateTxs(
         [addr.confidentialAddress],
         {
-          [address.toOutputScript(addr.confidentialAddress).toString('hex')]:
-            addr,
+          [address.toOutputScript(addr.confidentialAddress).toString('hex')]: addr,
         },
         {},
-        APIURL,
+        APIURL
       );
       // simulate the first call
-      const callEffect = gen.next().value as CallEffect<
-        IteratorResult<TxInterface, number>
-      >;
+      const callEffect = gen.next().value as CallEffect<IteratorResult<TxInterface, number>>;
       const result = await callEffect.payload.fn();
       // get the put effect
       const put = gen.next(result).value as PutEffect<ActionType>;
@@ -45,9 +42,7 @@ describe('Transaction saga', () => {
     test('should skip if no tx to discover', async () => {
       const gen = fetchAndUpdateTxs([], {}, {}, APIURL);
       // simulate the first call
-      const callEffect = gen.next().value as CallEffect<
-        IteratorResult<TxInterface, number>
-      >;
+      const callEffect = gen.next().value as CallEffect<IteratorResult<TxInterface, number>>;
       const result = await callEffect.payload.fn();
       expect(gen.next(result).done).toEqual(true);
     });

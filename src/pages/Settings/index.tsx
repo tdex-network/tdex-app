@@ -78,12 +78,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
             <IonListHeader>General</IonListHeader>
             <IonItem onClick={() => history.push('/account')}>
               <span>Account</span>
-              <IonIcon
-                icon={chevronForwardOutline}
-                color="text-color"
-                slot="end"
-                className="ion-no-margin"
-              />
+              <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 
             <IonItem
@@ -92,37 +87,22 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               }}
             >
               <span>Manage liquidity provider</span>
-              <IonIcon
-                icon={chevronForwardOutline}
-                color="text-color"
-                slot="end"
-                className="ion-no-margin"
-              />
+              <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 
             <IonItem onClick={() => setLBTCUnitSearchOpen(true)}>
               <span>L-BTC unit</span>
               <IonItem slot="end" className="ion-no-padding ion-no-margin">
                 <span className="chosen-currency green-label">{unitLBTC}</span>
-                <IonIcon
-                  icon={chevronForwardOutline}
-                  color="text-color"
-                  className="ion-no-margin"
-                />
+                <IonIcon icon={chevronForwardOutline} color="text-color" className="ion-no-margin" />
               </IonItem>
             </IonItem>
 
             <IonItem onClick={() => setCurrencySearchOpen(true)}>
               <span>Default currency</span>
               <IonItem slot="end" className="ion-no-padding ion-no-margin">
-                <span className="chosen-currency green-label">
-                  {currency.value.toUpperCase()}
-                </span>
-                <IonIcon
-                  icon={chevronForwardOutline}
-                  color="text-color"
-                  className="ion-no-margin"
-                />
+                <span className="chosen-currency green-label">{currency.value.toUpperCase()}</span>
+                <IonIcon icon={chevronForwardOutline} color="text-color" className="ion-no-margin" />
               </IonItem>
             </IonItem>
 
@@ -132,22 +112,12 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               }}
             >
               <span>Electrum server</span>
-              <IonIcon
-                icon={chevronForwardOutline}
-                color="text-color"
-                slot="end"
-                className="ion-no-margin"
-              />
+              <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 
             <IonItem onClick={() => history.push(routerLinks.deepRestoration)}>
               <span>Deep restoration</span>
-              <IonIcon
-                icon={chevronForwardOutline}
-                color="text-color"
-                slot="end"
-                className="ion-no-margin"
-              />
+              <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 
             <IonItem
@@ -156,12 +126,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               }}
             >
               <span>Claim Liquid Bitcoin</span>
-              <IonIcon
-                icon={chevronForwardOutline}
-                color="text-color"
-                slot="end"
-                className="ion-no-margin"
-              />
+              <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 
             {/*<IonItem className="list-item">
@@ -192,12 +157,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               }}
             >
               <span>FAQ</span>
-              <IonIcon
-                icon={chevronForwardOutline}
-                color="text-color"
-                slot="end"
-                className="ion-no-margin"
-              />
+              <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
             <IonItem
               onClick={() => {
@@ -205,12 +165,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               }}
             >
               <span>Privacy</span>
-              <IonIcon
-                icon={chevronForwardOutline}
-                color="text-color"
-                slot="end"
-                className="ion-no-margin"
-              />
+              <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
             <IonItem
               onClick={() => {
@@ -218,12 +173,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               }}
             >
               <span>Terms & Conditions</span>
-              <IonIcon
-                icon={chevronForwardOutline}
-                color="text-color"
-                slot="end"
-                className="ion-no-margin"
-              />
+              <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
           </IonList>
           <p className="app-version">{appVersion}</p>
@@ -245,10 +195,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
                     setShowExplorerModal(false);
                   }}
                 />
-                <PageDescription
-                  description="Set explorer url for electrum server"
-                  title="Electrum"
-                />
+                <PageDescription description="Set explorer url for electrum server" title="Electrum" />
                 <IonRow>
                   <IonCol size="10" offset="1">
                     <IonItem>
@@ -284,15 +231,9 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
             </IonContent>
           </IonModal>
 
-          <CurrencySearch
-            isOpen={currencySearchOpen}
-            close={() => setCurrencySearchOpen(false)}
-          />
+          <CurrencySearch isOpen={currencySearchOpen} close={() => setCurrencySearchOpen(false)} />
 
-          <DenominationSearch
-            isOpen={LBTCUnitSearchOpen}
-            close={() => setLBTCUnitSearchOpen(false)}
-          />
+          <DenominationSearch isOpen={LBTCUnitSearchOpen} close={() => setLBTCUnitSearchOpen(false)} />
         </IonGrid>
       </IonContent>
     </IonPage>

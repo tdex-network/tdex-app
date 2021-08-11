@@ -1,11 +1,4 @@
-import {
-  IonContent,
-  IonPage,
-  IonGrid,
-  IonRow,
-  IonButton,
-  IonCol,
-} from '@ionic/react';
+import { IonContent, IonPage, IonGrid, IonRow, IonButton, IonCol } from '@ionic/react';
 import React, { useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import { useLocation } from 'react-router';
@@ -27,10 +20,7 @@ interface LocationState {
   mnemonic: string;
 }
 
-const ShowMnemonic: React.FC<ShowMnemonicProps> = ({
-  history,
-  setIsBackupDone,
-}) => {
+const ShowMnemonic: React.FC<ShowMnemonicProps> = ({ history, setIsBackupDone }) => {
   const [isSeedSaved, setIsSeedSaved] = useState(false);
   const { state } = useLocation<LocationState>();
 
@@ -49,7 +39,7 @@ const ShowMnemonic: React.FC<ShowMnemonicProps> = ({
             </IonCol>
           </IonRow>
           <Checkbox
-            handleChange={checked => {
+            handleChange={(checked) => {
               setIsSeedSaved(checked);
               if (!checked) {
                 setIsBackupDone(false);

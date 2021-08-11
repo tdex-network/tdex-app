@@ -7,9 +7,7 @@ export const axiosCoinGeckoObject = axios.create({ baseURL: coinGeckoUrl });
 
 export type CoinGeckoPriceResult = Record<string, Record<string, number>>;
 
-export async function getPriceFromCoinGecko(
-  currencies: string[],
-): Promise<CoinGeckoPriceResult> {
+export async function getPriceFromCoinGecko(currencies: string[]): Promise<CoinGeckoPriceResult> {
   const { data } = await axiosCoinGeckoObject.get('/simple/price', {
     params: {
       ids: getCoinGeckoIDsToFeed().join(','),

@@ -22,7 +22,4 @@ const mapDispatchToProps = (dispatch: any) => {
   };
 };
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(ShowMnemonicOnboarding);
+export default connect(mapStateToProps, mapDispatchToProps)(ShowMnemonicOnboarding);

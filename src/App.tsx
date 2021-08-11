@@ -75,10 +75,7 @@ const App: React.FC<AppProps> = ({ appInit, isAuth, theme }) => {
             <Route path="/restore" component={RestoreWallet} />
             <Route path="/onboarding/backup" component={BackupOnboarding} />
             <Route path="/onboarding/pin-setting" component={PinSetting} />
-            <Route
-              path="/onboarding/show-mnemonic"
-              component={ShowMnemonicOnboarding}
-            />
+            <Route path="/onboarding/show-mnemonic" component={ShowMnemonicOnboarding} />
           </IonRouterOutlet>
         )}
 

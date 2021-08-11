@@ -1,14 +1,6 @@
 import { QRCodeImg } from '@cheprasov/react-qrcode';
 import { Clipboard } from '@ionic-native/clipboard';
-import {
-  IonPage,
-  IonContent,
-  IonItem,
-  IonIcon,
-  IonGrid,
-  useIonViewWillEnter,
-  useIonViewWillLeave,
-} from '@ionic/react';
+import { IonPage, IonContent, IonItem, IonIcon, IonGrid, useIonViewWillEnter, useIonViewWillLeave } from '@ionic/react';
 import { checkmarkOutline } from 'ionicons/icons';
 import type { IdentityOpts, StateRestorerOpts } from 'ldk';
 import { MasterPublicKey, address as addressLDK } from 'ldk';
@@ -23,10 +15,7 @@ import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import { IconCopy, CurrencyIcon } from '../../components/icons';
 import { upsertPegins } from '../../redux/actions/btcActions';
-import {
-  addErrorToast,
-  addSuccessToast,
-} from '../../redux/actions/toastActions';
+import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { addAddress } from '../../redux/actions/walletActions';
 import { getPeginModule } from '../../redux/services/btcService';
 import type { AssetConfig } from '../../utils/constants';
@@ -43,10 +32,7 @@ interface ReceiveProps {
   masterPubKeyOpts: IdentityOpts<MasterPublicKeyOpts>;
 }
 
-const Receive: React.FC<ReceiveProps> = ({
-  lastUsedIndexes,
-  masterPubKeyOpts,
-}) => {
+const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts }) => {
   const [copied, setCopied] = useState(false);
   const [address, setAddress] = useState<string>();
   const [loading, setLoading] = useState(false);
@@ -56,19 +42,13 @@ const Receive: React.FC<ReceiveProps> = ({
   useIonViewWillEnter(async () => {
     try {
       setLoading(true);
-      const masterPublicKey: MasterPublicKey = new MasterPublicKey(
-        masterPubKeyOpts,
-      );
-      const restoredMasterPubKey = await masterPubKeyRestorerFromState(
-        masterPublicKey,
-      )(lastUsedIndexes);
+      const masterPublicKey: MasterPublicKey = new MasterPublicKey(masterPubKeyOpts);
+      const restoredMasterPubKey = await masterPubKeyRestorerFromState(masterPublicKey)(lastUsedIndexes);
       const addr = await restoredMasterPubKey.getNextAddress();
       dispatch(addAddress(addr));
       if (state?.depositAsset?.ticker === BTC_TICKER) {
         const peginModule = await getPeginModule();
-        const claimScript = addressLDK
-          .toOutputScript(addr.confidentialAddress)
-          .toString('hex');
+        const claimScript = addressLDK.toOutputScript(addr.confidentialAddress).toString('hex');
         const peginAddress = await peginModule.getMainchainAddress(claimScript);
         const derivationPath = addr.derivationPath;
         if (!derivationPath) throw new Error('Derivation path is required');
@@ -81,7 +61,7 @@ const Receive: React.FC<ReceiveProps> = ({
                 derivationPath,
               },
             },
-          }),
+          })
         );
         dispatch(addSuccessToast('New pegin address generated'));
         setAddress(peginAddress);
@@ -130,16 +110,9 @@ const Receive: React.FC<ReceiveProps> = ({
       <Loader showLoading={loading} />
       <IonContent className="receive">
         <IonGrid>
-          <Header
-            hasBackButton={true}
-            title={`${state?.depositAsset?.name?.toUpperCase() ?? ''} DEPOSIT`}
-          />
+          <Header hasBackButton={true} title={`${state?.depositAsset?.name?.toUpperCase() ?? ''} DEPOSIT`} />
           <div className="ion-text-center">
-            <CurrencyIcon
-              currency={state?.depositAsset?.ticker}
-              width="48"
-              height="48"
-            />
+            <CurrencyIcon currency={state?.depositAsset?.ticker} width="48" height="48" />
           </div>
           {state?.depositAsset?.ticker === BTC_TICKER ? (
             <PageDescription
@@ -149,9 +122,7 @@ const Receive: React.FC<ReceiveProps> = ({
           ) : (
             <PageDescription
               description={`To provide this address to the person sending you ${
-                state?.depositAsset?.name ||
-                state?.depositAsset?.coinGeckoID ||
-                state?.depositAsset?.ticker
+                state?.depositAsset?.name || state?.depositAsset?.coinGeckoID || state?.depositAsset?.ticker
               } simply tap to copy it or scan your
               wallet QR code with their device.`}
               title={`Your ${state?.depositAsset?.ticker} address`}
@@ -164,18 +135,9 @@ const Receive: React.FC<ReceiveProps> = ({
                   <div className="item-start conf-addr">{address}</div>
                   <div className="copy-icon" onClick={copyAddress}>
                     {copied ? (
-                      <IonIcon
-                        className="copied-icon"
-                        color="success"
-                        icon={checkmarkOutline}
-                      />
+                      <IonIcon className="copied-icon" color="success" icon={checkmarkOutline} />
                     ) : (
-                      <IconCopy
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="#fff"
-                      />
+                      <IconCopy width="24" height="24" viewBox="0 0 24 24" fill="#fff" />
                     )}
                   </div>
                 </div>

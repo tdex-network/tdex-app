@@ -1,25 +1,9 @@
 import type { BlindingKeyGetter, TxInterface, AddressInterface } from 'ldk';
-import {
-  fetchAndUnblindTxsGenerator,
-  isBlindedOutputInterface,
-  fetchTx,
-  unblindTransaction,
-} from 'ldk';
-import {
-  takeLatest,
-  call,
-  put,
-  select,
-  all,
-  takeEvery,
-  delay,
-} from 'redux-saga/effects';
+import { fetchAndUnblindTxsGenerator, isBlindedOutputInterface, fetchTx, unblindTransaction } from 'ldk';
+import { takeLatest, call, put, select, all, takeEvery, delay } from 'redux-saga/effects';
 
 import { UpdateTransactionsError } from '../../utils/errors';
-import {
-  getTransactionsFromStorage,
-  setTransactionsInStorage,
-} from '../../utils/storage-helper';
+import { getTransactionsFromStorage, setTransactionsInStorage } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
 import { SIGN_IN } from '../actions/appActions';
 import { addAsset } from '../actions/assetsActions';
@@ -39,7 +23,7 @@ function* updateTransactions() {
     const [addresses, explorerURL, currentTxs]: [
       Record<string, AddressInterface>,
       string,
-      Record<string, TxInterface>,
+      Record<string, TxInterface>
     ] = yield all([
       select(({ wallet }: { wallet: WalletState }) => wallet.addresses),
       select(({ settings }) => settings.explorerUrl),
@@ -69,22 +53,15 @@ export function* fetchAndUpdateTxs(
   addresses: string[],
   scriptsToAddressInterface: Record<string, AddressInterface>,
   currentTxs: Record<string, TxInterface>,
-  explorerUrl: string,
+  explorerUrl: string
 ): Generator<any, any, any> {
-  const identityBlindKeyGetter = blindKeyGetterFactory(
-    scriptsToAddressInterface,
-  );
+  const identityBlindKeyGetter = blindKeyGetterFactory(scriptsToAddressInterface);
 
-  const txsGen = fetchAndUnblindTxsGenerator(
-    addresses,
-    identityBlindKeyGetter,
-    explorerUrl,
-    (tx: TxInterface) => {
-      const txInStore = currentTxs[tx.txid];
-      // skip if tx is already in store AND confirmed
-      return !!txInStore?.status.confirmed;
-    },
-  );
+  const txsGen = fetchAndUnblindTxsGenerator(addresses, identityBlindKeyGetter, explorerUrl, (tx: TxInterface) => {
+    const txInStore = currentTxs[tx.txid];
+    // skip if tx is already in store AND confirmed
+    return !!txInStore?.status.confirmed;
+  });
   const next = () => txsGen.next();
   let it: IteratorResult<TxInterface, number> = yield call(next);
 
@@ -110,9 +87,7 @@ function* updateAssets({ payload }: { payload: TxInterface }) {
 
 function* persistTransactions() {
   yield delay(20_000); // 20 sec
-  const txs: TxInterface[] = yield select(({ transactions }) =>
-    Object.values(transactions.txs),
-  );
+  const txs: TxInterface[] = yield select(({ transactions }) => Object.values(transactions.txs));
   yield call(setTransactionsInStorage, txs);
 }
 
@@ -133,14 +108,10 @@ function* watchTransaction(action: ActionType) {
     try {
       const tx: TxInterface = yield call(fetchTx, txID, explorer);
       const scriptsToAddress: Record<string, AddressInterface> = yield select(
-        ({ wallet }: { wallet: WalletState }) => wallet.addresses,
+        ({ wallet }: { wallet: WalletState }) => wallet.addresses
       );
       const blindKeyGetter = blindKeyGetterFactory(scriptsToAddress);
-      const { unblindedTx, errors } = yield call(
-        unblindTransaction,
-        tx,
-        blindKeyGetter,
-      );
+      const { unblindedTx, errors } = yield call(unblindTransaction, tx, blindKeyGetter);
       if (errors.length > 0) {
         errors.forEach((err: { message?: string }) => {
           console.error(err.message);
@@ -156,9 +127,7 @@ function* watchTransaction(action: ActionType) {
   yield put(removeWatcherTransaction(txID));
 }
 
-function blindKeyGetterFactory(
-  scriptsToAddressInterface: Record<string, AddressInterface>,
-): BlindingKeyGetter {
+function blindKeyGetterFactory(scriptsToAddressInterface: Record<string, AddressInterface>): BlindingKeyGetter {
   return (script: string) => {
     try {
       return scriptsToAddressInterface[script]?.blindingPrivateKey;

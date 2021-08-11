@@ -1,10 +1,7 @@
 import { connect } from 'react-redux';
 
 import Wallet from '../../pages/Wallet';
-import {
-  aggregatedLBTCBalanceSelector,
-  balancesSelector,
-} from '../reducers/walletReducer';
+import { aggregatedLBTCBalanceSelector, balancesSelector } from '../reducers/walletReducer';
 
 const mapStateToProps = (state: any) => {
   return {

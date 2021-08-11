@@ -1,11 +1,7 @@
 import type { ToastButton } from '@ionic/react';
 
 import type { ActionType } from '../../utils/types';
-import {
-  ADD_TOAST,
-  REMOVE_TOAST,
-  REMOVE_TOAST_BY_TYPE,
-} from '../actions/toastActions';
+import { ADD_TOAST, REMOVE_TOAST, REMOVE_TOAST_BY_TYPE } from '../actions/toastActions';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'claim-pegin';
 

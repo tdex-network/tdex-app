@@ -16,25 +16,20 @@ import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
 
 import Header from '../../components/Header';
-import {
-  addErrorToast,
-  addSuccessToast,
-} from '../../redux/actions/toastActions';
+import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { QRCodeScanError } from '../../utils/errors';
 import './style.scss';
 
-const QRCodeScanner: React.FC<
-  RouteComponentProps<any, any, { address: string; amount: number }>
-> = ({ history, location }) => {
+const QRCodeScanner: React.FC<RouteComponentProps<any, any, { address: string; amount: number }>> = ({
+  history,
+  location,
+}) => {
   const dispatch = useDispatch();
   const { asset_id } = useParams<{ asset_id: string }>();
 
   const stopScan = async () => {
     document.body.classList.remove('bg-transparent');
-    if (
-      Capacitor.isPluginAvailable('BarcodeScanner') &&
-      Capacitor.isNativePlatform()
-    ) {
+    if (Capacitor.isPluginAvailable('BarcodeScanner') && Capacitor.isNativePlatform()) {
       try {
         await BarcodeScanner.showBackground();
         await BarcodeScanner.stopScan();
@@ -45,10 +40,7 @@ const QRCodeScanner: React.FC<
   };
 
   useIonViewDidEnter(async () => {
-    if (
-      Capacitor.isPluginAvailable('BarcodeScanner') &&
-      Capacitor.isNativePlatform()
-    ) {
+    if (Capacitor.isPluginAvailable('BarcodeScanner') && Capacitor.isNativePlatform()) {
       try {
         await BarcodeScanner.hideBackground();
         document.body.classList.add('bg-transparent');
@@ -78,11 +70,7 @@ const QRCodeScanner: React.FC<
   return (
     <IonPage id="qr-scanner">
       <IonContent>
-        <Header
-          title="SCAN QR CODE"
-          hasBackButton={false}
-          hasCloseButton={false}
-        />
+        <Header title="SCAN QR CODE" hasBackButton={false} hasCloseButton={false} />
         <IonGrid>
           <IonRow className="ion-margin-vertical-x2">
             <IonCol>

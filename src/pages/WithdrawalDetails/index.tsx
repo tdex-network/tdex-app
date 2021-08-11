@@ -1,13 +1,5 @@
 import { Clipboard } from '@ionic-native/clipboard';
-import {
-  IonPage,
-  IonContent,
-  IonButton,
-  IonSkeletonText,
-  IonGrid,
-  IonRow,
-  IonCol,
-} from '@ionic/react';
+import { IonPage, IonContent, IonButton, IonSkeletonText, IonGrid, IonRow, IonCol } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
@@ -35,15 +27,12 @@ interface WithdrawalDetailsLocationState {
   lbtcUnit: LbtcDenomination;
 }
 
-const WithdrawalDetails: React.FC<
-  RouteComponentProps<any, any, WithdrawalDetailsLocationState>
-> = ({ location }) => {
+const WithdrawalDetails: React.FC<RouteComponentProps<any, any, WithdrawalDetailsLocationState>> = ({ location }) => {
   const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();
   const transaction = useSelector(transactionSelector(txid));
 
-  const [locationState, setLocationState] =
-    useState<WithdrawalDetailsLocationState>();
+  const [locationState, setLocationState] = useState<WithdrawalDetailsLocationState>();
 
   useEffect(() => {
     if (location.state) {
@@ -54,13 +43,9 @@ const WithdrawalDetails: React.FC<
   const renderStatusText: any = (status: string) => {
     switch (status) {
       case TxStatusEnum.Confirmed:
-        return (
-          <span className="status-text confirmed">{statusText[status]}</span>
-        );
+        return <span className="status-text confirmed">{statusText[status]}</span>;
       case TxStatusEnum.Pending:
-        return (
-          <span className="status-text pending">{statusText[status]}</span>
-        );
+        return <span className="status-text pending">{statusText[status]}</span>;
       default:
         return <span className="status-text pending" />;
     }
@@ -71,9 +56,7 @@ const WithdrawalDetails: React.FC<
     return t === 'L-BTC' ? locationState?.lbtcUnit : t;
   };
 
-  const Skeleton = () => (
-    <IonSkeletonText className="custom-skeleton" animated />
-  );
+  const Skeleton = () => <IonSkeletonText className="custom-skeleton" animated />;
 
   return (
     <IonPage id="withdrawal-details">
@@ -83,12 +66,8 @@ const WithdrawalDetails: React.FC<
           <Header hasBackButton={true} title="WITHDRAWAL DETAILS" />
           <IonRow>
             <IonCol className="header-info ion-text-center">
-              <CurrencyIcon
-                currency={tickerFromAssetHash(locationState?.asset)}
-              />
-              <p className="info-amount">
-                {nameFromAssetHash(locationState?.asset) ?? ticker()}
-              </p>
+              <CurrencyIcon currency={tickerFromAssetHash(locationState?.asset)} />
+              <p className="info-amount">{nameFromAssetHash(locationState?.asset) ?? ticker()}</p>
             </IonCol>
           </IonRow>
 
@@ -98,38 +77,26 @@ const WithdrawalDetails: React.FC<
                 <div className="item-main-info">
                   <div className="item-start main-row">Amount</div>
                   <div className="item-end main-row">
-                    {`-${
-                      locationState?.amount ? locationState.amount : '?'
-                    } ${ticker()}`}
+                    {`-${locationState?.amount ? locationState.amount : '?'} ${ticker()}`}
                   </div>
                 </div>
                 <div className="item-main-info">
                   <div className="item-start main-row">Status</div>
                   <div className="item-end main-row completed">
-                    {transaction ? (
-                      renderStatusText(transaction?.status)
-                    ) : (
-                      <Skeleton />
-                    )}
+                    {transaction ? renderStatusText(transaction?.status) : <Skeleton />}
                   </div>
                 </div>
 
                 <div className="item-main-info divider">
                   <div className="item-start main-row">Date</div>
                   <div className="item-end sub-row">
-                    {transaction ? (
-                      transaction.blockTime?.format('DD MMM YYYY HH:mm:ss')
-                    ) : (
-                      <Skeleton />
-                    )}
+                    {transaction ? transaction.blockTime?.format('DD MMM YYYY HH:mm:ss') : <Skeleton />}
                   </div>
                 </div>
 
                 <div className="item-main-info">
                   <div className="item-start main-row">Fee</div>
-                  <div className="item-end sub-row">
-                    {transaction ? transaction.fee : <Skeleton />}
-                  </div>
+                  <div className="item-end sub-row">{transaction ? transaction.fee : <Skeleton />}</div>
                 </div>
 
                 <div
@@ -141,9 +108,7 @@ const WithdrawalDetails: React.FC<
                   }}
                 >
                   <div className="item-start main-row">Address</div>
-                  <div className="item-end sub-row">
-                    {locationState?.address || ''}
-                  </div>
+                  <div className="item-end sub-row">{locationState?.address || ''}</div>
                 </div>
 
                 <div
@@ -162,10 +127,7 @@ const WithdrawalDetails: React.FC<
 
           <IonRow className="ion-margin-vertical-x2">
             <IonCol size="9" offset="1.5">
-              <IonButton
-                routerLink={`/operations/${locationState?.asset}`}
-                className="main-button"
-              >
+              <IonButton routerLink={`/operations/${locationState?.asset}`} className="main-button">
                 TRANSACTION HISTORY
               </IonButton>
             </IonCol>

@@ -1,12 +1,4 @@
-import {
-  IonContent,
-  IonList,
-  IonModal,
-  IonHeader,
-  IonItem,
-  IonInput,
-  IonIcon,
-} from '@ionic/react';
+import { IonContent, IonList, IonModal, IonHeader, IonItem, IonInput, IonIcon } from '@ionic/react';
 import { closeSharp, searchSharp } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -31,23 +23,15 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
         <IonHeader className="ion-no-border">
           <div>
             <label className="search-bar">
-              <IonIcon
-                icon={searchSharp}
-                color="light-contrast"
-                onClick={close}
-              />
+              <IonIcon icon={searchSharp} color="light-contrast" onClick={close} />
               <IonInput
                 inputMode="search"
                 color="light-contrast"
                 placeholder="Search currency"
                 value={searchString}
-                onIonChange={e => setSearchString(e.detail.value || '')}
+                onIonChange={(e) => setSearchString(e.detail.value || '')}
               />
-              <IonIcon
-                icon={closeSharp}
-                color="light-contrast"
-                onClick={close}
-              />
+              <IonIcon icon={closeSharp} color="light-contrast" onClick={close} />
             </label>
           </div>
         </IonHeader>
@@ -57,7 +41,7 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
               (currency: CurrencyInterface) =>
                 currency.name.includes(searchString) ||
                 currency.symbol.includes(searchString) ||
-                currency.value.includes(searchString),
+                currency.value.includes(searchString)
             ).map((currency: CurrencyInterface, index: number) => {
               return (
                 <IonItem

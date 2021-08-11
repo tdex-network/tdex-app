@@ -31,8 +31,7 @@ function defaultScryptOptions(): ScryptOptions {
 
 function randomSalt(length: number): string {
   let result = '';
-  const characters =
-    'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const charactersLength = characters.length;
   for (let i = 0; i < length; i++) {
     result += characters.charAt(Math.floor(Math.random() * charactersLength));
@@ -47,10 +46,7 @@ const iv = 'f341557fcf9b9286';
  * @param payload
  * @param password
  */
-export async function encrypt(
-  payload: string,
-  password: string,
-): Promise<Encrypted> {
+export async function encrypt(payload: string, password: string): Promise<Encrypted> {
   const options = defaultScryptOptions();
   const passwordDerived = await passwordToKey(password, options);
   const hash = crypto.createHash('sha256').update(passwordDerived);
@@ -69,10 +65,7 @@ export async function encrypt(
  * @param encryptedData encrypted data to decrypt
  * @param password password using to decrypt
  */
-export async function decrypt(
-  encryptedData: Encrypted,
-  password: string,
-): Promise<string> {
+export async function decrypt(encryptedData: Encrypted, password: string): Promise<string> {
   const passwordDerived = await passwordToKey(password, encryptedData.options);
   const hash = crypto.createHash('sha256').update(passwordDerived);
   const secret = hash.digest();
@@ -82,17 +75,14 @@ export async function decrypt(
   return decrypted;
 }
 
-async function passwordToKey(
-  password: string,
-  options: ScryptOptions,
-): Promise<Uint8Array> {
+async function passwordToKey(password: string, options: ScryptOptions): Promise<Uint8Array> {
   return scrypt(
     prepareForScrypt(password),
     prepareForScrypt(options.salt),
     options.N,
     options.r,
     options.p,
-    options.klen,
+    options.klen
   );
 }
 

@@ -24,20 +24,13 @@ import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Header from '../../components/Header';
 import type { TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
 import './style.scss';
-import {
-  addProvider,
-  clearMarkets,
-  deleteProvider,
-  updateMarkets,
-} from '../../redux/actions/tdexActions';
+import { addProvider, clearMarkets, deleteProvider, updateMarkets } from '../../redux/actions/tdexActions';
 
 interface LiquidityProvidersProps extends RouteComponentProps {
   providers: TDEXProvider[];
 }
 
-const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
-  providers,
-}) => {
+const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers }) => {
   const dispatch = useDispatch();
   const [providerToDelete, setProviderToDelete] = useState<TDEXProvider>();
   const [newProvider, setNewProvider] = useState(false);
@@ -97,9 +90,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
                       <IonInput
                         required
                         value={newProviderName}
-                        onIonChange={e =>
-                          setNewProviderName(e.detail.value || '')
-                        }
+                        onIonChange={(e) => setNewProviderName(e.detail.value || '')}
                         inputmode="text"
                         placeholder="name the provider to add"
                       />
@@ -109,9 +100,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
                       <IonInput
                         required
                         value={newProviderEndpoint}
-                        onIonChange={e =>
-                          setNewProviderEndpoint(e.detail.value || '')
-                        }
+                        onIonChange={(e) => setNewProviderEndpoint(e.detail.value || '')}
                         inputmode="url"
                         placeholder="i.e http://localhost:9945"
                       />
@@ -125,17 +114,14 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
                   <ButtonsMainSub
                     mainTitle="CONFIRM"
                     subTitle="CANCEL"
-                    mainDisabled={
-                      newProviderName.trim() === '' ||
-                      newProviderEndpoint.trim() === ''
-                    }
+                    mainDisabled={newProviderName.trim() === '' || newProviderEndpoint.trim() === ''}
                     mainOnClick={() => {
                       setNewProvider(false);
                       dispatch(
                         addProvider({
                           endpoint: newProviderEndpoint.trim(),
                           name: newProviderName.trim(),
-                        }),
+                        })
                       );
                     }}
                     subOnClick={() => setNewProvider(false)}
@@ -173,10 +159,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({
           </IonList>
           <IonRow className="ion-margin-vertical-x2">
             <IonCol size="9" offset="1.5">
-              <IonButton
-                className="main-button"
-                onClick={() => setNewProvider(true)}
-              >
+              <IonButton className="main-button" onClick={() => setNewProvider(true)}>
                 ADD PROVIDER
               </IonButton>
             </IonCol>

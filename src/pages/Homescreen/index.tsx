@@ -1,12 +1,5 @@
 import { KeyboardStyle } from '@capacitor/keyboard';
-import {
-  IonContent,
-  IonPage,
-  useIonViewWillEnter,
-  IonGrid,
-  IonRow,
-  IonCol,
-} from '@ionic/react';
+import { IonContent, IonPage, useIonViewWillEnter, IonGrid, IonRow, IonCol } from '@ionic/react';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -16,16 +9,10 @@ import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import { initApp, signIn } from '../../redux/actions/appActions';
 import { addErrorToast } from '../../redux/actions/toastActions';
-import {
-  PIN_TIMEOUT_FAILURE,
-  PIN_TIMEOUT_SUCCESS,
-} from '../../utils/constants';
+import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { IncorrectPINError } from '../../utils/errors';
 import { setKeyboardTheme } from '../../utils/keyboard';
-import {
-  getIdentity,
-  mnemonicInSecureStorage,
-} from '../../utils/storage-helper';
+import { getIdentity, mnemonicInSecureStorage } from '../../utils/storage-helper';
 import './style.scss';
 
 const Homescreen: React.FC = () => {
@@ -33,15 +20,13 @@ const Homescreen: React.FC = () => {
   const [pinModalIsOpen, setPinModalIsOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [needReset, setNeedReset] = useState<boolean>(false);
-  const [loadingMessage, setLoadingMessage] = useState(
-    'Searching mnemonic in secure storage...',
-  );
+  const [loadingMessage, setLoadingMessage] = useState('Searching mnemonic in secure storage...');
   const appInit = useSelector((state: any) => state.app.appInit);
   const dispatch = useDispatch();
 
   const onConfirmPinModal = (pin: string) => {
     getIdentity(pin)
-      .then(mnemonic => {
+      .then((mnemonic) => {
         setLoadingMessage('Unlocking wallet...');
         setLoading(true);
         setIsWrongPin(false);
@@ -54,7 +39,7 @@ const Homescreen: React.FC = () => {
           dispatch(signIn(mnemonic));
         }, PIN_TIMEOUT_SUCCESS);
       })
-      .catch(e => {
+      .catch((e) => {
         console.error(e);
         setIsWrongPin(true);
         setTimeout(() => {

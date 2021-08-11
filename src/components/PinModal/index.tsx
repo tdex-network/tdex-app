@@ -1,10 +1,4 @@
-import {
-  IonContent,
-  IonModal,
-  useIonViewWillEnter,
-  useIonViewWillLeave,
-  IonGrid,
-} from '@ionic/react';
+import { IonContent, IonModal, useIonViewWillEnter, useIonViewWillLeave, IonGrid } from '@ionic/react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
@@ -104,12 +98,7 @@ const PinModal: React.FC<PinModalProps> = ({
     >
       <IonContent scrollY={false}>
         <IonGrid className="ion-text-center ion-justify-content-center">
-          <Header
-            title="INSERT PIN"
-            hasBackButton={false}
-            hasCloseButton={!!onClose}
-            handleClose={onClose}
-          />
+          <Header title="INSERT PIN" hasBackButton={false} hasCloseButton={!!onClose} handleClose={onClose} />
           <PageDescription description={description} title={title} />
           <PinInput
             isLocked={isPinInputLocked}
