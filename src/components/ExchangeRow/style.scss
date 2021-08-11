@@ -13,7 +13,6 @@
   .exchanger-row {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
     &.sub-row .balance {
       display: flex;
       flex-direction: column;
@@ -37,12 +36,14 @@
     display: flex;
     align-items: center;
     .icon-wrapper {
+      display: flex;
       width: 24px;
-      margin-right: 10px;
+      margin-right: 2vw;
     }
     ion-icon {
-      width: 40px;
+      width: 6vw;
       height: 20px;
+      margin-left: 1.5vw;
     }
   }
 
@@ -64,54 +65,11 @@
       color: #fff;
     }
 
-    .icon-wrapper {
-      min-width: 24px;
-      width: 24px;
-      height: 24px;
-      margin-right: 8px;
-    }
-
     ion-input {
       --padding-bottom: 0;
       --padding-end: 0;
       --padding-start: 0;
       --padding-top: 0;
-    }
-  }
-}
-
-.light {
-  .exchange-coin-container {
-    background: #fff;
-    color: #000;
-
-    .exchanger-row {
-      &.sub-row {
-        color: rgb(144, 144, 144);
-      }
-    }
-
-    .icon-wrapper {
-      width: 28px;
-      height: 28px;
-      margin-right: 8px;
-    }
-
-    .coin-amount {
-      --background: none;
-      background: none;
-      --padding-top: 0;
-      --padding-bottom: 0;
-      --padding-start: 0;
-      --padding-end: 0;
-      --inner-padding-end: 0;
-      font-family: var(--ion-font-sub);
-      font-size: var(--ion-font-size-l);
-      color: rgb(102, 102, 102);
-
-      &.active {
-        color: #000;
-      }
     }
   }
 }
