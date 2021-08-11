@@ -25,6 +25,6 @@ Cypress.Commands.add('launchWallet', () => {
     .then(() => {
       cy.get('[data-cy=pin-input]').children().type(pin);
       // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(5000);
+      cy.wait(10_000);
     });
 });
