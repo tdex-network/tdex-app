@@ -39,6 +39,7 @@ import {
   compareTxDisplayInterfaceByDate,
   fromSatoshi,
   fromSatoshiFixed,
+  isLbtc,
 } from '../../utils/helpers';
 import type { Transfer, TxDisplayInterface } from '../../utils/types';
 import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
@@ -72,9 +73,12 @@ const Operations: React.FC<OperationsProps> = ({
   const [balance, setBalance] = useState<BalanceInterface>();
   const [txRowOpened, setTxRowOpened] = useState<string[]>([]);
 
-  const transactionsToDisplay = useSelector(
+  const transactionsByAsset = useSelector(
     transactionsByAssetSelector(asset_id),
   );
+  const transactionsToDisplay = isLbtc(asset_id)
+    ? transactionsByAsset.concat(btcTxs)
+    : transactionsByAsset;
 
   useIonViewWillEnter(() => {
     setTxRowOpened([]);
@@ -297,7 +301,7 @@ const Operations: React.FC<OperationsProps> = ({
             title={`${balance?.name || balance?.ticker}`}
             hasBackButton={true}
           />
-          <IonRow className="ion-margin-bottom header-info ion-text-center ion-margin">
+          <IonRow className="ion-margin-bottom header-info ion-text-center ion-margin-vertical">
             <IonCol>
               {balance ? (
                 <CurrencyIcon currency={balance?.ticker} />
@@ -316,7 +320,6 @@ const Operations: React.FC<OperationsProps> = ({
                 <WatchersLoader />
                 {balance && transactionsToDisplay.length ? (
                   transactionsToDisplay
-                    .concat(btcTxs)
                     .sort(compareTxDisplayInterfaceByDate)
                     .map((tx: TxDisplayInterface) => {
                       const transfer = tx.transfers.find(
