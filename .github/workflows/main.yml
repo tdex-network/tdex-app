@@ -47,3 +47,11 @@ jobs:
 
       - name: Build
         run: CI="" yarn build
+
+      - name: Upload Cypress artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: cypress
+          path: /home/runner/work/tdex-app/tdex-app/cypress/videos/main.spec.ts.mp4
+          retention-days: 5
+
