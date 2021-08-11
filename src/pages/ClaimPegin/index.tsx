@@ -8,12 +8,11 @@ import {
   IonInput,
   IonItem,
 } from '@ionic/react';
-import { toOutputScript } from 'bitcoinjs-lib/types/address';
+import * as bitcoinJS from 'bitcoinjs-lib';
 import type { Mnemonic } from 'ldk';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
-import { getNetwork } from 'tdex-sdk';
 
 import Header from '../../components/Header';
 import Loader from '../../components/Loader';
@@ -39,6 +38,7 @@ import type {
 import type { ToastOpts } from '../../redux/reducers/toastReducer';
 import { claimPegins } from '../../redux/services/btcService';
 import {
+  getBitcoinJSNetwork,
   PIN_TIMEOUT_FAILURE,
   PIN_TIMEOUT_SUCCESS,
 } from '../../utils/constants';
@@ -174,7 +174,10 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
         try {
           if (
             addrTrimmed &&
-            toOutputScript(addrTrimmed, getNetwork(network.chain))
+            bitcoinJS.address.toOutputScript(
+              addrTrimmed,
+              getBitcoinJSNetwork(network.chain),
+            )
           ) {
             setIsLoading(true);
             setMnemonic(mnemonic);
