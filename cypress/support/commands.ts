@@ -20,7 +20,7 @@ Cypress.Commands.add('launchWallet', () => {
     .then(() => {
       faucet(firstAddress, 100).catch(console.error);
       // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(1000);
+      cy.wait(10_000);
     })
     .then(() => {
       cy.get('[data-cy=pin-input]').children().type(pin);
