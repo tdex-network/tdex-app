@@ -37,7 +37,7 @@ jobs:
           start: yarn run serve:no-open
           wait-on: 'http://localhost:8100'
 
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v2
         # NOTE: screenshots will be generated only if E2E test failed
         # thus we store screenshots only on failures
         if: failure()
@@ -45,8 +45,8 @@ jobs:
           name: cypress-screenshots
           path: cypress/screenshots
           retention-days: 5
-          
-      - uses: actions/upload-artifact@v1
+
+      - uses: actions/upload-artifact@v2
         if: always()
         with:
           name: cypress-videos
