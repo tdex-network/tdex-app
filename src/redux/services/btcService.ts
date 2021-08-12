@@ -8,7 +8,7 @@ import type { ECPairInterface } from 'liquidjs-lib/types/ecpair';
 import ElementsPegin from 'pegin';
 import { getNetwork } from 'tdex-sdk';
 
-import { FEDPEGSCRIPT_CUSTOM, LBTC_ASSET } from '../../utils/constants';
+import { FEDPEGSCRIPT, LBTC_ASSET } from '../../utils/constants';
 import { network } from '../config';
 import type { Pegins } from '../reducers/btcReducer';
 
@@ -24,7 +24,7 @@ export async function getPeginModule(): Promise<ElementsPegin> {
       await ElementsPegin.withLibwally(),
       ElementsPegin.withDynamicFederation(false),
       ElementsPegin.withTestnet(LBTC_ASSET.assetHash),
-      ElementsPegin.withFederationScript(FEDPEGSCRIPT_CUSTOM)
+      ElementsPegin.withFederationScript(FEDPEGSCRIPT)
     );
   }
   return peginModule;

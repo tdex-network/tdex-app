@@ -1,14 +1,2 @@
-[
-  {
-    "market": {
-      "baseAsset": "5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225",
-      "quoteAsset": "6b6d4720c6bc8a03786f7a5031900cd38868ab75570235717371af51bc8a8937"
-    }
-  },
-  {
-    "market": {
-      "baseAsset": "5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225",
-      "quoteAsset": "8ab178644508bdf5260965481d263d3c15d1f91318d96796fb938799628f674d"
-    }
-  }
-]
+[{"market": {"baseAsset": "5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225","quoteAsset": "b2032f3f85210494a95e4f9a87ace8da2c57ffddd269729de5cf6fd3fccb5bbe"}}, {"market": {"baseAsset": "5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225",
+"quoteAsset": "2b9b26ee7512bb60e68334e1ae4d55d721e334e955e2de0a5ed07294a7ad4303"}}]

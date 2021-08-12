@@ -91,6 +91,11 @@ export const MAIN_ASSETS: AssetConfig[] = [
   },
 ];
 
+export const FEDPEGSCRIPT =
+  LBTC_ASSET.assetHash === '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225'
+    ? '51'
+    : '056293ee681516f2d61bb7ce63030351d5e02d61aef9fb00d30f27f55d935b18';
+
 export function getColor(assetHash: string): string | undefined {
   return MAIN_ASSETS.find((assetConfig: AssetConfig) => assetConfig.assetHash.valueOf() === assetHash.valueOf())?.color;
 }
@@ -132,8 +137,6 @@ export const TOAST_TIMEOUT_SUCCESS = 2000;
 export const TOAST_TIMEOUT_FAILURE = 2000;
 export const PIN_TIMEOUT_SUCCESS = 800;
 export const PIN_TIMEOUT_FAILURE = 2000;
-
-export const FEDPEGSCRIPT_CUSTOM = '51210269e0180bc9e0be7648d6e9c17f3664bc3ebcee40f3a46cf4b42e583e96b911b951ae';
 
 export function getBitcoinJSNetwork(chain: 'liquid' | 'regtest'): bitcoinJS.networks.Network {
   return chain === 'liquid' ? bitcoinJS.networks.bitcoin : bitcoinJS.networks.regtest;

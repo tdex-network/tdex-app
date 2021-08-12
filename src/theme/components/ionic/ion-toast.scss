@@ -1,4 +1,5 @@
 ion-toast {
+  --border-radius: 8px;
   font-family: var(--ion-font-sub);
   font-size: var(--ion-font-size-sub-l);
   &.claim {
@@ -6,11 +7,16 @@ ion-toast {
   }
   &.claim::part(container) {
     border-radius: 5px;
+    padding-right: 10px;
   }
   &.claim::part(toast-button-claim) {
     border-radius: 5px;
     color: var(--ion-color-primary);
     font-size: var(--ion-font-size-sub);
-	  border: 2px solid var(--ion-color-primary);
+    border: 2px solid var(--ion-color-primary);
+  }
+  &.claim::part(toast-content) {
+    padding-left: 0;
+    padding-right: 5px;
   }
 }
