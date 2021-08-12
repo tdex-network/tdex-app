@@ -241,7 +241,7 @@ const Operations: React.FC<OperationsProps> = ({
             )
           : 'unknown'}
         <span className="ticker">
-          {TxTypeEnum[tx.type] === 'DepositBtc' ? 'BTC' : balance.ticker === 'L-BTC' ? lbtcUnit : balance.ticker}
+          {TxTypeEnum[tx.type] === 'DepositBtc' || balance.ticker === 'L-BTC' ? lbtcUnit : balance.ticker}
         </span>
       </div>
       <div className="operation-amount__fiat">
@@ -291,7 +291,7 @@ const Operations: React.FC<OperationsProps> = ({
                           <IonCol className="icon" size="1">
                             <TxIcon type={tx.type} />
                           </IonCol>
-                          <IonCol className="pl-5" size="5.5">
+                          <IonCol className="pl-5" size="5.3">
                             <div className="asset">
                               {TxTypeEnum[tx.type] === 'DepositBtc'
                                 ? 'BTC Deposit'
@@ -303,7 +303,7 @@ const Operations: React.FC<OperationsProps> = ({
                                 : tx.blockTime?.format('DD MMM YYYY')}
                             </div>
                           </IonCol>
-                          <IonCol className="ion-text-right" size="5.5">
+                          <IonCol className="ion-text-right" size="5.7">
                             <OperationAmount balance={balance} transfer={transfer} tx={tx} />
                           </IonCol>
                         </IonRow>
