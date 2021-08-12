@@ -275,11 +275,11 @@ const Operations: React.FC<OperationsProps> = ({
                 <IonListHeader>Transactions</IonListHeader>
                 <WatchersLoader />
                 {balance && transactionsToDisplay.length ? (
-                  transactionsToDisplay.sort(compareTxDisplayInterfaceByDate).map((tx: TxDisplayInterface) => {
+                  transactionsToDisplay.sort(compareTxDisplayInterfaceByDate).map((tx: TxDisplayInterface, index) => {
                     const transfer = tx.transfers.find((t) => t.asset === asset_id);
                     return (
                       <IonItem
-                        key={tx.txId}
+                        key={`${index}-${tx.txId}`}
                         button
                         detail={false}
                         onClick={() => onclickTx(tx)}

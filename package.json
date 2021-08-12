@@ -50,7 +50,6 @@
     "sync": "ionic cap sync",
     "tdex:clean": "bash scripts/tdexd-clean.sh",
     "tdex:run": "curl https://raw.githubusercontent.com/TDex-network/tdex-sdk/master/scripts/tdexd-run -o tdex-run && bash tdex-run && rm tdex-run",
-    "tdex:run-mac": "curl https://raw.githubusercontent.com/TDex-network/tdex-sdk/master/scripts/tdexd-run-mac -o tdex-run-mac && bash tdex-run-mac && rm tdex-run-mac",
     "test": "BABEL_ENV=test npx jest"
   },
   "dependencies": {
