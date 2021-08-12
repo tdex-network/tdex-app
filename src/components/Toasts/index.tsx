@@ -16,25 +16,26 @@ interface ToastsProps {
 const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast }) => {
   const dispatch = useDispatch();
 
-  const buttons = (toast: ToastOpts) => {
-    const btns: ToastButton[] = [
-      {
-        side: 'start',
-        role: 'cancel',
-        icon: closeCircleOutline,
-      },
-    ];
+  const buttons = (toast: ToastOpts): (string | ToastButton)[] | undefined => {
     if (toast.type === 'claim-pegin') {
-      btns.push({
-        side: 'end',
-        role: 'claim',
-        text: 'Claim',
-        handler: () => {
-          dispatch(setModalClaimPegin({ isOpen: true }));
+      return [
+        {
+          side: 'start',
+          role: 'cancel',
+          icon: closeCircleOutline,
         },
-      });
+        {
+          side: 'end',
+          role: 'claim',
+          text: 'Claim',
+          handler: () => {
+            dispatch(setModalClaimPegin({ isOpen: true }));
+          },
+        },
+      ];
+    } else {
+      return undefined;
     }
-    return btns;
   };
 
   return (
