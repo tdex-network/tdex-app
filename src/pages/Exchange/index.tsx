@@ -1,4 +1,14 @@
-import { IonContent, IonPage, IonText, useIonViewWillEnter, IonGrid, IonRow, IonCol, IonButton } from '@ionic/react';
+import {
+  IonContent,
+  IonPage,
+  IonText,
+  useIonViewWillEnter,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonButton,
+  IonRippleEffect,
+} from '@ionic/react';
 import classNames from 'classnames';
 import type { UtxoInterface, StateRestorerOpts } from 'ldk';
 import { mnemonicRestorerFromState } from 'ldk';
@@ -289,8 +299,9 @@ const Exchange: React.FC<ExchangeProps> = ({
               isLoading={isLoading}
             />
 
-            <div className="exchange-divider" onClick={swapAssetsAndAmounts}>
+            <div className="exchange-divider ion-activatable" onClick={swapAssetsAndAmounts}>
               <img src={swap} alt="swap" />
+              <IonRippleEffect type="unbounded" />
             </div>
 
             {assetReceived && (

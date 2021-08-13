@@ -45,6 +45,10 @@
       width: calc(50% - 16px);
       border-top: 1px solid rgb(15, 255, 0);
     }
+    ion-ripple-effect {
+      width: 100px;
+      margin: 0 auto;
+    }
   }
 
   .market-provider {
