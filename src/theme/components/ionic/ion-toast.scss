@@ -2,9 +2,6 @@ ion-toast {
   --border-radius: 8px;
   font-family: var(--ion-font-sub);
   font-size: var(--ion-font-size-sub-l);
-  &.claim {
-    transform: translateY(-73px) !important;
-  }
   &.claim::part(container) {
     border-radius: 5px;
     padding-right: 3vw;

@@ -1,7 +1,7 @@
-import type { ToastButton } from '@ionic/react';
-import { IonToast } from '@ionic/react';
-import { closeCircleOutline } from 'ionicons/icons';
-import React from 'react';
+import type { Gesture, ToastButton, GestureDetail } from '@ionic/react';
+import { createGesture, IonToast, CreateAnimation } from '@ionic/react';
+import type { CreateAnimationProps } from '@ionic/react/dist/types/components/CreateAnimation';
+import React, { useCallback, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { setModalClaimPegin } from '../../redux/actions/btcActions';
@@ -11,19 +11,68 @@ import { TOAST_TIMEOUT_FAILURE, TOAST_TIMEOUT_SUCCESS } from '../../utils/consta
 interface ToastsProps {
   toasts: ToastOpts[];
   removeToast: (ID: number) => any;
+  removeAllToast: () => void;
 }
 
-const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast }) => {
+const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast, removeAllToast }) => {
   const dispatch = useDispatch();
+  const [progressStart, setProgressStart] = useState<CreateAnimationProps['progressStart']>();
+  const [progressEnd, setProgressEnd] = useState<CreateAnimationProps['progressEnd']>();
+  const [onFinish, setOnFinish] = useState<CreateAnimationProps['onFinish']>();
+  const INITIAL_CLAIM_TOAST_POSITION = -73;
+  let gesture: Gesture;
+  let started = false;
+  let toastEl: any;
+
+  const animationRef = useCallback((node: React.RefObject<CreateAnimation>['current']) => {
+    setTimeout(() => {
+      if (node !== null) {
+        toastEl = Array.from(node.nodes.values())[0];
+        if (toastEl?.classList.contains('claim')) {
+          toastEl.style.transform = `translateY(${INITIAL_CLAIM_TOAST_POSITION}px)`;
+          gesture = createGesture({
+            el: toastEl,
+            gestureName: 'swipe-toast',
+            threshold: 0,
+            onMove: (ev) => onMove(ev),
+            onEnd: (ev) => onEnd(ev),
+          });
+          gesture.enable(true);
+        }
+      }
+    }, 100);
+  }, []);
+
+  const onMove = (ev: GestureDetail) => {
+    if (!started) {
+      setProgressStart({ forceLinearEasing: true });
+      started = true;
+    }
+    if (ev.startY < ev.currentY) {
+      toastEl.style.transform = `translateY(${ev.deltaY + INITIAL_CLAIM_TOAST_POSITION}px)`;
+    }
+  };
+
+  const onEnd = (ev: GestureDetail) => {
+    if (!started) return;
+    setOnFinish({
+      callback: () => {
+        gesture.enable(true);
+        setProgressStart(undefined);
+        setProgressEnd(undefined);
+      },
+      opts: { oneTimeCallback: true },
+    });
+    if (ev.deltaY > 60) {
+      removeAllToast();
+    } else {
+      toastEl.style.transform = `translateY(${INITIAL_CLAIM_TOAST_POSITION}px)`;
+    }
+  };
 
   const buttons = (toast: ToastOpts): (string | ToastButton)[] | undefined => {
     if (toast.type === 'claim-pegin') {
       return [
-        // {
-        //   side: 'start',
-        //   role: 'cancel',
-        //   icon: closeCircleOutline,
-        // },
         {
           side: 'end',
           role: 'claim',
@@ -41,17 +90,26 @@ const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast }) => {
   return (
     <div>
       {toasts.map((toast: ToastOpts) => (
-        <IonToast
+        <CreateAnimation
           key={toast.ID}
-          isOpen={true}
-          color={toastColor(toast.type)}
-          duration={toast?.duration ?? toastDuration(toast.type)}
-          message={toast.message}
-          onDidDismiss={() => removeToast(toast.ID)}
-          position={toast?.position ?? 'top'}
-          cssClass={toast?.cssClass}
-          buttons={buttons(toast)}
-        />
+          ref={animationRef}
+          play={true}
+          progressStart={progressStart}
+          progressEnd={progressEnd}
+          onFinish={onFinish}
+        >
+          <IonToast
+            key={toast.ID}
+            isOpen={true}
+            color={toastColor(toast.type)}
+            duration={toast?.duration ?? toastDuration(toast.type)}
+            message={toast.message}
+            onDidDismiss={() => removeToast(toast.ID)}
+            position={toast?.position ?? 'top'}
+            cssClass={toast?.cssClass}
+            buttons={buttons(toast)}
+          />
+        </CreateAnimation>
       ))}
     </div>
   );

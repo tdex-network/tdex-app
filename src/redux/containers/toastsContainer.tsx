@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 
 import Toasts from '../../components/Toasts';
-import { removeToast } from '../actions/toastActions';
+import { removeAllToast, removeToast } from '../actions/toastActions';
 
 const mapStateToProps = (state: any) => {
   return {
@@ -12,6 +12,7 @@ const mapStateToProps = (state: any) => {
 const mapDispatchToProps = (dispatch: any) => {
   return {
     removeToast: (ID: number) => dispatch(removeToast(ID)),
+    removeAllToast: () => dispatch(removeAllToast()),
   };
 };
 
