@@ -189,6 +189,12 @@ export function tickerFromAssetHash(assetHash?: string): string {
   return assetHash.slice(0, 4).toUpperCase();
 }
 
+export function precisionFromAssetHash(assetHash?: string): number | undefined {
+  if (!assetHash) return 8;
+  const mainAsset = getMainAsset(assetHash);
+  if (mainAsset) return mainAsset.precision;
+}
+
 export function nameFromAssetHash(assetHash?: string): string | undefined {
   if (!assetHash) return '';
   const mainAsset = getMainAsset(assetHash);

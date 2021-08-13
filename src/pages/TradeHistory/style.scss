@@ -1,75 +1,54 @@
 #trade-history {
-	.status {
-		font-family: var(--ion-font-sub-heading);
-		font-size: var(--ion-font-size-sub);
-	}
-	
-	.sub-info {
-		font-family: var(--ion-font-sub-heading);
-		font-size: var(--ion-font-size-sub);
-	}
-	
-	.info-row {
-		align-items: baseline;
-	}
-	
-	ion-item.tx-item {
-		font-size: var(--ion-font-size-sub);
-		--padding-top: 0;
-		--padding-bottom: 0;
-		--padding-end: 0;
-		--padding-start: 0;
-	}
-	
-	.item-main-info {
-		align-items: end;
-		
-		.swap-images {
-			flex: 10px;
-		}
-		
-		.item-start {
-			flex: 40%;
-			margin-right: 3px;
-		}
-		
-		.item-end {
-			flex: 40%;
-			
-			.amount {
-				.main-row {
-					font-size: var(--ion-font-size-main);
-				}
-				
-				.main-row.accent {
-					font-size: var(--ion-font-size-sub);
-				}
-			}
-		}
-	}
-	
-	
-	.list-item {
-		&.pending {
-			background-color: rgba(255, 220, 0, 0.15);
-		}
-		
-		&.open {
-			background-color: #444;
-		}
-		
-		.swap-images {
-			margin-right: 4px;
-			img {
-				width: 16px;
-				height: 16px;
-			}
-			
-			img:nth-child(2) {
-				position: absolute;
-				left: 6px;
-				top: 0;
-			}
-		}
-	}
+  .transaction-item {
+    &::part(native) {
+      width: 100%;
+      flex-direction: column;
+      flex: 1;
+    }
+    ion-row {
+      align-items: end;
+      width: 100%;
+    }
+    .icon {
+      padding-right: 10px;
+      display: flex;
+      img {
+        height: 4.5vw;
+        width: 4.5vw;
+        &:nth-child(2) {
+          transform: translateX(-2.5vw);
+        }
+      }
+    }
+    .asset {
+      font-family: var(--ion-font-main);
+      font-size: var(--ion-font-size-main);
+    }
+    .time {
+      font-family: var(--ion-font-sub-heading);
+      font-size: var(--ion-font-size-sub-xs);
+      color: var(--ion-color-tertiary);
+      line-height: 18px;
+    }
+    .trade-amount {
+      font-family: var(--ion-font-sub-heading);
+      font-size: var(--ion-font-size-sub-l);
+      span.ticker {
+        font-family: var(--ion-font-sub);
+        font-size: var(--ion-font-size-sub-s);
+        margin-left: 1vw;
+	      align-items: center;
+	      display: inline-flex;
+      }
+    }
+    .extra-infos {
+      font-family: var(--ion-font-sub-heading);
+      font-size: var(--ion-font-size-sub-xs);
+      color: var(--ion-color-tertiary);
+      line-break: anywhere;
+      .confirmations-pending {
+        color: rgba(var(--ion-color-warning-rgb), 0.6);
+      }
+    }
+  }
 }

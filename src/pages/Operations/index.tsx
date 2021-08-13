@@ -36,11 +36,6 @@ import type { Transfer, TxDisplayInterface } from '../../utils/types';
 import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
 import './style.scss';
 
-const statusText = {
-  confirmed: 'confirmed',
-  pending: 'pending',
-};
-
 interface OperationsProps extends RouteComponentProps {
   balances: BalanceInterface[];
   prices: Record<string, number>;
@@ -123,16 +118,17 @@ const Operations: React.FC<OperationsProps> = ({
   };
 
   const renderStatusText: any = (status: string) => {
+    const capitalized = (status[0].toUpperCase() + status.slice(1)) as keyof typeof TxStatusEnum;
     switch (status) {
       case TxStatusEnum.Confirmed:
         return (
           <span className="status-text confirmed">
             <IonIcon icon={checkmarkSharp} />
-            <span className="ml-2">{statusText[status]}</span>
+            <span className="ml-2">{TxStatusEnum[capitalized]}</span>
           </span>
         );
       case TxStatusEnum.Pending:
-        return <span className="status-text pending">{statusText[status]}</span>;
+        return <span className="status-text pending">{TxStatusEnum[capitalized]}</span>;
       default:
         return <span className="status-text pending" />;
     }
@@ -309,7 +305,7 @@ const Operations: React.FC<OperationsProps> = ({
                         </IonRow>
                         <div className="extra-infos">
                           {TxTypeEnum[tx.type] !== 'DepositBtc' && (
-                            <IonRow className="mt-5">
+                            <IonRow className="mt-3">
                               <IonCol className="pl-5" size="6" offset="1">
                                 {`Fee: ${fromSatoshi(tx.fee.toString(), 8).toFixed(8)} ${LBTC_TICKER}`}
                               </IonCol>
@@ -318,7 +314,7 @@ const Operations: React.FC<OperationsProps> = ({
                               </IonCol>
                             </IonRow>
                           )}
-                          <IonRow className="mt-5">
+                          <IonRow className="mt-3">
                             <IonCol className="pl-5" size="11" offset="1">
                               TxID: {tx.txId}
                             </IonCol>
@@ -333,7 +329,7 @@ const Operations: React.FC<OperationsProps> = ({
                                         ? getConfirmationCount(tx.blockHeight) < 101
                                         : true,
                                     },
-                                    'pl-5 mt-5'
+                                    'pl-5 mt-3'
                                   )}
                                   size="11"
                                   offset="1"

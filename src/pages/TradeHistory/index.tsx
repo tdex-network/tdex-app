@@ -6,14 +6,13 @@ import {
   IonItem,
   IonListHeader,
   IonIcon,
-  IonLabel,
   IonText,
   IonGrid,
   IonRow,
   IonCol,
 } from '@ionic/react';
 import classNames from 'classnames';
-import { checkmarkOutline } from 'ionicons/icons';
+import { checkmarkSharp } from 'ionicons/icons';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
@@ -23,8 +22,9 @@ import Header from '../../components/Header';
 import { CurrencyIcon } from '../../components/icons';
 import { addSuccessToast } from '../../redux/actions/toastActions';
 import { LBTC_TICKER } from '../../utils/constants';
-import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
+import { fromSatoshi, fromSatoshiFixed, precisionFromAssetHash, tickerFromAssetHash } from '../../utils/helpers';
 import type { TxDisplayInterface } from '../../utils/types';
+import { TxStatusEnum } from '../../utils/types';
 
 import './style.scss';
 
@@ -34,23 +34,6 @@ interface TradeHistoryProps extends RouteComponentProps {
 
 const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
   const dispatch = useDispatch();
-
-  const renderStatus: any = (status: string) => {
-    return status === 'pending' ? (
-      <div className="status pending">
-        PENDING{' '}
-        <span className="three-dots">
-          <span className="dot" />
-          <span className="dot" />
-          <span className="dot" />
-        </span>
-      </div>
-    ) : (
-      <div className="status confirmed">
-        CONFIRMED <IonIcon color="success" icon={checkmarkOutline} />
-      </div>
-    );
-  };
 
   const copyTxId = (txid: string) => {
     Clipboard.copy(txid)
@@ -64,6 +47,23 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
       });
   };
 
+  const renderStatusText: any = (status: TxStatusEnum) => {
+    const capitalized = (status[0].toUpperCase() + status.slice(1)) as keyof typeof TxStatusEnum;
+    switch (status) {
+      case TxStatusEnum.Confirmed:
+        return (
+          <span className="status-text confirmed">
+            <IonIcon icon={checkmarkSharp} />
+            <span className="ml-2">{TxStatusEnum[capitalized]}</span>
+          </span>
+        );
+      case TxStatusEnum.Pending:
+        return <span className="status-text pending">{TxStatusEnum[capitalized]}</span>;
+      default:
+        return <span className="status-text pending" />;
+    }
+  };
+
   return (
     <IonPage id="trade-history">
       <IonContent>
@@ -72,14 +72,13 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
           {swaps.length > 0 ? (
             <IonList>
               <IonListHeader>Swaps</IonListHeader>
-              {swaps.map((transaction: TxDisplayInterface, index: number) => {
-                const transferSent = transaction.transfers.find((t) => t.amount < 0);
-                const transferReceived = transaction.transfers.find((t) => t.amount > 0);
-
+              {swaps.map((tx: TxDisplayInterface, index: number) => {
+                const transferSent = tx.transfers.find((t) => t.amount < 0);
+                const transferReceived = tx.transfers.find((t) => t.amount > 0);
                 if (!transferReceived || !transferSent) {
                   return <React.Fragment key={index} />;
                 }
-
+                const precisionAssetReceived = precisionFromAssetHash(transferReceived.asset);
                 const tickerSent = tickerFromAssetHash(transferSent.asset);
                 const tickerReceived = tickerFromAssetHash(transferReceived.asset);
                 return (
@@ -87,48 +86,46 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
                     className={classNames('list-item transaction-item', {
                       open: true,
                     })}
-                    key={transaction.txId}
+                    key={tx.txId}
                   >
-                    <div className="info-wrapper">
-                      <div className="item-main-info">
-                        <div className="swap-images">
-                          <CurrencyIcon currency={tickerSent} />
-                          <CurrencyIcon currency={tickerReceived} />
-                        </div>
-                        <div className="item-start">
-                          <div className="item-name">
-                            <div className="main-row">{`${tickerSent} / ${tickerReceived}`}</div>
-                            <div className="sub-row">{transaction.blockTime?.format('DD MMM YYYY HH:mm:ss')}</div>
-                          </div>
-                        </div>
-                        <div className="item-end">
-                          <div className="amount">
-                            <div className="main-row">{fromSatoshiFixed(transferReceived.amount.toString(), 8, 8)}</div>
-                            <div className="main-row accent">{tickerReceived}</div>
-                          </div>
-                          {renderStatus(transaction.status)}
-                        </div>
-                      </div>
-                      <div className="sub-info">
-                        <div className="fee-row">
-                          <IonLabel>
-                            Fee{' '}
-                            <span className="amount">
-                              {transaction.fee} {LBTC_TICKER}
-                            </span>
-                          </IonLabel>
-                          <IonText>
-                            {fromSatoshiFixed(transferSent.amount.toString(), 8, 8)}{' '}
-                            <span className="currency">{tickerSent}</span>
-                          </IonText>
-                        </div>
-                        <div className="info-row">
-                          <IonLabel>Id</IonLabel>
-                          <IonItem className="tx-item ion-text-right" onClick={() => copyTxId(transaction.txId)}>
-                            <IonText>{transaction.txId}</IonText>
-                          </IonItem>
-                        </div>
-                      </div>
+                    <IonRow>
+                      <IonCol className="icon" size="1.2">
+                        <CurrencyIcon currency={tickerSent} />
+                        <CurrencyIcon currency={tickerReceived} />
+                      </IonCol>
+                      <IonCol className="pl-5" size="4.3">
+                        <div className="asset">{`${tickerSent}/${tickerReceived}`}</div>
+                      </IonCol>
+                      <IonCol className="ion-text-right trade-amount" size="6.5">
+                        {fromSatoshiFixed(
+                          transferReceived.amount.toString(),
+                          precisionAssetReceived ?? 8,
+                          precisionAssetReceived ?? 8
+                        )}
+                        <span className="ticker">{tickerReceived}</span>
+                      </IonCol>
+                    </IonRow>
+                    <div className="extra-infos">
+                      <IonRow className="mt-3">
+                        <IonCol className="pl-5" size="10.8" offset="1.2">
+                          <div className="time mt-3">{tx.blockTime?.format('DD MMM YYYY HH:mm:ss')}</div>
+                        </IonCol>
+                      </IonRow>
+                      <IonRow className="mt-3">
+                        <IonCol className="pl-5" size="5.8" offset="1.2">
+                          {`Fee: ${fromSatoshi(tx.fee.toString(), precisionAssetReceived ?? 8).toFixed(
+                            precisionAssetReceived ?? 8
+                          )} ${LBTC_TICKER}`}
+                        </IonCol>
+                        <IonCol className="ion-text-right" size="5">
+                          <IonText>{renderStatusText(tx.status)}</IonText>
+                        </IonCol>
+                      </IonRow>
+                      <IonRow className="mt-3" onClick={() => copyTxId(tx.txId)}>
+                        <IonCol className="pl-5" size="10.8" offset="1.2">
+                          TxID: {tx.txId}
+                        </IonCol>
+                      </IonRow>
                     </div>
                   </IonItem>
                 );
