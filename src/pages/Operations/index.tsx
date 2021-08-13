@@ -345,7 +345,7 @@ const Operations: React.FC<OperationsProps> = ({
                                 <IonRow className="ion-margin-top">
                                   <IonCol size="11" offset="0.5">
                                     <IonButton
-                                      className="main-button"
+                                      className="main-button claim-button"
                                       onClick={() => {
                                         // Trigger global PinModalClaimPegin in App.tsx
                                         dispatch(
@@ -356,7 +356,7 @@ const Operations: React.FC<OperationsProps> = ({
                                         );
                                       }}
                                     >
-                                      Claim
+                                      ClAIM NOW
                                     </IonButton>
                                   </IonCol>
                                 </IonRow>

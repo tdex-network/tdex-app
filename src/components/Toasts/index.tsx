@@ -19,15 +19,15 @@ const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast }) => {
   const buttons = (toast: ToastOpts): (string | ToastButton)[] | undefined => {
     if (toast.type === 'claim-pegin') {
       return [
-        {
-          side: 'start',
-          role: 'cancel',
-          icon: closeCircleOutline,
-        },
+        // {
+        //   side: 'start',
+        //   role: 'cancel',
+        //   icon: closeCircleOutline,
+        // },
         {
           side: 'end',
           role: 'claim',
-          text: 'Claim',
+          text: 'CLAIM NOW',
           handler: () => {
             dispatch(setModalClaimPegin({ isOpen: true }));
           },
