@@ -12,9 +12,10 @@ interface ToastsProps {
   toasts: ToastOpts[];
   removeToast: (ID: number) => any;
   removeAllToast: () => void;
+  removeToastByType: (type: ToastType) => void;
 }
 
-const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast, removeAllToast }) => {
+const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast, removeToastByType }) => {
   const dispatch = useDispatch();
   const [progressStart, setProgressStart] = useState<CreateAnimationProps['progressStart']>();
   const [progressEnd, setProgressEnd] = useState<CreateAnimationProps['progressEnd']>();
@@ -64,7 +65,7 @@ const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast, removeAllToast }) 
       opts: { oneTimeCallback: true },
     });
     if (ev.deltaY > 60) {
-      removeAllToast();
+      removeToastByType('claim-pegin');
     } else {
       toastEl.style.transform = `translateY(${INITIAL_CLAIM_TOAST_POSITION}px)`;
     }
@@ -92,14 +93,13 @@ const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast, removeAllToast }) 
       {toasts.map((toast: ToastOpts) => (
         <CreateAnimation
           key={toast.ID}
-          ref={animationRef}
+          ref={toast.type === 'claim-pegin' ? animationRef : undefined}
           play={true}
           progressStart={progressStart}
           progressEnd={progressEnd}
           onFinish={onFinish}
         >
           <IonToast
-            key={toast.ID}
             isOpen={true}
             color={toastColor(toast.type)}
             duration={toast?.duration ?? toastDuration(toast.type)}

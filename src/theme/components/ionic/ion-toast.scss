@@ -4,7 +4,7 @@ ion-toast {
   font-size: var(--ion-font-size-sub-l);
   &.claim::part(container) {
     border-radius: 5px;
-    padding-right: 3vw;
+    padding-right: 2vw;
   }
   &.claim::part(toast-button-claim) {
     background-color: var(--ion-color-primary);
@@ -16,5 +16,9 @@ ion-toast {
   &.claim::part(toast-content) {
     padding-left: 4vw;
     padding-right: 2vw;
+  }
+  &.claim::part(toast-button-group-end) {
+    margin: 0;
+    margin-inline-end: 0;
   }
 }

@@ -209,6 +209,9 @@ function* checkIfClaimablePeginUtxo() {
       const toastEl = document.querySelector('ion-toast');
       const el = toastEl?.shadowRoot && toastEl.shadowRoot.querySelector('.toast-button-claim');
       if (el) el.setAttribute('part', 'toast-button-claim');
+      // target .toast-button-group-end
+      const btnGroupEnd = toastEl?.shadowRoot && toastEl.shadowRoot.querySelector('.toast-button-group-end');
+      if (btnGroupEnd) btnGroupEnd.setAttribute('part', 'toast-button-group-end');
       // target .toast-content
       const content = toastEl?.shadowRoot && toastEl.shadowRoot.querySelector('.toast-content');
       if (content) content.setAttribute('part', 'toast-content');
