@@ -2,21 +2,23 @@ ion-toast {
   --border-radius: 8px;
   font-family: var(--ion-font-sub);
   font-size: var(--ion-font-size-sub-l);
-  &.claim {
-    transform: translateY(-73px) !important;
-  }
   &.claim::part(container) {
     border-radius: 5px;
-    padding-right: 10px;
+    padding-right: 2vw;
   }
   &.claim::part(toast-button-claim) {
+    background-color: var(--ion-color-primary);
     border-radius: 5px;
-    color: var(--ion-color-primary);
+    color: var(--ion-color-secondary);
     font-size: var(--ion-font-size-sub);
     border: 2px solid var(--ion-color-primary);
   }
   &.claim::part(toast-content) {
-    padding-left: 0;
-    padding-right: 5px;
+    padding-left: 4vw;
+    padding-right: 2vw;
+  }
+  &.claim::part(toast-button-group-end) {
+    margin: 0;
+    margin-inline-end: 0;
   }
 }

@@ -96,6 +96,9 @@
       color: var(--ion-color-tertiary);
       line-height: 18px;
     }
+    ion-button.claim-button {
+      --background: var(--ion-color-secondary-dark);
+    }
     .operation-amount {
       text-align: right;
       .operation-amount__lbtc {

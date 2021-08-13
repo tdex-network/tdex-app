@@ -4,6 +4,7 @@ import type { ToastOpts, ToastType } from '../reducers/toastReducer';
 
 export const ADD_TOAST = 'ADD_TOAST';
 export const REMOVE_TOAST = 'REMOVE_TOAST';
+export const REMOVE_ALL_TOAST = 'REMOVE_ALL_TOAST';
 export const REMOVE_TOAST_BY_TYPE = 'REMOVE_TOAST_BY_TYPE';
 
 export function addSuccessToast(message: string, duration?: number): ActionType {
@@ -42,6 +43,12 @@ export function removeToast(ID: number): ActionType {
   return {
     type: REMOVE_TOAST,
     payload: ID,
+  };
+}
+
+export function removeAllToast(): ActionType {
+  return {
+    type: REMOVE_ALL_TOAST,
   };
 }
 

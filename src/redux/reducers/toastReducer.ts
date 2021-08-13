@@ -1,7 +1,7 @@
 import type { ToastButton } from '@ionic/react';
 
 import type { ActionType } from '../../utils/types';
-import { ADD_TOAST, REMOVE_TOAST, REMOVE_TOAST_BY_TYPE } from '../actions/toastActions';
+import { ADD_TOAST, REMOVE_ALL_TOAST, REMOVE_TOAST, REMOVE_TOAST_BY_TYPE } from '../actions/toastActions';
 
 export type ToastType = 'success' | 'error' | 'warning' | 'claim-pegin';
 
@@ -23,6 +23,8 @@ const toastReducer = (state: ToastState = [], action: ActionType): any[] => {
       return [action.payload, ...state];
     case REMOVE_TOAST:
       return state.filter(({ ID }) => ID !== action.payload);
+    case REMOVE_ALL_TOAST:
+      return [];
     case REMOVE_TOAST_BY_TYPE:
       return state.filter(({ type }) => type !== action.payload);
     default:
