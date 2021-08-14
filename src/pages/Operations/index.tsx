@@ -331,11 +331,19 @@ const Operations: React.FC<OperationsProps> = ({
                                     },
                                     'pl-5 mt-3'
                                   )}
-                                  size="11"
+                                  size="6"
                                   offset="1"
                                 >
                                   Confirmations: {tx.blockHeight ? getConfirmationCount(tx.blockHeight) : 0}
                                 </IonCol>
+                                {tx.claimTxId && (
+                                  <IonCol className="ion-text-right" size="5">
+                                    <span className="status-text confirmed">
+                                      <IonIcon icon={checkmarkSharp} />
+                                      <span className="ml-2">Claimed</span>
+                                    </span>
+                                  </IonCol>
+                                )}
                               </IonRow>
                               {checkIfPeginIsClaimable(tx) && (
                                 <IonRow className="ion-margin-top">
