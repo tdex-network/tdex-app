@@ -61,15 +61,6 @@
   }
   
   .operation-item {
-    .pl-5 {
-      padding-left: 5px;
-    }
-    .mt-5 {
-      margin-top: 5px;
-    }
-    .ml-2 {
-      margin-left: 2px;
-    }
     &::part(native) {
       width: 100%;
       flex-direction: column;
