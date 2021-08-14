@@ -37,6 +37,7 @@ const PinModalClaimPegin: React.FC<PinModalClaimPeginProps> = ({
   const dispatch = useDispatch();
 
   const managePinError = async (closeModal = false) => {
+    setIsLoading(false);
     setIsWrongPin(true);
     setTimeout(() => {
       setIsWrongPin(null);
@@ -49,6 +50,7 @@ const PinModalClaimPegin: React.FC<PinModalClaimPeginProps> = ({
   };
 
   const managePinSuccess = async () => {
+    setIsLoading(false);
     setIsWrongPin(false);
     setTimeout(() => {
       setIsWrongPin(null);
@@ -59,6 +61,7 @@ const PinModalClaimPegin: React.FC<PinModalClaimPeginProps> = ({
   };
 
   const handleClaimModalConfirm = async (pin: string) => {
+    setIsLoading(true);
     const validRegexp = new RegExp('\\d{6}');
     if (!validRegexp.test(pin)) {
       dispatch(addErrorToast(PinDigitsError));
@@ -66,7 +69,6 @@ const PinModalClaimPegin: React.FC<PinModalClaimPeginProps> = ({
     }
     getIdentity(pin)
       .then(async (mnemonic: Mnemonic) => {
-        setIsLoading(true);
         // Try to claim a specific pegin or all of them
         const pendingPegins = modalClaimPegins.claimScriptToClaim
           ? {
@@ -105,9 +107,6 @@ const PinModalClaimPegin: React.FC<PinModalClaimPeginProps> = ({
         console.error(e);
         dispatch(addErrorToast(IncorrectPINError));
         managePinError();
-      })
-      .finally(() => {
-        setIsLoading(false);
       });
   };
 
