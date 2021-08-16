@@ -2,7 +2,15 @@ import 'cypress-localstorage-commands';
 import { localStorage as localStorageFixture, pin } from '../fixtures/fixtures.json';
 
 Cypress.Commands.add('launchWallet', (opts?: Partial<typeof localStorageFixture>) => {
-  cy.then(() => cy.visit('/'))
+  cy.then(() =>
+    cy.visit('/', {
+      onBeforeLoad(win) {
+        cy.stub(win.console, `error`, (msg: any) => {
+          cy.task('error', msg);
+        });
+      },
+    })
+  )
     .then(() => {
       const localStorage = { ...localStorageFixture, ...opts };
       for (const localStorageKey in localStorage) {
