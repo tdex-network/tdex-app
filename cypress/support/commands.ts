@@ -3,6 +3,13 @@ import { localStorage as localStorageFixture, pin } from '../fixtures/fixtures.j
 
 Cypress.Commands.add('launchWallet', (opts?: Partial<typeof localStorageFixture>) => {
   cy.then(() => cy.visit('/'))
+    .then((win) => {
+      cy.then(() => {
+        cy.stub(win.console, `error`, (msg) => {
+          cy.task('error', msg);
+        });
+      });
+    })
     .then(() => {
       const localStorage = { ...localStorageFixture, ...opts };
       for (const localStorageKey in localStorage) {
@@ -19,22 +26,5 @@ Cypress.Commands.add('launchWallet', (opts?: Partial<typeof localStorageFixture>
       cy.get('[data-cy=pin-input]').children().type(pin);
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(12_000);
-    })
-    .then(() => {
-      // cy.window().then((win) => {
-      //   cy.wrap(cy.spy(win.console, 'error')).as('spyWinConsoleError');
-      // });
-
-      // cy.window().then((win) => {
-      //   cy.stub(win.console, `error`, (msg) => {
-      //     cy.task('error', msg);
-      //   });
-      // });
-
-    })
-    .then((win) => {
-      cy.stub(win.console, `error`, (msg) => {
-        cy.task('error', msg);
-      });
     });
 });
