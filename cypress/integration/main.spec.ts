@@ -7,6 +7,9 @@ before(() => {
   faucet(firstAddress, 100).catch(console.error);
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(10_000);
+  cy.on('window:before:load', (win) => {
+    cy.spy(win.console, 'log');
+  });
 });
 
 describe('onboarding', () => {
