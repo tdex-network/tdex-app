@@ -19,6 +19,12 @@
 // @ts-ignore
 // eslint-disable-next-line no-unused-vars,no-undef
 module.exports = (on, config) => {
+  on('task', {
+    error(message: any) {
+      console.error(message);
+      return null;
+    },
+  });
   // `on` is used to hook into various events Cypress emits
   // `config` is the resolved Cypress config
 };

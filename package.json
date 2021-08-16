@@ -27,7 +27,8 @@
       "module": true
     },
     "rules": {
-      "@typescript-eslint/no-namespace": "off"
+      "@typescript-eslint/no-namespace": "off",
+      "@typescript-eslint/ban-ts-comment": "off"
     }
   },
   "scripts": {
