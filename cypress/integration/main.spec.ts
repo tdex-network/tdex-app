@@ -52,7 +52,7 @@ describe('trade', () => {
 
   it('make a trade in L-sats', () => {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(3000);
+    cy.wait(6000);
     cy.launchWallet({ 'CapacitorStorage.tdex-app-lbtc-unit': 'L-sats' });
     cy.get('[data-cy=tab-exchange]').click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
