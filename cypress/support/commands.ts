@@ -6,7 +6,8 @@ Cypress.Commands.add('launchWallet', (opts?: Partial<typeof localStorageFixture>
     cy.visit('/', {
       onBeforeLoad(win) {
         cy.stub(win.console, `error`, (msg: any) => {
-          cy.task('error', msg);
+          // @ts-ignore
+          cy.now('task', 'error', msg);
         });
       },
     })
@@ -16,7 +17,6 @@ Cypress.Commands.add('launchWallet', (opts?: Partial<typeof localStorageFixture>
       for (const localStorageKey in localStorage) {
         if (Object.prototype.hasOwnProperty.call(localStorage, localStorageKey)) {
           cy.then(() => {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             cy.setLocalStorage(localStorageKey, localStorage[localStorageKey]);
           });
