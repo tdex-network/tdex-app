@@ -35,14 +35,12 @@ describe('trade', () => {
     cy.launchWallet();
     cy.get('[data-cy=tab-exchange]').click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
+    cy.wait(1000);
     cy.get('[data-cy=exchange-send-input]').children().type('1');
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.get('[data-cy=exchange-confirm-btn]').contains('CONFIRM').click();
     cy.get('[data-cy=description-p]').should('contain', 'Enter your secret PIN to send 1 L-BTC and receive');
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
     cy.get('[data-cy=pin-input]').children().type(pin);
     cy.get('[data-cy=header-title]').should('contain.text', 'TRADE SUMMARY');
     cy.get('[data-cy=trade-summary-sent-amount]').should('contain.text', '-1');
@@ -54,14 +52,12 @@ describe('trade', () => {
     cy.launchWallet({ 'CapacitorStorage.tdex-app-lbtc-unit': 'L-sats' });
     cy.get('[data-cy=tab-exchange]').click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
+    cy.wait(1000);
     cy.get('[data-cy=exchange-send-input]').children().type('1000');
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.get('[data-cy=exchange-confirm-btn]').contains('CONFIRM').click();
     cy.get('[data-cy=description-p]').should('contain', 'Enter your secret PIN to send 1000 L-sats and receive');
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
     cy.get('[data-cy=pin-input]').children().type(pin);
     cy.get('[data-cy=header-title]').should('contain.text', 'TRADE SUMMARY');
     cy.get('[data-cy=trade-summary-sent-amount]').should('contain.text', '-1000');
