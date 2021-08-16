@@ -116,7 +116,7 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts }) 
           </div>
           {state?.depositAsset?.ticker === BTC_TICKER ? (
             <PageDescription
-              description="Send any amount of Bitcoin to receive Liquid Bitcoin."
+              description="Send bitcoins to convert them in Liquid bitcoins. You need to wait 101 blocks (around 17 hours), after which time you will be able to finalize the pegin process."
               title={`Your Bitcoin Pegin address`}
             />
           ) : (
