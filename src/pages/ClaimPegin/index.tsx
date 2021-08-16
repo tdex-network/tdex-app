@@ -184,10 +184,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
         <IonGrid className="ion-text-center ion-justify-content-center">
           <Header hasBackButton={true} title="CLAIM LIQUID BITCOIN" />
           <PageDescription
-            description={
-              'In case you erased your wallet data you can claim your Liquid Bitcoin by manually specifying the Bitcoin ' +
-              'deposit address you sent funds to. Also make sure you did a deep restoration of your wallet addresses.'
-            }
+            description="Here you can manually claim Liquid Bitcoin using the Bitcoin deposit address. You can find the Bitcoin address in the Bitcoin wallet used for making the Bitcoin pegin transaction."
             title="Claim your Liquid Bitcoin"
           />
           {/**/}
