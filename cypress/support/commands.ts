@@ -25,10 +25,16 @@ Cypress.Commands.add('launchWallet', (opts?: Partial<typeof localStorageFixture>
       //   cy.wrap(cy.spy(win.console, 'error')).as('spyWinConsoleError');
       // });
 
-      cy.window().then((win) => {
-        cy.stub(win.console, `error`, (msg) => {
-          cy.task('error', msg);
-        });
+      // cy.window().then((win) => {
+      //   cy.stub(win.console, `error`, (msg) => {
+      //     cy.task('error', msg);
+      //   });
+      // });
+
+    })
+    .then((win) => {
+      cy.stub(win.console, `error`, (msg) => {
+        cy.task('error', msg);
       });
     });
 });
