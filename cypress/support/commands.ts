@@ -21,8 +21,8 @@ Cypress.Commands.add('launchWallet', (opts?: Partial<typeof localStorageFixture>
       cy.wait(12_000);
     })
     .then(() => {
-      cy.on('window:before:load', (win) => {
-        cy.spy(win.console, 'error');
+      cy.window().then((win) => {
+        cy.wrap(cy.spy(win.console, 'error')).as('spyWinConsoleError');
       });
     });
 });
