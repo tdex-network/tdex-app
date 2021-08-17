@@ -12,6 +12,7 @@ import Terms from './pages/Terms';
 import WithdrawalDetails from './pages/WithdrawalDetails';
 import Backup from './redux/containers/backupContainer';
 import ClaimPegin from './redux/containers/claimPeginContainer';
+import ElectrumServer from './redux/containers/electrumServerContainer';
 import Exchange from './redux/containers/exchangeContainer';
 import TradeHistory from './redux/containers/exchangeHistoryContainer';
 import LiquidityProviders from './redux/containers/liquidityProvidersContainer';
@@ -46,6 +47,7 @@ export const routerLinks = {
   showMnemonicSettings: '/settings/show-mnemonic',
   terms: '/terms',
   deepRestoration: '/settings/deep-restoration',
+  electrumServer: '/settings/electrum-server',
 };
 
 export const ROUTES = [
@@ -136,6 +138,10 @@ export const ROUTES = [
   {
     path: routerLinks.claimPegin,
     component: ClaimPegin,
+  },
+  {
+    path: routerLinks.electrumServer,
+    component: ElectrumServer,
   },
 ];
 

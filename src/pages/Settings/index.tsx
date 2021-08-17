@@ -2,45 +2,25 @@ import type { AppInfo } from '@capacitor/app';
 import { App } from '@capacitor/app';
 import { Device } from '@capacitor/device';
 import type { DeviceInfo } from '@capacitor/device/dist/esm/definitions';
-import {
-  IonContent,
-  IonList,
-  IonItem,
-  IonPage,
-  IonListHeader,
-  IonModal,
-  IonInput,
-  IonGrid,
-  IonRow,
-  IonCol,
-  IonIcon,
-} from '@ionic/react';
+import { IonContent, IonList, IonItem, IonPage, IonListHeader, IonGrid, IonIcon } from '@ionic/react';
 import { chevronForwardOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
 
-import ButtonsMainSub from '../../components/ButtonsMainSub';
 import CurrencySearch from '../../components/CurrencySearch';
 import DenominationSearch from '../../components/DenominationSearch';
 import Header from '../../components/Header';
-import PageDescription from '../../components/PageDescription';
-import { setElectrumServer } from '../../redux/actions/settingsActions';
 import { routerLinks } from '../../routes';
-import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 
 import './style.scss';
 
 const Settings: React.FC<RouteComponentProps> = ({ history }) => {
-  const { explorerUrl, currency, unitLBTC } = useSelector((state: any) => ({
-    explorerUrl: state.settings.explorerUrl,
+  const { currency, unitLBTC } = useSelector((state: any) => ({
     currency: state.settings.currency,
-    theme: state.settings.theme,
     unitLBTC: state.settings.denominationLBTC,
   }));
-  const [showExplorerModal, setShowExplorerModal] = useState(false);
-  const [explorerValue, setExplorerValue] = useState(explorerUrl);
   const [currencySearchOpen, setCurrencySearchOpen] = useState(false);
   const [LBTCUnitSearchOpen, setLBTCUnitSearchOpen] = useState(false);
   const [appVersion, setAppVersion] = useState<string>();
@@ -55,13 +35,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
         setAppVersion(`${name} ${version} ${build}`);
       });
     });
-  });
-
-  const dispatch = useDispatch();
-  const handleExplorerChange = (e: any) => {
-    const { value } = e.detail;
-    setExplorerValue(value);
-  };
+  }, []);
 
   // const handleThemeChange = (e: any) => {
   //   const { checked } = e.detail;
@@ -106,11 +80,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               </IonItem>
             </IonItem>
 
-            <IonItem
-              onClick={() => {
-                setShowExplorerModal(true);
-              }}
-            >
+            <IonItem onClick={() => history.push(routerLinks.electrumServer)}>
               <span>Electrum server</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
@@ -120,11 +90,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 
-            <IonItem
-              onClick={() => {
-                history.push(routerLinks.claimPegin);
-              }}
-            >
+            <IonItem onClick={() => history.push(routerLinks.claimPegin)}>
               <span>Claim Liquid Bitcoin</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
@@ -149,90 +115,25 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               </div>
             </IonItem>*/}
           </IonList>
+          {/**/}
           <IonList>
             <IonListHeader>Support</IonListHeader>
-            <IonItem
-              onClick={() => {
-                history.push('/faq');
-              }}
-            >
+            <IonItem onClick={() => history.push('/faq')}>
               <span>FAQ</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
-            <IonItem
-              onClick={() => {
-                history.push('/privacy');
-              }}
-            >
+            <IonItem onClick={() => history.push('/privacy')}>
               <span>Privacy</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
-            <IonItem
-              onClick={() => {
-                history.push('/terms');
-              }}
-            >
+            <IonItem onClick={() => history.push('/terms')}>
               <span>Terms & Conditions</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
           </IonList>
           <p className="app-version">{appVersion}</p>
-
-          {/* Electrum Server */}
-          <IonModal
-            isOpen={showExplorerModal}
-            cssClass="modal-big withdrawal"
-            keyboardClose={false}
-            onDidDismiss={() => setShowExplorerModal(false)}
-          >
-            <IonContent>
-              <IonGrid>
-                <Header
-                  title="ELECTRUM SERVER"
-                  hasBackButton={false}
-                  hasCloseButton={true}
-                  handleClose={() => {
-                    setShowExplorerModal(false);
-                  }}
-                />
-                <PageDescription description="Set explorer url for electrum server" title="Electrum" />
-                <IonRow>
-                  <IonCol size="10" offset="1">
-                    <IonItem>
-                      <IonInput
-                        enterkeyhint="done"
-                        onKeyDown={onPressEnterKeyCloseKeyboard}
-                        inputmode="text"
-                        value={explorerValue}
-                        onIonChange={handleExplorerChange}
-                      />
-                    </IonItem>
-                  </IonCol>
-                </IonRow>
-
-                <IonRow className="ion-margin-vertical-x2">
-                  <IonCol>
-                    <ButtonsMainSub
-                      className="ion-margin"
-                      mainTitle="Save"
-                      subTitle="Cancel"
-                      mainOnClick={() => {
-                        dispatch(setElectrumServer(explorerValue));
-                        setShowExplorerModal(false);
-                      }}
-                      subOnClick={() => {
-                        setShowExplorerModal(false);
-                      }}
-                      mainDisabled={!explorerValue || !explorerValue.length}
-                    />
-                  </IonCol>
-                </IonRow>
-              </IonGrid>
-            </IonContent>
-          </IonModal>
-
+          {/**/}
           <CurrencySearch isOpen={currencySearchOpen} close={() => setCurrencySearchOpen(false)} />
-
           <DenominationSearch isOpen={LBTCUnitSearchOpen} close={() => setLBTCUnitSearchOpen(false)} />
         </IonGrid>
       </IonContent>
