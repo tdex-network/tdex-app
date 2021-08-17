@@ -61,12 +61,8 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsse
                     <p>{asset.ticker}</p>
                   </div>
                   <div className="search-item-amount">
-                    <p>
-                      <span className="price-equivalent">
-                        {(asset.coinGeckoID && prices[asset.coinGeckoID]) || '0 '}
-                      </span>
-                      <span>{currency.toUpperCase()}</span>
-                    </p>
+                    <span className="price">{(asset.coinGeckoID && prices[asset.coinGeckoID]) || '0'}</span>
+                    <span className="fiat-currency">{currency.toUpperCase()}</span>
                   </div>
                 </IonItem>
               );
