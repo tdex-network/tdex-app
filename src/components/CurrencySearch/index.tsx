@@ -55,7 +55,7 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
                   }}
                 >
                   <div className="search-item-name">
-                    <p>{`${currency.value} - ${currency.name}`}</p>
+                    <p>{`${currency.value.toUpperCase()} - ${currency.name}`}</p>
                   </div>
                 </IonItem>
               );
