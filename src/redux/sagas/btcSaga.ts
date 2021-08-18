@@ -43,18 +43,18 @@ function* restorePegins() {
 
 // Fetch block height continuously every minute
 function* watchCurrentBtcBlockHeight() {
-  const explorerBitcoinUrl: string = yield select((state: any) => state.settings.explorerBitcoinUrl);
-  const { currentBlockHeight } = yield call(getCurrentBtcBlockHeight, explorerBitcoinUrl);
+  const explorerBitcoinAPI: string = yield select((state: any) => state.settings.explorerBitcoinAPI);
+  const { currentBlockHeight } = yield call(getCurrentBtcBlockHeight, explorerBitcoinAPI);
   const setCurrentBtcBlockHeightAction = setCurrentBtcBlockHeight(currentBlockHeight);
   yield put(setCurrentBtcBlockHeightAction);
   yield delay(60_000);
   yield put({ type: 'WATCH_CURRENT_BTC_BLOCK_HEIGHT' });
 }
 
-async function getCurrentBtcBlockHeight(explorerBitcoinURL: string): Promise<{ currentBlockHeight: number }> {
+async function getCurrentBtcBlockHeight(explorerBitcoinAPI: string): Promise<{ currentBlockHeight: number }> {
   let currentBlockHeight;
   try {
-    currentBlockHeight = (await axios.get(`${explorerBitcoinURL}/blocks/tip/height`)).data;
+    currentBlockHeight = (await axios.get(`${explorerBitcoinAPI}/blocks/tip/height`)).data;
   } catch (err) {
     console.error(err);
   }
@@ -63,24 +63,24 @@ async function getCurrentBtcBlockHeight(explorerBitcoinURL: string): Promise<{ c
 
 function* updateDepositPeginUtxosState() {
   try {
-    const [pegins, explorerBitcoinURL]: [Pegins, string] = yield all([
+    const [pegins, explorerBitcoinAPI]: [Pegins, string] = yield all([
       select(({ btc }: { btc: BtcState }) => btc.pegins),
-      select(({ settings }) => settings.explorerBitcoinUrl),
+      select(({ settings }) => settings.explorerBitcoinAPI),
     ]);
-    yield call(fetchAndUpdateDepositPeginUtxos, pegins, explorerBitcoinURL);
+    yield call(fetchAndUpdateDepositPeginUtxos, pegins, explorerBitcoinAPI);
   } catch (error) {
     console.error(error);
     yield put(addErrorToast(UpdateUtxosError));
   }
 }
 
-export function* fetchAndUpdateDepositPeginUtxos(pegins: Pegins, explorerBitcoinUrl: string): any {
+export function* fetchAndUpdateDepositPeginUtxos(pegins: Pegins, explorerBitcoinAPI: string): any {
   const depositAddresses = Object.values(pegins).map((p) => p.depositAddress);
   if (!depositAddresses.length) return;
   let utxos;
   let utxoBtcUpdatedCount = 0;
   for (const claimScript in pegins) {
-    utxos = yield call(fetchUtxos, pegins[claimScript].depositAddress.address, explorerBitcoinUrl);
+    utxos = yield call(fetchUtxos, pegins[claimScript].depositAddress.address, explorerBitcoinAPI);
     for (const utxo of utxos) {
       if (
         !pegins[claimScript].depositUtxos?.[outpointToString(utxo)] ||
@@ -105,7 +105,7 @@ export function* fetchAndUpdateDepositPeginUtxos(pegins: Pegins, explorerBitcoin
  */
 function* restorePeginsFromDepositAddress(action: ActionType) {
   try {
-    const [pegins, addresses, masterBlindKey, masterPubKey, lastUsedIndexes, explorerBitcoinURL]: [
+    const [pegins, addresses, masterBlindKey, masterPubKey, lastUsedIndexes, explorerBitcoinAPI]: [
       Pegins,
       WalletState['addresses'],
       string,
@@ -121,7 +121,7 @@ function* restorePeginsFromDepositAddress(action: ActionType) {
         lastUsedExternalIndex: wallet.lastUsedExternalIndex,
         lastUsedInternalIndex: wallet.lastUsedInternalIndex,
       })),
-      select(({ settings }) => settings.explorerBitcoinUrl),
+      select(({ settings }) => settings.explorerBitcoinAPI),
     ]);
     const peginModule: ElementsPegin = yield call(getPeginModule);
     const retrievedPegins: Pegins = {};
@@ -169,7 +169,7 @@ function* restorePeginsFromDepositAddress(action: ActionType) {
     const newPegins = Object.assign({}, pegins, retrievedPegins);
     // Update pegin state
     yield put(upsertPegins(newPegins));
-    yield call(fetchAndUpdateDepositPeginUtxos, newPegins, explorerBitcoinURL);
+    yield call(fetchAndUpdateDepositPeginUtxos, newPegins, explorerBitcoinAPI);
     yield call(persistPegins);
   } catch (err) {
     console.error(err);

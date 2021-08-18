@@ -48,7 +48,7 @@ interface ExchangeProps extends RouteComponentProps {
   assets: Record<string, AssetConfig>;
   balances: BalanceInterface[];
   dispatch: Dispatch;
-  explorerUrl: string;
+  explorerLiquidAPI: string;
   lastUsedIndexes: StateRestorerOpts;
   lbtcUnit: LbtcDenomination;
   markets: TDEXMarket[];
@@ -58,7 +58,7 @@ interface ExchangeProps extends RouteComponentProps {
 const Exchange: React.FC<ExchangeProps> = ({
   history,
   balances,
-  explorerUrl,
+  explorerLiquidAPI,
   markets,
   utxos,
   assets,
@@ -195,7 +195,7 @@ const Exchange: React.FC<ExchangeProps> = ({
           ).toNumber(),
           asset: assetSent.asset,
         },
-        explorerUrl,
+        explorerLiquidAPI,
         utxos,
         identity,
         customCoinSelector(dispatch)

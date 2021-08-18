@@ -80,8 +80,8 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               </IonItem>
             </IonItem>
 
-            <IonItem onClick={() => history.push(routerLinks.electrumServer)}>
-              <span>Electrum server</span>
+            <IonItem onClick={() => history.push(routerLinks.explorers)}>
+              <span>Explorers endpoints</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 

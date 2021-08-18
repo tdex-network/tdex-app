@@ -1,8 +1,8 @@
 import type { ActionType } from '../../utils/types';
 import type { CurrencyInterface } from '../reducers/settingsReducer';
 
-export const SET_ELECTRUM_SERVER = 'SET_ELECTRUM_SERVER';
-export const SET_EXPLORER_BITCOIN = 'SET_EXPLORER_BITCOIN';
+export const SET_EXPLORER_LIQUID_API = 'SET_EXPLORER_LIQUID_API';
+export const SET_EXPLORER_BITCOIN_API = 'SET_EXPLORER_BITCOIN_API';
 export const SET_EXPLORER_BITCOIN_UI = 'SET_EXPLORER_BITCOIN_UI';
 export const SET_EXPLORER_LIQUID_UI = 'SET_EXPLORER_LIQUID_UI';
 export const SET_THEME = 'SET_THEME';
@@ -22,16 +22,16 @@ export const setCurrency = (currency: CurrencyInterface): ActionType => {
   };
 };
 
-export const setElectrumServer = (url: string): ActionType => {
+export const setExplorerLiquidAPI = (url: string): ActionType => {
   return {
-    type: SET_ELECTRUM_SERVER,
+    type: SET_EXPLORER_LIQUID_API,
     payload: url,
   };
 };
 
-export const setExplorerBitcoin = (url: string): ActionType => {
+export const setExplorerBitcoinAPI = (url: string): ActionType => {
   return {
-    type: SET_EXPLORER_BITCOIN,
+    type: SET_EXPLORER_BITCOIN_API,
     payload: url,
   };
 };

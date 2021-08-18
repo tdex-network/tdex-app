@@ -131,13 +131,13 @@ export function capitalizeFirstLetter(string: string): string {
 /**
  * Use esplora server to fetchTxHex
  * @param txid
- * @param explorerURL
+ * @param explorerLiquidAPI
  */
-export async function waitForTx(txid: string, explorerURL: string): Promise<void> {
+export async function waitForTx(txid: string, explorerLiquidAPI: string): Promise<void> {
   let go = true;
   while (go) {
     try {
-      await fetchTxHex(txid, explorerURL);
+      await fetchTxHex(txid, explorerLiquidAPI);
       go = false;
     } catch (_) {
       await sleep(800);

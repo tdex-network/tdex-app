@@ -3,8 +3,8 @@ import { CURRENCIES, LBTC_DENOMINATIONS } from '../../utils/constants';
 import type { ActionType } from '../../utils/types';
 import {
   SET_CURRENCY,
-  SET_ELECTRUM_SERVER,
-  SET_EXPLORER_BITCOIN,
+  SET_EXPLORER_LIQUID_API,
+  SET_EXPLORER_BITCOIN_API,
   SET_EXPLORER_BITCOIN_UI,
   SET_EXPLORER_LIQUID_UI,
   SET_LBTC_DENOMINATION,
@@ -20,8 +20,8 @@ export interface CurrencyInterface {
 
 export interface SettingsState {
   currency: CurrencyInterface;
-  explorerUrl: string;
-  explorerBitcoinUrl: string;
+  explorerLiquidAPI: string;
+  explorerBitcoinAPI: string;
   explorerBitcoinUI: string;
   explorerLiquidUI: string;
   theme: string;
@@ -30,8 +30,8 @@ export interface SettingsState {
 
 const initialState: SettingsState = {
   currency: CURRENCIES[0],
-  explorerUrl: network.explorer,
-  explorerBitcoinUrl: network.explorerBitcoin,
+  explorerLiquidAPI: network.explorerLiquidAPI,
+  explorerBitcoinAPI: network.explorerBitcoinAPI,
   explorerBitcoinUI: network.explorerBitcoinUI,
   explorerLiquidUI: network.explorerLiquidUI,
   theme: 'dark',
@@ -50,15 +50,15 @@ const settingsReducer = (state: SettingsState = initialState, action: ActionType
         ...state,
         currency: action.payload,
       };
-    case SET_ELECTRUM_SERVER:
+    case SET_EXPLORER_LIQUID_API:
       return {
         ...state,
-        explorerUrl: action.payload,
+        explorerLiquidAPI: action.payload,
       };
-    case SET_EXPLORER_BITCOIN:
+    case SET_EXPLORER_BITCOIN_API:
       return {
         ...state,
-        explorerBitcoinUrl: action.payload,
+        explorerBitcoinAPI: action.payload,
       };
     case SET_EXPLORER_BITCOIN_UI:
       return {

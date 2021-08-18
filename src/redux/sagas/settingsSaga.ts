@@ -21,19 +21,19 @@ import type { ActionType } from '../../utils/types';
 import { SIGN_IN } from '../actions/appActions';
 import {
   setCurrency,
-  setElectrumServer,
-  setExplorerBitcoin,
+  setExplorerLiquidAPI,
+  setExplorerBitcoinAPI,
   setExplorerLiquidUI,
   setExplorerBitcoinUI,
   setLBTCDenomination,
   setTheme,
   storeTheme,
   SET_CURRENCY,
-  SET_ELECTRUM_SERVER,
+  SET_EXPLORER_LIQUID_API,
   SET_LBTC_DENOMINATION,
   SET_THEME,
   STORE_THEME,
-  SET_EXPLORER_BITCOIN,
+  SET_EXPLORER_BITCOIN_API,
   SET_EXPLORER_LIQUID_UI,
   SET_EXPLORER_BITCOIN_UI,
 } from '../actions/settingsActions';
@@ -66,7 +66,7 @@ function* restoreExplorerLiquidAPI() {
   try {
     const explorerEndpoint: string | null = yield call(getExplorerFromStorage);
     if (explorerEndpoint) {
-      yield put(setElectrumServer(explorerEndpoint));
+      yield put(setExplorerLiquidAPI(explorerEndpoint));
     }
   } catch (e) {
     console.error(e);
@@ -77,7 +77,7 @@ function* restoreExplorerBitcoinAPI() {
   try {
     const explorerEndpoint: string | null = yield call(getExplorerBitcoinFromStorage);
     if (explorerEndpoint) {
-      yield put(setExplorerBitcoin(explorerEndpoint));
+      yield put(setExplorerBitcoinAPI(explorerEndpoint));
     }
   } catch (e) {
     console.error(e);
@@ -169,8 +169,8 @@ export function* settingsWatcherSaga(): Generator<any, any, any> {
   yield takeLatest(SIGN_IN, restoreCurrency);
   yield takeLatest(SIGN_IN, restoreDenomination);
   yield takeLatest(SET_LBTC_DENOMINATION, persistDenomination);
-  yield takeLatest(SET_ELECTRUM_SERVER, persistExplorer);
-  yield takeLatest(SET_EXPLORER_BITCOIN, persistExplorerBitcoin);
+  yield takeLatest(SET_EXPLORER_LIQUID_API, persistExplorer);
+  yield takeLatest(SET_EXPLORER_BITCOIN_API, persistExplorerBitcoin);
   yield takeLatest(SET_EXPLORER_LIQUID_UI, persistExplorerLiquidUI);
   yield takeLatest(SET_EXPLORER_BITCOIN_UI, persistExplorerBitcoinUI);
   yield takeLatest(SET_CURRENCY, persistCurrency);

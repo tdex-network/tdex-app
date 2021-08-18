@@ -5,8 +5,8 @@ import PinModalClaimPegin from '../../components/PinModal/PinModalClaimPegin';
 const mapStateToProps = (state: any) => {
   return {
     currentBtcBlockHeight: state.btc.currentBlockHeight,
-    explorerBitcoinUrl: state.settings.explorerBitcoinUrl,
-    explorerUrl: state.settings.explorerUrl,
+    explorerBitcoinAPI: state.settings.explorerBitcoinAPI,
+    explorerLiquidAPI: state.settings.explorerLiquidAPI,
     modalClaimPegins: state.btc.modalClaimPegins,
     pegins: state.btc.pegins,
   };

@@ -53,7 +53,7 @@ interface WithdrawalProps
   balances: BalanceInterface[];
   utxos: UtxoInterface[];
   prices: Record<string, number>;
-  explorerURL: string;
+  explorerLiquidAPI: string;
   lastUsedIndexes: StateRestorerOpts;
   lbtcUnit: LbtcDenomination;
 }
@@ -62,7 +62,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   balances,
   utxos,
   prices,
-  explorerURL,
+  explorerLiquidAPI,
   history,
   location,
   lastUsedIndexes,
@@ -203,7 +203,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       const blindedPset = await identity.blindPset(withdrawPset, outputsToBlind, blindKeyMap);
       const signedPset = await identity.signPset(blindedPset);
       const txHex = Psbt.fromBase64(signedPset).finalizeAllInputs().extractTransaction().toHex();
-      const txid = await broadcastTx(txHex, explorerURL);
+      const txid = await broadcastTx(txHex, explorerLiquidAPI);
       dispatch(addSuccessToast(`Transaction broadcasted. ${amount} ${balance?.ticker} sent.`));
       dispatch(watchTransaction(txid));
       setModalOpen(false);

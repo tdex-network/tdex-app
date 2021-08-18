@@ -40,9 +40,9 @@ function* signInSaga(action: ActionType) {
     if (backup) yield put(setIsBackupDone(true));
     // Wallet Restoration
     yield setIsFetchingUtxos(true);
-    const explorerUrl: string = yield select((state: any) => state.settings.explorerUrl);
+    const explorerLiquidAPI: string = yield select((state: any) => state.settings.explorerLiquidAPI);
     yield all([
-      call(waitForRestore, action.payload.mnemonic, explorerUrl),
+      call(waitForRestore, action.payload.mnemonic, explorerLiquidAPI),
       put(setPublicKeys(action.payload.mnemonic)),
     ]);
     const addresses: AddressInterface[] = yield call(() => action.payload.mnemonic.getAddresses());

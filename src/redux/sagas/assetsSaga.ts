@@ -13,8 +13,8 @@ function* addAssetSaga({ payload }: { payload: string }) {
   // check if asset already present in state
   const asset: AssetConfig = yield select((state: any) => state.assets[payload]);
   if (!asset) {
-    const explorerUrl: string = yield select((state: any) => state.settings.explorerUrl);
-    const { precision, ticker, name } = yield call(getAssetData, payload, explorerUrl);
+    const explorerLiquidAPI: string = yield select((state: any) => state.settings.explorerLiquidAPI);
+    const { precision, ticker, name } = yield call(getAssetData, payload, explorerLiquidAPI);
 
     const setAssetAction = setAsset({
       ticker,
@@ -30,10 +30,10 @@ function* addAssetSaga({ payload }: { payload: string }) {
 
 async function getAssetData(
   assetHash: string,
-  explorerURL: string
+  explorerLiquidAPI: string
 ): Promise<{ precision: number; ticker: string; name: string }> {
   try {
-    const { precision, ticker, name } = (await axios.get(`${explorerURL}/asset/${assetHash}`)).data;
+    const { precision, ticker, name } = (await axios.get(`${explorerLiquidAPI}/asset/${assetHash}`)).data;
     return {
       precision: precision ?? defaultPrecision,
       ticker: ticker || tickerFromAssetHash(assetHash),

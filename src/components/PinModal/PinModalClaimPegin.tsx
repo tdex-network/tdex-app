@@ -18,16 +18,16 @@ import PinModal from './index';
 
 interface PinModalClaimPeginProps {
   currentBtcBlockHeight: number;
-  explorerUrl: string;
-  explorerBitcoinUrl: string;
+  explorerLiquidAPI: string;
+  explorerBitcoinAPI: string;
   pegins: Pegins;
   modalClaimPegins: BtcState['modalClaimPegins'];
 }
 
 const PinModalClaimPegin: React.FC<PinModalClaimPeginProps> = ({
   currentBtcBlockHeight,
-  explorerUrl,
-  explorerBitcoinUrl,
+  explorerLiquidAPI,
+  explorerBitcoinAPI,
   pegins,
   modalClaimPegins,
 }) => {
@@ -75,7 +75,7 @@ const PinModalClaimPegin: React.FC<PinModalClaimPeginProps> = ({
               [modalClaimPegins.claimScriptToClaim]: pegins[modalClaimPegins.claimScriptToClaim],
             }
           : pegins;
-        claimPegins(explorerBitcoinUrl, explorerUrl, pendingPegins, mnemonic, currentBtcBlockHeight)
+        claimPegins(explorerBitcoinAPI, explorerLiquidAPI, pendingPegins, mnemonic, currentBtcBlockHeight)
           .then(async (successPegins) => {
             if (Object.keys(successPegins).length) {
               Object.values(successPegins).forEach((p: Pegin) => {
