@@ -108,26 +108,6 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
                     <IonIcon icon={chevronForwardOutline} />
                   </div>
                 </IonItem>
-
-                {/* Show advanced info */}
-                {/*<IonItem
-            className="list-item"
-            onClick={() => {
-              history.push('/set-pin');
-            }}
-          >
-            <div className="item-main-info">
-              <IonIcon icon={shieldCheckmark} />
-              <div className="item-start">
-                <div className="main-row">Show advanced info </div>
-                <IonText className="description">
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                </IonText>
-              </div>
-              <IonIcon icon={chevronForwardOutline} />
-            </div>
-          </IonItem>*/}
               </IonList>
 
               <IonList>

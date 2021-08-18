@@ -14,6 +14,7 @@ import Backup from './redux/containers/backupContainer';
 import ClaimPegin from './redux/containers/claimPeginContainer';
 import Exchange from './redux/containers/exchangeContainer';
 import TradeHistory from './redux/containers/exchangeHistoryContainer';
+import Explorers from './redux/containers/explorersContainer';
 import LiquidityProviders from './redux/containers/liquidityProvidersContainer';
 import Operations from './redux/containers/operationsContainer';
 import Receive from './redux/containers/receiveContainer';
@@ -46,6 +47,7 @@ export const routerLinks = {
   showMnemonicSettings: '/settings/show-mnemonic',
   terms: '/terms',
   deepRestoration: '/settings/deep-restoration',
+  explorers: '/settings/explorers',
 };
 
 export const ROUTES = [
@@ -136,6 +138,10 @@ export const ROUTES = [
   {
     path: routerLinks.claimPegin,
     component: ClaimPegin,
+  },
+  {
+    path: routerLinks.explorers,
+    component: Explorers,
   },
 ];
 

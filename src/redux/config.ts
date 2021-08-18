@@ -4,8 +4,8 @@ let network: any, defaultProvider: any;
 if (process.env.NODE_ENV === 'production') {
   network = {
     chain: 'liquid',
-    explorer: 'https://blockstream.info/liquid/api',
-    explorerBitcoin: 'https://blockstream.info/api',
+    explorerLiquidAPI: 'https://blockstream.info/liquid/api',
+    explorerBitcoinAPI: 'https://blockstream.info/api',
     explorerLiquidUI: 'https://blockstream.info/liquid',
     explorerBitcoinUI: 'https://blockstream.info',
   };
@@ -16,8 +16,8 @@ if (process.env.NODE_ENV === 'production') {
 } else {
   network = {
     chain: 'regtest',
-    explorer: 'http://localhost:3001',
-    explorerBitcoin: 'http://localhost:3000',
+    explorerLiquidAPI: 'http://localhost:3001',
+    explorerBitcoinAPI: 'http://localhost:3000',
     explorerLiquidUI: 'http://localhost:5001',
     explorerBitcoinUI: 'http://localhost:5000',
   };

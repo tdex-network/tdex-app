@@ -16,7 +16,7 @@ import { getIdentity } from '../../utils/storage-helper';
 
 const DeepRestoration: React.FC = () => {
   const [rangeValue, setRangeValue] = useState<RangeValue>(20);
-  const explorerUrl = useSelector((state: any) => state.settings.explorerUrl);
+  const explorerLiquidAPI = useSelector((state: any) => state.settings.explorerLiquidAPI);
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [needReset, setNeedReset] = useState<boolean>(false);
@@ -49,7 +49,7 @@ const DeepRestoration: React.FC = () => {
     try {
       await mnemonicRestorerFromEsplora(identity)({
         gapLimit: Number(rangeValue),
-        esploraURL: explorerUrl,
+        esploraURL: explorerLiquidAPI,
       });
       dispatch(addSuccessToast('Account discovery successful'));
     } catch (err) {

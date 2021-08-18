@@ -6,7 +6,7 @@ import { allUtxosSelector, balancesSelector, lastUsedIndexesSelector } from '../
 const mapStateToProps = (state: any) => {
   return {
     balances: balancesSelector(state),
-    explorerURL: state.settings.explorerUrl,
+    explorerLiquidAPI: state.settings.explorerLiquidAPI,
     lastUsedIndexes: lastUsedIndexesSelector(state),
     lbtcUnit: state.settings.denominationLBTC,
     prices: state.rates.prices,

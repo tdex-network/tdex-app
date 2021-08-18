@@ -10,15 +10,19 @@ export const axiosProviderObject = axios.create({
   baseURL: defaultProvider.endpoint,
 });
 
-export const getAssetsRequest = (path: string, explorerUrlValue: string, options?: any): Promise<AxiosResponse> => {
-  return axios.create({ baseURL: explorerUrlValue }).request({
+export const getAssetsRequest = (
+  path: string,
+  explorerLiquidAPIValue: string,
+  options?: any
+): Promise<AxiosResponse> => {
+  return axios.create({ baseURL: explorerLiquidAPIValue }).request({
     method: 'get',
     url: path,
     params: options?.params,
   });
 };
 
-export const waitForRestore = async (identity: Mnemonic, explorerUrlValue: string): Promise<boolean> => {
+export const waitForRestore = async (identity: Mnemonic, explorerLiquidAPIValue: string): Promise<boolean> => {
   try {
     const indexes = await getLastUsedIndexesInStorage();
     if (indexes && Object.values(indexes).length) {
@@ -26,7 +30,7 @@ export const waitForRestore = async (identity: Mnemonic, explorerUrlValue: strin
     } else {
       await mnemonicRestorerFromEsplora(identity)({
         gapLimit: 20,
-        esploraURL: explorerUrlValue,
+        esploraURL: explorerLiquidAPIValue,
       });
     }
   } catch (err) {
@@ -39,9 +43,9 @@ export const signTx = async (identity: any, unsignedTx: any): Promise<any> => {
   return identity.signPset(unsignedTx);
 };
 
-export async function broadcastTx(hex: string, explorerUrlValue: string): Promise<string> {
+export async function broadcastTx(hex: string, explorerLiquidAPIValue: string): Promise<string> {
   try {
-    const response = await axios.post(`${explorerUrlValue}/tx`, hex);
+    const response = await axios.post(`${explorerLiquidAPIValue}/tx`, hex);
     return response.data;
   } catch (err) {
     console.error(err);

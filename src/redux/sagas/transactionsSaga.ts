@@ -20,13 +20,13 @@ import type { WalletState } from '../reducers/walletReducer';
 
 function* updateTransactions() {
   try {
-    const [addresses, explorerURL, currentTxs]: [
+    const [addresses, explorerLiquidAPI, currentTxs]: [
       Record<string, AddressInterface>,
       string,
       Record<string, TxInterface>
     ] = yield all([
       select(({ wallet }: { wallet: WalletState }) => wallet.addresses),
-      select(({ settings }) => settings.explorerUrl),
+      select(({ settings }) => settings.explorerLiquidAPI),
       select(({ transactions }) => transactions.txs),
     ]);
 
@@ -35,7 +35,7 @@ function* updateTransactions() {
       toSearch.unshift(confidentialAddress);
     }
 
-    yield call(fetchAndUpdateTxs, toSearch, addresses, currentTxs, explorerURL);
+    yield call(fetchAndUpdateTxs, toSearch, addresses, currentTxs, explorerLiquidAPI);
   } catch (e) {
     console.error(e);
     yield put(addErrorToast(UpdateTransactionsError));
@@ -47,21 +47,26 @@ function* updateTransactions() {
  * @param addresses a set of addresses to search transactions.
  * @param scriptsToAddressInterface a record using to build a BlindingKeyGetter.
  * @param currentTxs
- * @param explorerUrl esplora URL used to fetch transactions.
+ * @param explorerLiquidAPI esplora URL used to fetch transactions.
  */
 export function* fetchAndUpdateTxs(
   addresses: string[],
   scriptsToAddressInterface: Record<string, AddressInterface>,
   currentTxs: Record<string, TxInterface>,
-  explorerUrl: string
+  explorerLiquidAPI: string
 ): Generator<any, any, any> {
   const identityBlindKeyGetter = blindKeyGetterFactory(scriptsToAddressInterface);
 
-  const txsGen = fetchAndUnblindTxsGenerator(addresses, identityBlindKeyGetter, explorerUrl, (tx: TxInterface) => {
-    const txInStore = currentTxs[tx.txid];
-    // skip if tx is already in store AND confirmed
-    return !!txInStore?.status.confirmed;
-  });
+  const txsGen = fetchAndUnblindTxsGenerator(
+    addresses,
+    identityBlindKeyGetter,
+    explorerLiquidAPI,
+    (tx: TxInterface) => {
+      const txInStore = currentTxs[tx.txid];
+      // skip if tx is already in store AND confirmed
+      return !!txInStore?.status.confirmed;
+    }
+  );
   const next = () => txsGen.next();
   let it: IteratorResult<TxInterface, number> = yield call(next);
 
@@ -102,7 +107,7 @@ function* watchTransaction(action: ActionType) {
   yield delay(1_000);
   const { txID, maxTry } = action.payload as { txID: string; maxTry: number };
   yield put(addWatcherTransaction(txID));
-  const explorer: string = yield select(({ settings }) => settings.explorerUrl);
+  const explorer: string = yield select(({ settings }) => settings.explorerLiquidAPI);
 
   for (let t = 0; t < maxTry; t++) {
     try {

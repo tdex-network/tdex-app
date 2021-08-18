@@ -13,8 +13,8 @@ const mapStateToProps = (state: any) => {
     btcTxs: depositPeginUtxosToDisplayTxSelector(state),
     currentBtcBlockHeight: state.btc.currentBlockHeight,
     pegins: state.btc.pegins,
-    explorerUrl: state.settings.explorerUrl,
-    explorerBitcoinUrl: state.settings.explorerBitcoinUrl,
+    explorerLiquidAPI: state.settings.explorerLiquidAPI,
+    explorerBitcoinAPI: state.settings.explorerBitcoinAPI,
   };
 };
 

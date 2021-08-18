@@ -37,8 +37,8 @@ import './style.scss';
 interface ClaimPeginProps extends RouteComponentProps {
   pegins: Pegins;
   explorerLiquidUI: string;
-  explorerBitcoinUrl: string;
-  explorerUrl: string;
+  explorerBitcoinAPI: string;
+  explorerLiquidAPI: string;
   toasts: ToastOpts[];
   currentBtcBlockHeight: number;
 }
@@ -47,8 +47,8 @@ interface ClaimPeginProps extends RouteComponentProps {
 const ClaimPegin: React.FC<ClaimPeginProps> = ({
   pegins,
   explorerLiquidUI,
-  explorerBitcoinUrl,
-  explorerUrl,
+  explorerBitcoinAPI,
+  explorerLiquidAPI,
   toasts,
   currentBtcBlockHeight,
 }) => {
@@ -75,7 +75,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
   useEffect(() => {
     if (inputBtcPeginAddress) {
       if (mnemonic) {
-        claimPegins(explorerBitcoinUrl, explorerUrl, pegins, mnemonic, currentBtcBlockHeight)
+        claimPegins(explorerBitcoinAPI, explorerLiquidAPI, pegins, mnemonic, currentBtcBlockHeight)
           .then((successPegins) => {
             if (Object.keys(successPegins).length) {
               setClaimedPegins(successPegins);

@@ -31,8 +31,8 @@ export async function getPeginModule(): Promise<ElementsPegin> {
 }
 
 export async function claimPegins(
-  explorerBitcoinUrl: string,
-  explorerUrl: string,
+  explorerBitcoinAPI: string,
+  explorerLiquidAPI: string,
   pegins: Pegins,
   mnemonic: Mnemonic,
   currentBtcBlockHeight: number
@@ -49,12 +49,12 @@ export async function claimPegins(
       if (!depositUtxo.claimTxId && confirmations && confirmations >= 101) {
         try {
           const ecPair = generateSigningPrivKey(mnemonic, pegin.depositAddress.derivationPath);
-          const btcPeginTxHex = (await axios.get(`${explorerBitcoinUrl}/tx/${depositUtxo.txid}/hex`)).data;
-          const btcBlockProof = (await axios.get(`${explorerBitcoinUrl}/tx/${depositUtxo.txid}/merkleblock-proof`))
+          const btcPeginTxHex = (await axios.get(`${explorerBitcoinAPI}/tx/${depositUtxo.txid}/hex`)).data;
+          const btcBlockProof = (await axios.get(`${explorerBitcoinAPI}/tx/${depositUtxo.txid}/merkleblock-proof`))
             .data;
           const claimTxHex = await peginModule.claimTx(btcPeginTxHex, btcBlockProof, claimScript);
           const signedClaimTxHex = signClaimTx(claimTxHex, btcPeginTxHex, claimScript, ecPair);
-          const claimTxId = await broadcastTx(signedClaimTxHex, explorerUrl);
+          const claimTxId = await broadcastTx(signedClaimTxHex, explorerLiquidAPI);
           pegin.depositUtxos[outpoint] = {
             ...depositUtxo,
             claimTxId: claimTxId,

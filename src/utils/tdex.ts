@@ -107,7 +107,7 @@ export async function calculatePrice(
  * make and broadcast the swap transaction
  * @param trade the selected trade using to swap
  * @param known the data inputs by the user
- * @param explorerUrl the esplora URL
+ * @param explorerLiquidAPI the esplora URL
  * @param utxos the user's set of utxos
  * @param identity the user's identity, using to sign and blind the transaction
  * @param coinSelector the coin selector using to *select* unspents
@@ -115,13 +115,13 @@ export async function calculatePrice(
 export async function makeTrade(
   trade: TDEXTrade,
   known: { amount: number; asset: string },
-  explorerUrl: string,
+  explorerLiquidAPI: string,
   utxos: UtxoInterface[],
   identity: TDEXMnemonic,
   coinSelector: CoinSelector
 ): Promise<string> {
   const trader = new Trade({
-    explorerUrl,
+    explorerUrl: explorerLiquidAPI,
     providerUrl: trade.market.provider.endpoint,
     utxos,
     coinSelector,

@@ -40,12 +40,13 @@ function* persistLastUsedIndexes() {
 
 function* updateUtxosState() {
   try {
-    const [addresses, utxos, explorerURL]: [AddressInterface[], Record<string, UtxoInterface>, string] = yield all([
-      select(({ wallet }: { wallet: WalletState }) => Object.values(wallet.addresses)),
-      select(({ wallet }: { wallet: WalletState }) => wallet.utxos),
-      select(({ settings }) => settings.explorerUrl),
-    ]);
-    yield call(fetchAndUpdateUtxos, addresses, utxos, explorerURL);
+    const [addresses, utxos, explorerLiquidAPI]: [AddressInterface[], Record<string, UtxoInterface>, string] =
+      yield all([
+        select(({ wallet }: { wallet: WalletState }) => Object.values(wallet.addresses)),
+        select(({ wallet }: { wallet: WalletState }) => wallet.utxos),
+        select(({ settings }) => settings.explorerLiquidAPI),
+      ]);
+    yield call(fetchAndUpdateUtxos, addresses, utxos, explorerLiquidAPI);
   } catch (error) {
     console.error(error);
     yield put(addErrorToast(UpdateUtxosError));
@@ -55,13 +56,13 @@ function* updateUtxosState() {
 export function* fetchAndUpdateUtxos(
   addresses: AddressInterface[],
   currentUtxos: Record<string, UtxoInterface>,
-  explorerUrl: string
+  explorerLiquidAPI: string
 ): any {
   const newOutpoints: string[] = [];
 
   const utxoGen = fetchAndUnblindUtxosGenerator(
     addresses,
-    explorerUrl,
+    explorerLiquidAPI,
     (utxo: UtxoInterface) => currentUtxos[outpointToString(utxo)] != undefined
   );
   const next = () => utxoGen.next();
@@ -122,7 +123,7 @@ function* restoreUtxos() {
 
 function* watchUtxoSaga(action: ActionType) {
   const { address, maxTry }: { address: AddressInterface; maxTry: number } = action.payload;
-  const explorer: string = yield select(({ settings }) => settings.explorerUrl);
+  const explorer: string = yield select(({ settings }) => settings.explorerLiquidAPI);
 
   for (let t = 0; t < maxTry; t++) {
     try {
