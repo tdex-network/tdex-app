@@ -1,8 +1,11 @@
+import { Capacitor } from '@capacitor/core';
+import { Keyboard } from '@capacitor/keyboard';
 import { IonCol, IonRow } from '@ionic/react';
 import type { ChangeEvent, HTMLAttributes, PropsWithChildren } from 'react';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import { IconCheck } from '../icons';
+
 import './style.scss';
 
 interface CheckboxProps extends PropsWithChildren<HTMLAttributes<any>> {
@@ -13,6 +16,23 @@ interface CheckboxProps extends PropsWithChildren<HTMLAttributes<any>> {
 }
 
 const Checkbox: React.FC<CheckboxProps> = ({ handleChange, inputName, isChecked, label, ...props }) => {
+  useEffect(() => {
+    if (Capacitor.isPluginAvailable('Keyboard') && isChecked) {
+      setTimeout(() => {
+        Keyboard.hide().catch(console.error);
+      }, 250);
+      setTimeout(() => {
+        Keyboard.hide().catch(console.error);
+      }, 500);
+      setTimeout(() => {
+        Keyboard.hide().catch(console.error);
+      }, 1000);
+      setTimeout(() => {
+        Keyboard.hide().catch(console.error);
+      }, 1500);
+    }
+  }, [isChecked]);
+
   return (
     <IonRow className={`checkbox ion-text-center ${props.className}`}>
       <IonCol size="10" offset="1">

@@ -231,9 +231,21 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
             </IonContent>
           </IonModal>
 
-          <CurrencySearch isOpen={currencySearchOpen} close={() => setCurrencySearchOpen(false)} />
+          <CurrencySearch
+            isOpen={currencySearchOpen}
+            close={(ev: any) => {
+              ev?.preventDefault();
+              setCurrencySearchOpen(false);
+            }}
+          />
 
-          <DenominationSearch isOpen={LBTCUnitSearchOpen} close={() => setLBTCUnitSearchOpen(false)} />
+          <DenominationSearch
+            isOpen={LBTCUnitSearchOpen}
+            close={(ev: any) => {
+              ev?.preventDefault();
+              setLBTCUnitSearchOpen(false);
+            }}
+          />
         </IonGrid>
       </IonContent>
     </IonPage>

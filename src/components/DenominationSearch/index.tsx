@@ -9,7 +9,7 @@ import { LBTC_DENOMINATIONS } from '../../utils/constants';
 
 interface DenominationSearchProps {
   isOpen: boolean;
-  close: () => void;
+  close: (ev: any) => void;
 }
 
 const DenominationSearch: React.FC<DenominationSearchProps> = ({ isOpen, close }) => {
@@ -43,10 +43,10 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({ isOpen, close }
                     className="ion-no-margin"
                     key={index}
                     data-asset={index}
-                    onClick={() => {
+                    onClick={(ev) => {
                       dispatch(setLBTCDenomination(denomination));
                       dispatch(updatePrices());
-                      close();
+                      close(ev);
                     }}
                   >
                     <div className="search-item-name">

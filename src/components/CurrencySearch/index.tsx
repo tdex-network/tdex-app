@@ -10,7 +10,7 @@ import { CURRENCIES } from '../../utils/constants';
 
 interface CurrencySearchProps {
   isOpen: boolean;
-  close: () => void;
+  close: (ev: any) => void;
 }
 
 const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
@@ -48,10 +48,10 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
                   className="ion-no-margin"
                   key={index}
                   data-asset={index}
-                  onClick={() => {
+                  onClick={(ev) => {
                     dispatch(setCurrency(currency));
                     dispatch(updatePrices());
-                    close();
+                    close(ev);
                   }}
                 >
                   <div className="search-item-name">
