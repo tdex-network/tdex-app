@@ -10,7 +10,7 @@ interface ExchangeSearchProps {
   assets: AssetWithTicker[];
   setAsset: (newAsset: AssetWithTicker) => void;
   isOpen: boolean;
-  close: () => void;
+  close: (ev: any) => void;
   currency: string;
 }
 
@@ -49,9 +49,9 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsse
                   className="ion-no-margin"
                   key={index}
                   data-asset={index}
-                  onClick={() => {
+                  onClick={(ev) => {
                     setAsset(asset);
-                    close();
+                    close(ev);
                   }}
                 >
                   <div className="search-item-name">
