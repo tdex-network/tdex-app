@@ -17,10 +17,19 @@ interface CheckboxProps extends PropsWithChildren<HTMLAttributes<any>> {
 
 const Checkbox: React.FC<CheckboxProps> = ({ handleChange, inputName, isChecked, label, ...props }) => {
   useEffect(() => {
-    if (Capacitor.isPluginAvailable('Keyboard')) {
+    if (Capacitor.isPluginAvailable('Keyboard') && isChecked) {
+      setTimeout(() => {
+        Keyboard.hide().catch(console.error);
+      }, 250);
       setTimeout(() => {
         Keyboard.hide().catch(console.error);
       }, 500);
+      setTimeout(() => {
+        Keyboard.hide().catch(console.error);
+      }, 1000);
+      setTimeout(() => {
+        Keyboard.hide().catch(console.error);
+      }, 1500);
     }
   }, [isChecked]);
 

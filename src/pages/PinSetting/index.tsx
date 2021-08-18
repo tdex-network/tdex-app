@@ -69,7 +69,16 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
               if (Capacitor.isPluginAvailable('Keyboard')) {
                 setTimeout(() => {
                   Keyboard.hide().catch(console.error);
+                }, 250);
+                setTimeout(() => {
+                  Keyboard.hide().catch(console.error);
+                }, 500);
+                setTimeout(() => {
+                  Keyboard.hide().catch(console.error);
                 }, 1000);
+                setTimeout(() => {
+                  Keyboard.hide().catch(console.error);
+                }, 1500);
               }
             })
             .catch(() => onError(SecureStorageError));
