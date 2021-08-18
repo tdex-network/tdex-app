@@ -7,7 +7,6 @@ import createSagaMiddleware from 'redux-saga';
 import AppContainer from './redux/containers/appContainer';
 import rootReducer from './redux/reducer';
 import rootSaga from './redux/saga';
-import * as serviceWorker from './serviceWorker';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -43,8 +42,3 @@ ReactDOM.render(
   </Provider>,
   document.getElementById('root')
 );
-
-// If you want your app to work offline and load faster, you can change
-// unregister() to register() below. Note this comes with some pitfalls.
-// Learn more about service workers: https://bit.ly/CRA-PWA
-serviceWorker.unregister();
