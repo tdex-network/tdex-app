@@ -1,0 +1,13 @@
+[aria-checked=true].sc-ion-alert-ios .alert-radio-label.sc-ion-alert-ios {
+	color: var(--ion-color-secondary, #3880ff);
+}
+[aria-checked=true].sc-ion-alert-ios .alert-radio-inner.sc-ion-alert-ios {
+	border-color: var(--ion-color-secondary, #3880ff);
+}
+.alert-button.sc-ion-alert-ios {
+	border-top: 0.55px solid rgba(var(--ion-color-tertiary-rgb), 0.4);
+	border-right: 0.55px solid rgba(var(--ion-color-tertiary-rgb), 0.4);
+}
+.alert-radio-group.sc-ion-alert-ios, .alert-checkbox-group.sc-ion-alert-ios {
+	border-top: 0.55px solid rgba(var(--ion-color-tertiary-rgb), 0.4);
+}
