@@ -15,7 +15,7 @@ import { network } from '../config';
 export interface CurrencyInterface {
   name: string;
   symbol: string;
-  value: string;
+  value: 'eur' | 'usd' | 'cad' | 'btc';
 }
 
 export interface SettingsState {

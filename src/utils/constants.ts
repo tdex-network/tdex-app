@@ -116,17 +116,17 @@ export const CURRENCIES: CurrencyInterface[] = [
   {
     name: 'Euro',
     symbol: '€',
-    value: 'EUR',
+    value: 'eur',
   },
   {
     name: 'US Dollar',
     symbol: '$',
-    value: 'USD',
+    value: 'usd',
   },
   {
     name: 'Canadian Dollar',
     symbol: '$C',
-    value: 'CAD',
+    value: 'cad',
   },
 ];
 
