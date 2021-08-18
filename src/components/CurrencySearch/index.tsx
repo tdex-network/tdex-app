@@ -39,9 +39,9 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
           <IonList>
             {CURRENCIES.filter(
               (currency: CurrencyInterface) =>
-                currency.name.includes(searchString) ||
-                currency.symbol.includes(searchString) ||
-                currency.value.includes(searchString)
+                currency.name.toLowerCase().includes(searchString.toLowerCase()) ||
+                currency.symbol.toLowerCase().includes(searchString.toLowerCase()) ||
+                currency.value.toLowerCase().includes(searchString.toLowerCase())
             ).map((currency: CurrencyInterface, index: number) => {
               return (
                 <IonItem
@@ -55,7 +55,7 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
                   }}
                 >
                   <div className="search-item-name">
-                    <p>{`${currency.symbol} ${currency.name} (${currency.value})`}</p>
+                    <p>{`${currency.value} - ${currency.name}`}</p>
                   </div>
                 </IonItem>
               );
