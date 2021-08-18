@@ -57,11 +57,16 @@ export function* fetchAndUpdateTxs(
 ): Generator<any, any, any> {
   const identityBlindKeyGetter = blindKeyGetterFactory(scriptsToAddressInterface);
 
-  const txsGen = fetchAndUnblindTxsGenerator(addresses, identityBlindKeyGetter, explorerLiquidAPI, (tx: TxInterface) => {
-    const txInStore = currentTxs[tx.txid];
-    // skip if tx is already in store AND confirmed
-    return !!txInStore?.status.confirmed;
-  });
+  const txsGen = fetchAndUnblindTxsGenerator(
+    addresses,
+    identityBlindKeyGetter,
+    explorerLiquidAPI,
+    (tx: TxInterface) => {
+      const txInStore = currentTxs[tx.txid];
+      // skip if tx is already in store AND confirmed
+      return !!txInStore?.status.confirmed;
+    }
+  );
   const next = () => txsGen.next();
   let it: IteratorResult<TxInterface, number> = yield call(next);
 

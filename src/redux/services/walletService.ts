@@ -10,7 +10,11 @@ export const axiosProviderObject = axios.create({
   baseURL: defaultProvider.endpoint,
 });
 
-export const getAssetsRequest = (path: string, explorerLiquidAPIValue: string, options?: any): Promise<AxiosResponse> => {
+export const getAssetsRequest = (
+  path: string,
+  explorerLiquidAPIValue: string,
+  options?: any
+): Promise<AxiosResponse> => {
   return axios.create({ baseURL: explorerLiquidAPIValue }).request({
     method: 'get',
     url: path,

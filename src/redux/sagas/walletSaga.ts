@@ -40,11 +40,12 @@ function* persistLastUsedIndexes() {
 
 function* updateUtxosState() {
   try {
-    const [addresses, utxos, explorerLiquidAPI]: [AddressInterface[], Record<string, UtxoInterface>, string] = yield all([
-      select(({ wallet }: { wallet: WalletState }) => Object.values(wallet.addresses)),
-      select(({ wallet }: { wallet: WalletState }) => wallet.utxos),
-      select(({ settings }) => settings.explorerLiquidAPI),
-    ]);
+    const [addresses, utxos, explorerLiquidAPI]: [AddressInterface[], Record<string, UtxoInterface>, string] =
+      yield all([
+        select(({ wallet }: { wallet: WalletState }) => Object.values(wallet.addresses)),
+        select(({ wallet }: { wallet: WalletState }) => wallet.utxos),
+        select(({ settings }) => settings.explorerLiquidAPI),
+      ]);
     yield call(fetchAndUpdateUtxos, addresses, utxos, explorerLiquidAPI);
   } catch (error) {
     console.error(error);
