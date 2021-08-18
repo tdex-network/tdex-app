@@ -52,6 +52,14 @@
   }
   .search-item-amount {
     display: flex;
+    align-items: baseline;
     font-size: var(--ion-font-size-main);
+    .price {
+      font-family: var(--ion-font-sub);
+      margin-right: 1vw;
+    }
+    .fiat-currency {
+      font-size: var(--ion-font-size-sub);
+    }
   }
 }
