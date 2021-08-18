@@ -114,19 +114,19 @@ export function getCoinGeckoIDsToFeed(): string[] {
 
 export const CURRENCIES: CurrencyInterface[] = [
   {
-    name: 'euro',
+    name: 'Euro',
     symbol: '€',
-    value: 'eur',
+    value: 'EUR',
   },
   {
-    name: 'dollar',
+    name: 'US Dollar',
     symbol: '$',
-    value: 'usd',
+    value: 'USD',
   },
   {
-    name: 'canadian dollar',
+    name: 'Canadian Dollar',
     symbol: '$C',
-    value: 'cad',
+    value: 'CAD',
   },
 ];
 
