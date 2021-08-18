@@ -307,7 +307,10 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         assets={assetsWithTicker}
         setAsset={setAsset}
         isOpen={isSearchOpen}
-        close={() => setIsSearchOpen(false)}
+        close={(ev: any) => {
+          ev?.preventDefault();
+          setIsSearchOpen(false);
+        }}
       />
     </div>
   );
