@@ -36,6 +36,7 @@ export const LBTC_ASSET: AssetConfig =
     ? {
         coinGeckoID: LBTC_COINGECKOID,
         ticker: LBTC_TICKER,
+        // Change asset hash to generate new pegin deposit addresses
         assetHash:
           // FedPegScript => OP_TRUE
           '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225',
@@ -94,7 +95,7 @@ export const MAIN_ASSETS: AssetConfig[] = [
 export const FEDPEGSCRIPT =
   LBTC_ASSET.assetHash === '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225'
     ? '51'
-    : '056293ee681516f2d61bb7ce63030351d5e02d61aef9fb00d30f27f55d935b18';
+    : '51210269e0180bc9e0be7648d6e9c17f3664bc3ebcee40f3a46cf4b42e583e96b911b951ae';
 
 export function getColor(assetHash: string): string | undefined {
   return MAIN_ASSETS.find((assetConfig: AssetConfig) => assetConfig.assetHash.valueOf() === assetHash.valueOf())?.color;
