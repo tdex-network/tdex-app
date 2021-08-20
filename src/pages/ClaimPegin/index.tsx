@@ -184,7 +184,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
         <IonGrid className="ion-text-center ion-justify-content-center">
           <Header hasBackButton={true} title="CLAIM LIQUID BITCOIN" />
           <PageDescription
-            description="Here you can manually claim your deposit in case the process was interrupted abruptly. Please only use this section if your deposit has 102 confirmations or more. You can only claim a deposit made from this application and this set of keys. To claim, please insert below the BTC address used for making the bitcoin pegin transaction. Make sure it’s a Bitcoin address not one for Liquid network."
+            description="Here you can manually claim your deposit in case the process was interrupted abruptly. Please only use this section if your deposit has 102 confirmations or more. You can only claim a deposit made from this application and this set of keys. To claim, please insert below the BTC address used for making the bitcoin pegin transaction. Make sure it’s a Bitcoin address, not one for the Liquid network."
             title="Claim your Liquid Bitcoin"
           />
           {/**/}
