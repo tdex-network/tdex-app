@@ -133,7 +133,7 @@ const Faq: React.FC = () => {
 
           <IonRow>
             <IonCol>
-              <h2>I lost my mnemonic, help! </h2>
+              <h2>I lost my mnemonic, help!</h2>
               <p>
                 Sorry for your loss, but there’s no way to retrieve your mnemonic if you lose it. TDEX doesn't have
                 access to your mnemonic and can’t help you in this case. Ideally, it’s advisable to write your mnemonic
@@ -145,7 +145,7 @@ const Faq: React.FC = () => {
 
           <IonRow>
             <IonCol>
-              <h2>How to reinstall TDEX App, help! </h2>
+              <h2>How to reinstall TDEX App, help!</h2>
               <p>
                 Never delete your App before deleting the mnemonic if you want to wipe out and reinstall fresh. So,
                 before deleting your app you need hit Settings menu &#62; Account &#62; Delete mnemonic. Now you can
@@ -168,12 +168,44 @@ const Faq: React.FC = () => {
 
           <IonRow>
             <IonCol>
-              <h2>What does TDEX App charge for the service? </h2>
+              <h2>What does TDEX App charge for the service?</h2>
               <p>
                 TDEX is a truly decentralized, open-source project with a dedicated community orientation. By design,
                 the protocol doesn't charge any fees, in and of itself, at least. However, Liquidity Providers might
                 charge a fee for the service that they offer, namely providing and maintaining liquidity for asset pairs
                 so that you can perform swap-based trades.
+              </p>
+            </IonCol>
+          </IonRow>
+
+          <IonRow>
+            <IonCol>
+              <h2>How can I deposit BTC?</h2>
+              <p>
+                To deposit BTC you need to perform a peg-in into the Liquid Network. You can perform a trustless peg-in
+                into the network from our application.
+              </p>
+            </IonCol>
+          </IonRow>
+
+          <IonRow>
+            <IonCol>
+              <h2>I don’t see my deposit. How can I recover my funds?</h2>
+              <p>
+                In case of incidents during the peg-in process (if you lose your device before full confirmation for
+                example) it is possible to recover your funds by inputting your deposit address into the claim peg-in
+                section of the application.
+              </p>
+            </IonCol>
+          </IonRow>
+
+          <IonRow>
+            <IonCol>
+              <h2>How long does it take for my peg-in to confirm?</h2>
+              <p>
+                To successfully peg-in BTC into Liquid, 102 confirmations on the BTC blockchain are needed. It takes
+                around a day for the peg-in to be completed. You can follow the process from the L-BTC section of the
+                TDEX app.
               </p>
             </IonCol>
           </IonRow>
