@@ -141,7 +141,7 @@ const Operations: React.FC<OperationsProps> = ({
 
   const checkIfPeginIsClaimable = (btcTx: TxDisplayInterface): boolean => {
     // Check if pegin not already claimed and utxo is mature
-    return !!(!btcTx.claimTxId && btcTx.blockHeight && getConfirmationCount(btcTx.blockHeight) >= 101);
+    return !!(!btcTx.claimTxId && btcTx.blockHeight && getConfirmationCount(btcTx.blockHeight) >= 102);
   };
 
   const ActionButtons = useMemo(
@@ -326,7 +326,7 @@ const Operations: React.FC<OperationsProps> = ({
                                   className={classNames(
                                     {
                                       'confirmations-pending': tx.blockHeight
-                                        ? getConfirmationCount(tx.blockHeight) < 101
+                                        ? getConfirmationCount(tx.blockHeight) < 102
                                         : true,
                                     },
                                     'pl-5 mt-3'

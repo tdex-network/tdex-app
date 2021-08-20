@@ -46,7 +46,7 @@ export async function claimPegins(
       const confirmations =
         depositUtxo.status.block_height && currentBtcBlockHeight - depositUtxo.status.block_height + 1;
       // Continue if utxo not claimed and claimable
-      if (!depositUtxo.claimTxId && confirmations && confirmations >= 101) {
+      if (!depositUtxo.claimTxId && confirmations && confirmations >= 102) {
         try {
           const ecPair = generateSigningPrivKey(mnemonic, pegin.depositAddress.derivationPath);
           const btcPeginTxHex = (await axios.get(`${explorerBitcoinAPI}/tx/${depositUtxo.txid}/hex`)).data;

@@ -193,7 +193,7 @@ function* checkIfClaimablePeginUtxo() {
       if (depositUtxo.status.block_height) {
         const confirmations = currentBlockHeight - depositUtxo.status.block_height + 1;
         // Check if pegin not already claimed and utxo is mature
-        if (!depositUtxo.claimTxId && confirmations >= 101) {
+        if (!depositUtxo.claimTxId && confirmations >= 102) {
           hasClaimablePeginUtxo = true;
         }
       }
