@@ -183,6 +183,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
             title="SETUP WALLET"
           />
           <PageDescription
+            centerDescription={true}
             description={
               isRepeatScreen
                 ? 'Insert again the numeric password.\n' + 'It must match the previous entry'

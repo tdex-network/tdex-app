@@ -132,6 +132,7 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({ history, setIsBackupDone 
         <IonGrid className="ion-text-center">
           <Header hasBackButton={true} title="SECRET PHRASE" />
           <PageDescription
+            centerDescription={true}
             description="Paste your 12 words recovery phrase in the correct order"
             title="Restore Wallet"
           />

@@ -101,11 +101,11 @@ const Explorers: React.FC<ExplorersProps> = ({
         <IonGrid>
           <Header title="EXPLORERS" hasBackButton={true} hasCloseButton={false} />
           <PageDescription
-            description="Select a preset of backend APIs Electrs compatible and frontend explorers Esplora compatible or enter custom compatible endpoints"
+            description="Select a preset of backend APIs Electrs-compatible and frontend explorers Esplora-compatible or enter custom compatible endpoints."
             title="Set explorer endpoints"
           />
           <IonRow className="ion-margin-vertical">
-            <IonCol size="10" offset="1">
+            <IonCol size="11" offset="0.5">
               <IonItem className="input">
                 <IonLabel>Select your explorer</IonLabel>
                 <IonSelect value={explorerGroup} onIonChange={handleExplorerChange}>
@@ -119,7 +119,7 @@ const Explorers: React.FC<ExplorersProps> = ({
           </IonRow>
           {/**/}
           <IonRow className="ion-margin-vertical">
-            <IonCol size="10" offset="1">
+            <IonCol size="11" offset="0.5">
               <IonItem className="input">
                 <IonLabel position="floating" color="tertiary">
                   Bitcoin UI endpoint
@@ -137,7 +137,7 @@ const Explorers: React.FC<ExplorersProps> = ({
           </IonRow>
 
           <IonRow className="ion-margin-vertical">
-            <IonCol size="10" offset="1">
+            <IonCol size="11" offset="0.5">
               <IonItem className="input">
                 <IonLabel position="floating" color="tertiary">
                   Liquid UI endpoint
@@ -155,7 +155,7 @@ const Explorers: React.FC<ExplorersProps> = ({
           </IonRow>
 
           <IonRow className="ion-margin-vertical">
-            <IonCol size="10" offset="1">
+            <IonCol size="11" offset="0.5">
               <IonItem className="input">
                 <IonLabel position="floating" color="tertiary">
                   Bitcoin API endpoint
@@ -173,7 +173,7 @@ const Explorers: React.FC<ExplorersProps> = ({
           </IonRow>
 
           <IonRow className="ion-margin-vertical">
-            <IonCol size="10" offset="1">
+            <IonCol size="11" offset="0.5">
               <IonItem className="input">
                 <IonLabel position="floating" color="tertiary">
                   Liquid API endpoint

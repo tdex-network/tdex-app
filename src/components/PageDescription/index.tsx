@@ -1,14 +1,16 @@
 import { IonCol, IonRow } from '@ionic/react';
+import classNames from 'classnames';
 import type { PropsWithChildren } from 'react';
 import React from 'react';
 import './style.scss';
 
 export interface PageDescriptionProps extends PropsWithChildren<any> {
+  centerDescription?: boolean;
   description: string;
   title: string;
 }
 
-const PageDescription: React.FC<PageDescriptionProps> = ({ title, description }) => {
+const PageDescription: React.FC<PageDescriptionProps> = ({ title, description, centerDescription = false }) => {
   return (
     <div className="page-description ion-margin-vertical">
       <IonRow>
@@ -17,7 +19,14 @@ const PageDescription: React.FC<PageDescriptionProps> = ({ title, description })
         </IonCol>
       </IonRow>
       <IonRow>
-        <IonCol size="10" offset="1">
+        <IonCol
+          className={classNames({
+            'ion-text-center': centerDescription,
+            'ion-text-left': !centerDescription,
+          })}
+          size="10"
+          offset="1"
+        >
           <p className="ion-no-margin" data-cy="description-p">
             {description}
           </p>

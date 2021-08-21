@@ -38,6 +38,7 @@ const ShowMnemonicOnboarding: React.FC<ShowMnemonicProps> = ({ backupDone, histo
         <IonGrid className="ion-text-center ion-justify-content-center">
           <Header hasBackButton={true} title="SHOW MNEMONIC" />
           <PageDescription
+            centerDescription={true}
             description="Save your 12 words recovery phrase in the correct order"
             title="Secret Phrase"
           />
