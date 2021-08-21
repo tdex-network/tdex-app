@@ -34,6 +34,7 @@ const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({ closeModal, o
         <IonGrid>
           <Header title="CLEAR MY KEY" hasBackButton={false} hasCloseButton={true} handleClose={closeModal} />
           <PageDescription
+            centerDescription={true}
             description='Clicking on "Delete" will delete your mnemonic on this device. Be sure to back it up!'
             title="Delete your mnemonic"
           />

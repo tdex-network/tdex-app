@@ -1,6 +1,17 @@
 import { QRCodeImg } from '@cheprasov/react-qrcode';
 import { Clipboard } from '@ionic-native/clipboard';
-import { IonPage, IonContent, IonItem, IonIcon, IonGrid, useIonViewWillEnter, useIonViewWillLeave } from '@ionic/react';
+import {
+  IonPage,
+  IonContent,
+  IonItem,
+  IonIcon,
+  IonGrid,
+  IonRow,
+  IonCol,
+  useIonViewWillEnter,
+  useIonViewWillLeave,
+} from '@ionic/react';
+import classNames from 'classnames';
 import { checkmarkOutline } from 'ionicons/icons';
 import type { IdentityOpts, StateRestorerOpts } from 'ldk';
 import { MasterPublicKey, address as addressLDK } from 'ldk';
@@ -105,8 +116,11 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts }) 
     }
   };
 
+  const isBitcoin = state?.depositAsset?.ticker === BTC_TICKER;
+  console.log('isBitcoin', isBitcoin);
+
   return (
-    <IonPage>
+    <IonPage id="receive-page">
       <Loader showLoading={loading} />
       <IonContent className="receive">
         <IonGrid>
@@ -114,22 +128,26 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts }) 
           <div className="ion-text-center">
             <CurrencyIcon currency={state?.depositAsset?.ticker} width="48" height="48" />
           </div>
-          {state?.depositAsset?.ticker === BTC_TICKER ? (
+          {isBitcoin && (
             <PageDescription
               description="Send bitcoin here to convert them in Liquid Bitcoin. This trustless process requires 102 confirmations on the Bitcoin chain (around a day) for your funds to become available."
-              title={`Your Bitcoin Pegin address`}
-            />
-          ) : (
-            <PageDescription
-              description={`To provide this address to the person sending you ${
-                state?.depositAsset?.name || state?.depositAsset?.coinGeckoID || state?.depositAsset?.ticker
-              } simply tap to copy it or scan your
-              wallet QR code with their device.`}
-              title={`Your ${state?.depositAsset?.ticker} address`}
+              title={`Bitcoin Pegin Address`}
             />
           )}
           {address && (
-            <div>
+            <div
+              className={classNames('addr-container', {
+                'addr-container__margin-top': !isBitcoin,
+              })}
+            >
+              <IonRow>
+                <IonCol size="8" offset="2">
+                  <div className="qr-code-container">
+                    <QRCodeImg value={address} size={192} level="M" />
+                  </div>
+                </IonCol>
+              </IonRow>
+
               <IonItem>
                 <div className="item-main-info">
                   <div className="item-start conf-addr">{address}</div>
@@ -142,9 +160,6 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts }) 
                   </div>
                 </div>
               </IonItem>
-              <div className="qr-code-container">
-                <QRCodeImg value={address} size={192} level="M" />
-              </div>
             </div>
           )}
         </IonGrid>

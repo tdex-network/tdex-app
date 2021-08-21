@@ -99,7 +99,7 @@ const PinModal: React.FC<PinModalProps> = ({
       <IonContent scrollY={false}>
         <IonGrid className="ion-text-center ion-justify-content-center">
           <Header title="INSERT PIN" hasBackButton={false} hasCloseButton={!!onClose} handleClose={onClose} />
-          <PageDescription description={description} title={title} />
+          <PageDescription centerDescription={true} description={description} title={title} />
           <PinInput
             isLocked={isPinInputLocked}
             inputRef={inputRef}

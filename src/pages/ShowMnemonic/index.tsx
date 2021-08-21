@@ -30,6 +30,7 @@ const ShowMnemonic: React.FC<ShowMnemonicProps> = ({ history, setIsBackupDone })
         <IonGrid className="ion-text-center ion-justify-content-center">
           <Header hasBackButton={false} title="SHOW MNEMONIC" />
           <PageDescription
+            centerDescription={true}
             description="Save your 12 words recovery phrase in the correct order"
             title="Secret Phrase"
           />
