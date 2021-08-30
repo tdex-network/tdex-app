@@ -213,9 +213,9 @@ export async function setMnemonicInSecureStorage(mnemonic: string, pin: string):
     }
 
     return value;
-  } catch (err) {
+  } catch (err: any) {
     console.error(err);
-    throw new Error(err);
+    throw err;
   }
 }
 

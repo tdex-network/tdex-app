@@ -18,25 +18,27 @@
         display: block;
       }
     }
-    .conf-addr:focus-visible {
-      outline: 0;
-    }
-    .conf-addr.item-start {
-      display: block;
-      line-height: 30px;
-      font-family: var(--ion-font-main);
-      font-size: var(--ion-font-size-sub);
-      overflow: scroll;
-      white-space: nowrap;
-    }
-    .copy-icon {
-      width: 24px;
-      height: 24px;
-      margin-left: 10px;
-    }
-    .copied-icon {
-      width: 24px;
-      height: 24px;
+    ion-item {
+      .addr-txt:focus-visible {
+        outline: 0;
+      }
+      .addr-txt {
+        width: 100%;
+        line-height: 30px;
+        font-family: var(--ion-font-main);
+        font-size: var(--ion-font-size-sub);
+        overflow: scroll;
+        white-space: nowrap;
+      }
+      .copy-icon {
+        width: 24px;
+        height: 24px;
+        margin-left: 10px;
+      }
+      .copied-icon {
+        width: 24px;
+        height: 24px;
+      }
     }
   }
 }

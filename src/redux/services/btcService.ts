@@ -65,7 +65,7 @@ export async function claimPegins(
               depositUtxos: pegin.depositUtxos,
             },
           });
-        } catch (err) {
+        } catch (err: any) {
           // Prevent propagating error to caller to allow failure of claims but still return the claimTxs that succeeded
           console.error(err);
           const open = err.response.data.indexOf('{');

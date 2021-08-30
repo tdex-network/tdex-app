@@ -122,7 +122,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             setIsUpdating(false);
             return;
           }
-        } catch (err) {
+        } catch (err: any) {
           console.error(err);
           setError(err.message);
           bestPriceRes = await bestPrice(
@@ -174,7 +174,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           }
           setAmount(updatedAmount === '0' ? '' : updatedAmount);
           onChangeAmount(updatedAmount === '0' ? '' : updatedAmount);
-        } catch (err) {
+        } catch (err: any) {
           console.error(err);
           setOtherInputError(err.message);
         }

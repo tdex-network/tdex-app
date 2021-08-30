@@ -117,7 +117,6 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts }) 
   };
 
   const isBitcoin = state?.depositAsset?.ticker === BTC_TICKER;
-  console.log('isBitcoin', isBitcoin);
 
   return (
     <IonPage id="receive-page">
@@ -149,15 +148,13 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts }) 
               </IonRow>
 
               <IonItem>
-                <div className="item-main-info">
-                  <div className="item-start conf-addr">{address}</div>
-                  <div className="copy-icon" onClick={copyAddress}>
-                    {copied ? (
-                      <IonIcon className="copied-icon" color="success" icon={checkmarkOutline} />
-                    ) : (
-                      <IconCopy width="24" height="24" viewBox="0 0 24 24" fill="#fff" />
-                    )}
-                  </div>
+                <div className="addr-txt">{address}</div>
+                <div className="copy-icon" onClick={copyAddress}>
+                  {copied ? (
+                    <IonIcon className="copied-icon" color="success" icon={checkmarkOutline} />
+                  ) : (
+                    <IconCopy width="24" height="24" viewBox="0 0 24 24" fill="#fff" />
+                  )}
                 </div>
               </IonItem>
             </div>
