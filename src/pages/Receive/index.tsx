@@ -129,7 +129,7 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts }) 
           </div>
           {isBitcoin && (
             <PageDescription
-              description="Send bitcoin here to convert them in Liquid Bitcoin. This trustless process requires 102 confirmations on the Bitcoin chain (around a day) for your funds to become available."
+              description="Send bitcoin here to convert them to Liquid Bitcoin. This trustless process requires 102 confirmations on the Bitcoin chain (around a day) for your funds to become available."
               title={`Bitcoin Pegin Address`}
             />
           )}
