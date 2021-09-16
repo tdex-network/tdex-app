@@ -148,6 +148,9 @@
   align-items: center;
   display: flex;
   justify-content: flex-end;
+  &.claimed {
+    justify-content: flex-start;
+  }
   &.confirmed {
     color: var(--ion-color-secondary);
     span {

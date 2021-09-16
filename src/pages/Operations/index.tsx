@@ -134,14 +134,15 @@ const Operations: React.FC<OperationsProps> = ({
     }
   };
 
-  const getConfirmationCount = (txBlockHeight: number) => {
+  const getConfirmationCount = (txBlockHeight?: number) => {
+    if (!txBlockHeight) return 0;
     // Plus the block that contains the tx
     return currentBtcBlockHeight - txBlockHeight + 1;
   };
 
   const checkIfPeginIsClaimable = (btcTx: TxDisplayInterface): boolean => {
     // Check if pegin not already claimed and utxo is mature
-    return !!(!btcTx.claimTxId && btcTx.blockHeight && getConfirmationCount(btcTx.blockHeight) >= 102);
+    return !btcTx.claimTxId && getConfirmationCount(btcTx.blockHeight) >= 102;
   };
 
   const ActionButtons = useMemo(
@@ -321,24 +322,23 @@ const Operations: React.FC<OperationsProps> = ({
                           </IonRow>
                           {TxTypeEnum[tx.type] === 'DepositBtc' && (
                             <>
-                              <IonRow>
-                                <IonCol
-                                  className={classNames(
-                                    {
-                                      'confirmations-pending': tx.blockHeight
-                                        ? getConfirmationCount(tx.blockHeight) < 102
-                                        : true,
-                                    },
-                                    'pl-5 mt-3'
-                                  )}
-                                  size="6"
-                                  offset="1"
-                                >
-                                  Confirmations: {tx.blockHeight ? getConfirmationCount(tx.blockHeight) : 0}
-                                </IonCol>
+                              <IonRow className="mt-3">
+                                {getConfirmationCount(tx.blockHeight) < 102 && (
+                                  <IonCol
+                                    className={classNames(
+                                      {
+                                        'confirmations-pending': getConfirmationCount(tx.blockHeight) < 102,
+                                      },
+                                      'pl-5'
+                                    )}
+                                    offset="1"
+                                  >
+                                    {`Confirmations: ${getConfirmationCount(tx.blockHeight)} / 102`}
+                                  </IonCol>
+                                )}
                                 {tx.claimTxId && (
-                                  <IonCol className="ion-text-right" size="5">
-                                    <span className="status-text confirmed">
+                                  <IonCol size="11" offset="1" className="pl-5">
+                                    <span className="status-text confirmed claimed">
                                       <IonIcon icon={checkmarkSharp} />
                                       <span className="ml-2">Claimed</span>
                                     </span>
