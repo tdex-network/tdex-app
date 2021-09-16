@@ -31,6 +31,9 @@ yarn-error.log*
 # tdex daemon
 /tdexd
 
+#android
+android/app/debug/output-metadata.json
+
 # ios
 *.ipa
 *.dSYM.zip
