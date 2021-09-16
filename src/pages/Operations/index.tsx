@@ -142,7 +142,7 @@ const Operations: React.FC<OperationsProps> = ({
 
   const checkIfPeginIsClaimable = (btcTx: TxDisplayInterface): boolean => {
     // Check if pegin not already claimed and utxo is mature
-    return (!btcTx.claimTxId && getConfirmationCount(btcTx.blockHeight) >= 102);
+    return !btcTx.claimTxId && getConfirmationCount(btcTx.blockHeight) >= 102;
   };
 
   const ActionButtons = useMemo(
