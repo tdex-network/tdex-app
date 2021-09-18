@@ -2,14 +2,28 @@ fastlane_version '2.102.0'
 
 desc 'Various checks for git branch'
 lane :git_check do
+  # ensure you are in master branch
   ensure_git_branch
+  # ensure that master branch is clean
   ensure_git_status_clean
   git_pull
 end
 
-platform :ios do
+desc 'Create changelog'
+lane :create_changelog do
+ # get the last commit comments from Git history
+ # and creates our changelog
+ changelog_from_git_commits(
+    between: [last_git_tag, "HEAD"],
+    pretty: "- %s",
+    date_format: "short",
+    match_lightweight_tag: false,
+    merge_commit_filtering: "exclude_merges"
+ )
+end
 
-   # iOS Lanes 🍏
+platform :ios do
+  # iOS Lanes 🍏
 
   desc 'Fetch certificates and provisioning profiles'
   lane :certificates do
@@ -39,12 +53,12 @@ platform :ios do
   end
 
   desc 'Ship to Testflight.'
-  lane :beta do
+  lane :testflight do
     git_check
     bump
     certificates
     build
-    changes = changelog_from_git_commits
+    changes = create_changelog
     pilot(
       app_identifier: 'io.sevenlabs.app',
       team_id: '122448679',
@@ -54,7 +68,7 @@ platform :ios do
   end
 
   desc 'Ship to TestFlight in CI'
-  lane :beta_ci do
+  lane :testflight_ci do
     create_keychain(
       name: "Fastlane_CI",
       password: "CI_Password",
@@ -89,6 +103,79 @@ platform :ios do
     )
   end
 
+  desc "Publish a new GitHub release"
+  lane :beta do |lane|
+      git_check
+      # check the semantic parameter entered
+      # i.e: bundle exec fastlane ios beta bump:patch
+      if !lane[:bump]
+          raise "No bump type defined! Use one of: patch | minor | major".red
+      end
+
+      # create changelog from commits
+      comments = create_changelog
+
+      # calculates the new version according to the semantic version added
+      type = lane[:bump]
+      old = last_git_tag
+      version = old
+      old[0] = ''
+      oldArr = old.split('.').map{|v| v.to_i}
+      if type == "patch"
+          version = "#{oldArr[0]}.#{oldArr[1]}.#{oldArr[2] + 1}"
+      elsif type == "minor"
+          version = "#{oldArr[0]}.#{oldArr[1] + 1}.0"
+      elsif type == "major"
+          version = "#{oldArr[0] + 1}.0.0"
+      end
+      if version == old
+          UI.user_error!("Wrong release type parameter. Enter: patch | minor | major")
+      end
+
+      # set the new version number
+      increment_version_number(
+          version_number: version
+      )
+
+      # increment build number
+      increment_build_number
+
+      # manage the certificates
+      certificates
+
+      # build the iOS app
+      build
+
+      # creates a bump version commit
+      commit_version_bump(
+          message: "Version bumped to v#{version}",
+          xcodeproj: "AppProject.xcodeproj"
+      )
+
+      # push bump commit
+      push_to_git_remote(
+          tags: false
+      )
+
+      # create a local tag with the new version
+      add_git_tag(
+          message: comments,
+          tag: "v#{version}",
+          prefix: "v",
+          build_number: version
+      )
+
+      # publish a new release into Github
+      github_release = set_github_release(
+          api_token: ENV["GITHUB_TOKEN"],
+          repository_name: "TDex-network/tdex-app",
+          name: "#{type.capitalize} version v#{version}",
+          tag_name: "v#{version}",
+          description: comments,
+          commitish: "master"
+          upload_assets: ["app-release.ipa", "app-debug.ipa"]
+      )
+  end
 end
 
 platform :android do
