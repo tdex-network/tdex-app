@@ -40,7 +40,7 @@ platform :ios do
     )
   end
 
-  desc 'Increment the build bersion.'
+  desc 'Increment the build version.'
   lane :bump do
     increment_build_number(
       build_number: latest_testflight_build_number(
@@ -149,7 +149,7 @@ platform :ios do
       # creates a bump version commit
       commit_version_bump(
           message: "Version bumped to v#{version}",
-          xcodeproj: "AppProject.xcodeproj"
+          xcodeproj: "./ios/App/App.xcodeproj"
       )
 
       # push bump commit
