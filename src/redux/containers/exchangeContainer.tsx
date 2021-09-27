@@ -17,6 +17,7 @@ const mapStateToProps = (state: any) => {
     lbtcUnit: state.settings.denominationLBTC,
     markets: state.tdex.markets,
     utxos: allUtxosSelector(state),
+    torProxy: state.settings.torProxy,
   };
 };
 

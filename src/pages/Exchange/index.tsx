@@ -53,6 +53,7 @@ interface ExchangeProps extends RouteComponentProps {
   lbtcUnit: LbtcDenomination;
   markets: TDEXMarket[];
   utxos: UtxoInterface[];
+  torProxy: string;
 }
 
 const Exchange: React.FC<ExchangeProps> = ({
@@ -66,6 +67,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   dispatch,
   lastUsedIndexes,
   lbtcUnit,
+  torProxy,
 }) => {
   const [hasBeenSwapped, setHasBeenSwapped] = useState<boolean>(false);
   // user inputs amount
@@ -198,7 +200,8 @@ const Exchange: React.FC<ExchangeProps> = ({
         explorerLiquidAPI,
         utxos,
         identity,
-        customCoinSelector(dispatch)
+        customCoinSelector(dispatch),
+        torProxy
       );
       dispatch(watchTransaction(txid));
       addSuccessToast('Trade successfully computed');
@@ -297,6 +300,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               setError={setErrorSent}
               setOtherInputError={setErrorReceived}
               isLoading={isLoading}
+              torProxy={torProxy}
             />
 
             <div className="exchange-divider ion-activatable" onClick={swapAssetsAndAmounts}>
@@ -329,6 +333,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                 setError={setErrorReceived}
                 setOtherInputError={setErrorSent}
                 isLoading={isLoading}
+                torProxy={torProxy}
               />
             )}
 

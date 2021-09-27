@@ -19,6 +19,7 @@ import LiquidityProviders from './redux/containers/liquidityProvidersContainer';
 import Operations from './redux/containers/operationsContainer';
 import Receive from './redux/containers/receiveContainer';
 import ShowMnemonic from './redux/containers/showMnemonicContainer';
+import TorProxy from './redux/containers/torProxyContainer';
 import TradeSummary from './redux/containers/tradeSummaryContainer';
 import Wallet from './redux/containers/walletContainer';
 import Withdrawal from './redux/containers/withdrawalContainer';
@@ -48,6 +49,7 @@ export const routerLinks = {
   terms: '/terms',
   deepRestoration: '/settings/deep-restoration',
   explorers: '/settings/explorers',
+  torProxy: '/settings/tor-proxy',
 };
 
 export const ROUTES = [
@@ -142,6 +144,10 @@ export const ROUTES = [
   {
     path: routerLinks.explorers,
     component: Explorers,
+  },
+  {
+    path: routerLinks.torProxy,
+    component: TorProxy,
   },
 ];
 

@@ -16,6 +16,8 @@ import {
   getExplorerBitcoinUIFromStorage,
   setExplorerLiquidUIInStorage,
   setExplorerBitcoinUIInStorage,
+  setTorProxyInStorage,
+  getTorProxyFromStorage,
 } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
 import { SIGN_IN } from '../actions/appActions';
@@ -36,6 +38,8 @@ import {
   SET_EXPLORER_BITCOIN_API,
   SET_EXPLORER_LIQUID_UI,
   SET_EXPLORER_BITCOIN_UI,
+  SET_TOR_PROXY,
+  setTorProxy,
 } from '../actions/settingsActions';
 import type { CurrencyInterface } from '../reducers/settingsReducer';
 import { setThemeToStorage, getThemeFromStorage } from '../services/settingsService';
@@ -106,6 +110,17 @@ function* restoreExplorerBitcoinUI() {
   }
 }
 
+function* restoreTorProxy() {
+  try {
+    const torProxy: string | null = yield call(getTorProxyFromStorage);
+    if (torProxy) {
+      yield put(setTorProxy(torProxy));
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 function* persistExplorer(action: ActionType) {
   yield call(setExplorerInStorage, action.payload);
 }
@@ -120,6 +135,10 @@ function* persistExplorerLiquidUI(action: ActionType) {
 
 function* persistExplorerBitcoinUI(action: ActionType) {
   yield call(setExplorerBitcoinUIInStorage, action.payload);
+}
+
+function* persistTorProxy(action: ActionType) {
+  yield call(setTorProxyInStorage, action.payload);
 }
 
 function* persistCurrency(action: ActionType) {
@@ -166,6 +185,7 @@ export function* settingsWatcherSaga(): Generator<any, any, any> {
   yield takeLatest(SIGN_IN, restoreExplorerBitcoinAPI);
   yield takeLatest(SIGN_IN, restoreExplorerLiquidUI);
   yield takeLatest(SIGN_IN, restoreExplorerBitcoinUI);
+  yield takeLatest(SIGN_IN, restoreTorProxy);
   yield takeLatest(SIGN_IN, restoreCurrency);
   yield takeLatest(SIGN_IN, restoreDenomination);
   yield takeLatest(SET_LBTC_DENOMINATION, persistDenomination);
@@ -173,6 +193,7 @@ export function* settingsWatcherSaga(): Generator<any, any, any> {
   yield takeLatest(SET_EXPLORER_BITCOIN_API, persistExplorerBitcoin);
   yield takeLatest(SET_EXPLORER_LIQUID_UI, persistExplorerLiquidUI);
   yield takeLatest(SET_EXPLORER_BITCOIN_UI, persistExplorerBitcoinUI);
+  yield takeLatest(SET_TOR_PROXY, persistTorProxy);
   yield takeLatest(SET_CURRENCY, persistCurrency);
   yield takeLatest(SET_THEME, setKeyboardStyle);
 }

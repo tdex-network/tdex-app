@@ -14,11 +14,10 @@ import type { TDEXState } from '../reducers/tdexReducer';
 
 function* updateMarketsWithProvidersEndpoints() {
   const { providers, markets }: TDEXState = yield select(({ tdex }: { tdex: TDEXState }) => tdex);
-
+  const torProxy: string = yield select(({ settings }) => settings.torProxy);
   for (const p of providers) {
     try {
-      const providerMarkets: TDEXMarket[] = yield call(getMarketsFromProvider, p);
-
+      const providerMarkets: TDEXMarket[] = yield call(getMarketsFromProvider, p, torProxy);
       for (const market of providerMarkets) {
         if (
           !markets.find(
@@ -39,7 +38,8 @@ function* updateMarketsWithProvidersEndpoints() {
 
 function* fetchMarkets({ payload }: { payload: TDEXProvider }) {
   try {
-    const markets: TDEXMarket[] = yield call(getMarketsFromProvider, payload);
+    const torProxy: string = yield select(({ settings }) => settings.torProxy);
+    const markets: TDEXMarket[] = yield call(getMarketsFromProvider, payload, torProxy);
     if (markets.length > 0) {
       yield put(addMarkets(markets));
     }
@@ -100,9 +100,10 @@ function* persistProviders() {
 /**
  * make two gRPC calls in order to fetch markets and balances
  * @param p provider
+ * @param torProxy
  */
-async function getMarketsFromProvider(p: TDEXProvider): Promise<TDEXMarket[]> {
-  const client = new TraderClient(p.endpoint);
+async function getMarketsFromProvider(p: TDEXProvider, torProxy = 'https://proxy.tdex.network'): Promise<TDEXMarket[]> {
+  const client = new TraderClient(p.endpoint, torProxy);
   const markets: MarketInterface[] = await client.markets();
   const results: TDEXMarket[] = [];
   for (const market of markets) {

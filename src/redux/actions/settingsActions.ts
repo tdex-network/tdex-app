@@ -5,6 +5,7 @@ export const SET_EXPLORER_LIQUID_API = 'SET_EXPLORER_LIQUID_API';
 export const SET_EXPLORER_BITCOIN_API = 'SET_EXPLORER_BITCOIN_API';
 export const SET_EXPLORER_BITCOIN_UI = 'SET_EXPLORER_BITCOIN_UI';
 export const SET_EXPLORER_LIQUID_UI = 'SET_EXPLORER_LIQUID_UI';
+export const SET_TOR_PROXY = 'SET_TOR_PROXY';
 export const SET_THEME = 'SET_THEME';
 export const STORE_THEME = 'STORE_THEME';
 export const SET_CURRENCY = 'SET_CURRENCY';
@@ -46,6 +47,13 @@ export const setExplorerBitcoinUI = (url: string): ActionType => {
 export const setExplorerLiquidUI = (url: string): ActionType => {
   return {
     type: SET_EXPLORER_LIQUID_UI,
+    payload: url,
+  };
+};
+
+export const setTorProxy = (url: string): ActionType => {
+  return {
+    type: SET_TOR_PROXY,
     payload: url,
   };
 };
