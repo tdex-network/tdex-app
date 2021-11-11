@@ -9,6 +9,7 @@ import {
   SET_EXPLORER_LIQUID_UI,
   SET_LBTC_DENOMINATION,
   SET_THEME,
+  SET_TOR_PROXY,
 } from '../actions/settingsActions';
 import { network } from '../config';
 
@@ -24,6 +25,7 @@ export interface SettingsState {
   explorerBitcoinAPI: string;
   explorerBitcoinUI: string;
   explorerLiquidUI: string;
+  torProxy: string;
   theme: string;
   denominationLBTC: LbtcDenomination;
 }
@@ -34,6 +36,7 @@ const initialState: SettingsState = {
   explorerBitcoinAPI: network.explorerBitcoinAPI,
   explorerBitcoinUI: network.explorerBitcoinUI,
   explorerLiquidUI: network.explorerLiquidUI,
+  torProxy: 'https://proxy.tdex.network',
   theme: 'dark',
   denominationLBTC: LBTC_DENOMINATIONS[0],
 };
@@ -69,6 +72,11 @@ const settingsReducer = (state: SettingsState = initialState, action: ActionType
       return {
         ...state,
         explorerLiquidUI: action.payload,
+      };
+    case SET_TOR_PROXY:
+      return {
+        ...state,
+        torProxy: action.payload,
       };
     case SET_THEME:
       return {

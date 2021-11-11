@@ -50,6 +50,7 @@ interface ExchangeRowInterface {
   setOtherInputError: (msg: string) => void;
   isLoading: boolean;
   lbtcUnit: LbtcDenomination;
+  torProxy: string;
 }
 
 const ExchangeRow: React.FC<ExchangeRowInterface> = ({
@@ -75,6 +76,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   setOtherInputError,
   isLoading,
   lbtcUnit,
+  torProxy,
 }) => {
   const [balance, setBalance] = useState<BalanceInterface>();
   const [amount, setAmount] = useState('');
@@ -133,7 +135,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             },
             trades,
             lbtcUnit,
-            console.error
+            console.error,
+            torProxy
           );
           newTrade = bestPriceRes.trade;
         }
@@ -147,7 +150,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
               precision: assets[relatedAssetHash]?.precision ?? defaultPrecision,
             },
             newTrade,
-            lbtcUnit
+            lbtcUnit,
+            torProxy
           );
           setTrade(newTrade);
           //

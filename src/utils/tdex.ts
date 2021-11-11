@@ -22,17 +22,19 @@ export interface AssetWithTicker {
  * @param trades the set of trades available
  * @param lbtcUnit
  * @param onError launch if an error happen in getMarketPrice request
+ * @param torProxy
  */
 export async function bestPrice(
   known: { amount: string; asset: string; precision: number },
   trades: TDEXTrade[],
   lbtcUnit: LbtcDenomination,
-  onError: (e: string) => void
+  onError: (e: string) => void,
+  torProxy = 'https://proxy.tdex.network'
 ): Promise<{ amount: number; asset: string; trade: TDEXTrade }> {
   if (trades.length === 0) throw new Error('trades array should not be empty');
 
   const toPrice = async (trade: TDEXTrade) =>
-    calculatePrice(known, trade, lbtcUnit)
+    calculatePrice(known, trade, lbtcUnit, torProxy)
       .then((res) => ({ ...res, trade }))
       .catch(onError);
   const pricesPromises = trades.map(toPrice);
@@ -78,11 +80,13 @@ export async function bestBalance(trades: TDEXTrade[]): Promise<TDEXTrade> {
  * @param known the amount/asset provided by the user
  * @param trade trade used to compute the price
  * @param lbtcUnit
+ * @param torProxy
  */
 export async function calculatePrice(
   known: { amount: string; asset: string; precision: number },
   trade: TDEXTrade,
-  lbtcUnit: LbtcDenomination
+  lbtcUnit: LbtcDenomination,
+  torProxy = 'https://proxy.tdex.network'
 ): Promise<{ amount: number; asset: string }> {
   if (Number(known.amount) <= 0) {
     return {
@@ -90,7 +94,7 @@ export async function calculatePrice(
       asset: trade.market.baseAsset === known.asset ? trade.market.quoteAsset : trade.market.baseAsset,
     };
   }
-  const client = new TraderClient(trade.market.provider.endpoint);
+  const client = new TraderClient(trade.market.provider.endpoint, torProxy);
   const response = await client.marketPrice(
     trade.market,
     trade.type,
@@ -111,6 +115,7 @@ export async function calculatePrice(
  * @param utxos the user's set of utxos
  * @param identity the user's identity, using to sign and blind the transaction
  * @param coinSelector the coin selector using to *select* unspents
+ * @param torProxy
  */
 export async function makeTrade(
   trade: TDEXTrade,
@@ -118,14 +123,18 @@ export async function makeTrade(
   explorerLiquidAPI: string,
   utxos: UtxoInterface[],
   identity: TDEXMnemonic,
-  coinSelector: CoinSelector
+  coinSelector: CoinSelector,
+  torProxy = 'https://proxy.tdex.network'
 ): Promise<string> {
-  const trader = new Trade({
-    explorerUrl: explorerLiquidAPI,
-    providerUrl: trade.market.provider.endpoint,
-    utxos,
-    coinSelector,
-  });
+  const trader = new Trade(
+    {
+      explorerUrl: explorerLiquidAPI,
+      providerUrl: trade.market.provider.endpoint,
+      utxos,
+      coinSelector,
+    },
+    torProxy
+  );
   let txid = '';
   try {
     if (trade.type === TradeType.BUY) {
