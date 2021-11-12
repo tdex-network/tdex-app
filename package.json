@@ -50,7 +50,7 @@
     "serve:no-open": "ionic serve --no-open",
     "sync": "ionic cap sync",
     "tdex:clean": "bash scripts/tdexd-clean.sh",
-    "tdex:run": "curl https://raw.githubusercontent.com/TDex-network/tdex-sdk/master/scripts/tdexd-run -o tdex-run && bash tdex-run && rm tdex-run",
+    "tdex:run": "curl https://raw.githubusercontent.com/louisinger/tdex-sdk/update-tdexd-run-script/scripts/tdexd-run -o tdex-run && bash tdex-run && rm tdex-run",
     "test": "BABEL_ENV=test npx jest"
   },
   "dependencies": {
