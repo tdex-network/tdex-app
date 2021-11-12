@@ -11,7 +11,8 @@ import { addMarkets, addProvider, ADD_PROVIDER, UPDATE_MARKETS, DELETE_PROVIDER 
 import { addErrorToast } from '../actions/toastActions';
 import { defaultProvider, network } from '../config';
 import type { TDEXState } from '../reducers/tdexReducer';
-import { SagaGenerator } from './types';
+
+import type { SagaGenerator } from './types';
 
 function* updateMarketsWithProvidersEndpoints() {
   const { providers, markets }: TDEXState = yield select(({ tdex }: { tdex: TDEXState }) => tdex);
@@ -50,7 +51,8 @@ function* fetchMarkets({ payload }: { payload: TDEXProvider }) {
 }
 
 function* providersToRestore(): SagaGenerator<TDEXProvider[], TDEXProvider[]> {
-  try { // try to get providers from storage
+  try {
+    // try to get providers from storage
     const providersFromStorage = yield call(getProvidersFromStorage);
     if (providersFromStorage.length > 0) {
       return providersFromStorage;
@@ -59,7 +61,8 @@ function* providersToRestore(): SagaGenerator<TDEXProvider[], TDEXProvider[]> {
     yield put(addErrorToast(FailedToRestoreProvidersError));
   }
 
-  if (network.chain === 'liquid') { // try to fetch providers from registry only on liquid
+  if (network.chain === 'liquid') {
+    // try to fetch providers from registry only on liquid
     try {
       const providersFromRegistry = yield call(getProvidersFromTDexRegistry);
       return providersFromRegistry;
@@ -69,12 +72,13 @@ function* providersToRestore(): SagaGenerator<TDEXProvider[], TDEXProvider[]> {
   }
 
   // return default provider if (1) no providers in storage and (2) no providers in registry
-  return [{
-    name: 'Default provider',
-    endpoint: defaultProvider.endpoint,
-  }];
+  return [
+    {
+      name: 'Default provider',
+      endpoint: defaultProvider.endpoint,
+    },
+  ];
 }
-
 
 function* restoreProviders() {
   const providers = yield* providersToRestore();
