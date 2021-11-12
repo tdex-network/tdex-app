@@ -40,3 +40,4 @@ export const NoClaimFoundError = new AppError(18, 'No claims have been found');
 export const PeginRestorationError = new AppError(19, 'Pegin restoration has failed');
 //
 export const InvalidBitcoinAddress = new AppError(20, 'Invalid Bitcoin address');
+export const FailedToRestoreProvidersError = new AppError(21, 'Failed to restore providers');
