@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type { CoinSelector, UtxoInterface } from 'ldk';
-import { Trade, TraderClient, TradeType } from 'tdex-sdk';
+import { bestBalanceDiscovery, bestPriceDiscovery, combineDiscovery, Discoverer, Trade, TradeInterface, TraderClient, TradeType } from 'tdex-sdk';
 import type { TDEXMnemonic } from 'tdex-sdk';
 
 import type { TDEXTrade, TDEXMarket, TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
@@ -59,21 +59,17 @@ export async function bestPrice(
   return sorted[0];
 }
 
-/**
- * Get receiving asset's greatest balance
- * @param trades
- */
-export async function bestBalance(trades: TDEXTrade[]): Promise<TDEXTrade> {
-  if (trades.length === 0) throw new Error('trades array should not be empty');
-  const sorted = trades.sort((a, b) => {
-    if (a.type === TradeType.BUY) {
-      return (b.market.baseAmount as number) - (a.market.baseAmount as number);
-    } else {
-      return (b.market.quoteAmount as number) - (a.market.quoteAmount as number);
-    }
-  });
-  return sorted[0];
+const discovery = combineDiscovery(bestBalanceDiscovery, bestPriceDiscovery);
+
+// Create discoverer object for a specific set of trader clients
+export function createDiscoverer(tradeClients: TraderClient[], errorHandler: () => Promise<void>): Discoverer {
+  return new Discoverer(
+    tradeClients,
+    discovery,
+    errorHandler
+  )
 }
+
 
 /**
  * Wrapper for marketPrice request

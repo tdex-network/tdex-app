@@ -14,7 +14,7 @@ import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
 import { fromSatoshi, fromSatoshiFixed, isLbtc, toLBTCwithUnit, toSatoshi } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
 import { onPressEnterKeyCloseKeyboard, setAccessoryBar } from '../../utils/keyboard';
-import { bestBalance, bestPrice, calculatePrice } from '../../utils/tdex';
+import { bestPrice, calculatePrice } from '../../utils/tdex';
 import type { AssetWithTicker } from '../../utils/tdex';
 import { CurrencyIcon } from '../icons';
 import './style.scss';
@@ -106,15 +106,20 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
     return () => setAmount('');
   }, [assetAmount]);
 
+  const getLastInputAmount = () => {
+    const lastInputAmount = inputAmountValueQueue.current.pop() ?? '0';
+    // Clear array by only keeping the last element
+    inputAmountValueQueue.current = [lastInputAmount];
+    return lastInputAmount;
+  }
+
   const updatePriceDebounced = useMemo(
     () =>
       debounce(async () => {
         let newTrade;
         let bestPriceRes;
         let updatedAmount;
-        const lastInputAmount = inputAmountValueQueue.current.pop() ?? '0';
-        // Clear array by only keeping the last element
-        inputAmountValueQueue.current = [lastInputAmount];
+        const lastInputAmount = getLastInputAmount();
         // Get best trade
         setIsUpdating(true);
         try {
