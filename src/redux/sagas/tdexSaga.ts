@@ -9,7 +9,7 @@ import type { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
 import { SIGN_IN } from '../actions/appActions';
 import { addMarkets, addProvider, ADD_PROVIDER, UPDATE_MARKETS, DELETE_PROVIDER } from '../actions/tdexActions';
 import { addErrorToast } from '../actions/toastActions';
-import { defaultProvider } from '../config';
+import { defaultProvider, network } from '../config';
 import type { TDEXState } from '../reducers/tdexReducer';
 
 import type { SagaGenerator } from './types';
@@ -61,12 +61,14 @@ function* providersToRestore(): SagaGenerator<TDEXProvider[], TDEXProvider[]> {
     yield put(addErrorToast(FailedToRestoreProvidersError));
   }
 
-  // try to fetch providers from registry only on liquid
-  try {
-    const providersFromRegistry = yield call(getProvidersFromTDexRegistry);
-    return providersFromRegistry;
-  } catch (e) {
-    yield put(addErrorToast(TDEXRegistryError));
+  if (network.chain === 'liquid') {
+    // try to fetch providers from registry only on liquid
+    try {
+      const providersFromRegistry = yield call(getProvidersFromTDexRegistry);
+      return providersFromRegistry;
+    } catch (e) {
+      yield put(addErrorToast(TDEXRegistryError));
+    }
   }
 
   // return default provider if (1) no providers in storage and (2) no providers in registry
