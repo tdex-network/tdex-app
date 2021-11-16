@@ -283,7 +283,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               setTrade={(t: TDEXTrade) => setTrade(t)}
               relatedAssetAmount={receivedAmount || ''}
               relatedAssetHash={assetReceived?.asset || ''}
-              asset={assetSent}
+              assetWithTicker={assetSent}
               assetAmount={sentAmount}
               trades={trades}
               trade={trade}
@@ -318,7 +318,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                 trade={trade}
                 relatedAssetAmount={sentAmount || ''}
                 relatedAssetHash={assetSent?.asset || ''}
-                asset={assetReceived}
+                assetWithTicker={assetReceived}
                 assetAmount={receivedAmount}
                 onChangeAmount={(newAmount: string) => {
                   setReceivedAmount(newAmount);

@@ -1,12 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { compose, applyMiddleware, createStore } from 'redux';
-import createSagaMiddleware from 'redux-saga';
 
 import AppContainer from './redux/containers/appContainer';
-import rootReducer from './redux/reducer';
-import rootSaga from './redux/saga';
+
+import store from './redux/store';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -29,12 +27,7 @@ import './theme/variables.scss';
 import './theme/components/search.scss';
 import './theme/components/listItem.scss';
 
-const sagaMiddleware = createSagaMiddleware();
-const middlewares = applyMiddleware(sagaMiddleware);
-const composeEnhancers = (window && (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
-const store = createStore(rootReducer, composeEnhancers(middlewares));
 
-sagaMiddleware.run(rootSaga);
 
 ReactDOM.render(
   <Provider store={store}>

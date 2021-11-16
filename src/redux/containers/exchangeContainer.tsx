@@ -4,8 +4,9 @@ import Exchange from '../../pages/Exchange';
 import { getTradablesAssets } from '../../utils/tdex';
 import { allAssets } from '../reducers/tdexReducer';
 import { allUtxosSelector, balancesSelector, lastUsedIndexesSelector } from '../reducers/walletReducer';
+import { RootState } from '../store';
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     assets: state.assets,
     allAssets: allAssets(state),

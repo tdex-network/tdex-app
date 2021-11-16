@@ -1,17 +1,22 @@
 import { IonContent, IonList, IonModal, IonHeader, IonItem, IonInput, IonIcon } from '@ionic/react';
 import { closeSharp, searchSharp } from 'ionicons/icons';
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
+import { RootState } from '../../redux/store';
 
 import type { AssetWithTicker } from '../../utils/tdex';
 import { CurrencyIcon } from '../icons';
 
-interface ExchangeSearchProps {
+interface ConnectedProps {
   prices: Record<string, number>;
+  currency: string;
+}
+
+type ExchangeSearchProps = ConnectedProps & {
   assets: AssetWithTicker[];
   setAsset: (newAsset: AssetWithTicker) => void;
   isOpen: boolean;
   close: (ev: any) => void;
-  currency: string;
 }
 
 const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsset, isOpen, close, currency }) => {
@@ -73,4 +78,9 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsse
   );
 };
 
-export default ExchangeSearch;
+const mapStateToProps = (state: RootState): ConnectedProps => ({
+  prices: state.rates.prices,
+  currency: state.settings.currency.symbol,
+});
+
+export default connect(mapStateToProps)(ExchangeSearch);

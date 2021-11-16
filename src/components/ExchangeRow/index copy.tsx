@@ -20,9 +20,11 @@ import { CurrencyIcon } from '../icons';
 import './style.scss';
 import { DiscoveryOpts } from 'tdex-sdk';
 
+import TradeRowInput from './trade-row-input';
+
 const ERROR_BALANCE_TOO_LOW = 'Amount is greater than your balance';
 
-interface ExchangeRowProps {
+interface ExchangeRowsProps {
   sendInput: boolean;
   // the asset handled by the component.
   assetWithTicker: AssetWithTicker;
@@ -54,7 +56,7 @@ interface ExchangeRowProps {
   torProxy: string;
 }
 
-const ExchangeRow: React.FC<ExchangeRowProps> = ({
+const ExchangeRows: React.FC<ExchangeRowsProps> = ({
   assetAmount,
   trades,
   trade,
@@ -133,6 +135,7 @@ const ExchangeRow: React.FC<ExchangeRowProps> = ({
           amount: parseInt(amount, 10),
           asset: assetWithTicker.asset
         }
+        const trade = createDiscoverer(tdexTraderClients).discover()
         // Get best trade
         setIsUpdating(true);
         try {
@@ -234,7 +237,7 @@ const ExchangeRow: React.FC<ExchangeRowProps> = ({
         return;
       }
       // Sanitize
-      const sanitizedValue = sanitizeInputAmount(e.detail.value, setAmount, isLbtc(assetWithTicker.asset) ? lbtcUnit : undefined);
+      const sanitizedValue = sanitizeInputAmount(e.detail.value, isLbtc(assetWithTicker.asset) ? lbtcUnit : undefined);
       // Set
       setAmount(sanitizedValue);
       onChangeAmount(sanitizedValue);
@@ -247,94 +250,9 @@ const ExchangeRow: React.FC<ExchangeRowProps> = ({
   };
 
   return (
-    <div className="exchange-coin-container">
-      <h2 className="subtitle">{`You ${sendInput ? 'Send' : 'Receive'}`}</h2>
-      <div className="exchanger-row">
-        <div className="coin-name" onClick={() => setIsSearchOpen(true)}>
-          <span className="icon-wrapper">
-            <CurrencyIcon currency={assetWithTicker.ticker} />
-          </span>
-          <span>{assetWithTicker.ticker === 'L-BTC' ? lbtcUnit : assetWithTicker.ticker.toUpperCase()}</span>
-          <IonIcon className="icon" icon={chevronDownOutline} />
-        </div>
-
-        <div
-          className={classNames('coin-amount', {
-            active: amount,
-          })}
-        >
-          <div className="ion-text-end">
-            <IonInput
-              color={error && 'danger'}
-              data-cy={`exchange-${sendInput ? 'send' : 'receive'}-input`}
-              disabled={isUpdating}
-              enterkeyhint="done"
-              inputmode="decimal"
-              onIonChange={handleInputChange}
-              onIonFocus={setFocus}
-              onKeyDown={onPressEnterKeyCloseKeyboard}
-              pattern="^[0-9]*[.,]?[0-9]*$"
-              placeholder="0"
-              type="tel"
-              value={amount}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div className="exchanger-row sub-row ion-margin-top">
-        <span
-          className="balance"
-          onClick={() => {
-            setFocus();
-            setAmount(
-              fromSatoshiFixed(
-                balance?.amount.toString() || '0',
-                balance?.precision,
-                balance?.precision ?? defaultPrecision,
-                balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
-              )
-            );
-          }}
-        >
-          <span>Total balance:</span>
-          <span>{`${fromSatoshiFixed(
-            balance?.amount.toString() || '0',
-            balance?.precision,
-            balance?.precision ?? defaultPrecision,
-            balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
-          )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : assetWithTicker.ticker}`}</span>
-        </span>
-        {isUpdating ? (
-          <IonSpinner name="dots" />
-        ) : amount && assetWithTicker.coinGeckoID && prices[assetWithTicker.coinGeckoID] ? (
-          <span className="ion-text-right">
-            {error ? (
-              <IonText color="danger">{error}</IonText>
-            ) : (
-              <>
-                {toLBTCwithUnit(new Decimal(amount), balance?.ticker === 'L-BTC' ? lbtcUnit : undefined)
-                  .mul(prices[assetWithTicker.coinGeckoID])
-                  .toFixed(2)}{' '}
-                {currency.toUpperCase()}
-              </>
-            )}
-          </span>
-        ) : (
-          <span />
-        )}
-      </div>
-
-      <ExchangeSearch
-        assets={assetsWithTicker}
-        setAsset={setAsset}
-        isOpen={isSearchOpen}
-        close={(ev: any) => {
-          ev?.preventDefault();
-          setIsSearchOpen(false);
-        }}
-      />
-    </div>
+    <>
+      <TradeRowInput></TradeRowInput>  
+    </>
   );
 };
 

@@ -1,11 +1,11 @@
 import axios from 'axios';
 import type { CoinSelector, UtxoInterface } from 'ldk';
-import { bestBalanceDiscovery, bestPriceDiscovery, combineDiscovery, Discoverer, Trade, TradeInterface, TraderClient, TradeType } from 'tdex-sdk';
+import { bestBalanceDiscovery, bestPriceDiscovery, combineDiscovery, Discoverer, DiscoveryOpts, Trade, TradeInterface, TraderClient, TradeType } from 'tdex-sdk';
 import type { TDEXMnemonic } from 'tdex-sdk';
 
 import type { TDEXTrade, TDEXMarket, TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 
-import type { LbtcDenomination } from './constants';
+import { defaultPrecision, LbtcDenomination } from './constants';
 import { getMainAsset } from './constants';
 import { InvalidTradeTypeError, MakeTradeError } from './errors';
 import { isLbtc, toSatoshi } from './helpers';
@@ -13,6 +13,7 @@ import { isLbtc, toSatoshi } from './helpers';
 export interface AssetWithTicker {
   asset: string;
   ticker: string;
+  precision: number;
   coinGeckoID?: string;
 }
 
@@ -59,13 +60,17 @@ export async function bestPrice(
   return sorted[0];
 }
 
-const discovery = combineDiscovery(bestBalanceDiscovery, bestPriceDiscovery);
+export function createTraderClient(endpoint: string, proxy = 'https://proxy.tdex.network'): TraderClient {
+  return new TraderClient(endpoint, proxy)
+}
+
+const bestBalanceAndThenBestPrice = combineDiscovery(bestBalanceDiscovery, bestPriceDiscovery);
 
 // Create discoverer object for a specific set of trader clients
-export function createDiscoverer(tradeClients: TraderClient[], errorHandler: () => Promise<void>): Discoverer {
+export function createDiscoverer(clients: TraderClient[], errorHandler?: () => Promise<void>): Discoverer {
   return new Discoverer(
-    tradeClients,
-    discovery,
+    clients,
+    bestBalanceAndThenBestPrice,
     errorHandler
   )
 }
@@ -155,9 +160,13 @@ export async function makeTrade(
  * @param sentAsset the asset to sent
  * @param receivedAsset the asset to receive
  */
-export function allTrades(markets: TDEXMarket[], sentAsset?: string, receivedAsset?: string): TDEXTrade[] {
+export function allTrades(markets: TDEXMarket[], sentAsset?: string, receivedAsset?: string): Record<TradeType, TDEXTrade[]> {
   if (!sentAsset || !receivedAsset) return [];
   const trades: TDEXTrade[] = [];
+  const tradesByType: Record<TradeType, TDEXTrade[]> = {
+    [TradeType.SELL]: [],
+    [TradeType.BUY]: [],
+  }
   for (const market of markets) {
     if (sentAsset === market.baseAsset && receivedAsset === market.quoteAsset) {
       trades.push({ market, type: TradeType.SELL });
@@ -189,6 +198,7 @@ export function getTradablesAssets(markets: TDEXMarket[], sentAsset: string): As
         asset: market.quoteAsset,
         ticker,
         coinGeckoID,
+        precision: mainAsset?.precision ?? defaultPrecision
       });
     }
 
@@ -201,6 +211,7 @@ export function getTradablesAssets(markets: TDEXMarket[], sentAsset: string): As
         asset: market.baseAsset,
         ticker,
         coinGeckoID,
+        precision: mainAsset?.precision ?? defaultPrecision
       });
     }
   }

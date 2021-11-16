@@ -18,6 +18,7 @@ import {
 } from '../actions/walletActions';
 
 import { transactionsAssets } from './transactionsReducer';
+import { RootState } from '../store';
 
 export interface WalletState {
   isAuth: boolean;
@@ -156,11 +157,16 @@ export const balancesSelector = createSelector(
   }
 );
 
+export const balanceByAssetSelector = (assetHash: string) => createSelector(
+  [balancesSelector],
+  (balances) => balances.find((b) => b.asset === assetHash)
+);
+
 /**
  * Redux selector returning the total LBTC balance (including featuring assets with CoinGecko support)
  * @param state the current redux state
  */
-export const aggregatedLBTCBalanceSelector = (state: any): BalanceInterface => {
+export const aggregatedLBTCBalanceSelector = (state: RootState): BalanceInterface => {
   const toAggregateBalancesInBTC = balancesSelector(state)
     .filter((b) => b.amount > 0 && b.coinGeckoID)
     .map((balance: BalanceInterface) => {
