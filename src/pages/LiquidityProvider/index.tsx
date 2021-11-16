@@ -188,7 +188,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers }) =>
             <IonCol>
               <IonButton className="main-button" disabled={registryFetching} onClick={() => handleFetchRegistry()}>
                 <IonIcon slot="start" icon={refreshCircleOutline} />
-                fetch registry
+                Refresh
               </IonButton>
             </IonCol>
           </IonRow>
