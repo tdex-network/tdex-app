@@ -182,7 +182,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers }) =>
             <IonCol size="12">
               <IonButton className="main-button" onClick={() => setNewProvider(true)}>
                 <IonIcon slot="start" icon={addCircleOutline} />
-                NEW PROVIDER
+                ADD PROVIDER
               </IonButton>
             </IonCol>
             <IonCol>
