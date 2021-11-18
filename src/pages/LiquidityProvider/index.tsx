@@ -134,7 +134,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers }) =>
                       />
                       {isDuplicateProviderEndpoint() && (
                         <span className="ion-text-right">
-                          <IonText color="danger">You already add this provider endpoint</IonText>
+                          <IonText color="danger">This provider already exists</IonText>
                         </span>
                       )}
                     </IonItem>
