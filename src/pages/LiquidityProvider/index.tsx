@@ -13,6 +13,7 @@ import {
   IonModal,
   IonPage,
   IonRow,
+  IonText,
 } from '@ionic/react';
 import { addCircleOutline, refreshCircleOutline, trash } from 'ionicons/icons';
 import React, { useState } from 'react';
@@ -40,6 +41,11 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers }) =>
   const [newProviderName, setNewProviderName] = useState('');
   const [newProviderEndpoint, setNewProviderEndpoint] = useState('');
   const [registryFetching, setRegistryFetching] = useState(false);
+
+  const isDuplicateProviderEndpoint = () =>
+    newProvider && providers.some((provider) => provider.endpoint === newProviderEndpoint);
+  const isNewProviderInvalid = () =>
+    newProviderName.trim() === '' || newProviderEndpoint.trim() === '' || isDuplicateProviderEndpoint();
 
   const alertButtons = [
     {
@@ -119,23 +125,28 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers }) =>
                     <IonItem>
                       <IonLabel position="stacked">Endpoint</IonLabel>
                       <IonInput
+                        color={isDuplicateProviderEndpoint() ? 'danger' : undefined}
                         required
                         value={newProviderEndpoint}
                         onIonChange={(e) => setNewProviderEndpoint(e.detail.value || '')}
                         inputmode="url"
                         placeholder="i.e http://localhost:9945"
                       />
+                      {isDuplicateProviderEndpoint() && (
+                        <span className="ion-text-right">
+                          <IonText color="danger">You already add this provider endpoint</IonText>
+                        </span>
+                      )}
                     </IonItem>
                   </IonList>
                 </IonCol>
               </IonRow>
-
               <IonRow className="ion-margin-vertical-x2">
                 <IonCol>
                   <ButtonsMainSub
                     mainTitle="CONFIRM"
                     subTitle="CANCEL"
-                    mainDisabled={newProviderName.trim() === '' || newProviderEndpoint.trim() === ''}
+                    mainDisabled={isNewProviderInvalid()}
                     mainOnClick={() => {
                       setNewProvider(false);
                       dispatch(
