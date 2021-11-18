@@ -4,16 +4,9 @@ import type { CoinSelector, UtxoInterface } from 'tdex-sdk';
 
 import type { TDEXMarket, TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 
-import { defaultPrecision } from './constants';
+import { AssetConfig, defaultPrecision } from './constants';
 import { getMainAsset } from './constants';
 import { MakeTradeError } from './errors';
-
-export interface AssetWithTicker {
-  asset: string;
-  ticker: string;
-  precision: number;
-  coinGeckoID?: string;
-}
 
 export function createTraderClient(endpoint: string, proxy = 'https://proxy.tdex.network'): TraderClient {
   return new TraderClient(endpoint, proxy)
@@ -85,7 +78,7 @@ export async function makeTrade(
  * @param sentAsset the asset to sent
  * @param receivedAsset the asset to receive
  */
-export function allTrades(
+export function computeOrders(
   markets: TDEXMarket[],
   sentAsset: string,
   receivedAsset: string,
@@ -105,44 +98,24 @@ export function allTrades(
   return trades;
 }
 
-/**
- * Filter a set of markets using asset to sent.
- * @param markets
- * @param sentAsset
- */
-export function getTradablesAssets(markets: TDEXMarket[], sentAsset: string): AssetWithTicker[] {
-  const results: AssetWithTicker[] = [];
+// Find all assets in markets tradable with the asset `asset`
+export function getTradablesAssets(markets: TDEXMarket[], asset: string): string[] {
+  const tradable: string[] = [];
 
   for (const market of markets) {
-    if (sentAsset === market.baseAsset && !results.map((r) => r.asset).includes(market.quoteAsset)) {
-      const mainAsset = getMainAsset(market.quoteAsset);
-      const ticker = mainAsset ? mainAsset.ticker : market.quoteAsset.slice(0, 4).toUpperCase();
-      const coinGeckoID = mainAsset?.coinGeckoID;
-
-      results.push({
-        asset: market.quoteAsset,
-        ticker,
-        coinGeckoID,
-        precision: mainAsset?.precision ?? defaultPrecision
-      });
+    if (asset === market.baseAsset && !tradable.includes(market.quoteAsset)) {
+      tradable.push(market.quoteAsset);
     }
 
-    if (sentAsset === market.quoteAsset && !results.map((r) => r.asset).includes(market.baseAsset)) {
-      const mainAsset = getMainAsset(market.baseAsset);
-      const ticker = mainAsset ? mainAsset.ticker : market.baseAsset.slice(0, 4).toUpperCase();
-      const coinGeckoID = mainAsset?.coinGeckoID;
-
-      results.push({
-        asset: market.baseAsset,
-        ticker,
-        coinGeckoID,
-        precision: mainAsset?.precision ?? defaultPrecision
-      });
+    if (asset === market.quoteAsset && !tradable.includes(market.baseAsset)) {
+      tradable.push(market.baseAsset);
     }
   }
 
-  return results;
+  return tradable;
 }
+
+export const assetHashToAssetConfig = (assetRegistry: Record<string, AssetConfig>) => (assetHash: string) => assetRegistry[assetHash];
 
 const TDexRegistryURL = 'https://raw.githubusercontent.com/TDex-network/tdex-registry/master/registry.json';
 

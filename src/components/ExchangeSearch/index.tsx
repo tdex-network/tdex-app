@@ -3,8 +3,8 @@ import { closeSharp, searchSharp } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { RootState } from '../../redux/store';
+import { AssetConfig } from '../../utils/constants';
 
-import type { AssetWithTicker } from '../../utils/tdex';
 import { CurrencyIcon } from '../icons';
 
 interface ConnectedProps {
@@ -13,8 +13,8 @@ interface ConnectedProps {
 }
 
 type ExchangeSearchProps = ConnectedProps & {
-  assets: AssetWithTicker[];
-  setAsset: (newAsset: AssetWithTicker) => void;
+  assets: AssetConfig[];
+  setAsset: (newAsset: AssetConfig) => void;
   isOpen: boolean;
   close: (ev: any) => void;
 }
@@ -43,12 +43,12 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsse
         <IonList>
           {assets
             .filter(
-              (asset: AssetWithTicker) =>
-                asset.asset.toLowerCase().includes(searchString) ||
+              (asset: AssetConfig) =>
+                asset.assetHash.toLowerCase().includes(searchString) ||
                 asset.ticker.toLowerCase().includes(searchString) ||
                 asset.coinGeckoID?.toLowerCase().includes(searchString)
             )
-            .map((asset: AssetWithTicker, index: number) => {
+            .map((asset: AssetConfig, index: number) => {
               return (
                 <IonItem
                   className="ion-no-margin"

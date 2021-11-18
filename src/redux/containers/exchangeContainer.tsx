@@ -2,14 +2,14 @@ import { connect } from 'react-redux';
 
 import Exchange from '../../pages/Exchange';
 import { getTradablesAssets } from '../../utils/tdex';
-import { allAssets } from '../reducers/tdexReducer';
+import { allTradableAssets } from '../reducers/tdexReducer';
 import { allUtxosSelector, balancesSelector, lastUsedIndexesSelector } from '../reducers/walletReducer';
 import { RootState } from '../store';
 
 const mapStateToProps = (state: RootState) => {
   return {
     assets: state.assets,
-    allAssets: allAssets(state),
+    allAssets: allTradableAssets(state),
     balances: balancesSelector(state).filter(
       (b) => b.amount > 0 && getTradablesAssets(state.tdex.markets, b.asset).length > 0
     ),

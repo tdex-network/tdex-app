@@ -23,7 +23,7 @@ import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
-import type { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
+import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
@@ -35,8 +35,7 @@ import { AppError, IncorrectPINError, NoMarketsProvidedError } from '../../utils
 import { customCoinSelector, getAssetHashLBTC, isLbtc, toSatoshi } from '../../utils/helpers';
 import type { TDexMnemonicRedux } from '../../utils/identity';
 import { getConnectedTDexMnemonic } from '../../utils/storage-helper';
-import type { AssetWithTicker } from '../../utils/tdex';
-import { allTrades, makeTrade, getTradablesAssets } from '../../utils/tdex';
+import { computeOrders, makeTrade, getTradablesAssets } from '../../utils/tdex';
 import type { PreviewData } from '../TradeSummary';
 
 import './style.scss';
@@ -44,7 +43,7 @@ import './style.scss';
 const ERROR_LIQUIDITY = 'Not enough liquidity in market';
 
 interface ExchangeProps extends RouteComponentProps {
-  allAssets: AssetWithTicker[];
+  allAssets: AssetConfig[];
   assets: Record<string, AssetConfig>;
   balances: BalanceInterface[];
   dispatch: Dispatch;
@@ -73,22 +72,8 @@ const Exchange: React.FC<ExchangeProps> = ({
   // user inputs amount
   const [sentAmount, setSentAmount] = useState<string>();
   const [receivedAmount, setReceivedAmount] = useState<string>();
-  // assets selected for trade
-  const [assetSent, setAssetSent] = useState<AssetWithTicker>();
-  const [assetReceived, setAssetReceived] = useState<AssetWithTicker>();
-  // current trades/tradable assets
-  const [tradableAssetsForAssetSent, setTradableAssetsForAssetSent] = useState<AssetWithTicker[]>([]);
-  const [tradableAssetsForAssetReceived, setTradableAssetsForAssetReceived] = useState<AssetWithTicker[]>([]);
-  const [trades, setTrades] = useState<TDEXTrade[]>([]);
-  // selected trade
-  const [trade, setTrade] = useState<TDEXTrade>();
-  // focused input
-  const [isFocused, setIsFocused] = useState<'sent' | 'receive'>('sent');
   // errors
-  const [errorSent, setErrorSent] = useState('');
-  const [errorReceived, setErrorReceived] = useState('');
   const [needReset, setNeedReset] = useState<boolean>(false);
-  //
   const [modalOpen, setModalOpen] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
@@ -99,74 +84,8 @@ const Exchange: React.FC<ExchangeProps> = ({
       history.goBack();
       return;
     }
-    const lbtcHash = getAssetHashLBTC();
-    const lbtcAsset = allAssets.find((h) => h.asset === lbtcHash);
-    setAssetSent(lbtcAsset);
-    setSentAmount(undefined);
-    setReceivedAmount(undefined);
-  }, [balances, markets]);
+  }, [markets]);
 
-  useEffect(() => {
-    if (markets.length === 0 || !assetSent || !assetReceived) return;
-    setTrades(allTrades(markets, assetSent.asset, assetReceived.asset));
-  }, [assetSent?.asset, assetReceived?.asset, markets]);
-
-  useEffect(() => {
-    if (!assetSent) return;
-    const sentTradables = getTradablesAssets(markets, assetSent.asset);
-    // TODO: Add opposite asset and remove current
-    setTradableAssetsForAssetReceived(sentTradables);
-    setAssetReceived(sentTradables[0]);
-  }, [assetSent?.asset, markets]);
-
-  useEffect(() => {
-    if (assetReceived) {
-      const receivedTradables = getTradablesAssets(markets, assetReceived.asset);
-      // TODO: Add opposite asset and remove current
-      setTradableAssetsForAssetSent(receivedTradables);
-    }
-  }, [assetReceived?.asset, markets]);
-
-  const checkAvailableAmountSent = () => {
-    if (!trade || !sentAmount || !assetSent) return;
-    const availableAmount = trade.type === TradeType.BUY ? trade.market.quoteAmount : trade.market.baseAmount;
-    const sats = toSatoshi(
-      sentAmount,
-      assets[assetSent.asset]?.precision ?? defaultPrecision,
-      assetSent.ticker === 'L-BTC' ? lbtcUnit : undefined
-    );
-    if (!hasBeenSwapped && availableAmount && sats.greaterThan(availableAmount)) {
-      setErrorSent(ERROR_LIQUIDITY);
-      return;
-    }
-    setErrorSent('');
-  };
-
-  const checkAvailableAmountReceived = () => {
-    if (!trade || !receivedAmount || !assetReceived) return;
-    const availableAmount = trade.type === TradeType.BUY ? trade.market.baseAmount : trade.market.quoteAmount;
-    const sats = toSatoshi(
-      receivedAmount,
-      assets[assetReceived.asset]?.precision ?? defaultPrecision,
-      assetReceived.ticker === 'L-BTC' ? lbtcUnit : undefined
-    );
-    if (!hasBeenSwapped && availableAmount && sats.greaterThan(availableAmount)) {
-      setErrorReceived(ERROR_LIQUIDITY);
-      return;
-    }
-    setErrorReceived('');
-    // Reset hasBeenSwapped
-    setHasBeenSwapped(false);
-  };
-
-  const sentAmountGreaterThanBalance = () => {
-    const balance = balances.find((b) => b.asset === assetSent?.asset);
-    if (!balance || !sentAmount) return true;
-    const amountAsSats = toSatoshi(sentAmount, balance.precision, balance.ticker === 'L-BTC' ? lbtcUnit : undefined);
-    return amountAsSats.greaterThan(balance.amount);
-  };
-
-  const onConfirm = () => setModalOpen(true);
 
   // make and broadcast trade, then push to trade summary page
   const onPinConfirm = async (pin: string) => {
@@ -276,66 +195,13 @@ const Exchange: React.FC<ExchangeProps> = ({
               title="Exchange"
               isTitleLarge={true}
             />
-            <ExchangeRow
-              sendInput={true}
-              focused={isFocused === 'sent'}
-              setFocus={() => setIsFocused('sent')}
-              setTrade={(t: TDEXTrade) => setTrade(t)}
-              relatedAssetAmount={receivedAmount || ''}
-              relatedAssetHash={assetReceived?.asset || ''}
-              assetWithTicker={assetSent}
-              assetAmount={sentAmount}
-              trades={trades}
-              trade={trade}
-              onChangeAmount={(newAmount: string) => {
-                setSentAmount(newAmount);
-                checkAvailableAmountSent();
-              }}
-              assetsWithTicker={tradableAssetsForAssetSent}
-              setAsset={(asset) => {
-                if (assetReceived && asset.asset === assetReceived.asset) setAssetReceived(assetSent);
-                setAssetSent(asset);
-              }}
-              error={errorSent}
-              setError={setErrorSent}
-              setOtherInputError={setErrorReceived}
-              isLoading={isLoading}
-              torProxy={torProxy}
-            />
-
+            
             <div className="exchange-divider ion-activatable" onClick={swapAssetsAndAmounts}>
               <img src={swap} alt="swap" />
               <IonRippleEffect type="unbounded" />
             </div>
 
-            {assetReceived && (
-              <ExchangeRow
-                sendInput={false}
-                focused={isFocused === 'receive'}
-                setFocus={() => setIsFocused('receive')}
-                setTrade={(t: TDEXTrade) => setTrade(t)}
-                trades={trades}
-                trade={trade}
-                relatedAssetAmount={sentAmount || ''}
-                relatedAssetHash={assetSent?.asset || ''}
-                assetWithTicker={assetReceived}
-                assetAmount={receivedAmount}
-                onChangeAmount={(newAmount: string) => {
-                  setReceivedAmount(newAmount);
-                  checkAvailableAmountReceived();
-                }}
-                assetsWithTicker={tradableAssetsForAssetReceived}
-                setAsset={(asset) => {
-                  if (asset.asset === assetSent.asset) setAssetSent(assetReceived);
-                  setAssetReceived(asset);
-                }}
-                error={errorReceived}
-                setError={setErrorReceived}
-                setOtherInputError={setErrorSent}
-                isLoading={isLoading}
-                torProxy={torProxy}
-              />
-            )}
+              </IonRow>
 
             <IonRow>
               <IonCol size="8.5" offset="1.75">

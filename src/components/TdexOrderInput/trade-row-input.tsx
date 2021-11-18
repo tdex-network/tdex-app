@@ -7,17 +7,17 @@ import { connect } from "react-redux";
 import { BalanceInterface } from "../../redux/actionTypes/walletActionTypes";
 import { balanceByAssetSelector } from "../../redux/reducers/walletReducer";
 import { RootState } from "../../redux/store";
-import { defaultPrecision, LbtcDenomination } from "../../utils/constants";
-import { fromSatoshiFixed, isLbtc, toLBTCwithUnit } from "../../utils/helpers";
+import { AssetConfig, defaultPrecision, LbtcDenomination } from "../../utils/constants";
+import { fromSatoshiFixed, isLbtc, toSatoshi } from "../../utils/helpers";
 import { sanitizeInputAmount } from "../../utils/input";
 import { onPressEnterKeyCloseKeyboard } from "../../utils/keyboard";
-import { AssetWithTicker, getTradablesAssets } from "../../utils/tdex";
+import { assetHashToAssetConfig, getTradablesAssets } from "../../utils/tdex";
 import ExchangeSearch from "../ExchangeSearch";
 import { CurrencyIcon } from "../icons";
 
 export type ExchangeRowValue = {
   amount: string;
-  asset: AssetWithTicker;
+  asset: AssetConfig;
 }
 
 interface ConnectedProps {
@@ -25,14 +25,16 @@ interface ConnectedProps {
   balance?: BalanceInterface;
   price: number;
   currency: string;
-  searchableAssets: AssetWithTicker[];
+  searchableAssets: AssetConfig[];
 }
 
 interface ComponentProps {
   type: 'send' | 'receive';
-  value: ExchangeRowValue;
   isLoading: boolean;
-  onChange: (value: ExchangeRowValue) => void;
+  assetSelected: AssetConfig;
+  sats: number;
+  onChangeAsset: (asset: string) => void;
+  onChangeSats: (sats: number) => void;
   error?: Error;
 }
 
@@ -40,10 +42,12 @@ type Props = ConnectedProps & ComponentProps;
 
 const TradeRowInput: React.FC<Props> = ({
   type,
-  value,
+  assetSelected,
+  sats,
   isLoading,
   lbtcUnit,
-  onChange,
+  onChangeAsset,
+  onChangeSats,
   balance,
   price,
   error,
@@ -53,13 +57,15 @@ const TradeRowInput: React.FC<Props> = ({
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const inputRef = useRef<HTMLIonInputElement>(null);
 
-  const onNewAsset = (asset: AssetWithTicker) => {
-    onChange({ ...value, asset });
+  const onSelectAsset = (asset: AssetConfig) => {
+    onChangeAsset(asset.assetHash);
   }
 
-  const onNewAmount = (amount: string) => {
-    const unitLBTC = isLbtc(value.asset.asset) ? lbtcUnit : undefined
-    onChange({ ...value, amount: sanitizeInputAmount(amount, unitLBTC) });
+  const onInputAmount = (amount: string) => {
+    const unitLBTC = isLbtc(assetSelected.assetHash) ? lbtcUnit : undefined
+    const stringAmount = sanitizeInputAmount(amount, unitLBTC);
+    const satoshis = toSatoshi(stringAmount, assetSelected.precision, unitLBTC).toNumber();
+    onChangeSats(satoshis);
   }
 
   const handleInputChange = (e: CustomEvent) => {
@@ -67,23 +73,30 @@ const TradeRowInput: React.FC<Props> = ({
       return;
     }
     
-    onNewAmount(e.detail.value);
+    onInputAmount(e.detail.value);
   }
+
+  const getAmountString = () => fromSatoshiFixed(
+    sats.toString(10),
+    assetSelected.precision,
+    assetSelected.precision,
+    isLbtc(assetSelected.assetHash) ? lbtcUnit : undefined
+  )
 
   return <div className="exchange-coin-container">
       <h2 className="subtitle">{`You ${type}`}</h2>
       <div className="exchanger-row">
         <div className="coin-name" onClick={() => {if (!isLoading) setIsSearchOpen(true)}}>
           <span className="icon-wrapper">
-            <CurrencyIcon currency={value.asset.ticker} />
+            <CurrencyIcon currency={assetSelected.ticker} />
           </span>
-          <span>{value.asset.ticker === 'L-BTC' ? lbtcUnit : value.asset.ticker.toUpperCase()}</span>
+          <span>{isLbtc(assetSelected.assetHash) ? lbtcUnit : assetSelected.ticker.toUpperCase()}</span>
           <IonIcon className="icon" icon={chevronDownOutline} />
         </div>
 
         <div
           className={classNames('coin-amount', {
-            active: value.amount,
+            active: sats > 0,
           })}
         >
           <div className="ion-text-end">
@@ -100,7 +113,7 @@ const TradeRowInput: React.FC<Props> = ({
               pattern="^[0-9]*[.,]?[0-9]*$"
               placeholder="0"
               type="tel"
-              value={value.amount}
+              value={getAmountString()}
             />
           </div>
         </div>
@@ -126,17 +139,17 @@ const TradeRowInput: React.FC<Props> = ({
             balance?.precision,
             balance?.precision ?? defaultPrecision,
             balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
-          )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : value.asset.ticker}`}</span>
+          )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : assetSelected.ticker}`}</span>
         </span>
         {isLoading ? (
           <IonSpinner name="dots" />
-        ) : value.amount && value.asset.coinGeckoID ? (
+        ) : sats && assetSelected.coinGeckoID ? (
           <span className="ion-text-right">
             {error ? (
               <IonText color="danger">{error}</IonText>
             ) : (
               <>
-                {toLBTCwithUnit(new Decimal(value.amount), balance?.ticker === 'L-BTC' ? lbtcUnit : undefined)
+                {new Decimal(getAmountString())
                   .mul(price)
                   .toFixed(2)}{' '}
                 {currency.toUpperCase()}
@@ -150,7 +163,7 @@ const TradeRowInput: React.FC<Props> = ({
 
       <ExchangeSearch
         assets={searchableAssets}
-        setAsset={onNewAsset}
+        setAsset={onSelectAsset}
         isOpen={isSearchOpen}
         close={(ev: any) => {
           ev?.preventDefault();
@@ -161,11 +174,11 @@ const TradeRowInput: React.FC<Props> = ({
 }
 
 const mapStateToProps = (state: RootState, ownProps: ComponentProps): ConnectedProps => ({
-  balance: balanceByAssetSelector(ownProps.value.asset.asset)(state),
+  balance: balanceByAssetSelector(ownProps.assetSelected.assetHash)(state),
   lbtcUnit: state.settings.denominationLBTC,
-  price: ownProps.value.asset.coinGeckoID ? state.rates.prices[ownProps.value.asset.coinGeckoID] : 0,
+  price: ownProps.assetSelected.coinGeckoID ? state.rates.prices[ownProps.assetSelected.coinGeckoID] : 0,
   currency: state.settings.currency.name,
-  searchableAssets: getTradablesAssets(state.tdex.markets, ownProps.value.amount),
+  searchableAssets: getTradablesAssets(state.tdex.markets, ownProps.assetSelected.assetHash).map(assetHashToAssetConfig(state.assets)),
 })
 
 export default connect(mapStateToProps)(TradeRowInput)
