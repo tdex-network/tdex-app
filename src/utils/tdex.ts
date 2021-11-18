@@ -1,63 +1,18 @@
 import axios from 'axios';
-import type { CoinSelector, UtxoInterface } from 'ldk';
-import { bestBalanceDiscovery, bestPriceDiscovery, combineDiscovery, Discoverer, DiscoveryOpts, Trade, TradeInterface, TraderClient, TradeType } from 'tdex-sdk';
-import type { TDEXMnemonic } from 'tdex-sdk';
+import { bestBalanceDiscovery, bestPriceDiscovery, combineDiscovery, Discoverer, Trade, TradeOrder, TraderClient, TradeType, greedyCoinSelector, IdentityInterface } from 'tdex-sdk';
+import type { CoinSelector, UtxoInterface } from 'tdex-sdk';
 
-import type { TDEXTrade, TDEXMarket, TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
+import type { TDEXMarket, TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 
-import { defaultPrecision, LbtcDenomination } from './constants';
+import { defaultPrecision } from './constants';
 import { getMainAsset } from './constants';
-import { InvalidTradeTypeError, MakeTradeError } from './errors';
-import { isLbtc, toSatoshi } from './helpers';
+import { MakeTradeError } from './errors';
 
 export interface AssetWithTicker {
   asset: string;
   ticker: string;
   precision: number;
   coinGeckoID?: string;
-}
-
-/**
- * Select the best price in a set of available markets
- * @param known the amount/asset inputs by the user
- * @param trades the set of trades available
- * @param lbtcUnit
- * @param onError launch if an error happen in getMarketPrice request
- * @param torProxy
- */
-export async function bestPrice(
-  known: { amount: string; asset: string; precision: number },
-  trades: TDEXTrade[],
-  lbtcUnit: LbtcDenomination,
-  onError: (e: string) => void,
-  torProxy = 'https://proxy.tdex.network'
-): Promise<{ amount: number; asset: string; trade: TDEXTrade }> {
-  if (trades.length === 0) throw new Error('trades array should not be empty');
-
-  const toPrice = async (trade: TDEXTrade) =>
-    calculatePrice(known, trade, lbtcUnit, torProxy)
-      .then((res) => ({ ...res, trade }))
-      .catch(onError);
-  const pricesPromises = trades.map(toPrice);
-
-  const results = (await Promise.allSettled(pricesPromises))
-    .filter(({ status }) => status === 'fulfilled')
-    .map(
-      (p) =>
-        (
-          p as PromiseFulfilledResult<{
-            amount: number;
-            asset: string;
-            trade: TDEXTrade;
-          }>
-        ).value
-    )
-    .filter((res) => res !== undefined);
-
-  if (results.length === 0) throw new Error('Unable to preview price from providers.');
-
-  const sorted = results.sort((p0, p1) => p0.amount - p1.amount);
-  return sorted[0];
 }
 
 export function createTraderClient(endpoint: string, proxy = 'https://proxy.tdex.network'): TraderClient {
@@ -67,50 +22,32 @@ export function createTraderClient(endpoint: string, proxy = 'https://proxy.tdex
 const bestBalanceAndThenBestPrice = combineDiscovery(bestBalanceDiscovery, bestPriceDiscovery);
 
 // Create discoverer object for a specific set of trader clients
-export function createDiscoverer(clients: TraderClient[], errorHandler?: () => Promise<void>): Discoverer {
+export function createDiscoverer(orders: TradeOrder[], errorHandler?: () => Promise<void>): Discoverer {
   return new Discoverer(
-    clients,
+    orders,
     bestBalanceAndThenBestPrice,
     errorHandler
   )
 }
 
-
-/**
- * Wrapper for marketPrice request
- * @param known the amount/asset provided by the user
- * @param trade trade used to compute the price
- * @param lbtcUnit
- * @param torProxy
- */
-export async function calculatePrice(
-  known: { amount: string; asset: string; precision: number },
-  trade: TDEXTrade,
-  lbtcUnit: LbtcDenomination,
+function createTradeFromTradeOrder(
+  order: TradeOrder,
+  explorerLiquidAPI: string,
+  utxos: UtxoInterface[],
+  coinSelector: CoinSelector = greedyCoinSelector(),
   torProxy = 'https://proxy.tdex.network'
-): Promise<{ amount: number; asset: string }> {
-  if (Number(known.amount) <= 0) {
-    return {
-      amount: 0,
-      asset: trade.market.baseAsset === known.asset ? trade.market.quoteAsset : trade.market.baseAsset,
-    };
-  }
-  const client = new TraderClient(trade.market.provider.endpoint, torProxy);
-  const response = await client.marketPrice(
-    trade.market,
-    trade.type,
-    toSatoshi(known.amount, known.precision, isLbtc(known.asset) ? lbtcUnit : undefined).toNumber(),
-    known.asset
-  );
-  return {
-    amount: response[0].amount,
-    asset: response[0].asset,
-  };
+): Trade {
+  return new Trade({
+      explorerUrl: explorerLiquidAPI,
+      providerUrl: order.traderClient.providerUrl,
+      utxos,
+      coinSelector,
+  }, torProxy)
 }
 
 /**
  * make and broadcast the swap transaction
- * @param trade the selected trade using to swap
+ * @param order the selected trade using to swap
  * @param known the data inputs by the user
  * @param explorerLiquidAPI the esplora URL
  * @param utxos the user's set of utxos
@@ -119,61 +56,49 @@ export async function calculatePrice(
  * @param torProxy
  */
 export async function makeTrade(
-  trade: TDEXTrade,
+  order: TradeOrder,
   known: { amount: number; asset: string },
+  identity: IdentityInterface,
   explorerLiquidAPI: string,
   utxos: UtxoInterface[],
-  identity: TDEXMnemonic,
-  coinSelector: CoinSelector,
+  coinSelector: CoinSelector = greedyCoinSelector(),
   torProxy = 'https://proxy.tdex.network'
 ): Promise<string> {
-  const trader = new Trade(
-    {
-      explorerUrl: explorerLiquidAPI,
-      providerUrl: trade.market.provider.endpoint,
-      utxos,
-      coinSelector,
-    },
-    torProxy
-  );
-  let txid = '';
+  const trader = createTradeFromTradeOrder(order, explorerLiquidAPI, utxos, coinSelector, torProxy);
   try {
-    if (trade.type === TradeType.BUY) {
-      txid = await trader.buy({ ...known, market: trade.market, identity });
+    const fn = order.type === TradeType.BUY ? trader.buy : trader.sell;
+    const txid = await fn({ ...known, market: order.market, identity });
+
+    if (!txid) {
+      throw new Error('Transaction not broadcasted');
     }
-    if (trade.type === TradeType.SELL) {
-      txid = await trader.sell({ ...known, market: trade.market, identity });
-    }
+    
+    return txid;
   } catch (e) {
-    console.error(e);
     throw MakeTradeError;
   }
-  if (txid === '') {
-    throw InvalidTradeTypeError;
-  }
-  return txid;
 }
 
 /**
- * Construct all the TDexTrade from a set of markets
+ * Construct all the TradeOrder from a set of markets
  * @param markets the set of available markets
  * @param sentAsset the asset to sent
  * @param receivedAsset the asset to receive
  */
-export function allTrades(markets: TDEXMarket[], sentAsset?: string, receivedAsset?: string): Record<TradeType, TDEXTrade[]> {
-  if (!sentAsset || !receivedAsset) return [];
-  const trades: TDEXTrade[] = [];
-  const tradesByType: Record<TradeType, TDEXTrade[]> = {
-    [TradeType.SELL]: [],
-    [TradeType.BUY]: [],
-  }
+export function allTrades(
+  markets: TDEXMarket[],
+  sentAsset: string,
+  receivedAsset: string,
+  torProxy?: string 
+): TradeOrder[] {
+  const trades: TradeOrder[] = [];
   for (const market of markets) {
     if (sentAsset === market.baseAsset && receivedAsset === market.quoteAsset) {
-      trades.push({ market, type: TradeType.SELL });
+      trades.push({ market, type: TradeType.SELL, traderClient: createTraderClient(market.provider.endpoint, torProxy) });
     }
 
     if (sentAsset === market.quoteAsset && receivedAsset === market.baseAsset) {
-      trades.push({ market, type: TradeType.BUY });
+      trades.push({ market, type: TradeType.BUY, traderClient: createTraderClient(market.provider.endpoint, torProxy) });
     }
   }
 

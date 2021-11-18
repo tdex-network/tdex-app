@@ -1,5 +1,3 @@
-import type { TradeType } from 'tdex-sdk';
-
 export interface TDEXProvider {
   id?: number;
   name: string;
@@ -12,9 +10,4 @@ export interface TDEXMarket {
   provider: TDEXProvider;
   baseAmount?: number;
   quoteAmount?: number;
-}
-
-export interface TDEXTrade {
-  market: TDEXMarket;
-  type: TradeType;
 }
