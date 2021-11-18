@@ -13,8 +13,9 @@ import {
   IonModal,
   IonPage,
   IonRow,
+  IonText,
 } from '@ionic/react';
-import { trash } from 'ionicons/icons';
+import { addCircleOutline, refreshCircleOutline, trash } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
@@ -25,6 +26,9 @@ import Header from '../../components/Header';
 import type { TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
 import './style.scss';
 import { addProvider, clearMarkets, deleteProvider, updateMarkets } from '../../redux/actions/tdexActions';
+import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
+import { TDEXRegistryError } from '../../utils/errors';
+import { getProvidersFromTDexRegistry } from '../../utils/tdex';
 
 interface LiquidityProvidersProps extends RouteComponentProps {
   providers: TDEXProvider[];
@@ -36,6 +40,12 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers }) =>
   const [newProvider, setNewProvider] = useState(false);
   const [newProviderName, setNewProviderName] = useState('');
   const [newProviderEndpoint, setNewProviderEndpoint] = useState('');
+  const [registryFetching, setRegistryFetching] = useState(false);
+
+  const isDuplicateProviderEndpoint = () =>
+    newProvider && providers.some((provider) => provider.endpoint === newProviderEndpoint);
+  const isNewProviderInvalid = () =>
+    newProviderName.trim() === '' || newProviderEndpoint.trim() === '' || isDuplicateProviderEndpoint();
 
   const alertButtons = [
     {
@@ -54,6 +64,23 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers }) =>
       },
     },
   ];
+
+  const handleFetchRegistry = async () => {
+    try {
+      setRegistryFetching(true);
+      const providersFromRegistry = await getProvidersFromTDexRegistry();
+      const currentEndpoints = providers.map((provider) => provider.endpoint);
+      const newProviders = providersFromRegistry.filter((p) => !currentEndpoints.includes(p.endpoint));
+
+      const actions = newProviders.map(addProvider);
+      const toastSuccessAction = addSuccessToast(`${actions.length} new providers from TDEX registry!`);
+      [...actions, toastSuccessAction].forEach(dispatch);
+    } catch {
+      dispatch(addErrorToast(TDEXRegistryError));
+    } finally {
+      setRegistryFetching(false);
+    }
+  };
 
   return (
     <IonPage>
@@ -98,23 +125,28 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers }) =>
                     <IonItem>
                       <IonLabel position="stacked">Endpoint</IonLabel>
                       <IonInput
+                        color={isDuplicateProviderEndpoint() ? 'danger' : undefined}
                         required
                         value={newProviderEndpoint}
                         onIonChange={(e) => setNewProviderEndpoint(e.detail.value || '')}
                         inputmode="url"
                         placeholder="i.e http://localhost:9945"
                       />
+                      {isDuplicateProviderEndpoint() && (
+                        <span className="ion-text-right">
+                          <IonText color="danger">This provider already exists</IonText>
+                        </span>
+                      )}
                     </IonItem>
                   </IonList>
                 </IonCol>
               </IonRow>
-
               <IonRow className="ion-margin-vertical-x2">
                 <IonCol>
                   <ButtonsMainSub
                     mainTitle="CONFIRM"
                     subTitle="CANCEL"
-                    mainDisabled={newProviderName.trim() === '' || newProviderEndpoint.trim() === ''}
+                    mainDisabled={isNewProviderInvalid()}
                     mainOnClick={() => {
                       setNewProvider(false);
                       dispatch(
@@ -158,9 +190,16 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers }) =>
             })}
           </IonList>
           <IonRow className="ion-margin-vertical-x2">
-            <IonCol size="9" offset="1.5">
+            <IonCol size="12">
               <IonButton className="main-button" onClick={() => setNewProvider(true)}>
+                <IonIcon slot="start" icon={addCircleOutline} />
                 ADD PROVIDER
+              </IonButton>
+            </IonCol>
+            <IonCol>
+              <IonButton className="main-button" disabled={registryFetching} onClick={() => handleFetchRegistry()}>
+                <IonIcon slot="start" icon={refreshCircleOutline} />
+                Refresh
               </IonButton>
             </IonCol>
           </IonRow>

@@ -2,7 +2,7 @@ import { put, takeLatest, select, call, delay } from 'redux-saga/effects';
 import type { MarketInterface } from 'tdex-sdk';
 import { TraderClient } from 'tdex-sdk';
 
-import { TDEXRegistryError } from '../../utils/errors';
+import { FailedToRestoreProvidersError, TDEXRegistryError } from '../../utils/errors';
 import { getProvidersFromStorage, setProvidersInStorage } from '../../utils/storage-helper';
 import { getProvidersFromTDexRegistry } from '../../utils/tdex';
 import type { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
@@ -11,6 +11,8 @@ import { addMarkets, addProvider, ADD_PROVIDER, UPDATE_MARKETS, DELETE_PROVIDER 
 import { addErrorToast } from '../actions/toastActions';
 import { defaultProvider, network } from '../config';
 import type { TDEXState } from '../reducers/tdexReducer';
+
+import type { SagaGenerator } from './types';
 
 function* updateMarketsWithProvidersEndpoints() {
   const { providers, markets }: TDEXState = yield select(({ tdex }: { tdex: TDEXState }) => tdex);
@@ -48,46 +50,40 @@ function* fetchMarkets({ payload }: { payload: TDEXProvider }) {
   }
 }
 
-function* restoreProviders() {
+function* providersToRestore(): SagaGenerator<TDEXProvider[], TDEXProvider[]> {
   try {
-    // restore the providers from storage
-    const providers: TDEXProvider[] = yield call(getProvidersFromStorage);
-    for (const p of providers) {
-      yield put(addProvider(p));
+    // try to get providers from storage
+    const providersFromStorage = yield call(getProvidersFromStorage);
+    if (providersFromStorage.length > 0) {
+      return providersFromStorage;
     }
-    // restore from registry in mainnet
+  } catch {
+    yield put(addErrorToast(FailedToRestoreProvidersError));
+  }
+
+  if (network.chain === 'liquid') {
+    // try to fetch providers from registry only on liquid
     try {
-      if (network.chain === 'liquid') {
-        const providersFromRegistry: TDEXProvider[] = yield call(getProvidersFromTDexRegistry);
-        const filteredProviders = providersFromRegistry.filter(
-          (prov: TDEXProvider) => providers.find((p) => p.endpoint === prov.endpoint) === undefined
-        );
-        for (const p of filteredProviders) {
-          yield put(addProvider(p));
-        }
-      } else {
-        if (providers.find((p) => p.endpoint === defaultProvider.endpoint) === undefined) {
-          yield put(
-            addProvider({
-              name: 'Default provider',
-              endpoint: defaultProvider.endpoint,
-            })
-          );
-        }
-      }
+      const providersFromRegistry = yield call(getProvidersFromTDexRegistry);
+      return providersFromRegistry;
     } catch (e) {
-      console.error(e);
       yield put(addErrorToast(TDEXRegistryError));
     }
-  } catch (e) {
-    console.error(e);
-    // if an error happen, add the default provider (depends on config)
-    yield put(
-      addProvider({
-        name: 'Default provider',
-        endpoint: defaultProvider.endpoint,
-      })
-    );
+  }
+
+  // return default provider if (1) no providers in storage and (2) no providers in registry
+  return [
+    {
+      name: 'Default provider',
+      endpoint: defaultProvider.endpoint,
+    },
+  ];
+}
+
+function* restoreProviders() {
+  const providers = yield* providersToRestore();
+  for (const provider of providers) {
+    yield put(addProvider(provider));
   }
 }
 
