@@ -7,6 +7,7 @@ import { getProvidersFromStorage, setProvidersInStorage } from '../../utils/stor
 import { getProvidersFromTDexRegistry } from '../../utils/tdex';
 import type { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
 import { SIGN_IN } from '../actions/appActions';
+import { addAsset } from '../actions/assetsActions';
 import { addMarkets, addProvider, ADD_PROVIDER, UPDATE_MARKETS, DELETE_PROVIDER } from '../actions/tdexActions';
 import { addErrorToast } from '../actions/toastActions';
 import { defaultProvider, network } from '../config';
@@ -42,6 +43,10 @@ function* fetchMarkets({ payload }: { payload: TDEXProvider }) {
     const markets: TDEXMarket[] = yield call(getMarketsFromProvider, payload, torProxy);
     if (markets.length > 0) {
       yield put(addMarkets(markets));
+      const allAssets = new Set(markets.flatMap((m) => [m.baseAsset, m.quoteAsset]));
+      for (const a of allAssets) {
+        yield put(addAsset(a));
+      }
     }
   } catch (e) {
     console.error(e);

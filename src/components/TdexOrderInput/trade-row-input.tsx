@@ -13,9 +13,10 @@ import { defaultPrecision } from '../../utils/constants';
 import { fromSatoshiFixed, isLbtc, toSatoshi } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
-import { assetHashToAssetConfig, getTradablesAssets } from '../../utils/tdex';
 import ExchangeSearch from '../ExchangeSearch';
 import { CurrencyIcon } from '../icons';
+
+import './style.scss';
 
 export type ExchangeRowValue = {
   amount: string;
@@ -27,17 +28,17 @@ interface ConnectedProps {
   balance?: BalanceInterface;
   price: number;
   currency: string;
-  searchableAssets: AssetConfig[];
 }
 
 interface ComponentProps {
   type: 'send' | 'receive';
   isLoading: boolean;
-  assetSelected: AssetConfig;
+  assetSelected?: AssetConfig;
   sats: number;
   onChangeAsset: (asset: string) => void;
   onChangeSats: (sats: number) => void;
   error?: Error;
+  searchableAssets: AssetConfig[];
 }
 
 type Props = ConnectedProps & ComponentProps;
@@ -66,6 +67,8 @@ const TradeRowInput: React.FC<Props> = ({
   };
 
   const onInputAmount = (amount: string) => {
+    if (!assetSelected) return;
+
     const unitLBTC = isLbtc(assetSelected.assetHash) ? lbtcUnit : undefined;
     const stringAmount = sanitizeInputAmount(amount, unitLBTC);
     const satoshis = toSatoshi(stringAmount, assetSelected.precision, unitLBTC).toNumber();
@@ -93,9 +96,9 @@ const TradeRowInput: React.FC<Props> = ({
   const getAmountString = () =>
     fromSatoshiFixed(
       sats.toString(10),
-      assetSelected.precision,
-      assetSelected.precision,
-      isLbtc(assetSelected.assetHash) ? lbtcUnit : undefined
+      assetSelected?.precision || defaultPrecision,
+      assetSelected?.precision || defaultPrecision,
+      isLbtc(assetSelected?.assetHash ?? '') ? lbtcUnit : undefined
     );
 
   return (
@@ -108,11 +111,15 @@ const TradeRowInput: React.FC<Props> = ({
             if (!isLoading) setIsSearchOpen(true);
           }}
         >
-          <span className="icon-wrapper">
-            <CurrencyIcon currency={assetSelected.ticker} />
-          </span>
-          <span>{isLbtc(assetSelected.assetHash) ? lbtcUnit : assetSelected.ticker.toUpperCase()}</span>
-          <IonIcon className="icon" icon={chevronDownOutline} />
+          {assetSelected && (
+            <>
+              <span className="icon-wrapper">
+                <CurrencyIcon currency={assetSelected.ticker} />
+              </span>
+              <span>{isLbtc(assetSelected.assetHash) ? lbtcUnit : assetSelected.ticker.toUpperCase()}</span>
+              <IonIcon className="icon" icon={chevronDownOutline} />
+            </>
+          )}
         </div>
 
         <div
@@ -160,14 +167,14 @@ const TradeRowInput: React.FC<Props> = ({
             balance?.precision,
             balance?.precision ?? defaultPrecision,
             balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
-          )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : assetSelected.ticker}`}</span>
+          )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : assetSelected?.ticker}`}</span>
         </span>
         {isLoading ? (
           <IonSpinner name="dots" />
-        ) : sats && assetSelected.coinGeckoID ? (
+        ) : sats && assetSelected && assetSelected.coinGeckoID ? (
           <span className="ion-text-right">
             {error || localError ? (
-              <IonText color="danger">{error || localError}</IonText>
+              <IonText color="danger">{(error || localError)?.message}</IonText>
             ) : (
               <>
                 {new Decimal(getAmountString()).mul(price).toFixed(2)} {currency.toUpperCase()}
@@ -193,13 +200,10 @@ const TradeRowInput: React.FC<Props> = ({
 };
 
 const mapStateToProps = (state: RootState, ownProps: ComponentProps): ConnectedProps => ({
-  balance: balanceByAssetSelector(ownProps.assetSelected.assetHash)(state),
+  balance: ownProps.assetSelected ? balanceByAssetSelector(ownProps.assetSelected.assetHash)(state) : undefined,
   lbtcUnit: state.settings.denominationLBTC,
-  price: ownProps.assetSelected.coinGeckoID ? state.rates.prices[ownProps.assetSelected.coinGeckoID] : 0,
+  price: ownProps.assetSelected?.coinGeckoID ? state.rates.prices[ownProps.assetSelected.coinGeckoID] : 0,
   currency: state.settings.currency.name,
-  searchableAssets: getTradablesAssets(state.tdex.markets, ownProps.assetSelected.assetHash).map(
-    assetHashToAssetConfig(state.assets)
-  ),
 });
 
 export default connect(mapStateToProps)(TradeRowInput);

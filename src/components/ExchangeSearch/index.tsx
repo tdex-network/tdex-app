@@ -40,39 +40,42 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsse
         </div>
       </IonHeader>
       <IonContent className="search-content">
-        <IonList>
-          {assets
-            .filter(
-              (asset: AssetConfig) =>
-                asset.assetHash.toLowerCase().includes(searchString) ||
-                asset.ticker.toLowerCase().includes(searchString) ||
-                asset.coinGeckoID?.toLowerCase().includes(searchString)
-            )
-            .map((asset: AssetConfig, index: number) => {
-              return (
-                <IonItem
-                  className="ion-no-margin"
-                  key={index}
-                  data-asset={index}
-                  onClick={(ev) => {
-                    setAsset(asset);
-                    close(ev);
-                  }}
-                >
-                  <div className="search-item-name">
-                    <span>
-                      <CurrencyIcon currency={asset.ticker} />
-                    </span>
-                    <p>{asset.ticker}</p>
-                  </div>
-                  <div className="search-item-amount">
-                    <span className="price">{(asset.coinGeckoID && prices[asset.coinGeckoID]) || '0'}</span>
-                    <span className="fiat-currency">{currency.toUpperCase()}</span>
-                  </div>
-                </IonItem>
-              );
-            })}
-        </IonList>
+        {assets.length > 0 && (
+          <IonList>
+            {assets
+              .filter((asset?: AssetConfig) =>
+                asset
+                  ? asset.assetHash.toLowerCase().includes(searchString) ||
+                    asset.ticker.toLowerCase().includes(searchString) ||
+                    asset.coinGeckoID?.toLowerCase().includes(searchString)
+                  : false
+              )
+              .map((asset: AssetConfig, index: number) => {
+                return (
+                  <IonItem
+                    className="ion-no-margin"
+                    key={index}
+                    data-asset={index}
+                    onClick={(ev) => {
+                      setAsset(asset);
+                      close(ev);
+                    }}
+                  >
+                    <div className="search-item-name">
+                      <span>
+                        <CurrencyIcon currency={asset.ticker} />
+                      </span>
+                      <p>{asset.ticker}</p>
+                    </div>
+                    <div className="search-item-amount">
+                      <span className="price">{(asset.coinGeckoID && prices[asset.coinGeckoID]) || '0'}</span>
+                      <span className="fiat-currency">{currency.toUpperCase()}</span>
+                    </div>
+                  </IonItem>
+                );
+              })}
+          </IonList>
+        )}
       </IonContent>
     </IonModal>
   );

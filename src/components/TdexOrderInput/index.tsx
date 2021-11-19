@@ -5,16 +5,22 @@ import type { TradeOrder } from 'tdex-sdk';
 
 import swap from '../../assets/img/swap.svg';
 import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
+import { selectAllTradableAssets } from '../../redux/reducers/tdexReducer';
 import type { RootState } from '../../redux/store';
 import type { AssetConfig } from '../../utils/constants';
 import { setAccessoryBar } from '../../utils/keyboard';
+import { getTradablesAssets } from '../../utils/tdex';
 
 import { useTradeState } from './hooks';
 import TradeRowInput from './trade-row-input';
 
+import './style.scss';
+
 interface ConnectedProps {
   assetRegistry: Record<string, AssetConfig>;
   initialMarket: TDEXMarket;
+  allTradableAssets: AssetConfig[];
+  markets: TDEXMarket[];
 }
 
 export interface SatsAsset {
@@ -36,7 +42,7 @@ type Props = ConnectedProps & {
 // let the user chooses a tradable asset pair
 // and inputs an amount of satoshis to sell or to buy
 // if found, it returns best orders via `onInput` property
-const TdexOrderInput: React.FC<Props> = ({ assetRegistry, initialMarket, onInput }) => {
+const TdexOrderInput: React.FC<Props> = ({ assetRegistry, initialMarket, allTradableAssets, markets, onInput }) => {
   const [
     bestOrder,
     sendAsset,
@@ -97,6 +103,7 @@ const TdexOrderInput: React.FC<Props> = ({ assetRegistry, initialMarket, onInput
         error={sendError}
         onChangeAsset={setSendAsset}
         onChangeSats={setSendAmount}
+        searchableAssets={allTradableAssets}
       />
       <div className="exchange-divider ion-activatable" onClick={swapSendAndReceiveAsset}>
         <img src={swap} alt="swap" />
@@ -110,6 +117,7 @@ const TdexOrderInput: React.FC<Props> = ({ assetRegistry, initialMarket, onInput
         error={receiveError}
         onChangeAsset={setReceiveAsset}
         onChangeSats={setReceiveAmount}
+        searchableAssets={getTradablesAssets(markets, sendAsset).map((h) => assetRegistry[h])}
       />
     </>
   );
@@ -118,6 +126,8 @@ const TdexOrderInput: React.FC<Props> = ({ assetRegistry, initialMarket, onInput
 const mapStateToProps = (state: RootState): ConnectedProps => ({
   assetRegistry: state.assets,
   initialMarket: state.tdex.markets[0],
+  markets: state.tdex.markets,
+  allTradableAssets: selectAllTradableAssets(state),
 });
 
 export default connect(mapStateToProps)(TdexOrderInput);

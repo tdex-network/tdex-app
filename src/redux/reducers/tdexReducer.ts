@@ -1,6 +1,9 @@
+import { createSelector } from 'reselect';
+
 import type { ActionType } from '../../utils/types';
 import type { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
 import { ADD_MARKETS, ADD_PROVIDER, CLEAR_MARKETS, DELETE_PROVIDER } from '../actions/tdexActions';
+import type { RootState } from '../store';
 
 export interface TDEXState {
   providers: TDEXProvider[];
@@ -32,5 +35,15 @@ const TDEXReducer = (
       return state;
   }
 };
+
+function assetHashFromMarkets(markets: TDEXMarket[]) {
+  return Array.from(new Set(markets.flatMap((m) => [m.baseAsset, m.quoteAsset])));
+}
+
+export const selectAllTradableAssets = createSelector(
+  (state: RootState) => state.assets,
+  (state: RootState) => state.tdex.markets,
+  (assets, markets) => assetHashFromMarkets(markets).map((hash) => assets[hash])
+);
 
 export default TDEXReducer;

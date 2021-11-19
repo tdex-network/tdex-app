@@ -7,47 +7,6 @@
     background: var(--ion-color-primary);
   }
 
-  .exchange-divider {
-    position: relative;
-    transition: all 800ms ease-in-out;
-    display: flex;
-    img {
-      margin-top: -16px;
-      position: absolute;
-      left: calc(50vw - 17px);
-      z-index: 2;
-      background: rgba(15, 255, 0, 0.12);
-      width: 32px;
-      height: 32px;
-      padding: 5px;
-      border: rgb(15, 255, 0) 1px solid;
-      border-radius: 50%;
-    }
-    &:before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      height: 1px;
-      width: calc(50% - 16px);
-      border-top: 1px solid rgb(15, 255, 0);
-    }
-    &:after {
-      content: '';
-      position: absolute;
-      right: 0;
-      top: 0;
-      height: 1px;
-      width: calc(50% - 16px);
-      border-top: 1px solid rgb(15, 255, 0);
-    }
-    ion-ripple-effect {
-      width: 100px;
-      margin: 0 auto;
-      opacity: 0.7;
-    }
-  }
-
   .market-provider {
     .trade-info {
       font-family: var(--ion-font-sub);
