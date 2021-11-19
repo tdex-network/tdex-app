@@ -8,10 +8,7 @@ import { unitToFixedDigits } from './helpers';
  * @param unit
  * @returns sanitizedValue string
  */
-export function sanitizeInputAmount(
-  eventDetailValue: string,
-  unit: LbtcDenomination = 'L-BTC'
-): string {
+export function sanitizeInputAmount(eventDetailValue: string, unit: LbtcDenomination = 'L-BTC'): string {
   // If value is one of those cases, provoke re-rendering with sanitized value
   if (
     // First comma is always replaced by dot. Reset if user types a second comma
@@ -23,7 +20,7 @@ export function sanitizeInputAmount(
     // No more than one dot
     /(\..*){2,}/.test(eventDetailValue)
   ) {
-    return ''
+    return '';
   }
   // Sanitize value
   let sanitizedValue = eventDetailValue

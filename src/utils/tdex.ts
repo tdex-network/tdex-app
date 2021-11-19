@@ -1,5 +1,16 @@
 import axios from 'axios';
-import { bestBalanceDiscovery, bestPriceDiscovery, combineDiscovery, Discoverer, Trade, TradeOrder, TraderClient, TradeType, greedyCoinSelector, IdentityInterface } from 'tdex-sdk';
+import {
+  bestBalanceDiscovery,
+  bestPriceDiscovery,
+  combineDiscovery,
+  Discoverer,
+  Trade,
+  TradeOrder,
+  TraderClient,
+  TradeType,
+  greedyCoinSelector,
+  IdentityInterface,
+} from 'tdex-sdk';
 import type { CoinSelector, UtxoInterface } from 'tdex-sdk';
 
 import type { TDEXMarket, TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
@@ -9,18 +20,14 @@ import { getMainAsset } from './constants';
 import { MakeTradeError } from './errors';
 
 export function createTraderClient(endpoint: string, proxy = 'https://proxy.tdex.network'): TraderClient {
-  return new TraderClient(endpoint, proxy)
+  return new TraderClient(endpoint, proxy);
 }
 
 const bestBalanceAndThenBestPrice = combineDiscovery(bestBalanceDiscovery, bestPriceDiscovery);
 
 // Create discoverer object for a specific set of trader clients
 export function createDiscoverer(orders: TradeOrder[], errorHandler?: () => Promise<void>): Discoverer {
-  return new Discoverer(
-    orders,
-    bestBalanceAndThenBestPrice,
-    errorHandler
-  )
+  return new Discoverer(orders, bestBalanceAndThenBestPrice, errorHandler);
 }
 
 function createTradeFromTradeOrder(
@@ -30,12 +37,15 @@ function createTradeFromTradeOrder(
   coinSelector: CoinSelector = greedyCoinSelector(),
   torProxy = 'https://proxy.tdex.network'
 ): Trade {
-  return new Trade({
+  return new Trade(
+    {
       explorerUrl: explorerLiquidAPI,
       providerUrl: order.traderClient.providerUrl,
       utxos,
       coinSelector,
-  }, torProxy)
+    },
+    torProxy
+  );
 }
 
 /**
@@ -65,7 +75,7 @@ export async function makeTrade(
     if (!txid) {
       throw new Error('Transaction not broadcasted');
     }
-    
+
     return txid;
   } catch (e) {
     throw MakeTradeError;
@@ -82,16 +92,24 @@ export function computeOrders(
   markets: TDEXMarket[],
   sentAsset: string,
   receivedAsset: string,
-  torProxy?: string 
+  torProxy?: string
 ): TradeOrder[] {
   const trades: TradeOrder[] = [];
   for (const market of markets) {
     if (sentAsset === market.baseAsset && receivedAsset === market.quoteAsset) {
-      trades.push({ market, type: TradeType.SELL, traderClient: createTraderClient(market.provider.endpoint, torProxy) });
+      trades.push({
+        market,
+        type: TradeType.SELL,
+        traderClient: createTraderClient(market.provider.endpoint, torProxy),
+      });
     }
 
     if (sentAsset === market.quoteAsset && receivedAsset === market.baseAsset) {
-      trades.push({ market, type: TradeType.BUY, traderClient: createTraderClient(market.provider.endpoint, torProxy) });
+      trades.push({
+        market,
+        type: TradeType.BUY,
+        traderClient: createTraderClient(market.provider.endpoint, torProxy),
+      });
     }
   }
 
@@ -115,7 +133,8 @@ export function getTradablesAssets(markets: TDEXMarket[], asset: string): string
   return tradable;
 }
 
-export const assetHashToAssetConfig = (assetRegistry: Record<string, AssetConfig>) => (assetHash: string) => assetRegistry[assetHash];
+export const assetHashToAssetConfig = (assetRegistry: Record<string, AssetConfig>) => (assetHash: string) =>
+  assetRegistry[assetHash];
 
 const TDexRegistryURL = 'https://raw.githubusercontent.com/TDex-network/tdex-registry/master/registry.json';
 

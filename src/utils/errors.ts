@@ -21,9 +21,11 @@ function isAppError(error: Error): error is AppError {
   return error instanceof AppError;
 }
 
-const isError = (err: AppError) => (error: Error): error is AppError => {
-  return isAppError(error) && err.code === error.code;
-};
+const isError =
+  (err: AppError) =>
+  (error: Error): error is AppError => {
+    return isAppError(error) && err.code === error.code;
+  };
 
 export const MakeTradeError = new AppError(1, 'TradePropose or TradeComplete error');
 export const isMakeTradeError = isError(MakeTradeError);

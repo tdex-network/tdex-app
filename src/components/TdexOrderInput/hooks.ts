@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import { TradeOrder } from "tdex-sdk";
-import { RootState } from "../../redux/store";
-import { computeOrders, createDiscoverer, getTradablesAssets } from "../../utils/tdex";
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { TradeOrder } from 'tdex-sdk';
+import { RootState } from '../../redux/store';
+import { computeOrders, createDiscoverer, getTradablesAssets } from '../../utils/tdex';
 
 interface AssetSats {
   assetHash: string;
@@ -11,19 +11,16 @@ interface AssetSats {
 
 // calculate price is a wrapper of marketPrice rpc call
 // it returns the price of the asset in sats
-const calculatePrice = (sats: number, asset: string) => async (order: TradeOrder): Promise<AssetSats> => {
-   const response = await order.traderClient.marketPrice(
-    order.market,
-    order.type,
-    sats,
-    asset
-   );
-  
-  return {
-    assetHash: response[0].asset,
-    sats: response[0].amount,
+const calculatePrice =
+  (sats: number, asset: string) =>
+  async (order: TradeOrder): Promise<AssetSats> => {
+    const response = await order.traderClient.marketPrice(order.market, order.type, sats, asset);
+
+    return {
+      assetHash: response[0].asset,
+      sats: response[0].amount,
+    };
   };
-}
 
 // custom state hook using to represent an asset/sats pair
 function useAssetSats(initialValue: string) {
@@ -37,7 +34,7 @@ export function useTradeState(initialSendAsset: string, initialReceiveAsset: str
   const [sendAsset, sendSats, setSendAsset, setSendSats] = useAssetSats(initialSendAsset);
   const [receiveAsset, receiveSats, setReceiveAsset, setReceiveSats] = useAssetSats(initialReceiveAsset);
   const [bestOrder, setBestOrder] = useState<TradeOrder>();
-  
+
   const [sendLoader, setSendLoader] = useState(false);
   const [receiveLoader, setReceiveLoader] = useState(false);
 
@@ -69,12 +66,12 @@ export function useTradeState(initialSendAsset: string, initialReceiveAsset: str
     const discoverer = createDiscoverer(allPossibleOrders);
     const bestOrders = await discoverer.discover({ asset, amount: sats });
     return bestOrders[0];
-  }
+  };
 
   const setBestOrderPipe = (order: TradeOrder) => {
     setBestOrder(order);
     return order;
-  }
+  };
 
   const updateReceiveSats = () => {
     setReceiveLoader(true);
@@ -84,7 +81,7 @@ export function useTradeState(initialSendAsset: string, initialReceiveAsset: str
       .then((r: AssetSats) => setReceiveSats(r.sats))
       .catch(setReceiveError)
       .finally(() => setReceiveLoader(false));
-  }
+  };
 
   const updateSendSats = () => {
     setSendLoader(true);
@@ -94,12 +91,12 @@ export function useTradeState(initialSendAsset: string, initialReceiveAsset: str
       .then((r: AssetSats) => setSendSats(r.sats))
       .catch(setSendError)
       .finally(() => setSendLoader(false));
-  }
+  };
 
   const resetError = () => {
     setSendError(undefined);
     setReceiveError(undefined);
-  }
+  };
 
   // send sats setter
   // auto-update the receive sats amount according to best order
@@ -107,7 +104,7 @@ export function useTradeState(initialSendAsset: string, initialReceiveAsset: str
     resetError();
     setSendSats(sats);
     await updateReceiveSats();
-  }
+  };
 
   // receive sats setter
   // auto-update the send sats amount according to best order
@@ -115,17 +112,21 @@ export function useTradeState(initialSendAsset: string, initialReceiveAsset: str
     resetError();
     setReceiveSats(sats);
     await updateSendSats();
-  }
-  
+  };
+
   return [
     bestOrder,
-    sendAsset, sendSats,
-    receiveAsset, receiveSats,
-    setReceiveAsset, setSendAsset,
-    setSendAmount, setReceiveAmount,
-    sendLoader, receiveLoader,
-    sendError, receiveError
+    sendAsset,
+    sendSats,
+    receiveAsset,
+    receiveSats,
+    setReceiveAsset,
+    setSendAsset,
+    setSendAmount,
+    setReceiveAmount,
+    sendLoader,
+    receiveLoader,
+    sendError,
+    receiveError,
   ] as const;
 }
-
-

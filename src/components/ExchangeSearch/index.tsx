@@ -17,7 +17,7 @@ type ExchangeSearchProps = ConnectedProps & {
   setAsset: (newAsset: AssetConfig) => void;
   isOpen: boolean;
   close: (ev: any) => void;
-}
+};
 
 const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsset, isOpen, close, currency }) => {
   const [searchString, setSearchString] = useState('');

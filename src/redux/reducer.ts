@@ -10,6 +10,7 @@ import toastReducer from './reducers/toastReducer';
 import transactionsReducer from './reducers/transactionsReducer';
 import walletReducer from './reducers/walletReducer';
 
+// TODO reset ALL
 export default combineReducers({
   app: appReducer,
   btc: btcReducer,

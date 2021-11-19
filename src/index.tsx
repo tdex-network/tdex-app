@@ -27,8 +27,6 @@ import './theme/variables.scss';
 import './theme/components/search.scss';
 import './theme/components/listItem.scss';
 
-
-
 ReactDOM.render(
   <Provider store={store}>
     <AppContainer />
