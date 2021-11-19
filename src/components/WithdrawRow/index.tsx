@@ -75,7 +75,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
       return;
     }
     const unit = isLbtc(balance.asset) ? lbtcUnit : undefined;
-    const sanitizedValue = sanitizeInputAmount(e.detail.value, setAmount, unit);
+    const sanitizedValue = sanitizeInputAmount(e.detail.value, unit);
     // Set values
     setAmount(sanitizedValue);
     const residualAmount = fromSatoshi(balance.amount.toString(), balance.precision, unit).sub(sanitizedValue);

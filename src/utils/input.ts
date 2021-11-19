@@ -20,7 +20,7 @@ export function sanitizeInputAmount(eventDetailValue: string, unit: LbtcDenomina
     // No more than one dot
     /(\..*){2,}/.test(eventDetailValue)
   ) {
-    return '';
+    return '0';
   }
   // Sanitize value
   let sanitizedValue = eventDetailValue
