@@ -1,4 +1,5 @@
 import type { AddressInterface, UtxoInterface, Outpoint, Mnemonic, StateRestorerOpts } from 'ldk';
+import type { OutputSelector } from 'reselect';
 import { createSelector } from 'reselect';
 
 import { defaultPrecision, LBTC_COINGECKOID, LBTC_TICKER, LBTC_ASSET, getMainAsset } from '../../utils/constants';
@@ -16,9 +17,9 @@ import {
   UNLOCK_UTXO,
   UNLOCK_UTXOS,
 } from '../actions/walletActions';
+import type { RootState } from '../store';
 
 import { transactionsAssets } from './transactionsReducer';
-import { RootState } from '../store';
 
 export interface WalletState {
   isAuth: boolean;
@@ -157,7 +158,9 @@ export const balancesSelector = createSelector(
   }
 );
 
-export const balanceByAssetSelector = (assetHash: string) =>
+export const balanceByAssetSelector = (
+  assetHash: string
+): OutputSelector<unknown, BalanceInterface | undefined, (res: BalanceInterface[]) => BalanceInterface | undefined> =>
   createSelector([balancesSelector], (balances) => balances.find((b) => b.asset === assetHash));
 
 /**

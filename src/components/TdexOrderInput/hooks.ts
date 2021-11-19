@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { TradeOrder } from 'tdex-sdk';
-import { RootState } from '../../redux/store';
+import type { TradeOrder } from 'tdex-sdk';
+
+import type { RootState } from '../../redux/store';
 import { computeOrders, createDiscoverer, getTradablesAssets } from '../../utils/tdex';
 
 interface AssetSats {
@@ -30,6 +31,7 @@ function useAssetSats(initialValue: string) {
   return [assetHash, sats, setAssetHash, setSats] as const;
 }
 
+// eslint-disable-next-line
 export function useTradeState(initialSendAsset: string, initialReceiveAsset: string) {
   const [sendAsset, sendSats, setSendAsset, setSendSats] = useAssetSats(initialSendAsset);
   const [receiveAsset, receiveSats, setReceiveAsset, setReceiveSats] = useAssetSats(initialReceiveAsset);

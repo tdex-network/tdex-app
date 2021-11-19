@@ -4,10 +4,12 @@ import Decimal from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
 import React, { useRef, useState } from 'react';
 import { connect } from 'react-redux';
-import { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+
+import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { balanceByAssetSelector } from '../../redux/reducers/walletReducer';
-import { RootState } from '../../redux/store';
-import { AssetConfig, defaultPrecision, LbtcDenomination } from '../../utils/constants';
+import type { RootState } from '../../redux/store';
+import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
+import { defaultPrecision } from '../../utils/constants';
 import { fromSatoshiFixed, isLbtc, toSatoshi } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';

@@ -5,18 +5,15 @@ import {
   combineDiscovery,
   Discoverer,
   Trade,
-  TradeOrder,
   TraderClient,
   TradeType,
   greedyCoinSelector,
-  IdentityInterface,
 } from 'tdex-sdk';
-import type { CoinSelector, UtxoInterface } from 'tdex-sdk';
+import type { CoinSelector, UtxoInterface, TradeOrder, IdentityInterface } from 'tdex-sdk';
 
 import type { TDEXMarket, TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 
-import { AssetConfig, defaultPrecision } from './constants';
-import { getMainAsset } from './constants';
+import type { AssetConfig } from './constants';
 import { MakeTradeError } from './errors';
 
 export function createTraderClient(endpoint: string, proxy = 'https://proxy.tdex.network'): TraderClient {
@@ -133,8 +130,10 @@ export function getTradablesAssets(markets: TDEXMarket[], asset: string): string
   return tradable;
 }
 
-export const assetHashToAssetConfig = (assetRegistry: Record<string, AssetConfig>) => (assetHash: string) =>
-  assetRegistry[assetHash];
+export const assetHashToAssetConfig =
+  (assetRegistry: Record<string, AssetConfig>) =>
+  (assetHash: string): AssetConfig =>
+    assetRegistry[assetHash];
 
 const TDexRegistryURL = 'https://raw.githubusercontent.com/TDex-network/tdex-registry/master/registry.json';
 

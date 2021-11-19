@@ -1,15 +1,16 @@
 import { IonRippleEffect, useIonViewDidEnter, useIonViewDidLeave } from '@ionic/react';
 import React, { useEffect } from 'react';
-import { TradeOrder } from 'tdex-sdk';
-import { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
-import { AssetConfig } from '../../utils/constants';
-import { setAccessoryBar } from '../../utils/keyboard';
-import { useTradeState } from './hooks';
-import swap from '../../assets/img/swap.svg';
-
-import TradeRowInput, { ExchangeRowValue } from './trade-row-input';
-import { RootState } from '../../redux/store';
 import { connect } from 'react-redux';
+import type { TradeOrder } from 'tdex-sdk';
+
+import swap from '../../assets/img/swap.svg';
+import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
+import type { RootState } from '../../redux/store';
+import type { AssetConfig } from '../../utils/constants';
+import { setAccessoryBar } from '../../utils/keyboard';
+
+import { useTradeState } from './hooks';
+import TradeRowInput from './trade-row-input';
 
 interface ConnectedProps {
   assetRegistry: Record<string, AssetConfig>;

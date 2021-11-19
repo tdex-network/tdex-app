@@ -3,14 +3,16 @@ import classNames from 'classnames';
 import type { UtxoInterface, StateRestorerOpts } from 'ldk';
 import { mnemonicRestorerFromState } from 'ldk';
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
-import type { Dispatch } from 'redux';
 
 import tradeHistory from '../../assets/img/trade-history.svg';
 import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
+import type { TdexOrderInputResult } from '../../components/TdexOrderInput';
+import TdexOrderInput from '../../components/TdexOrderInput';
 import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
@@ -24,14 +26,10 @@ import { makeTrade } from '../../utils/tdex';
 import type { PreviewData } from '../TradeSummary';
 
 import './style.scss';
-import TdexOrderInput, { TdexOrderInputResult } from '../../components/TdexOrderInput';
 import { useTdexOrderResultState } from './hooks';
 
-const ERROR_LIQUIDITY = 'Not enough liquidity in market';
-
-interface ExchangeProps extends RouteComponentProps {
+export interface ExchangeConnectedProps {
   assets: Record<string, AssetConfig>;
-  dispatch: Dispatch;
   explorerLiquidAPI: string;
   lastUsedIndexes: StateRestorerOpts;
   lbtcUnit: LbtcDenomination;
@@ -40,17 +38,20 @@ interface ExchangeProps extends RouteComponentProps {
   torProxy: string;
 }
 
-const Exchange: React.FC<ExchangeProps> = ({
+type Props = RouteComponentProps & ExchangeConnectedProps;
+
+const Exchange: React.FC<Props> = ({
   history,
   explorerLiquidAPI,
   markets,
   utxos,
   assets,
-  dispatch,
   lastUsedIndexes,
   lbtcUnit,
   torProxy,
 }) => {
+  const dispatch = useDispatch();
+
   // Tdex order input
   const [result, setResult, send, receive] = useTdexOrderResultState(lbtcUnit, assets);
   const onTdexOrderInput = (tdexOrder?: TdexOrderInputResult) => {

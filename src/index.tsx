@@ -3,7 +3,6 @@ import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
 import AppContainer from './redux/containers/appContainer';
-
 import store from './redux/store';
 
 /* Core CSS required for Ionic components to work properly */

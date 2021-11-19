@@ -2,9 +2,9 @@ import { IonContent, IonList, IonModal, IonHeader, IonItem, IonInput, IonIcon } 
 import { closeSharp, searchSharp } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { RootState } from '../../redux/store';
-import { AssetConfig } from '../../utils/constants';
 
+import type { RootState } from '../../redux/store';
+import type { AssetConfig } from '../../utils/constants';
 import { CurrencyIcon } from '../icons';
 
 interface ConnectedProps {

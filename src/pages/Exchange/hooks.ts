@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { SatsAsset, TdexOrderInputResult } from '../../components/TdexOrderInput';
-import { AssetConfig, defaultPrecision, LbtcDenomination } from '../../utils/constants';
+
+import type { SatsAsset, TdexOrderInputResult } from '../../components/TdexOrderInput';
+import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
+import { defaultPrecision } from '../../utils/constants';
 import { fromSatoshiFixed } from '../../utils/helpers';
 
 export interface AmountAndUnit {
@@ -10,6 +12,7 @@ export interface AmountAndUnit {
 
 // custom hook using to store TdexOrderInputResult
 // set up an effect in order to compute UI values
+// eslint-disable-next-line
 export function useTdexOrderResultState(lbtcUnit: LbtcDenomination, assetsRegistry: Record<string, AssetConfig>) {
   const [result, setResult] = useState<TdexOrderInputResult>();
   const [send, setSend] = useState<AmountAndUnit>();
