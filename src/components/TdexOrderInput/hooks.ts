@@ -15,6 +15,7 @@ interface AssetSats {
 const calculatePrice =
   (sats: number, asset: string) =>
   async (order: TradeOrder): Promise<AssetSats> => {
+    console.warn(order);
     const response = await order.traderClient.marketPrice(order.market, order.type, sats, asset);
 
     return {
@@ -81,7 +82,10 @@ export function useTradeState(initialSendAsset: string, initialReceiveAsset: str
       .then(setBestOrderPipe) // set best order
       .then(calculatePrice(sendSats, sendAsset))
       .then((r: AssetSats) => setReceiveSats(r.sats))
-      .catch(setReceiveError)
+      .catch((e) => {
+        console.error(e);
+        setReceiveError(e);
+      })
       .finally(() => setReceiveLoader(false));
   };
 

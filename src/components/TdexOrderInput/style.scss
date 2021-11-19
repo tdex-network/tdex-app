@@ -76,6 +76,10 @@
   }
 }
 
+.exchange-coin-container:nth-child(2) {
+  background: var(--ion-color-primary);
+}
+
 ion-spinner {
   align-self: center;
 }
@@ -84,13 +88,19 @@ ion-spinner {
   width: 20px;
 }
 
+.container {
+  display: flex;
+  flex-direction: column;
+  max-width: 100vh;
+}
+
 .exchange-divider {
   position: relative;
-  transition: all 800ms ease-in-out;
   display: flex;
+  transition: all 800ms ease-in-out;
   img {
-    margin-top: -16px;
     position: absolute;
+    margin-top: -16px;
     left: calc(50vw - 17px);
     z-index: 2;
     background: rgba(15, 255, 0, 0.12);
@@ -119,6 +129,7 @@ ion-spinner {
     border-top: 1px solid rgb(15, 255, 0);
   }
   ion-ripple-effect {
+    height: fit-content;
     width: 100px;
     margin: 0 auto;
     opacity: 0.7;

@@ -1,4 +1,4 @@
-import { IonRippleEffect, useIonViewDidEnter, useIonViewDidLeave } from '@ionic/react';
+import { IonGrid, IonRippleEffect, IonRow, useIonViewDidEnter, useIonViewDidLeave } from '@ionic/react';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import type { TradeOrder } from 'tdex-sdk';
@@ -94,7 +94,7 @@ const TdexOrderInput: React.FC<Props> = ({ assetRegistry, initialMarket, allTrad
   };
 
   return (
-    <>
+    <div className="container">
       <TradeRowInput
         type="send"
         sats={sendSats}
@@ -119,7 +119,7 @@ const TdexOrderInput: React.FC<Props> = ({ assetRegistry, initialMarket, allTrad
         onChangeSats={setReceiveAmount}
         searchableAssets={getTradablesAssets(markets, sendAsset).map((h) => assetRegistry[h])}
       />
-    </>
+    </div>
   );
 };
 

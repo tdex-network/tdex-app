@@ -72,10 +72,12 @@ const TradeRowInput: React.FC<Props> = ({
     const unitLBTC = isLbtc(assetSelected.assetHash) ? lbtcUnit : undefined;
     const stringAmount = sanitizeInputAmount(amount, unitLBTC);
     const satoshis = toSatoshi(stringAmount, assetSelected.precision, unitLBTC).toNumber();
-    if (satoshis > (balance ? balance.amount : 0)) {
-      throw new Error(`not enough liquidity in market (max: ${balance?.amount} sats)`);
-    }
     onChangeSats(satoshis);
+
+    if (type === 'send' && satoshis > (balance ? balance.amount : 0)) {
+      // only check balance in case of `send` input
+      throw new Error(`amount greater than balance`);
+    }
   };
 
   const handleInputChange = (e: CustomEvent) => {
@@ -130,7 +132,7 @@ const TradeRowInput: React.FC<Props> = ({
           <div className="ion-text-end">
             <IonInput
               ref={inputRef}
-              color={error && 'danger'}
+              color={(localError || error) && 'danger'}
               data-cy={`exchange-${type}-input`}
               disabled={isLoading}
               enterkeyhint="done"
@@ -169,20 +171,19 @@ const TradeRowInput: React.FC<Props> = ({
             balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
           )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : assetSelected?.ticker}`}</span>
         </span>
+
         {isLoading ? (
           <IonSpinner name="dots" />
-        ) : sats && assetSelected && assetSelected.coinGeckoID ? (
+        ) : (
           <span className="ion-text-right">
             {error || localError ? (
-              <IonText color="danger">{(error || localError)?.message}</IonText>
+              <IonText color="danger">{(error || localError)?.message || 'unknown error'}</IonText>
             ) : (
               <>
-                {new Decimal(getAmountString()).mul(price).toFixed(2)} {currency.toUpperCase()}
+                {new Decimal(getAmountString() || 0).mul(price || 0).toFixed(2)} {currency.toUpperCase()}
               </>
             )}
           </span>
-        ) : (
-          <span />
         )}
       </div>
 

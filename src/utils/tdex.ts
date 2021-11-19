@@ -3,11 +3,11 @@ import {
   bestBalanceDiscovery,
   bestPriceDiscovery,
   combineDiscovery,
-  Discoverer,
   Trade,
   TraderClient,
   TradeType,
   greedyCoinSelector,
+  Discoverer,
 } from 'tdex-sdk';
 import type { CoinSelector, UtxoInterface, TradeOrder, IdentityInterface } from 'tdex-sdk';
 
@@ -22,7 +22,7 @@ export function createTraderClient(endpoint: string, proxy = 'https://proxy.tdex
 
 // Create discoverer object for a specific set of trader clients
 export function createDiscoverer(orders: TradeOrder[], errorHandler?: () => Promise<void>): Discoverer {
-  return new Discoverer(orders, combineDiscovery(bestBalanceDiscovery, bestPriceDiscovery), errorHandler);
+  return new Discoverer(orders, bestPriceDiscovery, errorHandler);
 }
 
 function createTradeFromTradeOrder(
