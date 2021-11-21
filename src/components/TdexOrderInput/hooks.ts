@@ -15,7 +15,6 @@ interface AssetSats {
 const calculatePrice =
   (sats: number, asset: string) =>
   async (order: TradeOrder): Promise<AssetSats> => {
-    console.warn(order);
     const response = await order.traderClient.marketPrice(order.market, order.type, sats, asset);
 
     return {
@@ -40,6 +39,9 @@ export function useTradeState(initialSendAsset: string, initialReceiveAsset: str
 
   const [sendLoader, setSendLoader] = useState(false);
   const [receiveLoader, setReceiveLoader] = useState(false);
+
+  const [needSend, setNeedSend] = useState(false);
+  const [needReceive, setNeedReceive] = useState(false);
 
   const [sendError, setSendError] = useState<Error>();
   const [receiveError, setReceiveError] = useState<Error>();
@@ -66,40 +68,47 @@ export function useTradeState(initialSendAsset: string, initialReceiveAsset: str
 
   const discoverBestOrder = async (sats: number, asset: string): Promise<TradeOrder> => {
     const allPossibleOrders = computeOrders(markets, sendAsset, receiveAsset);
+    if (sats <= 0) {
+      return allPossibleOrders[0];
+    }
     const discoverer = createDiscoverer(allPossibleOrders);
     const bestOrders = await discoverer.discover({ asset, amount: sats });
     return bestOrders[0];
   };
 
-  const setBestOrderPipe = (order: TradeOrder) => {
-    setBestOrder(order);
-    return order;
-  };
+  const computePriceAndUpdate =
+    (sats: number, asset: string, type: 'send' | 'receive') => async (order: TradeOrder) => {
+      const assetSats = await calculatePrice(sats, asset)(order);
+      if (type === 'send') {
+        setReceiveSats(assetSats.sats);
+      } else {
+        setSendSats(assetSats.sats);
+      }
+
+      return order;
+    };
 
   const updateReceiveSats = () => {
+    if (!needReceive) return;
     setReceiveLoader(true);
     return discoverBestOrder(sendSats, sendAsset)
-      .then(setBestOrderPipe) // set best order
-      .then(calculatePrice(sendSats, sendAsset))
-      .then((r: AssetSats) => setReceiveSats(r.sats))
-      .catch((e) => {
-        console.error(e);
-        setReceiveError(e);
-      })
+      .then(computePriceAndUpdate(sendSats, sendAsset, 'send')) // set receive sats
+      .then(setBestOrder)
+      .catch(setReceiveError)
       .finally(() => setReceiveLoader(false));
   };
 
   const updateSendSats = () => {
+    if (!needSend) return;
     setSendLoader(true);
     return discoverBestOrder(receiveSats, receiveAsset)
-      .then(setBestOrderPipe) // set best order
-      .then(calculatePrice(receiveSats, receiveAsset))
-      .then((r: AssetSats) => setSendSats(r.sats))
+      .then(computePriceAndUpdate(receiveSats, receiveAsset, 'receive')) // set send sats
+      .then(setBestOrder)
       .catch(setSendError)
       .finally(() => setSendLoader(false));
   };
 
-  const resetError = () => {
+  const resetErrors = () => {
     setSendError(undefined);
     setReceiveError(undefined);
   };
@@ -107,16 +116,24 @@ export function useTradeState(initialSendAsset: string, initialReceiveAsset: str
   // send sats setter
   // auto-update the receive sats amount according to best order
   const setSendAmount = async (sats: number) => {
-    resetError();
+    if (!needSend) {
+      resetErrors();
+    }
+    setNeedSend(false);
     setSendSats(sats);
+    setNeedReceive(true);
     await updateReceiveSats();
   };
 
   // receive sats setter
   // auto-update the send sats amount according to best order
   const setReceiveAmount = async (sats: number) => {
-    resetError();
+    if (!needReceive) {
+      resetErrors();
+    }
+    setNeedReceive(false);
     setReceiveSats(sats);
+    setNeedSend(true);
     await updateSendSats();
   };
 

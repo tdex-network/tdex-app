@@ -13,12 +13,20 @@ import { addErrorToast } from '../actions/toastActions';
 import { defaultProvider, network } from '../config';
 import type { TDEXState } from '../reducers/tdexReducer';
 
+function* updateAssetsFromMarkets(markets: TDEXMarket[]) {
+  const allAssets = new Set(markets.flatMap((m) => [m.baseAsset, m.quoteAsset]));
+  for (const asset of allAssets) {
+    yield put(addAsset(asset));
+  }
+}
+
 function* updateMarketsWithProvidersEndpoints() {
   const { providers, markets }: TDEXState = yield select(({ tdex }: { tdex: TDEXState }) => tdex);
   const torProxy: string = yield select(({ settings }) => settings.torProxy);
   for (const p of providers) {
     try {
       const providerMarkets: TDEXMarket[] = yield call(getMarketsFromProvider, p, torProxy);
+      const toAdd: TDEXMarket[] = [];
       for (const market of providerMarkets) {
         if (
           !markets.find(
@@ -28,9 +36,11 @@ function* updateMarketsWithProvidersEndpoints() {
               m.provider.id === market.provider.id
           )
         ) {
-          yield put(addMarkets([market]));
+          toAdd.push(market);
         }
       }
+      yield* updateAssetsFromMarkets(toAdd);
+      yield put(addMarkets(toAdd));
     } catch (e) {
       console.error(e);
     }
@@ -42,11 +52,8 @@ function* fetchMarkets({ payload }: { payload: TDEXProvider }) {
     const torProxy: string = yield select(({ settings }) => settings.torProxy);
     const markets: TDEXMarket[] = yield call(getMarketsFromProvider, payload, torProxy);
     if (markets.length > 0) {
+      yield* updateAssetsFromMarkets(markets);
       yield put(addMarkets(markets));
-      const allAssets = new Set(markets.flatMap((m) => [m.baseAsset, m.quoteAsset]));
-      for (const a of allAssets) {
-        yield put(addAsset(a));
-      }
     }
   } catch (e) {
     console.error(e);

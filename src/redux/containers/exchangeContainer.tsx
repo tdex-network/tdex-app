@@ -7,10 +7,8 @@ import type { RootState } from '../store';
 
 const mapStateToProps = (state: RootState): ExchangeConnectedProps => {
   return {
-    assets: state.assets,
     explorerLiquidAPI: state.settings.explorerLiquidAPI,
     lastUsedIndexes: lastUsedIndexesSelector(state),
-    lbtcUnit: state.settings.denominationLBTC,
     markets: state.tdex.markets,
     utxos: allUtxosSelector(state),
     torProxy: state.settings.torProxy,

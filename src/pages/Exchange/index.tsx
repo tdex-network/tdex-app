@@ -17,7 +17,6 @@ import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
-import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { AppError, IncorrectPINError, NoMarketsProvidedError } from '../../utils/errors';
 import { customCoinSelector } from '../../utils/helpers';
@@ -26,13 +25,10 @@ import { makeTrade } from '../../utils/tdex';
 import type { PreviewData } from '../TradeSummary';
 
 import './style.scss';
-import { useTdexOrderResultState } from './hooks';
 
 export interface ExchangeConnectedProps {
-  assets: Record<string, AssetConfig>;
   explorerLiquidAPI: string;
   lastUsedIndexes: StateRestorerOpts;
-  lbtcUnit: LbtcDenomination;
   markets: TDEXMarket[];
   utxos: UtxoInterface[];
   torProxy: string;
@@ -40,26 +36,14 @@ export interface ExchangeConnectedProps {
 
 type Props = RouteComponentProps & ExchangeConnectedProps;
 
-const Exchange: React.FC<Props> = ({
-  history,
-  explorerLiquidAPI,
-  markets,
-  utxos,
-  assets,
-  lastUsedIndexes,
-  lbtcUnit,
-  torProxy,
-}) => {
+const Exchange: React.FC<Props> = ({ history, explorerLiquidAPI, markets, utxos, lastUsedIndexes, torProxy }) => {
   const dispatch = useDispatch();
 
   // Tdex order input
-  const [result, setResult, send, receive] = useTdexOrderResultState(lbtcUnit, assets);
-  const onTdexOrderInput = (tdexOrder?: TdexOrderInputResult) => {
-    setResult(tdexOrder);
-  };
+  const [result, setResult] = useState<TdexOrderInputResult>();
 
   const getPinModalDescription = () =>
-    `Enter your secret PIN to send ${send?.amount} ${send?.unit} and receive ${receive?.amount} ${receive?.unit}.`;
+    `Enter your secret PIN to send ${result?.send.amount} ${result?.send.unit} and receive ${result?.receive.amount} ${result?.receive.unit}.`;
   const getProviderName = (endpoint: string) => markets.find((m) => m.provider.endpoint === endpoint)?.provider.name;
 
   // confirm flow
@@ -95,12 +79,12 @@ const Exchange: React.FC<Props> = ({
     addSuccessToast('Trade successfully computed');
     const preview: PreviewData = {
       sent: {
-        ticker: send?.unit || 'unknown',
-        amount: `-${send?.amount || '??'}`,
+        ticker: result?.send.unit || 'unknown',
+        amount: `-${result?.send.amount || '??'}`,
       },
       received: {
-        ticker: receive?.unit || 'unknown',
-        amount: receive?.amount || '??',
+        ticker: result?.receive.unit || 'unknown',
+        amount: result?.receive.amount || '??',
       },
     };
 
@@ -179,7 +163,7 @@ const Exchange: React.FC<Props> = ({
             />
 
             <IonRow>
-              <TdexOrderInput onInput={onTdexOrderInput} />
+              <TdexOrderInput onInput={setResult} />
             </IonRow>
 
             <IonRow>

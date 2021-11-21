@@ -22,7 +22,7 @@ export function createTraderClient(endpoint: string, proxy = 'https://proxy.tdex
 
 // Create discoverer object for a specific set of trader clients
 export function createDiscoverer(orders: TradeOrder[], errorHandler?: () => Promise<void>): Discoverer {
-  return new Discoverer(orders, bestPriceDiscovery, errorHandler);
+  return new Discoverer(orders, combineDiscovery(bestBalanceDiscovery, bestPriceDiscovery), errorHandler);
 }
 
 function createTradeFromTradeOrder(
@@ -59,13 +59,15 @@ export async function makeTrade(
   identity: IdentityInterface,
   explorerLiquidAPI: string,
   utxos: UtxoInterface[],
-  coinSelector: CoinSelector = greedyCoinSelector(),
-  torProxy = 'https://proxy.tdex.network'
+  coinSelector: CoinSelector,
+  torProxy?: string
 ): Promise<string> {
+  console.log(torProxy);
   const trader = createTradeFromTradeOrder(order, explorerLiquidAPI, utxos, coinSelector, torProxy);
   try {
-    const fn = order.type === TradeType.BUY ? trader.buy : trader.sell;
-    const txid = await fn({ ...known, market: order.market, identity });
+    const args = { ...known, market: order.market, identity };
+    const promise = order.type === TradeType.BUY ? trader.buy(args) : trader.sell(args);
+    const txid = await promise;
 
     if (!txid) {
       throw new Error('Transaction not broadcasted');
@@ -73,6 +75,7 @@ export async function makeTrade(
 
     return txid;
   } catch (e) {
+    console.error('trade error:', e);
     throw MakeTradeError;
   }
 }

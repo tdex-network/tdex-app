@@ -12544,7 +12544,7 @@ tar@^6.0.1, tar@^6.0.2, tar@^6.1.11:
 
 tdex-protobuf@tdex-network/tdex-protobuf:
   version "2.0.0"
-  resolved "https://codeload.github.com/tdex-network/tdex-protobuf/tar.gz/8d50c6e697c98d1b27099f4ca61781d87c4429fc"
+  resolved "https://codeload.github.com/tdex-network/tdex-protobuf/tar.gz/2900c102e1ea23250febd26b5acdbe6ca5175a95"
   dependencies:
     grpc-web "1.2.0"
 
@@ -12614,10 +12614,10 @@ tdex-react-scripts@4.0.3-tdex:
   optionalDependencies:
     fsevents "^2.1.3"
 
-tdex-sdk@^1.7.6:
-  version "1.7.6"
-  resolved "https://registry.yarnpkg.com/tdex-sdk/-/tdex-sdk-1.7.6.tgz#a91efdeba5deeb68c8ca940804ed78e9fb6f0fdb"
-  integrity sha512-RzTIXSqjFfgP+VrvMXnTH/VJHn/jC8gQ916TCIcL8d19Txpe6qAwRm5e+BZI4HNkmV7GK1CaAZJ8kpe6sL6WUw==
+tdex-sdk@^1.7.7:
+  version "1.7.7"
+  resolved "https://registry.yarnpkg.com/tdex-sdk/-/tdex-sdk-1.7.7.tgz#e8960b22b630433e13b87a90bfb859d13f18be21"
+  integrity sha512-AeL9L5dY3NYTeGvjBAMqtWtrvhAcUwQp+cMIUf33yhn3TxRqdES6EjAVDuPGkFz37bbAerKN9jPqMU28gRhMMQ==
   dependencies:
     "@grpc/grpc-js" "^1.3.3"
     "@types/google-protobuf" "^3.15.2"

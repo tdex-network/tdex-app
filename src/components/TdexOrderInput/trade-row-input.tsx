@@ -81,11 +81,11 @@ const TradeRowInput: React.FC<Props> = ({
   };
 
   const handleInputChange = (e: CustomEvent) => {
+    setLocalError(undefined);
     if (isLoading) {
       return;
     }
 
-    setLocalError(undefined);
     try {
       onInputAmount(e.detail.value);
     } catch (e) {
