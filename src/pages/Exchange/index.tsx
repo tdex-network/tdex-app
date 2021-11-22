@@ -2,7 +2,7 @@ import { IonContent, IonPage, IonText, useIonViewWillEnter, IonGrid, IonRow, Ion
 import classNames from 'classnames';
 import type { UtxoInterface, StateRestorerOpts } from 'ldk';
 import { mnemonicRestorerFromState } from 'ldk';
-import React, { useState } from 'react';
+import React, { createRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 
@@ -11,20 +11,37 @@ import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
-import type { TdexOrderInputResult } from '../../components/TdexOrderInput';
+import type { TdexOrderInputResult, TdexOrderInputRef } from '../../components/TdexOrderInput';
 import TdexOrderInput from '../../components/TdexOrderInput';
 import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
-import { AppError, IncorrectPINError, NoMarketsProvidedError } from '../../utils/errors';
+import { AppError, IncorrectPINError, MakeTradeError, NoMarketsProvidedError } from '../../utils/errors';
 import { customCoinSelector } from '../../utils/helpers';
 import { getConnectedTDexMnemonic } from '../../utils/storage-helper';
 import { makeTrade } from '../../utils/tdex';
 import type { PreviewData } from '../TradeSummary';
 
 import './style.scss';
+import ExchangeErrorModal from './exchange-error-modal';
+
+const isSameProviderEndpoint = (providerEndpoint: string) =>
+  function (market: TDEXMarket) {
+    return market.provider.endpoint === providerEndpoint;
+  };
+
+const withoutProviders = (...endpoints: string[]) =>
+  function (market: TDEXMarket) {
+    const isSameProviderFns = endpoints.map(isSameProviderEndpoint);
+
+    for (const fn of isSameProviderFns) {
+      if (fn(market)) return false;
+    }
+
+    return true;
+  };
 
 export interface ExchangeConnectedProps {
   explorerLiquidAPI: string;
@@ -41,6 +58,9 @@ const Exchange: React.FC<Props> = ({ history, explorerLiquidAPI, markets, utxos,
 
   // Tdex order input
   const [result, setResult] = useState<TdexOrderInputResult>();
+  const orderInputRef = createRef<TdexOrderInputRef>();
+  const [toFilterProviders, setToFilterProviders] = useState<string[]>([]);
+  const [tradeError, setTradeError] = useState<AppError>();
 
   const getPinModalDescription = () =>
     `Enter your secret PIN to send ${result?.send.amount} ${result?.send.unit} and receive ${result?.receive.amount} ${result?.receive.unit}.`;
@@ -48,7 +68,7 @@ const Exchange: React.FC<Props> = ({ history, explorerLiquidAPI, markets, utxos,
 
   // confirm flow
   const [needReset, setNeedReset] = useState<boolean>(false);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [PINmodalOpen, setPINModalOpen] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
 
@@ -93,7 +113,7 @@ const Exchange: React.FC<Props> = ({ history, explorerLiquidAPI, markets, utxos,
 
   // make and broadcast trade, then push to trade summary page
   const onPinConfirm = async (pin: string) => {
-    setModalOpen(false);
+    setPINModalOpen(false);
     if (!result) return;
 
     setLoading(true);
@@ -101,19 +121,20 @@ const Exchange: React.FC<Props> = ({ history, explorerLiquidAPI, markets, utxos,
     try {
       const identity = await getIdentity(pin);
 
-      // propose and complete tdex trade
-      // broadcast via liquid explorer
-      const txid = await makeTrade(
-        result.order,
-        { amount: result.send.sats, asset: result.send.asset },
-        identity,
-        explorerLiquidAPI,
-        utxos,
-        customCoinSelector(dispatch),
-        torProxy
-      );
+      // // propose and complete tdex trade
+      // // broadcast via liquid explorer
+      // const txid = await makeTrade(
+      //   result.order,
+      //   { amount: result.send.sats, asset: result.send.asset },
+      //   identity,
+      //   explorerLiquidAPI,
+      //   utxos,
+      //   customCoinSelector(dispatch),
+      //   torProxy
+      // );
 
-      handleSuccess(txid);
+      setTradeError(MakeTradeError)
+      // handleSuccess(txid);
     } catch (e) {
       dispatch(unlockUtxos());
       setIsWrongPin(true);
@@ -123,6 +144,7 @@ const Exchange: React.FC<Props> = ({ history, explorerLiquidAPI, markets, utxos,
       }, PIN_TIMEOUT_FAILURE);
 
       if (e instanceof AppError) {
+        setTradeError(e);
         dispatch(addErrorToast(e));
       }
     } finally {
@@ -133,13 +155,24 @@ const Exchange: React.FC<Props> = ({ history, explorerLiquidAPI, markets, utxos,
   return (
     <IonPage id="exchange-page">
       <Loader showLoading={isLoading} delay={0} />
+
+      <ExchangeErrorModal
+        error={tradeError}
+        onClose={() => setTradeError(undefined)}
+        onClickRetry={() => setPINModalOpen(true)}
+        onClickTryNext={(endpointToBan: string) => {
+          setToFilterProviders([...toFilterProviders, endpointToBan]);
+          orderInputRef.current?.discoverBestOrder();
+        }}
+      />
+
       <PinModal
-        open={result !== undefined && modalOpen}
+        open={result !== undefined && PINmodalOpen}
         title="Unlock your seed"
         description={getPinModalDescription()}
         onConfirm={onPinConfirm}
         onClose={() => {
-          setModalOpen(false);
+          setPINModalOpen(false);
         }}
         isWrongPin={isWrongPin}
         needReset={needReset}
@@ -163,7 +196,11 @@ const Exchange: React.FC<Props> = ({ history, explorerLiquidAPI, markets, utxos,
             />
 
             <IonRow>
-              <TdexOrderInput onInput={setResult} />
+              <TdexOrderInput
+                ref={orderInputRef}
+                onInput={setResult}
+                markets={markets.filter(withoutProviders(...toFilterProviders))}
+              />
             </IonRow>
 
             <IonRow>
@@ -174,7 +211,7 @@ const Exchange: React.FC<Props> = ({ history, explorerLiquidAPI, markets, utxos,
                   })}
                   data-cy="exchange-confirm-btn"
                   disabled={result === undefined}
-                  onClick={() => setModalOpen(true)}
+                  onClick={() => setPINModalOpen(true)}
                 >
                   CONFIRM
                 </IonButton>

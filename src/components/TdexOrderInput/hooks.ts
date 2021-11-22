@@ -2,8 +2,29 @@ import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import type { TradeOrder } from 'tdex-sdk';
 
+import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
 import type { RootState } from '../../redux/store';
-import { computeOrders, createDiscoverer, getTradablesAssets } from '../../utils/tdex';
+import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
+import { defaultPrecision } from '../../utils/constants';
+import { fromSatoshiFixed } from '../../utils/helpers';
+import { discoverBestOrder, getTradablesAssets, marketPriceRequest } from '../../utils/tdex';
+
+import type { SatsAsset, AmountAndUnit } from '.';
+
+export function createAmountAndUnit(assetsRegistry: Record<string, AssetConfig>, lbtcUnit: LbtcDenomination) {
+  return (satsAsset: SatsAsset): AmountAndUnit => {
+    const assetConfig = assetsRegistry[satsAsset.asset];
+    return {
+      amount: fromSatoshiFixed(
+        satsAsset.sats.toString() || '0',
+        assetConfig.precision,
+        assetConfig.precision ?? defaultPrecision,
+        assetConfig.ticker === 'L-BTC' ? lbtcUnit : undefined
+      ),
+      unit: assetConfig.ticker === 'L-BTC' ? lbtcUnit : assetConfig.ticker,
+    };
+  };
+}
 
 interface AssetSats {
   assetHash: string;
@@ -14,14 +35,8 @@ interface AssetSats {
 // it returns the price of the asset in sats
 const calculatePrice =
   (sats: number, asset: string) =>
-  async (order: TradeOrder): Promise<AssetSats> => {
-    const response = await order.traderClient.marketPrice(order.market, order.type, sats, asset);
-
-    return {
-      assetHash: response[0].asset,
-      sats: response[0].amount,
-    };
-  };
+  async (order: TradeOrder): Promise<AssetSats> =>
+    marketPriceRequest(order, sats, asset);
 
 // custom state hook using to represent an asset/sats pair
 function useAssetSats(initialValue: string) {
@@ -32,9 +47,9 @@ function useAssetSats(initialValue: string) {
 }
 
 // eslint-disable-next-line
-export function useTradeState(initialSendAsset: string, initialReceiveAsset: string) {
-  const [sendAsset, sendSats, setSendAsset, setSendSats] = useAssetSats(initialSendAsset);
-  const [receiveAsset, receiveSats, setReceiveAsset, setReceiveSats] = useAssetSats(initialReceiveAsset);
+export function useTradeState(markets: TDEXMarket[]) {
+  const [sendAsset, sendSats, setSendAsset, setSendSats] = useAssetSats(markets[0].baseAsset);
+  const [receiveAsset, receiveSats, setReceiveAsset, setReceiveSats] = useAssetSats(markets[0].quoteAsset);
   const [bestOrder, setBestOrder] = useState<TradeOrder>();
 
   const [sendLoader, setSendLoader] = useState(false);
@@ -45,8 +60,6 @@ export function useTradeState(initialSendAsset: string, initialReceiveAsset: str
 
   const [sendError, setSendError] = useState<Error>();
   const [receiveError, setReceiveError] = useState<Error>();
-
-  const markets = useSelector((s: RootState) => s.tdex.markets);
 
   const getTradable = (asset: string) => getTradablesAssets(markets, asset);
 
@@ -66,15 +79,7 @@ export function useTradeState(initialSendAsset: string, initialReceiveAsset: str
     }
   }, [receiveAsset]);
 
-  const discoverBestOrder = async (sats: number, asset: string): Promise<TradeOrder> => {
-    const allPossibleOrders = computeOrders(markets, sendAsset, receiveAsset);
-    if (sats <= 0) {
-      return allPossibleOrders[0];
-    }
-    const discoverer = createDiscoverer(allPossibleOrders);
-    const bestOrders = await discoverer.discover({ asset, amount: sats });
-    return bestOrders[0];
-  };
+  const discoverFunction = () => discoverBestOrder(markets, sendAsset, receiveAsset);
 
   const computePriceAndUpdate =
     (sats: number, asset: string, type: 'send' | 'receive') => async (order: TradeOrder) => {
@@ -91,7 +96,7 @@ export function useTradeState(initialSendAsset: string, initialReceiveAsset: str
   const updateReceiveSats = () => {
     if (!needReceive) return;
     setReceiveLoader(true);
-    return discoverBestOrder(sendSats, sendAsset)
+    return discoverFunction()(sendSats, sendAsset)
       .then(computePriceAndUpdate(sendSats, sendAsset, 'send')) // set receive sats
       .then(setBestOrder)
       .catch(setReceiveError)
@@ -101,7 +106,7 @@ export function useTradeState(initialSendAsset: string, initialReceiveAsset: str
   const updateSendSats = () => {
     if (!needSend) return;
     setSendLoader(true);
-    return discoverBestOrder(receiveSats, receiveAsset)
+    return discoverFunction()(receiveSats, receiveAsset)
       .then(computePriceAndUpdate(receiveSats, receiveAsset, 'receive')) // set send sats
       .then(setBestOrder)
       .catch(setSendError)

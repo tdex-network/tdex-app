@@ -21,7 +21,7 @@ export function createTraderClient(endpoint: string, proxy = 'https://proxy.tdex
 }
 
 // Create discoverer object for a specific set of trader clients
-export function createDiscoverer(orders: TradeOrder[], errorHandler?: () => Promise<void>): Discoverer {
+function createDiscoverer(orders: TradeOrder[], errorHandler?: () => Promise<void>): Discoverer {
   return new Discoverer(orders, combineDiscovery(bestBalanceDiscovery, bestPriceDiscovery), errorHandler);
 }
 
@@ -62,7 +62,6 @@ export async function makeTrade(
   coinSelector: CoinSelector,
   torProxy?: string
 ): Promise<string> {
-  console.log(torProxy);
   const trader = createTradeFromTradeOrder(order, explorerLiquidAPI, utxos, coinSelector, torProxy);
   try {
     const args = { ...known, market: order.market, identity };
@@ -86,7 +85,7 @@ export async function makeTrade(
  * @param sentAsset the asset to sent
  * @param receivedAsset the asset to receive
  */
-export function computeOrders(
+function computeOrders(
   markets: TDEXMarket[],
   sentAsset: string,
   receivedAsset: string,
@@ -140,4 +139,38 @@ const TDexRegistryURL = 'https://raw.githubusercontent.com/TDex-network/tdex-reg
 
 export async function getProvidersFromTDexRegistry(): Promise<TDEXProvider[]> {
   return (await axios.get(TDexRegistryURL)).data;
+}
+
+// discover the best order from a set of markets
+// return an async function
+export function discoverBestOrder(
+  markets: TDEXMarket[],
+  sendAsset: string,
+  receiveAsset: string
+): (sats: number, asset: string) => Promise<TradeOrder> {
+  const allPossibleOrders = computeOrders(markets, sendAsset, receiveAsset);
+  return async (sats: number, asset: string): Promise<TradeOrder> => {
+    if (sats <= 0) {
+      return allPossibleOrders[0];
+    }
+    const discoverer = createDiscoverer(allPossibleOrders);
+    const bestOrders = await discoverer.discover({ asset, amount: sats });
+    return bestOrders[0];
+  };
+}
+
+export async function marketPriceRequest(
+  order: TradeOrder,
+  sats: number,
+  asset: string
+): Promise<{
+  assetHash: string;
+  sats: number;
+}> {
+  const response = await order.traderClient.marketPrice(order.market, order.type, sats, asset);
+
+  return {
+    assetHash: response[0].asset,
+    sats: response[0].amount,
+  };
 }
