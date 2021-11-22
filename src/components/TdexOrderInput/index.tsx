@@ -101,6 +101,7 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, ma
     const receive = receiveAsset;
     setReceiveAsset(sendAsset);
     setSendAsset(receive);
+    setSendAmount(sendSats);
   };
 
   return (
@@ -111,7 +112,10 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, ma
         assetSelected={sendAsset ? assetsRegistry[sendAsset] : undefined}
         isLoading={sendLoader}
         error={sendError}
-        onChangeAsset={setSendAsset}
+        onChangeAsset={(asset) => {
+          setSendAsset(asset);
+          setSendAmount(sendSats);
+        }}
         onChangeSats={setSendAmount}
         searchableAssets={allTradableAssets}
       />
@@ -125,7 +129,10 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, ma
         assetSelected={receiveAsset ? assetsRegistry[receiveAsset] : undefined}
         isLoading={receiveLoader}
         error={receiveError}
-        onChangeAsset={setReceiveAsset}
+        onChangeAsset={(asset) => {
+          setReceiveAsset(asset);
+          setReceiveAmount(receiveSats);
+        }}
         onChangeSats={setReceiveAmount}
         searchableAssets={sendAsset ? getTradablesAssets(markets, sendAsset).map((h) => assetsRegistry[h]) : []}
       />

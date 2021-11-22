@@ -99,8 +99,6 @@ export function useTradeState(markets: TDEXMarket[]) {
     if (!receiveAsset || !tradableAssets.includes(receiveAsset)) {
       setReceiveAsset(tradableAssets[0]);
     }
-
-    setSendAmount(sendSats);
   }, [sendAsset]);
 
   // auto update send asset
@@ -114,8 +112,6 @@ export function useTradeState(markets: TDEXMarket[]) {
     if (!sendAsset || !tradableAssets.includes(sendAsset)) {
       setSendAsset(tradableAssets[0]);
     }
-
-    setReceiveAmount(receiveSats);
   }, [receiveAsset]);
 
   const discoverFunction = () => discoverBestOrder(markets, sendAsset!, receiveAsset!);
