@@ -1,8 +1,9 @@
 import { connect } from 'react-redux';
 
 import TorProxy from '../../pages/TorProxy';
+import type { RootState } from '../store';
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     torProxy: state.settings.torProxy,
   };

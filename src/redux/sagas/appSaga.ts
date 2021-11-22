@@ -19,6 +19,7 @@ import { updateMarkets } from '../actions/tdexActions';
 import { updateTransactions } from '../actions/transactionsActions';
 import { addAddress, setIsAuth, setPublicKeys, updateUtxos } from '../actions/walletActions';
 import { waitForRestore } from '../services/walletService';
+import type { RootState } from '../store';
 
 function* initAppSaga() {
   try {
@@ -40,7 +41,7 @@ function* signInSaga(action: ActionType) {
     if (backup) yield put(setIsBackupDone(true));
     // Wallet Restoration
     yield setIsFetchingUtxos(true);
-    const explorerLiquidAPI: string = yield select((state: any) => state.settings.explorerLiquidAPI);
+    const explorerLiquidAPI: string = yield select((state: RootState) => state.settings.explorerLiquidAPI);
     yield all([
       call(waitForRestore, action.payload.mnemonic, explorerLiquidAPI),
       put(setPublicKeys(action.payload.mnemonic)),

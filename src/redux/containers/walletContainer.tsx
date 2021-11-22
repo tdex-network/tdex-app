@@ -2,8 +2,9 @@ import { connect } from 'react-redux';
 
 import Wallet from '../../pages/Wallet';
 import { aggregatedLBTCBalanceSelector, balancesSelector } from '../reducers/walletReducer';
+import type { RootState } from '../store';
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     backupDone: state.app.backupDone,
     balances: balancesSelector(state),

@@ -11,6 +11,7 @@ import LcadIcon from '../../assets/img/coins/lcad.svg';
 import UsdtIcon from '../../assets/img/coins/usdt.svg';
 import DepositIconBlack from '../../assets/img/deposit-black.svg';
 import DepositIcon from '../../assets/img/deposit.svg';
+import type { RootState } from '../../redux/store';
 import { BTC_TICKER, BJDE_TICKER, BTSE_TICKER, LBTC_TICKER, LCAD_TICKER, USDT_TICKER } from '../../utils/constants';
 import { TxTypeEnum } from '../../utils/types';
 
@@ -151,7 +152,7 @@ export const CurrencyIcon = ({ currency, ...props }: any): any => {
 };
 
 export const TxIcon = ({ type }: any): any => {
-  const theme = useSelector((state: any) => state.settings.theme);
+  const theme = useSelector((state: RootState) => state.settings.theme);
   const themeIcon = theme === 'light' ? DepositIconBlack : DepositIcon;
   switch (type) {
     case TxTypeEnum.Deposit:

@@ -29,6 +29,7 @@ import type { ToastState } from '../reducers/toastReducer';
 import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString } from '../reducers/walletReducer';
 import { getPeginModule } from '../services/btcService';
+import type { RootState } from '../store';
 
 function* persistPegins() {
   yield delay(5_000);
@@ -43,7 +44,7 @@ function* restorePegins() {
 
 // Fetch block height continuously every minute
 function* watchCurrentBtcBlockHeight() {
-  const explorerBitcoinAPI: string = yield select((state: any) => state.settings.explorerBitcoinAPI);
+  const explorerBitcoinAPI: string = yield select((state: RootState) => state.settings.explorerBitcoinAPI);
   const { currentBlockHeight } = yield call(getCurrentBtcBlockHeight, explorerBitcoinAPI);
   const setCurrentBtcBlockHeightAction = setCurrentBtcBlockHeight(currentBlockHeight);
   yield put(setCurrentBtcBlockHeightAction);

@@ -9,6 +9,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { updatePrices } from '../../redux/actions/ratesActions';
+import type { RootState } from '../../redux/store';
 import { fromSatoshi, fromSatoshiFixed, isLbtc, toLBTCwithUnit } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
 import { onPressEnterKeyCloseKeyboard, setAccessoryBar } from '../../utils/keyboard';
@@ -23,8 +24,8 @@ interface WithdrawRowInterface {
 }
 
 const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, setAmount, error }) => {
-  const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
-  const currency = useSelector((state: any) => state.settings.currency.value);
+  const lbtcUnit = useSelector((state: RootState) => state.settings.denominationLBTC);
+  const currency = useSelector((state: RootState) => state.settings.currency.value);
   const [residualBalance, setResidualBalance] = useState<string>(
     fromSatoshiFixed(
       balance.amount.toString(),

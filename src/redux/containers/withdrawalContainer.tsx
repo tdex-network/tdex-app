@@ -2,8 +2,9 @@ import { connect } from 'react-redux';
 
 import Withdrawal from '../../pages/Withdrawal';
 import { allUtxosSelector, balancesSelector, lastUsedIndexesSelector } from '../reducers/walletReducer';
+import type { RootState } from '../store';
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     balances: balancesSelector(state),
     explorerLiquidAPI: state.settings.explorerLiquidAPI,

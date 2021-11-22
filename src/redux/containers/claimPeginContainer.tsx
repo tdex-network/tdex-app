@@ -1,8 +1,9 @@
 import { connect } from 'react-redux';
 
 import ClaimPegin from '../../pages/ClaimPegin';
+import type { RootState } from '../store';
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     currentBtcBlockHeight: state.btc.currentBlockHeight,
     explorerLiquidUI: state.settings.explorerLiquidUI,

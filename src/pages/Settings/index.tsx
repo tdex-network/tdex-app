@@ -12,12 +12,13 @@ import { withRouter } from 'react-router';
 import CurrencySearch from '../../components/CurrencySearch';
 import DenominationSearch from '../../components/DenominationSearch';
 import Header from '../../components/Header';
+import type { RootState } from '../../redux/store';
 import { routerLinks } from '../../routes';
 
 import './style.scss';
 
 const Settings: React.FC<RouteComponentProps> = ({ history }) => {
-  const { currency, unitLBTC } = useSelector((state: any) => ({
+  const { currency, unitLBTC } = useSelector((state: RootState) => ({
     currency: state.settings.currency,
     unitLBTC: state.settings.denominationLBTC,
   }));

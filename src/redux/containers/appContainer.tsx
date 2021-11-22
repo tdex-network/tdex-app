@@ -1,8 +1,9 @@
 import { connect } from 'react-redux';
 
 import App from '../../App';
+import type { RootState } from '../store';
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     appInit: state.app.appInit,
     isAuth: state.wallet.isAuth,

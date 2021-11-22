@@ -3,8 +3,9 @@ import { connect } from 'react-redux';
 import Toasts from '../../components/Toasts';
 import { removeAllToast, removeToast, removeToastByType } from '../actions/toastActions';
 import type { ToastType } from '../reducers/toastReducer';
+import type { RootState } from '../store';
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     toasts: state.toasts,
   };

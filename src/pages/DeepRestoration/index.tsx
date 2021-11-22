@@ -10,13 +10,14 @@ import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
+import type { RootState } from '../../redux/store';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { DeepRestorationError, IncorrectPINError } from '../../utils/errors';
 import { getIdentity } from '../../utils/storage-helper';
 
 const DeepRestoration: React.FC = () => {
   const [rangeValue, setRangeValue] = useState<RangeValue>(20);
-  const explorerLiquidAPI = useSelector((state: any) => state.settings.explorerLiquidAPI);
+  const explorerLiquidAPI = useSelector((state: RootState) => state.settings.explorerLiquidAPI);
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [needReset, setNeedReset] = useState<boolean>(false);

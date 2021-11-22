@@ -4,8 +4,9 @@ import type { CircleDiagramProps } from '../../components/CircleDiagram';
 import CircleDiagram from '../../components/CircleDiagram';
 import type { BalanceInterface } from '../actionTypes/walletActionTypes';
 import { balancesSelector } from '../reducers/walletReducer';
+import type { RootState } from '../store';
 
-const mapStateToProps = (state: any): CircleDiagramProps => {
+const mapStateToProps = (state: RootState): CircleDiagramProps => {
   return {
     balances: balancesSelector(state)
       .filter((b) => b.amount > 0 && b.coinGeckoID)

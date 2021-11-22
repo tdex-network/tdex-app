@@ -4,8 +4,9 @@ import { connect } from 'react-redux';
 import Receive from '../../pages/Receive';
 import { network } from '../config';
 import { lastUsedIndexesSelector } from '../reducers/walletReducer';
+import type { RootState } from '../store';
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     lastUsedIndexes: lastUsedIndexesSelector(state),
     masterPubKeyOpts: {

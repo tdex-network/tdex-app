@@ -9,6 +9,7 @@ import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import { initApp, signIn } from '../../redux/actions/appActions';
 import { addErrorToast } from '../../redux/actions/toastActions';
+import type { RootState } from '../../redux/store';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { IncorrectPINError } from '../../utils/errors';
 import { setKeyboardTheme } from '../../utils/keyboard';
@@ -21,7 +22,7 @@ const Homescreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [needReset, setNeedReset] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState('Searching mnemonic in secure storage...');
-  const appInit = useSelector((state: any) => state.app.appInit);
+  const appInit = useSelector((state: RootState) => state.app.appInit);
   const dispatch = useDispatch();
 
   const onConfirmPinModal = (pin: string) => {

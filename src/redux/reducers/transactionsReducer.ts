@@ -5,6 +5,7 @@ import { createSelector } from 'reselect';
 import type { ActionType, TxDisplayInterface } from '../../utils/types';
 import { TxTypeEnum } from '../../utils/types';
 import { ADD_WATCHER_TRANSACTION, REMOVE_WATCHER_TRANSACTION, SET_TRANSACTION } from '../actions/transactionsActions';
+import type { RootState } from '../store';
 import { toDisplayTransaction } from '../transformers/transactionsTransformer';
 
 import type { WalletState } from './walletReducer';
@@ -49,7 +50,7 @@ export const transactionsSelector = ({ transactions }: { transactions: Transacti
 // memoized selector, map transactions to TxDisplayInterface[]
 export const transactionsToDisplaySelector = createSelector(
   transactionsSelector,
-  (state: any) => Object.keys(state.wallet.addresses),
+  (state: RootState) => Object.keys(state.wallet.addresses),
   (txs: TxInterface[], scripts: string[]) => {
     return txs.map((tx) => toDisplayTransaction(tx, scripts));
   }

@@ -7,13 +7,14 @@ import { createColorFromHash, tickerFromAssetHash } from '../../utils/helpers';
 import { getAssetsFromStorage, setAssetsInStorage } from '../../utils/storage-helper';
 import { SIGN_IN } from '../actions/appActions';
 import { ADD_ASSET, setAsset, SET_ASSET } from '../actions/assetsActions';
+import type { RootState } from '../store';
 
 // payload = the assetHash
 function* addAssetSaga({ payload }: { payload: string }) {
   // check if asset already present in state
-  const asset: AssetConfig = yield select((state: any) => state.assets[payload]);
+  const asset: AssetConfig = yield select((state: RootState) => state.assets[payload]);
   if (!asset) {
-    const explorerLiquidAPI: string = yield select((state: any) => state.settings.explorerLiquidAPI);
+    const explorerLiquidAPI: string = yield select((state: RootState) => state.settings.explorerLiquidAPI);
     const { precision, ticker, name } = yield call(getAssetData, payload, explorerLiquidAPI);
 
     const setAssetAction = setAsset({
