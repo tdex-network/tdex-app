@@ -11,7 +11,7 @@ import type { SatsAsset, AmountAndUnit } from '.';
 
 export function createAmountAndUnit(assetsRegistry: Record<string, AssetConfig>, lbtcUnit: LbtcDenomination) {
   return (satsAsset: SatsAsset): AmountAndUnit => {
-    if (!satsAsset.asset)
+    if (!satsAsset.asset || !satsAsset.sats)
       return {
         amount: '0',
         unit: 'unknown',
@@ -45,7 +45,7 @@ const calculatePrice =
 // custom state hook using to represent an asset/sats pair
 function useAssetSats(initialAssetHash?: string) {
   const [assetHash, setAssetHash] = useState<string | undefined>(initialAssetHash);
-  const [sats, setSats] = useState<number>(0);
+  const [sats, setSats] = useState<number>();
 
   return [assetHash, sats, setAssetHash, setSats] as const;
 }
@@ -84,7 +84,7 @@ export function useTradeState(markets: TDEXMarket[]) {
       setReceiveError(noMarketError);
     } else {
       resetErrors();
-      setSendAmount(sendSats);
+      setSendAmount(sendSats ?? 0);
     }
   }, [markets.length]);
 
@@ -131,8 +131,8 @@ export function useTradeState(markets: TDEXMarket[]) {
   const updateReceiveSats = () => {
     if (!needReceive || !sendAsset) return;
     setReceiveLoader(true);
-    return discoverFunction()(sendSats, sendAsset)
-      .then(computePriceAndUpdate(sendSats, sendAsset, 'send')) // set receive sats
+    return discoverFunction()(sendSats ?? 0, sendAsset)
+      .then(computePriceAndUpdate(sendSats ?? 0, sendAsset, 'send')) // set receive sats
       .then(setBestOrder)
       .catch(setReceiveError)
       .finally(() => setReceiveLoader(false));
@@ -141,8 +141,8 @@ export function useTradeState(markets: TDEXMarket[]) {
   const updateSendSats = () => {
     if (!needSend || !receiveAsset) return;
     setSendLoader(true);
-    return discoverFunction()(receiveSats, receiveAsset)
-      .then(computePriceAndUpdate(receiveSats, receiveAsset, 'receive')) // set send sats
+    return discoverFunction()(receiveSats ?? 0, receiveAsset)
+      .then(computePriceAndUpdate(receiveSats ?? 0, receiveAsset, 'receive')) // set send sats
       .then(setBestOrder)
       .catch(setSendError)
       .finally(() => setSendLoader(false));

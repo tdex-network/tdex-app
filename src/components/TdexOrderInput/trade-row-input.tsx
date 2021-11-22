@@ -34,7 +34,7 @@ interface ComponentProps {
   type: 'send' | 'receive';
   isLoading: boolean;
   assetSelected?: AssetConfig;
-  sats: number;
+  sats?: number;
   onChangeAsset: (asset: string) => void;
   onChangeSats: (sats: number) => void;
   error?: Error;
@@ -97,7 +97,7 @@ const TradeRowInput: React.FC<Props> = ({
 
   const getAmountString = () =>
     fromSatoshiFixed(
-      sats.toString(10),
+      (sats ?? 0).toString(10),
       assetSelected?.precision || defaultPrecision,
       assetSelected?.precision || defaultPrecision,
       isLbtc(assetSelected?.assetHash ?? '') ? lbtcUnit : undefined
@@ -126,7 +126,7 @@ const TradeRowInput: React.FC<Props> = ({
 
         <div
           className={classNames('coin-amount', {
-            active: sats > 0,
+            active: (sats ?? 0) > 0,
           })}
         >
           <div className="ion-text-end">

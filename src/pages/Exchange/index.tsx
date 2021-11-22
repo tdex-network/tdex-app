@@ -139,7 +139,7 @@ const Exchange: React.FC<Props> = ({ history, explorerLiquidAPI, markets, utxos,
       // broadcast via liquid explorer
       const txid = await makeTrade(
         result.order,
-        { amount: result.send.sats, asset: result.send.asset ?? '' },
+        { amount: result.send.sats ?? 0, asset: result.send.asset ?? '' },
         identity,
         explorerLiquidAPI,
         utxos,

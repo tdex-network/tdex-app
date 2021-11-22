@@ -23,7 +23,7 @@ interface ConnectedProps {
 }
 
 export interface SatsAsset {
-  sats: number;
+  sats?: number;
   asset?: string;
 }
 
@@ -101,7 +101,7 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, ma
     const receive = receiveAsset;
     setReceiveAsset(sendAsset);
     setSendAsset(receive);
-    setSendAmount(sendSats);
+    setSendAmount(sendSats ?? 0);
   };
 
   return (
@@ -114,7 +114,7 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, ma
         error={sendError}
         onChangeAsset={(asset) => {
           setSendAsset(asset);
-          setSendAmount(sendSats);
+          if (sendSats) setSendAmount(sendSats);
         }}
         onChangeSats={setSendAmount}
         searchableAssets={allTradableAssets}
@@ -131,7 +131,7 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, ma
         error={receiveError}
         onChangeAsset={(asset) => {
           setReceiveAsset(asset);
-          setReceiveAmount(receiveSats);
+          if (receiveSats) setReceiveAmount(receiveSats);
         }}
         onChangeSats={setReceiveAmount}
         searchableAssets={sendAsset ? getTradablesAssets(markets, sendAsset).map((h) => assetsRegistry[h]) : []}
