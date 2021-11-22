@@ -32,8 +32,10 @@ import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
-import { AppError, IncorrectPINError, MakeTradeError, NoMarketsProvidedError } from '../../utils/errors';
+import { AppError, IncorrectPINError, NoMarketsProvidedError } from '../../utils/errors';
+import { customCoinSelector } from '../../utils/helpers';
 import { getConnectedTDexMnemonic } from '../../utils/storage-helper';
+import { makeTrade } from '../../utils/tdex';
 import type { PreviewData } from '../TradeSummary';
 
 import './style.scss';
@@ -133,20 +135,19 @@ const Exchange: React.FC<Props> = ({ history, explorerLiquidAPI, markets, utxos,
     try {
       const identity = await getIdentity(pin);
 
-      // // propose and complete tdex trade
-      // // broadcast via liquid explorer
-      // const txid = await makeTrade(
-      //   result.order,
-      //   { amount: result.send.sats, asset: result.send.asset },
-      //   identity,
-      //   explorerLiquidAPI,
-      //   utxos,
-      //   customCoinSelector(dispatch),
-      //   torProxy
-      // );
+      // propose and complete tdex trade
+      // broadcast via liquid explorer
+      const txid = await makeTrade(
+        result.order,
+        { amount: result.send.sats, asset: result.send.asset ?? '' },
+        identity,
+        explorerLiquidAPI,
+        utxos,
+        customCoinSelector(dispatch),
+        torProxy
+      );
 
-      setTradeError(MakeTradeError);
-      // handleSuccess(txid);
+      handleSuccess(txid);
     } catch (e) {
       dispatch(unlockUtxos());
       setIsWrongPin(true);

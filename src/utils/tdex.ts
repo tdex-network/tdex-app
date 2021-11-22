@@ -145,9 +145,10 @@ export async function getProvidersFromTDexRegistry(): Promise<TDEXProvider[]> {
 // return an async function
 export function discoverBestOrder(
   markets: TDEXMarket[],
-  sendAsset: string,
-  receiveAsset: string
+  sendAsset?: string,
+  receiveAsset?: string
 ): (sats: number, asset: string) => Promise<TradeOrder> {
+  if (!sendAsset || !receiveAsset) throw new Error('unable to compute orders for selected market');
   const allPossibleOrders = computeOrders(markets, sendAsset, receiveAsset);
   return async (sats: number, asset: string): Promise<TradeOrder> => {
     if (sats <= 0) {

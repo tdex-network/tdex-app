@@ -114,7 +114,7 @@ export function useTradeState(markets: TDEXMarket[]) {
     }
   }, [receiveAsset]);
 
-  const discoverFunction = () => discoverBestOrder(markets, sendAsset!, receiveAsset!);
+  const discoverFunction = () => discoverBestOrder(markets, sendAsset, receiveAsset);
 
   const computePriceAndUpdate =
     (sats: number, asset: string, type: 'send' | 'receive') => async (order: TradeOrder) => {

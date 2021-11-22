@@ -1,5 +1,5 @@
 import { IonRippleEffect, useIonViewDidEnter, useIonViewDidLeave } from '@ionic/react';
-import React, { forwardRef, useEffect, useImperativeHandle } from 'react';
+import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
 import type { TradeOrder } from 'tdex-sdk';
 
