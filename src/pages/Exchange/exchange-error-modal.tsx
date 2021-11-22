@@ -1,5 +1,4 @@
 import { IonButton, IonCol, IonContent, IonGrid, IonIcon, IonModal, IonRow, IonText } from '@ionic/react';
-import { arrowForwardCircleOutline, arrowRedoCircleOutline, closeCircleOutline } from 'ionicons/icons';
 import React, { useEffect } from 'react';
 
 import Header from '../../components/Header';
@@ -45,9 +44,7 @@ const ExchangeErrorModal: React.FC<Props> = ({ result, error, onClose, onClickRe
         <IonGrid className="ion-text-center error-modal-grid">
           <IonRow>
             <IonCol>
-              <IonText color="danger">
-                An error occurs: {error?.message} failed to complete your trade.
-              </IonText>
+              <IonText color="danger">An error occurs: {error?.message} failed to complete your trade.</IonText>
             </IonCol>
           </IonRow>
 

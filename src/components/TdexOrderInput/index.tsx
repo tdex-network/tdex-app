@@ -24,7 +24,7 @@ interface ConnectedProps {
 
 export interface SatsAsset {
   sats: number;
-  asset: string;
+  asset?: string;
 }
 
 export interface AmountAndUnit {
@@ -43,105 +43,95 @@ type Props = ConnectedProps & {
   onInput: (tdexOrder?: TdexOrderInputResult) => void;
 };
 
-export interface TdexOrderInputRef {
-  discoverBestOrder: () => void;
-}
-
 // two rows input component with integrated TDEX discoverer
 // let the user chooses a tradable asset pair
 // and inputs an amount of satoshis to sell or to buy
 // if found, it returns best orders via `onInput` property
-const TdexOrderInput = forwardRef<TdexOrderInputRef, Props>(
-  ({ assetsRegistry, allTradableAssets, markets, lbtcUnit, onInput }, ref) => {
-    const [
-      bestOrder,
-      sendAsset,
-      sendSats,
-      receiveAsset,
-      receiveSats,
-      setReceiveAsset,
-      setSendAsset,
-      setSendAmount,
-      setReceiveAmount,
-      sendLoader,
-      receiveLoader,
-      sendError,
-      receiveError,
-    ] = useTradeState(markets);
+const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, markets, lbtcUnit, onInput }) => {
+  const [
+    bestOrder,
+    sendAsset,
+    sendSats,
+    receiveAsset,
+    receiveSats,
+    setReceiveAsset,
+    setSendAsset,
+    setSendAmount,
+    setReceiveAmount,
+    sendLoader,
+    receiveLoader,
+    sendError,
+    receiveError,
+  ] = useTradeState(markets);
 
-    useImperativeHandle(ref, () => ({
-      discoverBestOrder: () => setSendAmount(sendSats),
-    }));
+  useIonViewDidEnter(() => {
+    setAccessoryBar(true).catch(console.error);
+  });
 
-    useIonViewDidEnter(() => {
-      setAccessoryBar(true).catch(console.error);
-    });
+  useIonViewDidLeave(() => {
+    setAccessoryBar(false).catch(console.error);
+  });
 
-    useIonViewDidLeave(() => {
-      setAccessoryBar(false).catch(console.error);
-    });
+  useEffect(() => {
+    if (sendError || receiveError) onInput(undefined);
+  }, [sendError, receiveError]);
 
-    useEffect(() => {
-      if (sendError || receiveError) onInput(undefined);
-    }, [sendError, receiveError]);
+  const createAmountAndUnitFn = createAmountAndUnit(assetsRegistry, lbtcUnit);
 
-    const createAmountAndUnitFn = createAmountAndUnit(assetsRegistry, lbtcUnit);
-
-    useEffect(() => {
-      const sendValues = {
-        sats: sendSats,
-        asset: sendAsset,
-      };
-
-      const receiveValues = {
-        sats: receiveSats,
-        asset: receiveAsset,
-      };
-
-      if (bestOrder)
-        onInput({
-          order: bestOrder,
-          send: { ...sendValues, ...createAmountAndUnitFn(sendValues) },
-          receive: { ...receiveValues, ...createAmountAndUnitFn(receiveValues) },
-        });
-    }, [bestOrder]);
-
-    const swapSendAndReceiveAsset = () => {
-      const receive = receiveAsset;
-      setReceiveAsset(sendAsset);
-      setSendAsset(receive);
+  useEffect(() => {
+    const sendValues = {
+      sats: sendSats,
+      asset: sendAsset,
     };
 
-    return (
-      <div className="container">
-        <TradeRowInput
-          type="send"
-          sats={sendSats}
-          assetSelected={assetsRegistry[sendAsset]}
-          isLoading={sendLoader}
-          error={sendError}
-          onChangeAsset={setSendAsset}
-          onChangeSats={setSendAmount}
-          searchableAssets={allTradableAssets}
-        />
-        <div className="exchange-divider ion-activatable" onClick={swapSendAndReceiveAsset}>
-          <img src={swap} alt="swap" />
-          <IonRippleEffect type="unbounded" />
-        </div>
-        <TradeRowInput
-          type="receive"
-          sats={receiveSats}
-          assetSelected={assetsRegistry[receiveAsset]}
-          isLoading={receiveLoader}
-          error={receiveError}
-          onChangeAsset={setReceiveAsset}
-          onChangeSats={setReceiveAmount}
-          searchableAssets={getTradablesAssets(markets, sendAsset).map((h) => assetsRegistry[h])}
-        />
+    const receiveValues = {
+      sats: receiveSats,
+      asset: receiveAsset,
+    };
+
+    if (bestOrder)
+      onInput({
+        order: bestOrder,
+        send: { ...sendValues, ...createAmountAndUnitFn(sendValues) },
+        receive: { ...receiveValues, ...createAmountAndUnitFn(receiveValues) },
+      });
+  }, [bestOrder]);
+
+  const swapSendAndReceiveAsset = () => {
+    const receive = receiveAsset;
+    setReceiveAsset(sendAsset);
+    setSendAsset(receive);
+  };
+
+  return (
+    <div className="container">
+      <TradeRowInput
+        type="send"
+        sats={sendSats}
+        assetSelected={sendAsset ? assetsRegistry[sendAsset] : undefined}
+        isLoading={sendLoader}
+        error={sendError}
+        onChangeAsset={setSendAsset}
+        onChangeSats={setSendAmount}
+        searchableAssets={allTradableAssets}
+      />
+      <div className="exchange-divider ion-activatable" onClick={swapSendAndReceiveAsset}>
+        <img src={swap} alt="swap" />
+        <IonRippleEffect type="unbounded" />
       </div>
-    );
-  }
-);
+      <TradeRowInput
+        type="receive"
+        sats={receiveSats}
+        assetSelected={receiveAsset ? assetsRegistry[receiveAsset] : undefined}
+        isLoading={receiveLoader}
+        error={receiveError}
+        onChangeAsset={setReceiveAsset}
+        onChangeSats={setReceiveAmount}
+        searchableAssets={sendAsset ? getTradablesAssets(markets, sendAsset).map((h) => assetsRegistry[h]) : []}
+      />
+    </div>
+  );
+};
 
 const mapStateToProps = (state: RootState): ConnectedProps => ({
   assetsRegistry: state.assets,

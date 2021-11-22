@@ -153,9 +153,15 @@ export function discoverBestOrder(
     if (sats <= 0) {
       return allPossibleOrders[0];
     }
-    const discoverer = createDiscoverer(allPossibleOrders);
-    const bestOrders = await discoverer.discover({ asset, amount: sats });
-    return bestOrders[0];
+
+    try {
+      const discoverer = createDiscoverer(allPossibleOrders);
+      const bestOrders = await discoverer.discover({ asset, amount: sats });
+      if (bestOrders.length === 0) throw new Error('0 possible order for this trade');
+      return bestOrders[0];
+    } catch {
+      throw new Error('unable to find a valid TDEX order');
+    }
   };
 }
 

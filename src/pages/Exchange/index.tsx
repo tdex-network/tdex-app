@@ -1,8 +1,22 @@
-import { IonContent, IonPage, IonText, useIonViewWillEnter, IonGrid, IonRow, IonCol, IonButton } from '@ionic/react';
+import {
+  IonContent,
+  IonPage,
+  IonText,
+  useIonViewWillEnter,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonButton,
+  IonChip,
+  IonLabel,
+  IonIcon,
+  IonAlert,
+} from '@ionic/react';
 import classNames from 'classnames';
+import { closeOutline } from 'ionicons/icons';
 import type { UtxoInterface, StateRestorerOpts } from 'ldk';
 import { mnemonicRestorerFromState } from 'ldk';
-import React, { createRef, useState } from 'react';
+import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 
@@ -11,7 +25,7 @@ import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
-import type { TdexOrderInputResult, TdexOrderInputRef } from '../../components/TdexOrderInput';
+import type { TdexOrderInputResult } from '../../components/TdexOrderInput';
 import TdexOrderInput from '../../components/TdexOrderInput';
 import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
@@ -19,9 +33,7 @@ import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { AppError, IncorrectPINError, MakeTradeError, NoMarketsProvidedError } from '../../utils/errors';
-import { customCoinSelector } from '../../utils/helpers';
 import { getConnectedTDexMnemonic } from '../../utils/storage-helper';
-import { makeTrade } from '../../utils/tdex';
 import type { PreviewData } from '../TradeSummary';
 
 import './style.scss';
@@ -58,8 +70,8 @@ const Exchange: React.FC<Props> = ({ history, explorerLiquidAPI, markets, utxos,
 
   // Tdex order input
   const [result, setResult] = useState<TdexOrderInputResult>();
-  const orderInputRef = createRef<TdexOrderInputRef>();
   const [toFilterProviders, setToFilterProviders] = useState<string[]>([]);
+  const [showProvidersAlert, setShowProvidersAlert] = useState(false);
   const [tradeError, setTradeError] = useState<AppError>();
 
   const getPinModalDescription = () =>
@@ -133,7 +145,7 @@ const Exchange: React.FC<Props> = ({ history, explorerLiquidAPI, markets, utxos,
       //   torProxy
       // );
 
-      setTradeError(MakeTradeError)
+      setTradeError(MakeTradeError);
       // handleSuccess(txid);
     } catch (e) {
       dispatch(unlockUtxos());
@@ -152,17 +164,18 @@ const Exchange: React.FC<Props> = ({ history, explorerLiquidAPI, markets, utxos,
     }
   };
 
+  const getMarkets = () => markets.filter(withoutProviders(...toFilterProviders));
+
   return (
     <IonPage id="exchange-page">
       <Loader showLoading={isLoading} delay={0} />
-
       <ExchangeErrorModal
+        result={result}
         error={tradeError}
         onClose={() => setTradeError(undefined)}
         onClickRetry={() => setPINModalOpen(true)}
         onClickTryNext={(endpointToBan: string) => {
           setToFilterProviders([...toFilterProviders, endpointToBan]);
-          orderInputRef.current?.discoverBestOrder();
         }}
       />
 
@@ -182,25 +195,51 @@ const Exchange: React.FC<Props> = ({ history, explorerLiquidAPI, markets, utxos,
       {markets.length > 0 && (
         <IonContent className="exchange-content">
           <Refresher />
+          <Header
+            hasBackButton={false}
+            hasCloseButton={true}
+            customRightButton={
+              <IonButton className="custom-right-button" onClick={() => history.push('/history')}>
+                <img src={tradeHistory} alt="trade history" />
+              </IonButton>
+            }
+            title="Exchange"
+            isTitleLarge={true}
+          />
           <IonGrid className="ion-no-padding ion-padding-top">
-            <Header
-              hasBackButton={false}
-              hasCloseButton={true}
-              customRightButton={
-                <IonButton className="custom-right-button" onClick={() => history.push('/history')}>
-                  <img src={tradeHistory} alt="trade history" />
-                </IonButton>
-              }
-              title="Exchange"
-              isTitleLarge={true}
-            />
-
-            <IonRow>
-              <TdexOrderInput
-                ref={orderInputRef}
-                onInput={setResult}
-                markets={markets.filter(withoutProviders(...toFilterProviders))}
+            <IonRow className="ion-align-items-start">
+              <IonAlert
+                isOpen={showProvidersAlert}
+                onDidDismiss={() => setShowProvidersAlert(false)}
+                header={'Providers excluded'}
+                message={toFilterProviders.reduce((acc, n) => (acc += `${n}<br />`), '')}
+                buttons={[
+                  'OK',
+                  {
+                    text: 'clear',
+                    handler: () => {
+                      setToFilterProviders([]);
+                    },
+                  },
+                ]}
               />
+
+              <IonCol className="ion-padding-start">
+                {toFilterProviders.length > 0 && (
+                  <IonChip outline color="danger">
+                    <IonLabel onClick={() => setShowProvidersAlert(true)}>
+                      {toFilterProviders.length} providers excluded
+                    </IonLabel>
+                    <IonIcon onClick={() => setToFilterProviders([])} icon={closeOutline} />
+                  </IonChip>
+                )}
+              </IonCol>
+            </IonRow>
+
+            <IonRow className="ion-align-items-start">
+              <IonCol>
+                <TdexOrderInput onInput={setResult} markets={getMarkets()} />
+              </IonCol>
             </IonRow>
 
             <IonRow>
