@@ -2,7 +2,7 @@ import { IonIcon, IonInput, IonSpinner, IonText } from '@ionic/react';
 import classNames from 'classnames';
 import Decimal from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
@@ -59,6 +59,7 @@ const TradeRowInput: React.FC<Props> = ({
 }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const inputRef = useRef<HTMLIonInputElement>(null);
+  const [inputValue, setInputValue] = useState('');
 
   const [localError, setLocalError] = useState<Error>();
 
@@ -71,7 +72,12 @@ const TradeRowInput: React.FC<Props> = ({
 
     const unitLBTC = isLbtc(assetSelected.assetHash) ? lbtcUnit : undefined;
     const stringAmount = sanitizeInputAmount(amount, unitLBTC);
+    setInputValue(stringAmount);
+
+
     const satoshis = toSatoshi(stringAmount, assetSelected.precision, unitLBTC).toNumber();
+    if (satoshis <= 0) return;
+
     onChangeSats(satoshis);
 
     if (type === 'send' && satoshis > (balance ? balance.amount : 0)) {
@@ -95,13 +101,21 @@ const TradeRowInput: React.FC<Props> = ({
     }
   };
 
-  const getAmountString = () =>
-    fromSatoshiFixed(
-      (sats ?? 0).toString(10),
+  useEffect(() => {
+    if (!sats) {
+      setInputValue('');
+      return;
+    }
+
+    const newAmountFromSats = fromSatoshiFixed(
+      sats.toString(10),
       assetSelected?.precision || defaultPrecision,
       assetSelected?.precision || defaultPrecision,
       isLbtc(assetSelected?.assetHash ?? '') ? lbtcUnit : undefined
     );
+
+    setInputValue(newAmountFromSats);
+  }, [sats, assetSelected, lbtcUnit]);
 
   return (
     <div className="exchange-coin-container">
@@ -138,12 +152,12 @@ const TradeRowInput: React.FC<Props> = ({
               enterkeyhint="done"
               inputmode="decimal"
               onIonChange={handleInputChange}
-              debounce={500}
+              debounce={200}
               onKeyDown={onPressEnterKeyCloseKeyboard}
               pattern="^[0-9]*[.,]?[0-9]*$"
               placeholder="0"
               type="tel"
-              value={getAmountString()}
+              value={inputValue}
             />
           </div>
         </div>
@@ -180,7 +194,7 @@ const TradeRowInput: React.FC<Props> = ({
               <IonText color="danger">{(error || localError)?.message || 'unknown error'}</IonText>
             ) : (
               <>
-                {new Decimal(getAmountString() || 0).mul(price || 0).toFixed(2)} {currency.toUpperCase()}
+                {new Decimal(inputValue || 0).mul(price || 0).toFixed(2)} {currency.toUpperCase()}
               </>
             )}
           </span>
