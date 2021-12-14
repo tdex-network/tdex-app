@@ -150,6 +150,7 @@ export function discoverBestOrder(
 ): (sats: number, asset: string) => Promise<TradeOrder> {
   if (!sendAsset || !receiveAsset) throw new Error('unable to compute orders for selected market');
   const allPossibleOrders = computeOrders(markets, sendAsset, receiveAsset);
+  if (allPossibleOrders.length === 0) throw new Error(`markets not found for pair ${sendAsset}-${receiveAsset}`);
   return async (sats: number, asset: string): Promise<TradeOrder> => {
     if (sats <= 0) {
       return allPossibleOrders[0];
@@ -158,10 +159,10 @@ export function discoverBestOrder(
     try {
       const discoverer = createDiscoverer(allPossibleOrders);
       const bestOrders = await discoverer.discover({ asset, amount: sats });
-      if (bestOrders.length === 0) throw new Error('0 possible order for this trade');
+      if (bestOrders.length === 0) throw new Error('zero best orders found by discoverer');
       return bestOrders[0];
     } catch {
-      throw new Error('unable to find a valid TDEX order');
+      return allPossibleOrders[0];
     }
   };
 }
