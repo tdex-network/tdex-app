@@ -37,7 +37,7 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({ isOpen, close }
         <IonContent className="search-content">
           <IonList>
             {LBTC_DENOMINATIONS.filter((denomination: string) => denomination.includes(searchString)).map(
-              (denomination: string, index: number) => {
+              (denomination, index: number) => {
                 return (
                   <IonItem
                     className="ion-no-margin"

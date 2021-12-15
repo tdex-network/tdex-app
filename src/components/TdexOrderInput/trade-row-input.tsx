@@ -10,7 +10,7 @@ import { balanceByAssetSelector } from '../../redux/reducers/walletReducer';
 import type { RootState } from '../../redux/store';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
 import { defaultPrecision } from '../../utils/constants';
-import { fromSatoshiFixed, isLbtc, toSatoshi } from '../../utils/helpers';
+import { fromSatoshiFixed, isLbtc, toSatoshi, unitToExponent } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import ExchangeSearch from '../ExchangeSearch';
@@ -194,7 +194,9 @@ const TradeRowInput: React.FC<Props> = ({
               <IonText color="danger">{(error || localError)?.message || 'unknown error'}</IonText>
             ) : (
               <>
-                {new Decimal(inputValue || 0).mul(price || 0).toFixed(2)} {currency.toUpperCase()}
+                    {new Decimal(inputValue || 0)
+                      .mul(Decimal.pow(10, balance?.ticker === 'L-BTC' ? -unitToExponent(lbtcUnit) : 0))
+                      .mul(price || 0).toFixed(2)} {currency.toUpperCase()}
               </>
             )}
           </span>

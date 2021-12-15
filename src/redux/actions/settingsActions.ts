@@ -1,3 +1,4 @@
+import type { LbtcDenomination } from '../../utils/constants';
 import type { ActionType } from '../../utils/types';
 import type { CurrencyInterface } from '../reducers/settingsReducer';
 
@@ -11,7 +12,7 @@ export const STORE_THEME = 'STORE_THEME';
 export const SET_CURRENCY = 'SET_CURRENCY';
 export const SET_LBTC_DENOMINATION = 'SET_LBTC_DENOMINATION';
 
-export const setLBTCDenomination = (denomination: string): ActionType => ({
+export const setLBTCDenomination = (denomination: LbtcDenomination): ActionType => ({
   type: SET_LBTC_DENOMINATION,
   payload: denomination,
 });

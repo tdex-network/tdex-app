@@ -12,7 +12,7 @@ import { network } from '../redux/config';
 import type { Pegins } from '../redux/reducers/btcReducer';
 import type { CurrencyInterface } from '../redux/reducers/settingsReducer';
 
-import type { AssetConfig } from './constants';
+import type { AssetConfig, LbtcDenomination } from './constants';
 import { CURRENCIES, LBTC_DENOMINATIONS } from './constants';
 import type { Encrypted } from './crypto';
 import { decrypt, encrypt } from './crypto';
@@ -35,8 +35,8 @@ const CURRENCY_KEY = 'tdex-app-currency';
 const LBTC_DENOMINATION_KEY = 'tdex-app-lbtc-unit';
 const LAST_USED_INDEXES_KEY = 'tdex-app-last-used-indexes';
 
-export async function getLBTCDenominationFromStorage(): Promise<string> {
-  return (await Storage.get({ key: LBTC_DENOMINATION_KEY })).value || LBTC_DENOMINATIONS[0];
+export async function getLBTCDenominationFromStorage(): Promise<LbtcDenomination> {
+  return (await Storage.get({ key: LBTC_DENOMINATION_KEY })).value as LbtcDenomination || LBTC_DENOMINATIONS[0];
 }
 
 export function setLBTCDenominationInStorage(denomination: string): void {

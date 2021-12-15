@@ -2,6 +2,7 @@ import { KeyboardStyle } from '@capacitor/keyboard';
 import type { GetResult } from '@capacitor/storage';
 import { takeLatest, call, put } from 'redux-saga/effects';
 
+import type { LbtcDenomination } from '../../utils/constants';
 import { setKeyboardTheme } from '../../utils/keyboard';
 import {
   getCurrencyFromStorage,
@@ -160,7 +161,7 @@ function* persistDenomination(action: ActionType) {
 
 function* restoreDenomination() {
   try {
-    const denomination: string = yield call(getLBTCDenominationFromStorage);
+    const denomination: LbtcDenomination = yield call(getLBTCDenominationFromStorage);
     yield put(setLBTCDenomination(denomination));
   } catch (e) {
     console.error(e);
