@@ -63,6 +63,7 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, ma
     sendError,
     receiveError,
     setFocus,
+    swapAssets,
   ] = useTradeState(markets);
 
   useIonViewDidEnter(() => {
@@ -99,10 +100,8 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, ma
   }, [bestOrder]);
 
   const swapSendAndReceiveAsset = () => {
-    const receive = receiveAsset;
-    setReceiveAsset(sendAsset);
-    setSendAsset(receive);
-    setSendAmount(sendSats ?? 0);
+    swapAssets();
+    setSendAmount(receiveSats ?? 0);
   };
 
   return (

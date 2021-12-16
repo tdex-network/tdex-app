@@ -77,6 +77,13 @@ export function useTradeState(markets: TDEXMarket[]) {
     setReceiveError(undefined);
   };
 
+  const swapAssets = () => {
+    const temp = sendAsset;
+    setSendAsset(receiveAsset);
+    setReceiveAsset(temp);
+    resetErrors();
+  };
+
   useEffect(() => {
     if (markets.length <= 0) {
       setSendError(noMarketError);
@@ -127,21 +134,21 @@ export function useTradeState(markets: TDEXMarket[]) {
       return order;
     };
 
-  const updateReceiveSats = () => {
+  const updateReceiveSats = (newSendSats: number) => {
     if (!sendAsset) return;
     setReceiveLoader(true);
-    return discoverFunction()(sendSats ?? 0, sendAsset)
-      .then(computePriceAndUpdate(sendSats ?? 0, sendAsset, 'send')) // set receive sats
+    return discoverFunction()(newSendSats ?? 0, sendAsset)
+      .then(computePriceAndUpdate(newSendSats ?? 0, sendAsset, 'send')) // set receive sats
       .then(setBestOrder)
       .catch(setReceiveError)
       .finally(() => setReceiveLoader(false));
   };
 
-  const updateSendSats = () => {
+  const updateSendSats = (newReceiveSats: number) => {
     if (!receiveAsset) return;
     setSendLoader(true);
-    return discoverFunction()(receiveSats ?? 0, receiveAsset)
-      .then(computePriceAndUpdate(receiveSats ?? 0, receiveAsset, 'receive')) // set send sats
+    return discoverFunction()(newReceiveSats ?? 0, receiveAsset)
+      .then(computePriceAndUpdate(newReceiveSats ?? 0, receiveAsset, 'receive')) // set send sats
       .then(setBestOrder)
       .catch(setSendError)
       .finally(() => setSendLoader(false));
@@ -153,7 +160,7 @@ export function useTradeState(markets: TDEXMarket[]) {
     setSendError(undefined);
     setSendSats(sats);
     if (focus === 'send') {
-      await updateReceiveSats();
+      await updateReceiveSats(sats);
     }
   };
 
@@ -163,7 +170,7 @@ export function useTradeState(markets: TDEXMarket[]) {
     setReceiveError(undefined);
     setReceiveSats(sats);
     if (focus === 'receive') {
-      await updateSendSats();
+      await updateSendSats(sats);
     }
   };
 
@@ -182,5 +189,6 @@ export function useTradeState(markets: TDEXMarket[]) {
     sendError,
     receiveError,
     setFocus,
+    swapAssets,
   ] as const;
 }

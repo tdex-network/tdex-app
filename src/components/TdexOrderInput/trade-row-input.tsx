@@ -159,6 +159,7 @@ const TradeRowInput: React.FC<Props> = ({
               placeholder="0"
               type="tel"
               value={inputValue}
+              debounce={500}
             />
           </div>
         </div>
