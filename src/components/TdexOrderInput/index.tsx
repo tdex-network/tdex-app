@@ -1,10 +1,11 @@
 import { IonRippleEffect, useIonViewDidEnter, useIonViewDidLeave } from '@ionic/react';
 import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import type { TradeOrder } from 'tdex-sdk';
 
 import swap from '../../assets/img/swap.svg';
 import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
+import { updateMarkets } from '../../redux/actions/tdexActions';
 import { selectAllTradableAssets } from '../../redux/reducers/tdexReducer';
 import type { RootState } from '../../redux/store';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
@@ -48,6 +49,8 @@ type Props = ConnectedProps & {
 // and inputs an amount of satoshis to sell or to buy
 // if found, it returns best orders via `onInput` property
 const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, markets, lbtcUnit, onInput }) => {
+  const dispatch = useDispatch();
+
   const [
     bestOrder,
     sendAsset,
@@ -73,6 +76,10 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, ma
   useIonViewDidLeave(() => {
     setAccessoryBar(false).catch(console.error);
   });
+
+  useEffect(() => {
+    dispatch(updateMarkets());
+  }, []);
 
   useEffect(() => {
     if (sendError || receiveError) onInput(undefined);
