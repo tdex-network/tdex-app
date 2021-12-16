@@ -62,6 +62,7 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, ma
     receiveLoader,
     sendError,
     receiveError,
+    setFocus,
   ] = useTradeState(markets);
 
   useIonViewDidEnter(() => {
@@ -118,6 +119,7 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, ma
         }}
         onChangeSats={setSendAmount}
         searchableAssets={allTradableAssets}
+        onFocus={() => setFocus('send')}
       />
       <div className="exchange-divider ion-activatable" onClick={swapSendAndReceiveAsset}>
         <img src={swap} alt="swap" />
@@ -135,6 +137,7 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, ma
         }}
         onChangeSats={setReceiveAmount}
         searchableAssets={sendAsset ? getTradablesAssets(markets, sendAsset).map((h) => assetsRegistry[h]) : []}
+        onFocus={() => setFocus('receive')}
       />
     </div>
   );

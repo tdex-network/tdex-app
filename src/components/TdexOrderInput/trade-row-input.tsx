@@ -39,6 +39,7 @@ interface ComponentProps {
   onChangeSats: (sats: number) => void;
   error?: Error;
   searchableAssets: AssetConfig[];
+  onFocus: () => void;
 }
 
 type Props = ConnectedProps & ComponentProps;
@@ -56,6 +57,7 @@ const TradeRowInput: React.FC<Props> = ({
   error,
   currency,
   searchableAssets,
+  onFocus,
 }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const inputRef = useRef<HTMLIonInputElement>(null);
@@ -73,7 +75,6 @@ const TradeRowInput: React.FC<Props> = ({
     const unitLBTC = isLbtc(assetSelected.assetHash) ? lbtcUnit : undefined;
     const stringAmount = sanitizeInputAmount(amount, unitLBTC);
     setInputValue(stringAmount);
-
 
     const satoshis = toSatoshi(stringAmount, assetSelected.precision, unitLBTC).toNumber();
     if (satoshis <= 0) return;
@@ -152,8 +153,8 @@ const TradeRowInput: React.FC<Props> = ({
               enterkeyhint="done"
               inputmode="decimal"
               onIonChange={handleInputChange}
-              debounce={200}
               onKeyDown={onPressEnterKeyCloseKeyboard}
+              onIonFocus={() => onFocus()}
               pattern="^[0-9]*[.,]?[0-9]*$"
               placeholder="0"
               type="tel"
@@ -194,9 +195,11 @@ const TradeRowInput: React.FC<Props> = ({
               <IonText color="danger">{(error || localError)?.message || 'unknown error'}</IonText>
             ) : (
               <>
-                    {new Decimal(inputValue || 0)
-                      .mul(Decimal.pow(10, balance?.ticker === 'L-BTC' ? -unitToExponent(lbtcUnit) : 0))
-                      .mul(price || 0).toFixed(2)} {currency.toUpperCase()}
+                {new Decimal(inputValue || 0)
+                  .mul(Decimal.pow(10, balance?.ticker === 'L-BTC' ? -unitToExponent(lbtcUnit) : 0))
+                  .mul(price || 0)
+                  .toFixed(2)}{' '}
+                {currency.toUpperCase()}
               </>
             )}
           </span>

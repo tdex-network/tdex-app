@@ -63,8 +63,7 @@ export function useTradeState(markets: TDEXMarket[]) {
   const [sendLoader, setSendLoader] = useState(false);
   const [receiveLoader, setReceiveLoader] = useState(false);
 
-  const [needSend, setNeedSend] = useState(false);
-  const [needReceive, setNeedReceive] = useState(false);
+  const [focus, setFocus] = useState<'send' | 'receive'>();
 
   const [sendError, setSendError] = useState<Error>();
   const [receiveError, setReceiveError] = useState<Error>();
@@ -129,7 +128,7 @@ export function useTradeState(markets: TDEXMarket[]) {
     };
 
   const updateReceiveSats = () => {
-    if (!needReceive || !sendAsset) return;
+    if (!sendAsset) return;
     setReceiveLoader(true);
     return discoverFunction()(sendSats ?? 0, sendAsset)
       .then(computePriceAndUpdate(sendSats ?? 0, sendAsset, 'send')) // set receive sats
@@ -139,7 +138,7 @@ export function useTradeState(markets: TDEXMarket[]) {
   };
 
   const updateSendSats = () => {
-    if (!needSend || !receiveAsset) return;
+    if (!receiveAsset) return;
     setSendLoader(true);
     return discoverFunction()(receiveSats ?? 0, receiveAsset)
       .then(computePriceAndUpdate(receiveSats ?? 0, receiveAsset, 'receive')) // set send sats
@@ -151,25 +150,21 @@ export function useTradeState(markets: TDEXMarket[]) {
   // send sats setter
   // auto-update the receive sats amount according to best order
   const setSendAmount = async (sats: number) => {
-    if (!needSend) {
-      resetErrors();
-    }
-    setNeedSend(false);
+    setSendError(undefined);
     setSendSats(sats);
-    setNeedReceive(true);
-    await updateReceiveSats();
+    if (focus === 'send') {
+      await updateReceiveSats();
+    }
   };
 
   // receive sats setter
   // auto-update the send sats amount according to best order
   const setReceiveAmount = async (sats: number) => {
-    if (!needReceive) {
-      resetErrors();
-    }
-    setNeedReceive(false);
+    setReceiveError(undefined);
     setReceiveSats(sats);
-    setNeedSend(true);
-    await updateSendSats();
+    if (focus === 'receive') {
+      await updateSendSats();
+    }
   };
 
   return [
@@ -186,5 +181,6 @@ export function useTradeState(markets: TDEXMarket[]) {
     receiveLoader,
     sendError,
     receiveError,
+    setFocus,
   ] as const;
 }
