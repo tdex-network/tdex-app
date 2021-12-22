@@ -45,8 +45,8 @@
         margin-bottom: 7px;
         width: 27px;
         
-        &:nth-child(2) {
-          rotate: 180deg;
+        &.icon-withdraw {
+          transform: rotate(180deg);
         }
       }
     }
