@@ -47,6 +47,7 @@
     "prettier": "prettier \"./src/**/*.{ts,tsx}\" \"./test/**/*.{ts,tsx}\"",
     "resources": "cordova-res ios --skip-config --copy && cordova-res android --skip-config --copy",
     "serve": "ionic serve",
+    "serve:testnet": "REACT_APP_CHAIN=testnet ionic serve",
     "serve:no-open": "ionic serve --no-open",
     "sync": "ionic cap sync",
     "tdex:clean": "bash scripts/tdexd-clean.sh",

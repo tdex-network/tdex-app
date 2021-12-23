@@ -1,7 +1,7 @@
 import type { AddressInterface, UtxoInterface, Outpoint, Mnemonic, StateRestorerOpts } from 'ldk';
 import { createSelector } from 'reselect';
 
-import { defaultPrecision, LBTC_COINGECKOID, LBTC_TICKER, LBTC_ASSET, getMainAsset } from '../../utils/constants';
+import { defaultPrecision, LBTC_COINGECKOID, getMainAsset, getLbtcAsset } from '../../utils/constants';
 import { tickerFromAssetHash, balancesFromUtxos, getIndexAndIsChangeFromAddress } from '../../utils/helpers';
 import type { ActionType } from '../../utils/types';
 import type { BalanceInterface } from '../actionTypes/walletActionTypes';
@@ -16,6 +16,7 @@ import {
   UNLOCK_UTXO,
   UNLOCK_UTXOS,
 } from '../actions/walletActions';
+import type { RootState } from '../types';
 
 import { transactionsAssets } from './transactionsReducer';
 
@@ -122,11 +123,11 @@ export const allUtxosSelector = ({ wallet }: { wallet: WalletState }): UtxoInter
  */
 export const balancesSelector = createSelector(
   [
-    (state) => (state as any).assets,
-    (state) => allUtxosSelector(state as any),
-    (state) => transactionsAssets(state as any),
+    ({ assets, settings }: RootState) => ({ assets, settings }),
+    (state: RootState) => allUtxosSelector(state),
+    (state: RootState) => transactionsAssets(state),
   ],
-  (assets, utxos, txsAssets) => {
+  ({ assets, settings }, utxos, txsAssets) => {
     const balances = balancesFromUtxos(utxos, assets);
     const balancesAssets = balances.map((b) => b.asset);
     for (const asset of txsAssets) {
@@ -142,14 +143,15 @@ export const balancesSelector = createSelector(
       });
     }
     // If no balance, add LBTC with amount zero
+    const lbtcAsset = getLbtcAsset(settings.network);
     if (!balances.length) {
       balances.push({
-        asset: LBTC_ASSET.assetHash,
+        asset: lbtcAsset.assetHash,
         amount: 0,
-        ticker: LBTC_TICKER,
-        coinGeckoID: LBTC_ASSET.coinGeckoID,
-        precision: LBTC_ASSET.precision,
-        name: LBTC_ASSET.name,
+        ticker: lbtcAsset.ticker,
+        coinGeckoID: lbtcAsset.coinGeckoID,
+        precision: lbtcAsset.precision,
+        name: lbtcAsset.name,
       });
     }
     return balances;
@@ -160,7 +162,7 @@ export const balancesSelector = createSelector(
  * Redux selector returning the total LBTC balance (including featuring assets with CoinGecko support)
  * @param state the current redux state
  */
-export const aggregatedLBTCBalanceSelector = (state: any): BalanceInterface => {
+export const aggregatedLBTCBalanceSelector = (state: RootState): BalanceInterface => {
   const toAggregateBalancesInBTC = balancesSelector(state)
     .filter((b) => b.amount > 0 && b.coinGeckoID)
     .map((balance: BalanceInterface) => {
@@ -175,7 +177,7 @@ export const aggregatedLBTCBalanceSelector = (state: any): BalanceInterface => {
   return {
     amount,
     asset: '',
-    ticker: LBTC_TICKER,
+    ticker: getLbtcAsset(state.settings.network).ticker,
     coinGeckoID: LBTC_COINGECKOID,
     precision: 8,
     name: 'Liquid Bitcoin',

@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 
-import type { RootState } from '../../index';
 import TorProxy from '../../pages/TorProxy';
+import type { RootState } from '../types';
 
 const mapStateToProps = (state: RootState) => {
   return {

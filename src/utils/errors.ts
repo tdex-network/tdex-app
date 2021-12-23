@@ -21,7 +21,6 @@ export const MakeTradeError = new AppError(1, 'TradePropose or TradeComplete err
 export const PinDigitsError = new AppError(2, 'PIN must contain 6 digits');
 export const InvalidTradeTypeError = new AppError(3, 'Trade type should be BUY or SELL');
 export const NoMarketsProvidedError = new AppError(4, '0 markets provided by liquidity daemons');
-export const UnableToCopyTxIDError = new AppError(5, 'Unable to copy txID');
 export const IncorrectPINError = new AppError(6, 'Incorrect PIN');
 export const SecureStorageError = new AppError(7, 'Secure Storage error');
 export const PINsDoNotMatchError = new AppError(8, 'PINs needs to be equal');

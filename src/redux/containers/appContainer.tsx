@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 
 import App from '../../App';
-import type { RootState } from '../../index';
+import type { RootState } from '../types';
 
 const mapStateToProps = (state: RootState) => {
   return {

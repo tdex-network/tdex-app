@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 
 import PinModalClaimPegin from '../../components/PinModal/PinModalClaimPegin';
-import type { RootState } from '../../index';
+import type { RootState } from '../types';
 
 const mapStateToProps = (state: RootState) => {
   return {
@@ -9,6 +9,7 @@ const mapStateToProps = (state: RootState) => {
     explorerBitcoinAPI: state.settings.explorerBitcoinAPI,
     explorerLiquidAPI: state.settings.explorerLiquidAPI,
     modalClaimPegins: state.btc.modalClaimPegins,
+    network: state.settings.network,
     pegins: state.btc.pegins,
   };
 };

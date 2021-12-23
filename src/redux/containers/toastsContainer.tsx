@@ -2,9 +2,9 @@ import { connect } from 'react-redux';
 import type { Dispatch } from 'redux';
 
 import Toasts from '../../components/Toasts';
-import type { RootState } from '../../index';
 import { removeAllToast, removeToast, removeToastByType } from '../actions/toastActions';
 import type { ToastType } from '../reducers/toastReducer';
+import type { RootState } from '../types';
 
 const mapStateToProps = (state: RootState) => {
   return {

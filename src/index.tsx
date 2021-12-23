@@ -1,13 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import type { TypedUseSelectorHook } from 'react-redux';
-import { Provider, useDispatch, useSelector } from 'react-redux';
-import { compose, applyMiddleware, createStore } from 'redux';
-import createSagaMiddleware from 'redux-saga';
-
-import AppContainer from './redux/containers/appContainer';
-import rootReducer from './redux/reducer';
-import rootSaga from './redux/saga';
+import { Provider } from 'react-redux';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -29,16 +22,10 @@ import './theme/global.scss';
 import './theme/variables.scss';
 import './theme/components/search.scss';
 import './theme/components/listItem.scss';
-
-const sagaMiddleware = createSagaMiddleware();
-const middlewares = applyMiddleware(sagaMiddleware);
-const composeEnhancers = (window && (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
-const store = createStore(rootReducer, composeEnhancers(middlewares));
-
-export type AppDispatch = typeof store.dispatch;
-export type RootState = ReturnType<typeof store.getState>;
-export const useTypedDispatch = (): AppDispatch => useDispatch<AppDispatch>();
-export const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
+/* Store */
+import AppContainer from './redux/containers/appContainer';
+import rootSaga from './redux/saga';
+import { sagaMiddleware, store } from './redux/store';
 
 sagaMiddleware.run(rootSaga);
 

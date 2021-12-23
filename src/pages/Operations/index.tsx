@@ -19,6 +19,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter, useParams } from 'react-router';
+import type { NetworkString } from 'tdex-sdk';
 
 import depositIcon from '../../assets/img/deposit-green.svg';
 import swapIcon from '../../assets/img/swap-circle.svg';
@@ -43,6 +44,7 @@ interface OperationsProps extends RouteComponentProps {
   lbtcUnit: LbtcDenomination;
   btcTxs: TxDisplayInterface[];
   currentBtcBlockHeight: number;
+  network: NetworkString;
 }
 
 const Operations: React.FC<OperationsProps> = ({
@@ -53,6 +55,7 @@ const Operations: React.FC<OperationsProps> = ({
   lbtcUnit,
   btcTxs,
   currentBtcBlockHeight,
+  network,
 }) => {
   const dispatch = useDispatch();
   const { asset_id } = useParams<{ asset_id: string }>();
@@ -60,7 +63,7 @@ const Operations: React.FC<OperationsProps> = ({
   const [txRowOpened, setTxRowOpened] = useState<string[]>([]);
 
   const transactionsByAsset = useSelector(transactionsByAssetSelector(asset_id));
-  const transactionsToDisplay = isLbtc(asset_id) ? transactionsByAsset.concat(btcTxs) : transactionsByAsset;
+  const transactionsToDisplay = isLbtc(asset_id, network) ? transactionsByAsset.concat(btcTxs) : transactionsByAsset;
 
   useIonViewWillEnter(() => {
     setTxRowOpened([]);

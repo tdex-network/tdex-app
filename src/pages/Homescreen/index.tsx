@@ -1,7 +1,7 @@
+import './style.scss';
 import { KeyboardStyle } from '@capacitor/keyboard';
 import { IonContent, IonPage, useIonViewWillEnter, IonGrid, IonRow, IonCol } from '@ionic/react';
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 
 import logo from '../../assets/img/tdex_3d_logo.svg';
 import ButtonsMainSub from '../../components/ButtonsMainSub';
@@ -9,11 +9,11 @@ import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import { initApp, signIn } from '../../redux/actions/appActions';
 import { addErrorToast } from '../../redux/actions/toastActions';
+import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { IncorrectPINError } from '../../utils/errors';
 import { setKeyboardTheme } from '../../utils/keyboard';
 import { getIdentity, mnemonicInSecureStorage } from '../../utils/storage-helper';
-import './style.scss';
 
 const Homescreen: React.FC = () => {
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
@@ -21,11 +21,14 @@ const Homescreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [needReset, setNeedReset] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState('Searching mnemonic in secure storage...');
-  const appInit = useSelector((state: any) => state.app.appInit);
-  const dispatch = useDispatch();
+  const { appInit, network } = useTypedSelector(({ app, settings }) => ({
+    appInit: app.appInit,
+    network: settings.network,
+  }));
+  const dispatch = useTypedDispatch();
 
   const onConfirmPinModal = (pin: string) => {
-    getIdentity(pin)
+    getIdentity(pin, network)
       .then((mnemonic) => {
         setLoadingMessage('Unlocking wallet...');
         setLoading(true);

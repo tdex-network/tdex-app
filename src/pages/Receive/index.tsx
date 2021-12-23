@@ -17,7 +17,7 @@ import { MasterPublicKey, address as addressLDK } from 'ldk';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useLocation } from 'react-router';
-import type { MasterPublicKeyOpts } from 'tdex-sdk';
+import type { MasterPublicKeyOpts, NetworkString } from 'tdex-sdk';
 import { masterPubKeyRestorerFromState } from 'tdex-sdk';
 
 import Header from '../../components/Header';
@@ -42,9 +42,10 @@ interface LocationState {
 interface ReceiveProps {
   lastUsedIndexes: StateRestorerOpts;
   masterPubKeyOpts: IdentityOpts<MasterPublicKeyOpts>;
+  network: NetworkString;
 }
 
-const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts }) => {
+const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts, network }) => {
   const [copied, setCopied] = useState(false);
   const [address, setAddress] = useState<string>();
   const [loading, setLoading] = useState(false);
@@ -59,7 +60,7 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts }) 
       const addr = await restoredMasterPubKey.getNextAddress();
       dispatch(addAddress(addr));
       if (state?.depositAsset?.ticker === BTC_TICKER) {
-        const peginModule = await getPeginModule();
+        const peginModule = await getPeginModule(network);
         const claimScript = addressLDK.toOutputScript(addr.confidentialAddress).toString('hex');
         const peginAddress = await peginModule.getMainchainAddress(claimScript);
         const derivationPath = addr.derivationPath;

@@ -1,22 +1,22 @@
 import { IdentityType } from 'ldk';
 import { connect } from 'react-redux';
 
-import type { RootState } from '../../index';
 import Receive from '../../pages/Receive';
-import { network } from '../config';
 import { lastUsedIndexesSelector } from '../reducers/walletReducer';
+import type { RootState } from '../types';
 
 const mapStateToProps = (state: RootState) => {
   return {
     lastUsedIndexes: lastUsedIndexesSelector(state),
     masterPubKeyOpts: {
-      chain: network.chain,
+      chain: state.settings.network,
       type: IdentityType.MasterPublicKey,
       opts: {
         masterBlindingKey: state.wallet.masterBlindKey,
         masterPublicKey: state.wallet.masterPubKey,
       },
     },
+    network: state.settings.network,
   };
 };
 

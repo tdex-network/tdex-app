@@ -1,6 +1,7 @@
 import type { Mnemonic } from 'ldk';
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import type { NetworkString } from 'tdex-sdk';
 
 import { updateState } from '../../redux/actions/appActions';
 import { checkIfClaimablePeginUtxo, setModalClaimPegin, upsertPegins } from '../../redux/actions/btcActions';
@@ -20,16 +21,18 @@ interface PinModalClaimPeginProps {
   currentBtcBlockHeight: number;
   explorerLiquidAPI: string;
   explorerBitcoinAPI: string;
-  pegins: Pegins;
   modalClaimPegins: BtcState['modalClaimPegins'];
+  network: NetworkString;
+  pegins: Pegins;
 }
 
 const PinModalClaimPegin: React.FC<PinModalClaimPeginProps> = ({
   currentBtcBlockHeight,
   explorerLiquidAPI,
   explorerBitcoinAPI,
-  pegins,
   modalClaimPegins,
+  network,
+  pegins,
 }) => {
   const [needReset, setNeedReset] = useState<boolean>(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
@@ -67,7 +70,7 @@ const PinModalClaimPegin: React.FC<PinModalClaimPeginProps> = ({
       dispatch(addErrorToast(PinDigitsError));
       await managePinError();
     }
-    getIdentity(pin)
+    getIdentity(pin, network)
       .then(async (mnemonic: Mnemonic) => {
         // Try to claim a specific pegin or all of them
         const pendingPegins = modalClaimPegins.claimScriptToClaim
@@ -75,7 +78,7 @@ const PinModalClaimPegin: React.FC<PinModalClaimPeginProps> = ({
               [modalClaimPegins.claimScriptToClaim]: pegins[modalClaimPegins.claimScriptToClaim],
             }
           : pegins;
-        claimPegins(explorerBitcoinAPI, explorerLiquidAPI, pendingPegins, mnemonic, currentBtcBlockHeight)
+        claimPegins(explorerBitcoinAPI, explorerLiquidAPI, pendingPegins, mnemonic, currentBtcBlockHeight, network)
           .then(async (successPegins) => {
             if (Object.keys(successPegins).length) {
               Object.values(successPegins).forEach((p: Pegin) => {

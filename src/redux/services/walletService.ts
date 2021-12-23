@@ -4,11 +4,6 @@ import type { Mnemonic } from 'ldk';
 import { mnemonicRestorerFromEsplora, mnemonicRestorerFromState } from 'tdex-sdk';
 
 import { getLastUsedIndexesInStorage } from '../../utils/storage-helper';
-import { defaultProvider } from '../config';
-
-export const axiosProviderObject = axios.create({
-  baseURL: defaultProvider.endpoint,
-});
 
 export const getAssetsRequest = (
   path: string,

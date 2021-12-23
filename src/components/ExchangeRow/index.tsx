@@ -5,6 +5,7 @@ import { Decimal } from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
 import { debounce } from 'lodash';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import type { NetworkString } from 'tdex-sdk';
 
 import type { TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
@@ -51,6 +52,7 @@ interface ExchangeRowInterface {
   isLoading: boolean;
   lbtcUnit: LbtcDenomination;
   torProxy: string;
+  network: NetworkString;
 }
 
 const ExchangeRow: React.FC<ExchangeRowInterface> = ({
@@ -77,6 +79,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   isLoading,
   lbtcUnit,
   torProxy,
+  network,
 }) => {
   const [balance, setBalance] = useState<BalanceInterface>();
   const [amount, setAmount] = useState('');
@@ -136,7 +139,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             trades,
             lbtcUnit,
             console.error,
-            torProxy
+            torProxy,
+            network
           );
           newTrade = bestPriceRes.trade;
         }
@@ -151,17 +155,18 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             },
             newTrade,
             lbtcUnit,
-            torProxy
+            torProxy,
+            network
           );
           setTrade(newTrade);
           //
-          if (isLbtc(asset.asset)) {
+          if (isLbtc(asset.asset, network)) {
             const precision = assets[priceInSats.asset]?.precision ?? defaultPrecision;
             updatedAmount = fromSatoshiFixed(
               priceInSats.amount.toString(),
               precision,
               precision,
-              isLbtc(asset.asset) ? lbtcUnit : undefined
+              isLbtc(asset.asset, network) ? lbtcUnit : undefined
             );
           } else {
             // Convert fiat
@@ -216,12 +221,20 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         return;
       }
       // Sanitize
-      const sanitizedValue = sanitizeInputAmount(e.detail.value, setAmount, isLbtc(asset.asset) ? lbtcUnit : undefined);
+      const sanitizedValue = sanitizeInputAmount(
+        e.detail.value,
+        setAmount,
+        isLbtc(asset.asset, network) ? lbtcUnit : undefined
+      );
       // Set
       setAmount(sanitizedValue);
       onChangeAmount(sanitizedValue);
       // Check balance
-      const valSats = toSatoshi(sanitizedValue, balance?.precision, isLbtc(asset.asset) ? lbtcUnit : undefined);
+      const valSats = toSatoshi(
+        sanitizedValue,
+        balance?.precision,
+        isLbtc(asset.asset, network) ? lbtcUnit : undefined
+      );
       if (sendInput && valSats.greaterThan(balance?.amount ?? 0)) {
         setError(ERROR_BALANCE_TOO_LOW);
       }

@@ -4,7 +4,7 @@ import { fetchUtxos, IdentityType, MasterPublicKey } from 'ldk';
 import { address as addrLDK } from 'liquidjs-lib';
 import type ElementsPegin from 'pegin';
 import { all, call, delay, put, select, takeLatest, takeLeading } from 'redux-saga/effects';
-import type { Restorer } from 'tdex-sdk';
+import type { NetworkString, Restorer } from 'tdex-sdk';
 import { masterPubKeyRestorerFromState } from 'tdex-sdk';
 
 import { NoClaimFoundError, PeginRestorationError, UpdateUtxosError } from '../../utils/errors';
@@ -23,12 +23,12 @@ import {
 } from '../actions/btcActions';
 import { addErrorToast, addClaimPeginToast, removeToastByType } from '../actions/toastActions';
 import { addAddress } from '../actions/walletActions';
-import { network } from '../config';
 import type { BtcState, Pegins } from '../reducers/btcReducer';
 import type { ToastState } from '../reducers/toastReducer';
 import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString } from '../reducers/walletReducer';
 import { getPeginModule } from '../services/btcService';
+import type { RootState } from '../types';
 
 function* persistPegins() {
   yield delay(5_000);
@@ -43,7 +43,7 @@ function* restorePegins() {
 
 // Fetch block height continuously every minute
 function* watchCurrentBtcBlockHeight() {
-  const explorerBitcoinAPI: string = yield select((state: any) => state.settings.explorerBitcoinAPI);
+  const explorerBitcoinAPI: string = yield select((state: RootState) => state.settings.explorerBitcoinAPI);
   const { currentBlockHeight } = yield call(getCurrentBtcBlockHeight, explorerBitcoinAPI);
   const setCurrentBtcBlockHeightAction = setCurrentBtcBlockHeight(currentBlockHeight);
   yield put(setCurrentBtcBlockHeightAction);
@@ -105,13 +105,14 @@ export function* fetchAndUpdateDepositPeginUtxos(pegins: Pegins, explorerBitcoin
  */
 function* restorePeginsFromDepositAddress(action: ActionType) {
   try {
-    const [pegins, addresses, masterBlindKey, masterPubKey, lastUsedIndexes, explorerBitcoinAPI]: [
+    const [pegins, addresses, masterBlindKey, masterPubKey, lastUsedIndexes, explorerBitcoinAPI, network]: [
       Pegins,
       WalletState['addresses'],
       string,
       string,
       StateRestorerOpts,
-      string
+      string,
+      NetworkString
     ] = yield all([
       select(({ btc }: { btc: BtcState }) => btc.pegins),
       select(({ wallet }: { wallet: WalletState }) => wallet.addresses),
@@ -122,15 +123,16 @@ function* restorePeginsFromDepositAddress(action: ActionType) {
         lastUsedInternalIndex: wallet.lastUsedInternalIndex,
       })),
       select(({ settings }) => settings.explorerBitcoinAPI),
+      select(({ settings }: RootState) => settings.network),
     ]);
-    const peginModule: ElementsPegin = yield call(getPeginModule);
+    const peginModule: ElementsPegin = yield call(getPeginModule, network);
     const retrievedPegins: Pegins = {};
     const addrs = Object.entries(addresses).reverse();
     // Search extra 5 addresses
     // Needed if last action of user before losing wallet data was to generate addresses that received btc funds but not Liquid assets.
     // Those addresses are not restored by LDK
     const masterPublicKey: MasterPublicKey = new MasterPublicKey({
-      chain: network.chain,
+      chain: network,
       type: IdentityType.MasterPublicKey,
       opts: {
         masterBlindingKey: masterBlindKey,

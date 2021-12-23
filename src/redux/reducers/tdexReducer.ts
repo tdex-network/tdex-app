@@ -18,10 +18,15 @@ const initialState: TDEXState = {
 const TDEXReducer = (
   state: TDEXState = initialState,
   action: ActionType
-): { providers: any[]; markets: TDEXMarket[] } => {
+): { providers: TDEXProvider[]; markets: TDEXMarket[] } => {
   switch (action.type) {
     case ADD_PROVIDER:
-      return { ...state, providers: [...state.providers, action.payload] };
+      return state.providers.find((p) => p.endpoint === action.payload.endpoint) === undefined
+        ? {
+            ...state,
+            providers: [...state.providers, action.payload],
+          }
+        : state;
     case ADD_MARKETS:
       return { ...state, markets: [...state.markets, ...action.payload] };
     case CLEAR_MARKETS:

@@ -1,4 +1,5 @@
 import * as bitcoinJS from 'bitcoinjs-lib';
+import type { NetworkString } from 'tdex-sdk';
 
 import { network } from '../redux/config';
 import type { CurrencyInterface } from '../redux/reducers/settingsReducer';
@@ -28,34 +29,37 @@ export interface AssetConfig {
   color: string;
   precision: number;
   name: string;
-  chain?: 'liquid' | 'regtest';
 }
 
-export const LBTC_ASSET: AssetConfig =
-  network.chain === 'regtest'
-    ? {
-        coinGeckoID: LBTC_COINGECKOID,
-        ticker: LBTC_TICKER,
-        // Change asset hash to generate new pegin deposit addresses
-        assetHash:
-          // FedPegScript => OP_TRUE
-          '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225',
-        // FedPegScript => 1 pubKey
-        //'056293ee681516f2d61bb7ce63030351d5e02d61aef9fb00d30f27f55d935b18',
-        color: LBTC_COLOR,
-        precision: 8,
-        chain: 'regtest',
-        name: 'Liquid Bitcoin',
-      }
-    : {
-        coinGeckoID: LBTC_COINGECKOID,
-        ticker: LBTC_TICKER,
-        assetHash: '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d',
-        color: LBTC_COLOR,
-        precision: 8,
-        chain: 'liquid',
-        name: 'Liquid Bitcoin',
-      };
+export const getLbtcAsset: (network: NetworkString) => AssetConfig = (network) =>
+  (network === 'liquid' && {
+    coinGeckoID: LBTC_COINGECKOID,
+    ticker: LBTC_TICKER,
+    assetHash: '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d',
+    color: LBTC_COLOR,
+    precision: 8,
+    name: 'Liquid Bitcoin',
+  }) ||
+  (network === 'testnet' && {
+    coinGeckoID: LBTC_COINGECKOID,
+    ticker: 'tL-BTC',
+    assetHash: '144c654344aa716d6f3abcc1ca90e5641e4e2a7f633bc09fe3baf64585819a49',
+    color: LBTC_COLOR,
+    precision: 8,
+    name: 'Testnet Liquid Bitcoin',
+  }) || {
+    coinGeckoID: LBTC_COINGECKOID,
+    ticker: LBTC_TICKER,
+    // Change asset hash to generate new pegin deposit addresses
+    assetHash:
+      // FedPegScript => OP_TRUE
+      '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225',
+    // FedPegScript => 1 pubKey
+    //'056293ee681516f2d61bb7ce63030351d5e02d61aef9fb00d30f27f55d935b18',
+    color: LBTC_COLOR,
+    precision: 8,
+    name: 'Liquid Bitcoin',
+  };
 
 export const BTC_ASSET: AssetConfig = {
   coinGeckoID: LBTC_COINGECKOID,
@@ -67,7 +71,7 @@ export const BTC_ASSET: AssetConfig = {
 };
 
 export const MAIN_ASSETS: AssetConfig[] = [
-  LBTC_ASSET,
+  getLbtcAsset(network),
   {
     coinGeckoID: USDT_COINGECKOID,
     ticker: USDT_TICKER,
@@ -92,10 +96,8 @@ export const MAIN_ASSETS: AssetConfig[] = [
   },
 ];
 
-export const FEDPEGSCRIPT =
-  LBTC_ASSET.assetHash === '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225'
-    ? '51'
-    : '51210269e0180bc9e0be7648d6e9c17f3664bc3ebcee40f3a46cf4b42e583e96b911b951ae';
+export const getFedPegScript = (network: NetworkString): string =>
+  network === 'regtest' ? '51' : '51210269e0180bc9e0be7648d6e9c17f3664bc3ebcee40f3a46cf4b42e583e96b911b951ae';
 
 export function getColor(assetHash: string): string | undefined {
   return MAIN_ASSETS.find((assetConfig: AssetConfig) => assetConfig.assetHash.valueOf() === assetHash.valueOf())?.color;
@@ -139,6 +141,12 @@ export const TOAST_TIMEOUT_FAILURE = 2000;
 export const PIN_TIMEOUT_SUCCESS = 800;
 export const PIN_TIMEOUT_FAILURE = 2000;
 
-export function getBitcoinJSNetwork(chain: 'liquid' | 'regtest'): bitcoinJS.networks.Network {
-  return chain === 'liquid' ? bitcoinJS.networks.bitcoin : bitcoinJS.networks.regtest;
+export function getBitcoinJSNetwork(chain: NetworkString): bitcoinJS.networks.Network {
+  if (chain === 'liquid') {
+    return bitcoinJS.networks.bitcoin;
+  } else if (chain === 'testnet') {
+    return bitcoinJS.networks.testnet;
+  } else {
+    return bitcoinJS.networks.regtest;
+  }
 }

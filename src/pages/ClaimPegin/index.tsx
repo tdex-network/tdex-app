@@ -1,9 +1,10 @@
+import './style.scss';
 import { IonContent, IonPage, IonGrid, IonRow, IonCol, IonButton, IonInput, IonItem } from '@ionic/react';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import type { Mnemonic } from 'ldk';
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
+import type { NetworkString } from 'tdex-sdk';
 
 import Header from '../../components/Header';
 import Loader from '../../components/Loader';
@@ -17,7 +18,7 @@ import {
 } from '../../redux/actions/btcActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
-import { network } from '../../redux/config';
+import { useTypedDispatch } from '../../redux/hooks';
 import type { DepositPeginUtxo, Pegin, Pegins } from '../../redux/reducers/btcReducer';
 import type { ToastOpts } from '../../redux/reducers/toastReducer';
 import { claimPegins } from '../../redux/services/btcService';
@@ -32,25 +33,25 @@ import {
 import { sleep } from '../../utils/helpers';
 import { getIdentity } from '../../utils/storage-helper';
 
-import './style.scss';
-
 interface ClaimPeginProps extends RouteComponentProps {
-  pegins: Pegins;
+  currentBtcBlockHeight: number;
   explorerLiquidUI: string;
   explorerBitcoinAPI: string;
   explorerLiquidAPI: string;
+  network: NetworkString;
+  pegins: Pegins;
   toasts: ToastOpts[];
-  currentBtcBlockHeight: number;
 }
 
 // Claim Pegin Settings Page
 const ClaimPegin: React.FC<ClaimPeginProps> = ({
-  pegins,
+  currentBtcBlockHeight,
   explorerLiquidUI,
   explorerBitcoinAPI,
   explorerLiquidAPI,
+  network,
+  pegins,
   toasts,
-  currentBtcBlockHeight,
 }) => {
   // Pin Modal
   const [needReset, setNeedReset] = useState<boolean>(false);
@@ -61,7 +62,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
   const [claimedPegins, setClaimedPegins] = useState<Pegins>({});
   const [inputBtcPeginAddress, setInputBtcPeginAddress] = useState<string>();
   const [mnemonic, setMnemonic] = useState<Mnemonic>();
-  const dispatch = useDispatch();
+  const dispatch = useTypedDispatch();
 
   useEffect(() => {
     toasts.map((t) => {
@@ -75,7 +76,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
   useEffect(() => {
     if (inputBtcPeginAddress) {
       if (mnemonic) {
-        claimPegins(explorerBitcoinAPI, explorerLiquidAPI, pegins, mnemonic, currentBtcBlockHeight)
+        claimPegins(explorerBitcoinAPI, explorerLiquidAPI, pegins, mnemonic, currentBtcBlockHeight, network)
           .then((successPegins) => {
             if (Object.keys(successPegins).length) {
               setClaimedPegins(successPegins);
@@ -142,11 +143,11 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
       dispatch(addErrorToast(PinDigitsError));
       await managePinError();
     }
-    await getIdentity(pin)
+    await getIdentity(pin, network)
       .then(async (mnemonic: Mnemonic) => {
         const addrTrimmed = inputBtcPeginAddress?.trim();
         try {
-          if (addrTrimmed && bitcoinJS.address.toOutputScript(addrTrimmed, getBitcoinJSNetwork(network.chain))) {
+          if (addrTrimmed && bitcoinJS.address.toOutputScript(addrTrimmed, getBitcoinJSNetwork(network))) {
             setIsLoading(true);
             setMnemonic(mnemonic);
             dispatch(restorePeginFromDepositAddress(addrTrimmed));

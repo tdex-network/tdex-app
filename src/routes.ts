@@ -7,6 +7,7 @@ import Faq from './pages/Faq';
 import Privacy from './pages/Privacy';
 import QRScanner from './pages/QRScanner';
 import Settings from './pages/Settings';
+import Network from './pages/Settings/Network';
 import ShowMnemonicSettings from './pages/ShowMnemonic/show-mnemonic-settings';
 import Terms from './pages/Terms';
 import WithdrawalDetails from './pages/WithdrawalDetails';
@@ -49,6 +50,7 @@ export const routerLinks = {
   terms: '/terms',
   deepRestoration: '/settings/deep-restoration',
   explorers: '/settings/explorers',
+  network: '/settings/network',
   torProxy: '/settings/tor-proxy',
 };
 
@@ -144,6 +146,10 @@ export const ROUTES = [
   {
     path: routerLinks.explorers,
     component: Explorers,
+  },
+  {
+    path: routerLinks.network,
+    component: Network,
   },
   {
     path: routerLinks.torProxy,

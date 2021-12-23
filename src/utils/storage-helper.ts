@@ -5,10 +5,9 @@ import { IdentityType, Mnemonic } from 'ldk';
 import type { AddressInterface, TxInterface, UtxoInterface } from 'ldk';
 import type { StateRestorerOpts } from 'ldk/dist/restorer/mnemonic-restorer';
 import type { Dispatch } from 'redux';
-import type { TDEXMnemonic } from 'tdex-sdk';
+import type { NetworkString, TDEXMnemonic } from 'tdex-sdk';
 
 import type { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
-import { network } from '../redux/config';
 import type { Pegins } from '../redux/reducers/btcReducer';
 import type { CurrencyInterface } from '../redux/reducers/settingsReducer';
 
@@ -26,6 +25,8 @@ const SEED_BACKUP_FLAG_KEY = 'tdex-app-seed-backup';
 const UTXOS_KEY = 'tdex-app-utxos';
 const TRANSACTIONS_KEY = 'tdex-app-transactions';
 const ASSETS_KEY = 'tdex-app-assets';
+const DEFAULT_PROVIDER_KEY = 'tdex-app-default-provider';
+const NETWORK_KEY = 'tdex-app-network';
 const EXPLORER_KEY = 'tdex-app-explorer';
 const EXPLORER_BITCOIN_KEY = 'tdex-app-explorer-bitcoin';
 const EXPLORER_LIQUID_UI_KEY = 'tdex-app-explorer-liquid-ui';
@@ -55,6 +56,22 @@ export function setCurrencyInStorage(currency: CurrencyInterface): void {
     key: CURRENCY_KEY,
     value: stringify(currency),
   });
+}
+
+export async function getDefaultProviderFromStorage(): Promise<string | null> {
+  return (await Storage.get({ key: DEFAULT_PROVIDER_KEY })).value;
+}
+
+export function setDefaultProviderInStorage(defaultProvider: string): void {
+  Storage.set({ key: DEFAULT_PROVIDER_KEY, value: defaultProvider });
+}
+
+export async function getNetworkFromStorage(): Promise<string | null> {
+  return (await Storage.get({ key: NETWORK_KEY })).value;
+}
+
+export function setNetworkInStorage(network: NetworkString): void {
+  Storage.set({ key: NETWORK_KEY, value: network });
 }
 
 export async function getExplorerFromStorage(): Promise<string | null> {
@@ -273,12 +290,17 @@ export async function clearStorage(): Promise<void> {
  * Construct a new Mnemonic Identity connected to redux store
  * @param pin using to decrypt the mnemonic
  * @param dispatch using to dispatch action to store
+ * @param network
  */
-export async function getConnectedIdentity(pin: string, dispatch: Dispatch): Promise<MnemonicRedux> {
+export async function getConnectedIdentity(
+  pin: string,
+  dispatch: Dispatch,
+  network: NetworkString
+): Promise<MnemonicRedux> {
   const toRestoreMnemonic = await getMnemonicFromSecureStorage(pin);
   return new MnemonicRedux(
     {
-      chain: network.chain,
+      chain: network,
       type: IdentityType.Mnemonic,
       opts: {
         mnemonic: toRestoreMnemonic,
@@ -288,11 +310,15 @@ export async function getConnectedIdentity(pin: string, dispatch: Dispatch): Pro
   );
 }
 
-export async function getConnectedTDexMnemonic(pin: string, dispatch: Dispatch): Promise<TDEXMnemonic> {
+export async function getConnectedTDexMnemonic(
+  pin: string,
+  dispatch: Dispatch,
+  network: NetworkString
+): Promise<TDEXMnemonic> {
   const toRestoreMnemonic = await getMnemonicFromSecureStorage(pin);
   return new TDexMnemonicRedux(
     {
-      chain: network.chain,
+      chain: network,
       type: IdentityType.Mnemonic,
       opts: {
         mnemonic: toRestoreMnemonic,
@@ -305,11 +331,12 @@ export async function getConnectedTDexMnemonic(pin: string, dispatch: Dispatch):
 /**
  * Construct a new Mnemonic Identity
  * @param pin using to decrypt the mnemonic
+ * @param network
  */
-export async function getIdentity(pin: string): Promise<Mnemonic> {
+export async function getIdentity(pin: string, network: NetworkString): Promise<Mnemonic> {
   const toRestoreMnemonic = await getMnemonicFromSecureStorage(pin);
   return new Mnemonic({
-    chain: network.chain,
+    chain: network,
     type: IdentityType.Mnemonic,
     opts: {
       mnemonic: toRestoreMnemonic,

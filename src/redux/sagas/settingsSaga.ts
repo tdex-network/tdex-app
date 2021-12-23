@@ -1,6 +1,7 @@
 import { KeyboardStyle } from '@capacitor/keyboard';
 import type { GetResult } from '@capacitor/storage';
 import { takeLatest, call, put } from 'redux-saga/effects';
+import type { NetworkString } from 'tdex-sdk';
 
 import { setKeyboardTheme } from '../../utils/keyboard';
 import {
@@ -18,6 +19,10 @@ import {
   setExplorerBitcoinUIInStorage,
   setTorProxyInStorage,
   getTorProxyFromStorage,
+  setNetworkInStorage,
+  getNetworkFromStorage,
+  getDefaultProviderFromStorage,
+  setDefaultProviderInStorage,
 } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
 import { SIGN_IN } from '../actions/appActions';
@@ -40,6 +45,10 @@ import {
   SET_EXPLORER_BITCOIN_UI,
   SET_TOR_PROXY,
   setTorProxy,
+  SET_NETWORK,
+  setNetwork,
+  setDefaultProvider,
+  SET_DEFAULT_PROVIDER,
 } from '../actions/settingsActions';
 import type { CurrencyInterface } from '../reducers/settingsReducer';
 import { setThemeToStorage, getThemeFromStorage } from '../services/settingsService';
@@ -61,6 +70,24 @@ function* restoreThemeSaga() {
       yield put(storeTheme(theme));
     }
     yield put(setTheme(theme));
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function* restoreDefaultProvider() {
+  try {
+    const defaultProvider: string | null = yield call(getDefaultProviderFromStorage);
+    if (defaultProvider) yield put(setDefaultProvider(defaultProvider));
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+function* restoreNetwork() {
+  try {
+    const network: NetworkString | null = yield call(getNetworkFromStorage);
+    if (network) yield put(setNetwork(network));
   } catch (e) {
     console.error(e);
   }
@@ -121,11 +148,19 @@ function* restoreTorProxy() {
   }
 }
 
-function* persistExplorer(action: ActionType) {
+function* persistDefaultProvider(action: ActionType) {
+  yield call(setDefaultProviderInStorage, action.payload);
+}
+
+function* persistNetwork(action: ActionType) {
+  yield call(setNetworkInStorage, action.payload);
+}
+
+function* persistExplorerLiquidAPI(action: ActionType) {
   yield call(setExplorerInStorage, action.payload);
 }
 
-function* persistExplorerBitcoin(action: ActionType) {
+function* persistExplorerBitcoinAPI(action: ActionType) {
   yield call(setExplorerBitcoinInStorage, action.payload);
 }
 
@@ -181,6 +216,8 @@ function* setKeyboardStyle(action: ActionType) {
 export function* settingsWatcherSaga(): Generator<any, any, any> {
   yield takeLatest(STORE_THEME, storeThemeSaga);
   yield takeLatest(SIGN_IN, restoreThemeSaga);
+  yield takeLatest(SIGN_IN, restoreDefaultProvider);
+  yield takeLatest(SIGN_IN, restoreNetwork);
   yield takeLatest(SIGN_IN, restoreExplorerLiquidAPI);
   yield takeLatest(SIGN_IN, restoreExplorerBitcoinAPI);
   yield takeLatest(SIGN_IN, restoreExplorerLiquidUI);
@@ -189,8 +226,10 @@ export function* settingsWatcherSaga(): Generator<any, any, any> {
   yield takeLatest(SIGN_IN, restoreCurrency);
   yield takeLatest(SIGN_IN, restoreDenomination);
   yield takeLatest(SET_LBTC_DENOMINATION, persistDenomination);
-  yield takeLatest(SET_EXPLORER_LIQUID_API, persistExplorer);
-  yield takeLatest(SET_EXPLORER_BITCOIN_API, persistExplorerBitcoin);
+  yield takeLatest(SET_DEFAULT_PROVIDER, persistDefaultProvider);
+  yield takeLatest(SET_NETWORK, persistNetwork);
+  yield takeLatest(SET_EXPLORER_LIQUID_API, persistExplorerLiquidAPI);
+  yield takeLatest(SET_EXPLORER_BITCOIN_API, persistExplorerBitcoinAPI);
   yield takeLatest(SET_EXPLORER_LIQUID_UI, persistExplorerLiquidUI);
   yield takeLatest(SET_EXPLORER_BITCOIN_UI, persistExplorerBitcoinUI);
   yield takeLatest(SET_TOR_PROXY, persistTorProxy);

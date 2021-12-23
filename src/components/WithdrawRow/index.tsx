@@ -6,6 +6,7 @@ import { chevronDownOutline } from 'ionicons/icons';
 import type { Dispatch } from 'react';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import type { NetworkString } from 'tdex-sdk';
 
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { updatePrices } from '../../redux/actions/ratesActions';
@@ -20,9 +21,10 @@ interface WithdrawRowInterface {
   price: number | undefined;
   setAmount: Dispatch<string>;
   error: string;
+  network: NetworkString;
 }
 
-const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, setAmount, error }) => {
+const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, setAmount, error, network }) => {
   const lbtcUnit = useSelector((state: any) => state.settings.denominationLBTC);
   const currency = useSelector((state: any) => state.settings.currency.value);
   const [residualBalance, setResidualBalance] = useState<string>(
@@ -51,7 +53,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
         balance.amount.toString(),
         balance.precision,
         balance.precision,
-        isLbtc(balance.asset) ? lbtcUnit : undefined
+        isLbtc(balance.asset, network) ? lbtcUnit : undefined
       )
     );
   }, [lbtcUnit, balance.amount]);
@@ -62,7 +64,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
         balance.amount.toString(),
         balance.precision,
         balance.precision,
-        isLbtc(balance.asset) ? lbtcUnit : undefined
+        isLbtc(balance.asset, network) ? lbtcUnit : undefined
       )
     );
     if (price) setFiat('0.00');
@@ -74,7 +76,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
       reset();
       return;
     }
-    const unit = isLbtc(balance.asset) ? lbtcUnit : undefined;
+    const unit = isLbtc(balance.asset, network) ? lbtcUnit : undefined;
     const sanitizedValue = sanitizeInputAmount(e.detail.value, setAmount, unit);
     // Set values
     setAmount(sanitizedValue);

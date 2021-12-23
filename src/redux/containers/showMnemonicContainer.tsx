@@ -1,12 +1,12 @@
 import { connect } from 'react-redux';
 import type { Dispatch } from 'redux';
 
-import type { RootState } from '../../index';
 import ShowMnemonic from '../../pages/ShowMnemonic';
 import type { AppError } from '../../utils/errors';
 import { setSeedBackupFlag } from '../../utils/storage-helper';
 import { setIsBackupDone } from '../actions/appActions';
 import { addErrorToast } from '../actions/toastActions';
+import type { RootState } from '../types';
 
 const mapStateToProps = (state: RootState) => {
   return {

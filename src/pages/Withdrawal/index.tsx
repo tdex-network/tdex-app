@@ -17,6 +17,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
+import type { NetworkString } from 'tdex-sdk';
 import { mnemonicRestorerFromState } from 'tdex-sdk';
 
 import ButtonsMainSub from '../../components/ButtonsMainSub';
@@ -30,7 +31,6 @@ import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
-import { network } from '../../redux/config';
 import { broadcastTx } from '../../redux/services/walletService';
 import { decodeBip21 } from '../../utils/bip21';
 import type { LbtcDenomination } from '../../utils/constants';
@@ -53,22 +53,24 @@ interface WithdrawalProps
     }
   > {
   balances: BalanceInterface[];
-  utxos: UtxoInterface[];
-  prices: Record<string, number>;
   explorerLiquidAPI: string;
   lastUsedIndexes: StateRestorerOpts;
   lbtcUnit: LbtcDenomination;
+  network: NetworkString;
+  prices: Record<string, number>;
+  utxos: UtxoInterface[];
 }
 
 const Withdrawal: React.FC<WithdrawalProps> = ({
   balances,
-  utxos,
-  prices,
   explorerLiquidAPI,
   history,
   location,
   lastUsedIndexes,
   lbtcUnit,
+  network,
+  prices,
+  utxos,
 }) => {
   const { asset_id } = useParams<{ asset_id: string }>();
   const [balance, setBalance] = useState<BalanceInterface>();
@@ -123,7 +125,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         fromSatoshi(
           balance.amount.toString(),
           balance.precision,
-          isLbtc(balance.asset) ? lbtcUnit : undefined
+          isLbtc(balance.asset, network) ? lbtcUnit : undefined
         ).lessThan(amount || '0')
       ) {
         setError('Amount is greater than your balance');
@@ -161,7 +163,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       // Check pin
       let identity;
       try {
-        identity = await getConnectedIdentity(pin, dispatch);
+        identity = await getConnectedIdentity(pin, dispatch, network);
         setIsWrongPin(false);
         setTimeout(() => {
           setIsWrongPin(null);
@@ -171,7 +173,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         throw IncorrectPINError;
       }
       // Craft single recipient Pset
-      const wallet = walletFromCoins(utxos, network.chain);
+      const wallet = walletFromCoins(utxos, network);
       await mnemonicRestorerFromState(identity)(lastUsedIndexes);
       const changeAddress = await identity.getNextChangeAddress();
       const withdrawPset = wallet.sendTx(
@@ -241,7 +243,14 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         <IonGrid>
           <Header title={`Send ${balance ? balance.ticker.toUpperCase() : ''}`} hasBackButton={true} />
           {balance && (
-            <WithdrawRow amount={amount} balance={balance} price={price} setAmount={setAmount} error={error} />
+            <WithdrawRow
+              amount={amount}
+              balance={balance}
+              price={price}
+              setAmount={setAmount}
+              error={error}
+              network={network}
+            />
           )}
 
           <IonItem className="address-input">

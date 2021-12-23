@@ -9,14 +9,14 @@ import type {
 } from 'ldk';
 import { fetchTxHex, greedyCoinSelector, isBlindedUtxo } from 'ldk';
 import type { Dispatch } from 'redux';
-import { createFeeOutput } from 'tdex-sdk';
+import type { NetworkString } from 'tdex-sdk';
 
 import type { BalanceInterface } from '../redux/actionTypes/walletActionTypes';
 import { lockUtxo } from '../redux/actions/walletActions';
 
 import { throwErrorHandler } from './coinSelection';
 import type { AssetConfig, LbtcDenomination } from './constants';
-import { defaultPrecision, getColor, getMainAsset, LBTC_ASSET } from './constants';
+import { defaultPrecision, getColor, getLbtcAsset, getMainAsset } from './constants';
 import type { TxDisplayInterface } from './types';
 
 export const createColorFromHash = (id: string): string => {
@@ -224,43 +224,8 @@ export function customCoinSelector(dispatch?: Dispatch): CoinSelector {
     };
 }
 
-export function getAssetHashLBTC(): string {
-  return LBTC_ASSET.assetHash;
-}
-
-export function isLbtc(asset: string): boolean {
-  return asset === getAssetHashLBTC();
-}
-
-/**
- * Estimate the number of LBTC sats to pay fees
- * @param setOfUtxos spendable unspents coins
- * @param recipients a set of recipients/outputs describing the transaction
- * @param satsPerByte
- * @param errorHandler
- */
-export function estimateFeeAmount(
-  setOfUtxos: UtxoInterface[],
-  recipients: RecipientInterface[],
-  satsPerByte = 0.1,
-  errorHandler = throwErrorHandler
-): number {
-  const address = 'doesntmatteraddress';
-  const greedy = greedyCoinSelector();
-  const { selectedUtxos, changeOutputs } = greedy(errorHandler)(
-    setOfUtxos,
-    [
-      ...recipients,
-      {
-        address,
-        asset: getAssetHashLBTC(),
-        value: 300,
-      },
-    ],
-    () => address
-  );
-  const fee = createFeeOutput(selectedUtxos.length, changeOutputs.length + 1, satsPerByte, LBTC_ASSET.assetHash);
-  return fee.value;
+export function isLbtc(asset: string, network: NetworkString): boolean {
+  return asset === getLbtcAsset(network).assetHash;
 }
 
 /**

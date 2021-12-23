@@ -15,16 +15,16 @@ import { addCircleOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
+import type { NetworkString } from 'tdex-sdk';
 
 import CircleTotalBalance from '../../components/CircleTotalBalance';
 import Header from '../../components/Header';
 import Refresher from '../../components/Refresher';
 import { CurrencyIcon } from '../../components/icons';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { network } from '../../redux/config';
 import { routerLinks } from '../../routes';
 import type { LbtcDenomination } from '../../utils/constants';
-import { getMainAsset, LBTC_COINGECKOID, MAIN_ASSETS } from '../../utils/constants';
+import { getLbtcAsset, getMainAsset, LBTC_COINGECKOID, MAIN_ASSETS } from '../../utils/constants';
 import { capitalizeFirstLetter, fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
 import './style.scss';
 
@@ -34,6 +34,7 @@ interface WalletProps extends RouteComponentProps {
   currency: string;
   isFetchingUtxos: boolean;
   lbtcUnit: LbtcDenomination;
+  network: NetworkString;
   prices: Record<string, number>;
   totalLBTC: BalanceInterface;
 }
@@ -45,6 +46,7 @@ const Wallet: React.FC<WalletProps> = ({
   isFetchingUtxos,
   history,
   lbtcUnit,
+  network,
   prices,
   totalLBTC,
 }) => {
@@ -82,7 +84,7 @@ const Wallet: React.FC<WalletProps> = ({
       }
     } else {
       // Display L-BTC with empty balance
-      const [lbtc] = MAIN_ASSETS.filter((a) => a.ticker === 'L-BTC' && a.chain === network.chain).map((a) => {
+      const [lbtc] = MAIN_ASSETS.concat(getLbtcAsset(network)).map((a) => {
         return {
           asset: a.assetHash,
           ticker: a.ticker,

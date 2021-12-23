@@ -1,6 +1,10 @@
+import type { NetworkString } from 'tdex-sdk';
+
 import type { ActionType } from '../../utils/types';
 import type { CurrencyInterface } from '../reducers/settingsReducer';
 
+export const SET_DEFAULT_PROVIDER = 'SET_DEFAULT_PROVIDER';
+export const SET_NETWORK = 'SET_NETWORK';
 export const SET_EXPLORER_LIQUID_API = 'SET_EXPLORER_LIQUID_API';
 export const SET_EXPLORER_BITCOIN_API = 'SET_EXPLORER_BITCOIN_API';
 export const SET_EXPLORER_BITCOIN_UI = 'SET_EXPLORER_BITCOIN_UI';
@@ -20,6 +24,20 @@ export const setCurrency = (currency: CurrencyInterface): ActionType => {
   return {
     type: SET_CURRENCY,
     payload: currency,
+  };
+};
+
+export const setDefaultProvider = (defaultProvider: string): ActionType => {
+  return {
+    type: SET_DEFAULT_PROVIDER,
+    payload: defaultProvider,
+  };
+};
+
+export const setNetwork = (network: NetworkString): ActionType => {
+  return {
+    type: SET_NETWORK,
+    payload: network,
   };
 };
 

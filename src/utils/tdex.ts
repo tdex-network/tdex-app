@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { CoinSelector, UtxoInterface } from 'ldk';
 import { Trade, TraderClient, TradeType } from 'tdex-sdk';
-import type { TDEXMnemonic } from 'tdex-sdk';
+import type { TDEXMnemonic, NetworkString } from 'tdex-sdk';
 
 import type { TDEXTrade, TDEXMarket, TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 
@@ -23,18 +23,20 @@ export interface AssetWithTicker {
  * @param lbtcUnit
  * @param onError launch if an error happen in getMarketPrice request
  * @param torProxy
+ * @param network
  */
 export async function bestPrice(
   known: { amount: string; asset: string; precision: number },
   trades: TDEXTrade[],
   lbtcUnit: LbtcDenomination,
   onError: (e: string) => void,
-  torProxy = 'https://proxy.tdex.network'
+  torProxy = 'https://proxy.tdex.network',
+  network: NetworkString
 ): Promise<{ amount: number; asset: string; trade: TDEXTrade }> {
   if (trades.length === 0) throw new Error('trades array should not be empty');
 
   const toPrice = async (trade: TDEXTrade) =>
-    calculatePrice(known, trade, lbtcUnit, torProxy)
+    calculatePrice(known, trade, lbtcUnit, torProxy, network)
       .then((res) => ({ ...res, trade }))
       .catch(onError);
   const pricesPromises = trades.map(toPrice);
@@ -81,12 +83,14 @@ export async function bestBalance(trades: TDEXTrade[]): Promise<TDEXTrade> {
  * @param trade trade used to compute the price
  * @param lbtcUnit
  * @param torProxy
+ * @param network
  */
 export async function calculatePrice(
   known: { amount: string; asset: string; precision: number },
   trade: TDEXTrade,
   lbtcUnit: LbtcDenomination,
-  torProxy = 'https://proxy.tdex.network'
+  torProxy = 'https://proxy.tdex.network',
+  network: NetworkString
 ): Promise<{ amount: number; asset: string }> {
   if (Number(known.amount) <= 0) {
     return {
@@ -98,7 +102,7 @@ export async function calculatePrice(
   const response = await client.marketPrice(
     trade.market,
     trade.type,
-    toSatoshi(known.amount, known.precision, isLbtc(known.asset) ? lbtcUnit : undefined).toNumber(),
+    toSatoshi(known.amount, known.precision, isLbtc(known.asset, network) ? lbtcUnit : undefined).toNumber(),
     known.asset
   );
   return {
