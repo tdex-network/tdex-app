@@ -8299,16 +8299,16 @@ lazy-ass@^1.6.0:
   resolved "https://registry.yarnpkg.com/lazy-ass/-/lazy-ass-1.6.0.tgz#7999655e8646c17f089fdd187d150d3324d54513"
   integrity sha1-eZllXoZGwX8In90YfRUNMyTVRRM=
 
-ldk@^0.3.12:
-  version "0.3.12"
-  resolved "https://registry.yarnpkg.com/ldk/-/ldk-0.3.12.tgz#2aab0a3fdebeff1bb8a63aaa35c3bdd2ea121f48"
-  integrity sha512-tNbpoUuO428F9rz5WOu+/mXBMRqYsYGfAygUuqnpnBPfWWea9NpKDkuvCluBhoexvmbHpeuoBDNHgjd9T+06Yw==
+ldk@0.3.16:
+  version "0.3.16"
+  resolved "https://registry.yarnpkg.com/ldk/-/ldk-0.3.16.tgz#a2a556176489d1c878ddd6110de3cb1112390f96"
+  integrity sha512-woGOrGpT2hklS5+yZYEXuPckRW5Yp8xuA9YYdF1tv/uPMD1L8v4ANxnTpyf+CrmSBwA0ziQPPTWlsXccxQxzFQ==
   dependencies:
     axios "^0.21.1"
     bip32 "^2.0.6"
     bip39 "^3.0.3"
     bs58check "^2.1.2"
-    liquidjs-lib "^5.1.17"
+    liquidjs-lib "^5.2.2"
     marina-provider "^1.0.0"
     slip77 "^0.1.1"
 
@@ -8347,10 +8347,10 @@ lines-and-columns@^1.1.6:
   resolved "https://registry.yarnpkg.com/lines-and-columns/-/lines-and-columns-1.1.6.tgz#1c00c743b433cd0a4e80758f7b64a57440d9ff00"
   integrity sha1-HADHQ7QzzQpOgHWPe2SldEDZ/wA=
 
-liquidjs-lib@^5.1.17:
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/liquidjs-lib/-/liquidjs-lib-5.2.0.tgz#06476558fc21762f4d6a4dd3b189155f94f201a4"
-  integrity sha512-rd2TJkT8GOKXO67ud8PlvsrgYiYuveFV+beSE6hWQe5WpN243JKOgMwOmSJ79wZH0wy0O6ZZS766G7vKd3Ltfg==
+liquidjs-lib@^5.2.2:
+  version "5.2.3"
+  resolved "https://registry.yarnpkg.com/liquidjs-lib/-/liquidjs-lib-5.2.3.tgz#1018393fc8a2bacd96e52373cdb90975984cedfa"
+  integrity sha512-jV2GZ24kfT8k02G5Igk14Pr2AqDTig2MaqMlf4CullACwwhNMKf8GE3EyQcf6Q4qJanBQ4TyxG84S9LNCS8r6w==
   dependencies:
     "@vulpemventures/secp256k1-zkp" "^2.0.0"
     axios "^0.21.1"
@@ -12614,16 +12614,16 @@ tdex-react-scripts@4.0.3-tdex:
   optionalDependencies:
     fsevents "^2.1.3"
 
-tdex-sdk@^1.7.3:
-  version "1.7.3"
-  resolved "https://registry.yarnpkg.com/tdex-sdk/-/tdex-sdk-1.7.3.tgz#9153a27ad2ccb71260a49b4560c4be3b6fa17045"
-  integrity sha512-DEvg87JtdDS2Amrs+jesYQp/pmq3sFfs5YkM4cwkqMjvDkaR0FIMLoxJmu0y+eLXZEweXNZSlNUySQ0XHO80tA==
+tdex-sdk@1.7.8:
+  version "1.7.8"
+  resolved "https://registry.yarnpkg.com/tdex-sdk/-/tdex-sdk-1.7.8.tgz#698068593e19c403a1c4b7af0658a0924775347b"
+  integrity sha512-J0u0uY/RyGde4cGRoIU4YFB4yUMUzhUVlIIQJ/aAkvKccSH8qXafbm1810vS8oJiV7MXwhvvGY4hbRvrAi2eAg==
   dependencies:
     "@grpc/grpc-js" "^1.3.3"
     "@types/google-protobuf" "^3.15.2"
     google-protobuf "^3.17.3"
-    ldk "^0.3.12"
-    liquidjs-lib "^5.1.17"
+    ldk "0.3.16"
+    liquidjs-lib "^5.2.2"
     slip77 "^0.1.1"
     tdex-protobuf tdex-network/tdex-protobuf
     tslib "^2.3.0"
