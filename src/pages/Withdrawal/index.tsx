@@ -35,7 +35,7 @@ import { broadcastTx } from '../../redux/services/walletService';
 import type { LbtcDenomination } from '../../utils/constants';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { IncorrectPINError, WithdrawTxError } from '../../utils/errors';
-import { customCoinSelector, estimateFeeAmount, fromSatoshi, isLbtc, toSatoshi } from '../../utils/helpers';
+import { customCoinSelector, fromSatoshi, isLbtc, toSatoshi } from '../../utils/helpers';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import { getConnectedIdentity } from '../../utils/storage-helper';
 
@@ -168,11 +168,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       } catch (_) {
         throw IncorrectPINError;
       }
-      // Check if substract fee necessary
-      const LbtcBalance = balances.find((b) => b.coinGeckoID === 'bitcoin')?.amount || 0;
-      const fee = estimateFeeAmount(utxos, [getRecipient()], 0.1, () => null);
-      const needLBTC = toSatoshi(LbtcBalance.toString(), 8, lbtcUnit).plus(fee).toNumber();
-      const substractFee = needLBTC > LbtcBalance;
       // Craft single recipient Pset
       const wallet = walletFromCoins(utxos, network.chain);
       await mnemonicRestorerFromState(identity)(lastUsedIndexes);
@@ -181,7 +176,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         getRecipient(),
         customCoinSelector(dispatch),
         changeAddress.confidentialAddress,
-        substractFee
+        true
       );
       // blind all the outputs except fee
       const recipientData = address.fromConfidential(recipientAddress);
