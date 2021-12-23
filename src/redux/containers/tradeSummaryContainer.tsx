@@ -1,8 +1,9 @@
 import { connect } from 'react-redux';
 
+import type { RootState } from '../../index';
 import TradeSummary from '../../pages/TradeSummary';
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     assets: state.assets,
   };

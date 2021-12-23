@@ -1,4 +1,3 @@
-import { Clipboard } from '@ionic-native/clipboard';
 import {
   IonPage,
   IonContent,
@@ -21,6 +20,7 @@ import { withRouter } from 'react-router';
 import Header from '../../components/Header';
 import { CurrencyIcon } from '../../components/icons';
 import { addSuccessToast } from '../../redux/actions/toastActions';
+import { clipboardCopy } from '../../utils/clipboard';
 import { LBTC_TICKER } from '../../utils/constants';
 import { fromSatoshi, fromSatoshiFixed, precisionFromAssetHash, tickerFromAssetHash } from '../../utils/helpers';
 import type { TxDisplayInterface } from '../../utils/types';
@@ -30,22 +30,11 @@ import './style.scss';
 
 interface TradeHistoryProps extends RouteComponentProps {
   swaps: TxDisplayInterface[];
+  explorerLiquidUI: string;
 }
 
-const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
+const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI }) => {
   const dispatch = useDispatch();
-
-  const copyTxId = (txid: string) => {
-    Clipboard.copy(txid)
-      .then(() => {
-        dispatch(addSuccessToast('Transaction Id copied'));
-      })
-      .catch(() => {
-        // For web platform
-        navigator.clipboard.writeText(`https://blockstream.info/liquid/tx/${txid}`).catch(console.error);
-        dispatch(addSuccessToast('Transaction Id copied'));
-      });
-  };
 
   const renderStatusText: any = (status: TxStatusEnum) => {
     const capitalized = (status[0].toUpperCase() + status.slice(1)) as keyof typeof TxStatusEnum;
@@ -121,7 +110,14 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps }) => {
                           <IonText>{renderStatusText(tx.status)}</IonText>
                         </IonCol>
                       </IonRow>
-                      <IonRow className="mt-3" onClick={() => copyTxId(tx.txId)}>
+                      <IonRow
+                        className="mt-3"
+                        onClick={() => {
+                          clipboardCopy(`${explorerLiquidUI}/tx/${tx.txId}`, () => {
+                            dispatch(addSuccessToast('Transaction Id copied'));
+                          });
+                        }}
+                      >
                         <IonCol className="pl-5" size="10.8" offset="1.2">
                           TxID: {tx.txId}
                         </IonCol>

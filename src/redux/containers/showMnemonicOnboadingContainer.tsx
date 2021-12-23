@@ -1,18 +1,20 @@
 import { connect } from 'react-redux';
+import type { Dispatch } from 'redux';
 
+import type { RootState } from '../../index';
 import ShowMnemonicOnboarding from '../../pages/ShowMnemonic/show-mnemonic-onboarding';
 import type { AppError } from '../../utils/errors';
 import { setSeedBackupFlag } from '../../utils/storage-helper';
 import { setIsBackupDone } from '../actions/appActions';
 import { addErrorToast } from '../actions/toastActions';
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     backupDone: state.app.backupDone,
   };
 };
 
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
     setIsBackupDone: (done: boolean) => {
       setSeedBackupFlag(done);

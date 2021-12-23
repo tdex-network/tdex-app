@@ -1,10 +1,11 @@
 import { connect } from 'react-redux';
 
+import type { RootState } from '../../index';
 import Operations from '../../pages/Operations';
 import { depositPeginUtxosToDisplayTxSelector } from '../reducers/btcReducer';
 import { balancesSelector } from '../reducers/walletReducer';
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     balances: balancesSelector(state),
     prices: state.rates.prices,

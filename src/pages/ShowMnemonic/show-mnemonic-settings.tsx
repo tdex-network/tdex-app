@@ -1,10 +1,10 @@
-import { Clipboard } from '@ionic-native/clipboard';
 import { IonContent, IonPage, IonGrid, IonRow, IonButton, IonCol } from '@ionic/react';
 import React, { useState } from 'react';
 import { useLocation } from 'react-router';
 
 import Header from '../../components/Header';
 import WordList from '../../components/WordList';
+import { clipboardCopy } from '../../utils/clipboard';
 
 interface LocationState {
   mnemonic: string;
@@ -13,26 +13,6 @@ interface LocationState {
 const ShowMnemonicSettings: React.FC = () => {
   const { state } = useLocation<LocationState>();
   const [copied, setCopied] = useState<boolean>(false);
-
-  const copyMnemonic = () => {
-    if (state?.mnemonic) {
-      Clipboard.copy(state?.mnemonic)
-        .then(() => {
-          setCopied(true);
-          setTimeout(() => {
-            setCopied(false);
-          }, 2000);
-        })
-        .catch(() => {
-          // For web platform
-          navigator.clipboard.writeText(state?.mnemonic).catch(console.error);
-          setCopied(true);
-          setTimeout(() => {
-            setCopied(false);
-          }, 2000);
-        });
-    }
-  };
 
   return (
     <IonPage>
@@ -47,7 +27,17 @@ const ShowMnemonicSettings: React.FC = () => {
           </IonRow>
           <IonRow className="ion-margin-bottom">
             <IonCol size="9" offset="1.5">
-              <IonButton className="main-button" onClick={copyMnemonic}>
+              <IonButton
+                className="main-button"
+                onClick={() => {
+                  clipboardCopy(state?.mnemonic, () => {
+                    setCopied(true);
+                    setTimeout(() => {
+                      setCopied(false);
+                    }, 2000);
+                  });
+                }}
+              >
                 {copied ? 'Copied' : 'Copy'}
               </IonButton>
             </IonCol>

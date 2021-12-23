@@ -2,10 +2,11 @@ import { connect } from 'react-redux';
 
 import type { CircleDiagramProps } from '../../components/CircleDiagram';
 import CircleDiagram from '../../components/CircleDiagram';
+import type { RootState } from '../../index';
 import type { BalanceInterface } from '../actionTypes/walletActionTypes';
 import { balancesSelector } from '../reducers/walletReducer';
 
-const mapStateToProps = (state: any): CircleDiagramProps => {
+const mapStateToProps = (state: RootState): CircleDiagramProps => {
   return {
     balances: balancesSelector(state)
       .filter((b) => b.amount > 0 && b.coinGeckoID)

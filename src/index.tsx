@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
+import type { TypedUseSelectorHook } from 'react-redux';
+import { Provider, useDispatch, useSelector } from 'react-redux';
 import { compose, applyMiddleware, createStore } from 'redux';
 import createSagaMiddleware from 'redux-saga';
 
@@ -33,6 +34,11 @@ const sagaMiddleware = createSagaMiddleware();
 const middlewares = applyMiddleware(sagaMiddleware);
 const composeEnhancers = (window && (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) || compose;
 const store = createStore(rootReducer, composeEnhancers(middlewares));
+
+export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof store.getState>;
+export const useTypedDispatch = (): AppDispatch => useDispatch<AppDispatch>();
+export const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector;
 
 sagaMiddleware.run(rootSaga);
 

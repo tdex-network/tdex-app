@@ -1,4 +1,3 @@
-import { Clipboard } from '@ionic-native/clipboard';
 import { IonPage, IonContent, IonButton, IonSkeletonText, IonGrid, IonRow, IonCol } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -8,8 +7,10 @@ import { withRouter, useParams } from 'react-router';
 import Header from '../../components/Header';
 import Refresher from '../../components/Refresher';
 import { CurrencyIcon } from '../../components/icons';
+import { useTypedSelector } from '../../index';
 import { addSuccessToast } from '../../redux/actions/toastActions';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
+import { clipboardCopy } from '../../utils/clipboard';
 import type { LbtcDenomination } from '../../utils/constants';
 import { nameFromAssetHash, tickerFromAssetHash } from '../../utils/helpers';
 import { TxStatusEnum } from '../../utils/types';
@@ -30,6 +31,7 @@ interface WithdrawalDetailsLocationState {
 const WithdrawalDetails: React.FC<RouteComponentProps<any, any, WithdrawalDetailsLocationState>> = ({ location }) => {
   const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();
+  const { explorerLiquidUI } = useTypedSelector(({ settings }) => settings);
   const transaction = useSelector(transactionSelector(txid));
 
   const [locationState, setLocationState] = useState<WithdrawalDetailsLocationState>();
@@ -102,9 +104,9 @@ const WithdrawalDetails: React.FC<RouteComponentProps<any, any, WithdrawalDetail
                 <div
                   className="item-main-info"
                   onClick={() => {
-                    if (!locationState) return;
-                    Clipboard.copy(locationState.address);
-                    dispatch(addSuccessToast('Address copied!'));
+                    clipboardCopy(`${explorerLiquidUI}/address/${locationState?.address}`, () => {
+                      dispatch(addSuccessToast('Address copied!'));
+                    });
                   }}
                 >
                   <div className="item-start main-row">Address</div>
@@ -114,8 +116,9 @@ const WithdrawalDetails: React.FC<RouteComponentProps<any, any, WithdrawalDetail
                 <div
                   className="item-main-info"
                   onClick={() => {
-                    Clipboard.copy(txid);
-                    dispatch(addSuccessToast('TxID copied!'));
+                    clipboardCopy(`${explorerLiquidUI}/tx/${txid}`, () => {
+                      dispatch(addSuccessToast('TxID copied!'));
+                    });
                   }}
                 >
                   <div className="item-start main-row">TxID</div>

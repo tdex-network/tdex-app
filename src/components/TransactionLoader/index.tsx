@@ -1,11 +1,11 @@
-import { Clipboard } from '@ionic-native/clipboard';
 import { IonItem, IonSkeletonText, IonSpinner } from '@ionic/react';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 
-import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
+import { addSuccessToast } from '../../redux/actions/toastActions';
+import { clipboardCopy } from '../../utils/clipboard';
+
 import './style.scss';
-import { UnableToCopyTxIDError } from '../../utils/errors';
 
 interface TransactionLoaderProps {
   txID: string;
@@ -18,12 +18,9 @@ const TransactionLoader: React.FC<TransactionLoaderProps> = ({ txID }) => {
       key={txID}
       className="list-item transaction-item tx-loader"
       onClick={() => {
-        Clipboard.copy(txID)
-          .then(() => dispatch(addSuccessToast('Tx ID copied in clipboard')))
-          .catch((err) => {
-            console.error(err);
-            dispatch(addErrorToast(UnableToCopyTxIDError));
-          });
+        clipboardCopy(txID, () => {
+          dispatch(addSuccessToast('Tx ID copied in clipboard'));
+        });
       }}
     >
       <div className="info-wrapper">

@@ -1,5 +1,4 @@
 import { QRCodeImg } from '@cheprasov/react-qrcode';
-import { Clipboard } from '@ionic-native/clipboard';
 import {
   IonPage,
   IonContent,
@@ -29,9 +28,11 @@ import { upsertPegins } from '../../redux/actions/btcActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { addAddress } from '../../redux/actions/walletActions';
 import { getPeginModule } from '../../redux/services/btcService';
+import { clipboardCopy } from '../../utils/clipboard';
 import type { AssetConfig } from '../../utils/constants';
 import { BTC_TICKER } from '../../utils/constants';
 import { AddressGenerationError } from '../../utils/errors';
+
 import './style.scss';
 
 interface LocationState {
@@ -94,28 +95,6 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts }) 
     setAddress(undefined);
   });
 
-  const copyAddress = () => {
-    if (address) {
-      Clipboard.copy(address)
-        .then(() => {
-          setCopied(true);
-          dispatch(addSuccessToast('Address copied'));
-          setTimeout(() => {
-            setCopied(false);
-          }, 5000);
-        })
-        .catch(() => {
-          // For web platform
-          navigator.clipboard.writeText(address).catch(console.error);
-          setCopied(true);
-          dispatch(addSuccessToast('Address copied'));
-          setTimeout(() => {
-            setCopied(false);
-          }, 5000);
-        });
-    }
-  };
-
   const isBitcoin = state?.depositAsset?.ticker === BTC_TICKER;
 
   return (
@@ -149,7 +128,18 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts }) 
 
               <IonItem>
                 <div className="addr-txt">{address}</div>
-                <div className="copy-icon" onClick={copyAddress}>
+                <div
+                  className="copy-icon"
+                  onClick={() => {
+                    clipboardCopy(address, () => {
+                      setCopied(true);
+                      dispatch(addSuccessToast('Address copied!'));
+                      setTimeout(() => {
+                        setCopied(false);
+                      }, 2000);
+                    });
+                  }}
+                >
                   {copied ? (
                     <IonIcon className="copied-icon" color="success" icon={checkmarkOutline} />
                   ) : (

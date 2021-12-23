@@ -1,11 +1,12 @@
 import { IdentityType } from 'ldk';
 import { connect } from 'react-redux';
 
+import type { RootState } from '../../index';
 import Receive from '../../pages/Receive';
 import { network } from '../config';
 import { lastUsedIndexesSelector } from '../reducers/walletReducer';
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     lastUsedIndexes: lastUsedIndexesSelector(state),
     masterPubKeyOpts: {
