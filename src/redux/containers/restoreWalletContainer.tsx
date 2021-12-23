@@ -1,16 +1,18 @@
 import { connect } from 'react-redux';
+import type { Dispatch } from 'redux';
 
+import type { RootState } from '../../index';
 import RestoreWallet from '../../pages/RestoreWallet';
 import { setSeedBackupFlag } from '../../utils/storage-helper';
 import { setIsBackupDone } from '../actions/appActions';
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     backupDone: state.app.backupDone,
   };
 };
 
-const mapDispatchToProps = (dispatch: any) => {
+const mapDispatchToProps = (dispatch: Dispatch) => {
   return {
     setIsBackupDone: (done: boolean) => {
       setSeedBackupFlag(done);

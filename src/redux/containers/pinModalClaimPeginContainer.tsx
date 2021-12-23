@@ -1,8 +1,9 @@
 import { connect } from 'react-redux';
 
 import PinModalClaimPegin from '../../components/PinModal/PinModalClaimPegin';
+import type { RootState } from '../../index';
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     currentBtcBlockHeight: state.btc.currentBlockHeight,
     explorerBitcoinAPI: state.settings.explorerBitcoinAPI,

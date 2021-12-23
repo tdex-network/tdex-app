@@ -1,8 +1,9 @@
 import { connect } from 'react-redux';
 
+import type { RootState } from '../../index';
 import Explorers from '../../pages/Explorers';
 
-const mapStateToProps = (state: any) => {
+const mapStateToProps = (state: RootState) => {
   return {
     explorerLiquidAPI: state.settings.explorerLiquidAPI,
     explorerBitcoinAPI: state.settings.explorerBitcoinAPI,
