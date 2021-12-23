@@ -7,12 +7,14 @@ import type {
   RecipientInterface,
   UtxoInterface,
 } from 'ldk';
-import { estimateTxSize, fetchTxHex, greedyCoinSelector, isBlindedUtxo } from 'ldk';
+import { fetchTxHex, greedyCoinSelector, isBlindedUtxo } from 'ldk';
 import type { Dispatch } from 'redux';
+import { createFeeOutput } from 'tdex-sdk';
 
 import type { BalanceInterface } from '../redux/actionTypes/walletActionTypes';
 import { lockUtxo } from '../redux/actions/walletActions';
 
+import { throwErrorHandler } from './coinSelection';
 import type { AssetConfig, LbtcDenomination } from './constants';
 import { defaultPrecision, getColor, getMainAsset, LBTC_ASSET } from './constants';
 import type { TxDisplayInterface } from './types';
@@ -208,17 +210,18 @@ export function nameFromAssetHash(assetHash?: string): string | undefined {
 export function customCoinSelector(dispatch?: Dispatch): CoinSelector {
   const greedy = greedyCoinSelector();
   if (!dispatch) return greedy;
-  return (
-    unspents: UtxoInterface[],
-    outputs: RecipientInterface[],
-    changeGetter: ChangeAddressFromAssetGetter
-  ): CoinSelectionResult => {
-    const result = greedy(unspents, outputs, changeGetter);
-    for (const utxo of result.selectedUtxos) {
-      dispatch(lockUtxo(utxo.txid, utxo.vout));
-    }
-    return result;
-  };
+  return (errorHandler = throwErrorHandler) =>
+    (
+      unspents: UtxoInterface[],
+      outputs: RecipientInterface[],
+      changeGetter: ChangeAddressFromAssetGetter
+    ): CoinSelectionResult => {
+      const result = greedy(errorHandler)(unspents, outputs, changeGetter);
+      for (const utxo of result.selectedUtxos) {
+        dispatch(lockUtxo(utxo.txid, utxo.vout));
+      }
+      return result;
+    };
 }
 
 export function getAssetHashLBTC(): string {
@@ -234,14 +237,17 @@ export function isLbtc(asset: string): boolean {
  * @param setOfUtxos spendable unspents coins
  * @param recipients a set of recipients/outputs describing the transaction
  * @param satsPerByte
+ * @param errorHandler
  */
 export function estimateFeeAmount(
   setOfUtxos: UtxoInterface[],
   recipients: RecipientInterface[],
-  satsPerByte = 0.1
+  satsPerByte = 0.1,
+  errorHandler = throwErrorHandler
 ): number {
   const address = 'doesntmatteraddress';
-  const { selectedUtxos, changeOutputs } = customCoinSelector()(
+  const greedy = greedyCoinSelector();
+  const { selectedUtxos, changeOutputs } = greedy(errorHandler)(
     setOfUtxos,
     [
       ...recipients,
@@ -253,7 +259,8 @@ export function estimateFeeAmount(
     ],
     () => address
   );
-  return Math.ceil(estimateTxSize(selectedUtxos.length, changeOutputs.length + 1) * satsPerByte);
+  const fee = createFeeOutput(selectedUtxos.length, changeOutputs.length + 1, satsPerByte, LBTC_ASSET.assetHash);
+  return fee.value;
 }
 
 /**

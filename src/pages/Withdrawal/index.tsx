@@ -1,19 +1,19 @@
 import {
-  IonPage,
-  IonContent,
-  IonItem,
   IonButton,
-  IonInput,
-  IonGrid,
-  IonRow,
   IonCol,
+  IonContent,
+  IonGrid,
+  IonInput,
+  IonItem,
+  IonPage,
+  IonRow,
   useIonViewDidLeave,
 } from '@ionic/react';
 import Decimal from 'decimal.js';
 import type { RecipientInterface, StateRestorerOpts, UtxoInterface } from 'ldk';
 import { address, psetToUnsignedTx, walletFromCoins } from 'ldk';
 import { Psbt } from 'liquidjs-lib';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
@@ -35,7 +35,7 @@ import { broadcastTx } from '../../redux/services/walletService';
 import type { LbtcDenomination } from '../../utils/constants';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { IncorrectPINError, WithdrawTxError } from '../../utils/errors';
-import { customCoinSelector, estimateFeeAmount, fromSatoshi, isLbtc, toSatoshi } from '../../utils/helpers';
+import { customCoinSelector, fromSatoshi, isLbtc, toSatoshi } from '../../utils/helpers';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import { getConnectedIdentity } from '../../utils/storage-helper';
 
@@ -69,7 +69,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   lbtcUnit,
 }) => {
   const { asset_id } = useParams<{ asset_id: string }>();
-  // UI state
   const [balance, setBalance] = useState<BalanceInterface>();
   const [price, setPrice] = useState<number>();
   const [amount, setAmount] = useState<string>('');
@@ -85,7 +84,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     setRecipientAddress('');
   });
 
-  // effect to select the balance of withdrawal
+  // Set current asset balance
   useEffect(() => {
     const balanceSelected = balances.find((bal) => bal.asset === asset_id);
     if (balanceSelected) {
@@ -129,21 +128,10 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         return;
       }
       //
-      const fee = estimateFeeAmount(utxos, [getRecipient()]);
       const LBTCBalance = balances.find((b) => b.coinGeckoID === 'bitcoin');
       if (!LBTCBalance || LBTCBalance.amount === 0) {
         setError('You need LBTC in order to pay fees');
         return;
-      }
-      //
-      let needLBTC = fee;
-      if (balance.coinGeckoID === 'bitcoin') {
-        needLBTC = toSatoshi(amount || '0', 8, lbtcUnit)
-          .plus(needLBTC)
-          .toNumber();
-      }
-      if (needLBTC > LBTCBalance.amount) {
-        setError('You cannot pay fees');
       }
       // No error
       setError('');
@@ -168,6 +156,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     try {
       if (!isValid()) return;
       setLoading(true);
+      // Check pin
       let identity;
       try {
         identity = await getConnectedIdentity(pin, dispatch);
@@ -179,29 +168,30 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       } catch (_) {
         throw IncorrectPINError;
       }
+      // Craft single recipient Pset
       const wallet = walletFromCoins(utxos, network.chain);
-      const psetBase64 = wallet.createTx();
       await mnemonicRestorerFromState(identity)(lastUsedIndexes);
       const changeAddress = await identity.getNextChangeAddress();
-      const withdrawPset = wallet.buildTx(
-        psetBase64,
-        [getRecipient()],
+      const withdrawPset = wallet.sendTx(
+        getRecipient(),
         customCoinSelector(dispatch),
-        () => changeAddress.confidentialAddress,
+        changeAddress.confidentialAddress,
         true
       );
+      // blind all the outputs except fee
       const recipientData = address.fromConfidential(recipientAddress);
       const recipientScript = address.toOutputScript(recipientData.unconfidentialAddress);
       const outputsToBlind: number[] = [];
       const blindKeyMap = new Map<number, string>();
-      // blind all the outputs except fee
       psetToUnsignedTx(withdrawPset).outs.forEach((out, index) => {
         if (out.script.length === 0) return;
         outputsToBlind.push(index);
         if (out.script.equals(recipientScript)) blindKeyMap.set(index, recipientData.blindingKey.toString('hex'));
       });
       const blindedPset = await identity.blindPset(withdrawPset, outputsToBlind, blindKeyMap);
+      // Sign tx
       const signedPset = await identity.signPset(blindedPset);
+      // Broadcast tx
       const txHex = Psbt.fromBase64(signedPset).finalizeAllInputs().extractTransaction().toHex();
       const txid = await broadcastTx(txHex, explorerLiquidAPI);
       dispatch(addSuccessToast(`Transaction broadcasted. ${amount} ${balance?.ticker} sent.`));

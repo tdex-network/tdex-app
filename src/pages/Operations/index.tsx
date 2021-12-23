@@ -177,7 +177,7 @@ const Operations: React.FC<OperationsProps> = ({
               }}
             >
               <div>
-                <img src={depositIcon} alt="withdraw" className="icon-withdraw"/>
+                <img src={depositIcon} alt="withdraw" className="icon-withdraw" />
                 Withdraw
               </div>
             </IonButton>

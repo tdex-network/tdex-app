@@ -1,5 +1,4 @@
 import type { TxInterface } from 'ldk';
-import type { OutputSelector } from 'reselect';
 import { createSelector } from 'reselect';
 
 import type { ActionType, TxDisplayInterface } from '../../utils/types';
@@ -57,9 +56,8 @@ export const transactionsToDisplaySelector = createSelector(
 
 // fetch txs using transactionsToDisplaySelector and filter by asset.
 // i.e return the transaction if one of the transfer contains the asset.
-export const transactionsByAssetSelector = (
-  asset: string
-): OutputSelector<any, TxDisplayInterface[], (res: TxDisplayInterface[]) => TxDisplayInterface[]> =>
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const transactionsByAssetSelector = (asset: string) =>
   createSelector(transactionsToDisplaySelector, (txs) =>
     txs.filter((tx) => tx.transfers.map((t) => t.asset).includes(asset))
   );
@@ -71,7 +69,8 @@ export const transactionsAssets = createSelector(transactionsToDisplaySelector, 
 });
 
 // get a specific transaction with txid
-export const transactionSelector = (txID: string): OutputSelector<any, any, any> =>
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const transactionSelector = (txID: string) =>
   createSelector(
     ({ transactions }: { transactions: TransactionState }) => transactions.txs[txID],
     ({ wallet }: { wallet: WalletState }) => Object.keys(wallet.addresses),

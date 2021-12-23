@@ -108,7 +108,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                           </div>
                           <p className="trade-price" data-cy="trade-summary-sent-amount">
                             {transaction
-                              ? fromSatoshiFixed(transaction.transfers[0].amount, 8, 8)
+                              ? fromSatoshiFixed(transaction.transfers[0].amount.toString(), 8, 8)
                               : preview?.sent.amount}
                           </p>
                         </div>
@@ -129,7 +129,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                           <p className="trade-price">
                             +
                             {transaction
-                              ? fromSatoshiFixed(transaction.transfers[1]?.amount, 8, 8)
+                              ? fromSatoshiFixed(transaction.transfers[1]?.amount.toString(), 8, 8)
                               : preview?.received.amount}
                           </p>
                         </div>
@@ -138,7 +138,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location }) => {
                         <div className="transaction-info-date">
                           {transaction && <span>{transaction.blockTime?.format('DD MMM YYYY HH:mm:ss')}</span>}
                           {transaction ? (
-                            <span>{fromSatoshiFixed(transaction.fee, 8, 8)} Fee</span>
+                            <span>{fromSatoshiFixed(transaction.fee.toString(), 8, 8)} Fee</span>
                           ) : (
                             <IonSkeletonText animated style={{ width: '100%' }} />
                           )}
