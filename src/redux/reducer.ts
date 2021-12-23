@@ -25,7 +25,8 @@ const combinedReducers = combineReducers({
   toasts: toastReducer,
 });
 
-const rootReducer = (state: any, action: ActionType): any => {
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+const rootReducer = (state: any, action: ActionType) => {
   if (action.type === RESET_ALL) {
     // eslint-disable-next-line no-param-reassign
     state = undefined;
