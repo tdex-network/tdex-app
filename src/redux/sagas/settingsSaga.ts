@@ -84,7 +84,7 @@ function* restoreDefaultProvider() {
   }
 }
 
-function* restoreNetwork() {
+export function* restoreNetwork(): Generator<any, any, any> {
   try {
     const network: NetworkString | null = yield call(getNetworkFromStorage);
     if (network) yield put(setNetwork(network));

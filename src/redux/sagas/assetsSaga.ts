@@ -5,13 +5,15 @@ import type { NetworkString } from 'tdex-sdk';
 import type { AssetConfig } from '../../utils/constants';
 import { defaultPrecision } from '../../utils/constants';
 import { createColorFromHash, tickerFromAssetHash } from '../../utils/helpers';
-import { getAssetsFromStorage, setAssetsInStorage } from '../../utils/storage-helper';
+import { clearAssetsInStorage, getAssetsFromStorage, setAssetsInStorage } from '../../utils/storage-helper';
 import { SIGN_IN } from '../actions/appActions';
-import { ADD_ASSET, setAsset, SET_ASSET } from '../actions/assetsActions';
+import type { addAsset } from '../actions/assetsActions';
+import { ADD_ASSET, setAsset, SET_ASSET, RESET_ASSETS } from '../actions/assetsActions';
 import type { RootState } from '../types';
 
 // payload = the assetHash
-function* addAssetSaga({ payload }: { payload: string }) {
+function* addAssetSaga({ payload }: ReturnType<typeof addAsset>) {
+  if (!payload) return;
   // check if asset already present in state
   const { asset, network, explorerLiquidAPI } = yield select(({ assets, settings }: RootState) => ({
     asset: assets[payload],
@@ -69,10 +71,13 @@ function* restoreAssets() {
   }
 }
 
+function* resetAssets() {
+  yield call(clearAssetsInStorage);
+}
+
 export function* assetsWatcherSaga(): Generator<any, any, any> {
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   yield takeEvery(ADD_ASSET, addAssetSaga);
   yield takeLatest(SET_ASSET, persistAssets);
+  yield takeLatest(RESET_ASSETS, resetAssets);
   yield takeLatest(SIGN_IN, restoreAssets);
 }

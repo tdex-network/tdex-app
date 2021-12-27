@@ -21,10 +21,13 @@ import { addAddress, setIsAuth, setPublicKeys, updateUtxos } from '../actions/wa
 import { isMasterPublicKey, isMnemonic } from '../reducers/walletReducer';
 import { restoreFromMasterPubKey, restoreFromMnemonic } from '../services/walletService';
 
+import { restoreNetwork } from './settingsSaga';
+
 function* initAppSaga() {
   try {
     yield put(initAppSuccess());
     yield put(setSignedUp(true));
+    yield call(restoreNetwork);
   } catch (e) {
     yield put(setSignedUp(false));
     yield put(initAppFail());
@@ -34,7 +37,7 @@ function* initAppSaga() {
 
 function* signInSaga({ payload: identity }: ReturnType<typeof signIn>) {
   try {
-    if (!identity) throw new Error('No mnemonic identity');
+    if (!identity) throw new Error('No identity');
     // Start by setting isAuth to true, which causes redirection to auth guarded pages
     yield put(setIsAuth(true));
     // Get backup flag from storage and set Redux state

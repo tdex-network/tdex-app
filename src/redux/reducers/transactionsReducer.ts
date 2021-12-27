@@ -3,7 +3,12 @@ import { createSelector } from 'reselect';
 
 import type { ActionType, TxDisplayInterface } from '../../utils/types';
 import { TxTypeEnum } from '../../utils/types';
-import { ADD_WATCHER_TRANSACTION, REMOVE_WATCHER_TRANSACTION, SET_TRANSACTION } from '../actions/transactionsActions';
+import {
+  ADD_WATCHER_TRANSACTION,
+  REMOVE_WATCHER_TRANSACTION,
+  RESET_TRANSACTION_REDUCER,
+  SET_TRANSACTION,
+} from '../actions/transactionsActions';
 import { toDisplayTransaction } from '../transformers/transactionsTransformer';
 import type { RootState } from '../types';
 
@@ -35,6 +40,8 @@ const transactionsReducer = (
         ...state,
         txs: { ...state.txs, [action.payload.txid]: action.payload },
       };
+    case RESET_TRANSACTION_REDUCER:
+      return initialState;
     default:
       return state;
   }

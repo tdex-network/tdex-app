@@ -3,12 +3,11 @@ import type { NetworkString } from 'tdex-sdk';
 import type { AssetConfig } from '../../utils/constants';
 import { MAIN_ASSETS } from '../../utils/constants';
 import type { ActionType } from '../../utils/types';
-import { SET_ASSET } from '../actions/assetsActions';
-import { network } from '../config';
+import { RESET_ASSETS, SET_ASSET } from '../actions/assetsActions';
 
 type AssetsState = Record<string, AssetConfig>;
 
-const assetsReducer = (state: AssetsState = initialAssets(), action: ActionType): AssetsState => {
+const assetsReducer = (state: AssetsState = {}, action: ActionType): AssetsState => {
   switch (action.type) {
     case SET_ASSET: {
       return {
@@ -16,15 +15,18 @@ const assetsReducer = (state: AssetsState = initialAssets(), action: ActionType)
         [action.payload.assetHash]: action.payload,
       };
     }
+    case RESET_ASSETS: {
+      return initialAssets(action.payload.network);
+    }
     default:
       return state;
   }
 };
 
 // get the MAIN_ASSETS from constant file
-function initialAssets(): Record<string, AssetConfig> {
+function initialAssets(network?: NetworkString): Record<string, AssetConfig> {
   const result: Record<string, AssetConfig> = {};
-  for (const assetConf of MAIN_ASSETS[network.chain as NetworkString]) {
+  for (const assetConf of MAIN_ASSETS[network as NetworkString]) {
     result[assetConf.assetHash] = assetConf;
   }
   return result;

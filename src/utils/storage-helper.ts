@@ -138,6 +138,10 @@ export function setAssetsInStorage(assets: AssetConfig[]): void {
   Storage.set({ key: ASSETS_KEY, value: stringify(assets) });
 }
 
+export async function clearAssetsInStorage(): Promise<void> {
+  await Storage.remove({ key: ASSETS_KEY });
+}
+
 /**
  * a function using to set the backup flag.
  */

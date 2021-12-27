@@ -17,6 +17,7 @@ import type { NetworkString } from 'tdex-sdk';
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
 import { signIn } from '../../redux/actions/appActions';
+import { resetAssets } from '../../redux/actions/assetsActions';
 import {
   setDefaultProvider,
   setExplorerBitcoinAPI,
@@ -26,8 +27,8 @@ import {
   setNetwork,
 } from '../../redux/actions/settingsActions';
 import { addSuccessToast } from '../../redux/actions/toastActions';
-import { updateTransactions } from '../../redux/actions/transactionsActions';
-import { clearAddresses } from '../../redux/actions/walletActions';
+import { resetTransactionReducer } from '../../redux/actions/transactionsActions';
+import { clearAddresses, resetUtxos } from '../../redux/actions/walletActions';
 import { blockstreamExplorerEndpoints, defaultProviderEndpoints } from '../../redux/config';
 import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import { refreshProviders } from '../LiquidityProvider';
@@ -75,6 +76,9 @@ const Network = (): JSX.Element => {
       // Refresh providers
       await refreshProviders(providers, network, dispatch);
       dispatch(clearAddresses());
+      dispatch(resetUtxos());
+      dispatch(resetAssets(network));
+      dispatch(resetTransactionReducer());
       const masterPubKeyIdentity = new MasterPublicKey({
         chain: network,
         type: IdentityType.MasterPublicKey,
@@ -85,7 +89,6 @@ const Network = (): JSX.Element => {
         },
       });
       dispatch(signIn(masterPubKeyIdentity));
-      dispatch(updateTransactions());
       dispatch(addSuccessToast(`Network and explorer endpoints successfully updated`));
     } catch (err) {
       console.error(err);

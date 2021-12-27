@@ -1,7 +1,7 @@
 import * as bitcoinJS from 'bitcoinjs-lib';
-import type {NetworkString} from 'tdex-sdk';
+import type { NetworkString } from 'tdex-sdk';
 
-import type {CurrencyInterface} from '../redux/reducers/settingsReducer';
+import type { CurrencyInterface } from '../redux/reducers/settingsReducer';
 
 export const defaultPrecision = 8;
 
@@ -51,7 +51,7 @@ export const getLbtcAsset = (network: NetworkString): AssetConfig =>
     ticker: LBTC_TICKER,
     // Change asset hash to generate new pegin deposit addresses
     assetHash:
-    // FedPegScript => OP_TRUE
+      // FedPegScript => OP_TRUE
       '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225',
     // FedPegScript => 1 pubKey
     //'056293ee681516f2d61bb7ce63030351d5e02d61aef9fb00d30f27f55d935b18',
@@ -151,20 +151,20 @@ export const getFedPegScript = (network: NetworkString): string =>
   network === 'regtest' ? '51' : '51210269e0180bc9e0be7648d6e9c17f3664bc3ebcee40f3a46cf4b42e583e96b911b951ae';
 
 export function getColor(assetHash: string, network: NetworkString): string | undefined {
-  return MAIN_ASSETS[network].find(
+  return MAIN_ASSETS[network]?.find(
     (assetConfig: AssetConfig) => assetConfig.assetHash.valueOf() === assetHash.valueOf()
   )?.color;
 }
 
 export function getMainAsset(assetHash: string, network: NetworkString): AssetConfig | undefined {
-  return MAIN_ASSETS[network].find(
+  return MAIN_ASSETS[network]?.find(
     (assetConfig: AssetConfig) => assetConfig.assetHash.valueOf() === assetHash.valueOf()
   );
 }
 
 export function getCoinGeckoIDsToFeed(network: NetworkString): string[] {
   const ids = [];
-  for (const id of MAIN_ASSETS[network].map((a) => a.coinGeckoID)) {
+  for (const id of MAIN_ASSETS[network]?.map((a) => a.coinGeckoID)) {
     if (id) ids.push(id);
   }
   return ids;
