@@ -26,21 +26,24 @@ import {
   setExplorerLiquidUI,
   setNetwork,
 } from '../../redux/actions/settingsActions';
-import { addSuccessToast } from '../../redux/actions/toastActions';
+import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { resetTransactionReducer } from '../../redux/actions/transactionsActions';
 import { clearAddresses, resetUtxos } from '../../redux/actions/walletActions';
 import { blockstreamExplorerEndpoints, defaultProviderEndpoints } from '../../redux/config';
 import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
+import { AppError, isAlreadyFetchingUtxosError } from '../../utils/errors';
 import { refreshProviders } from '../LiquidityProvider';
 
 const Network = (): JSX.Element => {
   const dispatch = useTypedDispatch();
   const {
+    isFetchingUtxos,
     masterPubKey,
     masterBlindKey,
     network: networkReduxState,
     providers,
-  } = useTypedSelector(({ settings, tdex, wallet }) => ({
+  } = useTypedSelector(({ settings, tdex, wallet, app }) => ({
+    isFetchingUtxos: app.isFetchingUtxos,
     masterPubKey: wallet.masterPubKey,
     masterBlindKey: wallet.masterBlindKey,
     network: settings.network,
@@ -50,6 +53,7 @@ const Network = (): JSX.Element => {
 
   const handleNetworkChange = async (ev: CustomEvent<SelectChangeEventDetail<NetworkString>>) => {
     try {
+      if (isFetchingUtxos) throw isAlreadyFetchingUtxosError;
       const network = ev.detail.value;
       setNetworkSelectState(network);
       dispatch(setNetwork(network));
@@ -92,6 +96,9 @@ const Network = (): JSX.Element => {
       dispatch(addSuccessToast(`Network and explorer endpoints successfully updated`));
     } catch (err) {
       console.error(err);
+      if (err instanceof AppError) {
+        dispatch(addErrorToast(err));
+      }
     }
   };
 

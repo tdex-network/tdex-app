@@ -40,3 +40,4 @@ export const PeginRestorationError = new AppError(19, 'Pegin restoration has fai
 //
 export const InvalidBitcoinAddress = new AppError(20, 'Invalid Bitcoin address');
 export const FailedToRestoreProvidersError = new AppError(21, 'Failed to restore providers');
+export const isAlreadyFetchingUtxosError = new AppError(22, 'App is busy. Please try in a moment');
