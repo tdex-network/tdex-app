@@ -76,7 +76,7 @@ const Wallet: React.FC<WalletProps> = ({
     const secondary = [];
     if (balances.length) {
       for (const balance of balances) {
-        if (getMainAsset(balance.asset)) {
+        if (getMainAsset(balance.asset, network)) {
           main.push(balance);
           continue;
         }
@@ -84,7 +84,7 @@ const Wallet: React.FC<WalletProps> = ({
       }
     } else {
       // Display L-BTC with empty balance
-      const [lbtc] = MAIN_ASSETS.concat(getLbtcAsset(network)).map((a) => {
+      const [lbtc] = MAIN_ASSETS[network].concat(getLbtcAsset(network)).map((a) => {
         return {
           asset: a.assetHash,
           ticker: a.ticker,

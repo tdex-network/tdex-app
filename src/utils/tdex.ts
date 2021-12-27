@@ -183,13 +183,18 @@ export function allTrades(markets: TDEXMarket[], sentAsset?: string, receivedAss
  * Filter a set of markets using asset to sent.
  * @param markets
  * @param sentAsset
+ * @param network
  */
-export function getTradablesAssets(markets: TDEXMarket[], sentAsset: string): AssetWithTicker[] {
+export function getTradablesAssets(
+  markets: TDEXMarket[],
+  sentAsset: string,
+  network: NetworkString
+): AssetWithTicker[] {
   const results: AssetWithTicker[] = [];
 
   for (const market of markets) {
     if (sentAsset === market.baseAsset && !results.map((r) => r.asset).includes(market.quoteAsset)) {
-      const mainAsset = getMainAsset(market.quoteAsset);
+      const mainAsset = getMainAsset(market.quoteAsset, network);
       const ticker = mainAsset ? mainAsset.ticker : market.quoteAsset.slice(0, 4).toUpperCase();
       const coinGeckoID = mainAsset?.coinGeckoID;
 
@@ -201,7 +206,7 @@ export function getTradablesAssets(markets: TDEXMarket[], sentAsset: string): As
     }
 
     if (sentAsset === market.quoteAsset && !results.map((r) => r.asset).includes(market.baseAsset)) {
-      const mainAsset = getMainAsset(market.baseAsset);
+      const mainAsset = getMainAsset(market.baseAsset, network);
       const ticker = mainAsset ? mainAsset.ticker : market.baseAsset.slice(0, 4).toUpperCase();
       const coinGeckoID = mainAsset?.coinGeckoID;
 

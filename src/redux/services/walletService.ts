@@ -1,7 +1,13 @@
 import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import type { Mnemonic } from 'ldk';
-import { mnemonicRestorerFromEsplora, mnemonicRestorerFromState } from 'tdex-sdk';
+import type { MasterPublicKey } from 'ldk/dist/identity/masterpubkey';
+import {
+  masterPubKeyRestorerFromEsplora,
+  masterPubKeyRestorerFromState,
+  mnemonicRestorerFromEsplora,
+  mnemonicRestorerFromState,
+} from 'tdex-sdk';
 
 import { getLastUsedIndexesInStorage } from '../../utils/storage-helper';
 
@@ -17,7 +23,7 @@ export const getAssetsRequest = (
   });
 };
 
-export const waitForRestore = async (identity: Mnemonic, explorerLiquidAPIValue: string): Promise<boolean> => {
+export const restoreFromMnemonic = async (identity: Mnemonic, explorerLiquidAPIValue: string): Promise<void> => {
   try {
     const indexes = await getLastUsedIndexesInStorage();
     if (indexes && Object.values(indexes).length) {
@@ -31,7 +37,25 @@ export const waitForRestore = async (identity: Mnemonic, explorerLiquidAPIValue:
   } catch (err) {
     console.error(err);
   }
-  return true;
+};
+
+export const restoreFromMasterPubKey = async (
+  identity: MasterPublicKey,
+  explorerLiquidAPIValue: string
+): Promise<void> => {
+  try {
+    const indexes = await getLastUsedIndexesInStorage();
+    if (indexes && Object.values(indexes).length) {
+      await masterPubKeyRestorerFromState(identity)(indexes);
+    } else {
+      await masterPubKeyRestorerFromEsplora(identity)({
+        gapLimit: 20,
+        esploraURL: explorerLiquidAPIValue,
+      });
+    }
+  } catch (err) {
+    console.error(err);
+  }
 };
 
 export const signTx = async (identity: any, unsignedTx: any): Promise<any> => {

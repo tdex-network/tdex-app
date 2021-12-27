@@ -1,4 +1,5 @@
 import type { AddressInterface, UtxoInterface, Outpoint, Mnemonic, StateRestorerOpts } from 'ldk';
+import type { MasterPublicKey } from 'ldk/dist/identity/masterpubkey';
 import { createSelector } from 'reselect';
 
 import { defaultPrecision, LBTC_COINGECKOID, getMainAsset, getLbtcAsset } from '../../utils/constants';
@@ -11,10 +12,11 @@ import {
   DELETE_UTXO,
   ADD_ADDRESS,
   RESET_UTXOS,
-  SET_PUBLIC_KEYS,
+  SET_MASTER_PUBLIC_KEYS_FROM_MNEMONIC,
   LOCK_UTXO,
   UNLOCK_UTXO,
   UNLOCK_UTXOS,
+  CLEAR_ADDRESSES,
 } from '../actions/walletActions';
 import type { RootState } from '../types';
 
@@ -56,6 +58,9 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
         lastUsedExternalIndex: isChange ? state.lastUsedExternalIndex : index,
       };
     }
+    case CLEAR_ADDRESSES: {
+      return { ...state, addresses: {}, lastUsedInternalIndex: undefined, lastUsedExternalIndex: undefined };
+    }
     case SET_IS_AUTH:
       return { ...state, isAuth: action.payload };
     case SET_UTXO:
@@ -64,7 +69,7 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
       return deleteUtxoInState(state, action.payload);
     case RESET_UTXOS:
       return { ...state, utxos: {} };
-    case SET_PUBLIC_KEYS:
+    case SET_MASTER_PUBLIC_KEYS_FROM_MNEMONIC:
       return {
         ...state,
         masterBlindKey: (action.payload as Mnemonic).masterBlindingKey,
@@ -128,7 +133,7 @@ export const balancesSelector = createSelector(
     (state: RootState) => transactionsAssets(state),
   ],
   ({ assets, settings }, utxos, txsAssets) => {
-    const balances = balancesFromUtxos(utxos, assets);
+    const balances = balancesFromUtxos(utxos, assets, settings.network);
     const balancesAssets = balances.map((b) => b.asset);
     for (const asset of txsAssets) {
       if (balancesAssets.includes(asset)) continue;
@@ -136,8 +141,8 @@ export const balancesSelector = createSelector(
       balances.push({
         asset,
         amount: 0,
-        ticker: assets[asset]?.ticker ?? tickerFromAssetHash(asset),
-        coinGeckoID: getMainAsset(asset)?.coinGeckoID,
+        ticker: assets[asset]?.ticker ?? tickerFromAssetHash(settings.network, asset),
+        coinGeckoID: getMainAsset(asset, settings.network)?.coinGeckoID,
         precision: assets[asset]?.precision ?? defaultPrecision,
         name: assets[asset]?.name,
       });
@@ -193,6 +198,14 @@ export function lastUsedIndexesSelector({ wallet }: { wallet: WalletState }): St
     lastUsedInternalIndex: wallet.lastUsedInternalIndex,
     lastUsedExternalIndex: wallet.lastUsedExternalIndex,
   };
+}
+
+export function isMnemonic(identity: any): identity is Mnemonic {
+  return identity?.mnemonic !== undefined;
+}
+
+export function isMasterPublicKey(identity: any): identity is MasterPublicKey {
+  return identity?.masterPublicKeyNode !== undefined;
 }
 
 export default walletReducer;

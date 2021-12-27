@@ -10,11 +10,13 @@ import {
   IonSelect,
   IonSelectOption,
 } from '@ionic/react';
+import { IdentityType, MasterPublicKey } from 'ldk';
 import React, { useState } from 'react';
 import type { NetworkString } from 'tdex-sdk';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
+import { signIn } from '../../redux/actions/appActions';
 import {
   setDefaultProvider,
   setExplorerBitcoinAPI,
@@ -24,13 +26,22 @@ import {
   setNetwork,
 } from '../../redux/actions/settingsActions';
 import { addSuccessToast } from '../../redux/actions/toastActions';
+import { updateTransactions } from '../../redux/actions/transactionsActions';
+import { clearAddresses } from '../../redux/actions/walletActions';
 import { blockstreamExplorerEndpoints, defaultProviderEndpoints } from '../../redux/config';
 import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import { refreshProviders } from '../LiquidityProvider';
 
 const Network = (): JSX.Element => {
   const dispatch = useTypedDispatch();
-  const { network: networkReduxState, providers } = useTypedSelector(({ settings, tdex }) => ({
+  const {
+    masterPubKey,
+    masterBlindKey,
+    network: networkReduxState,
+    providers,
+  } = useTypedSelector(({ settings, tdex, wallet }) => ({
+    masterPubKey: wallet.masterPubKey,
+    masterBlindKey: wallet.masterBlindKey,
     network: settings.network,
     providers: tdex.providers,
   }));
@@ -63,6 +74,18 @@ const Network = (): JSX.Element => {
       }
       // Refresh providers
       await refreshProviders(providers, network, dispatch);
+      dispatch(clearAddresses());
+      const masterPubKeyIdentity = new MasterPublicKey({
+        chain: network,
+        type: IdentityType.MasterPublicKey,
+        opts: {
+          masterPublicKey: masterPubKey,
+          masterBlindingKey: masterBlindKey,
+          baseDerivationPath: network === 'regtest' || network === 'testnet' ? "m/84'/1'/0'" : "m/84'/0'/0'",
+        },
+      });
+      dispatch(signIn(masterPubKeyIdentity));
+      dispatch(updateTransactions());
       dispatch(addSuccessToast(`Network and explorer endpoints successfully updated`));
     } catch (err) {
       console.error(err);

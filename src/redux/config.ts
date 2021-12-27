@@ -23,13 +23,6 @@ const mempoolExplorerEndpoints = {
     explorerBitcoinAPI: 'https://mempool.space/api',
     explorerBitcoinUI: 'https://mempool.space',
   },
-  testnet: {
-    // https://github.com/mempool/mempool/issues/976
-    explorerLiquidAPI: 'https://blockstream.info/liquidtestnet/api', // Mempool liquid testnet doesn't exist
-    explorerLiquidUI: 'https://blockstream.info/liquidtestnet', // Mempool liquid testnet doesn't exist
-    explorerBitcoinAPI: 'https://mempool.space/testnet/api',
-    explorerBitcoinUI: 'https://mempool.space/testnet',
-  },
 };
 
 const defaultProviderEndpoints = {

@@ -1,3 +1,5 @@
+import type { NetworkString } from 'tdex-sdk';
+
 import type { AssetConfig } from '../../utils/constants';
 import { tickerFromAssetHash } from '../../utils/helpers';
 import type { AssetWithTicker } from '../../utils/tdex';
@@ -46,16 +48,18 @@ const TDEXReducer = (
 export const allAssets = ({
   assets,
   tdex,
+  network,
 }: {
   assets: Record<string, AssetConfig>;
   tdex: TDEXState;
+  network: NetworkString;
 }): AssetWithTicker[] => {
   const quoteAssets = tdex.markets.map((m) => m.quoteAsset);
   const baseAssets = tdex.markets.map((m) => m.baseAsset);
   const uniqueAssets = [...new Set([...quoteAssets, ...baseAssets])];
   return uniqueAssets.map((assetHash: string) => ({
     asset: assetHash,
-    ticker: assets[assetHash]?.ticker || tickerFromAssetHash(assetHash),
+    ticker: assets[assetHash]?.ticker || tickerFromAssetHash(network, assetHash),
     coinGeckoID: assets[assetHash]?.coinGeckoID,
   }));
 };

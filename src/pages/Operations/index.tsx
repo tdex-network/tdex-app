@@ -1,3 +1,4 @@
+import './style.scss';
 import {
   IonPage,
   IonButtons,
@@ -35,7 +36,6 @@ import { defaultPrecision, LBTC_TICKER, MAIN_ASSETS } from '../../utils/constant
 import { compareTxDisplayInterfaceByDate, fromSatoshi, fromSatoshiFixed, isLbtc } from '../../utils/helpers';
 import type { Transfer, TxDisplayInterface } from '../../utils/types';
 import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
-import './style.scss';
 
 interface OperationsProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -75,7 +75,7 @@ const Operations: React.FC<OperationsProps> = ({
     if (balanceSelected) {
       setBalance(balanceSelected);
     } else {
-      const asset = MAIN_ASSETS.find((a) => a.assetHash === asset_id);
+      const asset = MAIN_ASSETS[network].find((a) => a.assetHash === asset_id);
       setBalance({
         asset: asset?.assetHash ?? '',
         amount: 0,

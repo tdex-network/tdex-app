@@ -1,8 +1,8 @@
+import './style.scss';
 import React, { useEffect, useRef } from 'react';
+import type { NetworkString } from 'tdex-sdk';
 
 import { createColorFromHash } from '../../utils/helpers';
-
-import './style.scss';
 
 const colors: {
   [key: string]: [string, string];
@@ -15,9 +15,10 @@ const colors: {
 
 export interface CircleDiagramProps {
   balances: { asset: string; ticker: string; amount: number }[];
+  network: NetworkString;
 }
 
-const CircleDiagram: React.FC<CircleDiagramProps> = ({ balances }) => {
+const CircleDiagram: React.FC<CircleDiagramProps> = ({ balances, network }) => {
   const canvasRef = useRef<any>(null);
 
   const total = balances.reduce((acc, balance) => acc + balance.amount, 0);
@@ -62,14 +63,14 @@ const CircleDiagram: React.FC<CircleDiagramProps> = ({ balances }) => {
       end = start + length > 2 * Math.PI + shift ? 2 * Math.PI + shift - 0.1 : start + length;
     };
 
-    const fillColor = (grad: any, item?: { asset: string; ticker: string }) => {
+    const fillColor = (grad: any, network: NetworkString, item?: { asset: string; ticker: string }) => {
       if (item) {
         if (colors[item.ticker.toLowerCase()]) {
           const [first, second] = colors[item.ticker.toLowerCase()];
           grad.addColorStop(0, first);
           grad.addColorStop(1, second);
         } else {
-          const color = createColorFromHash(item.asset);
+          const color = createColorFromHash(item.asset, network);
           grad.addColorStop(0, color);
           grad.addColorStop(1, color);
         }
@@ -95,12 +96,12 @@ const CircleDiagram: React.FC<CircleDiagramProps> = ({ balances }) => {
       balances.forEach((item, index: number) => {
         const grad = ctx.createLinearGradient(100, 0, 200, 200);
         getElementPosition(index, discrepancy);
-        fillColor(grad, item);
+        fillColor(grad, network, item);
         drawDiagram(grad);
       });
     } else {
       const grad = ctx.createLinearGradient(100, 0, 200, 200);
-      fillColor(grad);
+      fillColor(grad, network);
       drawDiagram(grad);
     }
   };

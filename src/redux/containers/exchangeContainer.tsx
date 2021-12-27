@@ -9,7 +9,7 @@ const mapStateToProps = (state: RootState) => {
   return {
     assets: state.assets,
     balances: balancesSelector(state).filter(
-      (b) => b.amount > 0 && getTradablesAssets(state.tdex.markets, b.asset).length > 0
+      (b) => b.amount > 0 && getTradablesAssets(state.tdex.markets, b.asset, state.settings.network).length > 0
     ),
     explorerLiquidAPI: state.settings.explorerLiquidAPI,
     lastUsedIndexes: lastUsedIndexesSelector(state),

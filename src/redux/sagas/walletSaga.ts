@@ -21,6 +21,7 @@ import {
   LOCK_UTXO,
   UPDATE_UTXOS,
   WATCH_UTXO,
+  CLEAR_ADDRESSES,
 } from '../actions/walletActions';
 import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString, addressesSelector } from '../reducers/walletReducer';
@@ -103,7 +104,7 @@ export function* fetchAndUpdateUtxos(
   yield put(setIsFetchingUtxos(false));
 }
 
-function* waitAndUnlock({ payload }: { payload: string }) {
+function* waitAndUnlock({ payload }: ReturnType<typeof unlockUtxo>) {
   yield delay(60_000); // 1 min
   yield put(unlockUtxo(payload));
 }
@@ -148,12 +149,10 @@ function* watchUtxoSaga(action: ActionType) {
 }
 
 export function* walletWatcherSaga(): Generator {
-  yield takeLatest(ADD_ADDRESS, persistAddresses);
-  yield takeLatest(ADD_ADDRESS, persistLastUsedIndexes);
+  yield takeLatest([ADD_ADDRESS, CLEAR_ADDRESSES], persistAddresses);
+  yield takeLatest([ADD_ADDRESS, CLEAR_ADDRESSES], persistLastUsedIndexes);
   yield takeLatest(UPDATE_UTXOS, updateUtxosState);
   yield takeLatest(UPDATE_UTXOS, persistUtxos);
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   yield takeEvery(LOCK_UTXO, waitAndUnlock);
   yield takeLatest(SIGN_IN, restoreUtxos);
   yield takeLatest(WATCH_UTXO, watchUtxoSaga);

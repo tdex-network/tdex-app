@@ -18,6 +18,7 @@ const mapStateToProps = (state: RootState): CircleDiagramProps => {
           amount: (price || 1) * balance.amount,
         };
       }),
+    network: state.settings.network,
   };
 };
 

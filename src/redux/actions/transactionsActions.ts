@@ -34,7 +34,7 @@ export const updateTransactions = (): ActionType => {
   };
 };
 
-export const setTransaction = (transaction: TxInterface): ActionType => {
+export const setTransaction = (transaction: TxInterface): ActionType<TxInterface> => {
   return {
     type: SET_TRANSACTION,
     payload: transaction,

@@ -5,7 +5,7 @@ import type { RootState } from '../types';
 
 const mapStateToProps = (state: RootState) => {
   return {
-    assets: state.assets,
+    network: state.settings.network,
   };
 };
 

@@ -19,12 +19,12 @@ import type { AssetConfig, LbtcDenomination } from './constants';
 import { defaultPrecision, getColor, getLbtcAsset, getMainAsset } from './constants';
 import type { TxDisplayInterface } from './types';
 
-export const createColorFromHash = (id: string): string => {
+export const createColorFromHash = (id: string, network: NetworkString): string => {
   let hash = 0;
   if (id.length === 0) throw Error('id length must be > 0');
-  const color = getColor(id);
+  const color = getColor(id, network);
   if (color) return color;
-  const ticker = tickerFromAssetHash(id);
+  const ticker = tickerFromAssetHash(network, id);
   for (let i = 0; i < ticker.length; i++) {
     hash = ticker.charCodeAt(i) + ((hash << 5) - hash);
   }
@@ -152,19 +152,21 @@ export async function sleep(ms: number): Promise<any> {
 }
 
 // compute balances value from a set of utxos
-export function balancesFromUtxos(utxos: UtxoInterface[], assets: Record<string, AssetConfig>): BalanceInterface[] {
+export function balancesFromUtxos(
+  utxos: UtxoInterface[],
+  assets: Record<string, AssetConfig>,
+  network: NetworkString
+): BalanceInterface[] {
   const balances: BalanceInterface[] = [];
   const utxosGroupedByAsset: Record<string, UtxoInterface[]> = groupBy(utxos, 'asset');
-
   for (const asset of Object.keys(utxosGroupedByAsset)) {
     const utxosForAsset = utxosGroupedByAsset[asset];
     const amount = sumUtxos(utxosForAsset);
-
-    const coinGeckoID = getMainAsset(asset)?.coinGeckoID;
+    const coinGeckoID = getMainAsset(asset, network)?.coinGeckoID;
     balances.push({
       asset,
       amount,
-      ticker: assets[asset]?.ticker || tickerFromAssetHash(asset),
+      ticker: assets[asset]?.ticker || tickerFromAssetHash(network, asset),
       coinGeckoID,
       precision: assets[asset]?.precision ?? defaultPrecision,
       name: assets[asset]?.name,
@@ -184,22 +186,22 @@ function sumUtxos(utxos: UtxoInterface[]): number {
   return sum;
 }
 
-export function tickerFromAssetHash(assetHash?: string): string {
+export function tickerFromAssetHash(network: NetworkString, assetHash?: string): string {
   if (!assetHash) return '';
-  const mainAsset = getMainAsset(assetHash);
+  const mainAsset = getMainAsset(assetHash, network);
   if (mainAsset) return mainAsset.ticker;
   return assetHash.slice(0, 4).toUpperCase();
 }
 
-export function precisionFromAssetHash(assetHash?: string): number | undefined {
+export function precisionFromAssetHash(network: NetworkString, assetHash?: string): number | undefined {
   if (!assetHash) return 8;
-  const mainAsset = getMainAsset(assetHash);
+  const mainAsset = getMainAsset(assetHash, network);
   if (mainAsset) return mainAsset.precision;
 }
 
-export function nameFromAssetHash(assetHash?: string): string | undefined {
+export function nameFromAssetHash(network: NetworkString, assetHash?: string): string | undefined {
   if (!assetHash) return '';
-  const mainAsset = getMainAsset(assetHash);
+  const mainAsset = getMainAsset(assetHash, network);
   if (mainAsset) return mainAsset.name;
 }
 

@@ -31,9 +31,11 @@ interface WithdrawalDetailsLocationState {
 const WithdrawalDetails: React.FC<RouteComponentProps<any, any, WithdrawalDetailsLocationState>> = ({ location }) => {
   const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();
-  const { explorerLiquidUI } = useTypedSelector(({ settings }) => settings);
+  const { explorerLiquidUI, network } = useTypedSelector(({ settings }) => ({
+    explorerLiquidUI: settings.explorerLiquidUI,
+    network: settings.network,
+  }));
   const transaction = useSelector(transactionSelector(txid));
-
   const [locationState, setLocationState] = useState<WithdrawalDetailsLocationState>();
 
   useEffect(() => {
@@ -54,7 +56,7 @@ const WithdrawalDetails: React.FC<RouteComponentProps<any, any, WithdrawalDetail
   };
 
   const ticker = () => {
-    const t = tickerFromAssetHash(locationState?.asset);
+    const t = tickerFromAssetHash(network, locationState?.asset);
     return t === 'L-BTC' ? locationState?.lbtcUnit : t;
   };
 
@@ -68,8 +70,8 @@ const WithdrawalDetails: React.FC<RouteComponentProps<any, any, WithdrawalDetail
           <Header hasBackButton={true} title="SENDING DETAILS" />
           <IonRow>
             <IonCol className="header-info ion-text-center">
-              <CurrencyIcon currency={tickerFromAssetHash(locationState?.asset)} />
-              <p className="info-amount">{nameFromAssetHash(locationState?.asset) ?? ticker()}</p>
+              <CurrencyIcon currency={tickerFromAssetHash(network, locationState?.asset)} />
+              <p className="info-amount">{nameFromAssetHash(network, locationState?.asset) ?? ticker()}</p>
             </IonCol>
           </IonRow>
 

@@ -1,8 +1,7 @@
 import * as bitcoinJS from 'bitcoinjs-lib';
-import type { NetworkString } from 'tdex-sdk';
+import type {NetworkString} from 'tdex-sdk';
 
-import { network } from '../redux/config';
-import type { CurrencyInterface } from '../redux/reducers/settingsReducer';
+import type {CurrencyInterface} from '../redux/reducers/settingsReducer';
 
 export const defaultPrecision = 8;
 
@@ -31,7 +30,7 @@ export interface AssetConfig {
   name: string;
 }
 
-export const getLbtcAsset: (network: NetworkString) => AssetConfig = (network) =>
+export const getLbtcAsset = (network: NetworkString): AssetConfig =>
   (network === 'liquid' && {
     coinGeckoID: LBTC_COINGECKOID,
     ticker: LBTC_TICKER,
@@ -52,7 +51,7 @@ export const getLbtcAsset: (network: NetworkString) => AssetConfig = (network) =
     ticker: LBTC_TICKER,
     // Change asset hash to generate new pegin deposit addresses
     assetHash:
-      // FedPegScript => OP_TRUE
+    // FedPegScript => OP_TRUE
       '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225',
     // FedPegScript => 1 pubKey
     //'056293ee681516f2d61bb7ce63030351d5e02d61aef9fb00d30f27f55d935b18',
@@ -70,46 +69,102 @@ export const BTC_ASSET: AssetConfig = {
   name: 'Bitcoin',
 };
 
-export const MAIN_ASSETS: AssetConfig[] = [
-  getLbtcAsset(network),
-  {
-    coinGeckoID: USDT_COINGECKOID,
-    ticker: USDT_TICKER,
-    assetHash: 'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2',
-    color: USDT_COLOR,
-    precision: 8,
-    name: 'Tether USD',
-  },
-  {
-    ticker: LCAD_TICKER,
-    assetHash: '0e99c1a6da379d1f4151fb9df90449d40d0608f6cb33a5bcbfc8c265f42bab0a',
-    color: LCAD_COLOR,
-    precision: 8,
-    name: 'Liquid CAD',
-  },
-  {
-    ticker: BTSE_TICKER,
-    assetHash: 'b00b0ff0b11ebd47f7c6f57614c046dbbd204e84bf01178baf2be3713a206eb7',
-    color: BTSE_COLOR,
-    precision: 8,
-    name: 'BTSE Token',
-  },
-];
+export const MAIN_ASSETS: Record<NetworkString, AssetConfig[]> = {
+  liquid: [
+    getLbtcAsset('liquid'),
+    {
+      coinGeckoID: USDT_COINGECKOID,
+      ticker: USDT_TICKER,
+      assetHash: 'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2',
+      color: USDT_COLOR,
+      precision: 8,
+      name: 'Tether USD',
+    },
+    {
+      ticker: LCAD_TICKER,
+      assetHash: '0e99c1a6da379d1f4151fb9df90449d40d0608f6cb33a5bcbfc8c265f42bab0a',
+      color: LCAD_COLOR,
+      precision: 8,
+      name: 'Liquid CAD',
+    },
+    {
+      ticker: BTSE_TICKER,
+      assetHash: 'b00b0ff0b11ebd47f7c6f57614c046dbbd204e84bf01178baf2be3713a206eb7',
+      color: BTSE_COLOR,
+      precision: 8,
+      name: 'BTSE Token',
+    },
+  ],
+  testnet: [
+    getLbtcAsset('testnet'),
+    {
+      coinGeckoID: USDT_COINGECKOID,
+      ticker: USDT_TICKER,
+      assetHash: 'f3d1ec678811398cd2ae277cbe3849c6f6dbd72c74bc542f7c4b11ff0e820958',
+      color: USDT_COLOR,
+      precision: 8,
+      name: 'Tether USD',
+    },
+    {
+      ticker: LCAD_TICKER,
+      assetHash: 'ac3e0ff248c5051ffd61e00155b7122e5ebc04fd397a0ecbdd4f4e4a56232926',
+      color: LCAD_COLOR,
+      precision: 8,
+      name: 'Liquid CAD',
+    },
+    {
+      ticker: BTSE_TICKER,
+      assetHash: 'b00b0ff0b11ebd47f7c6f57614c046dbbd204e84bf01178baf2be3713a206eb7',
+      color: BTSE_COLOR,
+      precision: 8,
+      name: 'BTSE Token',
+    },
+  ],
+  regtest: [
+    getLbtcAsset('regtest'),
+    {
+      coinGeckoID: USDT_COINGECKOID,
+      ticker: USDT_TICKER,
+      assetHash: 'ce091c998b83c78bb71a632313ba3760f1763d9cfcffae02258ffa9865a37bd2',
+      color: USDT_COLOR,
+      precision: 8,
+      name: 'Tether USD',
+    },
+    {
+      ticker: LCAD_TICKER,
+      assetHash: '0e99c1a6da379d1f4151fb9df90449d40d0608f6cb33a5bcbfc8c265f42bab0a',
+      color: LCAD_COLOR,
+      precision: 8,
+      name: 'Liquid CAD',
+    },
+    {
+      ticker: BTSE_TICKER,
+      assetHash: 'b00b0ff0b11ebd47f7c6f57614c046dbbd204e84bf01178baf2be3713a206eb7',
+      color: BTSE_COLOR,
+      precision: 8,
+      name: 'BTSE Token',
+    },
+  ],
+};
 
 export const getFedPegScript = (network: NetworkString): string =>
   network === 'regtest' ? '51' : '51210269e0180bc9e0be7648d6e9c17f3664bc3ebcee40f3a46cf4b42e583e96b911b951ae';
 
-export function getColor(assetHash: string): string | undefined {
-  return MAIN_ASSETS.find((assetConfig: AssetConfig) => assetConfig.assetHash.valueOf() === assetHash.valueOf())?.color;
+export function getColor(assetHash: string, network: NetworkString): string | undefined {
+  return MAIN_ASSETS[network].find(
+    (assetConfig: AssetConfig) => assetConfig.assetHash.valueOf() === assetHash.valueOf()
+  )?.color;
 }
 
-export function getMainAsset(assetHash: string): AssetConfig | undefined {
-  return MAIN_ASSETS.find((assetConfig: AssetConfig) => assetConfig.assetHash.valueOf() === assetHash.valueOf());
+export function getMainAsset(assetHash: string, network: NetworkString): AssetConfig | undefined {
+  return MAIN_ASSETS[network].find(
+    (assetConfig: AssetConfig) => assetConfig.assetHash.valueOf() === assetHash.valueOf()
+  );
 }
 
-export function getCoinGeckoIDsToFeed(): string[] {
+export function getCoinGeckoIDsToFeed(network: NetworkString): string[] {
   const ids = [];
-  for (const id of MAIN_ASSETS.map((a) => a.coinGeckoID)) {
+  for (const id of MAIN_ASSETS[network].map((a) => a.coinGeckoID)) {
     if (id) ids.push(id);
   }
   return ids;

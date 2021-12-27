@@ -116,7 +116,7 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   useEffect(() => {
     if (!assetSent) return;
-    const sentTradables = getTradablesAssets(markets, assetSent.asset);
+    const sentTradables = getTradablesAssets(markets, assetSent.asset, network);
     // TODO: Add opposite asset and remove current
     setTradableAssetsForAssetReceived(sentTradables);
     setAssetReceived(sentTradables[0]);
@@ -124,7 +124,7 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   useEffect(() => {
     if (assetReceived) {
-      const receivedTradables = getTradablesAssets(markets, assetReceived.asset);
+      const receivedTradables = getTradablesAssets(markets, assetReceived.asset, network);
       // TODO: Add opposite asset and remove current
       setTradableAssetsForAssetSent(receivedTradables);
     }

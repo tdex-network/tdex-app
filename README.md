@@ -6,7 +6,7 @@
 
 * Download iOS from [App Store](https://apps.apple.com/app/truedex-trading-unleashed/id1545948177)
 * Download Android from [Play Store](https://play.google.com/store/apps/details?id=io.sevenlabs.app) or install
-  the [APK from Github Releases](https://github.com/TDex-network/tdex-app/releases)
+  the [APK from Github Releases](https://github.com/tdex-network/tdex-app/releases)
 
 ## 🖥 Local Development
 

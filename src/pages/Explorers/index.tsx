@@ -77,11 +77,6 @@ const Explorers: React.FC<ExplorersProps> = ({
       dispatch(setExplorerLiquidUI(mempoolExplorerEndpoints.liquid.explorerLiquidUI));
       dispatch(setExplorerBitcoinAPI(mempoolExplorerEndpoints.liquid.explorerBitcoinAPI));
       dispatch(setExplorerBitcoinUI(mempoolExplorerEndpoints.liquid.explorerBitcoinUI));
-    } else if (value === 'mempool-testnet') {
-      dispatch(setExplorerLiquidAPI(mempoolExplorerEndpoints.testnet.explorerLiquidAPI));
-      dispatch(setExplorerLiquidUI(mempoolExplorerEndpoints.testnet.explorerLiquidUI));
-      dispatch(setExplorerBitcoinAPI(mempoolExplorerEndpoints.testnet.explorerBitcoinAPI));
-      dispatch(setExplorerBitcoinUI(mempoolExplorerEndpoints.testnet.explorerBitcoinUI));
     } else if (value === 'localhost') {
       dispatch(setExplorerLiquidAPI('http://localhost:3001'));
       dispatch(setExplorerBitcoinAPI('http://localhost:3000'));
@@ -130,7 +125,6 @@ const Explorers: React.FC<ExplorersProps> = ({
                   {network === 'testnet' && (
                     <>
                       <IonSelectOption value="blockstream-testnet">Blockstream</IonSelectOption>
-                      <IonSelectOption value="mempool-testnet">Mempool</IonSelectOption>
                     </>
                   )}
                   {network === 'regtest' && <IonSelectOption value="localhost">Localhost</IonSelectOption>}
