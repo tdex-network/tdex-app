@@ -26,7 +26,13 @@ import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Header from '../../components/Header';
 import type { TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
 import './style.scss';
-import { addProvider, clearMarkets, deleteProvider, updateMarkets } from '../../redux/actions/tdexActions';
+import {
+  addProvider,
+  clearMarkets,
+  clearProviders,
+  deleteProvider,
+  updateMarkets,
+} from '../../redux/actions/tdexActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { defaultProviderEndpoints } from '../../redux/config';
 import { useTypedDispatch } from '../../redux/hooks';
@@ -45,10 +51,11 @@ export const refreshProviders = async (
 ): Promise<void> => {
   if (network === 'liquid') {
     try {
+      dispatch(clearProviders());
+      dispatch(clearMarkets());
       const providersFromRegistry = await getProvidersFromTDexRegistry();
       const currentEndpoints = providers.map((provider) => provider.endpoint);
       const newProviders = providersFromRegistry.filter((p) => !currentEndpoints.includes(p.endpoint));
-
       const actions = newProviders.map(addProvider);
       const toastSuccessAction = addSuccessToast(`${actions.length} new providers from TDEX registry!`);
       [...actions, toastSuccessAction].forEach(dispatch);
@@ -56,8 +63,12 @@ export const refreshProviders = async (
       dispatch(addErrorToast(TDEXRegistryError));
     }
   } else if (network === 'testnet') {
+    dispatch(clearProviders());
+    dispatch(clearMarkets());
     dispatch(addProvider({ endpoint: defaultProviderEndpoints.testnet, name: 'Default provider' }));
   } else {
+    dispatch(clearProviders());
+    dispatch(clearMarkets());
     dispatch(addProvider({ endpoint: defaultProviderEndpoints.regtest, name: 'Default provider' }));
   }
 };
