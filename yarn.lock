@@ -2106,6 +2106,13 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
+"@types/bs58check@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@types/bs58check/-/bs58check-2.1.0.tgz#7d25a8b88fe7a9e315d2647335ee3c43c8fdb0c0"
+  integrity sha512-OxsysnJQh82vy9DRbOcw9m2j/WiyqZLn0YBhKxdQ+aCwoHj+tWzyCgpwAkr79IfDXZKxc6h7k89T9pwS78CqTQ==
+  dependencies:
+    "@types/node" "*"
+
 "@types/buffer-json@^2.0.0":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@types/buffer-json/-/buffer-json-2.0.1.tgz#98468bed5bc295eee7ac70b743a90207db30888c"

@@ -28,10 +28,11 @@ import {
 } from '../../redux/actions/settingsActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { resetTransactionReducer } from '../../redux/actions/transactionsActions';
-import { clearAddresses, resetUtxos } from '../../redux/actions/walletActions';
+import { clearAddresses, resetUtxos, setMasterPublicKey } from '../../redux/actions/walletActions';
 import { blockstreamExplorerEndpoints, defaultProviderEndpoints } from '../../redux/config';
 import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import { AppError, isAlreadyFetchingUtxosError } from '../../utils/errors';
+import { fromXpub } from '../../utils/fromXpub';
 import { refreshProviders } from '../LiquidityProvider';
 
 const Network = (): JSX.Element => {
@@ -83,6 +84,8 @@ const Network = (): JSX.Element => {
       dispatch(resetUtxos());
       dispatch(resetAssets(network));
       dispatch(resetTransactionReducer());
+      const newXpub = fromXpub(masterPubKey, network);
+      dispatch(setMasterPublicKey(newXpub));
       const masterPubKeyIdentity = new MasterPublicKey({
         chain: network,
         type: IdentityType.MasterPublicKey,

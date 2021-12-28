@@ -17,6 +17,7 @@ import {
   UNLOCK_UTXO,
   UNLOCK_UTXOS,
   CLEAR_ADDRESSES,
+  SET_MASTER_PUBLIC_KEY,
 } from '../actions/walletActions';
 import type { RootState } from '../types';
 
@@ -75,6 +76,8 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
         masterBlindKey: (action.payload as Mnemonic).masterBlindingKey,
         masterPubKey: (action.payload as Mnemonic).masterPublicKey,
       };
+    case SET_MASTER_PUBLIC_KEY:
+      return { ...state, masterPubKey: action.payload };
     case LOCK_UTXO:
       return {
         ...state,

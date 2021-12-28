@@ -17,7 +17,7 @@ import { checkIfClaimablePeginUtxo, updateDepositPeginUtxos, watchCurrentBtcBloc
 import { updatePrices } from '../actions/ratesActions';
 import { updateMarkets } from '../actions/tdexActions';
 import { updateTransactions } from '../actions/transactionsActions';
-import { addAddress, setIsAuth, setPublicKeys, updateUtxos } from '../actions/walletActions';
+import { addAddress, setIsAuth, setMasterPublicKeysFromMnemonic, updateUtxos } from '../actions/walletActions';
 import { isMasterPublicKey, isMnemonic } from '../reducers/walletReducer';
 import { restoreFromMasterPubKey, restoreFromMnemonic } from '../services/walletService';
 
@@ -50,7 +50,10 @@ function* signInSaga({ payload: identity }: ReturnType<typeof signIn>) {
       yield call(restoreFromMasterPubKey, identity, explorerLiquidAPI);
     }
     if (isMnemonic(identity)) {
-      yield all([call(restoreFromMnemonic, identity, explorerLiquidAPI), put(setPublicKeys(identity))]);
+      yield all([
+        call(restoreFromMnemonic, identity, explorerLiquidAPI),
+        put(setMasterPublicKeysFromMnemonic(identity)),
+      ]);
     }
     const addresses: AddressInterface[] = yield call(() => identity.getAddresses());
     for (const addr of addresses) {
