@@ -21,7 +21,7 @@ describe('onboarding', () => {
     cy.get('[data-cy=checkbox]').check({ force: true });
     cy.get('[data-cy=main-button]').contains('CONTINUE').click();
     cy.url().should('contain', '/wallet');
-    cy.get('[data-cy=main-button]').contains('DEPOSIT ASSETS').should('have.length', 1);
+    cy.get('[data-cy=main-button]').contains('RECEIVE ASSETS').should('have.length', 1);
     cy.getLocalStorage('cap_sec_tdex-app-mnemonic')
       .should('be.a', 'string')
       .its('length')

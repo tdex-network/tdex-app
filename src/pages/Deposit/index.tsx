@@ -57,7 +57,7 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
     <IonPage>
       <IonContent>
         <IonGrid>
-          <Header title="DEPOSIT" hasBackButton={true} />
+          <Header title="RECEIVE" hasBackButton={true} />
           <div className="deposit-grid ion-margin-vertical ion-text-center">{generateGridItems}</div>
         </IonGrid>
       </IonContent>

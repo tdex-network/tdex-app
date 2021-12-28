@@ -96,13 +96,18 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts }) 
   });
 
   const isBitcoin = state?.depositAsset?.ticker === BTC_TICKER;
+  const title = state?.depositAsset?.name
+    ? state?.depositAsset?.name?.toUpperCase()
+    : state?.depositAsset?.ticker
+    ? state?.depositAsset?.ticker?.toUpperCase()
+    : '';
 
   return (
     <IonPage id="receive-page">
       <Loader showLoading={loading} />
       <IonContent className="receive">
         <IonGrid>
-          <Header hasBackButton={true} title={`${state?.depositAsset?.name?.toUpperCase() ?? ''} DEPOSIT`} />
+          <Header hasBackButton={true} title={`RECEIVE ${title}`} />
           <div className="ion-text-center">
             <CurrencyIcon currency={state?.depositAsset?.ticker} width="48" height="48" />
           </div>

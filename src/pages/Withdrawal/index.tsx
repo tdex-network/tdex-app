@@ -237,7 +237,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       <Loader showLoading={loading} delay={0} />
       <IonContent className="withdrawal">
         <IonGrid>
-          <Header title={`${balance ? balance.ticker.toUpperCase() : ''} Withdrawal`} hasBackButton={true} />
+          <Header title={`Send ${balance ? balance.ticker.toUpperCase() : ''}`} hasBackButton={true} />
           {balance && (
             <WithdrawRow amount={amount} balance={balance} price={price} setAmount={setAmount} error={error} />
           )}

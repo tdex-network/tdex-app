@@ -60,7 +60,7 @@ const ShowMnemonic: React.FC<ShowMnemonicProps> = ({ history, setIsBackupDone })
                   history.push({ pathname: routerLinks.deposit });
                 }}
               >
-                CONTINUE TO DEPOSIT
+                CONTINUE TO RECEIVE
               </IonButton>
             </IonCol>
           </IonRow>
