@@ -167,7 +167,7 @@ const Operations: React.FC<OperationsProps> = ({
             >
               <div>
                 <img src={depositIcon} alt="deposit" />
-                Deposit
+                Receive
               </div>
             </IonButton>
             <IonButton
@@ -178,7 +178,7 @@ const Operations: React.FC<OperationsProps> = ({
             >
               <div>
                 <img src={depositIcon} alt="withdraw" className="icon-withdraw" />
-                Withdraw
+                Send
               </div>
             </IonButton>
             <IonButton className="coin-action-button" routerLink="/exchange">

@@ -65,7 +65,7 @@ const WithdrawalDetails: React.FC<RouteComponentProps<any, any, WithdrawalDetail
       <IonContent>
         <Refresher />
         <IonGrid>
-          <Header hasBackButton={true} title="WITHDRAWAL DETAILS" />
+          <Header hasBackButton={true} title="SENDING DETAILS" />
           <IonRow>
             <IonCol className="header-info ion-text-center">
               <CurrencyIcon currency={tickerFromAssetHash(locationState?.asset)} />

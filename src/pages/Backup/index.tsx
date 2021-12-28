@@ -103,7 +103,7 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
           />
           <ButtonsMainSub
             className="ion-margin-vertical-x2"
-            mainTitle="CONTINUE TO DEPOSIT"
+            mainTitle="CONTINUE TO RECEIVE"
             subTitle="BACKUP NOW"
             mainDisabled={!isSeedSaved}
             mainOnClick={() => history.push({ pathname: routerLinks.deposit })}

@@ -215,7 +215,7 @@ const Wallet: React.FC<WalletProps> = ({
                       history.push({ pathname: routerLinks.backup });
                     }}
                   >
-                    DEPOSIT ASSETS
+                    RECEIVE ASSETS
                   </IonButton>
                 </IonCol>
               </IonRow>
