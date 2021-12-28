@@ -23,6 +23,12 @@ const mempoolExplorerEndpoints = {
     explorerBitcoinAPI: 'https://mempool.space/api',
     explorerBitcoinUI: 'https://mempool.space',
   },
+  testnet: {
+    explorerLiquidAPI: 'https://liquid.network/liquidtestnet/api',
+    explorerLiquidUI: 'https://liquid.network/testnet',
+    explorerBitcoinAPI: 'https://mempool.space/testnet/api',
+    explorerBitcoinUI: 'https://mempool.space/testnet',
+  },
 };
 
 const defaultProviderEndpoints = {
