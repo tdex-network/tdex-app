@@ -36,12 +36,11 @@ export function toSatoshi(val: string, precision = defaultPrecision, unit: LbtcD
 }
 
 export function fromSatoshi(val: string, precision = defaultPrecision, unit: LbtcDenomination = 'L-BTC'): Decimal {
-  const v = new Decimal(val).div(Decimal.pow(10, precision));
-  return formatLBTCwithUnit(v, unit);
+  return new Decimal(val).div(Decimal.pow(10, new Decimal(precision).minus(unitToExponent(unit))));
 }
 
 export function fromSatoshiFixed(val: string, precision?: number, fixed?: number, unit?: LbtcDenomination): string {
-  return formatLBTCwithUnit(fromSatoshi(val, precision), unit)
+  return fromSatoshi(val, precision, unit)
     .toNumber()
     .toLocaleString('en-US', {
       minimumFractionDigits: 0,
@@ -65,16 +64,17 @@ export function toLBTCwithUnit(lbtcValue: Decimal, unit?: LbtcDenomination): Dec
   }
 }
 
-export function formatLBTCwithUnit(lbtcValue: Decimal, unit?: LbtcDenomination): Decimal {
+// Convert from Lbtc value to desired unit, taking into account asset precision
+export function fromLbtcToUnit(lbtcValue: Decimal, unit?: LbtcDenomination, precision = defaultPrecision): Decimal {
   switch (unit) {
     case 'L-BTC':
       return lbtcValue;
     case 'L-mBTC':
-      return lbtcValue.mul(Decimal.pow(10, 3));
+      return lbtcValue.mul(Decimal.pow(10, new Decimal(precision).minus(5)));
     case 'L-bits':
-      return lbtcValue.mul(Decimal.pow(10, 6));
+      return lbtcValue.mul(Decimal.pow(10, new Decimal(precision).minus(2)));
     case 'L-sats':
-      return lbtcValue.mul(Decimal.pow(10, 8));
+      return lbtcValue.mul(Decimal.pow(10, new Decimal(precision)));
     default:
       return lbtcValue;
   }

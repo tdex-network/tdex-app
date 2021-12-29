@@ -1,3 +1,4 @@
+import './style.scss';
 import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 import { Capacitor } from '@capacitor/core';
 import {
@@ -10,21 +11,29 @@ import {
   useIonViewDidEnter,
   useIonViewWillLeave,
 } from '@ionic/react';
+import Decimal from 'decimal.js';
 import React from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
-import { useParams, withRouter } from 'react-router';
+import { useLocation, useParams, withRouter } from 'react-router';
 
 import Header from '../../components/Header';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
+import { decodeBip21 } from '../../utils/bip21';
+import type { LbtcDenomination } from '../../utils/constants';
 import { QRCodeScanError } from '../../utils/errors';
-import './style.scss';
+import { isLbtc, fromLbtcToUnit } from '../../utils/helpers';
 
-const QRCodeScanner: React.FC<RouteComponentProps<any, any, { address: string; amount: number }>> = ({
-  history,
-  location,
-}) => {
+interface LocationState {
+  address: string;
+  amount: number;
+  lbtcUnit: LbtcDenomination;
+  precision: number;
+}
+
+const QRCodeScanner = ({ history }: RouteComponentProps): JSX.Element => {
   const dispatch = useDispatch();
+  const { state } = useLocation<LocationState>();
   const { asset_id } = useParams<{ asset_id: string }>();
 
   const stopScan = async () => {
@@ -49,10 +58,26 @@ const QRCodeScanner: React.FC<RouteComponentProps<any, any, { address: string; a
         const result = await BarcodeScanner.startScan();
         if (result.hasContent && result.content) {
           console.debug('scanned: ', result.content);
-          history.replace(`/withdraw/${asset_id}`, {
-            address: result.content,
-            amount: location.state.amount,
-          });
+          if (result.content.startsWith('liquidnetwork')) {
+            const { address, options } = decodeBip21(result.content, 'liquidnetwork');
+            // Treat the amount as in btc unit
+            // Convert to user favorite unit, taking into account asset precision
+            const unit = isLbtc((options?.assetid ?? asset_id) as string) ? state.lbtcUnit : undefined;
+            const amtConverted = fromLbtcToUnit(
+              new Decimal(options?.amount as string),
+              unit,
+              state?.precision
+            ).toString();
+            history.replace(`/withdraw/${options?.assetid ?? asset_id}`, {
+              address,
+              amount: amtConverted,
+            });
+          } else {
+            history.replace(`/withdraw/${asset_id}`, {
+              address: result.content,
+              amount: state.amount,
+            });
+          }
           dispatch(addSuccessToast('Address scanned!'));
         }
         await stopScan();
@@ -82,8 +107,8 @@ const QRCodeScanner: React.FC<RouteComponentProps<any, any, { address: string; a
               <IonButton
                 onClick={() =>
                   history.replace(`/withdraw/${asset_id}`, {
-                    ...location.state,
-                    amount: location.state.amount,
+                    ...state,
+                    amount: state.amount,
                   })
                 }
                 className="sub-button"

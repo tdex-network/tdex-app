@@ -32,10 +32,11 @@ import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import { network } from '../../redux/config';
 import { broadcastTx } from '../../redux/services/walletService';
+import { decodeBip21 } from '../../utils/bip21';
 import type { LbtcDenomination } from '../../utils/constants';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { IncorrectPINError, WithdrawTxError } from '../../utils/errors';
-import { customCoinSelector, fromSatoshi, isLbtc, toSatoshi } from '../../utils/helpers';
+import { customCoinSelector, fromLbtcToUnit, fromSatoshi, isLbtc, toSatoshi } from '../../utils/helpers';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import { getConnectedIdentity } from '../../utils/storage-helper';
 
@@ -48,6 +49,7 @@ interface WithdrawalProps
       amount: string;
       asset: string;
       lbtcUnit?: LbtcDenomination;
+      precision?: number;
     }
   > {
   balances: BalanceInterface[];
@@ -249,8 +251,26 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
               onKeyDown={onPressEnterKeyCloseKeyboard}
               value={recipientAddress}
               placeholder="Paste address here or scan QR code"
-              onIonChange={(e) => {
-                setRecipientAddress(e.detail.value || '');
+              onIonChange={(ev) => {
+                if (ev.detail.value) {
+                  if (ev.detail.value.startsWith('liquidnetwork')) {
+                    const { address, options } = decodeBip21(ev.detail.value, 'liquidnetwork');
+                    setRecipientAddress(address);
+                    if (options?.amount) {
+                      // Treat the amount as in btc unit
+                      // Convert to user favorite unit, taking into account asset precision
+                      const unit = isLbtc(balance?.asset || '') ? lbtcUnit : undefined;
+                      const amtConverted = fromLbtcToUnit(
+                        new Decimal(options?.amount as string),
+                        unit,
+                        balance?.precision
+                      ).toString();
+                      setAmount(amtConverted);
+                    }
+                  } else {
+                    setRecipientAddress(ev.detail.value);
+                  }
+                }
               }}
             />
             <IonButton
@@ -260,6 +280,8 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
                   amount,
                   address: '',
                   asset: asset_id,
+                  lbtcUnit: lbtcUnit,
+                  precision: balance?.precision,
                 })
               }
             >
