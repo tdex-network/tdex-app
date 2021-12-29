@@ -30,6 +30,7 @@ function changeVersionBytes(xpub: string, targetFormat: string) {
   try {
     let data = b58.decode(xpub);
     data = data.slice(4);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     data = Buffer.concat([Buffer.from(prefixes.get(targetFormat)!, 'hex'), data]);
     return b58.encode(data);
   } catch (err) {

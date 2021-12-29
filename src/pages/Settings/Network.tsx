@@ -31,7 +31,7 @@ import { resetTransactionReducer } from '../../redux/actions/transactionsActions
 import { clearAddresses, resetUtxos, setMasterPublicKey } from '../../redux/actions/walletActions';
 import { blockstreamExplorerEndpoints, defaultProviderEndpoints } from '../../redux/config';
 import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
-import { AppError, isAlreadyFetchingUtxosError } from '../../utils/errors';
+import { AppError, IsAlreadyFetchingUtxosError } from '../../utils/errors';
 import { fromXpub } from '../../utils/fromXpub';
 import { refreshProviders } from '../LiquidityProvider';
 
@@ -54,7 +54,7 @@ const Network = (): JSX.Element => {
 
   const handleNetworkChange = async (ev: CustomEvent<SelectChangeEventDetail<NetworkString>>) => {
     try {
-      if (isFetchingUtxos) throw isAlreadyFetchingUtxosError;
+      if (isFetchingUtxos) throw IsAlreadyFetchingUtxosError;
       const network = ev.detail.value;
       setNetworkSelectState(network);
       dispatch(setNetwork(network));

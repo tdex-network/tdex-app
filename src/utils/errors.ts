@@ -27,7 +27,7 @@ export const PINsDoNotMatchError = new AppError(8, 'PINs needs to be equal');
 export const QRCodeScanError = new AppError(9, 'QR Scanner scan failed');
 export const AddressGenerationError = new AppError(10, 'Unable to generate new address');
 export const InvalidMnemonicError = new AppError(11, 'Invalid mnemonic error');
-export const WithdrawTxError = new AppError(12, 'An error occcurs while sending withdraw transaction');
+export const WithdrawTxError = new AppError(12, 'An error occurred while sending withdraw transaction');
 export const TDEXRegistryError = new AppError(13, 'Unable to fetch providers from registry');
 export const UpdateTransactionsError = new AppError(14, 'Tx update error occurs');
 export const UpdateUtxosError = new AppError(15, 'Utxo update error occurs');
@@ -40,4 +40,5 @@ export const PeginRestorationError = new AppError(19, 'Pegin restoration has fai
 //
 export const InvalidBitcoinAddress = new AppError(20, 'Invalid Bitcoin address');
 export const FailedToRestoreProvidersError = new AppError(21, 'Failed to restore providers');
-export const isAlreadyFetchingUtxosError = new AppError(22, 'App is busy. Please try in a moment');
+export const IsAlreadyFetchingUtxosError = new AppError(22, 'App is busy. Please try in a moment');
+export const InvalidUrl = new AppError(23, 'Invalid URL');
