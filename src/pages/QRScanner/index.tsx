@@ -26,7 +26,7 @@ import { isLbtc, fromLbtcToUnit } from '../../utils/helpers';
 
 interface LocationState {
   address: string;
-  amount: number;
+  amount: string;
   lbtcUnit: LbtcDenomination;
   precision: number;
 }
@@ -57,17 +57,15 @@ const QRCodeScanner = ({ history }: RouteComponentProps): JSX.Element => {
         if (!granted) throw new Error('CAMERA permission not granted.');
         const result = await BarcodeScanner.startScan();
         if (result.hasContent && result.content) {
-          console.debug('scanned: ', result.content);
           if (result.content.startsWith('liquidnetwork')) {
             const { address, options } = decodeBip21(result.content, 'liquidnetwork');
             // Treat the amount as in btc unit
             // Convert to user favorite unit, taking into account asset precision
             const unit = isLbtc((options?.assetid ?? asset_id) as string) ? state.lbtcUnit : undefined;
-            const amtConverted = fromLbtcToUnit(
-              new Decimal(options?.amount as string),
-              unit,
-              state?.precision
-            ).toString();
+            // If no amount in URI return amount from input field
+            const amtConverted = options?.amount
+              ? fromLbtcToUnit(new Decimal(options?.amount as string), unit, state?.precision).toString()
+              : state.amount;
             history.replace(`/withdraw/${options?.assetid ?? asset_id}`, {
               address,
               amount: amtConverted,
