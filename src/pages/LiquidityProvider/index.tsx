@@ -36,7 +36,7 @@ import {
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { defaultProviderEndpoints } from '../../redux/config';
 import { useTypedDispatch } from '../../redux/hooks';
-import { TDEXRegistryError } from '../../utils/errors';
+import { InvalidUrl, TDEXRegistryError } from '../../utils/errors';
 import { getProvidersFromTDexRegistry } from '../../utils/tdex';
 
 interface LiquidityProvidersProps extends RouteComponentProps {
@@ -51,14 +51,16 @@ export const refreshProviders = async (
 ): Promise<void> => {
   if (network === 'liquid') {
     try {
-      dispatch(clearProviders());
-      dispatch(clearMarkets());
       const providersFromRegistry = await getProvidersFromTDexRegistry();
       const currentEndpoints = providers.map((provider) => provider.endpoint);
       const newProviders = providersFromRegistry.filter((p) => !currentEndpoints.includes(p.endpoint));
-      const actions = newProviders.map(addProvider);
-      const toastSuccessAction = addSuccessToast(`${actions.length} new providers from TDEX registry!`);
-      [...actions, toastSuccessAction].forEach(dispatch);
+      if (newProviders.length) {
+        dispatch(clearProviders());
+        dispatch(clearMarkets());
+        const actions = providersFromRegistry.map(addProvider);
+        actions.forEach(dispatch);
+      }
+      dispatch(addSuccessToast(`${newProviders.length} new providers from TDEX registry!`));
     } catch {
       dispatch(addErrorToast(TDEXRegistryError));
     }
@@ -170,13 +172,17 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
                     subTitle="CANCEL"
                     mainDisabled={isNewProviderInvalid()}
                     mainOnClick={() => {
-                      setNewProvider(false);
-                      dispatch(
-                        addProvider({
-                          endpoint: newProviderEndpoint.trim(),
-                          name: newProviderName.trim(),
-                        })
-                      );
+                      if (!newProviderEndpoint.startsWith('http')) {
+                        dispatch(addErrorToast(InvalidUrl));
+                      } else {
+                        setNewProvider(false);
+                        dispatch(
+                          addProvider({
+                            endpoint: newProviderEndpoint.trim(),
+                            name: newProviderName.trim(),
+                          })
+                        );
+                      }
                     }}
                     subOnClick={() => setNewProvider(false)}
                   />

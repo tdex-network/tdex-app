@@ -36,7 +36,7 @@ const TDEXReducer = (
     case DELETE_PROVIDER:
       return {
         ...state,
-        providers: state.providers.filter((p) => p.id !== action.payload.id),
+        providers: state.providers.filter((p) => p.endpoint !== action.payload.endpoint),
       };
     case CLEAR_PROVIDERS:
       return { ...state, providers: [] };
