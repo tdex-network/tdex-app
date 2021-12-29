@@ -1,6 +1,6 @@
 {
   "name": "tdex-app",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "description": "Mobile app for making trades on TDEX",
   "browserslist": {
