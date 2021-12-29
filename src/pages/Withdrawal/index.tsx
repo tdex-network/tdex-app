@@ -50,6 +50,7 @@ interface WithdrawalProps
       asset: string;
       lbtcUnit?: LbtcDenomination;
       precision?: number;
+      network?: NetworkString;
     }
   > {
   balances: BalanceInterface[];
@@ -295,6 +296,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
                   asset: asset_id,
                   lbtcUnit: lbtcUnit,
                   precision: balance?.precision,
+                  network: network,
                 })
               }
             >

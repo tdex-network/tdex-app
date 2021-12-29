@@ -16,6 +16,7 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useLocation, useParams, withRouter } from 'react-router';
+import type { NetworkString } from 'tdex-sdk';
 
 import Header from '../../components/Header';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
@@ -29,6 +30,7 @@ interface LocationState {
   amount: string;
   lbtcUnit: LbtcDenomination;
   precision: number;
+  network: NetworkString;
 }
 
 const QRCodeScanner = ({ history }: RouteComponentProps): JSX.Element => {
@@ -61,7 +63,7 @@ const QRCodeScanner = ({ history }: RouteComponentProps): JSX.Element => {
             const { address, options } = decodeBip21(result.content, 'liquidnetwork');
             // Treat the amount as in btc unit
             // Convert to user favorite unit, taking into account asset precision
-            const unit = isLbtc((options?.assetid ?? asset_id) as string) ? state.lbtcUnit : undefined;
+            const unit = isLbtc((options?.assetid ?? asset_id) as string, state.network) ? state.lbtcUnit : undefined;
             // If no amount in URI return amount from input field
             const amtConverted = options?.amount
               ? fromLbtcToUnit(new Decimal(options?.amount as string), unit, state?.precision).toString()
