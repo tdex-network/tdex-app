@@ -1,3 +1,5 @@
+import type { NetworkString } from 'tdex-sdk';
+
 import type { LbtcDenomination } from '../../utils/constants';
 import { CURRENCIES, LBTC_DENOMINATIONS } from '../../utils/constants';
 import type { ActionType } from '../../utils/types';
@@ -10,8 +12,10 @@ import {
   SET_LBTC_DENOMINATION,
   SET_THEME,
   SET_TOR_PROXY,
+  SET_NETWORK,
+  SET_DEFAULT_PROVIDER,
 } from '../actions/settingsActions';
-import { network } from '../config';
+import { defaultProvider, network } from '../config';
 
 export interface CurrencyInterface {
   name: string;
@@ -21,24 +25,28 @@ export interface CurrencyInterface {
 
 export interface SettingsState {
   currency: CurrencyInterface;
+  defaultProvider: string;
+  denominationLBTC: LbtcDenomination;
   explorerLiquidAPI: string;
   explorerBitcoinAPI: string;
   explorerBitcoinUI: string;
   explorerLiquidUI: string;
-  torProxy: string;
+  network: NetworkString;
   theme: string;
-  denominationLBTC: LbtcDenomination;
+  torProxy: string;
 }
 
 const initialState: SettingsState = {
   currency: CURRENCIES[0],
+  defaultProvider: defaultProvider.endpoint,
+  denominationLBTC: LBTC_DENOMINATIONS[0],
   explorerLiquidAPI: network.explorerLiquidAPI,
   explorerBitcoinAPI: network.explorerBitcoinAPI,
   explorerBitcoinUI: network.explorerBitcoinUI,
   explorerLiquidUI: network.explorerLiquidUI,
-  torProxy: 'https://proxy.tdex.network',
   theme: 'dark',
-  denominationLBTC: LBTC_DENOMINATIONS[0],
+  network: network.chain,
+  torProxy: 'https://proxy.tdex.network',
 };
 
 const settingsReducer = (state: SettingsState = initialState, action: ActionType): SettingsState => {
@@ -52,6 +60,16 @@ const settingsReducer = (state: SettingsState = initialState, action: ActionType
       return {
         ...state,
         currency: action.payload,
+      };
+    case SET_DEFAULT_PROVIDER:
+      return {
+        ...state,
+        defaultProvider: action.payload,
+      };
+    case SET_NETWORK:
+      return {
+        ...state,
+        network: action.payload,
       };
     case SET_EXPLORER_LIQUID_API:
       return {

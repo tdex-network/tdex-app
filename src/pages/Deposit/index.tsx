@@ -6,13 +6,16 @@ import type { RouteComponentProps } from 'react-router';
 import Header from '../../components/Header';
 import { CurrencyIcon } from '../../components/icons';
 import './style.scss';
+import { useTypedSelector } from '../../redux/hooks';
 import { routerLinks } from '../../routes';
 import { BTC_ASSET, MAIN_ASSETS } from '../../utils/constants';
 
 const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
+  const network = useTypedSelector(({ settings }) => settings.network);
+
   const generateGridItems = useMemo(() => {
     return [BTC_ASSET]
-      .concat(MAIN_ASSETS)
+      .concat(MAIN_ASSETS[network])
       .map((asset, i) => {
         return (
           <button

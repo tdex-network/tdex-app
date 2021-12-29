@@ -16,6 +16,7 @@ import React from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
+import type { NetworkString } from 'tdex-sdk';
 
 import Header from '../../components/Header';
 import { CurrencyIcon } from '../../components/icons';
@@ -31,9 +32,10 @@ import './style.scss';
 interface TradeHistoryProps extends RouteComponentProps {
   swaps: TxDisplayInterface[];
   explorerLiquidUI: string;
+  network: NetworkString;
 }
 
-const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI }) => {
+const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI, network }) => {
   const dispatch = useDispatch();
 
   const renderStatusText: any = (status: TxStatusEnum) => {
@@ -67,9 +69,9 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI }) 
                 if (!transferReceived || !transferSent) {
                   return <React.Fragment key={index} />;
                 }
-                const precisionAssetReceived = precisionFromAssetHash(transferReceived.asset);
-                const tickerSent = tickerFromAssetHash(transferSent.asset);
-                const tickerReceived = tickerFromAssetHash(transferReceived.asset);
+                const precisionAssetReceived = precisionFromAssetHash(network, transferReceived.asset);
+                const tickerSent = tickerFromAssetHash(network, transferSent.asset);
+                const tickerReceived = tickerFromAssetHash(network, transferReceived.asset);
                 return (
                   <IonItem
                     className={classNames('list-item transaction-item', {
@@ -104,7 +106,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI }) 
                         <IonCol className="pl-5" size="5.8" offset="1.2">
                           {`Fee: ${fromSatoshi(tx.fee.toString(), precisionAssetReceived ?? 8).toFixed(
                             precisionAssetReceived ?? 8
-                          )} ${LBTC_TICKER}`}
+                          )} ${LBTC_TICKER[network]}`}
                         </IonCol>
                         <IonCol className="ion-text-right" size="5">
                           <IonText>{renderStatusText(tx.status)}</IonText>

@@ -11,6 +11,7 @@ import {
   SET_MODAL_CLAIM_PEGIN,
   UPSERT_PEGINS,
 } from '../actions/btcActions';
+import type { RootState } from '../types';
 
 import { outpointToString } from './walletReducer';
 
@@ -28,8 +29,10 @@ export interface DepositPeginUtxo {
   // Info added after successful claim
   claimTxId?: string;
 }
+
 type Outpoint = string;
 export type DepositPeginUtxos = Record<Outpoint, DepositPeginUtxo>;
+
 // Pegin
 export interface Pegin {
   // Address generated on deposit screen
@@ -41,6 +44,7 @@ export interface Pegin {
   // Info added after utxo fetching
   depositUtxos?: DepositPeginUtxos;
 }
+
 type ClaimScript = string;
 export type Pegins = Record<ClaimScript, Pegin>;
 
@@ -93,8 +97,8 @@ const upsertDepositUtxoInState = (state: BtcState, utxo: DepositPeginUtxo, depos
 };
 
 export const depositPeginUtxosToDisplayTxSelector = createSelector(
-  ({ btc }: { btc: BtcState }) => btc.pegins,
-  (pegins): TxDisplayInterface[] => {
+  ({ btc, settings }: RootState) => ({ pegins: btc.pegins, network: settings.network }),
+  ({ pegins, network }): TxDisplayInterface[] => {
     const txs: TxDisplayInterface[] = [];
     for (const claimScript in pegins) {
       const pegin = pegins[claimScript];
@@ -108,7 +112,7 @@ export const depositPeginUtxosToDisplayTxSelector = createSelector(
           transfers: [
             {
               // LBTC hash in order to display btc deposit in LBTC operations
-              asset: LBTC_ASSET.assetHash,
+              asset: LBTC_ASSET[network].assetHash,
               amount: utxo.value ?? 0,
             },
           ],

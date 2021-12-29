@@ -7,19 +7,20 @@ import Faq from './pages/Faq';
 import Privacy from './pages/Privacy';
 import QRScanner from './pages/QRScanner';
 import Settings from './pages/Settings';
+import Network from './pages/Settings/Network';
 import ShowMnemonicSettings from './pages/ShowMnemonic/show-mnemonic-settings';
 import Terms from './pages/Terms';
 import WithdrawalDetails from './pages/WithdrawalDetails';
 import Backup from './redux/containers/backupContainer';
 import ClaimPegin from './redux/containers/claimPeginContainer';
 import Exchange from './redux/containers/exchangeContainer';
-import TradeHistory from './redux/containers/exchangeHistoryContainer';
 import Explorers from './redux/containers/explorersContainer';
 import LiquidityProviders from './redux/containers/liquidityProvidersContainer';
 import Operations from './redux/containers/operationsContainer';
 import Receive from './redux/containers/receiveContainer';
 import ShowMnemonic from './redux/containers/showMnemonicContainer';
 import TorProxy from './redux/containers/torProxyContainer';
+import TradeHistory from './redux/containers/tradeHistoryContainer';
 import TradeSummary from './redux/containers/tradeSummaryContainer';
 import Wallet from './redux/containers/walletContainer';
 import Withdrawal from './redux/containers/withdrawalContainer';
@@ -49,6 +50,7 @@ export const routerLinks = {
   terms: '/terms',
   deepRestoration: '/settings/deep-restoration',
   explorers: '/settings/explorers',
+  network: '/settings/network',
   torProxy: '/settings/tor-proxy',
 };
 
@@ -144,6 +146,10 @@ export const ROUTES = [
   {
     path: routerLinks.explorers,
     component: Explorers,
+  },
+  {
+    path: routerLinks.network,
+    component: Network,
   },
   {
     path: routerLinks.torProxy,

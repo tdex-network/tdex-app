@@ -1,9 +1,13 @@
 import type { BlindingKeyGetter, TxInterface, AddressInterface } from 'ldk';
 import { fetchAndUnblindTxsGenerator, isBlindedOutputInterface, fetchTx, unblindTransaction } from 'ldk';
-import { takeLatest, call, put, select, all, takeEvery, delay } from 'redux-saga/effects';
+import { takeLatest, call, put, select, takeEvery, delay } from 'redux-saga/effects';
 
 import { UpdateTransactionsError } from '../../utils/errors';
-import { getTransactionsFromStorage, setTransactionsInStorage } from '../../utils/storage-helper';
+import {
+  clearTransactionsInStorage,
+  getTransactionsFromStorage,
+  setTransactionsInStorage,
+} from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
 import { SIGN_IN } from '../actions/appActions';
 import { addAsset } from '../actions/assetsActions';
@@ -15,26 +19,30 @@ import {
   SET_TRANSACTION,
   UPDATE_TRANSACTIONS,
   WATCH_TRANSACTION,
+  RESET_TRANSACTION_REDUCER,
 } from '../actions/transactionsActions';
 import type { WalletState } from '../reducers/walletReducer';
+import type { RootState } from '../types';
 
 function* updateTransactions() {
   try {
-    const [addresses, explorerLiquidAPI, currentTxs]: [
-      Record<string, AddressInterface>,
-      string,
-      Record<string, TxInterface>
-    ] = yield all([
-      select(({ wallet }: { wallet: WalletState }) => wallet.addresses),
-      select(({ settings }) => settings.explorerLiquidAPI),
-      select(({ transactions }) => transactions.txs),
-    ]);
-
+    const {
+      addresses,
+      explorerLiquidAPI,
+      currentTxs,
+    }: {
+      addresses: Record<string, AddressInterface>;
+      explorerLiquidAPI: string;
+      currentTxs: Record<string, TxInterface>;
+    } = yield select(({ wallet, settings, transactions }: RootState) => ({
+      addresses: wallet.addresses,
+      explorerLiquidAPI: settings.explorerLiquidAPI,
+      currentTxs: transactions.txs,
+    }));
     const toSearch: string[] = [];
     for (const { confidentialAddress } of Object.values(addresses)) {
       toSearch.unshift(confidentialAddress);
     }
-
     yield call(fetchAndUpdateTxs, toSearch, addresses, currentTxs, explorerLiquidAPI);
   } catch (e) {
     console.error(e);
@@ -82,16 +90,17 @@ export function* fetchAndUpdateTxs(
 }
 
 // update the assets state when a new transaction is set in tx state
-function* updateAssets({ payload }: { payload: TxInterface }) {
-  for (const out of payload.vout) {
-    if (!isBlindedOutputInterface(out)) {
-      yield put(addAsset(out.asset));
+function* updateAssets({ payload }: ReturnType<typeof setTransaction>) {
+  if (payload?.vout) {
+    for (const out of payload.vout) {
+      if (!isBlindedOutputInterface(out)) {
+        yield put(addAsset(out.asset));
+      }
     }
   }
 }
 
 function* persistTransactions() {
-  yield delay(20_000); // 20 sec
   const txs: TxInterface[] = yield select(({ transactions }) => Object.values(transactions.txs));
   yield call(setTransactionsInStorage, txs);
 }
@@ -142,12 +151,17 @@ function blindKeyGetterFactory(scriptsToAddressInterface: Record<string, Address
   };
 }
 
+function* resetTransactions() {
+  yield call(clearTransactionsInStorage);
+}
+
 export function* transactionsWatcherSaga(): Generator<any, any, any> {
-  yield takeLatest(UPDATE_TRANSACTIONS, updateTransactions);
-  yield takeLatest(UPDATE_TRANSACTIONS, persistTransactions);
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+  yield takeLatest(UPDATE_TRANSACTIONS, function* sequence() {
+    yield* updateTransactions();
+    yield* persistTransactions();
+  });
   yield takeEvery(SET_TRANSACTION, updateAssets);
   yield takeLatest(SIGN_IN, restoreTransactions);
   yield takeEvery(WATCH_TRANSACTION, watchTransaction);
+  yield takeEvery(RESET_TRANSACTION_REDUCER, resetTransactions);
 }

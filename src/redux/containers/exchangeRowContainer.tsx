@@ -1,8 +1,8 @@
 import { connect } from 'react-redux';
 
 import ExchangeRow from '../../components/ExchangeRow';
-import type { RootState } from '../../index';
 import { balancesSelector } from '../reducers/walletReducer';
+import type { RootState } from '../types';
 
 const mapStateToProps = (state: RootState) => {
   return {

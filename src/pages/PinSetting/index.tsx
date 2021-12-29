@@ -1,3 +1,4 @@
+import './styles.scss';
 import { Capacitor } from '@capacitor/core';
 import { Keyboard } from '@capacitor/keyboard';
 import {
@@ -13,7 +14,6 @@ import {
 } from '@ionic/react';
 import * as bip39 from 'bip39';
 import React, { useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useLocation } from 'react-router';
 
@@ -24,13 +24,12 @@ import PageDescription from '../../components/PageDescription';
 import PinInput from '../../components/PinInput';
 import { signIn } from '../../redux/actions/appActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
+import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import type { AppError } from '../../utils/errors';
 import { PinDigitsError, PINsDoNotMatchError, SecureStorageError } from '../../utils/errors';
 import { clearStorage, getIdentity, setMnemonicInSecureStorage } from '../../utils/storage-helper';
 import { TermsContent } from '../Terms';
-
-import './styles.scss';
 
 interface LocationState {
   mnemonic: string;
@@ -47,7 +46,8 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
   const [loading, setLoading] = useState(false);
   const [isPinInputLocked, setIsPinInputLocked] = useState<boolean>(false);
   const [termsModalIsOpen, setTermsModalIsOpen] = useState(false);
-  const dispatch = useDispatch();
+  const dispatch = useTypedDispatch();
+  const { network } = useTypedSelector(({ settings }) => settings);
   const inputRef = useRef<any>(null);
 
   const validRegexp = new RegExp('\\d{6}');
@@ -228,7 +228,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
                     onClick={() => {
                       if (isPinValidated && isTermsAccepted) {
                         setLoading(true);
-                        getIdentity(firstPin)
+                        getIdentity(firstPin, network)
                           .then((mnemonic) => {
                             setIsWrongPin(null);
                             setLoading(false);

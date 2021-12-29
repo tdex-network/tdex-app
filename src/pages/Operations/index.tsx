@@ -1,3 +1,4 @@
+import './style.scss';
 import {
   IonPage,
   IonButtons,
@@ -19,6 +20,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter, useParams } from 'react-router';
+import type { NetworkString } from 'tdex-sdk';
 
 import depositIcon from '../../assets/img/deposit-green.svg';
 import swapIcon from '../../assets/img/swap-circle.svg';
@@ -31,10 +33,15 @@ import WatchersLoader from '../../redux/containers/watchersLoaderContainer';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
 import type { LbtcDenomination } from '../../utils/constants';
 import { defaultPrecision, LBTC_TICKER, MAIN_ASSETS } from '../../utils/constants';
-import { compareTxDisplayInterfaceByDate, fromSatoshi, fromSatoshiFixed, isLbtc } from '../../utils/helpers';
+import {
+  compareTxDisplayInterfaceByDate,
+  fromSatoshi,
+  fromSatoshiFixed,
+  isLbtc,
+  isLbtcTicker,
+} from '../../utils/helpers';
 import type { Transfer, TxDisplayInterface } from '../../utils/types';
 import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
-import './style.scss';
 
 interface OperationsProps extends RouteComponentProps {
   balances: BalanceInterface[];
@@ -43,6 +50,7 @@ interface OperationsProps extends RouteComponentProps {
   lbtcUnit: LbtcDenomination;
   btcTxs: TxDisplayInterface[];
   currentBtcBlockHeight: number;
+  network: NetworkString;
 }
 
 const Operations: React.FC<OperationsProps> = ({
@@ -53,6 +61,7 @@ const Operations: React.FC<OperationsProps> = ({
   lbtcUnit,
   btcTxs,
   currentBtcBlockHeight,
+  network,
 }) => {
   const dispatch = useDispatch();
   const { asset_id } = useParams<{ asset_id: string }>();
@@ -60,7 +69,7 @@ const Operations: React.FC<OperationsProps> = ({
   const [txRowOpened, setTxRowOpened] = useState<string[]>([]);
 
   const transactionsByAsset = useSelector(transactionsByAssetSelector(asset_id));
-  const transactionsToDisplay = isLbtc(asset_id) ? transactionsByAsset.concat(btcTxs) : transactionsByAsset;
+  const transactionsToDisplay = isLbtc(asset_id, network) ? transactionsByAsset.concat(btcTxs) : transactionsByAsset;
 
   useIonViewWillEnter(() => {
     setTxRowOpened([]);
@@ -72,7 +81,7 @@ const Operations: React.FC<OperationsProps> = ({
     if (balanceSelected) {
       setBalance(balanceSelected);
     } else {
-      const asset = MAIN_ASSETS.find((a) => a.assetHash === asset_id);
+      const asset = MAIN_ASSETS[network].find((a) => a.assetHash === asset_id);
       setBalance({
         asset: asset?.assetHash ?? '',
         amount: 0,
@@ -158,7 +167,7 @@ const Operations: React.FC<OperationsProps> = ({
                   state: {
                     depositAsset: {
                       asset: balance?.asset,
-                      ticker: balance?.ticker ?? LBTC_TICKER,
+                      ticker: balance?.ticker ?? LBTC_TICKER[network],
                       coinGeckoID: balance?.coinGeckoID ?? 'L-BTC',
                     },
                   },
@@ -203,9 +212,9 @@ const Operations: React.FC<OperationsProps> = ({
               balance?.amount.toString(),
               balance.precision,
               balance.precision,
-              balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+              isLbtcTicker(balance.ticker) ? lbtcUnit : undefined
             )}
-          <span>{balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker}</span>
+          <span>{isLbtcTicker(balance?.ticker || '') ? lbtcUnit : balance?.ticker}</span>
         </p>
         {balance?.coinGeckoID && prices[balance.coinGeckoID] && (
           <span className="info-amount-converted">
@@ -234,11 +243,11 @@ const Operations: React.FC<OperationsProps> = ({
               transfer.amount.toString(),
               balance.precision,
               balance.precision,
-              balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+              isLbtcTicker(balance.ticker) ? lbtcUnit : undefined
             )
           : 'unknown'}
         <span className="ticker">
-          {TxTypeEnum[tx.type] === 'DepositBtc' || balance.ticker === 'L-BTC' ? lbtcUnit : balance.ticker}
+          {TxTypeEnum[tx.type] === 'DepositBtc' || isLbtcTicker(balance.ticker) ? lbtcUnit : balance.ticker}
         </span>
       </div>
       <div className="operation-amount__fiat">
@@ -260,7 +269,7 @@ const Operations: React.FC<OperationsProps> = ({
           <Header title={`${balance?.name || balance?.ticker}`} hasBackButton={true} />
           <IonRow className="ion-margin-bottom header-info ion-text-center ion-margin-vertical">
             <IonCol>
-              {balance ? <CurrencyIcon currency={balance?.ticker} /> : <CurrencyIcon currency={LBTC_TICKER} />}
+              {balance ? <CurrencyIcon currency={balance?.ticker} /> : <CurrencyIcon currency={LBTC_TICKER[network]} />}
               {AssetBalance}
             </IonCol>
           </IonRow>
@@ -308,7 +317,7 @@ const Operations: React.FC<OperationsProps> = ({
                           {TxTypeEnum[tx.type] !== 'DepositBtc' && (
                             <IonRow className="mt-3">
                               <IonCol className="pl-5" size="6" offset="1">
-                                {`Fee: ${fromSatoshi(tx.fee.toString(), 8).toFixed(8)} ${LBTC_TICKER}`}
+                                {`Fee: ${fromSatoshi(tx.fee.toString(), 8).toFixed(8)} ${LBTC_TICKER[network]}`}
                               </IonCol>
                               <IonCol className="ion-text-right" size="5">
                                 <IonText>{renderStatusText(tx.status)}</IonText>

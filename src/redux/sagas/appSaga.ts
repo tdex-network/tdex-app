@@ -2,7 +2,7 @@ import type { AddressInterface } from 'ldk';
 import { takeLatest, takeLeading, put, call, all, select } from 'redux-saga/effects';
 
 import { seedBackupFlag } from '../../utils/storage-helper';
-import type { ActionType } from '../../utils/types';
+import type { signIn } from '../actions/appActions';
 import {
   INIT_APP,
   initAppFail,
@@ -17,13 +17,17 @@ import { checkIfClaimablePeginUtxo, updateDepositPeginUtxos, watchCurrentBtcBloc
 import { updatePrices } from '../actions/ratesActions';
 import { updateMarkets } from '../actions/tdexActions';
 import { updateTransactions } from '../actions/transactionsActions';
-import { addAddress, setIsAuth, setPublicKeys, updateUtxos } from '../actions/walletActions';
-import { waitForRestore } from '../services/walletService';
+import { addAddress, setIsAuth, setMasterPublicKeysFromMnemonic, updateUtxos } from '../actions/walletActions';
+import { isMasterPublicKey, isMnemonic } from '../reducers/walletReducer';
+import { restoreFromMasterPubKey, restoreFromMnemonic } from '../services/walletService';
+
+import { restoreNetwork } from './settingsSaga';
 
 function* initAppSaga() {
   try {
     yield put(initAppSuccess());
     yield put(setSignedUp(true));
+    yield call(restoreNetwork);
   } catch (e) {
     yield put(setSignedUp(false));
     yield put(initAppFail());
@@ -31,8 +35,9 @@ function* initAppSaga() {
   }
 }
 
-function* signInSaga(action: ActionType) {
+function* signInSaga({ payload: identity }: ReturnType<typeof signIn>) {
   try {
+    if (!identity) throw new Error('No identity');
     // Start by setting isAuth to true, which causes redirection to auth guarded pages
     yield put(setIsAuth(true));
     // Get backup flag from storage and set Redux state
@@ -41,11 +46,16 @@ function* signInSaga(action: ActionType) {
     // Wallet Restoration
     yield setIsFetchingUtxos(true);
     const explorerLiquidAPI: string = yield select((state: any) => state.settings.explorerLiquidAPI);
-    yield all([
-      call(waitForRestore, action.payload.mnemonic, explorerLiquidAPI),
-      put(setPublicKeys(action.payload.mnemonic)),
-    ]);
-    const addresses: AddressInterface[] = yield call(() => action.payload.mnemonic.getAddresses());
+    if (isMasterPublicKey(identity)) {
+      yield call(restoreFromMasterPubKey, identity, explorerLiquidAPI);
+    }
+    if (isMnemonic(identity)) {
+      yield all([
+        call(restoreFromMnemonic, identity, explorerLiquidAPI),
+        put(setMasterPublicKeysFromMnemonic(identity)),
+      ]);
+    }
+    const addresses: AddressInterface[] = yield call(() => identity.getAddresses());
     for (const addr of addresses) {
       yield put(addAddress(addr));
     }

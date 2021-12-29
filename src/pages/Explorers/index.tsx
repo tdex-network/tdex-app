@@ -13,6 +13,7 @@ import {
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
+import type { NetworkString } from 'tdex-sdk';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
@@ -23,7 +24,7 @@ import {
   setExplorerLiquidUI,
 } from '../../redux/actions/settingsActions';
 import { addSuccessToast } from '../../redux/actions/toastActions';
-import { network } from '../../redux/config';
+import { blockstreamExplorerEndpoints, mempoolExplorerEndpoints } from '../../redux/config';
 import type { SettingsState } from '../../redux/reducers/settingsReducer';
 import { capitalizeFirstLetter } from '../../utils/helpers';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
@@ -33,6 +34,7 @@ interface ExplorersProps {
   explorerBitcoinAPI: string;
   explorerLiquidUI: string;
   explorerBitcoinUI: string;
+  network: NetworkString;
 }
 
 const Explorers: React.FC<ExplorersProps> = ({
@@ -40,6 +42,7 @@ const Explorers: React.FC<ExplorersProps> = ({
   explorerBitcoinAPI,
   explorerLiquidUI,
   explorerBitcoinUI,
+  network,
 }) => {
   const [explorerGroup, setExplorerGroup] = useState<SettingsState['explorerLiquidAPI']>('');
   const [explorerBitcoinAPIInput, setExplorerBitcoinAPIInput] = useState<SettingsState['explorerBitcoinAPI']>('');
@@ -59,17 +62,26 @@ const Explorers: React.FC<ExplorersProps> = ({
   const handleExplorerChange = (e: any) => {
     const { value } = e.detail;
     setExplorerGroup(value);
-    if (value !== 'blockstream' && value !== 'mempool' && value !== 'localhost') return;
     if (value === 'blockstream') {
-      dispatch(setExplorerLiquidAPI('https://blockstream.info/liquid/api'));
-      dispatch(setExplorerBitcoinAPI('https://blockstream.info/api'));
-      dispatch(setExplorerBitcoinUI('https://blockstream.info'));
-      dispatch(setExplorerLiquidUI('https://blockstream.info/liquid'));
+      dispatch(setExplorerLiquidAPI(blockstreamExplorerEndpoints.liquid.explorerLiquidAPI));
+      dispatch(setExplorerLiquidUI(blockstreamExplorerEndpoints.liquid.explorerLiquidUI));
+      dispatch(setExplorerBitcoinAPI(blockstreamExplorerEndpoints.liquid.explorerBitcoinAPI));
+      dispatch(setExplorerBitcoinUI(blockstreamExplorerEndpoints.liquid.explorerBitcoinUI));
+    } else if (value === 'blockstream-testnet') {
+      dispatch(setExplorerLiquidAPI(blockstreamExplorerEndpoints.testnet.explorerLiquidAPI));
+      dispatch(setExplorerLiquidUI(blockstreamExplorerEndpoints.testnet.explorerLiquidUI));
+      dispatch(setExplorerBitcoinAPI(blockstreamExplorerEndpoints.testnet.explorerBitcoinAPI));
+      dispatch(setExplorerBitcoinUI(blockstreamExplorerEndpoints.testnet.explorerBitcoinUI));
     } else if (value === 'mempool') {
-      dispatch(setExplorerLiquidAPI('https://liquid.network/api'));
-      dispatch(setExplorerBitcoinAPI('https://mempool.space/api'));
-      dispatch(setExplorerBitcoinUI('https://mempool.space'));
-      dispatch(setExplorerLiquidUI('https://liquid.network'));
+      dispatch(setExplorerLiquidAPI(mempoolExplorerEndpoints.liquid.explorerLiquidAPI));
+      dispatch(setExplorerLiquidUI(mempoolExplorerEndpoints.liquid.explorerLiquidUI));
+      dispatch(setExplorerBitcoinAPI(mempoolExplorerEndpoints.liquid.explorerBitcoinAPI));
+      dispatch(setExplorerBitcoinUI(mempoolExplorerEndpoints.liquid.explorerBitcoinUI));
+    } else if (value === 'mempool-testnet') {
+      dispatch(setExplorerLiquidAPI(mempoolExplorerEndpoints.testnet.explorerLiquidAPI));
+      dispatch(setExplorerLiquidUI(mempoolExplorerEndpoints.testnet.explorerLiquidUI));
+      dispatch(setExplorerBitcoinAPI(mempoolExplorerEndpoints.testnet.explorerBitcoinAPI));
+      dispatch(setExplorerBitcoinUI(mempoolExplorerEndpoints.testnet.explorerBitcoinUI));
     } else if (value === 'localhost') {
       dispatch(setExplorerLiquidAPI('http://localhost:3001'));
       dispatch(setExplorerBitcoinAPI('http://localhost:3000'));
@@ -109,9 +121,19 @@ const Explorers: React.FC<ExplorersProps> = ({
               <IonItem className="input">
                 <IonLabel>Select your explorer</IonLabel>
                 <IonSelect value={explorerGroup} onIonChange={handleExplorerChange}>
-                  <IonSelectOption value="blockstream">Blockstream</IonSelectOption>
-                  <IonSelectOption value="mempool">Mempool</IonSelectOption>
-                  {network.chain === 'regtest' && <IonSelectOption value="localhost">Localhost</IonSelectOption>}
+                  {network === 'liquid' && (
+                    <>
+                      <IonSelectOption value="blockstream">Blockstream</IonSelectOption>
+                      <IonSelectOption value="mempool">Mempool</IonSelectOption>
+                    </>
+                  )}
+                  {network === 'testnet' && (
+                    <>
+                      <IonSelectOption value="blockstream-testnet">Blockstream</IonSelectOption>
+                      <IonSelectOption value="mempool-testnet">Mempool</IonSelectOption>
+                    </>
+                  )}
+                  {network === 'regtest' && <IonSelectOption value="localhost">Localhost</IonSelectOption>}
                   <IonSelectOption value="custom">Custom</IonSelectOption>
                 </IonSelect>
               </IonItem>

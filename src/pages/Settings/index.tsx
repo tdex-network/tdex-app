@@ -85,6 +85,11 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 
+            <IonItem onClick={() => history.push(routerLinks.network)}>
+              <span>Network</span>
+              <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
+            </IonItem>
+
             <IonItem onClick={() => history.push(routerLinks.torProxy)}>
               <span>Tor proxy endpoint</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />

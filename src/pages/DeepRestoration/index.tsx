@@ -3,29 +3,29 @@ import type { RangeValue } from '@ionic/core/dist/types/components/range/range-i
 import { IonButton, IonCol, IonContent, IonGrid, IonItem, IonPage, IonRange, IonRow } from '@ionic/react';
 import type { Mnemonic } from 'ldk';
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { mnemonicRestorerFromEsplora } from 'tdex-sdk';
 
 import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
+import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { DeepRestorationError, IncorrectPINError } from '../../utils/errors';
 import { getIdentity } from '../../utils/storage-helper';
 
 const DeepRestoration: React.FC = () => {
   const [rangeValue, setRangeValue] = useState<RangeValue>(20);
-  const explorerLiquidAPI = useSelector((state: any) => state.settings.explorerLiquidAPI);
+  const { explorerLiquidAPI, network } = useTypedSelector(({ settings }) => settings);
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [needReset, setNeedReset] = useState<boolean>(false);
   const [isLoading, setLoading] = useState(false);
-  const dispatch = useDispatch();
+  const dispatch = useTypedDispatch();
 
   const handlePinConfirm = async (pin: string) => {
     try {
-      const identity = await getIdentity(pin);
+      const identity = await getIdentity(pin, network);
       setIsWrongPin(false);
       setTimeout(async () => {
         setNeedReset(true);

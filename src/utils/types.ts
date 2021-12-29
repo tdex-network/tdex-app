@@ -1,8 +1,8 @@
 import type moment from 'moment';
 
-export type ActionType = {
+export type ActionType<P = any> = {
   type: string;
-  payload?: any;
+  payload?: P;
 };
 
 export enum TxTypeEnum {

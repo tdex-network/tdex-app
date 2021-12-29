@@ -7,6 +7,7 @@ export const SET_TRANSACTION = 'SET_TRANSACTION';
 export const WATCH_TRANSACTION = 'WATCH_TRANSACTION';
 export const ADD_WATCHER_TRANSACTION = 'ADD_WATCHER_TRANSACTION';
 export const REMOVE_WATCHER_TRANSACTION = 'REMOVE_WATCHER_TRANSACTION';
+export const RESET_TRANSACTION_REDUCER = 'RESET_TRANSACTION_REDUCER';
 
 export const removeWatcherTransaction = (txID: string): ActionType => ({
   type: REMOVE_WATCHER_TRANSACTION,
@@ -34,9 +35,15 @@ export const updateTransactions = (): ActionType => {
   };
 };
 
-export const setTransaction = (transaction: TxInterface): ActionType => {
+export const setTransaction = (transaction: TxInterface): ActionType<TxInterface> => {
   return {
     type: SET_TRANSACTION,
     payload: transaction,
+  };
+};
+
+export const resetTransactionReducer = (): ActionType => {
+  return {
+    type: RESET_TRANSACTION_REDUCER,
   };
 };

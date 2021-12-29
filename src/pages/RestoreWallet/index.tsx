@@ -1,3 +1,4 @@
+import './style.scss';
 import { IonContent, IonButton, IonPage, IonInput, IonGrid, IonRow, IonCol } from '@ionic/react';
 import * as bip39 from 'bip39';
 import classNames from 'classnames';
@@ -5,6 +6,7 @@ import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
+import type { NetworkString } from 'tdex-sdk';
 
 import Header from '../../components/Header';
 import Loader from '../../components/Loader';
@@ -19,15 +21,14 @@ import type { AppError } from '../../utils/errors';
 import { InvalidMnemonicError, PINsDoNotMatchError, SecureStorageError } from '../../utils/errors';
 import { onPressEnterKeyFactory } from '../../utils/keyboard';
 import { clearStorage, getIdentity, setMnemonicInSecureStorage } from '../../utils/storage-helper';
-import './style.scss';
 
 interface RestoreWalletProps extends RouteComponentProps {
-  // connected redux props
   backupDone: boolean;
+  network: NetworkString;
   setIsBackupDone: (done: boolean) => void;
 }
 
-const RestoreWallet: React.FC<RestoreWalletProps> = ({ history, setIsBackupDone }) => {
+const RestoreWallet: React.FC<RestoreWalletProps> = ({ history, setIsBackupDone, network }) => {
   const [mnemonic, setMnemonicWord] = useMnemonic();
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [firstPin, setFirstPin] = useState<string>();
@@ -65,7 +66,7 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({ history, setIsBackupDone 
         .then(() => {
           setIsBackupDone(true);
           dispatch(addSuccessToast('Mnemonic generated and encrypted with your PIN.'));
-          getIdentity(newPin)
+          getIdentity(newPin, network)
             .then((mnemonic) => {
               setIsWrongPin(false);
               setTimeout(() => {

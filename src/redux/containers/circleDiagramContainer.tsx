@@ -2,9 +2,9 @@ import { connect } from 'react-redux';
 
 import type { CircleDiagramProps } from '../../components/CircleDiagram';
 import CircleDiagram from '../../components/CircleDiagram';
-import type { RootState } from '../../index';
 import type { BalanceInterface } from '../actionTypes/walletActionTypes';
 import { balancesSelector } from '../reducers/walletReducer';
+import type { RootState } from '../types';
 
 const mapStateToProps = (state: RootState): CircleDiagramProps => {
   return {
@@ -18,6 +18,7 @@ const mapStateToProps = (state: RootState): CircleDiagramProps => {
           amount: (price || 1) * balance.amount,
         };
       }),
+    network: state.settings.network,
   };
 };
 

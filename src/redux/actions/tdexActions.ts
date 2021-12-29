@@ -3,6 +3,7 @@ import type { TDEXProvider, TDEXMarket } from '../actionTypes/tdexActionTypes';
 
 export const ADD_PROVIDER = 'ADD_PROVIDER_ENDPOINT';
 export const DELETE_PROVIDER = 'DELETE_PROVIDER';
+export const CLEAR_PROVIDERS = 'CLEAR_PROVIDERS';
 export const UPDATE_MARKETS = 'UPDATE_MARKETS';
 export const ADD_MARKETS = 'ADD_MARKETS';
 export const CLEAR_MARKETS = 'CLEAR_MARKETS';
@@ -18,12 +19,16 @@ export const addMarkets = (markets: TDEXMarket[]): ActionType => {
   };
 };
 
-let nextId = 0;
+export const updateMarkets = (): ActionType => {
+  return {
+    type: UPDATE_MARKETS,
+  };
+};
 
 export const addProvider = (provider: TDEXProvider): ActionType => {
   return {
     type: ADD_PROVIDER,
-    payload: { ...provider, id: nextId++ },
+    payload: provider,
   };
 };
 
@@ -34,8 +39,8 @@ export const deleteProvider = (provider: TDEXProvider): ActionType => {
   };
 };
 
-export const updateMarkets = (): ActionType => {
+export const clearProviders = (): ActionType => {
   return {
-    type: UPDATE_MARKETS,
+    type: CLEAR_PROVIDERS,
   };
 };

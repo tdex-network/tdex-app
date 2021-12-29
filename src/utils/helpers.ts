@@ -9,22 +9,22 @@ import type {
 } from 'ldk';
 import { fetchTxHex, greedyCoinSelector, isBlindedUtxo } from 'ldk';
 import type { Dispatch } from 'redux';
-import { createFeeOutput } from 'tdex-sdk';
+import type { NetworkString } from 'tdex-sdk';
 
 import type { BalanceInterface } from '../redux/actionTypes/walletActionTypes';
 import { lockUtxo } from '../redux/actions/walletActions';
 
 import { throwErrorHandler } from './coinSelection';
 import type { AssetConfig, LbtcDenomination } from './constants';
-import { defaultPrecision, getColor, getMainAsset, LBTC_ASSET } from './constants';
+import { defaultPrecision, getColor, getMainAsset, LBTC_ASSET, LBTC_TICKER } from './constants';
 import type { TxDisplayInterface } from './types';
 
-export const createColorFromHash = (id: string): string => {
+export const createColorFromHash = (id: string, network: NetworkString): string => {
   let hash = 0;
   if (id.length === 0) throw Error('id length must be > 0');
-  const color = getColor(id);
+  const color = getColor(id, network);
   if (color) return color;
-  const ticker = tickerFromAssetHash(id);
+  const ticker = tickerFromAssetHash(network, id);
   for (let i = 0; i < ticker.length; i++) {
     hash = ticker.charCodeAt(i) + ((hash << 5) - hash);
   }
@@ -152,19 +152,21 @@ export async function sleep(ms: number): Promise<any> {
 }
 
 // compute balances value from a set of utxos
-export function balancesFromUtxos(utxos: UtxoInterface[], assets: Record<string, AssetConfig>): BalanceInterface[] {
+export function balancesFromUtxos(
+  utxos: UtxoInterface[],
+  assets: Record<string, AssetConfig>,
+  network: NetworkString
+): BalanceInterface[] {
   const balances: BalanceInterface[] = [];
   const utxosGroupedByAsset: Record<string, UtxoInterface[]> = groupBy(utxos, 'asset');
-
   for (const asset of Object.keys(utxosGroupedByAsset)) {
     const utxosForAsset = utxosGroupedByAsset[asset];
     const amount = sumUtxos(utxosForAsset);
-
-    const coinGeckoID = getMainAsset(asset)?.coinGeckoID;
+    const coinGeckoID = getMainAsset(asset, network)?.coinGeckoID;
     balances.push({
       asset,
       amount,
-      ticker: assets[asset]?.ticker || tickerFromAssetHash(asset),
+      ticker: assets[asset]?.ticker || tickerFromAssetHash(network, asset),
       coinGeckoID,
       precision: assets[asset]?.precision ?? defaultPrecision,
       name: assets[asset]?.name,
@@ -184,22 +186,22 @@ function sumUtxos(utxos: UtxoInterface[]): number {
   return sum;
 }
 
-export function tickerFromAssetHash(assetHash?: string): string {
+export function tickerFromAssetHash(network: NetworkString, assetHash?: string): string {
   if (!assetHash) return '';
-  const mainAsset = getMainAsset(assetHash);
+  const mainAsset = getMainAsset(assetHash, network);
   if (mainAsset) return mainAsset.ticker;
   return assetHash.slice(0, 4).toUpperCase();
 }
 
-export function precisionFromAssetHash(assetHash?: string): number | undefined {
+export function precisionFromAssetHash(network: NetworkString, assetHash?: string): number | undefined {
   if (!assetHash) return 8;
-  const mainAsset = getMainAsset(assetHash);
+  const mainAsset = getMainAsset(assetHash, network);
   if (mainAsset) return mainAsset.precision;
 }
 
-export function nameFromAssetHash(assetHash?: string): string | undefined {
+export function nameFromAssetHash(network: NetworkString, assetHash?: string): string | undefined {
   if (!assetHash) return '';
-  const mainAsset = getMainAsset(assetHash);
+  const mainAsset = getMainAsset(assetHash, network);
   if (mainAsset) return mainAsset.name;
 }
 
@@ -224,43 +226,12 @@ export function customCoinSelector(dispatch?: Dispatch): CoinSelector {
     };
 }
 
-export function getAssetHashLBTC(): string {
-  return LBTC_ASSET.assetHash;
+export function isLbtc(asset: string, network: NetworkString): boolean {
+  return asset === LBTC_ASSET[network].assetHash;
 }
 
-export function isLbtc(asset: string): boolean {
-  return asset === getAssetHashLBTC();
-}
-
-/**
- * Estimate the number of LBTC sats to pay fees
- * @param setOfUtxos spendable unspents coins
- * @param recipients a set of recipients/outputs describing the transaction
- * @param satsPerByte
- * @param errorHandler
- */
-export function estimateFeeAmount(
-  setOfUtxos: UtxoInterface[],
-  recipients: RecipientInterface[],
-  satsPerByte = 0.1,
-  errorHandler = throwErrorHandler
-): number {
-  const address = 'doesntmatteraddress';
-  const greedy = greedyCoinSelector();
-  const { selectedUtxos, changeOutputs } = greedy(errorHandler)(
-    setOfUtxos,
-    [
-      ...recipients,
-      {
-        address,
-        asset: getAssetHashLBTC(),
-        value: 300,
-      },
-    ],
-    () => address
-  );
-  const fee = createFeeOutput(selectedUtxos.length, changeOutputs.length + 1, satsPerByte, LBTC_ASSET.assetHash);
-  return fee.value;
+export function isLbtcTicker(ticker: string): boolean {
+  return ticker === LBTC_TICKER['liquid'] || ticker === LBTC_TICKER['testnet'];
 }
 
 /**

@@ -1,6 +1,7 @@
 import type { BlindedOutputInterface, InputInterface, TxInterface, UnblindedOutputInterface } from 'ldk';
 import { isBlindedOutputInterface } from 'ldk';
 import moment from 'moment';
+import type { NetworkString } from 'tdex-sdk';
 
 import { isLbtc } from '../../utils/helpers';
 import type { Transfer, TxDisplayInterface } from '../../utils/types';
@@ -9,7 +10,8 @@ import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
 function getTransfers(
   vin: InputInterface[],
   vout: (BlindedOutputInterface | UnblindedOutputInterface)[],
-  walletScripts: string[]
+  walletScripts: string[],
+  network: NetworkString
 ): Transfer[] {
   const transfers: Transfer[] = [];
   let feeAmount: number;
@@ -27,7 +29,7 @@ function getTransfers(
       }
 
       // Deduct feeAmount on LBTC withdrawal
-      if (feeAmount && isLbtc(asset) && transfers.length === 1) {
+      if (feeAmount && isLbtc(asset, network) && transfers.length === 1) {
         transfers[transferIndex].amount = tmp + feeAmount;
       } else {
         transfers[transferIndex].amount = tmp;
@@ -91,9 +93,14 @@ export function txTypeFromTransfer(transfers: Transfer[]): TxTypeEnum {
  * Convert a TxInterface to DisplayInterface
  * @param tx txInterface
  * @param walletScripts the wallet's scripts i.e wallet scripts from wallet's addresses.
+ * @param network
  */
-export function toDisplayTransaction(tx: TxInterface, walletScripts: string[]): TxDisplayInterface {
-  const transfers = getTransfers(tx.vin, tx.vout, walletScripts);
+export function toDisplayTransaction(
+  tx: TxInterface,
+  walletScripts: string[],
+  network: NetworkString
+): TxDisplayInterface {
+  const transfers = getTransfers(tx.vin, tx.vout, walletScripts, network);
   return {
     txId: tx.txid,
     blockTime: tx.status.blockTime ? moment(tx.status.blockTime * 1000) : undefined,

@@ -1,8 +1,8 @@
 import { connect } from 'react-redux';
 
-import type { RootState } from '../../index';
 import Wallet from '../../pages/Wallet';
 import { aggregatedLBTCBalanceSelector, balancesSelector } from '../reducers/walletReducer';
+import type { RootState } from '../types';
 
 const mapStateToProps = (state: RootState) => {
   return {
@@ -11,6 +11,7 @@ const mapStateToProps = (state: RootState) => {
     currency: state.settings.currency.value,
     isFetchingUtxos: state.app.isFetchingUtxos,
     lbtcUnit: state.settings.denominationLBTC,
+    network: state.settings.network,
     prices: state.rates.prices,
     totalLBTC: aggregatedLBTCBalanceSelector(state),
   };

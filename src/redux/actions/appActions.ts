@@ -1,4 +1,5 @@
 import type { Mnemonic } from 'ldk';
+import type { MasterPublicKey } from 'ldk/dist/identity/masterpubkey';
 
 import type { ActionType } from '../../utils/types';
 
@@ -56,9 +57,9 @@ export const setSignedUp = (signedUp: boolean): ActionType => {
   };
 };
 
-export const signIn = (mnemonic: Mnemonic): ActionType => {
+export const signIn = (identity: Mnemonic | MasterPublicKey): ActionType<Mnemonic | MasterPublicKey> => {
   return {
     type: SIGN_IN,
-    payload: { mnemonic },
+    payload: identity,
   };
 };

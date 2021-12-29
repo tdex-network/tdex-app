@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 
 import ExchangeSearch from '../../components/ExchangeSearch';
-import type { RootState } from '../../index';
+import type { RootState } from '../types';
 
 const mapStateToProps = (state: RootState) => {
   return {

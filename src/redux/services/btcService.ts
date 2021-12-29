@@ -6,25 +6,25 @@ import type { Mnemonic } from 'ldk';
 import { confidential, ECPair, script as bscript, Transaction } from 'liquidjs-lib';
 import type { ECPairInterface } from 'liquidjs-lib/types/ecpair';
 import ElementsPegin from 'pegin';
+import type { NetworkString } from 'tdex-sdk';
 import { getNetwork } from 'tdex-sdk';
 
-import { FEDPEGSCRIPT, LBTC_ASSET } from '../../utils/constants';
-import { network } from '../config';
+import { getFedPegScript, LBTC_ASSET } from '../../utils/constants';
 import type { Pegins } from '../reducers/btcReducer';
 
 import { broadcastTx } from './walletService';
 
-export async function getPeginModule(): Promise<ElementsPegin> {
+export async function getPeginModule(network: NetworkString): Promise<ElementsPegin> {
   let peginModule: ElementsPegin;
-  if (network.chain === 'liquid') {
+  if (network === 'liquid') {
     peginModule = new ElementsPegin(await ElementsPegin.withGoElements(), await ElementsPegin.withLibwally());
   } else {
     peginModule = new ElementsPegin(
       await ElementsPegin.withGoElements(),
       await ElementsPegin.withLibwally(),
       ElementsPegin.withDynamicFederation(false),
-      ElementsPegin.withTestnet(LBTC_ASSET.assetHash),
-      ElementsPegin.withFederationScript(FEDPEGSCRIPT)
+      ElementsPegin.withTestnet(LBTC_ASSET[network].assetHash),
+      ElementsPegin.withFederationScript(getFedPegScript(network))
     );
   }
   return peginModule;
@@ -35,10 +35,11 @@ export async function claimPegins(
   explorerLiquidAPI: string,
   pegins: Pegins,
   mnemonic: Mnemonic,
-  currentBtcBlockHeight: number
+  currentBtcBlockHeight: number,
+  network: NetworkString
 ): Promise<Pegins> {
   let claimedPegins: Pegins = {};
-  const peginModule = await getPeginModule();
+  const peginModule = await getPeginModule(network);
   for (const claimScript in pegins) {
     const pegin = pegins[claimScript];
     for (const outpoint in pegin?.depositUtxos) {
@@ -48,7 +49,7 @@ export async function claimPegins(
       // Continue if utxo not claimed and claimable
       if (!depositUtxo.claimTxId && confirmations && confirmations >= 102) {
         try {
-          const ecPair = generateSigningPrivKey(mnemonic, pegin.depositAddress.derivationPath);
+          const ecPair = generateSigningPrivKey(mnemonic, pegin.depositAddress.derivationPath, network);
           const btcPeginTxHex = (await axios.get(`${explorerBitcoinAPI}/tx/${depositUtxo.txid}/hex`)).data;
           const btcBlockProof = (await axios.get(`${explorerBitcoinAPI}/tx/${depositUtxo.txid}/merkleblock-proof`))
             .data;
@@ -79,10 +80,10 @@ export async function claimPegins(
   return claimedPegins;
 }
 
-function generateSigningPrivKey(mnemonic: Mnemonic, derivationPath: string): ECPairInterface {
-  const node: BIP32Interface = bip32.fromBase58(mnemonic.masterPrivateKeyNode.toBase58(), getNetwork(network.chain));
+function generateSigningPrivKey(mnemonic: Mnemonic, derivationPath: string, network: NetworkString): ECPairInterface {
+  const node: BIP32Interface = bip32.fromBase58(mnemonic.masterPrivateKeyNode.toBase58(), getNetwork(network));
   const child: BIP32Interface = node.derivePath(derivationPath);
-  return ECPair.fromWIF(child.toWIF(), getNetwork(network.chain));
+  return ECPair.fromWIF(child.toWIF(), getNetwork(network));
 }
 
 function signClaimTx(claimTxHex: string, btcPeginTxHex: string, claimScript: string, ecPair: ECPairInterface): string {

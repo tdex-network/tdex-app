@@ -3,10 +3,14 @@ import { createSelector } from 'reselect';
 
 import type { ActionType, TxDisplayInterface } from '../../utils/types';
 import { TxTypeEnum } from '../../utils/types';
-import { ADD_WATCHER_TRANSACTION, REMOVE_WATCHER_TRANSACTION, SET_TRANSACTION } from '../actions/transactionsActions';
+import {
+  ADD_WATCHER_TRANSACTION,
+  REMOVE_WATCHER_TRANSACTION,
+  RESET_TRANSACTION_REDUCER,
+  SET_TRANSACTION,
+} from '../actions/transactionsActions';
 import { toDisplayTransaction } from '../transformers/transactionsTransformer';
-
-import type { WalletState } from './walletReducer';
+import type { RootState } from '../types';
 
 interface TransactionState {
   // record txid ---> tx
@@ -36,6 +40,8 @@ const transactionsReducer = (
         ...state,
         txs: { ...state.txs, [action.payload.txid]: action.payload },
       };
+    case RESET_TRANSACTION_REDUCER:
+      return initialState;
     default:
       return state;
   }
@@ -48,9 +54,9 @@ export const transactionsSelector = ({ transactions }: { transactions: Transacti
 // memoized selector, map transactions to TxDisplayInterface[]
 export const transactionsToDisplaySelector = createSelector(
   transactionsSelector,
-  (state: any) => Object.keys(state.wallet.addresses),
-  (txs: TxInterface[], scripts: string[]) => {
-    return txs.map((tx) => toDisplayTransaction(tx, scripts));
+  ({ settings, wallet }: RootState) => ({ network: settings.network, scripts: Object.keys(wallet.addresses) }),
+  (txs, { network, scripts }) => {
+    return txs.map((tx) => toDisplayTransaction(tx, scripts, network));
   }
 );
 
@@ -72,9 +78,12 @@ export const transactionsAssets = createSelector(transactionsToDisplaySelector, 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const transactionSelector = (txID: string) =>
   createSelector(
-    ({ transactions }: { transactions: TransactionState }) => transactions.txs[txID],
-    ({ wallet }: { wallet: WalletState }) => Object.keys(wallet.addresses),
-    (tx, scripts) => (tx ? toDisplayTransaction(tx, scripts) : undefined)
+    ({ transactions, settings, wallet }: RootState) => ({
+      network: settings.network,
+      scripts: Object.keys(wallet.addresses),
+      tx: transactions.txs[txID],
+    }),
+    ({ tx, network, scripts }) => (tx ? toDisplayTransaction(tx, scripts, network) : undefined)
   );
 
 // filter by transaction type

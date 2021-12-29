@@ -132,10 +132,11 @@ export const IconQR = (props: IconInterface): JSX.Element => (
 );
 
 export const CurrencyIcon = ({ currency, ...props }: any): any => {
-  switch (currency?.toUpperCase()) {
+  switch (currency) {
     case BTC_TICKER:
       return <img src={BtcIcon} {...props} alt="BTC" />;
-    case LBTC_TICKER:
+    case LBTC_TICKER['liquid']:
+    case LBTC_TICKER['testnet']:
       return <img src={LbtcIcon} {...props} alt="L-BTC" />;
     case USDT_TICKER:
       return <img src={UsdtIcon} {...props} alt="USDt" />;

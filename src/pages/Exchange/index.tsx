@@ -15,6 +15,7 @@ import { mnemonicRestorerFromState } from 'ldk';
 import React, { useState, useEffect } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import type { Dispatch } from 'redux';
+import type { NetworkString } from 'tdex-sdk';
 import { TradeType } from 'tdex-sdk';
 
 import swap from '../../assets/img/swap.svg';
@@ -30,9 +31,9 @@ import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import ExchangeRow from '../../redux/containers/exchangeRowContainer';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
-import { defaultPrecision, PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
+import { defaultPrecision, LBTC_ASSET, PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { AppError, IncorrectPINError, NoMarketsProvidedError } from '../../utils/errors';
-import { customCoinSelector, getAssetHashLBTC, isLbtc, toSatoshi } from '../../utils/helpers';
+import { customCoinSelector, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
 import type { TDexMnemonicRedux } from '../../utils/identity';
 import { getConnectedTDexMnemonic } from '../../utils/storage-helper';
 import type { AssetWithTicker } from '../../utils/tdex';
@@ -52,8 +53,9 @@ interface ExchangeProps extends RouteComponentProps {
   lastUsedIndexes: StateRestorerOpts;
   lbtcUnit: LbtcDenomination;
   markets: TDEXMarket[];
-  utxos: UtxoInterface[];
+  network: NetworkString;
   torProxy: string;
+  utxos: UtxoInterface[];
 }
 
 const Exchange: React.FC<ExchangeProps> = ({
@@ -63,10 +65,10 @@ const Exchange: React.FC<ExchangeProps> = ({
   markets,
   utxos,
   assets,
-  allAssets,
   dispatch,
   lastUsedIndexes,
   lbtcUnit,
+  network,
   torProxy,
 }) => {
   const [hasBeenSwapped, setHasBeenSwapped] = useState<boolean>(false);
@@ -99,9 +101,10 @@ const Exchange: React.FC<ExchangeProps> = ({
       history.goBack();
       return;
     }
-    const lbtcHash = getAssetHashLBTC();
-    const lbtcAsset = allAssets.find((h) => h.asset === lbtcHash);
-    setAssetSent(lbtcAsset);
+    setAssetSent({
+      asset: LBTC_ASSET[network].assetHash,
+      ticker: LBTC_ASSET[network].ticker,
+    });
     setSentAmount(undefined);
     setReceivedAmount(undefined);
   }, [balances, markets]);
@@ -113,7 +116,7 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   useEffect(() => {
     if (!assetSent) return;
-    const sentTradables = getTradablesAssets(markets, assetSent.asset);
+    const sentTradables = getTradablesAssets(markets, assetSent.asset, network);
     // TODO: Add opposite asset and remove current
     setTradableAssetsForAssetReceived(sentTradables);
     setAssetReceived(sentTradables[0]);
@@ -121,7 +124,7 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   useEffect(() => {
     if (assetReceived) {
-      const receivedTradables = getTradablesAssets(markets, assetReceived.asset);
+      const receivedTradables = getTradablesAssets(markets, assetReceived.asset, network);
       // TODO: Add opposite asset and remove current
       setTradableAssetsForAssetSent(receivedTradables);
     }
@@ -133,7 +136,7 @@ const Exchange: React.FC<ExchangeProps> = ({
     const sats = toSatoshi(
       sentAmount,
       assets[assetSent.asset]?.precision ?? defaultPrecision,
-      assetSent.ticker === 'L-BTC' ? lbtcUnit : undefined
+      isLbtcTicker(assetSent.ticker) ? lbtcUnit : undefined
     );
     if (!hasBeenSwapped && availableAmount && sats.greaterThan(availableAmount)) {
       setErrorSent(ERROR_LIQUIDITY);
@@ -148,7 +151,7 @@ const Exchange: React.FC<ExchangeProps> = ({
     const sats = toSatoshi(
       receivedAmount,
       assets[assetReceived.asset]?.precision ?? defaultPrecision,
-      assetReceived.ticker === 'L-BTC' ? lbtcUnit : undefined
+      isLbtcTicker(assetReceived.ticker) ? lbtcUnit : undefined
     );
     if (!hasBeenSwapped && availableAmount && sats.greaterThan(availableAmount)) {
       setErrorReceived(ERROR_LIQUIDITY);
@@ -162,7 +165,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   const sentAmountGreaterThanBalance = () => {
     const balance = balances.find((b) => b.asset === assetSent?.asset);
     if (!balance || !sentAmount) return true;
-    const amountAsSats = toSatoshi(sentAmount, balance.precision, balance.ticker === 'L-BTC' ? lbtcUnit : undefined);
+    const amountAsSats = toSatoshi(sentAmount, balance.precision, isLbtcTicker(balance.ticker) ? lbtcUnit : undefined);
     return amountAsSats.greaterThan(balance.amount);
   };
 
@@ -176,7 +179,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       setLoading(true);
       let identity;
       try {
-        const toRestore = await getConnectedTDexMnemonic(pin, dispatch);
+        const toRestore = await getConnectedTDexMnemonic(pin, dispatch, network);
         identity = (await mnemonicRestorerFromState(toRestore)(lastUsedIndexes)) as TDexMnemonicRedux;
         setIsWrongPin(false);
         setTimeout(() => {
@@ -193,7 +196,7 @@ const Exchange: React.FC<ExchangeProps> = ({
           amount: toSatoshi(
             sentAmount,
             assets[assetSent.asset]?.precision ?? defaultPrecision,
-            isLbtc(assetSent.asset) ? lbtcUnit : undefined
+            isLbtc(assetSent.asset, network) ? lbtcUnit : undefined
           ).toNumber(),
           asset: assetSent.asset,
         },
@@ -248,8 +251,8 @@ const Exchange: React.FC<ExchangeProps> = ({
           open={modalOpen}
           title="Unlock your seed"
           description={`Enter your secret PIN to send ${sentAmount} ${
-            isLbtc(assetSent.asset) ? lbtcUnit : assetSent.ticker
-          } and receive ${receivedAmount} ${isLbtc(assetReceived.asset) ? lbtcUnit : assetReceived.ticker}.`}
+            isLbtc(assetSent.asset, network) ? lbtcUnit : assetSent.ticker
+          } and receive ${receivedAmount} ${isLbtc(assetReceived.asset, network) ? lbtcUnit : assetReceived.ticker}.`}
           onConfirm={onPinConfirm}
           onClose={() => {
             setModalOpen(false);
@@ -301,6 +304,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               setOtherInputError={setErrorReceived}
               isLoading={isLoading}
               torProxy={torProxy}
+              network={network}
             />
 
             <div className="exchange-divider ion-activatable" onClick={swapAssetsAndAmounts}>
@@ -334,6 +338,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                 setOtherInputError={setErrorSent}
                 isLoading={isLoading}
                 torProxy={torProxy}
+                network={network}
               />
             )}
 
@@ -370,5 +375,4 @@ const Exchange: React.FC<ExchangeProps> = ({
     </IonPage>
   );
 };
-
 export default Exchange;
