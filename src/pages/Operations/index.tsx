@@ -33,7 +33,13 @@ import WatchersLoader from '../../redux/containers/watchersLoaderContainer';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
 import type { LbtcDenomination } from '../../utils/constants';
 import { defaultPrecision, LBTC_TICKER, MAIN_ASSETS } from '../../utils/constants';
-import { compareTxDisplayInterfaceByDate, fromSatoshi, fromSatoshiFixed, isLbtc } from '../../utils/helpers';
+import {
+  compareTxDisplayInterfaceByDate,
+  fromSatoshi,
+  fromSatoshiFixed,
+  isLbtc,
+  isLbtcTicker,
+} from '../../utils/helpers';
 import type { Transfer, TxDisplayInterface } from '../../utils/types';
 import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
 
@@ -206,9 +212,9 @@ const Operations: React.FC<OperationsProps> = ({
               balance?.amount.toString(),
               balance.precision,
               balance.precision,
-              balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+              isLbtcTicker(balance.ticker) ? lbtcUnit : undefined
             )}
-          <span>{balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker}</span>
+          <span>{isLbtcTicker(balance?.ticker || '') ? lbtcUnit : balance?.ticker}</span>
         </p>
         {balance?.coinGeckoID && prices[balance.coinGeckoID] && (
           <span className="info-amount-converted">
@@ -237,11 +243,11 @@ const Operations: React.FC<OperationsProps> = ({
               transfer.amount.toString(),
               balance.precision,
               balance.precision,
-              balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+              isLbtcTicker(balance.ticker) ? lbtcUnit : undefined
             )
           : 'unknown'}
         <span className="ticker">
-          {TxTypeEnum[tx.type] === 'DepositBtc' || balance.ticker === 'L-BTC' ? lbtcUnit : balance.ticker}
+          {TxTypeEnum[tx.type] === 'DepositBtc' || isLbtcTicker(balance.ticker) ? lbtcUnit : balance.ticker}
         </span>
       </div>
       <div className="operation-amount__fiat">

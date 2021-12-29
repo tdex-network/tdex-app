@@ -36,7 +36,7 @@ import { decodeBip21 } from '../../utils/bip21';
 import type { LbtcDenomination } from '../../utils/constants';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { IncorrectPINError, WithdrawTxError } from '../../utils/errors';
-import { customCoinSelector, fromLbtcToUnit, fromSatoshi, isLbtc, toSatoshi } from '../../utils/helpers';
+import { customCoinSelector, fromLbtcToUnit, fromSatoshi, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import { getConnectedIdentity } from '../../utils/storage-helper';
 
@@ -147,7 +147,11 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   const getRecipient = (): RecipientInterface => ({
     address: recipientAddress?.trim(),
     asset: balance?.asset || '',
-    value: toSatoshi(amount || '0', balance?.precision, balance?.ticker === 'L-BTC' ? lbtcUnit : undefined).toNumber(),
+    value: toSatoshi(
+      amount || '0',
+      balance?.precision,
+      isLbtcTicker(balance?.ticker || '') ? lbtcUnit : undefined
+    ).toNumber(),
   });
 
   const isValid = (): boolean => {
@@ -227,7 +231,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         open={modalOpen}
         title="Unlock your seed"
         description={`Enter your secret PIN to send ${amount} ${
-          balance?.ticker === 'L-BTC' ? lbtcUnit : balance?.ticker
+          isLbtcTicker(balance?.ticker || '') ? lbtcUnit : balance?.ticker
         }.`}
         onConfirm={createTxAndBroadcast}
         onClose={() => {
@@ -268,7 +272,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
                     if (options?.amount) {
                       // Treat the amount as in btc unit
                       // Convert to user favorite unit, taking into account asset precision
-                      const unit = isLbtc(balance?.asset || '') ? lbtcUnit : undefined;
+                      const unit = isLbtc(balance?.asset || '', network) ? lbtcUnit : undefined;
                       const amtConverted = fromLbtcToUnit(
                         new Decimal(options?.amount as string),
                         unit,

@@ -12,7 +12,7 @@ import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes
 import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
 import { defaultPrecision } from '../../utils/constants';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
-import { fromSatoshi, fromSatoshiFixed, isLbtc, toLBTCwithUnit, toSatoshi } from '../../utils/helpers';
+import { fromSatoshi, fromSatoshiFixed, isLbtc, isLbtcTicker, toLBTCwithUnit, toSatoshi } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
 import { onPressEnterKeyCloseKeyboard, setAccessoryBar } from '../../utils/keyboard';
 import { bestBalance, bestPrice, calculatePrice } from '../../utils/tdex';
@@ -249,7 +249,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           <span className="icon-wrapper">
             <CurrencyIcon currency={asset.ticker} />
           </span>
-          <span>{asset.ticker === 'L-BTC' ? lbtcUnit : asset.ticker.toUpperCase()}</span>
+          <span>{isLbtcTicker(asset.ticker) ? lbtcUnit : asset.ticker.toUpperCase()}</span>
           <IonIcon className="icon" icon={chevronDownOutline} />
         </div>
 
@@ -287,7 +287,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
                 balance?.amount.toString() || '0',
                 balance?.precision,
                 balance?.precision ?? defaultPrecision,
-                balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
+                isLbtcTicker(balance?.ticker || '') ? lbtcUnit : undefined
               )
             );
           }}
@@ -297,8 +297,8 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             balance?.amount.toString() || '0',
             balance?.precision,
             balance?.precision ?? defaultPrecision,
-            balance?.ticker === 'L-BTC' ? lbtcUnit : undefined
-          )} ${balance?.ticker === 'L-BTC' ? lbtcUnit : asset.ticker}`}</span>
+            isLbtcTicker(balance?.ticker || '') ? lbtcUnit : undefined
+          )} ${isLbtcTicker(balance?.ticker || '') ? lbtcUnit : asset.ticker}`}</span>
         </span>
         {isUpdating ? (
           <IonSpinner name="dots" />
@@ -308,7 +308,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
               <IonText color="danger">{error}</IonText>
             ) : (
               <>
-                {toLBTCwithUnit(new Decimal(amount), balance?.ticker === 'L-BTC' ? lbtcUnit : undefined)
+                {toLBTCwithUnit(new Decimal(amount), isLbtcTicker(balance?.ticker || '') ? lbtcUnit : undefined)
                   .mul(prices[asset.coinGeckoID])
                   .toFixed(2)}{' '}
                 {currency.toUpperCase()}

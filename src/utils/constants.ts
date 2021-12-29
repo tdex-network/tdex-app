@@ -7,6 +7,7 @@ export const defaultPrecision = 8;
 
 export const BTC_TICKER = 'BTC';
 export const LBTC_TICKER = 'L-BTC';
+export const LBTC_TESTNET_TICKER = 'tL-BTC';
 export const USDT_TICKER = 'USDT';
 export const LCAD_TICKER = 'LCAD';
 export const BTSE_TICKER = 'BTSE';

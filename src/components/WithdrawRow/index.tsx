@@ -10,7 +10,7 @@ import type { NetworkString } from 'tdex-sdk';
 
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { updatePrices } from '../../redux/actions/ratesActions';
-import { fromSatoshi, fromSatoshiFixed, isLbtc, toLBTCwithUnit } from '../../utils/helpers';
+import { fromSatoshi, fromSatoshiFixed, isLbtc, isLbtcTicker, toLBTCwithUnit } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
 import { onPressEnterKeyCloseKeyboard, setAccessoryBar } from '../../utils/keyboard';
 import { CurrencyIcon } from '../icons';
@@ -32,7 +32,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
       balance.amount.toString(),
       balance.precision,
       balance.precision,
-      balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+      isLbtcTicker(balance.ticker) ? lbtcUnit : undefined
     )
   );
   const [fiat, setFiat] = useState<string>('0.00');
@@ -99,7 +99,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
           <span className="icon-wrapper">
             <CurrencyIcon currency={balance.ticker} />
           </span>
-          <span>{balance.ticker === 'L-BTC' ? lbtcUnit : balance.ticker.toUpperCase()}</span>
+          <span>{isLbtcTicker(balance.ticker) ? lbtcUnit : balance.ticker.toUpperCase()}</span>
           <IonIcon className="icon" icon={chevronDownOutline} />
         </div>
 
@@ -131,7 +131,9 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
           {error || !residualBalance ? (
             '0.00'
           ) : (
-            <span>{`${residualBalance} ${balance.ticker === 'L-BTC' ? lbtcUnit : balance.ticker.toUpperCase()}`}</span>
+            <span>{`${residualBalance} ${
+              isLbtcTicker(balance.ticker) ? lbtcUnit : balance.ticker.toUpperCase()
+            }`}</span>
           )}
         </span>
         <span className="ion-text-right">

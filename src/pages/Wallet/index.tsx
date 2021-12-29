@@ -25,7 +25,7 @@ import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes
 import { routerLinks } from '../../routes';
 import type { LbtcDenomination } from '../../utils/constants';
 import { getLbtcAsset, getMainAsset, LBTC_COINGECKOID, MAIN_ASSETS } from '../../utils/constants';
-import { capitalizeFirstLetter, fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
+import { capitalizeFirstLetter, fromSatoshi, fromSatoshiFixed, isLbtcTicker } from '../../utils/helpers';
 import './style.scss';
 
 interface WalletProps extends RouteComponentProps {
@@ -96,7 +96,7 @@ const Wallet: React.FC<WalletProps> = ({
       main.push(lbtc);
     }
     // Delete L-BTC from array
-    const lbtcIndex = main.findIndex((a) => a.ticker === 'L-BTC');
+    const lbtcIndex = main.findIndex((a) => isLbtcTicker(a.ticker));
     const [lbtc] = main.splice(lbtcIndex, 1);
     // Sort by balance
     main.sort((a, b) => {
@@ -184,9 +184,9 @@ const Wallet: React.FC<WalletProps> = ({
                             balance.amount.toString(),
                             balance.precision,
                             balance.precision,
-                            balance.ticker === 'L-BTC' ? lbtcUnit : undefined
+                            isLbtcTicker(balance.ticker) ? lbtcUnit : undefined
                           )}{' '}
-                          <span className="ticker">{balance.ticker === 'L-BTC' ? lbtcUnit : balance.ticker}</span>
+                          <span className="ticker">{isLbtcTicker(balance.ticker) ? lbtcUnit : balance.ticker}</span>
                         </div>
                         <div className="amount-fiat">
                           {fiatValue < 0

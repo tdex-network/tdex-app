@@ -122,6 +122,10 @@ export function setTransactionsInStorage(txs: TxInterface[]): void {
   Storage.set({ key: TRANSACTIONS_KEY, value: stringify(txs) });
 }
 
+export async function clearTransactionsInStorage(): Promise<void> {
+  await Storage.remove({ key: TRANSACTIONS_KEY });
+}
+
 export async function getUtxosFromStorage(): Promise<UtxoInterface[]> {
   return getFromStorage<UtxoInterface[]>(UTXOS_KEY, []);
 }

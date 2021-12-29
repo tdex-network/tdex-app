@@ -12,7 +12,7 @@ import { useTypedSelector } from '../../redux/hooks';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { clipboardCopy } from '../../utils/clipboard';
 import type { LbtcDenomination } from '../../utils/constants';
-import { nameFromAssetHash, tickerFromAssetHash } from '../../utils/helpers';
+import { isLbtcTicker, nameFromAssetHash, tickerFromAssetHash } from '../../utils/helpers';
 import { TxStatusEnum } from '../../utils/types';
 import './style.scss';
 
@@ -57,7 +57,7 @@ const WithdrawalDetails: React.FC<RouteComponentProps<any, any, WithdrawalDetail
 
   const ticker = () => {
     const t = tickerFromAssetHash(network, locationState?.asset);
-    return t === 'L-BTC' ? locationState?.lbtcUnit : t;
+    return isLbtcTicker(t) ? locationState?.lbtcUnit : t;
   };
 
   const Skeleton = () => <IonSkeletonText className="custom-skeleton" animated />;

@@ -26,14 +26,7 @@ function* updateMarketsWithProvidersEndpoints() {
     try {
       const providerMarkets: TDEXMarket[] = yield call(getMarketsFromProvider, p, torProxy);
       for (const market of providerMarkets) {
-        if (
-          !markets.find(
-            (m) =>
-              m.baseAsset === market.baseAsset &&
-              m.quoteAsset === market.quoteAsset &&
-              m.provider.id === market.provider.id
-          )
-        ) {
+        if (!markets.find((m) => m.baseAsset === market.baseAsset && m.quoteAsset === market.quoteAsset)) {
           yield put(addMarkets([market]));
         }
       }

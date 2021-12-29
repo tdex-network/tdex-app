@@ -33,7 +33,7 @@ import ExchangeRow from '../../redux/containers/exchangeRowContainer';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
 import { defaultPrecision, getLbtcAsset, PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { AppError, IncorrectPINError, NoMarketsProvidedError } from '../../utils/errors';
-import { customCoinSelector, isLbtc, toSatoshi } from '../../utils/helpers';
+import { customCoinSelector, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
 import type { TDexMnemonicRedux } from '../../utils/identity';
 import { getConnectedTDexMnemonic } from '../../utils/storage-helper';
 import type { AssetWithTicker } from '../../utils/tdex';
@@ -136,7 +136,7 @@ const Exchange: React.FC<ExchangeProps> = ({
     const sats = toSatoshi(
       sentAmount,
       assets[assetSent.asset]?.precision ?? defaultPrecision,
-      assetSent.ticker === 'L-BTC' ? lbtcUnit : undefined
+      isLbtcTicker(assetSent.ticker) ? lbtcUnit : undefined
     );
     if (!hasBeenSwapped && availableAmount && sats.greaterThan(availableAmount)) {
       setErrorSent(ERROR_LIQUIDITY);
@@ -151,7 +151,7 @@ const Exchange: React.FC<ExchangeProps> = ({
     const sats = toSatoshi(
       receivedAmount,
       assets[assetReceived.asset]?.precision ?? defaultPrecision,
-      assetReceived.ticker === 'L-BTC' ? lbtcUnit : undefined
+      isLbtcTicker(assetReceived.ticker) ? lbtcUnit : undefined
     );
     if (!hasBeenSwapped && availableAmount && sats.greaterThan(availableAmount)) {
       setErrorReceived(ERROR_LIQUIDITY);
@@ -165,7 +165,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   const sentAmountGreaterThanBalance = () => {
     const balance = balances.find((b) => b.asset === assetSent?.asset);
     if (!balance || !sentAmount) return true;
-    const amountAsSats = toSatoshi(sentAmount, balance.precision, balance.ticker === 'L-BTC' ? lbtcUnit : undefined);
+    const amountAsSats = toSatoshi(sentAmount, balance.precision, isLbtcTicker(balance.ticker) ? lbtcUnit : undefined);
     return amountAsSats.greaterThan(balance.amount);
   };
 

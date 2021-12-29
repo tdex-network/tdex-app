@@ -25,11 +25,10 @@ export const updateMarkets = (): ActionType => {
   };
 };
 
-let nextId = 0;
 export const addProvider = (provider: TDEXProvider): ActionType => {
   return {
     type: ADD_PROVIDER,
-    payload: { ...provider, id: nextId++ },
+    payload: provider,
   };
 };
 

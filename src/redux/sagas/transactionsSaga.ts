@@ -3,7 +3,11 @@ import { fetchAndUnblindTxsGenerator, isBlindedOutputInterface, fetchTx, unblind
 import { takeLatest, call, put, select, takeEvery, delay } from 'redux-saga/effects';
 
 import { UpdateTransactionsError } from '../../utils/errors';
-import { getTransactionsFromStorage, setTransactionsInStorage } from '../../utils/storage-helper';
+import {
+  clearTransactionsInStorage,
+  getTransactionsFromStorage,
+  setTransactionsInStorage,
+} from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
 import { SIGN_IN } from '../actions/appActions';
 import { addAsset } from '../actions/assetsActions';
@@ -15,6 +19,7 @@ import {
   SET_TRANSACTION,
   UPDATE_TRANSACTIONS,
   WATCH_TRANSACTION,
+  RESET_TRANSACTION_REDUCER,
 } from '../actions/transactionsActions';
 import type { WalletState } from '../reducers/walletReducer';
 import type { RootState } from '../types';
@@ -146,6 +151,10 @@ function blindKeyGetterFactory(scriptsToAddressInterface: Record<string, Address
   };
 }
 
+function* resetTransactions() {
+  yield call(clearTransactionsInStorage);
+}
+
 export function* transactionsWatcherSaga(): Generator<any, any, any> {
   yield takeLatest(UPDATE_TRANSACTIONS, function* sequence() {
     yield* updateTransactions();
@@ -154,4 +163,5 @@ export function* transactionsWatcherSaga(): Generator<any, any, any> {
   yield takeEvery(SET_TRANSACTION, updateAssets);
   yield takeLatest(SIGN_IN, restoreTransactions);
   yield takeEvery(WATCH_TRANSACTION, watchTransaction);
+  yield takeEvery(RESET_TRANSACTION_REDUCER, resetTransactions);
 }
