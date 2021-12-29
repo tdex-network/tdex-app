@@ -16,7 +16,7 @@ import { lockUtxo } from '../redux/actions/walletActions';
 
 import { throwErrorHandler } from './coinSelection';
 import type { AssetConfig, LbtcDenomination } from './constants';
-import { defaultPrecision, getColor, getLbtcAsset, getMainAsset, LBTC_TESTNET_TICKER, LBTC_TICKER } from './constants';
+import { defaultPrecision, getColor, getMainAsset, LBTC_ASSET, LBTC_TICKER } from './constants';
 import type { TxDisplayInterface } from './types';
 
 export const createColorFromHash = (id: string, network: NetworkString): string => {
@@ -227,11 +227,11 @@ export function customCoinSelector(dispatch?: Dispatch): CoinSelector {
 }
 
 export function isLbtc(asset: string, network: NetworkString): boolean {
-  return asset === getLbtcAsset(network).assetHash;
+  return asset === LBTC_ASSET[network].assetHash;
 }
 
 export function isLbtcTicker(ticker: string): boolean {
-  return ticker === LBTC_TICKER || ticker === LBTC_TESTNET_TICKER;
+  return ticker === LBTC_TICKER['liquid'] || ticker === LBTC_TICKER['testnet'];
 }
 
 /**

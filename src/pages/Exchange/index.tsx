@@ -31,7 +31,7 @@ import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import ExchangeRow from '../../redux/containers/exchangeRowContainer';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
-import { defaultPrecision, getLbtcAsset, PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
+import { defaultPrecision, LBTC_ASSET, PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { AppError, IncorrectPINError, NoMarketsProvidedError } from '../../utils/errors';
 import { customCoinSelector, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
 import type { TDexMnemonicRedux } from '../../utils/identity';
@@ -102,8 +102,8 @@ const Exchange: React.FC<ExchangeProps> = ({
       return;
     }
     setAssetSent({
-      asset: getLbtcAsset(network).assetHash,
-      ticker: getLbtcAsset(network).ticker,
+      asset: LBTC_ASSET[network].assetHash,
+      ticker: LBTC_ASSET[network].ticker,
     });
     setSentAmount(undefined);
     setReceivedAmount(undefined);

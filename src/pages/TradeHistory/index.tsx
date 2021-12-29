@@ -106,7 +106,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI, ne
                         <IonCol className="pl-5" size="5.8" offset="1.2">
                           {`Fee: ${fromSatoshi(tx.fee.toString(), precisionAssetReceived ?? 8).toFixed(
                             precisionAssetReceived ?? 8
-                          )} ${LBTC_TICKER}`}
+                          )} ${LBTC_TICKER[network]}`}
                         </IonCol>
                         <IonCol className="ion-text-right" size="5">
                           <IonText>{renderStatusText(tx.status)}</IonText>

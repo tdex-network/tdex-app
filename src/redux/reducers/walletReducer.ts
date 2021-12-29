@@ -2,7 +2,7 @@ import type { AddressInterface, UtxoInterface, Outpoint, Mnemonic, StateRestorer
 import type { MasterPublicKey } from 'ldk/dist/identity/masterpubkey';
 import { createSelector } from 'reselect';
 
-import { defaultPrecision, LBTC_COINGECKOID, getMainAsset, getLbtcAsset } from '../../utils/constants';
+import { defaultPrecision, LBTC_COINGECKOID, getMainAsset, LBTC_ASSET } from '../../utils/constants';
 import { tickerFromAssetHash, balancesFromUtxos, getIndexAndIsChangeFromAddress } from '../../utils/helpers';
 import type { ActionType } from '../../utils/types';
 import type { BalanceInterface } from '../actionTypes/walletActionTypes';
@@ -148,7 +148,7 @@ export const balancesSelector = createSelector(
       });
     }
     // If no balance, add LBTC with amount zero
-    const lbtcAsset = getLbtcAsset(settings.network);
+    const lbtcAsset = LBTC_ASSET[settings.network];
     if (!balances.length) {
       balances.push({
         asset: lbtcAsset.assetHash,
@@ -182,7 +182,7 @@ export const aggregatedLBTCBalanceSelector = (state: RootState): BalanceInterfac
   return {
     amount,
     asset: '',
-    ticker: getLbtcAsset(state.settings.network).ticker,
+    ticker: LBTC_ASSET[state.settings.network].ticker,
     coinGeckoID: LBTC_COINGECKOID,
     precision: 8,
     name: 'Liquid Bitcoin',

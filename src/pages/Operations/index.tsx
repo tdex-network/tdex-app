@@ -167,7 +167,7 @@ const Operations: React.FC<OperationsProps> = ({
                   state: {
                     depositAsset: {
                       asset: balance?.asset,
-                      ticker: balance?.ticker ?? LBTC_TICKER,
+                      ticker: balance?.ticker ?? LBTC_TICKER[network],
                       coinGeckoID: balance?.coinGeckoID ?? 'L-BTC',
                     },
                   },
@@ -269,7 +269,7 @@ const Operations: React.FC<OperationsProps> = ({
           <Header title={`${balance?.name || balance?.ticker}`} hasBackButton={true} />
           <IonRow className="ion-margin-bottom header-info ion-text-center ion-margin-vertical">
             <IonCol>
-              {balance ? <CurrencyIcon currency={balance?.ticker} /> : <CurrencyIcon currency={LBTC_TICKER} />}
+              {balance ? <CurrencyIcon currency={balance?.ticker} /> : <CurrencyIcon currency={LBTC_TICKER[network]} />}
               {AssetBalance}
             </IonCol>
           </IonRow>
@@ -317,7 +317,7 @@ const Operations: React.FC<OperationsProps> = ({
                           {TxTypeEnum[tx.type] !== 'DepositBtc' && (
                             <IonRow className="mt-3">
                               <IonCol className="pl-5" size="6" offset="1">
-                                {`Fee: ${fromSatoshi(tx.fee.toString(), 8).toFixed(8)} ${LBTC_TICKER}`}
+                                {`Fee: ${fromSatoshi(tx.fee.toString(), 8).toFixed(8)} ${LBTC_TICKER[network]}`}
                               </IonCol>
                               <IonCol className="ion-text-right" size="5">
                                 <IonText>{renderStatusText(tx.status)}</IonText>

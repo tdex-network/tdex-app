@@ -2,7 +2,7 @@ import { merge } from 'lodash';
 import moment from 'moment';
 import { createSelector } from 'reselect';
 
-import { getLbtcAsset } from '../../utils/constants';
+import { LBTC_ASSET } from '../../utils/constants';
 import type { ActionType, TxDisplayInterface } from '../../utils/types';
 import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
 import {
@@ -112,7 +112,7 @@ export const depositPeginUtxosToDisplayTxSelector = createSelector(
           transfers: [
             {
               // LBTC hash in order to display btc deposit in LBTC operations
-              asset: getLbtcAsset(network).assetHash,
+              asset: LBTC_ASSET[network].assetHash,
               amount: utxo.value ?? 0,
             },
           ],

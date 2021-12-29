@@ -9,6 +9,7 @@ const mapStateToProps = (state: RootState) => {
   return {
     swaps: tradeTransactionsSelector(state).sort(compareTxDisplayInterfaceByDate),
     explorerLiquidUI: state.settings.explorerLiquidUI,
+    network: state.settings.network,
   };
 };
 

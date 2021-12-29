@@ -9,7 +9,7 @@ import ElementsPegin from 'pegin';
 import type { NetworkString } from 'tdex-sdk';
 import { getNetwork } from 'tdex-sdk';
 
-import { getFedPegScript, getLbtcAsset } from '../../utils/constants';
+import { getFedPegScript, LBTC_ASSET } from '../../utils/constants';
 import type { Pegins } from '../reducers/btcReducer';
 
 import { broadcastTx } from './walletService';
@@ -23,7 +23,7 @@ export async function getPeginModule(network: NetworkString): Promise<ElementsPe
       await ElementsPegin.withGoElements(),
       await ElementsPegin.withLibwally(),
       ElementsPegin.withDynamicFederation(false),
-      ElementsPegin.withTestnet(getLbtcAsset(network).assetHash),
+      ElementsPegin.withTestnet(LBTC_ASSET[network].assetHash),
       ElementsPegin.withFederationScript(getFedPegScript(network))
     );
   }

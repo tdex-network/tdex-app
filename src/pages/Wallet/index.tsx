@@ -24,7 +24,7 @@ import { CurrencyIcon } from '../../components/icons';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { routerLinks } from '../../routes';
 import type { LbtcDenomination } from '../../utils/constants';
-import { getLbtcAsset, getMainAsset, LBTC_COINGECKOID, MAIN_ASSETS } from '../../utils/constants';
+import { getMainAsset, LBTC_ASSET, LBTC_COINGECKOID, MAIN_ASSETS } from '../../utils/constants';
 import { capitalizeFirstLetter, fromSatoshi, fromSatoshiFixed, isLbtcTicker } from '../../utils/helpers';
 import './style.scss';
 
@@ -84,7 +84,7 @@ const Wallet: React.FC<WalletProps> = ({
       }
     } else {
       // Display L-BTC with empty balance
-      const [lbtc] = MAIN_ASSETS[network].concat(getLbtcAsset(network)).map((a) => {
+      const [lbtc] = MAIN_ASSETS[network].concat(LBTC_ASSET[network]).map((a) => {
         return {
           asset: a.assetHash,
           ticker: a.ticker,

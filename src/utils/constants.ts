@@ -6,9 +6,12 @@ import type { CurrencyInterface } from '../redux/reducers/settingsReducer';
 export const defaultPrecision = 8;
 
 export const BTC_TICKER = 'BTC';
-export const LBTC_TICKER = 'L-BTC';
-export const LBTC_TESTNET_TICKER = 'tL-BTC';
-export const USDT_TICKER = 'USDT';
+export const LBTC_TICKER: Record<NetworkString, 'L-BTC' | 'tL-BTC'> = {
+  liquid: 'L-BTC',
+  testnet: 'tL-BTC',
+  regtest: 'L-BTC',
+};
+export const USDT_TICKER = 'USDt';
 export const LCAD_TICKER = 'LCAD';
 export const BTSE_TICKER = 'BTSE';
 // Blockstream Jade voucher
@@ -31,25 +34,26 @@ export interface AssetConfig {
   name: string;
 }
 
-export const getLbtcAsset = (network: NetworkString): AssetConfig =>
-  (network === 'liquid' && {
+export const LBTC_ASSET: Record<NetworkString, AssetConfig> = {
+  liquid: {
     coinGeckoID: LBTC_COINGECKOID,
-    ticker: LBTC_TICKER,
+    ticker: LBTC_TICKER['liquid'],
     assetHash: '6f0279e9ed041c3d710a9f57d0c02928416460c4b722ae3457a11eec381c526d',
     color: LBTC_COLOR,
     precision: 8,
     name: 'Liquid Bitcoin',
-  }) ||
-  (network === 'testnet' && {
+  },
+  testnet: {
     coinGeckoID: LBTC_COINGECKOID,
-    ticker: 'tL-BTC',
+    ticker: LBTC_TICKER['testnet'],
     assetHash: '144c654344aa716d6f3abcc1ca90e5641e4e2a7f633bc09fe3baf64585819a49',
     color: LBTC_COLOR,
     precision: 8,
     name: 'Testnet Liquid Bitcoin',
-  }) || {
+  },
+  regtest: {
     coinGeckoID: LBTC_COINGECKOID,
-    ticker: LBTC_TICKER,
+    ticker: LBTC_TICKER['regtest'],
     // Change asset hash to generate new pegin deposit addresses
     assetHash:
       // FedPegScript => OP_TRUE
@@ -59,7 +63,8 @@ export const getLbtcAsset = (network: NetworkString): AssetConfig =>
     color: LBTC_COLOR,
     precision: 8,
     name: 'Liquid Bitcoin',
-  };
+  },
+};
 
 export const BTC_ASSET: AssetConfig = {
   coinGeckoID: LBTC_COINGECKOID,
@@ -72,7 +77,7 @@ export const BTC_ASSET: AssetConfig = {
 
 export const MAIN_ASSETS: Record<NetworkString, AssetConfig[]> = {
   liquid: [
-    getLbtcAsset('liquid'),
+    LBTC_ASSET['liquid'],
     {
       coinGeckoID: USDT_COINGECKOID,
       ticker: USDT_TICKER,
@@ -97,7 +102,7 @@ export const MAIN_ASSETS: Record<NetworkString, AssetConfig[]> = {
     },
   ],
   testnet: [
-    getLbtcAsset('testnet'),
+    LBTC_ASSET['testnet'],
     {
       coinGeckoID: USDT_COINGECKOID,
       ticker: USDT_TICKER,
@@ -122,7 +127,7 @@ export const MAIN_ASSETS: Record<NetworkString, AssetConfig[]> = {
     },
   ],
   regtest: [
-    getLbtcAsset('regtest'),
+    LBTC_ASSET['regtest'],
     {
       coinGeckoID: USDT_COINGECKOID,
       ticker: USDT_TICKER,
