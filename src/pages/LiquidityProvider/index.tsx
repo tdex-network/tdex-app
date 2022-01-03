@@ -172,9 +172,11 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
                     subTitle="CANCEL"
                     mainDisabled={isNewProviderInvalid()}
                     mainOnClick={() => {
-                      if (!newProviderEndpoint.startsWith('http')) {
-                        dispatch(addErrorToast(InvalidUrl));
-                      } else {
+                      const url = new URL(newProviderEndpoint);
+                      if (
+                        newProviderEndpoint.includes('.onion') ||
+                        (!newProviderEndpoint.includes('.onion') && url.protocol === 'https:')
+                      ) {
                         setNewProvider(false);
                         dispatch(
                           addProvider({
@@ -182,6 +184,8 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
                             name: newProviderName.trim(),
                           })
                         );
+                      } else {
+                        dispatch(addErrorToast(InvalidUrl));
                       }
                     }}
                     subOnClick={() => setNewProvider(false)}
