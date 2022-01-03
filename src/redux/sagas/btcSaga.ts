@@ -46,8 +46,7 @@ function* restorePegins() {
 function* watchCurrentBtcBlockHeight() {
   const explorerBitcoinAPI: string = yield select((state: RootState) => state.settings.explorerBitcoinAPI);
   const { currentBlockHeight } = yield call(getCurrentBtcBlockHeight, explorerBitcoinAPI);
-  const setCurrentBtcBlockHeightAction = setCurrentBtcBlockHeight(currentBlockHeight);
-  yield put(setCurrentBtcBlockHeightAction);
+  yield put(setCurrentBtcBlockHeight(currentBlockHeight));
   yield delay(60_000);
   yield put({ type: 'WATCH_CURRENT_BTC_BLOCK_HEIGHT' });
 }

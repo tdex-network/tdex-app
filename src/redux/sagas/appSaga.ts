@@ -12,6 +12,7 @@ import {
   UPDATE,
   setIsBackupDone,
   setIsFetchingUtxos,
+  INIT_APP_SUCCESS,
 } from '../actions/appActions';
 import { checkIfClaimablePeginUtxo, updateDepositPeginUtxos, watchCurrentBtcBlockHeight } from '../actions/btcActions';
 import { updatePrices } from '../actions/ratesActions';
@@ -22,14 +23,24 @@ import { isMasterPublicKey, isMnemonic } from '../reducers/walletReducer';
 import { restoreFromMasterPubKey, restoreFromMnemonic } from '../services/walletService';
 import type { RootState } from '../types';
 
-import { restoreNetwork } from './settingsSaga';
+import {
+  restoreCurrency,
+  restoreDefaultProvider,
+  restoreDenomination,
+  restoreExplorerBitcoinAPI,
+  restoreExplorerBitcoinUI,
+  restoreExplorerLiquidAPI,
+  restoreExplorerLiquidUI,
+  restoreNetwork,
+  restoreThemeSaga,
+  restoreTorProxy,
+} from './settingsSaga';
 import type { SagaGenerator } from './types';
 
 function* initAppSaga() {
   try {
-    yield put(initAppSuccess());
     yield put(setSignedUp(true));
-    yield call(restoreNetwork);
+    yield put(initAppSuccess());
   } catch (e) {
     yield put(setSignedUp(false));
     yield put(initAppFail());
@@ -85,6 +96,21 @@ function* updateState() {
 
 export function* appWatcherSaga(): SagaGenerator {
   yield takeLatest(INIT_APP, initAppSaga);
+  // Restore user settings before signing in
+  yield takeLatest(INIT_APP_SUCCESS, function* () {
+    yield all([
+      restoreNetwork(),
+      restoreExplorerLiquidAPI(),
+      restoreExplorerBitcoinAPI(),
+      restoreExplorerLiquidUI(),
+      restoreExplorerBitcoinUI(),
+      restoreDefaultProvider(),
+      restoreTorProxy(),
+      restoreCurrency(),
+      restoreDenomination(),
+      restoreThemeSaga(),
+    ]);
+  });
   yield takeLatest(SIGN_IN, signInSaga);
   yield takeLeading(UPDATE, updateState);
 }

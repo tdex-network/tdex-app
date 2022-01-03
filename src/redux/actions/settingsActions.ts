@@ -82,10 +82,3 @@ export const setTheme = (theme: string): ActionType => {
     payload: theme,
   };
 };
-
-export const storeTheme = (theme: string): ActionType => {
-  return {
-    type: STORE_THEME,
-    payload: theme,
-  };
-};

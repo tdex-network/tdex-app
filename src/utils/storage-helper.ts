@@ -36,12 +36,20 @@ const CURRENCY_KEY = 'tdex-app-currency';
 const LBTC_DENOMINATION_KEY = 'tdex-app-lbtc-unit';
 const LAST_USED_INDEXES_KEY = 'tdex-app-last-used-indexes';
 
+export async function getThemeFromStorage(): Promise<string | null> {
+  return (await Storage.get({ key: 'theme' })).value;
+}
+
+export function setThemeInStorage(theme: string): Promise<void> {
+  return Storage.set({ key: 'theme', value: theme });
+}
+
 export async function getLBTCDenominationFromStorage(): Promise<string> {
   return (await Storage.get({ key: LBTC_DENOMINATION_KEY })).value || LBTC_DENOMINATIONS[0];
 }
 
-export function setLBTCDenominationInStorage(denomination: string): void {
-  Storage.set({
+export function setLBTCDenominationInStorage(denomination: string): Promise<void> {
+  return Storage.set({
     key: LBTC_DENOMINATION_KEY,
     value: denomination,
   });
@@ -51,8 +59,8 @@ export async function getCurrencyFromStorage(): Promise<CurrencyInterface> {
   return getFromStorage<CurrencyInterface>(CURRENCY_KEY, CURRENCIES[0]);
 }
 
-export function setCurrencyInStorage(currency: CurrencyInterface): void {
-  Storage.set({
+export function setCurrencyInStorage(currency: CurrencyInterface): Promise<void> {
+  return Storage.set({
     key: CURRENCY_KEY,
     value: stringify(currency),
   });
@@ -62,64 +70,64 @@ export async function getDefaultProviderFromStorage(): Promise<string | null> {
   return (await Storage.get({ key: DEFAULT_PROVIDER_KEY })).value;
 }
 
-export function setDefaultProviderInStorage(defaultProvider: string): void {
-  Storage.set({ key: DEFAULT_PROVIDER_KEY, value: defaultProvider });
+export function setDefaultProviderInStorage(defaultProvider: string): Promise<void> {
+  return Storage.set({ key: DEFAULT_PROVIDER_KEY, value: defaultProvider });
 }
 
 export async function getNetworkFromStorage(): Promise<string | null> {
   return (await Storage.get({ key: NETWORK_KEY })).value;
 }
 
-export function setNetworkInStorage(network: NetworkString): void {
-  Storage.set({ key: NETWORK_KEY, value: network });
+export function setNetworkInStorage(network: NetworkString): Promise<void> {
+  return Storage.set({ key: NETWORK_KEY, value: network });
 }
 
 export async function getExplorerFromStorage(): Promise<string | null> {
   return (await Storage.get({ key: EXPLORER_KEY })).value;
 }
 
-export function setExplorerInStorage(explorer: string): void {
-  Storage.set({ key: EXPLORER_KEY, value: explorer });
+export function setExplorerInStorage(explorer: string): Promise<void> {
+  return Storage.set({ key: EXPLORER_KEY, value: explorer });
 }
 
 export async function getExplorerBitcoinFromStorage(): Promise<string | null> {
   return (await Storage.get({ key: EXPLORER_BITCOIN_KEY })).value;
 }
 
-export function setExplorerBitcoinInStorage(explorerBitcoin: string): void {
-  Storage.set({ key: EXPLORER_BITCOIN_KEY, value: explorerBitcoin });
+export function setExplorerBitcoinInStorage(explorerBitcoin: string): Promise<void> {
+  return Storage.set({ key: EXPLORER_BITCOIN_KEY, value: explorerBitcoin });
 }
 
 export async function getExplorerLiquidUIFromStorage(): Promise<string | null> {
   return (await Storage.get({ key: EXPLORER_LIQUID_UI_KEY })).value;
 }
 
-export function setExplorerLiquidUIInStorage(explorer: string): void {
-  Storage.set({ key: EXPLORER_LIQUID_UI_KEY, value: explorer });
+export function setExplorerLiquidUIInStorage(explorer: string): Promise<void> {
+  return Storage.set({ key: EXPLORER_LIQUID_UI_KEY, value: explorer });
 }
 
 export async function getExplorerBitcoinUIFromStorage(): Promise<string | null> {
   return (await Storage.get({ key: EXPLORER_BITCOIN_UI_KEY })).value;
 }
 
-export function setExplorerBitcoinUIInStorage(explorerBitcoin: string): void {
-  Storage.set({ key: EXPLORER_BITCOIN_UI_KEY, value: explorerBitcoin });
+export function setExplorerBitcoinUIInStorage(explorerBitcoin: string): Promise<void> {
+  return Storage.set({ key: EXPLORER_BITCOIN_UI_KEY, value: explorerBitcoin });
 }
 
 export async function getTorProxyFromStorage(): Promise<string | null> {
   return (await Storage.get({ key: TOR_PROXY_KEY })).value;
 }
 
-export function setTorProxyInStorage(torProxy: string): void {
-  Storage.set({ key: TOR_PROXY_KEY, value: torProxy });
+export function setTorProxyInStorage(torProxy: string): Promise<void> {
+  return Storage.set({ key: TOR_PROXY_KEY, value: torProxy });
 }
 
 export async function getTransactionsFromStorage(): Promise<TxInterface[]> {
   return getFromStorage<TxInterface[]>(TRANSACTIONS_KEY, []);
 }
 
-export function setTransactionsInStorage(txs: TxInterface[]): void {
-  Storage.set({ key: TRANSACTIONS_KEY, value: stringify(txs) });
+export function setTransactionsInStorage(txs: TxInterface[]): Promise<void> {
+  return Storage.set({ key: TRANSACTIONS_KEY, value: stringify(txs) });
 }
 
 export async function clearTransactionsInStorage(): Promise<void> {
@@ -130,16 +138,16 @@ export async function getUtxosFromStorage(): Promise<UtxoInterface[]> {
   return getFromStorage<UtxoInterface[]>(UTXOS_KEY, []);
 }
 
-export function setUtxosInStorage(utxos: UtxoInterface[]): void {
-  Storage.set({ key: UTXOS_KEY, value: stringify(utxos) });
+export function setUtxosInStorage(utxos: UtxoInterface[]): Promise<void> {
+  return Storage.set({ key: UTXOS_KEY, value: stringify(utxos) });
 }
 
 export async function getAssetsFromStorage(): Promise<AssetConfig[]> {
   return getFromStorage<AssetConfig[]>(ASSETS_KEY, []);
 }
 
-export function setAssetsInStorage(assets: AssetConfig[]): void {
-  Storage.set({ key: ASSETS_KEY, value: stringify(assets) });
+export function setAssetsInStorage(assets: AssetConfig[]): Promise<void> {
+  return Storage.set({ key: ASSETS_KEY, value: stringify(assets) });
 }
 
 export async function clearAssetsInStorage(): Promise<void> {

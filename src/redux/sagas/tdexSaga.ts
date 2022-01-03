@@ -116,8 +116,8 @@ async function getMarketsFromProvider(p: TDEXProvider, torProxy = 'https://proxy
 }
 
 export function* tdexWatcherSaga(): SagaGenerator {
-  yield takeLatest(ADD_PROVIDER, function* (payload: ReturnType<typeof addProvider>) {
-    yield* fetchMarkets(payload);
+  yield takeLatest(ADD_PROVIDER, function* (action: ReturnType<typeof addProvider>) {
+    yield* fetchMarkets(action);
     yield* persistProviders();
   });
   yield takeLatest([CLEAR_PROVIDERS, DELETE_PROVIDER], persistProviders);

@@ -40,7 +40,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   // const handleThemeChange = (e: any) => {
   //   const { checked } = e.detail;
   //   const newTheme = checked ? 'dark' : 'light';
-  //   dispatch(storeTheme(newTheme));
+  //   dispatch(setTheme(newTheme));
   // };
 
   return (

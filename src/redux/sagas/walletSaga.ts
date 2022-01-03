@@ -151,7 +151,7 @@ function* watchUtxoSaga(action: ActionType) {
 
 export function* walletWatcherSaga(): SagaGenerator {
   yield takeLatest([ADD_ADDRESS, CLEAR_ADDRESSES], function* () {
-    yield all([persistAddresses, persistLastUsedIndexes]);
+    yield all([persistAddresses(), persistLastUsedIndexes()]);
   });
   yield takeLatest(UPDATE_UTXOS, function* () {
     yield* updateUtxosState();
