@@ -20,8 +20,10 @@ import { updateTransactions } from '../actions/transactionsActions';
 import { addAddress, setIsAuth, setMasterPublicKeysFromMnemonic, updateUtxos } from '../actions/walletActions';
 import { isMasterPublicKey, isMnemonic } from '../reducers/walletReducer';
 import { restoreFromMasterPubKey, restoreFromMnemonic } from '../services/walletService';
+import type { RootState } from '../types';
 
 import { restoreNetwork } from './settingsSaga';
+import type { SagaGenerator } from './types';
 
 function* initAppSaga() {
   try {
@@ -45,7 +47,7 @@ function* signInSaga({ payload: identity }: ReturnType<typeof signIn>) {
     if (backup) yield put(setIsBackupDone(true));
     // Wallet Restoration
     yield setIsFetchingUtxos(true);
-    const explorerLiquidAPI: string = yield select((state: any) => state.settings.explorerLiquidAPI);
+    const explorerLiquidAPI: string = yield select(({ settings }: RootState) => settings.explorerLiquidAPI);
     if (isMasterPublicKey(identity)) {
       yield call(restoreFromMasterPubKey, identity, explorerLiquidAPI);
     }
@@ -81,7 +83,7 @@ function* updateState() {
   ]);
 }
 
-export function* appWatcherSaga(): Generator<any, any, any> {
+export function* appWatcherSaga(): SagaGenerator {
   yield takeLatest(INIT_APP, initAppSaga);
   yield takeLatest(SIGN_IN, signInSaga);
   yield takeLeading(UPDATE, updateState);

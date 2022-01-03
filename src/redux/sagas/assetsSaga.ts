@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { call, delay, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
+import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import type { NetworkString } from 'tdex-sdk';
 
 import type { AssetConfig } from '../../utils/constants';
@@ -11,7 +11,8 @@ import type { addAsset } from '../actions/assetsActions';
 import { ADD_ASSET, setAsset, SET_ASSET, RESET_ASSETS } from '../actions/assetsActions';
 import type { RootState } from '../types';
 
-// payload = the assetHash
+import type { SagaGenerator } from './types';
+
 function* addAssetSaga({ payload }: ReturnType<typeof addAsset>) {
   if (!payload) return;
   // check if asset already present in state
@@ -57,7 +58,6 @@ async function getAssetData(
 }
 
 function* persistAssets() {
-  yield delay(5_000);
   const currentAssets: AssetConfig[] = yield select(({ assets }: { assets: Record<string, AssetConfig> }) =>
     Object.values(assets)
   );
@@ -75,7 +75,7 @@ function* resetAssets() {
   yield call(clearAssetsInStorage);
 }
 
-export function* assetsWatcherSaga(): Generator<any, any, any> {
+export function* assetsWatcherSaga(): SagaGenerator {
   yield takeEvery(ADD_ASSET, addAssetSaga);
   yield takeLatest(SET_ASSET, persistAssets);
   yield takeLatest(RESET_ASSETS, resetAssets);

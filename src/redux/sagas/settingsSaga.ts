@@ -1,6 +1,6 @@
 import { KeyboardStyle } from '@capacitor/keyboard';
 import type { GetResult } from '@capacitor/storage';
-import { takeLatest, call, put } from 'redux-saga/effects';
+import { takeLatest, call, put, all } from 'redux-saga/effects';
 import type { NetworkString } from 'tdex-sdk';
 
 import { setKeyboardTheme } from '../../utils/keyboard';
@@ -52,6 +52,8 @@ import {
 } from '../actions/settingsActions';
 import type { CurrencyInterface } from '../reducers/settingsReducer';
 import { setThemeToStorage, getThemeFromStorage } from '../services/settingsService';
+
+import type { SagaGenerator } from './types';
 
 function* storeThemeSaga({ payload }: ActionType) {
   try {
@@ -213,18 +215,22 @@ function* setKeyboardStyle(action: ActionType) {
   }
 }
 
-export function* settingsWatcherSaga(): Generator<any, any, any> {
+export function* settingsWatcherSaga(): SagaGenerator {
+  yield takeLatest(SIGN_IN, function* () {
+    yield all([
+      restoreThemeSaga,
+      restoreDefaultProvider,
+      restoreNetwork,
+      restoreExplorerLiquidAPI,
+      restoreExplorerBitcoinAPI,
+      restoreExplorerLiquidUI,
+      restoreExplorerBitcoinUI,
+      restoreTorProxy,
+      restoreCurrency,
+      restoreDenomination,
+    ]);
+  });
   yield takeLatest(STORE_THEME, storeThemeSaga);
-  yield takeLatest(SIGN_IN, restoreThemeSaga);
-  yield takeLatest(SIGN_IN, restoreDefaultProvider);
-  yield takeLatest(SIGN_IN, restoreNetwork);
-  yield takeLatest(SIGN_IN, restoreExplorerLiquidAPI);
-  yield takeLatest(SIGN_IN, restoreExplorerBitcoinAPI);
-  yield takeLatest(SIGN_IN, restoreExplorerLiquidUI);
-  yield takeLatest(SIGN_IN, restoreExplorerBitcoinUI);
-  yield takeLatest(SIGN_IN, restoreTorProxy);
-  yield takeLatest(SIGN_IN, restoreCurrency);
-  yield takeLatest(SIGN_IN, restoreDenomination);
   yield takeLatest(SET_LBTC_DENOMINATION, persistDenomination);
   yield takeLatest(SET_DEFAULT_PROVIDER, persistDefaultProvider);
   yield takeLatest(SET_NETWORK, persistNetwork);

@@ -26,6 +26,8 @@ import {
 import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString, addressesSelector } from '../reducers/walletReducer';
 
+import type { SagaGenerator } from './types';
+
 function* persistAddresses() {
   const addresses: AddressInterface[] = yield select(addressesSelector);
   yield call(setAddressesInStorage, addresses);
@@ -110,7 +112,6 @@ function* waitAndUnlock({ payload }: ReturnType<typeof unlockUtxo>) {
 }
 
 function* persistUtxos() {
-  yield delay(20_000); // 20 sec
   const utxos: UtxoInterface[] = yield select(({ wallet }: { wallet: WalletState }) => Object.values(wallet.utxos));
   yield call(setUtxosInStorage, utxos);
 }
@@ -148,11 +149,14 @@ function* watchUtxoSaga(action: ActionType) {
   }
 }
 
-export function* walletWatcherSaga(): Generator {
-  yield takeLatest([ADD_ADDRESS, CLEAR_ADDRESSES], persistAddresses);
-  yield takeLatest([ADD_ADDRESS, CLEAR_ADDRESSES], persistLastUsedIndexes);
-  yield takeLatest(UPDATE_UTXOS, updateUtxosState);
-  yield takeLatest(UPDATE_UTXOS, persistUtxos);
+export function* walletWatcherSaga(): SagaGenerator {
+  yield takeLatest([ADD_ADDRESS, CLEAR_ADDRESSES], function* () {
+    yield all([persistAddresses, persistLastUsedIndexes]);
+  });
+  yield takeLatest(UPDATE_UTXOS, function* () {
+    yield* updateUtxosState();
+    yield* persistUtxos();
+  });
   yield takeEvery(LOCK_UTXO, waitAndUnlock);
   yield takeLatest(SIGN_IN, restoreUtxos);
   yield takeLatest(WATCH_UTXO, watchUtxoSaga);

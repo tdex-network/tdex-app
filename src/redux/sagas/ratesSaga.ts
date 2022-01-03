@@ -7,6 +7,8 @@ import { getPriceFromCoinGecko } from '../services/ratesService';
 import type { CoinGeckoPriceResult } from '../services/ratesService';
 import type { RootState } from '../types';
 
+import type { SagaGenerator } from './types';
+
 function* fetchRates() {
   try {
     const { currency, network }: { currency: CurrencyInterface['value']; network: NetworkString } = yield select(
@@ -33,6 +35,6 @@ function* fetchRates() {
   }
 }
 
-export function* ratesWatcherSaga(): Generator<any, any, any> {
+export function* ratesWatcherSaga(): SagaGenerator {
   yield takeLatest(UPDATE_PRICES, fetchRates);
 }

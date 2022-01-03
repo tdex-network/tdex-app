@@ -24,6 +24,8 @@ import {
 import type { WalletState } from '../reducers/walletReducer';
 import type { RootState } from '../types';
 
+import type { SagaGenerator } from './types';
+
 function* updateTransactions() {
   try {
     const {
@@ -155,8 +157,8 @@ function* resetTransactions() {
   yield call(clearTransactionsInStorage);
 }
 
-export function* transactionsWatcherSaga(): Generator<any, any, any> {
-  yield takeLatest(UPDATE_TRANSACTIONS, function* sequence() {
+export function* transactionsWatcherSaga(): SagaGenerator {
+  yield takeLatest(UPDATE_TRANSACTIONS, function* () {
     yield* updateTransactions();
     yield* persistTransactions();
   });

@@ -19,8 +19,10 @@ import { addErrorToast } from '../actions/toastActions';
 import type { TDEXState } from '../reducers/tdexReducer';
 import type { RootState } from '../types';
 
+import type { SagaGenerator } from './types';
+
 function* updateMarketsWithProvidersEndpoints() {
-  const { providers, markets }: TDEXState = yield select(({ tdex }: { tdex: TDEXState }) => tdex);
+  const { providers, markets }: TDEXState = yield select(({ tdex }: RootState) => tdex);
   const torProxy: string = yield select(({ settings }) => settings.torProxy);
   for (const p of providers) {
     try {
@@ -113,8 +115,8 @@ async function getMarketsFromProvider(p: TDEXProvider, torProxy = 'https://proxy
   return results;
 }
 
-export function* tdexWatcherSaga(): Generator<any, any, any> {
-  yield takeLatest(ADD_PROVIDER, function* sequence(payload: ReturnType<typeof addProvider>) {
+export function* tdexWatcherSaga(): SagaGenerator {
+  yield takeLatest(ADD_PROVIDER, function* (payload: ReturnType<typeof addProvider>) {
     yield* fetchMarkets(payload);
     yield* persistProviders();
   });
