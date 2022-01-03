@@ -173,7 +173,10 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
                     mainDisabled={isNewProviderInvalid()}
                     mainOnClick={() => {
                       const url = new URL(newProviderEndpoint);
-                      if (!newProviderEndpoint.includes('.onion') && url.protocol === 'https:') {
+                      if (
+                        newProviderEndpoint.includes('.onion') ||
+                        (!newProviderEndpoint.includes('.onion') && url.protocol === 'https:')
+                      ) {
                         setNewProvider(false);
                         dispatch(
                           addProvider({
