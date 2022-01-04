@@ -49,8 +49,7 @@ import {
   SET_DEFAULT_PROVIDER,
 } from '../actions/settingsActions';
 import type { CurrencyInterface } from '../reducers/settingsReducer';
-
-import type { SagaGenerator } from './types';
+import type { SagaGenerator } from '../types';
 
 /* RESTORE */
 

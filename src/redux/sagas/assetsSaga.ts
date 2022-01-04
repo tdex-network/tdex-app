@@ -9,9 +9,7 @@ import { clearAssetsInStorage, getAssetsFromStorage, setAssetsInStorage } from '
 import { SIGN_IN } from '../actions/appActions';
 import type { addAsset } from '../actions/assetsActions';
 import { ADD_ASSET, setAsset, SET_ASSET, RESET_ASSETS } from '../actions/assetsActions';
-import type { RootState } from '../types';
-
-import type { SagaGenerator } from './types';
+import type { RootState, SagaGenerator } from '../types';
 
 function* addAssetSaga({ payload }: ReturnType<typeof addAsset>) {
   if (!payload) return;

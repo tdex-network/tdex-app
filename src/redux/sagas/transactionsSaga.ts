@@ -22,9 +22,7 @@ import {
   RESET_TRANSACTION_REDUCER,
 } from '../actions/transactionsActions';
 import type { WalletState } from '../reducers/walletReducer';
-import type { RootState } from '../types';
-
-import type { SagaGenerator } from './types';
+import type { RootState, SagaGenerator } from '../types';
 
 function* updateTransactions() {
   try {

@@ -25,8 +25,7 @@ import {
 } from '../actions/walletActions';
 import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString, addressesSelector } from '../reducers/walletReducer';
-
-import type { SagaGenerator } from './types';
+import type { SagaGenerator } from '../types';
 
 function* persistAddresses() {
   const addresses: AddressInterface[] = yield select(addressesSelector);

@@ -28,9 +28,7 @@ import type { ToastState } from '../reducers/toastReducer';
 import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString } from '../reducers/walletReducer';
 import { getPeginModule } from '../services/btcService';
-import type { RootState } from '../types';
-
-import type { SagaGenerator } from './types';
+import type { RootState, SagaGenerator } from '../types';
 
 function* persistPegins() {
   const pegins: Pegins = yield select((state) => state.btc.pegins);

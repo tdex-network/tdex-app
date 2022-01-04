@@ -17,9 +17,7 @@ import {
 } from '../actions/tdexActions';
 import { addErrorToast } from '../actions/toastActions';
 import type { TDEXState } from '../reducers/tdexReducer';
-import type { RootState } from '../types';
-
-import type { SagaGenerator } from './types';
+import type { RootState, SagaGenerator } from '../types';
 
 function* updateMarketsWithProvidersEndpoints() {
   const { providers, markets }: TDEXState = yield select(({ tdex }: RootState) => tdex);

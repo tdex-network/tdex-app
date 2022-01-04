@@ -5,9 +5,7 @@ import { setLBTCPrices, setPrices, UPDATE_PRICES } from '../actions/ratesActions
 import type { CurrencyInterface } from '../reducers/settingsReducer';
 import { getPriceFromCoinGecko } from '../services/ratesService';
 import type { CoinGeckoPriceResult } from '../services/ratesService';
-import type { RootState } from '../types';
-
-import type { SagaGenerator } from './types';
+import type { RootState, SagaGenerator } from '../types';
 
 function* fetchRates() {
   try {

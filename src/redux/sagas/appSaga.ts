@@ -21,7 +21,7 @@ import { updateTransactions } from '../actions/transactionsActions';
 import { addAddress, setIsAuth, setMasterPublicKeysFromMnemonic, updateUtxos } from '../actions/walletActions';
 import { isMasterPublicKey, isMnemonic } from '../reducers/walletReducer';
 import { restoreFromMasterPubKey, restoreFromMnemonic } from '../services/walletService';
-import type { RootState } from '../types';
+import type { RootState, SagaGenerator } from '../types';
 
 import {
   restoreCurrency,
@@ -35,7 +35,6 @@ import {
   restoreThemeSaga,
   restoreTorProxy,
 } from './settingsSaga';
-import type { SagaGenerator } from './types';
 
 function* initAppSaga() {
   try {
