@@ -12,6 +12,7 @@ import {
   UPDATE,
   setIsBackupDone,
   setIsFetchingUtxos,
+  INIT_APP_SUCCESS,
 } from '../actions/appActions';
 import { checkIfClaimablePeginUtxo, updateDepositPeginUtxos, watchCurrentBtcBlockHeight } from '../actions/btcActions';
 import { updatePrices } from '../actions/ratesActions';
@@ -20,14 +21,25 @@ import { updateTransactions } from '../actions/transactionsActions';
 import { addAddress, setIsAuth, setMasterPublicKeysFromMnemonic, updateUtxos } from '../actions/walletActions';
 import { isMasterPublicKey, isMnemonic } from '../reducers/walletReducer';
 import { restoreFromMasterPubKey, restoreFromMnemonic } from '../services/walletService';
+import type { RootState, SagaGenerator } from '../types';
 
-import { restoreNetwork } from './settingsSaga';
+import {
+  restoreCurrency,
+  restoreDefaultProvider,
+  restoreDenomination,
+  restoreExplorerBitcoinAPI,
+  restoreExplorerBitcoinUI,
+  restoreExplorerLiquidAPI,
+  restoreExplorerLiquidUI,
+  restoreNetwork,
+  restoreThemeSaga,
+  restoreTorProxy,
+} from './settingsSaga';
 
 function* initAppSaga() {
   try {
-    yield put(initAppSuccess());
     yield put(setSignedUp(true));
-    yield call(restoreNetwork);
+    yield put(initAppSuccess());
   } catch (e) {
     yield put(setSignedUp(false));
     yield put(initAppFail());
@@ -45,7 +57,7 @@ function* signInSaga({ payload: identity }: ReturnType<typeof signIn>) {
     if (backup) yield put(setIsBackupDone(true));
     // Wallet Restoration
     yield setIsFetchingUtxos(true);
-    const explorerLiquidAPI: string = yield select((state: any) => state.settings.explorerLiquidAPI);
+    const explorerLiquidAPI: string = yield select(({ settings }: RootState) => settings.explorerLiquidAPI);
     if (isMasterPublicKey(identity)) {
       yield call(restoreFromMasterPubKey, identity, explorerLiquidAPI);
     }
@@ -81,8 +93,23 @@ function* updateState() {
   ]);
 }
 
-export function* appWatcherSaga(): Generator<any, any, any> {
+export function* appWatcherSaga(): SagaGenerator {
   yield takeLatest(INIT_APP, initAppSaga);
+  // Restore user settings before signing in
+  yield takeLatest(INIT_APP_SUCCESS, function* () {
+    yield all([
+      restoreNetwork(),
+      restoreExplorerLiquidAPI(),
+      restoreExplorerBitcoinAPI(),
+      restoreExplorerLiquidUI(),
+      restoreExplorerBitcoinUI(),
+      restoreDefaultProvider(),
+      restoreTorProxy(),
+      restoreCurrency(),
+      restoreDenomination(),
+      restoreThemeSaga(),
+    ]);
+  });
   yield takeLatest(SIGN_IN, signInSaga);
   yield takeLeading(UPDATE, updateState);
 }

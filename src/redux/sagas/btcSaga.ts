@@ -28,10 +28,9 @@ import type { ToastState } from '../reducers/toastReducer';
 import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString } from '../reducers/walletReducer';
 import { getPeginModule } from '../services/btcService';
-import type { RootState } from '../types';
+import type { RootState, SagaGenerator } from '../types';
 
 function* persistPegins() {
-  yield delay(5_000);
   const pegins: Pegins = yield select((state) => state.btc.pegins);
   yield call(setPeginsInStorage, pegins);
 }
@@ -45,8 +44,7 @@ function* restorePegins() {
 function* watchCurrentBtcBlockHeight() {
   const explorerBitcoinAPI: string = yield select((state: RootState) => state.settings.explorerBitcoinAPI);
   const { currentBlockHeight } = yield call(getCurrentBtcBlockHeight, explorerBitcoinAPI);
-  const setCurrentBtcBlockHeightAction = setCurrentBtcBlockHeight(currentBlockHeight);
-  yield put(setCurrentBtcBlockHeightAction);
+  yield put(setCurrentBtcBlockHeight(currentBlockHeight));
   yield delay(60_000);
   yield put({ type: 'WATCH_CURRENT_BTC_BLOCK_HEIGHT' });
 }
@@ -223,10 +221,12 @@ function* checkIfClaimablePeginUtxo() {
   }
 }
 
-export function* btcWatcherSaga(): Generator {
+export function* btcWatcherSaga(): SagaGenerator {
   yield takeLatest(SIGN_IN, restorePegins);
-  yield takeLatest(UPDATE_DEPOSIT_PEGIN_UTXOS, updateDepositPeginUtxosState);
-  yield takeLatest(UPDATE_DEPOSIT_PEGIN_UTXOS, persistPegins);
+  yield takeLatest(UPDATE_DEPOSIT_PEGIN_UTXOS, function* () {
+    yield* updateDepositPeginUtxosState();
+    yield* persistPegins();
+  });
   yield takeLatest(WATCH_CURRENT_BTC_BLOCK_HEIGHT, watchCurrentBtcBlockHeight);
   yield takeLatest(UPSERT_PEGINS, persistPegins);
   yield takeLatest(RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS, restorePeginsFromDepositAddress);

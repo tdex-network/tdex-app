@@ -1,6 +1,5 @@
 import { KeyboardStyle } from '@capacitor/keyboard';
-import type { GetResult } from '@capacitor/storage';
-import { takeLatest, call, put } from 'redux-saga/effects';
+import { takeLatest, call, put, all } from 'redux-saga/effects';
 import type { NetworkString } from 'tdex-sdk';
 
 import { setKeyboardTheme } from '../../utils/keyboard';
@@ -23,9 +22,10 @@ import {
   getNetworkFromStorage,
   getDefaultProviderFromStorage,
   setDefaultProviderInStorage,
+  setThemeInStorage,
+  getThemeFromStorage,
 } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
-import { SIGN_IN } from '../actions/appActions';
 import {
   setCurrency,
   setExplorerLiquidAPI,
@@ -34,12 +34,10 @@ import {
   setExplorerBitcoinUI,
   setLBTCDenomination,
   setTheme,
-  storeTheme,
   SET_CURRENCY,
   SET_EXPLORER_LIQUID_API,
   SET_LBTC_DENOMINATION,
   SET_THEME,
-  STORE_THEME,
   SET_EXPLORER_BITCOIN_API,
   SET_EXPLORER_LIQUID_UI,
   SET_EXPLORER_BITCOIN_UI,
@@ -51,51 +49,40 @@ import {
   SET_DEFAULT_PROVIDER,
 } from '../actions/settingsActions';
 import type { CurrencyInterface } from '../reducers/settingsReducer';
-import { setThemeToStorage, getThemeFromStorage } from '../services/settingsService';
+import type { SagaGenerator } from '../types';
 
-function* storeThemeSaga({ payload }: ActionType) {
+/* RESTORE */
+
+export function* restoreThemeSaga(): SagaGenerator<void, string | null> {
   try {
-    yield call(setThemeToStorage, payload);
-    yield put(setTheme(payload));
+    const theme = yield call(getThemeFromStorage);
+    yield put(setTheme(theme || 'dark'));
   } catch (e) {
     console.error(e);
   }
 }
 
-function* restoreThemeSaga() {
+export function* restoreDefaultProvider(): SagaGenerator<void, string | null> {
   try {
-    const data: GetResult = yield call(getThemeFromStorage);
-    const theme = data.value || 'dark';
-    if (data.value === null) {
-      yield put(storeTheme(theme));
-    }
-    yield put(setTheme(theme));
-  } catch (e) {
-    console.error(e);
-  }
-}
-
-function* restoreDefaultProvider() {
-  try {
-    const defaultProvider: string | null = yield call(getDefaultProviderFromStorage);
+    const defaultProvider = yield call(getDefaultProviderFromStorage);
     if (defaultProvider) yield put(setDefaultProvider(defaultProvider));
   } catch (e) {
     console.error(e);
   }
 }
 
-export function* restoreNetwork(): Generator<any, any, any> {
+export function* restoreNetwork(): SagaGenerator<void, NetworkString | null> {
   try {
-    const network: NetworkString | null = yield call(getNetworkFromStorage);
+    const network = yield call(getNetworkFromStorage);
     if (network) yield put(setNetwork(network));
   } catch (e) {
     console.error(e);
   }
 }
 
-function* restoreExplorerLiquidAPI() {
+export function* restoreExplorerLiquidAPI(): SagaGenerator<void, string | null> {
   try {
-    const explorerEndpoint: string | null = yield call(getExplorerFromStorage);
+    const explorerEndpoint = yield call(getExplorerFromStorage);
     if (explorerEndpoint) {
       yield put(setExplorerLiquidAPI(explorerEndpoint));
     }
@@ -104,9 +91,9 @@ function* restoreExplorerLiquidAPI() {
   }
 }
 
-function* restoreExplorerBitcoinAPI() {
+export function* restoreExplorerBitcoinAPI(): SagaGenerator<void, string | null> {
   try {
-    const explorerEndpoint: string | null = yield call(getExplorerBitcoinFromStorage);
+    const explorerEndpoint = yield call(getExplorerBitcoinFromStorage);
     if (explorerEndpoint) {
       yield put(setExplorerBitcoinAPI(explorerEndpoint));
     }
@@ -115,9 +102,9 @@ function* restoreExplorerBitcoinAPI() {
   }
 }
 
-function* restoreExplorerLiquidUI() {
+export function* restoreExplorerLiquidUI(): SagaGenerator<void, string | null> {
   try {
-    const explorerLiquidUIEndpoint: string | null = yield call(getExplorerLiquidUIFromStorage);
+    const explorerLiquidUIEndpoint = yield call(getExplorerLiquidUIFromStorage);
     if (explorerLiquidUIEndpoint) {
       yield put(setExplorerLiquidUI(explorerLiquidUIEndpoint));
     }
@@ -126,9 +113,9 @@ function* restoreExplorerLiquidUI() {
   }
 }
 
-function* restoreExplorerBitcoinUI() {
+export function* restoreExplorerBitcoinUI(): SagaGenerator<void, string | null> {
   try {
-    const explorerBitcoinUIEndpoint: string | null = yield call(getExplorerBitcoinUIFromStorage);
+    const explorerBitcoinUIEndpoint = yield call(getExplorerBitcoinUIFromStorage);
     if (explorerBitcoinUIEndpoint) {
       yield put(setExplorerBitcoinUI(explorerBitcoinUIEndpoint));
     }
@@ -137,7 +124,7 @@ function* restoreExplorerBitcoinUI() {
   }
 }
 
-function* restoreTorProxy() {
+export function* restoreTorProxy(): SagaGenerator<void, string | null> {
   try {
     const torProxy: string | null = yield call(getTorProxyFromStorage);
     if (torProxy) {
@@ -146,6 +133,30 @@ function* restoreTorProxy() {
   } catch (e) {
     console.error(e);
   }
+}
+
+export function* restoreDenomination(): SagaGenerator<void, string> {
+  try {
+    const denomination = yield call(getLBTCDenominationFromStorage);
+    yield put(setLBTCDenomination(denomination));
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+export function* restoreCurrency(): SagaGenerator<void, CurrencyInterface> {
+  try {
+    const currency = yield call(getCurrencyFromStorage);
+    yield put(setCurrency(currency));
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+/* PERSIST */
+
+function* persistTheme(action: ActionType) {
+  yield call(setThemeInStorage, action.payload);
 }
 
 function* persistDefaultProvider(action: ActionType) {
@@ -180,26 +191,8 @@ function* persistCurrency(action: ActionType) {
   yield call(setCurrencyInStorage, action.payload);
 }
 
-function* restoreCurrency() {
-  try {
-    const currency: CurrencyInterface = yield call(getCurrencyFromStorage);
-    yield put(setCurrency(currency));
-  } catch (e) {
-    console.error(e);
-  }
-}
-
 function* persistDenomination(action: ActionType) {
   yield call(setLBTCDenominationInStorage, action.payload);
-}
-
-function* restoreDenomination() {
-  try {
-    const denomination: string = yield call(getLBTCDenominationFromStorage);
-    yield put(setLBTCDenomination(denomination));
-  } catch (e) {
-    console.error(e);
-  }
 }
 
 function* setKeyboardStyle(action: ActionType) {
@@ -213,18 +206,7 @@ function* setKeyboardStyle(action: ActionType) {
   }
 }
 
-export function* settingsWatcherSaga(): Generator<any, any, any> {
-  yield takeLatest(STORE_THEME, storeThemeSaga);
-  yield takeLatest(SIGN_IN, restoreThemeSaga);
-  yield takeLatest(SIGN_IN, restoreDefaultProvider);
-  yield takeLatest(SIGN_IN, restoreNetwork);
-  yield takeLatest(SIGN_IN, restoreExplorerLiquidAPI);
-  yield takeLatest(SIGN_IN, restoreExplorerBitcoinAPI);
-  yield takeLatest(SIGN_IN, restoreExplorerLiquidUI);
-  yield takeLatest(SIGN_IN, restoreExplorerBitcoinUI);
-  yield takeLatest(SIGN_IN, restoreTorProxy);
-  yield takeLatest(SIGN_IN, restoreCurrency);
-  yield takeLatest(SIGN_IN, restoreDenomination);
+export function* settingsWatcherSaga(): SagaGenerator {
   yield takeLatest(SET_LBTC_DENOMINATION, persistDenomination);
   yield takeLatest(SET_DEFAULT_PROVIDER, persistDefaultProvider);
   yield takeLatest(SET_NETWORK, persistNetwork);
@@ -234,5 +216,7 @@ export function* settingsWatcherSaga(): Generator<any, any, any> {
   yield takeLatest(SET_EXPLORER_BITCOIN_UI, persistExplorerBitcoinUI);
   yield takeLatest(SET_TOR_PROXY, persistTorProxy);
   yield takeLatest(SET_CURRENCY, persistCurrency);
-  yield takeLatest(SET_THEME, setKeyboardStyle);
+  yield takeLatest(SET_THEME, function* (action: ActionType) {
+    yield all([persistTheme(action), setKeyboardStyle(action)]);
+  });
 }

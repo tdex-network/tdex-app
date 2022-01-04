@@ -9,7 +9,7 @@ import { tdexWatcherSaga } from './sagas/tdexSaga';
 import { transactionsWatcherSaga } from './sagas/transactionsSaga';
 import { walletWatcherSaga } from './sagas/walletSaga';
 
-export default function* rootSaga(): Generator<any, any, any> {
+export default function* rootSaga(): Generator<any, void, unknown> {
   yield all([
     walletWatcherSaga(),
     ratesWatcherSaga(),
