@@ -33,7 +33,7 @@ export const setIsFetchingUtxos = (isFetchingUtxos: boolean): ActionType => {
   };
 };
 
-export const setIsFetchingMarkets = (isFetchingMarkets: boolean): ActionType => {
+export const setIsFetchingMarkets = (isFetchingMarkets: boolean): ActionType<boolean> => {
   return {
     type: SET_IS_FETCHING_MARKETS,
     payload: isFetchingMarkets,

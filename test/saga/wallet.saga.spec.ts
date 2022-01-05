@@ -24,12 +24,14 @@ describe('wallet saga', () => {
     });
 
     test('should discover and add utxo', async () => {
-      const gen = fetchAndUpdateUtxos([addr], {}, APIURL);
       // simulate the first call
+      const gen = fetchAndUpdateUtxos([addr], {}, APIURL);
+      const setIsFetchingMarkets = gen.next().value as PutEffect<ActionType<boolean>>;
+      expect(setIsFetchingMarkets.payload.action.payload).toEqual(true);
       const callEffect = gen.next().value as StrictEffect<IteratorResult<UtxoInterface, number>>;
-      const result = await callEffect?.payload.fn();
+      const result = await callEffect.payload.fn();
       const put = gen.next(result).value as PutEffect<ActionType>;
-
+      expect(put.payload.action.payload.value).toEqual(100000000);
       expect(put.payload.action.type).toEqual(SET_UTXO);
     });
 
@@ -37,7 +39,6 @@ describe('wallet saga', () => {
       const current: Record<string, UtxoInterface> = {};
       current['fakeTxid:8'] = utxo;
       const gen = fetchAndUpdateUtxos([addr], current, APIURL);
-
       let next = gen.next();
       while (next.value?.type !== 'PUT' || next.value?.payload.action.type !== 'DELETE_UTXO') {
         if (next.done) break;
@@ -46,10 +47,8 @@ describe('wallet saga', () => {
           next = gen.next(result);
           continue;
         }
-
         next = gen.next();
       }
-
       expect(next.value?.payload.action.type).toEqual(DELETE_UTXO);
       expect(outpointToString(next.value?.payload.action.payload)).toEqual('fakeTxid:8');
     });
@@ -58,11 +57,11 @@ describe('wallet saga', () => {
       const current: Record<string, UtxoInterface> = {};
       current[outpointToString(utxo)] = utxo;
       const gen = fetchAndUpdateUtxos([], current, APIURL);
-
+      const setIsFetchingMarkets = gen.next().value as PutEffect<ActionType<boolean>>;
+      expect(setIsFetchingMarkets.payload.action.payload).toEqual(true);
       const callEffect = gen.next().value as StrictEffect<IteratorResult<UtxoInterface, number>>;
       const result = await callEffect.payload.fn();
       const put = gen.next(result).value as PutEffect<ActionType>;
-
       expect(put.payload.action.type).toEqual(RESET_UTXOS);
     });
   });
