@@ -23,6 +23,8 @@ import { isMasterPublicKey, isMnemonic } from '../reducers/walletReducer';
 import { restoreFromMasterPubKey, restoreFromMnemonic } from '../services/walletService';
 import type { RootState, SagaGenerator } from '../types';
 
+import { restoreAssets } from './assetsSaga';
+import { restorePegins } from './btcSaga';
 import {
   restoreCurrency,
   restoreDefaultProvider,
@@ -35,6 +37,9 @@ import {
   restoreThemeSaga,
   restoreTorProxy,
 } from './settingsSaga';
+import { restoreProviders } from './tdexSaga';
+import { restoreTransactions } from './transactionsSaga';
+import { restoreUtxos } from './walletSaga';
 
 function* initAppSaga() {
   try {
@@ -56,7 +61,6 @@ function* signInSaga({ payload: identity }: ReturnType<typeof signIn>) {
     const backup: boolean = yield call(seedBackupFlag);
     if (backup) yield put(setIsBackupDone(true));
     // Wallet Restoration
-    yield setIsFetchingUtxos(true);
     const explorerLiquidAPI: string = yield select(({ settings }: RootState) => settings.explorerLiquidAPI);
     if (isMasterPublicKey(identity)) {
       yield call(restoreFromMasterPubKey, identity, explorerLiquidAPI);
@@ -71,8 +75,14 @@ function* signInSaga({ payload: identity }: ReturnType<typeof signIn>) {
     for (const addr of addresses) {
       yield put(addAddress(addr));
     }
-    // Update all state
-    yield updateState();
+    yield all([
+      put(watchCurrentBtcBlockHeight()),
+      put(checkIfClaimablePeginUtxo()),
+      put(updateDepositPeginUtxos()),
+      put(updatePrices()),
+      put(updateTransactions()),
+      put(updateUtxos()),
+    ]);
   } catch (e) {
     yield put(initAppFail());
     console.error(e);
@@ -95,9 +105,14 @@ function* updateState() {
 
 export function* appWatcherSaga(): SagaGenerator {
   yield takeLatest(INIT_APP, initAppSaga);
-  // Restore user settings before signing in
+  // Restore providers, pegins, assets, txs, utxos and user settings before signing in
   yield takeLatest(INIT_APP_SUCCESS, function* () {
     yield all([
+      restoreProviders(),
+      restorePegins(),
+      restoreAssets(),
+      restoreUtxos(),
+      restoreTransactions(),
       restoreNetwork(),
       restoreExplorerLiquidAPI(),
       restoreExplorerBitcoinAPI(),

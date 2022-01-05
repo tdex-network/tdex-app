@@ -3,6 +3,7 @@ import {
   INIT_APP_FAIL,
   INIT_APP_SUCCESS,
   SET_IS_BACKUP_DONE,
+  SET_IS_FETCHING_MARKETS,
   SET_IS_FETCHING_UTXOS,
   SET_SIGNED_UP,
 } from '../actions/appActions';
@@ -12,6 +13,7 @@ export interface AppState {
   isSignedUp: boolean;
   backupDone: boolean;
   isFetchingUtxos: boolean;
+  isFetchingMarkets: boolean;
 }
 
 const initialState: AppState = {
@@ -19,6 +21,7 @@ const initialState: AppState = {
   isSignedUp: false,
   backupDone: false,
   isFetchingUtxos: false,
+  isFetchingMarkets: false,
 };
 
 function appReducer(state = initialState, action: ActionType): AppState {
@@ -43,6 +46,11 @@ function appReducer(state = initialState, action: ActionType): AppState {
       return {
         ...state,
         isFetchingUtxos: action.payload,
+      };
+    case SET_IS_FETCHING_MARKETS:
+      return {
+        ...state,
+        isFetchingMarkets: action.payload,
       };
     default:
       return state;

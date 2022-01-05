@@ -5,7 +5,7 @@ import { tickerFromAssetHash } from '../../utils/helpers';
 import type { AssetWithTicker } from '../../utils/tdex';
 import type { ActionType } from '../../utils/types';
 import type { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
-import { ADD_MARKETS, ADD_PROVIDER, CLEAR_MARKETS, CLEAR_PROVIDERS, DELETE_PROVIDER } from '../actions/tdexActions';
+import { ADD_MARKETS, ADD_PROVIDERS, CLEAR_MARKETS, CLEAR_PROVIDERS, DELETE_PROVIDER } from '../actions/tdexActions';
 
 export interface TDEXState {
   providers: TDEXProvider[];
@@ -26,13 +26,17 @@ const TDEXReducer = (
       return { ...state, markets: [...state.markets, ...action.payload] };
     case CLEAR_MARKETS:
       return { ...state, markets: [] };
-    case ADD_PROVIDER:
-      return state.providers.find((p) => p.endpoint === action.payload.endpoint) === undefined
-        ? {
-            ...state,
-            providers: [...state.providers, action.payload],
-          }
-        : state;
+    case ADD_PROVIDERS: {
+      const newProviders: TDEXProvider[] = [];
+      action.payload.forEach((p: TDEXProvider) => {
+        const isProviderInState = state.providers.some(({ endpoint }) => endpoint === p.endpoint);
+        if (!isProviderInState) newProviders.push(p);
+      });
+      return {
+        ...state,
+        providers: [...state.providers, ...newProviders],
+      };
+    }
     case DELETE_PROVIDER:
       return {
         ...state,

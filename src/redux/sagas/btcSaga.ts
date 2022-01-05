@@ -10,7 +10,6 @@ import { masterPubKeyRestorerFromState } from 'tdex-sdk';
 import { NoClaimFoundError, PeginRestorationError, UpdateUtxosError } from '../../utils/errors';
 import { getPeginsFromStorage, setPeginsInStorage } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
-import { SIGN_IN } from '../actions/appActions';
 import {
   setCurrentBtcBlockHeight,
   setDepositPeginUtxo,
@@ -30,14 +29,14 @@ import { outpointToString } from '../reducers/walletReducer';
 import { getPeginModule } from '../services/btcService';
 import type { RootState, SagaGenerator } from '../types';
 
+export function* restorePegins(): SagaGenerator<void, Pegins> {
+  const pegins = yield call(getPeginsFromStorage);
+  yield put(upsertPegins(pegins));
+}
+
 function* persistPegins() {
   const pegins: Pegins = yield select((state) => state.btc.pegins);
   yield call(setPeginsInStorage, pegins);
-}
-
-function* restorePegins() {
-  const pegins: Pegins = yield call(getPeginsFromStorage);
-  yield put(upsertPegins(pegins));
 }
 
 // Fetch block height continuously every minute
@@ -222,7 +221,6 @@ function* checkIfClaimablePeginUtxo() {
 }
 
 export function* btcWatcherSaga(): SagaGenerator {
-  yield takeLatest(SIGN_IN, restorePegins);
   yield takeLatest(UPDATE_DEPOSIT_PEGIN_UTXOS, function* () {
     yield* updateDepositPeginUtxosState();
     yield* persistPegins();

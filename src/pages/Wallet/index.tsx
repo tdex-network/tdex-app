@@ -33,6 +33,7 @@ interface WalletProps extends RouteComponentProps {
   balances: BalanceInterface[];
   currency: string;
   isFetchingUtxos: boolean;
+  isFetchingMarkets: boolean;
   lbtcUnit: LbtcDenomination;
   network: NetworkString;
   prices: Record<string, number>;
@@ -44,6 +45,7 @@ const Wallet: React.FC<WalletProps> = ({
   balances,
   currency,
   isFetchingUtxos,
+  isFetchingMarkets,
   history,
   lbtcUnit,
   network,
@@ -121,7 +123,7 @@ const Wallet: React.FC<WalletProps> = ({
             hasCloseButton={true}
             hasBackButton={false}
             isTitleLarge={true}
-            customRightButton={isFetchingUtxos ? <IonSpinner name="lines-small" /> : <></>}
+            customRightButton={isFetchingUtxos || isFetchingMarkets ? <IonSpinner name="lines-small" /> : <></>}
           />
           <IonRow className="ion-margin-vertical ion-justify-content-center">
             <CircleTotalBalance

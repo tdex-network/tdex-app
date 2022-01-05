@@ -1,6 +1,5 @@
 import type { AddressInterface, Mnemonic, Outpoint, UtxoInterface } from 'ldk';
 import { address as addrLDK } from 'ldk';
-import type { AnyAction } from 'redux';
 
 import type { ActionType } from '../../utils/types';
 import { outpointToString } from '../reducers/walletReducer';
@@ -27,11 +26,11 @@ export const watchUtxo = (address: AddressInterface, maxTry = 100): ActionType =
   },
 });
 
-export const unlockUtxos = (): AnyAction => ({
+export const unlockUtxos = (): ActionType => ({
   type: UNLOCK_UTXOS,
 });
 
-export const addAddress = (address: AddressInterface): AnyAction => {
+export const addAddress = (address: AddressInterface): ActionType<{ address: AddressInterface; script: string }> => {
   return {
     type: ADD_ADDRESS,
     payload: {
@@ -47,21 +46,21 @@ export const clearAddresses = (): ActionType => {
   };
 };
 
-export const lockUtxo = (txid: string, vout: number): AnyAction => {
+export const lockUtxo = (txid: string, vout: number): ActionType => {
   return {
     type: LOCK_UTXO,
     payload: outpointToString({ txid, vout }),
   };
 };
 
-export const unlockUtxo = (outpointStr: string): AnyAction => {
+export const unlockUtxo = (outpointStr: string): ActionType => {
   return {
     type: UNLOCK_UTXO,
     payload: outpointStr,
   };
 };
 
-export const setMasterPublicKeysFromMnemonic = (mnemonic: Mnemonic): AnyAction => {
+export const setMasterPublicKeysFromMnemonic = (mnemonic: Mnemonic): ActionType => {
   return {
     type: SET_MASTER_PUBLIC_KEYS_FROM_MNEMONIC,
     payload: mnemonic,

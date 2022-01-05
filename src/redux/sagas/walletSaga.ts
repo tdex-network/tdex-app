@@ -10,7 +10,7 @@ import {
   setUtxosInStorage,
 } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
-import { setIsFetchingUtxos, SIGN_IN, updateState } from '../actions/appActions';
+import { setIsFetchingUtxos, updateState } from '../actions/appActions';
 import { addErrorToast } from '../actions/toastActions';
 import {
   deleteUtxo,
@@ -27,6 +27,13 @@ import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString, addressesSelector } from '../reducers/walletReducer';
 import type { SagaGenerator } from '../types';
 
+export function* restoreUtxos(): SagaGenerator<void, UtxoInterface[]> {
+  const utxos = yield call(getUtxosFromStorage);
+  for (const utxo of utxos) {
+    yield put(setUtxo(utxo));
+  }
+}
+
 function* persistAddresses() {
   const addresses: AddressInterface[] = yield select(addressesSelector);
   yield call(setAddressesInStorage, addresses);
@@ -38,6 +45,11 @@ function* persistLastUsedIndexes() {
     lastUsedExternalIndex: wallet.lastUsedExternalIndex,
   }));
   yield call(setLastUsedIndexesInStorage, lastIndexes);
+}
+
+function* persistUtxos() {
+  const utxos: UtxoInterface[] = yield select(({ wallet }: { wallet: WalletState }) => Object.values(wallet.utxos));
+  yield call(setUtxosInStorage, utxos);
 }
 
 function* updateUtxosState() {
@@ -59,27 +71,23 @@ export function* fetchAndUpdateUtxos(
   addresses: AddressInterface[],
   currentUtxos: Record<string, UtxoInterface>,
   explorerLiquidAPI: string
-): any {
+): SagaGenerator<void, IteratorResult<UtxoInterface, number>> {
+  yield put(setIsFetchingUtxos(true));
   const newOutpoints: string[] = [];
-
   const utxoGen = fetchAndUnblindUtxosGenerator(
     addresses,
     explorerLiquidAPI,
     (utxo: UtxoInterface) => currentUtxos[outpointToString(utxo)] != undefined
   );
   const next = () => utxoGen.next();
-
-  let it: IteratorResult<UtxoInterface, number> = yield call(next);
-
+  let it = yield call(next);
   // if done = true it means that we do not find any utxos
   if (it.done) {
     yield put(resetUtxos());
     yield put(setIsFetchingUtxos(false));
     return;
   }
-
   let utxoUpdatedCount = 0;
-
   while (!it.done) {
     const utxo = it.value;
     newOutpoints.push(outpointToString(utxo));
@@ -89,7 +97,6 @@ export function* fetchAndUpdateUtxos(
     }
     it = yield call(next);
   }
-
   // delete spent utxos
   for (const outpoint of Object.keys(currentUtxos)) {
     if (outpoint && !newOutpoints.includes(outpoint)) {
@@ -98,10 +105,7 @@ export function* fetchAndUpdateUtxos(
       yield put(deleteUtxo({ txid, vout: parseInt(vout) }));
     }
   }
-
-  if (utxoUpdatedCount > 0) {
-    console.debug(`${utxoUpdatedCount} utxos updated`);
-  }
+  if (utxoUpdatedCount > 0) console.debug(`${utxoUpdatedCount} utxos updated`);
   yield put(setIsFetchingUtxos(false));
 }
 
@@ -110,22 +114,9 @@ function* waitAndUnlock({ payload }: ReturnType<typeof unlockUtxo>) {
   yield put(unlockUtxo(payload));
 }
 
-function* persistUtxos() {
-  const utxos: UtxoInterface[] = yield select(({ wallet }: { wallet: WalletState }) => Object.values(wallet.utxos));
-  yield call(setUtxosInStorage, utxos);
-}
-
-function* restoreUtxos() {
-  const utxos: UtxoInterface[] = yield call(getUtxosFromStorage);
-  for (const utxo of utxos) {
-    yield put(setUtxo(utxo));
-  }
-}
-
 function* watchUtxoSaga(action: ActionType) {
   const { address, maxTry }: { address: AddressInterface; maxTry: number } = action.payload;
   const explorer: string = yield select(({ settings }) => settings.explorerLiquidAPI);
-
   for (let t = 0; t < maxTry; t++) {
     try {
       const utxos: UtxoInterface[] = yield call(fetchUtxos, address.confidentialAddress, explorer);
@@ -157,6 +148,5 @@ export function* walletWatcherSaga(): SagaGenerator {
     yield* persistUtxos();
   });
   yield takeEvery(LOCK_UTXO, waitAndUnlock);
-  yield takeLatest(SIGN_IN, restoreUtxos);
   yield takeLatest(WATCH_UTXO, watchUtxoSaga);
 }

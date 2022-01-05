@@ -1,7 +1,7 @@
 import type { ActionType } from '../../utils/types';
 import type { TDEXProvider, TDEXMarket } from '../actionTypes/tdexActionTypes';
 
-export const ADD_PROVIDER = 'ADD_PROVIDER_ENDPOINT';
+export const ADD_PROVIDERS = 'ADD_PROVIDERS';
 export const DELETE_PROVIDER = 'DELETE_PROVIDER';
 export const CLEAR_PROVIDERS = 'CLEAR_PROVIDERS';
 export const UPDATE_MARKETS = 'UPDATE_MARKETS';
@@ -25,10 +25,10 @@ export const updateMarkets = (): ActionType => {
   };
 };
 
-export const addProvider = (provider: TDEXProvider): ActionType => {
+export const addProviders = (providers: TDEXProvider[]): ActionType<TDEXProvider[]> => {
   return {
-    type: ADD_PROVIDER,
-    payload: provider,
+    type: ADD_PROVIDERS,
+    payload: providers,
   };
 };
 
