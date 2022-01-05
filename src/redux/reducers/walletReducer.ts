@@ -208,7 +208,7 @@ export function isMnemonic(identity: any): identity is Mnemonic {
 }
 
 export function isMasterPublicKey(identity: any): identity is MasterPublicKey {
-  return identity?.masterPublicKeyNode !== undefined;
+  return identity?.mnemonic === undefined;
 }
 
 export default walletReducer;
