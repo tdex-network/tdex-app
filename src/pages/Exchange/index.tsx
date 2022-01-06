@@ -9,6 +9,7 @@ import {
   IonCol,
   IonButton,
   IonRippleEffect,
+  useIonAlert,
 } from '@ionic/react';
 import classNames from 'classnames';
 import type { UtxoInterface, StateRestorerOpts } from 'ldk';
@@ -27,13 +28,14 @@ import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
 import type { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import { updateMarkets } from '../../redux/actions/tdexActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import ExchangeRow from '../../redux/containers/exchangeRowContainer';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
 import { defaultPrecision, LBTC_ASSET, PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
-import { AppError, IncorrectPINError, NoMarketsProvidedError } from '../../utils/errors';
+import { AppError, IncorrectPINError } from '../../utils/errors';
 import { customCoinSelector, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
 import type { TDexMnemonicRedux } from '../../utils/identity';
 import { getConnectedTDexMnemonic } from '../../utils/storage-helper';
@@ -84,7 +86,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [tradableAssetsForAssetReceived, setTradableAssetsForAssetReceived] = useState<AssetWithTicker[]>([]);
   const [trades, setTrades] = useState<TDEXTrade[]>([]);
   // selected trade
-  const [trade, setTrade] = useState<TDEXTrade>();
+  const [bestTrade, setBestTrade] = useState<TDEXTrade>();
   // focused input
   const [isFocused, setIsFocused] = useState<'sent' | 'receive'>('sent');
   // errors
@@ -93,15 +95,11 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [needReset, setNeedReset] = useState<boolean>(false);
   //
   const [modalOpen, setModalOpen] = useState(false);
-  const [isLoading, setLoading] = useState(false);
+  const [isBusyMakingTrade, setIsBusyMakingTrade] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
+  const [showNoProvidersAvailableAlert] = useIonAlert();
 
   useIonViewWillEnter(() => {
-    if (markets.length === 0) {
-      dispatch(addErrorToast(NoMarketsProvidedError));
-      history.goBack();
-      return;
-    }
     setAssetSent({
       asset: LBTC_ASSET[network].assetHash,
       ticker: LBTC_ASSET[network].ticker,
@@ -132,8 +130,9 @@ const Exchange: React.FC<ExchangeProps> = ({
   }, [assetReceived?.asset, markets]);
 
   const checkAvailableAmountSent = () => {
-    if (!trade || !sentAmount || !assetSent) return;
-    const availableAmount = trade.type === TradeType.BUY ? trade.market.quoteAmount : trade.market.baseAmount;
+    if (!bestTrade || !sentAmount || !assetSent) return;
+    const availableAmount =
+      bestTrade.type === TradeType.BUY ? bestTrade.market.quoteAmount : bestTrade.market.baseAmount;
     const sats = toSatoshi(
       sentAmount,
       assets[assetSent.asset]?.precision ?? defaultPrecision,
@@ -147,8 +146,9 @@ const Exchange: React.FC<ExchangeProps> = ({
   };
 
   const checkAvailableAmountReceived = () => {
-    if (!trade || !receivedAmount || !assetReceived) return;
-    const availableAmount = trade.type === TradeType.BUY ? trade.market.baseAmount : trade.market.quoteAmount;
+    if (!bestTrade || !receivedAmount || !assetReceived) return;
+    const availableAmount =
+      bestTrade.type === TradeType.BUY ? bestTrade.market.baseAmount : bestTrade.market.quoteAmount;
     const sats = toSatoshi(
       receivedAmount,
       assets[assetReceived.asset]?.precision ?? defaultPrecision,
@@ -174,10 +174,10 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   // make and broadcast trade, then push to trade summary page
   const onPinConfirm = async (pin: string) => {
-    if (!assetSent || !trade || !sentAmount) return;
+    if (!assetSent || !bestTrade || !sentAmount) return;
     try {
       setModalOpen(false);
-      setLoading(true);
+      setIsBusyMakingTrade(true);
       let identity;
       try {
         const toRestore = await getConnectedTDexMnemonic(pin, dispatch, network);
@@ -190,9 +190,9 @@ const Exchange: React.FC<ExchangeProps> = ({
       } catch (_) {
         throw IncorrectPINError;
       }
-      if (!trade) return;
+      if (!bestTrade) return;
       const txid = await makeTrade(
-        trade,
+        bestTrade,
         {
           amount: toSatoshi(
             sentAmount,
@@ -219,13 +219,13 @@ const Exchange: React.FC<ExchangeProps> = ({
           amount: receivedAmount?.toString() || '??',
         },
       };
-      setLoading(false);
+      setIsBusyMakingTrade(false);
       history.replace(`/tradesummary/${txid}`, { preview });
     } catch (e) {
       console.error(e);
       dispatch(unlockUtxos());
       setIsWrongPin(true);
-      setLoading(false);
+      setIsBusyMakingTrade(false);
       setTimeout(() => {
         setIsWrongPin(null);
         setNeedReset(true);
@@ -250,12 +250,29 @@ const Exchange: React.FC<ExchangeProps> = ({
       {/* Otherwise, loaders will show up on the other screens */}
       {history.location.pathname === '/exchange' && (
         <IonPage id="exchange-page">
-          <Loader showLoading={isLoading} delay={0} />
+          <Loader showLoading={isBusyMakingTrade} delay={0} />
           <Loader
             showLoading={isFetchingMarkets}
             message="Discovering TDEX providers with best liquidity..."
             delay={0}
             backdropDismiss={true}
+            duration={15000}
+            onDidDismiss={() => {
+              if (markets.length === 0 || bestTrade === undefined) {
+                showNoProvidersAvailableAlert({
+                  header: 'No providers available',
+                  message:
+                    'Liquidity providers on Tor network can take a long time to respond or all your providers are offline.',
+                  buttons: [
+                    { text: 'Go To Wallet', handler: () => history.push('/wallet') },
+                    {
+                      text: 'Retry',
+                      handler: () => dispatch(updateMarkets()),
+                    },
+                  ],
+                }).catch(console.error);
+              }
+            }}
           />
 
           {assetSent && assetReceived && markets.length > 0 && (
@@ -297,13 +314,13 @@ const Exchange: React.FC<ExchangeProps> = ({
                   sendInput={true}
                   focused={isFocused === 'sent'}
                   setFocus={() => setIsFocused('sent')}
-                  setTrade={(t: TDEXTrade) => setTrade(t)}
+                  setTrade={(t: TDEXTrade) => setBestTrade(t)}
                   relatedAssetAmount={receivedAmount || ''}
                   relatedAssetHash={assetReceived?.asset || ''}
                   asset={assetSent}
                   assetAmount={sentAmount}
                   trades={trades}
-                  trade={trade}
+                  trade={bestTrade}
                   onChangeAmount={(newAmount: string) => {
                     setSentAmount(newAmount);
                     checkAvailableAmountSent();
@@ -316,7 +333,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                   error={errorSent}
                   setError={setErrorSent}
                   setOtherInputError={setErrorReceived}
-                  isLoading={isLoading}
+                  isLoading={isBusyMakingTrade}
                   torProxy={torProxy}
                   network={network}
                 />
@@ -331,9 +348,9 @@ const Exchange: React.FC<ExchangeProps> = ({
                     sendInput={false}
                     focused={isFocused === 'receive'}
                     setFocus={() => setIsFocused('receive')}
-                    setTrade={(t: TDEXTrade) => setTrade(t)}
+                    setTrade={(t: TDEXTrade) => setBestTrade(t)}
                     trades={trades}
-                    trade={trade}
+                    trade={bestTrade}
                     relatedAssetAmount={sentAmount || ''}
                     relatedAssetHash={assetSent?.asset || ''}
                     asset={assetReceived}
@@ -350,7 +367,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                     error={errorReceived}
                     setError={setErrorReceived}
                     setOtherInputError={setErrorSent}
-                    isLoading={isLoading}
+                    isLoading={isBusyMakingTrade}
                     torProxy={torProxy}
                     network={network}
                   />
@@ -360,10 +377,11 @@ const Exchange: React.FC<ExchangeProps> = ({
                   <IonCol size="8.5" offset="1.75">
                     <IonButton
                       className={classNames('main-button', {
-                        'button-disabled': !assetSent || !assetReceived || isLoading || sentAmountGreaterThanBalance(),
+                        'button-disabled':
+                          !assetSent || !assetReceived || isBusyMakingTrade || sentAmountGreaterThanBalance(),
                       })}
                       data-cy="exchange-confirm-btn"
-                      disabled={!assetSent || !assetReceived || isLoading || sentAmountGreaterThanBalance()}
+                      disabled={!assetSent || !assetReceived || isBusyMakingTrade || sentAmountGreaterThanBalance()}
                       onClick={onConfirm}
                     >
                       CONFIRM
@@ -371,13 +389,13 @@ const Exchange: React.FC<ExchangeProps> = ({
                   </IonCol>
                 </IonRow>
 
-                {trade && (
+                {bestTrade && (
                   <IonRow className="market-provider ion-margin-vertical-x2 ion-text-center">
                     <IonCol size="10" offset="1">
                       <IonText className="trade-info" color="light">
                         Market provided by:{' '}
                         <span className="provider-info">
-                          {` ${trade.market.provider.name} - ${trade.market.provider.endpoint}`}
+                          {` ${bestTrade.market.provider.name} - ${bestTrade.market.provider.endpoint}`}
                         </span>
                       </IonText>
                     </IonCol>

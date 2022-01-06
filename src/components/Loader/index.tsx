@@ -4,13 +4,22 @@ import React from 'react';
 import { useDelayedRender } from '../../hooks/useDelayedRender';
 
 interface LoaderProps {
+  showLoading: boolean;
   delay?: number;
   message?: string;
-  showLoading: boolean;
   backdropDismiss?: boolean;
+  onDidDismiss?: () => void;
+  duration?: number;
 }
 
-const Loader: React.FC<LoaderProps> = ({ backdropDismiss = false, delay, message, showLoading }) => {
+const Loader: React.FC<LoaderProps> = ({
+  backdropDismiss = false,
+  onDidDismiss,
+  duration = 0,
+  delay,
+  message,
+  showLoading,
+}) => {
   return useDelayedRender(
     delay ?? 500,
     showLoading
@@ -20,6 +29,8 @@ const Loader: React.FC<LoaderProps> = ({ backdropDismiss = false, delay, message
       message={message || 'Please wait...'}
       spinner="lines"
       backdropDismiss={backdropDismiss}
+      onDidDismiss={onDidDismiss}
+      duration={duration}
     />
   ));
 };
