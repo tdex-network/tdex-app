@@ -97,9 +97,12 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [isBusyMakingTrade, setIsBusyMakingTrade] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
-  const [showNoProvidersAvailableAlert] = useIonAlert();
+  const [showNoProvidersAvailableAlert, dismissNoProvidersAvailableAlert] = useIonAlert();
 
   useIonViewWillEnter(() => {
+    if (markets.length === 0) {
+      openNoProvidersAvailableAlert();
+    }
     setAssetSent({
       asset: LBTC_ASSET[network].assetHash,
       ticker: LBTC_ASSET[network].ticker,
@@ -107,6 +110,37 @@ const Exchange: React.FC<ExchangeProps> = ({
     setSentAmount(undefined);
     setReceivedAmount(undefined);
   }, [balances, markets]);
+
+  const openNoProvidersAvailableAlert = () => {
+    showNoProvidersAvailableAlert({
+      header: 'No providers available',
+      message: 'Liquidity providers on Tor network can take a long time to respond or all your providers are offline.',
+      backdropDismiss: false,
+      buttons: [
+        {
+          text: 'Go To Wallet',
+          handler: () => {
+            dismissNoProvidersAvailableAlert()
+              .then(() => {
+                history.push('/wallet');
+              })
+              .catch(console.error);
+          },
+        },
+        {
+          text: 'Retry',
+          handler: () => {
+            dispatch(updateMarkets());
+            if (markets.length === 0 || bestTrade === undefined) {
+              dismissNoProvidersAvailableAlert().then(() => {
+                openNoProvidersAvailableAlert();
+              });
+            }
+          },
+        },
+      ],
+    }).catch(console.error);
+  };
 
   useEffect(() => {
     if (markets.length === 0 || !assetSent || !assetReceived) return;
@@ -246,11 +280,11 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   return (
     <>
-      {/* Check location because screens are always loaded on Ionic */}
-      {/* Otherwise, loaders will show up on the other screens */}
-      {history.location.pathname === '/exchange' && (
-        <IonPage id="exchange-page">
-          <Loader showLoading={isBusyMakingTrade} delay={0} />
+      <IonPage id="exchange-page">
+        <Loader showLoading={isBusyMakingTrade} delay={0} />
+        {/* Check location because screens are always loaded on Ionic */}
+        {/* Otherwise, loaders will show up on the other screens */}
+        {history.location.pathname === '/exchange' && (
           <Loader
             showLoading={isFetchingMarkets}
             message="Discovering TDEX providers with best liquidity..."
@@ -259,153 +293,140 @@ const Exchange: React.FC<ExchangeProps> = ({
             duration={15000}
             onDidDismiss={() => {
               if (markets.length === 0 || bestTrade === undefined) {
-                showNoProvidersAvailableAlert({
-                  header: 'No providers available',
-                  message:
-                    'Liquidity providers on Tor network can take a long time to respond or all your providers are offline.',
-                  buttons: [
-                    { text: 'Go To Wallet', handler: () => history.push('/wallet') },
-                    {
-                      text: 'Retry',
-                      handler: () => dispatch(updateMarkets()),
-                    },
-                  ],
-                }).catch(console.error);
+                openNoProvidersAvailableAlert();
               }
             }}
           />
+        )}
 
-          {assetSent && assetReceived && markets.length > 0 && (
-            <PinModal
-              open={modalOpen}
-              title="Unlock your seed"
-              description={`Enter your secret PIN to send ${sentAmount} ${
-                isLbtc(assetSent.asset, network) ? lbtcUnit : assetSent.ticker
-              } and receive ${receivedAmount} ${
-                isLbtc(assetReceived.asset, network) ? lbtcUnit : assetReceived.ticker
-              }.`}
-              onConfirm={onPinConfirm}
-              onClose={() => {
-                setModalOpen(false);
-              }}
-              isWrongPin={isWrongPin}
-              needReset={needReset}
-              setNeedReset={setNeedReset}
-              setIsWrongPin={setIsWrongPin}
-            />
-          )}
+        {assetSent && assetReceived && markets.length > 0 && (
+          <PinModal
+            open={modalOpen}
+            title="Unlock your seed"
+            description={`Enter your secret PIN to send ${sentAmount} ${
+              isLbtc(assetSent.asset, network) ? lbtcUnit : assetSent.ticker
+            } and receive ${receivedAmount} ${isLbtc(assetReceived.asset, network) ? lbtcUnit : assetReceived.ticker}.`}
+            onConfirm={onPinConfirm}
+            onClose={() => {
+              setModalOpen(false);
+            }}
+            isWrongPin={isWrongPin}
+            needReset={needReset}
+            setNeedReset={setNeedReset}
+            setIsWrongPin={setIsWrongPin}
+          />
+        )}
 
-          {assetSent && markets.length > 0 && (
-            <IonContent className="exchange-content">
-              <Refresher />
-              <IonGrid className="ion-no-padding ion-padding-top">
-                <Header
-                  hasBackButton={false}
-                  hasCloseButton={true}
-                  customRightButton={
-                    <IonButton className="custom-right-button" onClick={() => history.push('/history')}>
-                      <img src={tradeHistory} alt="trade history" />
-                    </IonButton>
-                  }
-                  title="Exchange"
-                  isTitleLarge={true}
-                />
+        {assetSent && markets.length > 0 && (
+          <IonContent className="exchange-content">
+            <Refresher />
+            <IonGrid className="ion-no-padding ion-padding-top">
+              <Header
+                hasBackButton={false}
+                hasCloseButton={true}
+                customRightButton={
+                  <IonButton className="custom-right-button" onClick={() => history.push('/history')}>
+                    <img src={tradeHistory} alt="trade history" />
+                  </IonButton>
+                }
+                title="Exchange"
+                isTitleLarge={true}
+              />
+              <ExchangeRow
+                sendInput={true}
+                focused={isFocused === 'sent'}
+                setFocus={() => setIsFocused('sent')}
+                setTrade={(t: TDEXTrade) => setBestTrade(t)}
+                relatedAssetAmount={receivedAmount || ''}
+                relatedAssetHash={assetReceived?.asset || ''}
+                asset={assetSent}
+                assetAmount={sentAmount}
+                trades={trades}
+                trade={bestTrade}
+                onChangeAmount={(newAmount: string) => {
+                  setSentAmount(newAmount);
+                  checkAvailableAmountSent();
+                }}
+                assetsWithTicker={tradableAssetsForAssetSent}
+                setAsset={(asset) => {
+                  if (assetReceived && asset.asset === assetReceived.asset) setAssetReceived(assetSent);
+                  setAssetSent(asset);
+                }}
+                error={errorSent}
+                setError={setErrorSent}
+                setOtherInputError={setErrorReceived}
+                isLoading={isBusyMakingTrade}
+                torProxy={torProxy}
+                network={network}
+              />
+
+              <div className="exchange-divider ion-activatable" onClick={swapAssetsAndAmounts}>
+                <img src={swap} alt="swap" />
+                <IonRippleEffect type="unbounded" />
+              </div>
+
+              {assetReceived && (
                 <ExchangeRow
-                  sendInput={true}
-                  focused={isFocused === 'sent'}
-                  setFocus={() => setIsFocused('sent')}
+                  sendInput={false}
+                  focused={isFocused === 'receive'}
+                  setFocus={() => setIsFocused('receive')}
                   setTrade={(t: TDEXTrade) => setBestTrade(t)}
-                  relatedAssetAmount={receivedAmount || ''}
-                  relatedAssetHash={assetReceived?.asset || ''}
-                  asset={assetSent}
-                  assetAmount={sentAmount}
                   trades={trades}
                   trade={bestTrade}
+                  relatedAssetAmount={sentAmount || ''}
+                  relatedAssetHash={assetSent?.asset || ''}
+                  asset={assetReceived}
+                  assetAmount={receivedAmount}
                   onChangeAmount={(newAmount: string) => {
-                    setSentAmount(newAmount);
-                    checkAvailableAmountSent();
+                    setReceivedAmount(newAmount);
+                    checkAvailableAmountReceived();
                   }}
-                  assetsWithTicker={tradableAssetsForAssetSent}
+                  assetsWithTicker={tradableAssetsForAssetReceived}
                   setAsset={(asset) => {
-                    if (assetReceived && asset.asset === assetReceived.asset) setAssetReceived(assetSent);
-                    setAssetSent(asset);
+                    if (asset.asset === assetSent.asset) setAssetSent(assetReceived);
+                    setAssetReceived(asset);
                   }}
-                  error={errorSent}
-                  setError={setErrorSent}
-                  setOtherInputError={setErrorReceived}
+                  error={errorReceived}
+                  setError={setErrorReceived}
+                  setOtherInputError={setErrorSent}
                   isLoading={isBusyMakingTrade}
                   torProxy={torProxy}
                   network={network}
                 />
+              )}
 
-                <div className="exchange-divider ion-activatable" onClick={swapAssetsAndAmounts}>
-                  <img src={swap} alt="swap" />
-                  <IonRippleEffect type="unbounded" />
-                </div>
+              <IonRow>
+                <IonCol size="8.5" offset="1.75">
+                  <IonButton
+                    className={classNames('main-button', {
+                      'button-disabled':
+                        !assetSent || !assetReceived || isBusyMakingTrade || sentAmountGreaterThanBalance(),
+                    })}
+                    data-cy="exchange-confirm-btn"
+                    disabled={!assetSent || !assetReceived || isBusyMakingTrade || sentAmountGreaterThanBalance()}
+                    onClick={onConfirm}
+                  >
+                    CONFIRM
+                  </IonButton>
+                </IonCol>
+              </IonRow>
 
-                {assetReceived && (
-                  <ExchangeRow
-                    sendInput={false}
-                    focused={isFocused === 'receive'}
-                    setFocus={() => setIsFocused('receive')}
-                    setTrade={(t: TDEXTrade) => setBestTrade(t)}
-                    trades={trades}
-                    trade={bestTrade}
-                    relatedAssetAmount={sentAmount || ''}
-                    relatedAssetHash={assetSent?.asset || ''}
-                    asset={assetReceived}
-                    assetAmount={receivedAmount}
-                    onChangeAmount={(newAmount: string) => {
-                      setReceivedAmount(newAmount);
-                      checkAvailableAmountReceived();
-                    }}
-                    assetsWithTicker={tradableAssetsForAssetReceived}
-                    setAsset={(asset) => {
-                      if (asset.asset === assetSent.asset) setAssetSent(assetReceived);
-                      setAssetReceived(asset);
-                    }}
-                    error={errorReceived}
-                    setError={setErrorReceived}
-                    setOtherInputError={setErrorSent}
-                    isLoading={isBusyMakingTrade}
-                    torProxy={torProxy}
-                    network={network}
-                  />
-                )}
-
-                <IonRow>
-                  <IonCol size="8.5" offset="1.75">
-                    <IonButton
-                      className={classNames('main-button', {
-                        'button-disabled':
-                          !assetSent || !assetReceived || isBusyMakingTrade || sentAmountGreaterThanBalance(),
-                      })}
-                      data-cy="exchange-confirm-btn"
-                      disabled={!assetSent || !assetReceived || isBusyMakingTrade || sentAmountGreaterThanBalance()}
-                      onClick={onConfirm}
-                    >
-                      CONFIRM
-                    </IonButton>
+              {bestTrade && (
+                <IonRow className="market-provider ion-margin-vertical-x2 ion-text-center">
+                  <IonCol size="10" offset="1">
+                    <IonText className="trade-info" color="light">
+                      Market provided by:{' '}
+                      <span className="provider-info">
+                        {` ${bestTrade.market.provider.name} - ${bestTrade.market.provider.endpoint}`}
+                      </span>
+                    </IonText>
                   </IonCol>
                 </IonRow>
-
-                {bestTrade && (
-                  <IonRow className="market-provider ion-margin-vertical-x2 ion-text-center">
-                    <IonCol size="10" offset="1">
-                      <IonText className="trade-info" color="light">
-                        Market provided by:{' '}
-                        <span className="provider-info">
-                          {` ${bestTrade.market.provider.name} - ${bestTrade.market.provider.endpoint}`}
-                        </span>
-                      </IonText>
-                    </IonCol>
-                  </IonRow>
-                )}
-              </IonGrid>
-            </IonContent>
-          )}
-        </IonPage>
-      )}
+              )}
+            </IonGrid>
+          </IonContent>
+        )}
+      </IonPage>
     </>
   );
 };
