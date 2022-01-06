@@ -122,7 +122,7 @@ const Exchange: React.FC<ExchangeProps> = ({
           handler: () => {
             dismissNoProvidersAvailableAlert()
               .then(() => {
-                history.push('/wallet');
+                history.replace('/wallet');
               })
               .catch(console.error);
           },
