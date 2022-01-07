@@ -10,6 +10,7 @@ const mapStateToProps = (state: RootState) => {
     balances: balancesSelector(state),
     currency: state.settings.currency.value,
     isFetchingUtxos: state.app.isFetchingUtxos,
+    isFetchingMarkets: state.app.isFetchingMarkets,
     lbtcUnit: state.settings.denominationLBTC,
     network: state.settings.network,
     prices: state.rates.prices,

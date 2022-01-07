@@ -27,7 +27,7 @@ import Header from '../../components/Header';
 import type { TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
 import './style.scss';
 import {
-  addProvider,
+  addProviders,
   clearMarkets,
   clearProviders,
   deleteProvider,
@@ -57,8 +57,7 @@ export const refreshProviders = async (
       if (newProviders.length) {
         dispatch(clearProviders());
         dispatch(clearMarkets());
-        const actions = providersFromRegistry.map(addProvider);
-        actions.forEach(dispatch);
+        dispatch(addProviders(providersFromRegistry));
       }
       dispatch(addSuccessToast(`${newProviders.length} new providers from TDEX registry!`));
     } catch {
@@ -67,11 +66,11 @@ export const refreshProviders = async (
   } else if (network === 'testnet') {
     dispatch(clearProviders());
     dispatch(clearMarkets());
-    dispatch(addProvider({ endpoint: defaultProviderEndpoints.testnet, name: 'Default provider' }));
+    dispatch(addProviders([{ endpoint: defaultProviderEndpoints.testnet, name: 'Default provider' }]));
   } else {
     dispatch(clearProviders());
     dispatch(clearMarkets());
-    dispatch(addProvider({ endpoint: defaultProviderEndpoints.regtest, name: 'Default provider' }));
+    dispatch(addProviders([{ endpoint: defaultProviderEndpoints.regtest, name: 'Default provider' }]));
   }
 };
 
@@ -179,10 +178,12 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
                       ) {
                         setNewProvider(false);
                         dispatch(
-                          addProvider({
-                            endpoint: newProviderEndpoint.trim(),
-                            name: newProviderName.trim(),
-                          })
+                          addProviders([
+                            {
+                              endpoint: newProviderEndpoint.trim(),
+                              name: newProviderName.trim(),
+                            },
+                          ])
                         );
                       } else {
                         dispatch(addErrorToast(InvalidUrl));

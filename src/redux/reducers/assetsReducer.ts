@@ -5,7 +5,7 @@ import { MAIN_ASSETS } from '../../utils/constants';
 import type { ActionType } from '../../utils/types';
 import { RESET_ASSETS, SET_ASSET } from '../actions/assetsActions';
 
-type AssetsState = Record<string, AssetConfig>;
+export type AssetsState = Record<string, AssetConfig>;
 
 const assetsReducer = (state: AssetsState = {}, action: ActionType): AssetsState => {
   switch (action.type) {

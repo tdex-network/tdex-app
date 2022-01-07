@@ -12,6 +12,7 @@ const mapStateToProps = (state: RootState) => {
       (b) => b.amount > 0 && getTradablesAssets(state.tdex.markets, b.asset, state.settings.network).length > 0
     ),
     explorerLiquidAPI: state.settings.explorerLiquidAPI,
+    isFetchingMarkets: state.app.isFetchingMarkets,
     lastUsedIndexes: lastUsedIndexesSelector(state),
     lbtcUnit: state.settings.denominationLBTC,
     markets: state.tdex.markets,

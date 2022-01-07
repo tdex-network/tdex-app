@@ -9,7 +9,6 @@ import {
   setTransactionsInStorage,
 } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
-import { SIGN_IN } from '../actions/appActions';
 import { addAsset } from '../actions/assetsActions';
 import { addErrorToast } from '../actions/toastActions';
 import {
@@ -23,6 +22,18 @@ import {
 } from '../actions/transactionsActions';
 import type { WalletState } from '../reducers/walletReducer';
 import type { RootState, SagaGenerator } from '../types';
+
+export function* restoreTransactions(): SagaGenerator<void, TxInterface[]> {
+  const txs = yield call(getTransactionsFromStorage);
+  for (const tx of txs) {
+    yield put(setTransaction(tx));
+  }
+}
+
+function* persistTransactions() {
+  const txs: TxInterface[] = yield select(({ transactions }) => Object.values(transactions.txs));
+  yield call(setTransactionsInStorage, txs);
+}
 
 function* updateTransactions() {
   try {
@@ -89,26 +100,18 @@ export function* fetchAndUpdateTxs(
   }
 }
 
+// To avoid fetching same asset data multiple times
+const assetsSoonAddedInState: string[] = [];
+
 // update the assets state when a new transaction is set in tx state
 function* updateAssets({ payload }: ReturnType<typeof setTransaction>) {
   if (payload?.vout) {
     for (const out of payload.vout) {
-      if (!isBlindedOutputInterface(out)) {
+      if (!isBlindedOutputInterface(out) && !assetsSoonAddedInState.includes(out.asset)) {
+        assetsSoonAddedInState.push(out.asset);
         yield put(addAsset(out.asset));
       }
     }
-  }
-}
-
-function* persistTransactions() {
-  const txs: TxInterface[] = yield select(({ transactions }) => Object.values(transactions.txs));
-  yield call(setTransactionsInStorage, txs);
-}
-
-function* restoreTransactions() {
-  const txs: TxInterface[] = yield call(getTransactionsFromStorage);
-  for (const tx of txs) {
-    yield put(setTransaction(tx));
   }
 }
 
@@ -161,7 +164,6 @@ export function* transactionsWatcherSaga(): SagaGenerator {
     yield* persistTransactions();
   });
   yield takeEvery(SET_TRANSACTION, updateAssets);
-  yield takeLatest(SIGN_IN, restoreTransactions);
   yield takeEvery(WATCH_TRANSACTION, watchTransaction);
   yield takeEvery(RESET_TRANSACTION_REDUCER, resetTransactions);
 }

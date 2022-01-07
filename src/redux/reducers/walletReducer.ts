@@ -48,6 +48,7 @@ export const initialState: WalletState = {
 function walletReducer(state = initialState, action: ActionType): WalletState {
   switch (action.type) {
     case ADD_ADDRESS: {
+      if (Object.keys(state.addresses).includes(action.payload.script)) return state;
       const { isChange, index } = getIndexAndIsChangeFromAddress(action.payload.address);
       return {
         ...state,
