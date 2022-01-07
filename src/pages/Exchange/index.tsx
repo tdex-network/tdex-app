@@ -224,7 +224,6 @@ const Exchange: React.FC<ExchangeProps> = ({
       } catch (_) {
         throw IncorrectPINError;
       }
-      if (!bestTrade) return;
       const txid = await makeTrade(
         bestTrade,
         {
@@ -253,13 +252,11 @@ const Exchange: React.FC<ExchangeProps> = ({
           amount: receivedAmount?.toString() || '??',
         },
       };
-      setIsBusyMakingTrade(false);
       history.replace(`/tradesummary/${txid}`, { preview });
     } catch (e) {
       console.error(e);
       dispatch(unlockUtxos());
       setIsWrongPin(true);
-      setIsBusyMakingTrade(false);
       setTimeout(() => {
         setIsWrongPin(null);
         setNeedReset(true);
@@ -267,6 +264,8 @@ const Exchange: React.FC<ExchangeProps> = ({
       if (e instanceof AppError) {
         dispatch(addErrorToast(e));
       }
+    } finally {
+      setIsBusyMakingTrade(false);
     }
   };
 
