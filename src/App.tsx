@@ -52,10 +52,10 @@ const App: React.FC<AppProps> = ({ appInit, isAuth, theme }) => {
       } catch (err) {
         console.error(err);
       }
-      try{
+      try {
         if (Capacitor.isPluginAvailable('StatusBar')) {
           await StatusBar.setStyle({
-            style: Style.Dark
+            style: Style.Dark,
           });
         }
       } catch (err) {
