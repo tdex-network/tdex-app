@@ -1,6 +1,6 @@
 import { useAppState } from '@capacitor-community/react-hooks/app';
 import { Capacitor } from '@capacitor/core';
-import { StatusBar } from '@capacitor/status-bar';
+import { StatusBar, Style } from '@capacitor/status-bar';
 import { IonApp, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import React, { useEffect } from 'react';
@@ -48,6 +48,15 @@ const App: React.FC<AppProps> = ({ appInit, isAuth, theme }) => {
       try {
         if (Capacitor.isPluginAvailable('StatusBar')) {
           await StatusBar.setOverlaysWebView({ overlay: false });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+      try{
+        if (Capacitor.isPluginAvailable('StatusBar')) {
+          await StatusBar.setStyle({
+            style: Style.Dark
+          });
         }
       } catch (err) {
         console.error(err);
