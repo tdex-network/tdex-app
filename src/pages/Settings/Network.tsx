@@ -18,6 +18,7 @@ import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
 import { signIn } from '../../redux/actions/appActions';
 import { resetAssets } from '../../redux/actions/assetsActions';
+import { resetBtcReducer } from '../../redux/actions/btcActions';
 import {
   setDefaultProvider,
   setExplorerBitcoinAPI,
@@ -84,6 +85,7 @@ const Network = (): JSX.Element => {
       dispatch(resetUtxos());
       dispatch(resetAssets(network));
       dispatch(resetTransactionReducer());
+      dispatch(resetBtcReducer());
       const newXpub = fromXpub(masterPubKey, network);
       dispatch(setMasterPublicKey(newXpub));
       const masterPubKeyIdentity = new MasterPublicKey({

@@ -6,6 +6,7 @@ import { LBTC_ASSET } from '../../utils/constants';
 import type { ActionType, TxDisplayInterface } from '../../utils/types';
 import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
 import {
+  RESET_BTC_REDUCER,
   SET_CURRENT_BTC_BLOCK_HEIGHT,
   SET_DEPOSIT_PEGIN_UTXO,
   SET_MODAL_CLAIM_PEGIN,
@@ -79,6 +80,9 @@ function btcReducer(state = initialState, action: ActionType): BtcState {
         ...state,
         modalClaimPegins: Object.assign({}, state.modalClaimPegins, action.payload),
       };
+    }
+    case RESET_BTC_REDUCER: {
+      return initialState;
     }
     default:
       return state;

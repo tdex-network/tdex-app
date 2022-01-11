@@ -12,6 +12,7 @@ export const CLAIM_PEGINS = 'CLAIM_PEGINS';
 export const RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS = 'RESTORE_PEGIN_FROM_DEPOSIT_ADDRESS';
 export const CHECK_IF_CLAIMABLE_PEGIN_UTXO = 'CHECK_IF_CLAIMABLE_PEGIN_UTXO';
 export const SET_MODAL_CLAIM_PEGIN = 'SET_MODAL_CLAIM_PEGIN';
+export const RESET_BTC_REDUCER = 'RESET_BTC_REDUCER';
 
 /**
  * Add or update a single or multiple pegins
@@ -80,5 +81,11 @@ export const setModalClaimPegin = ({
   return {
     type: SET_MODAL_CLAIM_PEGIN,
     payload: { isOpen, claimScriptToClaim },
+  };
+};
+
+export const resetBtcReducer = (): ActionType => {
+  return {
+    type: RESET_BTC_REDUCER,
   };
 };
