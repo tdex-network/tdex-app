@@ -60,24 +60,28 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts, ne
       const addr = await restoredMasterPubKey.getNextAddress();
       dispatch(addAddress(addr));
       if (state?.depositAsset?.ticker === BTC_TICKER) {
-        const peginModule = await getPeginModule(network);
-        const claimScript = addressLDK.toOutputScript(addr.confidentialAddress).toString('hex');
-        const peginAddress = await peginModule.getMainchainAddress(claimScript);
-        const derivationPath = addr.derivationPath;
-        if (!derivationPath) throw new Error('Derivation path is required');
-        dispatch(
-          upsertPegins({
-            [claimScript]: {
-              depositAddress: {
-                claimScript,
-                address: peginAddress,
-                derivationPath,
+        if (network === 'testnet') {
+          setAddress('Pegin Deactivated On Testnet');
+        } else {
+          const peginModule = await getPeginModule(network);
+          const claimScript = addressLDK.toOutputScript(addr.confidentialAddress).toString('hex');
+          const peginAddress = await peginModule.getMainchainAddress(claimScript);
+          const derivationPath = addr.derivationPath;
+          if (!derivationPath) throw new Error('Derivation path is required');
+          dispatch(
+            upsertPegins({
+              [claimScript]: {
+                depositAddress: {
+                  claimScript,
+                  address: peginAddress,
+                  derivationPath,
+                },
               },
-            },
-          })
-        );
-        dispatch(addSuccessToast('New pegin address generated'));
-        setAddress(peginAddress);
+            })
+          );
+          dispatch(addSuccessToast('New pegin address generated'));
+          setAddress(peginAddress);
+        }
       } else {
         dispatch(addSuccessToast('New address added to your account.'));
         setAddress(addr.confidentialAddress);
