@@ -100,15 +100,11 @@ export function* fetchAndUpdateTxs(
   }
 }
 
-// To avoid fetching same asset data multiple times
-const assetsSoonAddedInState: string[] = [];
-
 // update the assets state when a new transaction is set in tx state
 function* updateAssets({ payload }: ReturnType<typeof setTransaction>) {
   if (payload?.vout) {
     for (const out of payload.vout) {
-      if (!isBlindedOutputInterface(out) && !assetsSoonAddedInState.includes(out.asset)) {
-        assetsSoonAddedInState.push(out.asset);
+      if (!isBlindedOutputInterface(out)) {
         yield put(addAsset(out.asset));
       }
     }
