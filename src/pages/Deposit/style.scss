@@ -6,33 +6,43 @@
   padding: 20px;
 
   .deposit-grid-item {
-    &:active {
+    &:active:not([disabled]) {
       background: rgba(15, 255, 0, 0.12);
       box-shadow: inset 0 0 0 2px var(--ion-color-secondary);
     }
+
+    &[disabled] {
+      filter: grayscale(50%) blur(2px);
+    }
+
     background: rgb(51, 51, 51);
     border-radius: 10px;
     padding: 0 20px;
     display: flex;
     flex-direction: column;
+
     img {
       height: 60px;
       object-fit: contain;
       margin-bottom: 6px;
     }
+
     span {
       margin-top: 2px;
+
       &.deposit-grid-item-name {
         color: #ffffff;
         font-family: var(--ion-font-main);
         font-size: var(--ion-font-size-main);
       }
+
       &.deposit-grid-item-ticker {
         color: var(--ion-color-tertiary);
         font-family: var(--ion-font-sub);
         font-size: var(--ion-font-size-sub);
       }
     }
+
     ion-icon.deposit-grid-item-plus-icon {
       font-size: 40px;
       margin-bottom: 6px;

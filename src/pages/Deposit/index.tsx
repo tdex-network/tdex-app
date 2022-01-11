@@ -19,6 +19,7 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
       .map((asset, i) => {
         return (
           <button
+            disabled={asset.ticker === BTC_ASSET.ticker && network === 'testnet'}
             className="deposit-grid-item ion-justify-content-center ion-align-items-center"
             key={i}
             onClick={() =>
@@ -54,7 +55,7 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
           <span className="deposit-grid-item-name">Add Liquid Asset</span>
         </button>
       );
-  }, []);
+  }, [network]);
 
   return (
     <IonPage>
