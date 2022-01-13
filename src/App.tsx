@@ -33,7 +33,7 @@ const App: React.FC<AppProps> = ({ appInit, isAuth, theme }) => {
     if (!appState.state) {
       dispatch(unlockUtxos());
     }
-  }, [appState.state]);
+  }, [appState.state, dispatch]);
 
   useEffect(() => {
     const setupApp = async () => {
@@ -68,7 +68,7 @@ const App: React.FC<AppProps> = ({ appInit, isAuth, theme }) => {
         dispatch(initApp());
       })
       .catch(console.error);
-  }, []);
+  }, [dispatch, theme]);
 
   return (
     <IonApp>

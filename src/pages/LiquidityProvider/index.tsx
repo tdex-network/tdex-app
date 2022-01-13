@@ -213,7 +213,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
                       color="danger"
                       slot="icon-only"
                       onClick={() => setProviderToDelete(provider)}
-                      disabled={providerToDelete != undefined}
+                      disabled={providerToDelete !== undefined}
                     >
                       <IonIcon icon={trash} />
                     </IonButton>

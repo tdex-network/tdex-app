@@ -77,7 +77,7 @@ export function* fetchAndUpdateUtxos(
   const utxoGen = fetchAndUnblindUtxosGenerator(
     addresses,
     explorerLiquidAPI,
-    (utxo: UtxoInterface) => currentUtxos[outpointToString(utxo)] != undefined
+    (utxo: UtxoInterface) => currentUtxos[outpointToString(utxo)] !== undefined
   );
   const next = () => utxoGen.next();
   let it = yield call(next);

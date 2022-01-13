@@ -18,7 +18,8 @@
   "eslintConfig": {
     "extends": [
       "@ionic/eslint-config/recommended",
-      "plugin:cypress/recommended"
+      "plugin:cypress/recommended",
+      "react-app"
     ],
     "env": {
       "cypress/globals": true

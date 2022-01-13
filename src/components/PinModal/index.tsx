@@ -1,5 +1,5 @@
 import { IonContent, IonModal, useIonViewWillEnter, useIonViewWillLeave, IonGrid } from '@ionic/react';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { addErrorToast } from '../../redux/actions/toastActions';
@@ -40,6 +40,21 @@ const PinModal: React.FC<PinModalProps> = ({
   const dispatch = useDispatch();
   const inputRef = useRef<any>(null);
 
+  const handleConfirm = useCallback(() => {
+    const validRegexp = new RegExp('\\d{6}');
+    if (validRegexp.test(pin)) {
+      setIsPinInputLocked(true);
+      onConfirm(pin);
+    } else {
+      dispatch(addErrorToast(PinDigitsError));
+      setIsWrongPin(true);
+      setTimeout(() => {
+        setIsWrongPin(null);
+        setNeedReset(true);
+      }, PIN_TIMEOUT_FAILURE);
+    }
+  }, [dispatch, onConfirm, pin, setIsWrongPin, setNeedReset]);
+
   // Make sure PIN input always has focus when clicking anywhere
   const handleClick = () => {
     if (inputRef?.current) {
@@ -57,7 +72,7 @@ const PinModal: React.FC<PinModalProps> = ({
 
   useEffect(() => {
     if (pin.trim().length === 6) handleConfirm();
-  }, [pin]);
+  }, [handleConfirm, pin]);
 
   useEffect(() => {
     if (needReset) {
@@ -70,22 +85,7 @@ const PinModal: React.FC<PinModalProps> = ({
       setIsPinInputLocked(false);
       setNeedReset?.(false);
     };
-  }, [needReset]);
-
-  const handleConfirm = () => {
-    const validRegexp = new RegExp('\\d{6}');
-    if (validRegexp.test(pin)) {
-      setIsPinInputLocked(true);
-      onConfirm(pin);
-    } else {
-      dispatch(addErrorToast(PinDigitsError));
-      setIsWrongPin(true);
-      setTimeout(() => {
-        setIsWrongPin(null);
-        setNeedReset(true);
-      }, PIN_TIMEOUT_FAILURE);
-    }
-  };
+  }, [needReset, setNeedReset]);
 
   return (
     <IonModal

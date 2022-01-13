@@ -1,7 +1,7 @@
 import type { Gesture, ToastButton, GestureDetail } from '@ionic/react';
 import { createGesture, IonToast, CreateAnimation } from '@ionic/react';
 import type { CreateAnimationProps } from '@ionic/react/dist/types/components/CreateAnimation';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { setModalClaimPegin } from '../../redux/actions/btcActions';
@@ -21,55 +21,64 @@ const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast, removeToastByType 
   const [progressEnd, setProgressEnd] = useState<CreateAnimationProps['progressEnd']>();
   const [onFinish, setOnFinish] = useState<CreateAnimationProps['onFinish']>();
   const INITIAL_CLAIM_TOAST_POSITION = -73;
-  let gesture: Gesture;
-  let started = false;
-  let toastEl: any;
+  const toastEl = useRef<any>(null);
+  const gesture = useRef<Gesture | null>(null);
+  const started = useRef<boolean>(false);
 
-  const animationRef = useCallback((node: React.RefObject<CreateAnimation>['current']) => {
-    setTimeout(() => {
-      if (node !== null) {
-        toastEl = Array.from(node.nodes.values())[0];
-        if (toastEl?.classList.contains('claim')) {
-          toastEl.style.transform = `translateY(${INITIAL_CLAIM_TOAST_POSITION}px)`;
-          gesture = createGesture({
-            el: toastEl,
-            gestureName: 'swipe-toast',
-            threshold: 0,
-            onMove: (ev) => onMove(ev),
-            onEnd: (ev) => onEnd(ev),
-          });
-          gesture.enable(true);
-        }
+  const onMove = useCallback(
+    (ev: GestureDetail) => {
+      if (!started.current) {
+        setProgressStart({ forceLinearEasing: true });
+        started.current = true;
       }
-    }, 100);
-  }, []);
+      if (ev.startY < ev.currentY) {
+        toastEl.current.style.transform = `translateY(${ev.deltaY + INITIAL_CLAIM_TOAST_POSITION}px)`;
+      }
+    },
+    [INITIAL_CLAIM_TOAST_POSITION]
+  );
 
-  const onMove = (ev: GestureDetail) => {
-    if (!started) {
-      setProgressStart({ forceLinearEasing: true });
-      started = true;
-    }
-    if (ev.startY < ev.currentY) {
-      toastEl.style.transform = `translateY(${ev.deltaY + INITIAL_CLAIM_TOAST_POSITION}px)`;
-    }
-  };
+  const onEnd = useCallback(
+    (ev: GestureDetail) => {
+      if (!started.current) return;
+      setOnFinish({
+        callback: () => {
+          gesture.current?.enable(true);
+          setProgressStart(undefined);
+          setProgressEnd(undefined);
+        },
+        opts: { oneTimeCallback: true },
+      });
+      if (ev.deltaY > 60) {
+        removeToastByType('claim-pegin');
+      } else {
+        toastEl.current.style.transform = `translateY(${INITIAL_CLAIM_TOAST_POSITION}px)`;
+      }
+    },
+    [INITIAL_CLAIM_TOAST_POSITION, removeToastByType]
+  );
 
-  const onEnd = (ev: GestureDetail) => {
-    if (!started) return;
-    setOnFinish({
-      callback: () => {
-        gesture.enable(true);
-        setProgressStart(undefined);
-        setProgressEnd(undefined);
-      },
-      opts: { oneTimeCallback: true },
-    });
-    if (ev.deltaY > 60) {
-      removeToastByType('claim-pegin');
-    } else {
-      toastEl.style.transform = `translateY(${INITIAL_CLAIM_TOAST_POSITION}px)`;
-    }
-  };
+  const animationRef = useCallback(
+    (node: React.RefObject<CreateAnimation>['current']) => {
+      setTimeout(() => {
+        if (node !== null) {
+          toastEl.current = Array.from(node.nodes.values())[0];
+          if (toastEl.current.classList.contains('claim')) {
+            toastEl.current.style.transform = `translateY(${INITIAL_CLAIM_TOAST_POSITION}px)`;
+            gesture.current = createGesture({
+              el: toastEl.current,
+              gestureName: 'swipe-toast',
+              threshold: 0,
+              onMove: (ev) => onMove(ev),
+              onEnd: (ev) => onEnd(ev),
+            });
+            gesture.current.enable(true);
+          }
+        }
+      }, 100);
+    },
+    [INITIAL_CLAIM_TOAST_POSITION, onEnd, onMove]
+  );
 
   const buttons = (toast: ToastOpts): (string | ToastButton)[] | undefined => {
     if (toast.type === 'claim-pegin') {

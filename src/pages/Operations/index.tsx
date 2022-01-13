@@ -91,7 +91,7 @@ const Operations: React.FC<OperationsProps> = ({
         name: asset?.name ?? '',
       });
     }
-  }, [balances, asset_id]);
+  }, [balances, asset_id, network]);
 
   const openTxRow = (txID: string) => setTxRowOpened([...txRowOpened, txID]);
 
@@ -200,7 +200,7 @@ const Operations: React.FC<OperationsProps> = ({
         </IonCol>
       </IonRow>
     ),
-    [balance?.amount]
+    [asset_id, balance?.asset, balance?.coinGeckoID, balance?.ticker, history, network]
   );
 
   const AssetBalance = useMemo(
@@ -224,7 +224,7 @@ const Operations: React.FC<OperationsProps> = ({
         )}
       </div>
     ),
-    [balance?.amount, lbtcUnit, prices]
+    [balance, currency, lbtcUnit, prices]
   );
 
   const OperationAmount = ({

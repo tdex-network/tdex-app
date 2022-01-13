@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import Decimal from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
 import type { Dispatch } from 'react';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { NetworkString } from 'tdex-sdk';
 
@@ -38,27 +38,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
   const [fiat, setFiat] = useState<string>('0.00');
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    setAccessoryBar(true).catch(console.error);
-    dispatch(updatePrices());
-    return () => {
-      reset();
-      setAccessoryBar(false).catch(console.error);
-    };
-  }, []);
-
-  useEffect(() => {
-    setResidualBalance(
-      fromSatoshiFixed(
-        balance.amount.toString(),
-        balance.precision,
-        balance.precision,
-        isLbtc(balance.asset, network) ? lbtcUnit : undefined
-      )
-    );
-  }, [lbtcUnit, balance.amount]);
-
-  const reset = () => {
+  const reset = useCallback(() => {
     setResidualBalance(
       fromSatoshiFixed(
         balance.amount.toString(),
@@ -69,7 +49,27 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
     );
     if (price) setFiat('0.00');
     setAmount('');
-  };
+  }, [balance.amount, balance.asset, balance.precision, lbtcUnit, network, price, setAmount]);
+
+  useEffect(() => {
+    setAccessoryBar(true).catch(console.error);
+    dispatch(updatePrices());
+    return () => {
+      reset();
+      setAccessoryBar(false).catch(console.error);
+    };
+  }, [dispatch, reset]);
+
+  useEffect(() => {
+    setResidualBalance(
+      fromSatoshiFixed(
+        balance.amount.toString(),
+        balance.precision,
+        balance.precision,
+        isLbtc(balance.asset, network) ? lbtcUnit : undefined
+      )
+    );
+  }, [lbtcUnit, balance.amount, balance.precision, balance.asset, network]);
 
   const handleInputChange = (e: CustomEvent<InputChangeEventDetail>) => {
     if (!e.detail.value || e.detail.value === '0') {
