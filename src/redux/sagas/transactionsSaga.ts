@@ -1,6 +1,6 @@
 import type { BlindingKeyGetter, TxInterface, AddressInterface } from 'ldk';
 import { fetchAndUnblindTxsGenerator, isBlindedOutputInterface, fetchTx, unblindTransaction } from 'ldk';
-import { takeLatest, call, put, select, takeEvery, delay } from 'redux-saga/effects';
+import { takeLatest, call, put, select, takeEvery, retry } from 'redux-saga/effects';
 
 import { UpdateTransactionsError } from '../../utils/errors';
 import {
@@ -112,30 +112,25 @@ function* updateAssets({ payload }: ReturnType<typeof setTransaction>) {
 }
 
 function* watchTransaction(action: ActionType) {
-  yield delay(1_000);
   const { txID, maxTry } = action.payload as { txID: string; maxTry: number };
   yield put(addWatcherTransaction(txID));
   const explorer: string = yield select(({ settings }) => settings.explorerLiquidAPI);
-
-  for (let t = 0; t < maxTry; t++) {
-    try {
-      const tx: TxInterface = yield call(fetchTx, txID, explorer);
-      const scriptsToAddress: Record<string, AddressInterface> = yield select(
-        ({ wallet }: { wallet: WalletState }) => wallet.addresses
-      );
-      const blindKeyGetter = blindKeyGetterFactory(scriptsToAddress);
-      const { unblindedTx, errors } = yield call(unblindTransaction, tx, blindKeyGetter);
-      if (errors.length > 0) {
-        errors.forEach((err: { message?: string }) => {
-          console.error(err.message);
-        });
-      }
-      yield put(setTransaction(unblindedTx));
-      yield put(removeWatcherTransaction(txID));
-      break;
-    } catch {
-      yield delay(1_000);
+  try {
+    const tx: TxInterface = yield retry(maxTry, 5000, fetchTx, txID, explorer);
+    const scriptsToAddress: Record<string, AddressInterface> = yield select(
+      ({ wallet }: { wallet: WalletState }) => wallet.addresses
+    );
+    const blindKeyGetter = blindKeyGetterFactory(scriptsToAddress);
+    const { unblindedTx, errors } = yield call(unblindTransaction, tx, blindKeyGetter);
+    if (errors.length > 0) {
+      errors.forEach((err: { message?: string }) => {
+        console.error(err.message);
+      });
     }
+    yield put(setTransaction(unblindedTx));
+    yield put(removeWatcherTransaction(txID));
+  } catch (err) {
+    console.error(err);
   }
   yield put(removeWatcherTransaction(txID));
 }
