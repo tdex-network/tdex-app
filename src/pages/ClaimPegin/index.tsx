@@ -65,7 +65,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
   const dispatch = useTypedDispatch();
 
   useEffect(() => {
-    toasts.map((t) => {
+    toasts.forEach((t) => {
       if (t.type === 'error' && t.errorCode === 18) {
         managePinError(true).catch(console.error);
       }
@@ -111,7 +111,16 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
     return () => {
       setInputBtcPeginAddress(undefined);
     };
-  }, [pegins]);
+  }, [
+    currentBtcBlockHeight,
+    dispatch,
+    explorerBitcoinAPI,
+    explorerLiquidAPI,
+    inputBtcPeginAddress,
+    mnemonic,
+    network,
+    pegins,
+  ]);
 
   const managePinError = async (closeModal = false) => {
     setIsLoading(false);
@@ -232,6 +241,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
                         <a
                           href={`${explorerLiquidUI}/tx/${claimTxId}`}
                           target="_blank"
+                          rel="noreferrer"
                         >{`${explorerLiquidUI}/tx/${claimTxId}`}</a>
                       </li>
                     ))}

@@ -10,7 +10,7 @@ export function useDelayedRender(delay: number, showLoading: boolean): (fn: any)
       clearTimeout(timeout);
     };
     // Need 'showLoading' to reset 'delayed' after showing the loader
-  }, [showLoading]);
+  }, [delay, showLoading]);
 
   return (fn) => showLoading && !delayed && fn();
 }

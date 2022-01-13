@@ -145,7 +145,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           newTrade = bestPriceRes.trade;
         }
         //
-        let priceInSats: { amount: number; asset: string };
+        let priceInSats: { amount: number; asset: string } | undefined;
         try {
           priceInSats = await calculatePrice(
             {
@@ -158,6 +158,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
             torProxy,
             network
           );
+          if (!priceInSats) return;
           setTrade(newTrade);
           //
           if (isLbtc(asset.asset, network)) {
@@ -189,7 +190,19 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         }
         setIsUpdating(false);
       }, 500),
-    [relatedAssetHash, trades]
+    [
+      asset.asset,
+      assets,
+      lbtcUnit,
+      network,
+      onChangeAmount,
+      relatedAssetHash,
+      setError,
+      setOtherInputError,
+      setTrade,
+      torProxy,
+      trades,
+    ]
   );
 
   useEffect(() => {
@@ -210,7 +223,18 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
     // Need 'asset' which is accurate faster than balance
     // Need 'balance' to display quote asset price
     // Need 'isLoading' to prevent running the effect when confirming trade
-  }, [isLoading, relatedAssetAmount, relatedAssetHash, asset, balance, trade, trades]);
+  }, [
+    isLoading,
+    relatedAssetAmount,
+    relatedAssetHash,
+    asset,
+    balance,
+    trade,
+    trades,
+    focused,
+    updatePriceDebounced,
+    onChangeAmount,
+  ]);
 
   const handleInputChange = (e: CustomEvent<InputChangeEventDetail>) => {
     if (!isUpdating) {

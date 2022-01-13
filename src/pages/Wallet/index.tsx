@@ -71,7 +71,7 @@ const Wallet: React.FC<WalletProps> = ({
       return fromSatoshi(amount.toString()).mul(p).toNumber();
     });
     setFiats(fiatsValues);
-  }, [prices, balances]);
+  }, [prices, balances, UNKNOWN]);
 
   useEffect(() => {
     const main = [];
@@ -111,7 +111,7 @@ const Wallet: React.FC<WalletProps> = ({
 
     setMainAssets(main);
     setSecondaryAssets(secondary);
-  }, [balances]);
+  }, [balances, network]);
 
   return (
     <IonPage>

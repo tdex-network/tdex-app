@@ -13,7 +13,7 @@ import {
   IonModal,
 } from '@ionic/react';
 import * as bip39 from 'bip39';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import { useLocation } from 'react-router';
 
@@ -50,9 +50,38 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
   const { network } = useTypedSelector(({ settings }) => settings);
   const inputRef = useRef<any>(null);
 
-  const validRegexp = new RegExp('\\d{6}');
+  const onPinDigitsError = useCallback(
+    (isFirstPin: boolean) => {
+      dispatch(addErrorToast(PinDigitsError));
+      setIsWrongPin(true);
+      setTimeout(() => {
+        setIsWrongPin(null);
+        if (isFirstPin) {
+          setFirstPin('');
+        } else {
+          setSecondPin('');
+        }
+      }, PIN_TIMEOUT_FAILURE);
+    },
+    [dispatch]
+  );
 
-  const handleConfirm = () => {
+  const onError = useCallback(
+    (e: AppError) => {
+      console.error(e);
+      clearStorage().catch(console.error);
+      dispatch(addErrorToast(e));
+      setIsWrongPin(true);
+      setTimeout(() => {
+        setIsWrongPin(null);
+        isRepeatScreen && setSecondPin('');
+      }, PIN_TIMEOUT_FAILURE);
+    },
+    [dispatch, isRepeatScreen]
+  );
+
+  const handleConfirm = useCallback(() => {
+    const validRegexp = new RegExp('\\d{6}');
     if (isRepeatScreen && !isPinValidated) {
       if (validRegexp.test(secondPin)) {
         if (secondPin === firstPin) {
@@ -99,31 +128,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
         onPinDigitsError(true);
       }
     }
-  };
-
-  const onPinDigitsError = (isFirstPin: boolean) => {
-    dispatch(addErrorToast(PinDigitsError));
-    setIsWrongPin(true);
-    setTimeout(() => {
-      setIsWrongPin(null);
-      if (isFirstPin) {
-        setFirstPin('');
-      } else {
-        setSecondPin('');
-      }
-    }, PIN_TIMEOUT_FAILURE);
-  };
-
-  const onError = (e: AppError) => {
-    console.error(e);
-    clearStorage().catch(console.error);
-    dispatch(addErrorToast(e));
-    setIsWrongPin(true);
-    setTimeout(() => {
-      setIsWrongPin(null);
-      isRepeatScreen && setSecondPin('');
-    }, PIN_TIMEOUT_FAILURE);
-  };
+  }, [dispatch, firstPin, isPinValidated, isRepeatScreen, onError, onPinDigitsError, secondPin, state?.mnemonic]);
 
   // Make sure PIN input always has focus when clicking anywhere
   const handleClick = () => {
@@ -141,9 +146,9 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
   useEffect(() => {
     if ((!isRepeatScreen && firstPin.trim().length === 6) || (isRepeatScreen && secondPin.trim().length === 6))
       handleConfirm();
-  }, [firstPin, secondPin]);
+  }, [firstPin, handleConfirm, isRepeatScreen, secondPin]);
 
-  const handleClickTerms = (ev: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleClickTerms = (ev: React.MouseEvent<HTMLButtonElement>) => {
     ev.preventDefault();
     setTermsModalIsOpen(true);
   };
@@ -186,7 +191,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
             centerDescription={true}
             description={
               isRepeatScreen
-                ? 'Insert again the numeric password.\n' + 'It must match the previous entry'
+                ? 'Insert again the numeric password.\nIt must match the previous entry'
                 : 'Your password must be 6 character long and must be set with only numbers'
             }
             title={isRepeatScreen ? 'Repeat PIN' : 'Set security PIN'}
@@ -212,10 +217,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
                 isChecked={isTermsAccepted}
                 label={
                   <span className="terms-label">
-                    I agree with the{' '}
-                    <a href="#" onClick={handleClickTerms}>
-                      Terms and Conditions
-                    </a>
+                    I agree with the <button onClick={handleClickTerms}>Terms and Conditions</button>
                   </span>
                 }
               />

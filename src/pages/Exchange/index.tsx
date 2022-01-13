@@ -145,7 +145,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   useEffect(() => {
     if (markets.length === 0 || !assetSent || !assetReceived) return;
     setTrades(allTrades(markets, assetSent.asset, assetReceived.asset));
-  }, [assetSent?.asset, assetReceived?.asset, markets]);
+  }, [assetSent?.asset, assetReceived?.asset, markets, assetSent, assetReceived]);
 
   useEffect(() => {
     if (!assetSent) return;
@@ -153,7 +153,7 @@ const Exchange: React.FC<ExchangeProps> = ({
     // TODO: Add opposite asset and remove current
     setTradableAssetsForAssetReceived(sentTradables);
     setAssetReceived(sentTradables[0]);
-  }, [assetSent?.asset, markets]);
+  }, [assetSent, assetSent?.asset, markets, network]);
 
   useEffect(() => {
     if (assetReceived) {
@@ -161,7 +161,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       // TODO: Add opposite asset and remove current
       setTradableAssetsForAssetSent(receivedTradables);
     }
-  }, [assetReceived?.asset, markets]);
+  }, [assetReceived, assetReceived?.asset, markets, network]);
 
   const checkAvailableAmountSent = () => {
     if (!bestTrade || !sentAmount || !assetSent) return;

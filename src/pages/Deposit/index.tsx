@@ -55,7 +55,7 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
           <span className="deposit-grid-item-name">Add Liquid Asset</span>
         </button>
       );
-  }, [network]);
+  }, [history, network]);
 
   return (
     <IonPage>

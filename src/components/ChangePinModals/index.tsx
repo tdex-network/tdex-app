@@ -42,7 +42,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({ open, onDeleted, onCl
       setModalOpen(undefined);
       setCurrentPin('');
     }
-  }, [open]);
+  }, [modalOpen, open]);
 
   const onFirstPinConfirm = (firstPin: string) => {
     setLoading(true);

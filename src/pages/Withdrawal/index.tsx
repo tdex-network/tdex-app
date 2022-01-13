@@ -143,7 +143,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     } catch (err) {
       console.error(err);
     }
-  }, [amount]);
+  }, [amount, balance, balances, lbtcUnit, network]);
 
   const getRecipient = (): RecipientInterface => ({
     address: recipientAddress?.trim(),

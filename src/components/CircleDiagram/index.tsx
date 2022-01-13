@@ -1,5 +1,5 @@
 import './style.scss';
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import type { NetworkString } from 'tdex-sdk';
 
 import { createColorFromHash } from '../../utils/helpers';
@@ -23,7 +23,7 @@ const CircleDiagram: React.FC<CircleDiagramProps> = ({ balances, network }) => {
 
   const total = balances.reduce((acc, balance) => acc + balance.amount, 0);
 
-  const renderCircle = () => {
+  const renderCircle = useCallback(() => {
     const ctx = canvasRef.current.getContext('2d');
     ctx.clearRect(0, 0, 240, 240);
 
@@ -104,11 +104,11 @@ const CircleDiagram: React.FC<CircleDiagramProps> = ({ balances, network }) => {
       fillColor(grad, network);
       drawDiagram(grad);
     }
-  };
+  }, [balances, network, total]);
 
   useEffect(() => {
     renderCircle();
-  }, [balances]);
+  }, [balances, renderCircle]);
 
   return <canvas width="240" height="240" ref={canvasRef} id="#canvas" className="canvas" />;
 };
