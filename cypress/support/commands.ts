@@ -38,7 +38,7 @@ Cypress.Commands.add(
       faucet(address, amount, asset).catch(console.error);
     }).then(() => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
-      cy.wait(10_000);
+      cy.wait(15_000);
     });
   }
 );

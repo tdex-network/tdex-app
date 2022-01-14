@@ -58,7 +58,8 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
       reset();
       setAccessoryBar(false).catch(console.error);
     };
-  }, [dispatch, reset]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     setResidualBalance(
