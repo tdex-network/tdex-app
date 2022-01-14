@@ -253,16 +253,16 @@ const Exchange: React.FC<ExchangeProps> = ({
         },
       };
       history.replace(`/tradesummary/${txid}`, { preview });
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error('onPinConfirm error', err);
       dispatch(unlockUtxos());
       setIsWrongPin(true);
       setTimeout(() => {
         setIsWrongPin(null);
         setNeedReset(true);
       }, PIN_TIMEOUT_FAILURE);
-      if (e instanceof AppError) {
-        dispatch(addErrorToast(e));
+      if (err instanceof AppError) {
+        dispatch(addErrorToast(err));
       }
     } finally {
       setIsBusyMakingTrade(false);

@@ -53,7 +53,8 @@ const PinModal: React.FC<PinModalProps> = ({
         setNeedReset(true);
       }, PIN_TIMEOUT_FAILURE);
     }
-  }, [dispatch, onConfirm, pin, setIsWrongPin, setNeedReset]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pin]);
 
   // Make sure PIN input always has focus when clicking anywhere
   const handleClick = () => {
