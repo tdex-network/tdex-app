@@ -133,7 +133,7 @@ const Operations: React.FC<OperationsProps> = ({
         return (
           <span className="status-text confirmed">
             <IonIcon icon={checkmarkSharp} />
-            <span className="ml-2">{TxStatusEnum[capitalized]}</span>
+            <span className="ml-05">{TxStatusEnum[capitalized]}</span>
           </span>
         );
       case TxStatusEnum.Pending:
@@ -181,6 +181,7 @@ const Operations: React.FC<OperationsProps> = ({
             </IonButton>
             <IonButton
               className="coin-action-button"
+              data-cy="button-send"
               onClick={() => {
                 history.push(`/withdraw/${asset_id}`);
               }}
@@ -297,7 +298,7 @@ const Operations: React.FC<OperationsProps> = ({
                           <IonCol className="icon" size="1">
                             <TxIcon type={tx.type} />
                           </IonCol>
-                          <IonCol className="pl-5" size="5.3">
+                          <IonCol className="pl-1" size="5.3">
                             <div className="asset">
                               {TxTypeEnum[tx.type] === 'DepositBtc'
                                 ? 'BTC Deposit'
@@ -315,8 +316,8 @@ const Operations: React.FC<OperationsProps> = ({
                         </IonRow>
                         <div className="extra-infos">
                           {TxTypeEnum[tx.type] !== 'DepositBtc' && (
-                            <IonRow className="mt-3">
-                              <IonCol className="pl-5" size="6" offset="1">
+                            <IonRow className="mt-1">
+                              <IonCol className="pl-1" size="6" offset="1">
                                 {`Fee: ${fromSatoshi(tx.fee.toString(), 8).toFixed(8)} ${LBTC_TICKER[network]}`}
                               </IonCol>
                               <IonCol className="ion-text-right" size="5">
@@ -324,21 +325,21 @@ const Operations: React.FC<OperationsProps> = ({
                               </IonCol>
                             </IonRow>
                           )}
-                          <IonRow className="mt-3">
-                            <IonCol className="pl-5" size="11" offset="1">
+                          <IonRow className="mt-1">
+                            <IonCol className="pl-1" size="11" offset="1">
                               TxID: {tx.txId}
                             </IonCol>
                           </IonRow>
                           {TxTypeEnum[tx.type] === 'DepositBtc' && (
                             <>
-                              <IonRow className="mt-3">
+                              <IonRow className="mt-1">
                                 {getConfirmationCount(tx.blockHeight) < 102 && (
                                   <IonCol
                                     className={classNames(
                                       {
                                         'confirmations-pending': getConfirmationCount(tx.blockHeight) < 102,
                                       },
-                                      'pl-5'
+                                      'pl-1'
                                     )}
                                     offset="1"
                                   >
@@ -346,10 +347,10 @@ const Operations: React.FC<OperationsProps> = ({
                                   </IonCol>
                                 )}
                                 {tx.claimTxId && (
-                                  <IonCol size="11" offset="1" className="pl-5">
+                                  <IonCol size="11" offset="1" className="pl-1">
                                     <span className="status-text confirmed claimed">
                                       <IonIcon icon={checkmarkSharp} />
-                                      <span className="ml-2">Claimed</span>
+                                      <span className="ml-05">Claimed</span>
                                     </span>
                                   </IonCol>
                                 )}

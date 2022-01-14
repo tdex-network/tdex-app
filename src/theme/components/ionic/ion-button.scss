@@ -24,6 +24,24 @@ ion-button.main-button {
   @media (max-width: 320px) {
     height: 52px;
   }
+
+  &.button-disabled {
+    --background: transparent;
+    --color: var(--ion-color-medium);
+    border: 2px solid var(--ion-color-medium);
+  }
+}
+
+ion-button.main-button-small {
+  font-size: 13px;
+  border-radius: 10px;
+  --border-radius: 10px;
+  --background: var(--ion-color-secondary-transparent);
+  --box-shadow: none;
+  --color: var(--ion-color-secondary);
+  border: 2px solid var(--ion-color-secondary);
+  height: 33px;
+
   &.button-disabled {
     --background: transparent;
     --color: var(--ion-color-medium);

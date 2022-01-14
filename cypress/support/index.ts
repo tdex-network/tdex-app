@@ -22,6 +22,8 @@ declare global {
   namespace Cypress {
     interface Chainable {
       launchWallet(opts?: Partial<typeof localStorage>): Chainable;
+
+      faucet(address: string, amount: number, asset?: string): Chainable;
     }
   }
 }

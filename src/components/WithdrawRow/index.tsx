@@ -1,5 +1,5 @@
 import type { InputChangeEventDetail } from '@ionic/core';
-import { IonIcon, IonInput, IonText } from '@ionic/react';
+import { IonButton, IonIcon, IonInput, IonText } from '@ionic/react';
 import classNames from 'classnames';
 import Decimal from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
@@ -110,6 +110,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
         >
           <div className="ion-text-end">
             <IonInput
+              data-cy="input-withdraw-amount"
               autofocus={true}
               color={error && 'danger'}
               enterkeyhint="done"
@@ -126,8 +127,8 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
       </div>
 
       <div className="exchanger-row sub-row">
-        <span className="balance" onClick={() => setAmount(residualBalance)}>
-          <span>Residual balance:</span>
+        <span className="balance">
+          <div className="overflow-hidden text-no-wrap">Residual balance:</div>
           {error || !residualBalance ? (
             '0.00'
           ) : (
@@ -135,6 +136,13 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
               isLbtcTicker(balance.ticker) ? lbtcUnit : balance.ticker.toUpperCase()
             }`}</span>
           )}
+          <IonButton
+            className="main-button-small mt-3 ml-0 mr-0"
+            onClick={() => setAmount(residualBalance)}
+            data-cy="button-send-max"
+          >
+            MAX
+          </IonButton>
         </span>
         <span className="ion-text-right">
           {error ? (

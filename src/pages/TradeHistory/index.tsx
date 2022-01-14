@@ -45,7 +45,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI, ne
         return (
           <span className="status-text confirmed">
             <IonIcon icon={checkmarkSharp} />
-            <span className="ml-2">{TxStatusEnum[capitalized]}</span>
+            <span className="ml-05">{TxStatusEnum[capitalized]}</span>
           </span>
         );
       case TxStatusEnum.Pending:
@@ -84,7 +84,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI, ne
                         <CurrencyIcon currency={tickerSent} />
                         <CurrencyIcon currency={tickerReceived} />
                       </IonCol>
-                      <IonCol className="pl-5" size="4.3">
+                      <IonCol className="pl-1" size="4.3">
                         <div className="asset">{`${tickerSent}/${tickerReceived}`}</div>
                       </IonCol>
                       <IonCol className="ion-text-right trade-amount" size="6.5">
@@ -97,13 +97,13 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI, ne
                       </IonCol>
                     </IonRow>
                     <div className="extra-infos">
-                      <IonRow className="mt-3">
-                        <IonCol className="pl-5" size="10.8" offset="1.2">
-                          <div className="time mt-3">{tx.blockTime?.format('DD MMM YYYY HH:mm:ss')}</div>
+                      <IonRow className="mt-1">
+                        <IonCol className="pl-1" size="10.8" offset="1.2">
+                          <div className="time mt-1">{tx.blockTime?.format('DD MMM YYYY HH:mm:ss')}</div>
                         </IonCol>
                       </IonRow>
-                      <IonRow className="mt-3">
-                        <IonCol className="pl-5" size="5.8" offset="1.2">
+                      <IonRow className="mt-1">
+                        <IonCol className="pl-1" size="5.8" offset="1.2">
                           {`Fee: ${fromSatoshi(tx.fee.toString(), precisionAssetReceived ?? 8).toFixed(
                             precisionAssetReceived ?? 8
                           )} ${LBTC_TICKER[network]}`}
@@ -113,14 +113,14 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI, ne
                         </IonCol>
                       </IonRow>
                       <IonRow
-                        className="mt-3"
+                        className="mt-1"
                         onClick={() => {
                           clipboardCopy(`${explorerLiquidUI}/tx/${tx.txId}`, () => {
                             dispatch(addSuccessToast('Transaction Id copied'));
                           });
                         }}
                       >
-                        <IonCol className="pl-5" size="10.8" offset="1.2">
+                        <IonCol className="pl-1" size="10.8" offset="1.2">
                           TxID: {tx.txId}
                         </IonCol>
                       </IonRow>

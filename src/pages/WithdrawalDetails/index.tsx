@@ -132,7 +132,11 @@ const WithdrawalDetails: React.FC<RouteComponentProps<any, any, WithdrawalDetail
 
           <IonRow className="ion-margin-vertical-x2">
             <IonCol size="9" offset="1.5">
-              <IonButton routerLink={`/operations/${locationState?.asset}`} className="main-button">
+              <IonButton
+                routerLink={`/operations/${locationState?.asset}`}
+                className="main-button"
+                data-cy="button-tx-history"
+              >
                 TRANSACTION HISTORY
               </IonButton>
             </IonCol>

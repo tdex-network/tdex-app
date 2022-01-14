@@ -75,6 +75,7 @@
     "@ionic/react": "^5.8.1",
     "@ionic/react-router": "^5.8.1",
     "@types/lodash.debounce": "^4.0.6",
+    "antd-css-utilities": "^1.0.2",
     "axios": "^0.21.4",
     "bip32": "^2.0.6",
     "bitcoinjs-lib": "^5.2.0",

@@ -16,12 +16,8 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 /* Customization */
-import './theme/font.scss';
-import './theme/components/ionic/index.scss';
-import './theme/global.scss';
-import './theme/variables.scss';
-import './theme/components/search.scss';
-import './theme/components/listItem.scss';
+import 'antd-css-utilities/utility.min.css';
+import './theme/index.scss';
 /* Store */
 import AppContainer from './redux/containers/appContainer';
 import rootSaga from './redux/saga';

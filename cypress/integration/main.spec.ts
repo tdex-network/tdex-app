@@ -1,10 +1,12 @@
 /// <reference types="cypress" />
 
 import { faucet } from '../../test/test-utils';
-import { firstAddress, pin } from '../fixtures/fixtures.json';
+import { randomAddress, firstAddress, pin } from '../fixtures/fixtures.json';
+
+const INITIAL_DEPOSIT_AMOUNT = 100;
 
 before(() => {
-  faucet(firstAddress, 100).catch(console.error);
+  faucet(firstAddress, INITIAL_DEPOSIT_AMOUNT).catch(console.error);
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(10_000);
 });
@@ -69,5 +71,59 @@ describe('trade', () => {
     cy.get('[data-cy=trade-summary-sent-amount]').should('contain.text', '-1000');
     cy.get('[data-cy=trade-summary-btn]').contains('GO TO TRADE HISTORY').click();
     cy.get('[data-cy=header-title]').should('contain.text', 'TRADE HISTORY');
+  });
+});
+
+describe('withdraw', () => {
+  it('withdraw all', () => {
+    cy.faucet(firstAddress, INITIAL_DEPOSIT_AMOUNT);
+    cy.launchWallet();
+    cy.get('[data-cy=item-asset-L-BTC]').click();
+    cy.get('[data-cy=button-send]').click();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    cy.get('[data-cy=button-send-max]').click();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    cy.get('[data-cy=input-addr-withdraw]').children().type(randomAddress);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(4000);
+    cy.get('[data-cy=main-button]').click();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    cy.get('[data-cy=pin-input]').children().type(pin);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    cy.get('[data-cy=header-title]').should('contain.text', 'SENDING DETAILS');
+    cy.get('[data-cy=button-tx-history]').click();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
+    cy.get('ion-item.operation-item').first().should('contain.text', 'L-BTC Withdraw');
+  });
+
+  it('withdraw 1 L-BTC', () => {
+    cy.faucet(firstAddress, INITIAL_DEPOSIT_AMOUNT);
+    cy.launchWallet();
+    cy.get('[data-cy=item-asset-L-BTC]').click();
+    cy.get('[data-cy=button-send]').click();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    cy.get('[data-cy=input-withdraw-amount]').children().type('1');
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    cy.get('[data-cy=input-addr-withdraw]').children().type(randomAddress);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(4000);
+    cy.get('[data-cy=main-button]').click();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    cy.get('[data-cy=pin-input]').children().type(pin);
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(2000);
+    cy.get('[data-cy=header-title]').should('contain.text', 'SENDING DETAILS');
+    cy.get('[data-cy=button-tx-history]').click();
+    // eslint-disable-next-line cypress/no-unnecessary-waiting
+    cy.wait(1000);
+    cy.get('ion-item.operation-item').first().should('contain.text', 'L-BTC Withdraw');
   });
 });
