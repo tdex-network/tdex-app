@@ -170,6 +170,7 @@ const Wallet: React.FC<WalletProps> = ({
                 return (
                   <IonItem
                     aria-label={balance.ticker}
+                    data-cy={`item-asset-${balance.ticker}`}
                     key={balance.asset}
                     onClick={() => {
                       history.push(`/operations/${balance.asset}`);
