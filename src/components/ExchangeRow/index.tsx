@@ -16,7 +16,6 @@ import { fromSatoshi, fromSatoshiFixed, isLbtc, isLbtcTicker, toLBTCwithUnit, to
 import { sanitizeInputAmount } from '../../utils/input';
 import { onPressEnterKeyCloseKeyboard, setAccessoryBar } from '../../utils/keyboard';
 import { bestBalance, bestPrice, calculatePrice } from '../../utils/tdex';
-import type { AssetWithTicker } from '../../utils/tdex';
 import { CurrencyIcon } from '../icons';
 import './style.scss';
 
@@ -25,7 +24,7 @@ const ERROR_BALANCE_TOO_LOW = 'Amount is greater than your balance';
 interface ExchangeRowInterface {
   sendInput: boolean;
   // the asset handled by the component.
-  asset: AssetWithTicker;
+  asset: AssetConfig;
   assetAmount?: string;
   // using to auto-update with best trade price
   trades: TDEXTrade[];
@@ -36,8 +35,8 @@ interface ExchangeRowInterface {
   setTrade: (trade: TDEXTrade) => void;
   trade?: TDEXTrade;
   // for exchange search
-  assetsWithTicker: AssetWithTicker[];
-  setAsset: (newAsset: AssetWithTicker) => void;
+  assetsWithTicker: AssetConfig[];
+  setAsset: (newAsset: AssetConfig) => void;
   setFocus: () => void;
   focused: boolean;
   // redux connected props
@@ -99,7 +98,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
   });
 
   useEffect(() => {
-    setBalance(balances.find((b) => b.asset === asset.asset));
+    setBalance(balances.find((b) => b.assetHash === asset.assetHash));
   }, [balances, asset]);
 
   useEffect(() => {
@@ -161,13 +160,13 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
           if (!priceInSats) return;
           setTrade(newTrade);
           //
-          if (isLbtc(asset.asset, network)) {
+          if (isLbtc(asset.assetHash, network)) {
             const precision = assets[priceInSats.asset]?.precision ?? defaultPrecision;
             updatedAmount = fromSatoshiFixed(
               priceInSats.amount.toString(),
               precision,
               precision,
-              isLbtc(asset.asset, network) ? lbtcUnit : undefined
+              isLbtc(asset.assetHash, network) ? lbtcUnit : undefined
             );
           } else {
             // Convert fiat
@@ -191,7 +190,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
         setIsUpdating(false);
       }, 500),
     [
-      asset.asset,
+      asset.assetHash,
       assets,
       lbtcUnit,
       network,
@@ -248,7 +247,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       const sanitizedValue = sanitizeInputAmount(
         e.detail.value,
         setAmount,
-        isLbtc(asset.asset, network) ? lbtcUnit : undefined
+        isLbtc(asset.assetHash, network) ? lbtcUnit : undefined
       );
       // Set
       setAmount(sanitizedValue);
@@ -257,7 +256,7 @@ const ExchangeRow: React.FC<ExchangeRowInterface> = ({
       const valSats = toSatoshi(
         sanitizedValue,
         balance?.precision,
-        isLbtc(asset.asset, network) ? lbtcUnit : undefined
+        isLbtc(asset.assetHash, network) ? lbtcUnit : undefined
       );
       if (sendInput && valSats.greaterThan(balance?.amount ?? 0)) {
         setError(ERROR_BALANCE_TOO_LOW);

@@ -3,8 +3,8 @@ import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import type { NetworkString } from 'tdex-sdk';
 
 import type { AssetConfig } from '../../utils/constants';
-import { defaultPrecision } from '../../utils/constants';
-import { createColorFromHash, tickerFromAssetHash } from '../../utils/helpers';
+import { defaultPrecision, LBTC_TICKER } from '../../utils/constants';
+import { createColorFromHash, isLbtc, tickerFromAssetHash } from '../../utils/helpers';
 import { clearAssetsInStorage, getAssetsFromStorage, setAssetsInStorage } from '../../utils/storage-helper';
 import type { addAsset } from '../actions/assetsActions';
 import { ADD_ASSET, setAsset, SET_ASSET, RESET_ASSETS } from '../actions/assetsActions';
@@ -46,25 +46,30 @@ function* addAssetSaga({ payload }: ReturnType<typeof addAsset>) {
   }
 }
 
-async function getAssetData(
+export async function getAssetData(
   assetHash: string,
   explorerLiquidAPI: string,
   network: NetworkString
-): Promise<{ precision: number; ticker: string; name: string }> {
+): Promise<AssetConfig | undefined> {
   try {
+    if (isLbtc(assetHash, network)) {
+      return {
+        assetHash: assetHash,
+        precision: 8,
+        ticker: LBTC_TICKER[network],
+        name: 'Liquid Bitcoin',
+      };
+    }
     const { precision, ticker, name } = (await axios.get(`${explorerLiquidAPI}/asset/${assetHash}`)).data;
     return {
+      assetHash: assetHash,
       precision: precision ?? defaultPrecision,
       ticker: ticker || tickerFromAssetHash(network, assetHash),
       name: name || '',
     };
   } catch (e) {
     console.error(e);
-    return {
-      precision: defaultPrecision,
-      ticker: tickerFromAssetHash(network, assetHash),
-      name: '',
-    };
+    return;
   }
 }
 

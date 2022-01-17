@@ -91,7 +91,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
 
   // Set current asset balance
   useEffect(() => {
-    const balanceSelected = balances.find((bal) => bal.asset === asset_id);
+    const balanceSelected = balances.find((bal) => bal.assetHash === asset_id);
     if (balanceSelected) {
       setBalance(balanceSelected);
     }
@@ -126,7 +126,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         fromSatoshi(
           balance.amount.toString(),
           balance.precision,
-          isLbtc(balance.asset, network) ? lbtcUnit : undefined
+          isLbtc(balance.assetHash, network) ? lbtcUnit : undefined
         ).lessThan(amount || '0')
       ) {
         setError('Amount is greater than your balance');
@@ -147,7 +147,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
 
   const getRecipient = (): RecipientInterface => ({
     address: recipientAddress?.trim(),
-    asset: balance?.asset || '',
+    asset: balance?.assetHash || '',
     value: toSatoshi(
       amount || '0',
       balance?.precision,
@@ -276,7 +276,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
                     if (options?.amount) {
                       // Treat the amount as in btc unit
                       // Convert to user favorite unit, taking into account asset precision
-                      const unit = isLbtc(balance?.asset || '', network) ? lbtcUnit : undefined;
+                      const unit = isLbtc(balance?.assetHash || '', network) ? lbtcUnit : undefined;
                       const amtConverted = fromLbtcToUnit(
                         new Decimal(options?.amount as string),
                         unit,

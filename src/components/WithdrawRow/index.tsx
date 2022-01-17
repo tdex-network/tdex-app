@@ -44,12 +44,12 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
         balance.amount.toString(),
         balance.precision,
         balance.precision,
-        isLbtc(balance.asset, network) ? lbtcUnit : undefined
+        isLbtc(balance.assetHash, network) ? lbtcUnit : undefined
       )
     );
     if (price) setFiat('0.00');
     setAmount('');
-  }, [balance.amount, balance.asset, balance.precision, lbtcUnit, network, price, setAmount]);
+  }, [balance.amount, balance.assetHash, balance.precision, lbtcUnit, network, price, setAmount]);
 
   useEffect(() => {
     setAccessoryBar(true).catch(console.error);
@@ -67,17 +67,17 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
         balance.amount.toString(),
         balance.precision,
         balance.precision,
-        isLbtc(balance.asset, network) ? lbtcUnit : undefined
+        isLbtc(balance.assetHash, network) ? lbtcUnit : undefined
       )
     );
-  }, [lbtcUnit, balance.amount, balance.precision, balance.asset, network]);
+  }, [lbtcUnit, balance.amount, balance.precision, balance.assetHash, network]);
 
   const handleInputChange = (e: CustomEvent<InputChangeEventDetail>) => {
     if (!e.detail.value || e.detail.value === '0') {
       reset();
       return;
     }
-    const unit = isLbtc(balance.asset, network) ? lbtcUnit : undefined;
+    const unit = isLbtc(balance.assetHash, network) ? lbtcUnit : undefined;
     const sanitizedValue = sanitizeInputAmount(e.detail.value, setAmount, unit);
     // Set values
     setAmount(sanitizedValue);

@@ -29,9 +29,9 @@ export interface AssetConfig {
   coinGeckoID?: string;
   ticker: string;
   assetHash: string;
-  color: string;
-  precision: number;
-  name: string;
+  color?: string;
+  precision?: number;
+  name?: string;
 }
 
 export const LBTC_ASSET: Record<NetworkString, AssetConfig> = {
