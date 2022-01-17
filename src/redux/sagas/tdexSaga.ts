@@ -7,6 +7,7 @@ import { getProvidersFromStorage, setProvidersInStorage } from '../../utils/stor
 import { getProvidersFromTDexRegistry } from '../../utils/tdex';
 import type { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
 import { setIsFetchingMarkets } from '../actions/appActions';
+import { addAsset } from '../actions/assetsActions';
 import {
   ADD_PROVIDERS,
   addMarkets,
@@ -113,11 +114,23 @@ async function getMarketsFromProvider(p: TDEXProvider, torProxy = 'https://proxy
   return results;
 }
 
+function* updateAssetsFromMarkets() {
+  const markets: TDEXMarket[] = yield select(({ tdex }: RootState) => tdex.markets);
+  const assetsFromAllMarkets = markets.flatMap(({ baseAsset, quoteAsset }) => [baseAsset, quoteAsset]);
+  const assetsFromAllMarketsUnique = [...new Set(assetsFromAllMarkets)];
+  for (const asset of assetsFromAllMarketsUnique) {
+    yield put(addAsset(asset));
+  }
+}
+
 export function* tdexWatcherSaga(): SagaGenerator {
   yield takeLatest(ADD_PROVIDERS, function* () {
     yield* fetchMarketsAndAddToState();
     yield* persistProviders();
   });
   yield takeLatest([CLEAR_PROVIDERS, DELETE_PROVIDER], persistProviders);
-  yield takeLatest(UPDATE_MARKETS, fetchMarketsAndAddToState);
+  yield takeLatest(UPDATE_MARKETS, function* () {
+    yield* fetchMarketsAndAddToState();
+    yield* updateAssetsFromMarkets();
+  });
 }
