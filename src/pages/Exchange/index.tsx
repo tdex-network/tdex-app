@@ -100,12 +100,13 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [showNoProvidersAvailableAlert, dismissNoProvidersAvailableAlert] = useIonAlert();
 
   useIonViewWillEnter(() => {
-    if (markets.length === 0) {
-      openNoProvidersAvailableAlert();
-    }
+    if (markets.length === 0) openNoProvidersAvailableAlert();
+    const lbtcInMarkets = markets.find(
+      (m) => m.baseAsset === LBTC_ASSET[network].assetHash || m.quoteAsset === LBTC_ASSET[network].assetHash
+    );
     setAssetSent({
-      assetHash: assets[LBTC_ASSET[network].assetHash].assetHash ?? assets[0].assetHash,
-      ticker: assets[LBTC_ASSET[network].assetHash].ticker ?? assets[0].ticker,
+      assetHash: lbtcInMarkets ? LBTC_ASSET[network].assetHash : assets[balances[0].assetHash].assetHash,
+      ticker: lbtcInMarkets ? LBTC_ASSET[network].ticker : assets[balances[0].assetHash].ticker,
     });
     setSentAmount(undefined);
     setReceivedAmount(undefined);
