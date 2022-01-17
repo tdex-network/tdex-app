@@ -10,7 +10,7 @@ import Settings from './pages/Settings';
 import Network from './pages/Settings/Network';
 import ShowMnemonicSettings from './pages/ShowMnemonic/show-mnemonic-settings';
 import Terms from './pages/Terms';
-import WithdrawalDetails from './pages/WithdrawalDetails';
+import TransactionDetails from './pages/TransactionDetails';
 import Backup from './redux/containers/backupContainer';
 import ClaimPegin from './redux/containers/claimPeginContainer';
 import Exchange from './redux/containers/exchangeContainer';
@@ -31,7 +31,7 @@ export const routerLinks = {
   tradeSummary: '/tradesummary/:txid',
   history: '/history',
   operations: '/operations/:asset_id',
-  withdrawalDetails: '/withdraw/:txid/details',
+  transactionDetails: '/transaction/:txid',
   withdrawal: '/withdraw/:asset_id',
   receive: '/receive',
   qrScanner: '/qrscanner/:asset_id',
@@ -104,8 +104,8 @@ export const ROUTES = [
     component: Operations,
   },
   {
-    path: routerLinks.withdrawalDetails,
-    component: WithdrawalDetails,
+    path: routerLinks.transactionDetails,
+    component: TransactionDetails,
   },
   {
     path: routerLinks.account,

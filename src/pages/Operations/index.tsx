@@ -12,7 +12,6 @@ import {
   IonGrid,
   IonRow,
   IonCol,
-  useIonViewWillEnter,
 } from '@ionic/react';
 import classNames from 'classnames';
 import { checkmarkSharp } from 'ionicons/icons';
@@ -20,7 +19,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter, useParams } from 'react-router';
+import { fromMasterBlindingKey } from 'slip77';
 import type { NetworkString } from 'tdex-sdk';
+import { getNetwork, payments } from 'tdex-sdk';
 
 import depositIcon from '../../assets/img/deposit-green.svg';
 import swapIcon from '../../assets/img/swap-circle.svg';
@@ -30,6 +31,7 @@ import { CurrencyIcon, TxIcon } from '../../components/icons';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { setModalClaimPegin } from '../../redux/actions/btcActions';
 import WatchersLoader from '../../redux/containers/watchersLoaderContainer';
+import { useTypedSelector } from '../../redux/hooks';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
 import type { LbtcDenomination } from '../../utils/constants';
 import { defaultPrecision, LBTC_TICKER, MAIN_ASSETS } from '../../utils/constants';
@@ -66,14 +68,10 @@ const Operations: React.FC<OperationsProps> = ({
   const dispatch = useDispatch();
   const { asset_id } = useParams<{ asset_id: string }>();
   const [balance, setBalance] = useState<BalanceInterface>();
-  const [txRowOpened, setTxRowOpened] = useState<string[]>([]);
+  const masterBlingKey = useTypedSelector(({ wallet }) => wallet.masterBlindKey);
 
   const transactionsByAsset = useSelector(transactionsByAssetSelector(asset_id));
   const transactionsToDisplay = isLbtc(asset_id, network) ? transactionsByAsset.concat(btcTxs) : transactionsByAsset;
-
-  useIonViewWillEnter(() => {
-    setTxRowOpened([]);
-  }, []);
 
   // effect to select the balance
   useEffect(() => {
@@ -93,37 +91,29 @@ const Operations: React.FC<OperationsProps> = ({
     }
   }, [balances, asset_id, network]);
 
-  const openTxRow = (txID: string) => setTxRowOpened([...txRowOpened, txID]);
-
-  const closeTxRow = (txID: string) => setTxRowOpened(txRowOpened.filter((id) => id !== txID));
-
-  const isTxRowOpen = (tx: TxDisplayInterface): boolean => {
-    if (TxTypeEnum[tx.type] === 'DepositBtc') {
-      const isClaimed = !!tx.claimTxId;
-      const isClaimable = checkIfPeginIsClaimable(tx);
-      if (!isClaimed && !isClaimable) {
-        // Not claimed, not claimable => closed by default, normal onClick behavior
-        return txRowOpened.includes(tx.txId);
-      } else if (!isClaimed && isClaimable) {
-        // Not claimed, claimable => open and button to claim
-        return true;
-      } else if (isClaimed) {
-        // Claimed => closed by default, normal onClick behavior
-        return txRowOpened.includes(tx.txId);
-      } else {
-        return txRowOpened.includes(tx.txId);
-      }
-    } else {
-      return txRowOpened.includes(tx.txId);
-    }
-  };
-
   const onclickTx = (tx: TxDisplayInterface) => {
-    if (isTxRowOpen(tx)) {
-      closeTxRow(tx.txId);
-      return;
+    if (TxTypeEnum[tx.type] === 'Swap') {
+      history.push(`/tradesummary/${tx.txId}`);
+    } else if (TxTypeEnum[tx.type] === 'Withdraw' || TxTypeEnum[tx.type] === 'Deposit') {
+      const master = fromMasterBlindingKey(masterBlingKey);
+      const derived = master.derive(tx.transfers[0].script);
+      const p2wpkh = payments.p2wpkh({
+        output: Buffer.from(tx.transfers[0].script, 'hex'),
+        blindkey: derived.publicKey,
+        network: getNetwork(network),
+      });
+      history.push(`/transaction/${tx.txId}`, {
+        address: p2wpkh.confidentialAddress,
+        amount: fromSatoshiFixed(
+          tx.transfers[0].amount.toString(),
+          balance?.precision,
+          balance?.precision,
+          isLbtc(asset_id, network) ? lbtcUnit : undefined
+        ),
+        asset: asset_id,
+        lbtcUnit,
+      });
     }
-    openTxRow(tx.txId);
   };
 
   const renderStatusText: any = (status: string) => {
@@ -290,9 +280,7 @@ const Operations: React.FC<OperationsProps> = ({
                         button
                         detail={false}
                         onClick={() => onclickTx(tx)}
-                        className={classNames('operation-item', {
-                          open: isTxRowOpen(tx),
-                        })}
+                        className="operation-item"
                       >
                         <IonRow>
                           <IonCol className="icon" size="1">
@@ -304,11 +292,7 @@ const Operations: React.FC<OperationsProps> = ({
                                 ? 'BTC Deposit'
                                 : `${balance.ticker} ${TxTypeEnum[tx.type]}`}
                             </div>
-                            <div className="time">
-                              {isTxRowOpen(tx)
-                                ? tx.blockTime?.format('DD MMM YYYY HH:mm:ss')
-                                : tx.blockTime?.format('DD MMM YYYY')}
-                            </div>
+                            <div className="time">{tx.blockTime?.format('DD MMM YYYY HH:mm:ss')}</div>
                           </IonCol>
                           <IonCol className="ion-text-right" size="5.7">
                             <OperationAmount balance={balance} transfer={transfer} tx={tx} />

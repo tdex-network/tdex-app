@@ -17,7 +17,7 @@ function getTransfers(
   let feeAmount: number;
   let feeAsset: string;
 
-  const addToTransfers = (amount: number, asset: string) => {
+  const addToTransfers = (amount: number, asset: string, script: string) => {
     const transferIndex = transfers.findIndex((t) => t.asset === asset);
 
     if (transferIndex >= 0) {
@@ -40,12 +40,13 @@ function getTransfers(
     transfers.push({
       amount,
       asset,
+      script,
     });
   };
 
   for (const input of vin) {
     if (input.prevout && !isBlindedOutputInterface(input.prevout) && walletScripts.includes(input.prevout.script)) {
-      addToTransfers(-1 * input.prevout.value, input.prevout.asset);
+      addToTransfers(-1 * input.prevout.value, input.prevout.asset, input.prevout.script);
     }
   }
 
@@ -64,7 +65,7 @@ function getTransfers(
 
   for (const output of vout) {
     if (!isBlindedOutputInterface(output) && walletScripts.includes(output.script) && output.script !== '') {
-      addToTransfers(output.value, output.asset);
+      addToTransfers(output.value, output.asset, output.script);
     }
   }
 

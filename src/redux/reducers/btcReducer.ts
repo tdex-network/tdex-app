@@ -118,6 +118,7 @@ export const depositPeginUtxosToDisplayTxSelector = createSelector(
               // LBTC hash in order to display btc deposit in LBTC operations
               asset: LBTC_ASSET[network].assetHash,
               amount: utxo.value ?? 0,
+              script: pegin.depositAddress.claimScript,
             },
           ],
           blockHeight: utxo.status?.block_height,

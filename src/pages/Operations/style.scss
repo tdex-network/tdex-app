@@ -10,14 +10,14 @@
       .info-amount {
         font-family: var(--ion-font-sub);
         font-size: var(--ion-font-size-l);
-    
+
         span {
           font-family: var(--ion-font-sub);
           font-size: var(--ion-font-size-main);
           margin-left: 3vw;
         }
       }
-  
+
       .info-amount-converted {
         font-family: var(--ion-font-sub-heading);
         font-size: var(--ion-font-size-sub);
@@ -25,7 +25,7 @@
       }
     }
   }
-  
+
   ion-button.coin-action-button {
     background: var(--ion-color-secondary-transparent);
     border-radius: 10px;
@@ -35,72 +35,82 @@
     margin: 0;
     font-family: var(--ion-font-heading);
     font-size: 0.9rem;
-    
+
     div {
       display: flex;
       flex-flow: column nowrap;
       align-items: center;
-      
+
       img {
         margin-bottom: 7px;
         width: 27px;
-        
+
         &.icon-withdraw {
           transform: rotate(180deg);
         }
       }
     }
-    
+
     &:nth-child(1) {
       margin-right: 10px !important;
     }
-    
+
     &:nth-child(3) {
       margin-left: 10px !important;
     }
   }
-  
+
   .operation-item {
     &::part(native) {
       width: 100%;
       flex-direction: column;
       flex: 1;
     }
+
     ion-row {
       align-items: center;
       width: 100%;
     }
+
     .icon {
       padding-right: 7px;
+
       img {
         height: 24px;
         width: 24px;
       }
     }
+
     .asset {
       font-family: var(--ion-font-main);
       font-size: var(--ion-font-size-main);
     }
+
     .time {
       font-family: var(--ion-font-sub-heading);
       font-size: var(--ion-font-size-sub-xs);
       color: var(--ion-color-tertiary);
       line-height: 18px;
     }
+
     ion-button.claim-button {
       --background: var(--ion-color-secondary-dark);
     }
+
     .operation-amount {
       text-align: right;
+
       .operation-amount__lbtc {
         font-family: var(--ion-font-sub-heading);
         font-size: var(--ion-font-size-sub-l);
+
         span.ticker {
           font-family: var(--ion-font-sub);
           font-size: var(--ion-font-size-sub-s);
           margin-left: 8px;
         }
       }
+
       .operation-amount__fiat {
         font-family: var(--ion-font-sub-heading);
         font-size: var(--ion-font-size-sub);
@@ -108,21 +118,15 @@
         line-height: 18px;
       }
     }
-    &:not(.open) {
-      .extra-infos {
-        display: none;
-      }
-    }
-    &.open {
-      .extra-infos {
-        font-family: var(--ion-font-sub-heading);
-        font-size: var(--ion-font-size-sub-xs);
-        color: var(--ion-color-tertiary);
-        line-break: anywhere;
-        
-        .confirmations-pending {
-          color: rgba(var(--ion-color-warning-rgb), .6);
-        }
+
+    .extra-infos {
+      font-family: var(--ion-font-sub-heading);
+      font-size: var(--ion-font-size-sub-xs);
+      color: var(--ion-color-tertiary);
+      line-break: anywhere;
+
+      .confirmations-pending {
+        color: rgba(var(--ion-color-warning-rgb), .6);
       }
     }
   }

@@ -93,7 +93,7 @@ describe('withdraw', () => {
     cy.get('[data-cy=pin-input]').children().type(pin);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get('[data-cy=header-title]').should('contain.text', 'SENDING DETAILS');
+    cy.get('[data-cy=header-title]').should('contain.text', 'WITHDRAWAL DETAILS');
     cy.get('[data-cy=button-tx-history]').click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
@@ -119,7 +119,7 @@ describe('withdraw', () => {
     cy.get('[data-cy=pin-input]').children().type(pin);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get('[data-cy=header-title]').should('contain.text', 'SENDING DETAILS');
+    cy.get('[data-cy=header-title]').should('contain.text', 'WITHDRAWAL DETAILS');
     cy.get('[data-cy=button-tx-history]').click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
@@ -145,7 +145,7 @@ describe('withdraw', () => {
     cy.get('[data-cy=pin-input]').children().type(pin);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get('[data-cy=header-title]').should('contain.text', 'SENDING DETAILS');
+    cy.get('[data-cy=header-title]').should('contain.text', 'WITHDRAWAL DETAILS');
     cy.get('[data-cy=button-tx-history]').click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
@@ -171,7 +171,7 @@ describe('withdraw', () => {
     cy.get('[data-cy=pin-input]').children().type(pin);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get('[data-cy=header-title]').should('contain.text', 'SENDING DETAILS');
+    cy.get('[data-cy=header-title]').should('contain.text', 'WITHDRAWAL DETAILS');
     cy.get('[data-cy=button-tx-history]').click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);

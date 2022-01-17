@@ -1,6 +1,6 @@
 import { IonPage, IonContent, IonButton, IonSkeletonText, IonGrid, IonRow, IonCol } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter, useParams } from 'react-router';
 
@@ -12,7 +12,6 @@ import { useTypedSelector } from '../../redux/hooks';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { clipboardCopy } from '../../utils/clipboard';
 import type { LbtcDenomination } from '../../utils/constants';
-import { isLbtcTicker, nameFromAssetHash, tickerFromAssetHash } from '../../utils/helpers';
 import { TxStatusEnum } from '../../utils/types';
 import './style.scss';
 
@@ -21,22 +20,20 @@ const statusText = {
   pending: 'pending',
 };
 
-interface WithdrawalDetailsLocationState {
+interface transactionDetailsLocationState {
   address: string;
   amount: number;
   asset: string;
   lbtcUnit: LbtcDenomination;
 }
 
-const WithdrawalDetails: React.FC<RouteComponentProps<any, any, WithdrawalDetailsLocationState>> = ({ location }) => {
+const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDetailsLocationState>> = ({ location }) => {
   const dispatch = useDispatch();
   const { txid } = useParams<{ txid: string }>();
-  const { explorerLiquidUI, network } = useTypedSelector(({ settings }) => ({
-    explorerLiquidUI: settings.explorerLiquidUI,
-    network: settings.network,
-  }));
-  const transaction = useSelector(transactionSelector(txid));
-  const [locationState, setLocationState] = useState<WithdrawalDetailsLocationState>();
+  const { explorerLiquidUI } = useTypedSelector(({ settings }) => ({ explorerLiquidUI: settings.explorerLiquidUI }));
+  const transaction = useTypedSelector(transactionSelector(txid));
+  const assets = useTypedSelector(({ assets }) => assets);
+  const [locationState, setLocationState] = useState<transactionDetailsLocationState>();
 
   useEffect(() => {
     if (location.state) {
@@ -55,23 +52,23 @@ const WithdrawalDetails: React.FC<RouteComponentProps<any, any, WithdrawalDetail
     }
   };
 
-  const ticker = () => {
-    const t = tickerFromAssetHash(network, locationState?.asset);
-    return isLbtcTicker(t) ? locationState?.lbtcUnit : t;
-  };
-
   const Skeleton = () => <IonSkeletonText className="custom-skeleton" animated />;
 
   return (
-    <IonPage id="withdrawal-details">
+    <IonPage id="transaction-details">
       <IonContent>
         <Refresher />
         <IonGrid>
-          <Header hasBackButton={true} title="SENDING DETAILS" />
+          <Header
+            hasBackButton={true}
+            title={`${locationState?.amount && locationState.amount > 0 ? 'RECEPTION' : 'WITHDRAWAL'} DETAILS`}
+          />
           <IonRow>
             <IonCol className="header-info ion-text-center">
-              <CurrencyIcon currency={tickerFromAssetHash(network, locationState?.asset)} />
-              <p className="info-amount">{nameFromAssetHash(network, locationState?.asset) ?? ticker()}</p>
+              <CurrencyIcon currency={assets[locationState?.asset || '']?.ticker} />
+              <p className="info-amount">
+                {assets[locationState?.asset || '']?.name ?? assets[locationState?.asset || '']?.ticker}
+              </p>
             </IonCol>
           </IonRow>
 
@@ -81,7 +78,9 @@ const WithdrawalDetails: React.FC<RouteComponentProps<any, any, WithdrawalDetail
                 <div className="item-main-info">
                   <div className="item-start main-row">Amount</div>
                   <div className="item-end main-row">
-                    {`-${locationState?.amount ? locationState.amount : '?'} ${ticker()}`}
+                    {`${locationState?.amount ? locationState.amount : '?'} ${
+                      assets[locationState?.asset || '']?.ticker
+                    }`}
                   </div>
                 </div>
                 <div className="item-main-info">
@@ -147,4 +146,4 @@ const WithdrawalDetails: React.FC<RouteComponentProps<any, any, WithdrawalDetail
   );
 };
 
-export default withRouter(WithdrawalDetails);
+export default withRouter(TransactionDetails);
