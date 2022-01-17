@@ -30,6 +30,7 @@ export interface Transfer {
   asset: string;
   // amount > 0 = received & amount < 0 = sent
   amount: number;
+  script: string;
 }
 
 export enum TxStatusEnum {

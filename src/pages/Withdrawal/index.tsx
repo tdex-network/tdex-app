@@ -209,7 +209,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       dispatch(watchTransaction(txid));
       setModalOpen(false);
       setLoading(false);
-      history.push(`/withdraw/${txid}/details`, {
+      history.push(`/transaction/${txid}`, {
         address: recipientAddress,
         amount,
         asset: asset_id,

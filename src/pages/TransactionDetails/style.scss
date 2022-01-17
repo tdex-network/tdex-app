@@ -1,4 +1,4 @@
-#withdrawal-details {
+#transaction-details {
   .header-info {
     img {
       height: 60px;
@@ -12,6 +12,7 @@
     background: var(--ion-color-primary);
     border-radius: 10px;
     padding: 20px;
+
     .divider {
       border-top: 1px solid rgb(102, 102, 102);
       margin-top: 12px;
@@ -28,7 +29,7 @@
     }
 
     .item-main-info {
-      align-items: end;
+      align-items: start;
       margin-top: 16px;
 
       .main-row {
@@ -48,13 +49,5 @@
   .custom-skeleton {
     width: 100px;
     display: inline-block;
-  }
-
-  .light {
-    .withdrawal-details {
-      ion-item {
-        --background: #fff;
-      }
-    }
   }
 }
