@@ -211,7 +211,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       setLoading(false);
       history.push(`/transaction/${txid}`, {
         address: recipientAddress,
-        amount,
+        amount: `-${amount}`,
         asset: asset_id,
         lbtcUnit,
       });
