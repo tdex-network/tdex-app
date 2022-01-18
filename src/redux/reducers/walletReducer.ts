@@ -138,29 +138,29 @@ export const balancesSelector = createSelector(
   ],
   ({ assets, settings }, utxos, txsAssets) => {
     const balances = balancesFromUtxos(utxos, assets, settings.network);
-    const balancesAssets = balances.map((b) => b.asset);
+    const balancesAssets = balances.map((b) => b.assetHash);
     for (const asset of txsAssets) {
       if (balancesAssets.includes(asset)) continue;
       // include a 'zero' balance if the user has previous transactions.
       balances.push({
-        asset,
+        assetHash: asset,
         amount: 0,
         ticker: assets[asset]?.ticker ?? tickerFromAssetHash(settings.network, asset),
         coinGeckoID: getMainAsset(asset, settings.network)?.coinGeckoID,
         precision: assets[asset]?.precision ?? defaultPrecision,
-        name: assets[asset]?.name,
+        name: assets[asset]?.name ?? 'Unknown',
       });
     }
     // If no balance, add LBTC with amount zero
     const lbtcAsset = LBTC_ASSET[settings.network];
     if (!balances.length) {
       balances.push({
-        asset: lbtcAsset.assetHash,
+        assetHash: lbtcAsset.assetHash,
         amount: 0,
         ticker: lbtcAsset.ticker,
         coinGeckoID: lbtcAsset.coinGeckoID,
-        precision: lbtcAsset.precision,
-        name: lbtcAsset.name,
+        precision: lbtcAsset.precision ?? defaultPrecision,
+        name: lbtcAsset.name ?? 'Unknown',
       });
     }
     return balances;
@@ -185,7 +185,7 @@ export const aggregatedLBTCBalanceSelector = (state: RootState): BalanceInterfac
   const amount = toAggregateBalancesInBTC.reduce((acc, a) => acc + a, 0);
   return {
     amount,
-    asset: '',
+    assetHash: '',
     ticker: LBTC_ASSET[state.settings.network].ticker,
     coinGeckoID: LBTC_COINGECKOID,
     precision: 8,

@@ -24,8 +24,8 @@ import { CurrencyIcon } from '../../components/icons';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { routerLinks } from '../../routes';
 import type { LbtcDenomination } from '../../utils/constants';
-import { getMainAsset, LBTC_ASSET, LBTC_COINGECKOID, MAIN_ASSETS } from '../../utils/constants';
-import { capitalizeFirstLetter, fromSatoshi, fromSatoshiFixed, isLbtcTicker } from '../../utils/helpers';
+import { LBTC_ASSET, LBTC_COINGECKOID } from '../../utils/constants';
+import { capitalizeFirstLetter, fromSatoshi, fromSatoshiFixed, isLbtc, isLbtcTicker } from '../../utils/helpers';
 import './style.scss';
 
 interface WalletProps extends RouteComponentProps {
@@ -52,9 +52,8 @@ const Wallet: React.FC<WalletProps> = ({
   prices,
   totalLBTC,
 }) => {
-  const [mainAssets, setMainAssets] = useState<BalanceInterface[]>([]);
+  const [assets, setAssets] = useState<BalanceInterface[]>([]);
   const [fiats, setFiats] = useState<number[]>([]);
-  const [secondaryAssets, setSecondaryAssets] = useState<BalanceInterface[]>([]);
   const UNKNOWN = -1;
 
   const getFiatValue = (balance: BalanceInterface) => {
@@ -75,30 +74,14 @@ const Wallet: React.FC<WalletProps> = ({
 
   useEffect(() => {
     const main = [];
-    const secondary = [];
-    if (balances.length) {
-      for (const balance of balances) {
-        if (getMainAsset(balance.asset, network)) {
-          main.push(balance);
-          continue;
-        }
-        secondary.push(balance);
-      }
-    } else {
+    if (!balances.length) {
       // Display L-BTC with empty balance
-      const [lbtc] = MAIN_ASSETS[network].concat(LBTC_ASSET[network]).map((a) => {
-        return {
-          asset: a.assetHash,
-          ticker: a.ticker,
-          amount: 0,
-          precision: 8,
-          name: a.name,
-        };
-      });
-      main.push(lbtc);
+      main.push({ ...LBTC_ASSET[network], amount: 0 });
+    } else {
+      main.push(...balances);
     }
     // Delete L-BTC from array
-    const lbtcIndex = main.findIndex((a) => isLbtcTicker(a.ticker));
+    const lbtcIndex = main.findIndex((a) => isLbtc(a.assetHash, network));
     const [lbtc] = main.splice(lbtcIndex, 1);
     // Sort by balance
     main.sort((a, b) => {
@@ -108,9 +91,7 @@ const Wallet: React.FC<WalletProps> = ({
     });
     // Add lbtc back to the beginning
     main.splice(0, 0, lbtc);
-
-    setMainAssets(main);
-    setSecondaryAssets(secondary);
+    setAssets(main);
   }, [balances, network]);
 
   return (
@@ -162,8 +143,7 @@ const Wallet: React.FC<WalletProps> = ({
               </IonRow>
             </IonListHeader>
 
-            {mainAssets
-              .concat(secondaryAssets)
+            {assets
               .filter((b) => b !== undefined)
               .map((balance: BalanceInterface) => {
                 const fiatValue = getFiatValue(balance);
@@ -171,9 +151,9 @@ const Wallet: React.FC<WalletProps> = ({
                   <IonItem
                     aria-label={balance.ticker}
                     data-cy={`item-asset-${balance.ticker}`}
-                    key={balance.asset}
+                    key={balance.assetHash}
                     onClick={() => {
-                      history.push(`/operations/${balance.asset}`);
+                      history.push(`/operations/${balance.assetHash}`);
                     }}
                   >
                     <div className="asset-container">

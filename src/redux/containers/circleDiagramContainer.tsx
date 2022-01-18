@@ -13,7 +13,7 @@ const mapStateToProps = (state: RootState): CircleDiagramProps => {
       .map((balance: BalanceInterface) => {
         const price: number | undefined = state.rates.lbtcPrices[balance.coinGeckoID || ''];
         return {
-          asset: balance.asset,
+          asset: balance.assetHash,
           ticker: balance.ticker,
           amount: (price || 1) * balance.amount,
         };

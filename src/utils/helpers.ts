@@ -164,12 +164,12 @@ export function balancesFromUtxos(
     const amount = sumUtxos(utxosForAsset);
     const coinGeckoID = getMainAsset(asset, network)?.coinGeckoID;
     balances.push({
-      asset,
+      assetHash: asset,
       amount,
       ticker: assets[asset]?.ticker || tickerFromAssetHash(network, asset),
       coinGeckoID,
       precision: assets[asset]?.precision ?? defaultPrecision,
-      name: assets[asset]?.name,
+      name: assets[asset]?.name ?? 'Unknown',
     });
   }
 

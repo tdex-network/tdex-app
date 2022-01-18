@@ -33,20 +33,20 @@ import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos } from '../../redux/actions/walletActions';
 import ExchangeRow from '../../redux/containers/exchangeRowContainer';
+import { getAssetData } from '../../redux/sagas/assetsSaga';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
 import { defaultPrecision, LBTC_ASSET, PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { AppError, IncorrectPINError } from '../../utils/errors';
 import { customCoinSelector, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
 import type { TDexMnemonicRedux } from '../../utils/identity';
 import { getConnectedTDexMnemonic } from '../../utils/storage-helper';
-import type { AssetWithTicker } from '../../utils/tdex';
 import { allTrades, makeTrade, getTradablesAssets } from '../../utils/tdex';
 import type { PreviewData } from '../TradeSummary';
 
 const ERROR_LIQUIDITY = 'Not enough liquidity in market';
 
 interface ExchangeProps extends RouteComponentProps {
-  allAssets: AssetWithTicker[];
+  allAssets: AssetConfig[];
   assets: Record<string, AssetConfig>;
   balances: BalanceInterface[];
   dispatch: Dispatch;
@@ -79,11 +79,11 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [sentAmount, setSentAmount] = useState<string>();
   const [receivedAmount, setReceivedAmount] = useState<string>();
   // assets selected for trade
-  const [assetSent, setAssetSent] = useState<AssetWithTicker>();
-  const [assetReceived, setAssetReceived] = useState<AssetWithTicker>();
+  const [assetSent, setAssetSent] = useState<AssetConfig>();
+  const [assetReceived, setAssetReceived] = useState<AssetConfig>();
   // current trades/tradable assets
-  const [tradableAssetsForAssetSent, setTradableAssetsForAssetSent] = useState<AssetWithTicker[]>([]);
-  const [tradableAssetsForAssetReceived, setTradableAssetsForAssetReceived] = useState<AssetWithTicker[]>([]);
+  const [tradableAssetsForAssetSent, setTradableAssetsForAssetSent] = useState<AssetConfig[]>([]);
+  const [tradableAssetsForAssetReceived, setTradableAssetsForAssetReceived] = useState<AssetConfig[]>([]);
   const [trades, setTrades] = useState<TDEXTrade[]>([]);
   // selected trade
   const [bestTrade, setBestTrade] = useState<TDEXTrade>();
@@ -100,12 +100,13 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [showNoProvidersAvailableAlert, dismissNoProvidersAvailableAlert] = useIonAlert();
 
   useIonViewWillEnter(() => {
-    if (markets.length === 0) {
-      openNoProvidersAvailableAlert();
-    }
+    if (markets.length === 0) openNoProvidersAvailableAlert();
+    const lbtcInMarkets = markets.find(
+      (m) => m.baseAsset === LBTC_ASSET[network].assetHash || m.quoteAsset === LBTC_ASSET[network].assetHash
+    );
     setAssetSent({
-      asset: LBTC_ASSET[network].assetHash,
-      ticker: LBTC_ASSET[network].ticker,
+      assetHash: lbtcInMarkets ? LBTC_ASSET[network].assetHash : assets[balances[0].assetHash].assetHash,
+      ticker: lbtcInMarkets ? LBTC_ASSET[network].ticker : assets[balances[0].assetHash].ticker,
     });
     setSentAmount(undefined);
     setReceivedAmount(undefined);
@@ -144,24 +145,34 @@ const Exchange: React.FC<ExchangeProps> = ({
 
   useEffect(() => {
     if (markets.length === 0 || !assetSent || !assetReceived) return;
-    setTrades(allTrades(markets, assetSent.asset, assetReceived.asset));
-  }, [assetSent?.asset, assetReceived?.asset, markets, assetSent, assetReceived]);
+    setTrades(allTrades(markets, assetSent.assetHash, assetReceived.assetHash));
+  }, [assetSent?.assetHash, assetReceived?.assetHash, markets, assetSent, assetReceived]);
 
   useEffect(() => {
-    if (!assetSent) return;
-    const sentTradables = getTradablesAssets(markets, assetSent.asset, network);
-    // TODO: Add opposite asset and remove current
-    setTradableAssetsForAssetReceived(sentTradables);
-    setAssetReceived(sentTradables[0]);
-  }, [assetSent, assetSent?.asset, markets, network]);
-
-  useEffect(() => {
-    if (assetReceived) {
-      const receivedTradables = getTradablesAssets(markets, assetReceived.asset, network);
+    void (async (): Promise<void> => {
+      if (!assetSent) return;
+      const sentTradables = getTradablesAssets(markets, assetSent.assetHash);
+      const assetsData = (
+        await Promise.all(sentTradables.map((asset) => getAssetData(asset, explorerLiquidAPI, network)))
+      ).filter(Boolean) as AssetConfig[];
       // TODO: Add opposite asset and remove current
-      setTradableAssetsForAssetSent(receivedTradables);
-    }
-  }, [assetReceived, assetReceived?.asset, markets, network]);
+      setTradableAssetsForAssetReceived(assetsData);
+      setAssetReceived(assetsData[0]);
+    })();
+  }, [assetSent, assetSent?.assetHash, assets, explorerLiquidAPI, markets, network]);
+
+  useEffect(() => {
+    void (async (): Promise<void> => {
+      if (assetReceived) {
+        const receivedTradables = getTradablesAssets(markets, assetReceived.assetHash);
+        const assetsData = (
+          await Promise.all(receivedTradables.map((asset) => getAssetData(asset, explorerLiquidAPI, network)))
+        ).filter(Boolean) as AssetConfig[];
+        // TODO: Add opposite asset and remove current
+        setTradableAssetsForAssetSent(assetsData);
+      }
+    })();
+  }, [assetReceived, assetReceived?.assetHash, assets, explorerLiquidAPI, markets, network]);
 
   const checkAvailableAmountSent = () => {
     if (!bestTrade || !sentAmount || !assetSent) return;
@@ -169,7 +180,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       bestTrade.type === TradeType.BUY ? bestTrade.market.quoteAmount : bestTrade.market.baseAmount;
     const sats = toSatoshi(
       sentAmount,
-      assets[assetSent.asset]?.precision ?? defaultPrecision,
+      assets[assetSent.assetHash]?.precision ?? defaultPrecision,
       isLbtcTicker(assetSent.ticker) ? lbtcUnit : undefined
     );
     if (!hasBeenSwapped && availableAmount && sats.greaterThan(availableAmount)) {
@@ -185,7 +196,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       bestTrade.type === TradeType.BUY ? bestTrade.market.baseAmount : bestTrade.market.quoteAmount;
     const sats = toSatoshi(
       receivedAmount,
-      assets[assetReceived.asset]?.precision ?? defaultPrecision,
+      assets[assetReceived.assetHash]?.precision ?? defaultPrecision,
       isLbtcTicker(assetReceived.ticker) ? lbtcUnit : undefined
     );
     if (!hasBeenSwapped && availableAmount && sats.greaterThan(availableAmount)) {
@@ -198,7 +209,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   };
 
   const sentAmountGreaterThanBalance = () => {
-    const balance = balances.find((b) => b.asset === assetSent?.asset);
+    const balance = balances.find((b) => b.assetHash === assetSent?.assetHash);
     if (!balance || !sentAmount) return true;
     const amountAsSats = toSatoshi(sentAmount, balance.precision, isLbtcTicker(balance.ticker) ? lbtcUnit : undefined);
     return amountAsSats.greaterThan(balance.amount);
@@ -229,10 +240,10 @@ const Exchange: React.FC<ExchangeProps> = ({
         {
           amount: toSatoshi(
             sentAmount,
-            assets[assetSent.asset]?.precision ?? defaultPrecision,
-            isLbtc(assetSent.asset, network) ? lbtcUnit : undefined
+            assets[assetSent.assetHash]?.precision ?? defaultPrecision,
+            isLbtc(assetSent.assetHash, network) ? lbtcUnit : undefined
           ).toNumber(),
-          asset: assetSent.asset,
+          asset: assetSent.assetHash,
         },
         explorerLiquidAPI,
         utxos,
@@ -303,8 +314,10 @@ const Exchange: React.FC<ExchangeProps> = ({
             open={modalOpen}
             title="Unlock your seed"
             description={`Enter your secret PIN to send ${sentAmount} ${
-              isLbtc(assetSent.asset, network) ? lbtcUnit : assetSent.ticker
-            } and receive ${receivedAmount} ${isLbtc(assetReceived.asset, network) ? lbtcUnit : assetReceived.ticker}.`}
+              isLbtc(assetSent.assetHash, network) ? lbtcUnit : assetSent.ticker
+            } and receive ${receivedAmount} ${
+              isLbtc(assetReceived.assetHash, network) ? lbtcUnit : assetReceived.ticker
+            }.`}
             onConfirm={onPinConfirm}
             onClose={() => {
               setModalOpen(false);
@@ -337,7 +350,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                 setFocus={() => setIsFocused('sent')}
                 setTrade={(t: TDEXTrade) => setBestTrade(t)}
                 relatedAssetAmount={receivedAmount || ''}
-                relatedAssetHash={assetReceived?.asset || ''}
+                relatedAssetHash={assetReceived?.assetHash || ''}
                 asset={assetSent}
                 assetAmount={sentAmount}
                 trades={trades}
@@ -348,7 +361,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                 }}
                 assetsWithTicker={tradableAssetsForAssetSent}
                 setAsset={(asset) => {
-                  if (assetReceived && asset.asset === assetReceived.asset) setAssetReceived(assetSent);
+                  if (assetReceived && asset.assetHash === assetReceived.assetHash) setAssetReceived(assetSent);
                   setAssetSent(asset);
                 }}
                 error={errorSent}
@@ -373,7 +386,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                   trades={trades}
                   trade={bestTrade}
                   relatedAssetAmount={sentAmount || ''}
-                  relatedAssetHash={assetSent?.asset || ''}
+                  relatedAssetHash={assetSent?.assetHash || ''}
                   asset={assetReceived}
                   assetAmount={receivedAmount}
                   onChangeAmount={(newAmount: string) => {
@@ -382,7 +395,7 @@ const Exchange: React.FC<ExchangeProps> = ({
                   }}
                   assetsWithTicker={tradableAssetsForAssetReceived}
                   setAsset={(asset) => {
-                    if (asset.asset === assetSent.asset) setAssetSent(assetReceived);
+                    if (asset.assetHash === assetSent.assetHash) setAssetSent(assetReceived);
                     setAssetReceived(asset);
                   }}
                   error={errorReceived}

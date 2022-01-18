@@ -75,13 +75,13 @@ const Operations: React.FC<OperationsProps> = ({
 
   // effect to select the balance
   useEffect(() => {
-    const balanceSelected = balances.find((bal) => bal.asset === asset_id);
+    const balanceSelected = balances.find((bal) => bal.assetHash === asset_id);
     if (balanceSelected) {
       setBalance(balanceSelected);
     } else {
       const asset = MAIN_ASSETS[network].find((a) => a.assetHash === asset_id);
       setBalance({
-        asset: asset?.assetHash ?? '',
+        assetHash: asset?.assetHash ?? '',
         amount: 0,
         coinGeckoID: asset?.coinGeckoID ?? '',
         ticker: asset?.ticker ?? '',
@@ -156,7 +156,7 @@ const Operations: React.FC<OperationsProps> = ({
                   pathname: '/receive',
                   state: {
                     depositAsset: {
-                      asset: balance?.asset,
+                      asset: balance?.assetHash,
                       ticker: balance?.ticker ?? LBTC_TICKER[network],
                       coinGeckoID: balance?.coinGeckoID ?? 'L-BTC',
                     },
@@ -191,7 +191,7 @@ const Operations: React.FC<OperationsProps> = ({
         </IonCol>
       </IonRow>
     ),
-    [asset_id, balance?.asset, balance?.coinGeckoID, balance?.ticker, history, network]
+    [asset_id, balance?.assetHash, balance?.coinGeckoID, balance?.ticker, history, network]
   );
 
   const AssetBalance = useMemo(

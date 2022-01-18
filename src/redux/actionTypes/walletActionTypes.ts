@@ -1,8 +1,5 @@
-export interface BalanceInterface {
-  asset: string;
+import type { AssetConfig } from '../../utils/constants';
+
+export interface BalanceInterface extends AssetConfig {
   amount: number;
-  ticker: string;
-  name: string;
-  precision: number;
-  coinGeckoID?: string;
 }
