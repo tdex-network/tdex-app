@@ -1,6 +1,6 @@
 import type { BlindingKeyGetter, TxInterface, AddressInterface } from 'ldk';
 import { fetchAndUnblindTxsGenerator, isBlindedOutputInterface, fetchTx, unblindTransaction } from 'ldk';
-import { takeLatest, call, put, select, takeEvery, retry } from 'redux-saga/effects';
+import { takeLatest, call, put, select, takeEvery, retry, delay } from 'redux-saga/effects';
 
 import { UpdateTransactionsError } from '../../utils/errors';
 import {
@@ -8,7 +8,6 @@ import {
   getTransactionsFromStorage,
   setTransactionsInStorage,
 } from '../../utils/storage-helper';
-import type { ActionType } from '../../utils/types';
 import { addAsset } from '../actions/assetsActions';
 import { addErrorToast } from '../actions/toastActions';
 import {
@@ -19,6 +18,7 @@ import {
   UPDATE_TRANSACTIONS,
   WATCH_TRANSACTION,
   RESET_TRANSACTION_REDUCER,
+  watchTransaction,
 } from '../actions/transactionsActions';
 import type { WalletState } from '../reducers/walletReducer';
 import type { RootState, SagaGenerator } from '../types';
@@ -88,11 +88,9 @@ export function* fetchAndUpdateTxs(
   );
   const next = () => txsGen.next();
   let it: IteratorResult<TxInterface, number> = yield call(next);
-
   if (it.done) {
     return;
   }
-
   while (!it.done) {
     const tx = it.value;
     yield put(setTransaction(tx));
@@ -111,8 +109,9 @@ function* updateAssets({ payload }: ReturnType<typeof setTransaction>) {
   }
 }
 
-function* watchTransaction(action: ActionType) {
-  const { txID, maxTry } = action.payload as { txID: string; maxTry: number };
+function* watchTransactionSaga({ payload }: ReturnType<typeof watchTransaction>) {
+  if (!payload) return;
+  const { txID, maxTry } = payload;
   yield put(addWatcherTransaction(txID));
   const explorer: string = yield select(({ settings }) => settings.explorerLiquidAPI);
   try {
@@ -128,6 +127,12 @@ function* watchTransaction(action: ActionType) {
       });
     }
     yield put(setTransaction(unblindedTx));
+    // Refetch after one minute for status confirmation
+    if (!unblindedTx?.status.confirmed) {
+      yield put(removeWatcherTransaction(txID));
+      yield delay(60 * 1000);
+      yield put(watchTransaction(txID));
+    }
     yield put(removeWatcherTransaction(txID));
   } catch (err) {
     console.error(err);
@@ -155,6 +160,6 @@ export function* transactionsWatcherSaga(): SagaGenerator {
     yield* persistTransactions();
   });
   yield takeEvery(SET_TRANSACTION, updateAssets);
-  yield takeEvery(WATCH_TRANSACTION, watchTransaction);
+  yield takeEvery(WATCH_TRANSACTION, watchTransactionSaga);
   yield takeEvery(RESET_TRANSACTION_REDUCER, resetTransactions);
 }

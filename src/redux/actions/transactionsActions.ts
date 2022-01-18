@@ -19,7 +19,7 @@ export const addWatcherTransaction = (txID: string): ActionType => ({
   payload: txID,
 });
 
-export const watchTransaction = (txID: string, maxTry = 100): ActionType => {
+export const watchTransaction = (txID: string, maxTry = 100): ActionType<{ txID: string; maxTry: number }> => {
   return {
     type: WATCH_TRANSACTION,
     payload: {
