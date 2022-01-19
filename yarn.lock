@@ -8270,10 +8270,10 @@ lazy-ass@^1.6.0:
   resolved "https://registry.yarnpkg.com/lazy-ass/-/lazy-ass-1.6.0.tgz#7999655e8646c17f089fdd187d150d3324d54513"
   integrity sha1-eZllXoZGwX8In90YfRUNMyTVRRM=
 
-ldk@0.3.16:
-  version "0.3.16"
-  resolved "https://registry.yarnpkg.com/ldk/-/ldk-0.3.16.tgz#a2a556176489d1c878ddd6110de3cb1112390f96"
-  integrity sha512-woGOrGpT2hklS5+yZYEXuPckRW5Yp8xuA9YYdF1tv/uPMD1L8v4ANxnTpyf+CrmSBwA0ziQPPTWlsXccxQxzFQ==
+ldk@^0.4.0:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/ldk/-/ldk-0.4.2.tgz#33f2eaca1dd51bbd5b94295e4412258186e5729e"
+  integrity sha512-RGgNFzkXTDVgDk8i5XyHdStZeNjq08FSMRpbu1bBfSIquJPC3XRWuO3r2UEVI+J3F80UMJKfA3liCyI95unDpA==
   dependencies:
     axios "^0.21.1"
     bip32 "^2.0.6"
@@ -8282,6 +8282,7 @@ ldk@0.3.16:
     liquidjs-lib "^5.2.2"
     marina-provider "^1.0.0"
     slip77 "^0.1.1"
+    tslib "^2.3.1"
 
 leek@0.0.24:
   version "0.0.24"
@@ -12525,15 +12526,15 @@ tdex-react-scripts@4.0.3-tdex:
   optionalDependencies:
     fsevents "^2.1.3"
 
-tdex-sdk@1.7.8:
-  version "1.7.8"
-  resolved "https://registry.yarnpkg.com/tdex-sdk/-/tdex-sdk-1.7.8.tgz#698068593e19c403a1c4b7af0658a0924775347b"
-  integrity sha512-J0u0uY/RyGde4cGRoIU4YFB4yUMUzhUVlIIQJ/aAkvKccSH8qXafbm1810vS8oJiV7MXwhvvGY4hbRvrAi2eAg==
+tdex-sdk@1.7.10:
+  version "1.7.10"
+  resolved "https://registry.yarnpkg.com/tdex-sdk/-/tdex-sdk-1.7.10.tgz#7359242e47d77a523dd22fd468159b3997b70eb6"
+  integrity sha512-WLjYBVjviyH17uDqpgZFEDWdcnLJ3MlscFZIWwczh2IkYvExL61ND8zUC3cORoq3jFgEsYOw3BDLFXPIl9LnRA==
   dependencies:
     "@grpc/grpc-js" "^1.3.3"
     "@types/google-protobuf" "^3.15.2"
     google-protobuf "^3.17.3"
-    ldk "0.3.16"
+    ldk "^0.4.0"
     liquidjs-lib "^5.2.2"
     slip77 "^0.1.1"
     tdex-protobuf tdex-network/tdex-protobuf
