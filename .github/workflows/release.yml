@@ -38,6 +38,8 @@ jobs:
 
       - name: build ionic ios
         run: yarn build:ios
+        env:
+          CI: false
 
       - name: Fastlane Beta CI
         run: bundle exec fastlane ios beta_ci
@@ -46,6 +48,15 @@ jobs:
           FASTLANE_USER: marco@sevenlabs.io
           FASTLANE_PASSWORD: ${{ secrets.APPSTORE_PASSWORD }}
           FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_PASSWORD}}
+
+      # Commit manifest and package.json to master
+      - name: Commit & Push
+        run: |
+          git config --local user.email "$(git log --format='%ae' HEAD^!)"
+          git config --local user.name "$(git log --format='%an' HEAD^!)"
+          git add .
+          git commit -m "${{ steps.next_tag.outputs.tag }}"
+          git push origin HEAD:master
 
   # This workflow contains a single job called "build"
   apk:
