@@ -7,29 +7,45 @@ name: Release
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  #testflight:
-  #  runs-on: macos-latest
+  testflight:
+    runs-on: macos-latest
 
-  #  steps:
-  #    - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v2
 
-  #    - name: Bundle Install
-  #      run: bundle install
+      - name: Bundle Install
+        run: bundle install
 
-  # Build Ionic App
-  #    - name: install node dependencies
-  #      run: yarn install --frozen-lockfile
+      # Build Ionic App
+      - name: install node dependencies
+        run: yarn install --frozen-lockfile
 
-  #    - name: build ionic ios
-  #      run: yarn build:ios
+      # get current  tag
+      - name: tag
+        id: next_tag
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
 
-  #    - name: Fastlane Beta CI
-  #      run: bundle exec fastlane ios beta_ci
-  #      env:
-  #        MATCH_PASSWORD: ${{ secrets.KEYSTORE_PASSPHRASE }}
-  #        FASTLANE_USER: marco@sevenlabs.io
-  #        FASTLANE_PASSWORD: ${{ secrets.APPSTORE_PASSWORD }}
-  #        FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_PASSWORD}}
+      # get version number without the "v" for package.json increment
+      - name: version
+        id: next_version
+        run: |
+          tag=${{ steps.next_tag.outputs.tag }}
+          echo ::set-output name=version::${tag:1}
+
+      - name: Replace credentials
+        run: |
+          plutil -replace CFBundleShortVersionString -string "${{ steps.next_version.outputs.version }}" ./ios/App/App/Info.plist
+
+      - name: build ionic ios
+        run: yarn build:ios
+
+      - name: Fastlane Beta CI
+        run: bundle exec fastlane ios beta_ci
+        env:
+          MATCH_PASSWORD: ${{ secrets.KEYSTORE_PASSPHRASE }}
+          FASTLANE_USER: marco@sevenlabs.io
+          FASTLANE_PASSWORD: ${{ secrets.APPSTORE_PASSWORD }}
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_PASSWORD}}
 
   # This workflow contains a single job called "build"
   apk:
