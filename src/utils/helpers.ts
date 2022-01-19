@@ -188,6 +188,7 @@ function sumUtxos(utxos: UtxoInterface[]): number {
 
 export function tickerFromAssetHash(network: NetworkString, assetHash?: string): string {
   if (!assetHash) return '';
+  // TODO: Get assets from store
   const mainAsset = getMainAsset(assetHash, network);
   if (mainAsset) return mainAsset.ticker;
   return assetHash.slice(0, 4).toUpperCase();
@@ -195,12 +196,14 @@ export function tickerFromAssetHash(network: NetworkString, assetHash?: string):
 
 export function precisionFromAssetHash(network: NetworkString, assetHash?: string): number | undefined {
   if (!assetHash) return 8;
+  // TODO: Get assets from store
   const mainAsset = getMainAsset(assetHash, network);
   if (mainAsset) return mainAsset.precision;
 }
 
 export function nameFromAssetHash(network: NetworkString, assetHash?: string): string | undefined {
   if (!assetHash) return '';
+  // TODO: Get assets from store
   const mainAsset = getMainAsset(assetHash, network);
   if (mainAsset) return mainAsset.name;
 }

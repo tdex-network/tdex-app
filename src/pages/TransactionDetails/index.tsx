@@ -1,6 +1,5 @@
-import { IonPage, IonContent, IonButton, IonSkeletonText, IonGrid, IonRow, IonCol } from '@ionic/react';
+import { IonPage, IonContent, IonSkeletonText, IonGrid, IonRow, IonCol } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter, useParams } from 'react-router';
 
@@ -8,7 +7,7 @@ import Header from '../../components/Header';
 import Refresher from '../../components/Refresher';
 import { CurrencyIcon } from '../../components/icons';
 import { addSuccessToast } from '../../redux/actions/toastActions';
-import { useTypedSelector } from '../../redux/hooks';
+import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { clipboardCopy } from '../../utils/clipboard';
 import type { LbtcDenomination } from '../../utils/constants';
@@ -28,7 +27,7 @@ interface transactionDetailsLocationState {
 }
 
 const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDetailsLocationState>> = ({ location }) => {
-  const dispatch = useDispatch();
+  const dispatch = useTypedDispatch();
   const { txid } = useParams<{ txid: string }>();
   const { explorerLiquidUI } = useTypedSelector(({ settings }) => ({ explorerLiquidUI: settings.explorerLiquidUI }));
   const transaction = useTypedSelector(transactionSelector(txid));
@@ -61,7 +60,7 @@ const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDeta
         <IonGrid>
           <Header
             hasBackButton={true}
-            title={`${locationState?.amount && locationState.amount > 0 ? 'RECEPTION' : 'WITHDRAWAL'} DETAILS`}
+            title={`${locationState?.amount && locationState.amount > 0 ? 'RECEIVE' : 'SEND'} DETAILS`}
           />
           <IonRow>
             <IonCol className="header-info ion-text-center">
@@ -126,18 +125,6 @@ const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDeta
                   <div className="item-end sub-row">{txid}</div>
                 </div>
               </div>
-            </IonCol>
-          </IonRow>
-
-          <IonRow className="ion-margin-vertical-x2">
-            <IonCol size="9" offset="1.5">
-              <IonButton
-                routerLink={`/operations/${locationState?.asset}`}
-                className="main-button"
-                data-cy="button-tx-history"
-              >
-                TRANSACTION HISTORY
-              </IonButton>
             </IonCol>
           </IonRow>
         </IonGrid>

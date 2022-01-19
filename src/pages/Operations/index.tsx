@@ -94,7 +94,7 @@ const Operations: React.FC<OperationsProps> = ({
   const onclickTx = (tx: TxDisplayInterface) => {
     if (TxTypeEnum[tx.type] === 'Swap') {
       history.push(`/tradesummary/${tx.txId}`);
-    } else if (TxTypeEnum[tx.type] === 'Withdraw' || TxTypeEnum[tx.type] === 'Deposit') {
+    } else if (TxTypeEnum[tx.type] === 'Send' || TxTypeEnum[tx.type] === 'Receive') {
       const master = fromMasterBlindingKey(masterBlingKey);
       const derived = master.derive(tx.transfers[0].script);
       const p2wpkh = payments.p2wpkh({
@@ -289,8 +289,8 @@ const Operations: React.FC<OperationsProps> = ({
                           <IonCol className="pl-1" size="5.3">
                             <div className="asset">
                               {TxTypeEnum[tx.type] === 'DepositBtc'
-                                ? 'BTC Deposit'
-                                : `${balance.ticker} ${TxTypeEnum[tx.type]}`}
+                                ? 'RECEIVE BTC'
+                                : `${TxTypeEnum[tx.type]} ${balance.ticker}`}
                             </div>
                             <div className="time">{tx.blockTime?.format('DD MMM YYYY HH:mm:ss')}</div>
                           </IonCol>

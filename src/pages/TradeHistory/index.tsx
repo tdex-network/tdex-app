@@ -69,6 +69,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI, ne
                 if (!transferReceived || !transferSent) {
                   return <React.Fragment key={index} />;
                 }
+                //TODO: Get asset data from store
                 const precisionAssetReceived = precisionFromAssetHash(network, transferReceived.asset);
                 const tickerSent = tickerFromAssetHash(network, transferSent.asset);
                 const tickerReceived = tickerFromAssetHash(network, transferReceived.asset);

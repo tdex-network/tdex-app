@@ -75,11 +75,11 @@ function getTransfers(
 export function txTypeFromTransfer(transfers: Transfer[]): TxTypeEnum {
   if (transfers.length === 1) {
     if (transfers[0].amount > 0) {
-      return TxTypeEnum.Deposit;
+      return TxTypeEnum.Receive;
     }
 
     if (transfers[0].amount < 0) {
-      return TxTypeEnum.Withdraw;
+      return TxTypeEnum.Send;
     }
   }
 
