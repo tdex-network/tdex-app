@@ -1,4 +1,4 @@
-git_url("https://github.com/TDex-network/tdex-app-ios-certificates.git")
+git_url("git@github.com:tdex-network/tdex-app-ios-certificates.git")
 
 storage_mode("git")
 
