@@ -296,7 +296,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         {/* Otherwise, loaders will show up on the other screens */}
         {history.location.pathname === '/exchange' && (
           <Loader
-            showLoading={isFetchingMarkets}
+            showLoading={isFetchingMarkets && !isBusyMakingTrade}
             message="Discovering TDEX providers with best liquidity..."
             delay={0}
             backdropDismiss={true}
