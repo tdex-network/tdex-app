@@ -50,7 +50,6 @@ function getTransfers(
     ) {
       addToTransfers(
         -1 * Number(getSats(input.prevout)),
-        // TODO: reverse needed?
         getAsset(input.prevout),
         input.prevout.prevout.script.toString('hex')
       );
