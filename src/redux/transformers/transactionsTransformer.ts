@@ -65,8 +65,8 @@ function getTransfers(
       parseInt(output.unblindData.assetBlindingFactor.toString('hex'), 16) === 0 &&
       parseInt(output.unblindData.valueBlindingFactor.toString('hex'), 16) === 0
     ) {
-      feeAmount = Number(output.unblindData.value);
-      feeAsset = output.unblindData.asset.slice().reverse().toString('hex');
+      feeAmount = getSats(output);
+      feeAsset = getAsset(output);
     }
   }
   for (const output of vout) {
@@ -75,11 +75,7 @@ function getTransfers(
       walletScripts.includes(output.prevout.script.toString('hex')) &&
       output.prevout.script.toString('hex') !== ''
     ) {
-      addToTransfers(
-        Number(output.unblindData.value),
-        output.unblindData.asset.slice().reverse().toString('hex'),
-        output.prevout.script.toString('hex')
-      );
+      addToTransfers(getSats(output), getAsset(output), output.prevout.script.toString('hex'));
     }
   }
   return transfers;

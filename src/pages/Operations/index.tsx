@@ -92,7 +92,6 @@ const Operations: React.FC<OperationsProps> = ({
   }, [balances, asset_id, network]);
 
   const onclickTx = (tx: TxDisplayInterface) => {
-    console.log('tx.transfers', tx.transfers);
     if (TxTypeEnum[tx.type] === 'Swap') {
       history.push(`/tradesummary/${tx.txId}`);
     } else if (TxTypeEnum[tx.type] === 'Send' || TxTypeEnum[tx.type] === 'Receive') {
