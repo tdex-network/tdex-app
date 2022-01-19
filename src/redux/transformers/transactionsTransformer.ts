@@ -59,12 +59,7 @@ function getTransfers(
 
   // Get fee output values
   for (const output of vout) {
-    if (
-      isUnblindedOutput(output) &&
-      output.prevout.script.toString() === '' &&
-      parseInt(output.unblindData.assetBlindingFactor.toString('hex'), 16) === 0 &&
-      parseInt(output.unblindData.valueBlindingFactor.toString('hex'), 16) === 0
-    ) {
+    if (isUnblindedOutput(output) && output.prevout.script.toString() === '') {
       feeAmount = getSats(output);
       feeAsset = getAsset(output);
     }
