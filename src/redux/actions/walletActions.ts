@@ -1,8 +1,9 @@
-import type { AddressInterface, Mnemonic, Outpoint, UtxoInterface } from 'ldk';
+import type { AddressInterface, Mnemonic, Outpoint } from 'ldk';
 import { address as addrLDK } from 'ldk';
+import type { UnblindedOutput } from 'tdex-sdk';
 
 import type { ActionType } from '../../utils/types';
-import { outpointToString } from '../reducers/walletReducer';
+import { toStringOutpoint } from '../reducers/walletReducer';
 
 export const SET_IS_AUTH = 'SET_IS_AUTH';
 export const ADD_ADDRESS = 'ADD_ADDRESS';
@@ -18,7 +19,10 @@ export const UNLOCK_UTXO = 'UNLOCK_UTXO';
 export const WATCH_UTXO = 'WATCH_UTXO';
 export const UNLOCK_UTXOS = 'UNLOCK_UTXOS';
 
-export const watchUtxo = (address: AddressInterface, maxTry = 100): ActionType => ({
+export const watchUtxo = (
+  address: AddressInterface,
+  maxTry = 100
+): ActionType<{ address: AddressInterface; maxTry: number }> => ({
   type: WATCH_UTXO,
   payload: {
     address,
@@ -49,7 +53,7 @@ export const clearAddresses = (): ActionType => {
 export const lockUtxo = (txid: string, vout: number): ActionType => {
   return {
     type: LOCK_UTXO,
-    payload: outpointToString({ txid, vout }),
+    payload: toStringOutpoint({ txid, vout }),
   };
 };
 
@@ -86,7 +90,7 @@ export const updateUtxos = (): ActionType => {
   };
 };
 
-export const setUtxo = (utxo: UtxoInterface): ActionType => {
+export const setUtxo = (utxo: UnblindedOutput): ActionType => {
   return {
     type: SET_UTXO,
     payload: utxo,

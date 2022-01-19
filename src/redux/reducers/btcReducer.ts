@@ -1,6 +1,7 @@
 import { merge } from 'lodash';
 import moment from 'moment';
 import { createSelector } from 'reselect';
+import type { Output } from 'tdex-sdk';
 
 import { LBTC_ASSET } from '../../utils/constants';
 import type { ActionType, TxDisplayInterface } from '../../utils/types';
@@ -14,7 +15,7 @@ import {
 } from '../actions/btcActions';
 import type { RootState } from '../types';
 
-import { outpointToString } from './walletReducer';
+import { toStringOutpoint } from './walletReducer';
 
 // Deposit pegin utxos
 export interface DepositPeginUtxo {
@@ -92,7 +93,7 @@ function btcReducer(state = initialState, action: ActionType): BtcState {
 const upsertDepositUtxoInState = (state: BtcState, utxo: DepositPeginUtxo, depositAddress: Pegin['depositAddress']) => {
   state.pegins[depositAddress.claimScript].depositUtxos = {
     ...state.pegins[depositAddress.claimScript].depositUtxos,
-    [outpointToString(utxo)]: utxo,
+    [toStringOutpoint(utxo as unknown as Output)]: utxo,
   };
   return {
     ...state,

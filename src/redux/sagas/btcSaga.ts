@@ -25,7 +25,7 @@ import { addAddress } from '../actions/walletActions';
 import type { BtcState, Pegins } from '../reducers/btcReducer';
 import type { ToastState } from '../reducers/toastReducer';
 import type { WalletState } from '../reducers/walletReducer';
-import { outpointToString } from '../reducers/walletReducer';
+import { toStringOutpoint } from '../reducers/walletReducer';
 import { getPeginModule } from '../services/btcService';
 import type { RootState, SagaGenerator } from '../types';
 
@@ -80,8 +80,8 @@ export function* fetchAndUpdateDepositPeginUtxos(pegins: Pegins, explorerBitcoin
     utxos = yield call(fetchUtxos, pegins[claimScript].depositAddress.address, explorerBitcoinAPI);
     for (const utxo of utxos) {
       if (
-        !pegins[claimScript].depositUtxos?.[outpointToString(utxo)] ||
-        !pegins[claimScript].depositUtxos?.[outpointToString(utxo)].status.confirmed
+        !pegins[claimScript].depositUtxos?.[toStringOutpoint(utxo)] ||
+        !pegins[claimScript].depositUtxos?.[toStringOutpoint(utxo)].status.confirmed
       ) {
         utxoBtcUpdatedCount++;
         yield put(setDepositPeginUtxo(utxo, pegins[claimScript].depositAddress));

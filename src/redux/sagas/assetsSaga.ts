@@ -33,14 +33,14 @@ function* addAssetSaga({ payload }: ReturnType<typeof addAsset>) {
     explorerLiquidAPI: settings.explorerLiquidAPI,
   }));
   if (!asset) {
-    const { precision, ticker, name } = yield call(getAssetData, payload, explorerLiquidAPI, network);
+    const assetData: AssetConfig = yield call(getAssetData, payload, explorerLiquidAPI, network);
     yield put(
       setAsset({
-        ticker,
-        precision,
+        ticker: assetData?.ticker,
+        precision: assetData?.precision ?? defaultPrecision,
         assetHash: payload,
         color: createColorFromHash(payload, network),
-        name,
+        name: assetData?.name,
       })
     );
   }

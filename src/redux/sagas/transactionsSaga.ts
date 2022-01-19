@@ -1,6 +1,7 @@
 import type { BlindingKeyGetter, TxInterface, AddressInterface } from 'ldk';
-import { fetchAndUnblindTxsGenerator, isBlindedOutputInterface, fetchTx, unblindTransaction } from 'ldk';
+import { fetchAndUnblindTxsGenerator, fetchTx, unblindTransaction, isUnblindedOutput } from 'ldk';
 import { takeLatest, call, put, select, takeEvery, retry, delay } from 'redux-saga/effects';
+import { getAsset } from 'tdex-sdk';
 
 import { UpdateTransactionsError } from '../../utils/errors';
 import {
@@ -75,7 +76,6 @@ export function* fetchAndUpdateTxs(
   explorerLiquidAPI: string
 ): Generator<any, any, any> {
   const identityBlindKeyGetter = blindKeyGetterFactory(scriptsToAddressInterface);
-
   const txsGen = fetchAndUnblindTxsGenerator(
     addresses,
     identityBlindKeyGetter,
@@ -102,8 +102,8 @@ export function* fetchAndUpdateTxs(
 function* updateAssets({ payload }: ReturnType<typeof setTransaction>) {
   if (payload?.vout) {
     for (const out of payload.vout) {
-      if (!isBlindedOutputInterface(out)) {
-        yield put(addAsset(out.asset));
+      if (isUnblindedOutput(out)) {
+        yield put(addAsset(getAsset(out)));
       }
     }
   }
