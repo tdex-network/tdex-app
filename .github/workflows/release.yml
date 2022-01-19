@@ -48,6 +48,7 @@ jobs:
           FASTLANE_USER: marco@sevenlabs.io
           FASTLANE_PASSWORD: ${{ secrets.APPSTORE_PASSWORD }}
           FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_PASSWORD}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # Commit manifest and package.json to master
       - name: Commit & Push
