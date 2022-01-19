@@ -81,7 +81,7 @@ jobs:
         run: |
           cd android
           chmod +x ./gradlew
-          ./gradlew assemble
+          ./gradlew assemble '-Punsigned'
           cd ..
 
       # get current  tag
