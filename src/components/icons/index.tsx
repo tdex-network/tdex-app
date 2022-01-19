@@ -155,9 +155,9 @@ export const TxIcon = ({ type }: any): any => {
   const theme = useSelector((state: any) => state.settings.theme);
   const themeIcon = theme === 'light' ? DepositIconBlack : DepositIcon;
   switch (type) {
-    case TxTypeEnum.Deposit:
+    case TxTypeEnum.Receive:
       return <img className="deposit" src={themeIcon} alt="deposit" />;
-    case TxTypeEnum.Withdraw:
+    case TxTypeEnum.Send:
       return <img className="withdraw" src={themeIcon} alt="withdraw" />;
     case TxTypeEnum.DepositBtc:
       return <img className="deposit-btc" src={BtcIcon} alt="DepositBtc" />;

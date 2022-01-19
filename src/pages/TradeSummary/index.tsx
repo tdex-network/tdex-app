@@ -1,19 +1,7 @@
 import './style.scss';
-import {
-  IonPage,
-  IonContent,
-  IonItem,
-  IonButton,
-  IonIcon,
-  IonSkeletonText,
-  IonRow,
-  IonCol,
-  IonGrid,
-  IonText,
-} from '@ionic/react';
+import { IonPage, IonContent, IonItem, IonIcon, IonSkeletonText, IonRow, IonCol, IonGrid, IonText } from '@ionic/react';
 import { ellipsisHorizontal } from 'ionicons/icons';
 import React from 'react';
-import { useSelector } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
 import type { NetworkString } from 'tdex-sdk';
@@ -21,8 +9,12 @@ import type { NetworkString } from 'tdex-sdk';
 import Header from '../../components/Header';
 import Refresher from '../../components/Refresher';
 import { CurrencyIcon } from '../../components/icons';
+import { addSuccessToast } from '../../redux/actions/toastActions';
+import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
+import { clipboardCopy } from '../../utils/clipboard';
 import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
+import type { TxDisplayInterface } from '../../utils/types';
 
 export interface PreviewData {
   sent: {
@@ -43,40 +35,56 @@ interface TradeSummaryProps extends RouteComponentProps<any, any, TradeSummaryLo
   network: NetworkString;
 }
 
-const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location, network }) => {
+type SentCurrencyIconProps = {
+  width: string;
+  height: string;
+  network: NetworkString;
+  transaction?: TxDisplayInterface;
+  preview?: PreviewData;
+} & React.HTMLAttributes<any>;
+const SentCurrencyIcon = ({ width, height, network, transaction, preview }: SentCurrencyIconProps) => {
+  return (
+    <CurrencyIcon
+      currency={transaction ? tickerFromAssetHash(network, transaction.transfers?.[0]?.asset) : preview?.sent.ticker}
+      width={width}
+      height={height}
+    />
+  );
+};
+
+type ReceiveCurrencyIconProps = {
+  width: string;
+  height: string;
+  network: NetworkString;
+  transaction?: TxDisplayInterface;
+  preview?: PreviewData;
+} & React.HTMLAttributes<any>;
+const ReceiveCurrencyIcon: React.FC<ReceiveCurrencyIconProps> = ({
+  width,
+  height,
+  network,
+  transaction,
+  preview,
+  ...props
+}) => {
+  return (
+    <CurrencyIcon
+      currency={
+        transaction ? tickerFromAssetHash(network, transaction.transfers?.[1]?.asset) : preview?.received.ticker
+      }
+      width={width}
+      height={height}
+      {...props}
+    />
+  );
+};
+
+const TradeSummary: React.FC<TradeSummaryProps> = ({ location, network }) => {
+  const dispatch = useTypedDispatch();
   const preview = location.state?.preview;
   const { txid } = useParams<{ txid: string }>();
-
-  const transaction = useSelector(transactionSelector(txid));
-
-  const SentCurrencyIcon = ({ width, height, network }: { width: string; height: string; network: NetworkString }) => {
-    return (
-      <CurrencyIcon
-        currency={transaction ? tickerFromAssetHash(network, transaction.transfers?.[0]?.asset) : preview?.sent.ticker}
-        width={width}
-        height={height}
-      />
-    );
-  };
-
-  type ReceiveCurrencyIconProps = {
-    width: string;
-    height: string;
-    network: NetworkString;
-  } & React.HTMLAttributes<any>;
-  const ReceiveCurrencyIcon: React.FC<ReceiveCurrencyIconProps> = ({ width, height, network, ...props }) => {
-    return (
-      <CurrencyIcon
-        currency={
-          transaction ? tickerFromAssetHash(network, transaction.transfers?.[1]?.asset) : preview?.received.ticker
-        }
-        width={width}
-        height={height}
-        {...props}
-      />
-    );
-  };
-
+  const transaction = useTypedSelector(transactionSelector(txid));
+  const { explorerLiquidUI } = useTypedSelector(({ settings }) => ({ explorerLiquidUI: settings.explorerLiquidUI }));
   return (
     <IonPage id="trade-summary">
       <IonContent>
@@ -88,10 +96,29 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location, network 
               <IonRow className="ion-margin-bottom ion-text-center">
                 <IonCol>
                   <div className="transaction-icons">
-                    <SentCurrencyIcon width="45" height="45" network={network} />
+                    <SentCurrencyIcon
+                      width="45"
+                      height="45"
+                      network={network}
+                      transaction={transaction}
+                      preview={preview}
+                    />
                     <div className="receive-icon-container">
-                      <ReceiveCurrencyIcon width="45" height="45" network={network} />
-                      <ReceiveCurrencyIcon className="duplicate" width="55" height="55" network={network} />
+                      <ReceiveCurrencyIcon
+                        width="45"
+                        height="45"
+                        network={network}
+                        transaction={transaction}
+                        preview={preview}
+                      />
+                      <ReceiveCurrencyIcon
+                        className="duplicate"
+                        width="55"
+                        height="55"
+                        network={network}
+                        transaction={transaction}
+                        preview={preview}
+                      />
                     </div>
                   </div>
                 </IonCol>
@@ -104,7 +131,13 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location, network 
                       <div className="trade-items">
                         <div className="trade-item">
                           <div className="name">
-                            <SentCurrencyIcon width="24" height="24" network={network} />
+                            <SentCurrencyIcon
+                              width="24"
+                              height="24"
+                              network={network}
+                              transaction={transaction}
+                              preview={preview}
+                            />
                             <span>
                               {transaction
                                 ? tickerFromAssetHash(network, transaction.transfers?.[0]?.asset)
@@ -124,7 +157,13 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location, network 
 
                         <div className="trade-item">
                           <div className="name">
-                            <ReceiveCurrencyIcon width="24" height="24" network={network} />
+                            <ReceiveCurrencyIcon
+                              width="24"
+                              height="24"
+                              network={network}
+                              transaction={transaction}
+                              preview={preview}
+                            />
                             <span>
                               {transaction
                                 ? tickerFromAssetHash(network, transaction.transfers?.[1]?.asset)
@@ -148,7 +187,14 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location, network 
                             <IonSkeletonText animated style={{ width: '100%' }} />
                           )}
                         </div>
-                        <div className="transaction-info-values">
+                        <div
+                          className="transaction-info-values"
+                          onClick={() => {
+                            clipboardCopy(`${explorerLiquidUI}/tx/${txid}`, () => {
+                              dispatch(addSuccessToast('TxID copied!'));
+                            });
+                          }}
+                        >
                           <span className="transaction-col-name">TxID</span>
                           <span className="transaction-col-value">{txid}</span>
                         </div>
@@ -166,18 +212,6 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ history, location, network 
                       </div>
                     </div>
                   </IonItem>
-                </IonCol>
-              </IonRow>
-
-              <IonRow className="ion-margin-vertical-x2">
-                <IonCol size="9" offset="1.5">
-                  <IonButton
-                    className="main-button"
-                    data-cy="trade-summary-btn"
-                    onClick={() => history.push('/history')}
-                  >
-                    GO TO TRADE HISTORY
-                  </IonButton>
                 </IonCol>
               </IonRow>
             </>

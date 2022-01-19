@@ -6,8 +6,8 @@ export type ActionType<P = any> = {
 };
 
 export enum TxTypeEnum {
-  Deposit = 1,
-  Withdraw = 2,
+  Receive = 1,
+  Send = 2,
   Swap = 3,
   DepositBtc = 4,
   Unknown = 5,
