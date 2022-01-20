@@ -7,57 +7,57 @@ name: Release
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  testflight:
-    runs-on: macos-latest
+  # testflight:
+  #   runs-on: macos-latest
 
-    steps:
-      - uses: actions/checkout@v2
+  #   steps:
+  #     - uses: actions/checkout@v2
 
-      - name: Bundle Install
-        run: bundle install
+  #     - name: Bundle Install
+  #       run: bundle install
 
-      # Build Ionic App
-      - name: install node dependencies
-        run: yarn install --frozen-lockfile
+  #     # Build Ionic App
+  #     - name: install node dependencies
+  #       run: yarn install --frozen-lockfile
 
-      # get current  tag
-      - name: tag
-        id: next_tag
-        run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+  #     # get current  tag
+  #     - name: tag
+  #       id: next_tag
+  #       run: echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
 
-      # get version number without the "v" for package.json increment
-      - name: version
-        id: next_version
-        run: |
-          tag=${{ steps.next_tag.outputs.tag }}
-          echo ::set-output name=version::${tag:1}
+  #     # get version number without the "v" for package.json increment
+  #     - name: version
+  #       id: next_version
+  #       run: |
+  #         tag=${{ steps.next_tag.outputs.tag }}
+  #         echo ::set-output name=version::${tag:1}
 
-      - name: Replace credentials
-        run: |
-          plutil -replace CFBundleShortVersionString -string "${{ steps.next_version.outputs.version }}" ./ios/App/App/Info.plist
+  #     - name: Replace CFBundleShortVersionString
+  #       run: |
+  #         plutil -replace CFBundleShortVersionString -string "${{ steps.next_version.outputs.version }}" ./ios/App/App/Info.plist
 
-      - name: build ionic ios
-        run: yarn build:ios
-        env:
-          CI: false
+  #     - name: build ionic ios
+  #       run: yarn build:ios
+  #       env:
+  #         CI: false
 
-      - name: Fastlane Beta CI
-        run: bundle exec fastlane ios beta_ci
-        env:
-          MATCH_PASSWORD: ${{ secrets.KEYSTORE_PASSPHRASE }}
-          FASTLANE_USER: marco@sevenlabs.io
-          FASTLANE_PASSWORD: ${{ secrets.APPSTORE_PASSWORD }}
-          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_PASSWORD}}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Fastlane Beta CI
+  #       run: bundle exec fastlane ios beta_ci
+  #       env:
+  #         MATCH_PASSWORD: ${{ secrets.KEYSTORE_PASSPHRASE }}
+  #         FASTLANE_USER: marco@sevenlabs.io
+  #         FASTLANE_PASSWORD: ${{ secrets.APPSTORE_PASSWORD }}
+  #         FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{secrets.APPLE_APP_PASSWORD}}
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Commit manifest and package.json to master
-      - name: Commit & Push
-        run: |
-          git config --local user.email "$(git log --format='%ae' HEAD^!)"
-          git config --local user.name "$(git log --format='%an' HEAD^!)"
-          git add .
-          git commit -m "${{ steps.next_tag.outputs.tag }}"
-          git push origin HEAD:master
+  #     # Commit manifest and package.json to master
+  #     - name: Commit & Push
+  #       run: |
+  #         git config --local user.email "$(git log --format='%ae' HEAD^!)"
+  #         git config --local user.name "$(git log --format='%an' HEAD^!)"
+  #         git add .
+  #         git commit -m "${{ steps.next_tag.outputs.tag }}"
+  #         git push origin HEAD:master
 
   # This workflow contains a single job called "build"
   apk:
