@@ -28,6 +28,7 @@ import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
 import type { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import { updateState } from '../../redux/actions/appActions';
 import { updateMarkets } from '../../redux/actions/tdexActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
