@@ -35,7 +35,7 @@ export function* restorePegins(): SagaGenerator<void, Pegins> {
 }
 
 function* persistPegins() {
-  const pegins: Pegins = yield select((state) => state.btc.pegins);
+  const pegins: Pegins = yield select((state: RootState) => state.btc.pegins);
   yield call(setPeginsInStorage, pegins);
 }
 
@@ -111,15 +111,15 @@ function* restorePeginsFromDepositAddress(action: ActionType) {
       string,
       NetworkString
     ] = yield all([
-      select(({ btc }: { btc: BtcState }) => btc.pegins),
-      select(({ wallet }: { wallet: WalletState }) => wallet.addresses),
-      select(({ wallet }: { wallet: WalletState }) => wallet.masterBlindKey),
-      select(({ wallet }: { wallet: WalletState }) => wallet.masterPubKey),
-      select(({ wallet }: { wallet: WalletState }) => ({
+      select(({ btc }: RootState) => btc.pegins),
+      select(({ wallet }: RootState) => wallet.addresses),
+      select(({ wallet }: RootState) => wallet.masterBlindKey),
+      select(({ wallet }: RootState) => wallet.masterPubKey),
+      select(({ wallet }: RootState) => ({
         lastUsedExternalIndex: wallet.lastUsedExternalIndex,
         lastUsedInternalIndex: wallet.lastUsedInternalIndex,
       })),
-      select(({ settings }) => settings.explorerBitcoinAPI),
+      select(({ settings }: RootState) => settings.explorerBitcoinAPI),
       select(({ settings }: RootState) => settings.network),
     ]);
     const peginModule: ElementsPegin = yield call(getPeginModule, network);
@@ -169,7 +169,6 @@ function* restorePeginsFromDepositAddress(action: ActionType) {
     // Update pegin state
     yield put(upsertPegins(newPegins));
     yield call(fetchAndUpdateDepositPeginUtxos, newPegins, explorerBitcoinAPI);
-    yield call(persistPegins);
   } catch (err) {
     console.error(err);
     yield put(addErrorToast(PeginRestorationError));
