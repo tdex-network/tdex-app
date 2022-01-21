@@ -2,13 +2,20 @@
 
 📱 Mobile app for making trades on TDEX
 
-## ⬇️ Install
+
+# Table of Contents
+1. [Install](#install)
+2. [Development](#development)
+3. [Release](#release)
+
+## Install
 
 * Download iOS from [App Store](https://apps.apple.com/app/truedex-trading-unleashed/id1545948177)
 * Download Android from [Play Store](https://play.google.com/store/apps/details?id=io.sevenlabs.app) or install
   the [APK from Github Releases](https://github.com/tdex-network/tdex-app/releases)
 
-## 🖥 Local Development
+
+## Development
 
 Below is a list of commands you will probably find useful for development.
 
@@ -97,3 +104,33 @@ $ nigiri start --liquid
 ```sh
 $ ./script/pegin.sh
 ```
+
+## Release
+
+### Requirements
+
+- xCode
+- Android Studio
+- fastlane `brew install fastlane`
+
+### Internal testing
+
+For internal releases (Testflight or debug APK):
+- iOS: build on local machine with fastlane and upload to TestFlight
+  - `yarn build:ios`
+  - `fastlane ios beta` (this will increment build number only)
+- Android: APK build on local machine with fastlane
+  - `yarn build:android`
+  - `fastlane android apk`
+
+### Stores
+
+To release to stores:
+- run [tag.sh](./scripts/tag.sh) to make a new git tag, increments iOS & Android projects and push it to master
+- iOS: build on local machine with fastlane and upload to AppStore
+  - `yarn build:ios`
+  - `fastlane ios prod`
+- Android: APK build on local machine with fastlane
+  - `yarn build:android`
+  - `fastlane android prod`
+- The git tag will trigger `release.yml` to create a Github Release.

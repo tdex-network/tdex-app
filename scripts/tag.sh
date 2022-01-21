@@ -5,8 +5,6 @@ set -e
 echo "Enter Git Tag"
 read -r TAG
 
-git add .
-git commit -m "$TAG"
-git tag "$TAG"
-git push origin "$TAG"
-git push origin master
+echo "Bump iOS and Android"
+fastlane bump
+
