@@ -28,10 +28,11 @@ import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
 import type { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import { updateState } from '../../redux/actions/appActions';
 import { updateMarkets } from '../../redux/actions/tdexActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
-import { unlockUtxos } from '../../redux/actions/walletActions';
+import { unlockUtxos, updateUtxos } from '../../redux/actions/walletActions';
 import ExchangeRow from '../../redux/containers/exchangeRowContainer';
 import { getAssetData } from '../../redux/sagas/assetsSaga';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
@@ -252,6 +253,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         torProxy
       );
       dispatch(watchTransaction(txid));
+      dispatch(updateUtxos());
       addSuccessToast('Trade successfully computed');
       const preview: PreviewData = {
         sent: {

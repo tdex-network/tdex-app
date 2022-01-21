@@ -9,9 +9,9 @@ import {
   setLastUsedIndexesInStorage,
   setUtxosInStorage,
 } from '../../utils/storage-helper';
-import type { ActionType } from '../../utils/types';
 import { setIsFetchingUtxos, updateState } from '../actions/appActions';
 import { addErrorToast } from '../actions/toastActions';
+import type { watchUtxo } from '../actions/walletActions';
 import {
   deleteUtxo,
   resetUtxos,
@@ -114,8 +114,8 @@ function* waitAndUnlock({ payload }: ReturnType<typeof unlockUtxo>) {
   yield put(unlockUtxo(payload));
 }
 
-function* watchUtxoSaga(action: ActionType) {
-  const { address, maxTry }: { address: AddressInterface; maxTry: number } = action.payload;
+function* watchUtxoSaga({ payload }: ReturnType<typeof watchUtxo>) {
+  const { address, maxTry }: { address: AddressInterface; maxTry: number } = payload;
   const explorer: string = yield select(({ settings }) => settings.explorerLiquidAPI);
   for (let t = 0; t < maxTry; t++) {
     try {

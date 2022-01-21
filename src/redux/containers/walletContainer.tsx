@@ -11,6 +11,7 @@ const mapStateToProps = (state: RootState) => {
     currency: state.settings.currency.value,
     isFetchingUtxos: state.app.isFetchingUtxos,
     isFetchingMarkets: state.app.isFetchingMarkets,
+    isFetchingTransactions: state.app.isFetchingTransactions,
     lbtcUnit: state.settings.denominationLBTC,
     network: state.settings.network,
     prices: state.rates.prices,

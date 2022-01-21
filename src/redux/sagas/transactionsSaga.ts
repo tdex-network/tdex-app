@@ -8,6 +8,7 @@ import {
   getTransactionsFromStorage,
   setTransactionsInStorage,
 } from '../../utils/storage-helper';
+import { setIsFetchingTransactions } from '../actions/appActions';
 import { addAsset } from '../actions/assetsActions';
 import { addErrorToast } from '../actions/toastActions';
 import {
@@ -74,6 +75,7 @@ export function* fetchAndUpdateTxs(
   currentTxs: Record<string, TxInterface>,
   explorerLiquidAPI: string
 ): Generator<any, any, any> {
+  yield put(setIsFetchingTransactions(true));
   const identityBlindKeyGetter = blindKeyGetterFactory(scriptsToAddressInterface);
 
   const txsGen = fetchAndUnblindTxsGenerator(
@@ -89,6 +91,7 @@ export function* fetchAndUpdateTxs(
   const next = () => txsGen.next();
   let it: IteratorResult<TxInterface, number> = yield call(next);
   if (it.done) {
+    yield put(setIsFetchingTransactions(false));
     return;
   }
   while (!it.done) {
