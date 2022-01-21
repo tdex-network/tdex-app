@@ -289,7 +289,7 @@ const Operations: React.FC<OperationsProps> = ({
                           <IonCol className="pl-1" size="5.3">
                             <div className="asset">
                               {TxTypeEnum[tx.type] === 'DepositBtc'
-                                ? 'RECEIVE BTC'
+                                ? 'Receive BTC'
                                 : `${TxTypeEnum[tx.type]} ${balance.ticker}`}
                             </div>
                             <div className="time">{tx.blockTime?.format('DD MMM YYYY HH:mm:ss')}</div>

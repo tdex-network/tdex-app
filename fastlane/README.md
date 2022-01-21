@@ -13,6 +13,14 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 # Available Actions
 
+### bump
+
+```sh
+[bundle exec] fastlane bump
+```
+
+Bump build numbers, and set the version to match the pacakage.json version.
+
 ### git_check
 
 ```sh
@@ -42,14 +50,6 @@ Fetch certificates and provisioning profiles
 
 Build the iOS application.
 
-### ios bump
-
-```sh
-[bundle exec] fastlane ios bump
-```
-
-Increment the build bersion.
-
 ### ios beta
 
 ```sh
@@ -58,13 +58,13 @@ Increment the build bersion.
 
 Ship to Testflight.
 
-### ios beta_ci
+### ios prod
 
 ```sh
-[bundle exec] fastlane ios beta_ci
+[bundle exec] fastlane ios prod
 ```
 
-Ship to TestFlight in CI
+Ship to AppStore.
 
 ----
 
@@ -77,23 +77,15 @@ Ship to TestFlight in CI
 [bundle exec] fastlane android apk
 ```
 
-Build the Android application for Debug.
+Build the Android application apk.
 
-### android build
-
-```sh
-[bundle exec] fastlane android build
-```
-
-Build the Android application for Release.
-
-### android beta
+### android prod
 
 ```sh
-[bundle exec] fastlane android beta
+[bundle exec] fastlane android prod
 ```
 
-Ship to Playstore Beta.
+Ship to PlayStore.
 
 ----
 

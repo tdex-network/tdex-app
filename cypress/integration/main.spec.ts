@@ -47,8 +47,6 @@ describe('trade', () => {
     cy.get('[data-cy=pin-input]').children().type(pin);
     cy.get('[data-cy=header-title]').should('contain.text', 'TRADE SUMMARY');
     cy.get('[data-cy=trade-summary-sent-amount]').should('contain.text', '-1');
-    cy.get('[data-cy=trade-summary-btn]').contains('GO TO TRADE HISTORY').click();
-    cy.get('[data-cy=header-title]').should('contain.text', 'TRADE HISTORY');
   });
 
   it('make a trade in L-sats', () => {
@@ -68,8 +66,6 @@ describe('trade', () => {
     cy.get('[data-cy=pin-input]').children().type(pin);
     cy.get('[data-cy=header-title]').should('contain.text', 'TRADE SUMMARY');
     cy.get('[data-cy=trade-summary-sent-amount]').should('contain.text', '-1000');
-    cy.get('[data-cy=trade-summary-btn]').contains('GO TO TRADE HISTORY').click();
-    cy.get('[data-cy=header-title]').should('contain.text', 'TRADE HISTORY');
   });
 });
 
@@ -93,11 +89,7 @@ describe('withdraw', () => {
     cy.get('[data-cy=pin-input]').children().type(pin);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get('[data-cy=header-title]').should('contain.text', 'WITHDRAWAL DETAILS');
-    cy.get('[data-cy=button-tx-history]').click();
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.get('ion-item.operation-item').first().should('contain.text', 'L-BTC Withdraw');
+    cy.get('[data-cy=header-title]').should('contain.text', 'SEND DETAILS');
   });
 
   it('withdraw 1 L-BTC', () => {
@@ -119,11 +111,7 @@ describe('withdraw', () => {
     cy.get('[data-cy=pin-input]').children().type(pin);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get('[data-cy=header-title]').should('contain.text', 'WITHDRAWAL DETAILS');
-    cy.get('[data-cy=button-tx-history]').click();
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.get('ion-item.operation-item').first().should('contain.text', 'L-BTC Withdraw');
+    cy.get('[data-cy=header-title]').should('contain.text', 'SEND DETAILS');
   });
 
   it('withdraw all USDt', () => {
@@ -145,11 +133,7 @@ describe('withdraw', () => {
     cy.get('[data-cy=pin-input]').children().type(pin);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get('[data-cy=header-title]').should('contain.text', 'WITHDRAWAL DETAILS');
-    cy.get('[data-cy=button-tx-history]').click();
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.get('ion-item.operation-item').first().should('contain.text', 'USDt Withdraw');
+    cy.get('[data-cy=header-title]').should('contain.text', 'SEND DETAILS');
   });
 
   it('withdraw 10 USDt', () => {
@@ -171,10 +155,6 @@ describe('withdraw', () => {
     cy.get('[data-cy=pin-input]').children().type(pin);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get('[data-cy=header-title]').should('contain.text', 'WITHDRAWAL DETAILS');
-    cy.get('[data-cy=button-tx-history]').click();
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(1000);
-    cy.get('ion-item.operation-item').first().should('contain.text', 'USDt Withdraw');
+    cy.get('[data-cy=header-title]').should('contain.text', 'SEND DETAILS');
   });
 });

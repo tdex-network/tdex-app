@@ -1,3 +1,4 @@
+import './style.scss';
 import { IonPage, IonContent, IonSkeletonText, IonGrid, IonRow, IonCol } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
@@ -11,8 +12,8 @@ import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { clipboardCopy } from '../../utils/clipboard';
 import type { LbtcDenomination } from '../../utils/constants';
+import { isLbtc } from '../../utils/helpers';
 import { TxStatusEnum } from '../../utils/types';
-import './style.scss';
 
 const statusText = {
   confirmed: 'completed',
@@ -29,7 +30,11 @@ interface transactionDetailsLocationState {
 const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDetailsLocationState>> = ({ location }) => {
   const dispatch = useTypedDispatch();
   const { txid } = useParams<{ txid: string }>();
-  const { explorerLiquidUI } = useTypedSelector(({ settings }) => ({ explorerLiquidUI: settings.explorerLiquidUI }));
+  const { explorerLiquidUI, network, lbtcUnit } = useTypedSelector(({ settings }) => ({
+    explorerLiquidUI: settings.explorerLiquidUI,
+    network: settings.network,
+    lbtcUnit: settings.denominationLBTC,
+  }));
   const transaction = useTypedSelector(transactionSelector(txid));
   const assets = useTypedSelector(({ assets }) => assets);
   const [locationState, setLocationState] = useState<transactionDetailsLocationState>();
@@ -78,7 +83,9 @@ const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDeta
                   <div className="item-start main-row">Amount</div>
                   <div className="item-end main-row">
                     {`${locationState?.amount ? locationState.amount : '?'} ${
-                      assets[locationState?.asset || '']?.ticker
+                      isLbtc(locationState?.asset || '', network)
+                        ? lbtcUnit
+                        : assets[locationState?.asset || '']?.ticker
                     }`}
                   </div>
                 </div>
