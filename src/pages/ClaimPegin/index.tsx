@@ -111,16 +111,8 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
     return () => {
       setInputBtcPeginAddress(undefined);
     };
-  }, [
-    currentBtcBlockHeight,
-    dispatch,
-    explorerBitcoinAPI,
-    explorerLiquidAPI,
-    inputBtcPeginAddress,
-    mnemonic,
-    network,
-    pegins,
-  ]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentBtcBlockHeight, dispatch, explorerBitcoinAPI, explorerLiquidAPI, mnemonic, network, pegins]);
 
   const managePinError = async (closeModal = false) => {
     setIsLoading(false);
