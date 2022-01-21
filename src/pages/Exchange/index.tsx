@@ -10,11 +10,16 @@ import {
   IonButton,
   IonRippleEffect,
   useIonAlert,
+  IonIcon,
+  IonAlert,
+  IonLabel,
+  IonChip,
 } from '@ionic/react';
 import classNames from 'classnames';
+import { closeOutline } from 'ionicons/icons';
 import type { UtxoInterface, StateRestorerOpts } from 'ldk';
 import { mnemonicRestorerFromState } from 'ldk';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import type { Dispatch } from 'redux';
 import type { NetworkString } from 'tdex-sdk';
@@ -36,12 +41,14 @@ import ExchangeRow from '../../redux/containers/exchangeRowContainer';
 import { getAssetData } from '../../redux/sagas/assetsSaga';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
 import { defaultPrecision, LBTC_ASSET, PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
-import { AppError, IncorrectPINError } from '../../utils/errors';
+import { AppError, IncorrectPINError, NoOtherProvider } from '../../utils/errors';
 import { customCoinSelector, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
 import type { TDexMnemonicRedux } from '../../utils/identity';
 import { getConnectedTDexMnemonic } from '../../utils/storage-helper';
 import { allTrades, makeTrade, getTradablesAssets } from '../../utils/tdex';
 import type { PreviewData } from '../TradeSummary';
+
+import ExchangeErrorModal from './ExchangeErrorModal';
 
 const ERROR_LIQUIDITY = 'Not enough liquidity in market';
 
@@ -98,19 +105,45 @@ const Exchange: React.FC<ExchangeProps> = ({
   const [isBusyMakingTrade, setIsBusyMakingTrade] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [showNoProvidersAvailableAlert, dismissNoProvidersAvailableAlert] = useIonAlert();
+  //
+  const [toFilterProviders, setToFilterProviders] = useState<string[]>([]);
+  const [showProvidersAlert, setShowProvidersAlert] = useState(false);
+  const [tradeError, setTradeError] = useState<AppError>();
+
+  const isSameProviderEndpoint = (providerEndpoint: string) =>
+    function (market: TDEXMarket) {
+      return market.provider.endpoint === providerEndpoint;
+    };
+
+  const withoutProviders = useCallback(
+    (...endpoints: string[]) =>
+      function (market: TDEXMarket) {
+        const isSameProviderFns = endpoints.map(isSameProviderEndpoint);
+        for (const fn of isSameProviderFns) {
+          if (fn(market)) return false;
+        }
+        return true;
+      },
+    []
+  );
+
+  const getMarkets = useCallback(
+    () => markets.filter(withoutProviders(...toFilterProviders)),
+    [markets, toFilterProviders, withoutProviders]
+  );
 
   useIonViewWillEnter(() => {
-    if (markets.length === 0) openNoProvidersAvailableAlert();
-    const lbtcInMarkets = markets.find(
+    if (getMarkets().length === 0) openNoProvidersAvailableAlert();
+    const lbtcInMarkets = getMarkets().find(
       (m) => m.baseAsset === LBTC_ASSET[network].assetHash || m.quoteAsset === LBTC_ASSET[network].assetHash
     );
     setAssetSent({
-      assetHash: lbtcInMarkets ? LBTC_ASSET[network].assetHash : assets[balances[0].assetHash].assetHash,
-      ticker: lbtcInMarkets ? LBTC_ASSET[network].ticker : assets[balances[0].assetHash].ticker,
+      assetHash: lbtcInMarkets ? LBTC_ASSET[network]?.assetHash : assets[balances[0]?.assetHash].assetHash,
+      ticker: lbtcInMarkets ? LBTC_ASSET[network].ticker : assets[balances[0]?.assetHash].ticker,
     });
     setSentAmount(undefined);
     setReceivedAmount(undefined);
-  }, [balances, markets]);
+  }, [balances, getMarkets]);
 
   const openNoProvidersAvailableAlert = () => {
     showNoProvidersAvailableAlert({
@@ -132,7 +165,7 @@ const Exchange: React.FC<ExchangeProps> = ({
           text: 'Retry',
           handler: () => {
             dispatch(updateMarkets());
-            if (markets.length === 0 || bestTrade === undefined) {
+            if (getMarkets().length === 0 || bestTrade === undefined) {
               dismissNoProvidersAvailableAlert().then(() => {
                 openNoProvidersAvailableAlert();
               });
@@ -144,14 +177,14 @@ const Exchange: React.FC<ExchangeProps> = ({
   };
 
   useEffect(() => {
-    if (markets.length === 0 || !assetSent || !assetReceived) return;
-    setTrades(allTrades(markets, assetSent.assetHash, assetReceived.assetHash));
-  }, [assetSent?.assetHash, assetReceived?.assetHash, markets, assetSent, assetReceived]);
+    if (getMarkets().length === 0 || !assetSent || !assetReceived) return;
+    setTrades(allTrades(getMarkets(), assetSent.assetHash, assetReceived.assetHash));
+  }, [assetSent?.assetHash, assetReceived?.assetHash, assetSent, assetReceived, getMarkets]);
 
   useEffect(() => {
     void (async (): Promise<void> => {
       if (!assetSent) return;
-      const sentTradables = getTradablesAssets(markets, assetSent.assetHash);
+      const sentTradables = getTradablesAssets(getMarkets(), assetSent.assetHash);
       const assetsData = (
         await Promise.all(sentTradables.map((asset) => getAssetData(asset, explorerLiquidAPI, network)))
       ).filter(Boolean) as AssetConfig[];
@@ -159,12 +192,12 @@ const Exchange: React.FC<ExchangeProps> = ({
       setTradableAssetsForAssetReceived(assetsData);
       setAssetReceived(assetsData[0]);
     })();
-  }, [assetSent, assetSent?.assetHash, assets, explorerLiquidAPI, markets, network]);
+  }, [assetSent, assetSent?.assetHash, assets, explorerLiquidAPI, getMarkets, network]);
 
   useEffect(() => {
     void (async (): Promise<void> => {
       if (assetReceived) {
-        const receivedTradables = getTradablesAssets(markets, assetReceived.assetHash);
+        const receivedTradables = getTradablesAssets(getMarkets(), assetReceived.assetHash);
         const assetsData = (
           await Promise.all(receivedTradables.map((asset) => getAssetData(asset, explorerLiquidAPI, network)))
         ).filter(Boolean) as AssetConfig[];
@@ -172,7 +205,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         setTradableAssetsForAssetSent(assetsData);
       }
     })();
-  }, [assetReceived, assetReceived?.assetHash, assets, explorerLiquidAPI, markets, network]);
+  }, [assetReceived, assetReceived?.assetHash, assets, explorerLiquidAPI, getMarkets, network]);
 
   const checkAvailableAmountSent = () => {
     if (!bestTrade || !sentAmount || !assetSent) return;
@@ -273,6 +306,7 @@ const Exchange: React.FC<ExchangeProps> = ({
         setNeedReset(true);
       }, PIN_TIMEOUT_FAILURE);
       if (err instanceof AppError) {
+        setTradeError(err);
         dispatch(addErrorToast(err));
       }
     } finally {
@@ -295,21 +329,36 @@ const Exchange: React.FC<ExchangeProps> = ({
         {/* Check location because screens are always loaded on Ionic */}
         {/* Otherwise, loaders will show up on the other screens */}
         {history.location.pathname === '/exchange' && (
-          <Loader
-            showLoading={isFetchingMarkets && !isBusyMakingTrade}
-            message="Discovering TDEX providers with best liquidity..."
-            delay={0}
-            backdropDismiss={true}
-            duration={15000}
-            onDidDismiss={() => {
-              if (markets.length === 0 || bestTrade === undefined) {
-                openNoProvidersAvailableAlert();
-              }
-            }}
-          />
+          <>
+            <Loader
+              showLoading={isFetchingMarkets && !isBusyMakingTrade}
+              message="Discovering TDEX providers with best liquidity..."
+              delay={0}
+              backdropDismiss={true}
+              duration={15000}
+              onDidDismiss={() => {
+                if (getMarkets().length === 0 || bestTrade === undefined) {
+                  openNoProvidersAvailableAlert();
+                }
+              }}
+            />
+            <ExchangeErrorModal
+              result={bestTrade?.market.provider}
+              error={tradeError}
+              onClose={() => setTradeError(undefined)}
+              onClickRetry={() => setModalOpen(true)}
+              onClickTryNext={(endpointToBan: string) => {
+                if (getMarkets().length > 1) {
+                  setToFilterProviders([...toFilterProviders, endpointToBan]);
+                } else {
+                  dispatch(addErrorToast(NoOtherProvider));
+                }
+              }}
+            />
+          </>
         )}
 
-        {assetSent && assetReceived && markets.length > 0 && (
+        {assetSent && assetReceived && getMarkets().length > 0 && (
           <PinModal
             open={modalOpen}
             title="Unlock your seed"
@@ -329,7 +378,7 @@ const Exchange: React.FC<ExchangeProps> = ({
           />
         )}
 
-        {assetSent && markets.length > 0 && (
+        {assetSent && getMarkets().length > 0 && (
           <IonContent className="exchange-content">
             <Refresher />
             <IonGrid className="ion-no-padding ion-padding-top">
@@ -344,6 +393,34 @@ const Exchange: React.FC<ExchangeProps> = ({
                 title="Exchange"
                 isTitleLarge={true}
               />
+              <IonRow className="ion-align-items-start">
+                <IonAlert
+                  isOpen={showProvidersAlert}
+                  onDidDismiss={() => setShowProvidersAlert(false)}
+                  header={'Providers excluded'}
+                  message={toFilterProviders.reduce((acc, n) => (acc += `${n}<br />`), '')}
+                  buttons={[
+                    'OK',
+                    {
+                      text: 'clear',
+                      handler: () => {
+                        setToFilterProviders([]);
+                      },
+                    },
+                  ]}
+                />
+
+                <IonCol className="ion-padding-start">
+                  {toFilterProviders.length > 0 && (
+                    <IonChip outline color="danger">
+                      <IonLabel onClick={() => setShowProvidersAlert(true)}>
+                        {toFilterProviders.length} providers excluded
+                      </IonLabel>
+                      <IonIcon onClick={() => setToFilterProviders([])} icon={closeOutline} />
+                    </IonChip>
+                  )}
+                </IonCol>
+              </IonRow>
               <ExchangeRow
                 sendInput={true}
                 focused={isFocused === 'sent'}
