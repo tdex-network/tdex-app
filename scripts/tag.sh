@@ -7,7 +7,7 @@ yarn version
 version=$(cat package.json| jq --raw-output .version)
 
 echo "Bump iOS and Android"
-fastlane bump
+yarn bump
 
 echo "Push new tag..."
 git add .
