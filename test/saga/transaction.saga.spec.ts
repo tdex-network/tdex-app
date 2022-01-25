@@ -39,8 +39,6 @@ describe('Transaction saga', () => {
       expect(put.payload.action.payload).toHaveProperty('txid');
       const tx = await gen.next(result).value.payload.fn();
       expect(gen.next(tx).value.payload.action.type).toEqual('SET_TRANSACTION');
-      const tx2 = await gen.next(result).value.payload.fn();
-      expect(gen.next(tx2).value.payload.action.type).toEqual('SET_TRANSACTION');
     });
 
     test('should skip if no tx to discover', async () => {
