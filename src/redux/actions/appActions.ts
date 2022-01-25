@@ -11,6 +11,7 @@ export const SIGN_IN = 'SIGN_IN';
 export const UPDATE = 'UPDATE';
 export const SET_IS_FETCHING_UTXOS = 'SET_IS_FETCHING_UTXOS';
 export const SET_IS_FETCHING_MARKETS = 'SET_IS_FETCHING_MARKETS';
+export const SET_IS_FETCHING_TRANSACTIONS = 'SET_IS_FETCHING_TRANSACTIONS';
 export const SET_IS_BACKUP_DONE = 'SET_IS_BACKUP_DONE';
 
 export const setIsBackupDone = (done: boolean): ActionType => {
@@ -37,6 +38,13 @@ export const setIsFetchingMarkets = (isFetchingMarkets: boolean): ActionType<boo
   return {
     type: SET_IS_FETCHING_MARKETS,
     payload: isFetchingMarkets,
+  };
+};
+
+export const setIsFetchingTransactions = (isFetchingTransactions: boolean): ActionType<boolean> => {
+  return {
+    type: SET_IS_FETCHING_TRANSACTIONS,
+    payload: isFetchingTransactions,
   };
 };
 

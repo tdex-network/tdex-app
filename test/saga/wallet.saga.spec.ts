@@ -24,7 +24,6 @@ describe('wallet saga', () => {
     });
 
     test('should discover and add utxo', async () => {
-      // simulate the first call
       const gen = fetchAndUpdateUtxos([addr], {}, APIURL);
       const setIsFetchingMarkets = gen.next().value as PutEffect<ActionType<boolean>>;
       expect(setIsFetchingMarkets.payload.action.payload).toEqual(true);
