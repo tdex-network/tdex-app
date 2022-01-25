@@ -30,20 +30,27 @@ describe('Transaction saga', () => {
         {},
         APIURL
       );
-      // simulate the first call
+      const setIsFetchingTransactions = gen.next().value as PutEffect<ActionType<boolean>>;
+      expect(setIsFetchingTransactions.payload.action.payload).toEqual(true);
       const callEffect = gen.next().value as CallEffect<IteratorResult<TxInterface, number>>;
       const result = await callEffect.payload.fn();
-      // get the put effect
       const put = gen.next(result).value as PutEffect<ActionType>;
-
       expect(put.payload.action.type).toEqual(SET_TRANSACTION);
+      expect(put.payload.action.payload).toHaveProperty('txid');
+      const tx = await gen.next(result).value.payload.fn();
+      expect(gen.next(tx).value.payload.action.type).toEqual('SET_TRANSACTION');
+      const tx2 = await gen.next(result).value.payload.fn();
+      expect(gen.next(tx2).value.payload.action.type).toEqual('SET_TRANSACTION');
     });
 
     test('should skip if no tx to discover', async () => {
       const gen = fetchAndUpdateTxs([], {}, {}, APIURL);
-      // simulate the first call
+      const setIsFetchingTransactions = gen.next().value as PutEffect<ActionType<boolean>>;
+      expect(setIsFetchingTransactions.payload.action.payload).toEqual(true);
       const callEffect = gen.next().value as CallEffect<IteratorResult<TxInterface, number>>;
       const result = await callEffect.payload.fn();
+      // setIsFetchingTransactions(false)
+      expect(gen.next(result).value.payload.action.payload).toEqual(false);
       expect(gen.next(result).done).toEqual(true);
     });
   });
