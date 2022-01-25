@@ -43,7 +43,7 @@ const ExchangeErrorModal: React.FC<Props> = ({ result, error, onClose, onClickRe
         <IonGrid className="ion-text-center error-modal-grid">
           <IonRow>
             <IonCol>
-              <IonText color="danger">An error occurs: {error?.message} failed to complete your trade.</IonText>
+              <IonText color="danger">The selected provider can't process your trade.</IonText>
             </IonCol>
           </IonRow>
 
