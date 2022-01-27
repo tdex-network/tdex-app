@@ -135,7 +135,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       //
       const LBTCBalance = balances.find((b) => b.coinGeckoID === 'bitcoin');
       if (!LBTCBalance || LBTCBalance.amount === 0) {
-        setError('You need LBTC in order to pay fees');
+        setError('You need LBTC to pay fees');
         return;
       }
       // No error
