@@ -129,14 +129,16 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
 
       <div className="exchanger-row sub-row">
         <span className="balance" onClick={() => setAmount(residualBalance)}>
-          <div className="overflow-hidden text-no-wrap">MAX</div>
-          {error || !residualBalance ? (
-            '0.00'
-          ) : (
-            <span>{`${residualBalance} ${
-              isLbtcTicker(balance.ticker) ? lbtcUnit : balance.ticker.toUpperCase()
-            }`}</span>
-          )}
+          <div className="overflow-hidden text-no-wrap">
+            MAX {` `} 
+            {error || !residualBalance ? (
+              '0.00'
+            ) : (
+              <span>{`${residualBalance} ${isLbtcTicker(balance.ticker) ? lbtcUnit : balance.ticker.toUpperCase()
+                }`}</span>
+            )}
+          </div>
+
         </span>
         <span className="ion-text-right">
           {error ? (
