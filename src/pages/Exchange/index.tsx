@@ -133,7 +133,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   );
 
   useIonViewWillEnter(() => {
-    if (getMarkets().length === 0) openNoProvidersAvailableAlert();
+    if (getMarkets().length === 0) return openNoProvidersAvailableAlert();
     const lbtcInMarkets = getMarkets().find(
       (m) => m.baseAsset === LBTC_ASSET[network].assetHash || m.quoteAsset === LBTC_ASSET[network].assetHash
     );

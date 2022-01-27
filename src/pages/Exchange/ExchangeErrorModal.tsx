@@ -46,12 +46,11 @@ const ExchangeErrorModal: React.FC<Props> = ({ result, error, onClose, onClickRe
               <IonText color="danger">The selected provider can't process your trade.</IonText>
             </IonCol>
           </IonRow>
-             <IonRow>
+          <IonRow>
             <IonCol>
               <IonText color="danger">{error?.message}</IonText>
             </IonCol>
           </IonRow>
-
 
           <IonRow className="ion-margin-top">
             <IonCol size="12">
