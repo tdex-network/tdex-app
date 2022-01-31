@@ -77,7 +77,6 @@ function* fetchMarketsAndAddToState() {
       }
     }
   }
-
   try {
     yield put(setIsFetchingMarkets(true));
     const { torProxy, providers, markets }: { torProxy: string; markets: TDEXMarket[]; providers: TDEXProvider[] } =
@@ -90,6 +89,7 @@ function* fetchMarketsAndAddToState() {
     yield put(setIsFetchingMarkets(false));
   } catch (err) {
     console.error('fetchMarkets error: ', err);
+    yield put(setIsFetchingMarkets(false));
   }
 }
 
