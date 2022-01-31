@@ -207,9 +207,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       const txid = await broadcastTx(txHex, explorerLiquidAPI);
       dispatch(addSuccessToast(`Transaction broadcasted. ${amount} ${balance?.ticker} sent.`));
       dispatch(watchTransaction(txid));
-      setModalOpen(false);
-      setLoading(false);
-      history.push(`/transaction/${txid}`, {
+      history.replace(`/transaction/${txid}`, {
         address: recipientAddress,
         amount: `-${amount}`,
         asset: asset_id,

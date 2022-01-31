@@ -47,7 +47,7 @@ type SentCurrencyIconProps = {
 const SentCurrencyIcon = ({ width, height, assets, transaction, preview }: SentCurrencyIconProps) => {
   return (
     <CurrencyIcon
-      currency={transaction ? assets[transaction.transfers?.[0]?.asset].ticker : preview?.sent.ticker}
+      currency={transaction ? assets[transaction.transfers?.[0]?.asset]?.ticker : preview?.sent.ticker}
       width={width}
       height={height}
     />
@@ -71,7 +71,7 @@ const ReceiveCurrencyIcon: React.FC<ReceiveCurrencyIconProps> = ({
 }) => {
   return (
     <CurrencyIcon
-      currency={transaction ? assets[transaction.transfers?.[1]?.asset].ticker : preview?.received.ticker}
+      currency={transaction ? assets[transaction.transfers?.[1]?.asset]?.ticker : preview?.received.ticker}
       width={width}
       height={height}
       {...props}
@@ -139,7 +139,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, network, assets }
                               preview={preview}
                             />
                             <span>
-                              {transaction ? assets[transaction.transfers?.[0]?.asset].ticker : preview?.sent.ticker}
+                              {transaction ? assets[transaction.transfers?.[0]?.asset]?.ticker : preview?.sent.ticker}
                             </span>
                           </div>
                           <p className="trade-price" data-cy="trade-summary-sent-amount">
@@ -164,7 +164,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, network, assets }
                             />
                             <span>
                               {transaction
-                                ? assets[transaction.transfers?.[1]?.asset].ticker
+                                ? assets[transaction.transfers?.[1]?.asset]?.ticker
                                 : preview?.received.ticker}
                             </span>
                           </div>

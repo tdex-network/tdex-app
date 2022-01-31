@@ -150,7 +150,6 @@ const Wallet: React.FC<WalletProps> = ({
             {assets
               .filter((b) => b !== undefined)
               .map((balance: BalanceInterface) => {
-                console.log('balance', balance);
                 const fiatValue = getFiatValue(balance);
                 return (
                   <IonItem
