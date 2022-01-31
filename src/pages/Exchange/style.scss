@@ -3,7 +3,8 @@
   ion-header {
     background: var(--ion-color-primary);
   }
-  .exchange-coin-container:nth-child(2) {
+
+  .exchange-coin-container:nth-child(3) {
     background: var(--ion-color-primary);
   }
 
@@ -11,6 +12,7 @@
     position: relative;
     transition: all 800ms ease-in-out;
     display: flex;
+
     img {
       margin-top: -16px;
       position: absolute;
@@ -23,6 +25,7 @@
       border: rgb(15, 255, 0) 1px solid;
       border-radius: 50%;
     }
+
     &:before {
       content: '';
       position: absolute;
@@ -32,6 +35,7 @@
       width: calc(50% - 16px);
       border-top: 1px solid rgb(15, 255, 0);
     }
+
     &:after {
       content: '';
       position: absolute;
@@ -41,6 +45,7 @@
       width: calc(50% - 16px);
       border-top: 1px solid rgb(15, 255, 0);
     }
+
     ion-ripple-effect {
       width: 100px;
       margin: 0 auto;
@@ -53,6 +58,7 @@
       font-family: var(--ion-font-sub);
       font-size: var(--ion-font-size-sub);
       color: rgba(245, 245, 245, 0.774);
+
       .provider-info {
         font-style: italic;
       }

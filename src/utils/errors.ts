@@ -42,3 +42,5 @@ export const InvalidBitcoinAddress = new AppError(20, 'Invalid Bitcoin address')
 export const FailedToRestoreProvidersError = new AppError(21, 'Failed to restore providers');
 export const IsAlreadyFetchingUtxosError = new AppError(22, 'App is busy. Please try in a moment');
 export const InvalidUrl = new AppError(23, 'Invalid URL');
+// When all providers are excluded except one
+export const NoOtherProvider = new AppError(24, 'No other provider to choose from');
