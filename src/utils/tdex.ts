@@ -1,7 +1,7 @@
 import axios from 'axios';
-import type { CoinSelector, UtxoInterface } from 'ldk';
+import type { CoinSelector } from 'ldk';
 import { Trade, TraderClient, TradeType } from 'tdex-sdk';
-import type { TDEXMnemonic, NetworkString } from 'tdex-sdk';
+import type { TDEXMnemonic, NetworkString, UnblindedOutput } from 'tdex-sdk';
 
 import type { TDEXTrade, TDEXMarket, TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 
@@ -118,7 +118,7 @@ export async function makeTrade(
   trade: TDEXTrade,
   known: { amount: number; asset: string },
   explorerLiquidAPI: string,
-  utxos: UtxoInterface[],
+  utxos: UnblindedOutput[],
   identity: TDEXMnemonic,
   coinSelector: CoinSelector,
   torProxy = 'https://proxy.tdex.network'

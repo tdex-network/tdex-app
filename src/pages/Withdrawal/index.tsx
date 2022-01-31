@@ -10,14 +10,14 @@ import {
   useIonViewDidLeave,
 } from '@ionic/react';
 import Decimal from 'decimal.js';
-import type { RecipientInterface, StateRestorerOpts, UtxoInterface } from 'ldk';
+import type { RecipientInterface, StateRestorerOpts } from 'ldk';
 import { address, psetToUnsignedTx, walletFromCoins } from 'ldk';
 import { Psbt } from 'liquidjs-lib';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
-import type { NetworkString } from 'tdex-sdk';
+import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
 import { mnemonicRestorerFromState } from 'tdex-sdk';
 
 import ButtonsMainSub from '../../components/ButtonsMainSub';
@@ -59,7 +59,7 @@ interface WithdrawalProps
   lbtcUnit: LbtcDenomination;
   network: NetworkString;
   prices: Record<string, number>;
-  utxos: UtxoInterface[];
+  utxos: UnblindedOutput[];
 }
 
 const Withdrawal: React.FC<WithdrawalProps> = ({

@@ -12,12 +12,12 @@ import {
   useIonAlert,
 } from '@ionic/react';
 import classNames from 'classnames';
-import type { UtxoInterface, StateRestorerOpts } from 'ldk';
+import type { StateRestorerOpts } from 'ldk';
 import { mnemonicRestorerFromState } from 'ldk';
 import React, { useState, useEffect } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import type { Dispatch } from 'redux';
-import type { NetworkString } from 'tdex-sdk';
+import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
 import { TradeType } from 'tdex-sdk';
 
 import swap from '../../assets/img/swap.svg';
@@ -57,7 +57,7 @@ interface ExchangeProps extends RouteComponentProps {
   markets: TDEXMarket[];
   network: NetworkString;
   torProxy: string;
-  utxos: UtxoInterface[];
+  utxos: UnblindedOutput[];
 }
 
 const Exchange: React.FC<ExchangeProps> = ({
@@ -102,11 +102,11 @@ const Exchange: React.FC<ExchangeProps> = ({
   useIonViewWillEnter(() => {
     if (markets.length === 0) openNoProvidersAvailableAlert();
     const lbtcInMarkets = markets.find(
-      (m) => m.baseAsset === LBTC_ASSET[network].assetHash || m.quoteAsset === LBTC_ASSET[network].assetHash
+      (m) => m.baseAsset === LBTC_ASSET[network]?.assetHash || m.quoteAsset === LBTC_ASSET[network]?.assetHash
     );
     setAssetSent({
-      assetHash: lbtcInMarkets ? LBTC_ASSET[network].assetHash : assets[balances[0].assetHash].assetHash,
-      ticker: lbtcInMarkets ? LBTC_ASSET[network].ticker : assets[balances[0].assetHash].ticker,
+      assetHash: lbtcInMarkets ? LBTC_ASSET[network]?.assetHash || '' : assets[balances[0]?.assetHash]?.assetHash || '',
+      ticker: lbtcInMarkets ? LBTC_ASSET[network]?.ticker || '' : assets[balances[0]?.assetHash]?.ticker || '',
     });
     setSentAmount(undefined);
     setReceivedAmount(undefined);

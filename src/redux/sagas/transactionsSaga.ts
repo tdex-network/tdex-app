@@ -1,6 +1,7 @@
 import type { BlindingKeyGetter, TxInterface, AddressInterface } from 'ldk';
-import { fetchAndUnblindTxsGenerator, isBlindedOutputInterface, fetchTx, unblindTransaction } from 'ldk';
+import { fetchAndUnblindTxsGenerator, fetchTx, isUnblindedOutput, unblindTransaction } from 'ldk';
 import { takeLatest, call, put, select, takeEvery, retry, delay } from 'redux-saga/effects';
+import { getAsset } from 'tdex-sdk';
 
 import { UpdateTransactionsError } from '../../utils/errors';
 import {
@@ -105,8 +106,8 @@ export function* fetchAndUpdateTxs(
 function* updateAssets({ payload }: ReturnType<typeof setTransaction>) {
   if (payload?.vout) {
     for (const out of payload.vout) {
-      if (!isBlindedOutputInterface(out)) {
-        yield put(addAsset(out.asset));
+      if (isUnblindedOutput(out)) {
+        yield put(addAsset(getAsset(out)));
       }
     }
   }

@@ -1,6 +1,7 @@
-import type { AddressInterface, UtxoInterface, Outpoint, Mnemonic, StateRestorerOpts } from 'ldk';
+import type { AddressInterface, Outpoint, Mnemonic, StateRestorerOpts } from 'ldk';
 import type { MasterPublicKey } from 'ldk/dist/identity/masterpubkey';
 import { createSelector } from 'reselect';
+import type { UnblindedOutput } from 'tdex-sdk';
 
 import { defaultPrecision, LBTC_COINGECKOID, getMainAsset, LBTC_ASSET } from '../../utils/constants';
 import { tickerFromAssetHash, balancesFromUtxos, getIndexAndIsChangeFromAddress } from '../../utils/helpers';
@@ -26,7 +27,7 @@ import { transactionsAssets } from './transactionsReducer';
 export interface WalletState {
   isAuth: boolean;
   addresses: Record<string, AddressInterface>;
-  utxos: Record<string, UtxoInterface>;
+  utxos: Record<string, UnblindedOutput>;
   utxosLocks: string[];
   masterPubKey: string;
   masterBlindKey: string;
@@ -103,7 +104,7 @@ export function outpointToString(outpoint: Outpoint): string {
   return `${outpoint.txid}:${outpoint.vout}`;
 }
 
-const addUtxoInState = (state: WalletState, utxo: UtxoInterface) => {
+const addUtxoInState = (state: WalletState, utxo: UnblindedOutput) => {
   const newUtxosMap = { ...state.utxos };
   newUtxosMap[outpointToString(utxo)] = utxo;
   return { ...state, utxos: newUtxosMap };
@@ -115,7 +116,7 @@ const deleteUtxoInState = (state: WalletState, outpoint: Outpoint): WalletState 
   return { ...state, utxos: newUtxosMap };
 };
 
-export const allUtxosSelector = ({ wallet }: { wallet: WalletState }): UtxoInterface[] => {
+export const allUtxosSelector = ({ wallet }: { wallet: WalletState }): UnblindedOutput[] => {
   if (Object.keys(wallet.utxosLocks).length === 0) return Object.values(wallet.utxos);
   const utxos = [];
   for (const [outpoint, utxo] of Object.entries(wallet.utxos)) {
