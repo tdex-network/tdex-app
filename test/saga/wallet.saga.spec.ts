@@ -6,7 +6,7 @@ import type { PutEffect, StrictEffect } from 'redux-saga/effects';
 import type { UnblindedOutput } from 'tdex-sdk';
 import { getSats } from 'tdex-sdk';
 
-import { SET_UTXO, DELETE_UTXO, RESET_UTXOS } from '../../src/redux/actions/walletActions';
+import { SET_UTXO, DELETE_UTXO } from '../../src/redux/actions/walletActions';
 import { outpointToString } from '../../src/redux/reducers/walletReducer';
 import { fetchAndUpdateUtxos } from '../../src/redux/sagas/walletSaga';
 import type { ActionType } from '../../src/utils/types';
