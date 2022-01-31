@@ -1,7 +1,6 @@
 import type { NetworkString } from 'tdex-sdk';
 
 import type { AssetConfig } from '../../utils/constants';
-import { tickerFromAssetHash } from '../../utils/helpers';
 import type { ActionType } from '../../utils/types';
 import type { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
 import { ADD_MARKETS, ADD_PROVIDERS, CLEAR_MARKETS, CLEAR_PROVIDERS, DELETE_PROVIDER } from '../actions/tdexActions';
@@ -62,7 +61,7 @@ export const allAssets = ({
   const uniqueAssets = [...new Set([...quoteAssets, ...baseAssets])];
   return uniqueAssets.map((assetHash: string) => ({
     assetHash: assetHash,
-    ticker: assets[assetHash]?.ticker || tickerFromAssetHash(network, assetHash),
+    ticker: assets[assetHash]?.ticker || '',
     coinGeckoID: assets[assetHash]?.coinGeckoID,
   }));
 };

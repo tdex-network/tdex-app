@@ -1,3 +1,4 @@
+import './style.scss';
 import {
   IonPage,
   IonContent,
@@ -13,7 +14,6 @@ import {
 import classNames from 'classnames';
 import { checkmarkSharp } from 'ionicons/icons';
 import React from 'react';
-import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
 import type { NetworkString } from 'tdex-sdk';
@@ -21,22 +21,23 @@ import type { NetworkString } from 'tdex-sdk';
 import Header from '../../components/Header';
 import { CurrencyIcon } from '../../components/icons';
 import { addSuccessToast } from '../../redux/actions/toastActions';
+import { useTypedDispatch } from '../../redux/hooks';
+import type { AssetsState } from '../../redux/reducers/assetsReducer';
 import { clipboardCopy } from '../../utils/clipboard';
 import { LBTC_TICKER } from '../../utils/constants';
-import { fromSatoshi, fromSatoshiFixed, precisionFromAssetHash, tickerFromAssetHash } from '../../utils/helpers';
+import { fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
 import type { TxDisplayInterface } from '../../utils/types';
 import { TxStatusEnum } from '../../utils/types';
 
-import './style.scss';
-
 interface TradeHistoryProps extends RouteComponentProps {
-  swaps: TxDisplayInterface[];
+  assets: AssetsState;
   explorerLiquidUI: string;
   network: NetworkString;
+  swaps: TxDisplayInterface[];
 }
 
-const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI, network }) => {
-  const dispatch = useDispatch();
+const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI, network, assets }) => {
+  const dispatch = useTypedDispatch();
 
   const renderStatusText: any = (status: TxStatusEnum) => {
     const capitalized = (status[0].toUpperCase() + status.slice(1)) as keyof typeof TxStatusEnum;
@@ -69,10 +70,9 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI, ne
                 if (!transferReceived || !transferSent) {
                   return <React.Fragment key={index} />;
                 }
-                //TODO: Get asset data from store
-                const precisionAssetReceived = precisionFromAssetHash(network, transferReceived.asset);
-                const tickerSent = tickerFromAssetHash(network, transferSent.asset);
-                const tickerReceived = tickerFromAssetHash(network, transferReceived.asset);
+                const precisionAssetReceived = assets[transferReceived.asset].precision;
+                const tickerSent = assets[transferSent.asset].ticker;
+                const tickerReceived = assets[transferReceived.asset].ticker;
                 return (
                   <IonItem
                     className={classNames('list-item transaction-item', {

@@ -7,9 +7,10 @@ import type { RootState } from '../types';
 
 const mapStateToProps = (state: RootState) => {
   return {
-    swaps: tradeTransactionsSelector(state).sort(compareTxDisplayInterfaceByDate),
+    assets: state.assets,
     explorerLiquidUI: state.settings.explorerLiquidUI,
     network: state.settings.network,
+    swaps: tradeTransactionsSelector(state).sort(compareTxDisplayInterfaceByDate),
   };
 };
 

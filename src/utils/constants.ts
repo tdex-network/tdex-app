@@ -156,18 +156,6 @@ export const MAIN_ASSETS: Record<NetworkString, AssetConfig[]> = {
 export const getFedPegScript = (network: NetworkString): string =>
   network === 'regtest' ? '51' : '51210269e0180bc9e0be7648d6e9c17f3664bc3ebcee40f3a46cf4b42e583e96b911b951ae';
 
-export function getColor(assetHash: string, network: NetworkString): string | undefined {
-  return MAIN_ASSETS[network]?.find(
-    (assetConfig: AssetConfig) => assetConfig.assetHash.valueOf() === assetHash.valueOf()
-  )?.color;
-}
-
-export function getMainAsset(assetHash: string, network: NetworkString): AssetConfig | undefined {
-  return MAIN_ASSETS[network]?.find(
-    (assetConfig: AssetConfig) => assetConfig.assetHash.valueOf() === assetHash.valueOf()
-  );
-}
-
 export function getCoinGeckoIDsToFeed(network: NetworkString): string[] {
   const ids = [];
   for (const id of MAIN_ASSETS[network]?.map((a) => a.coinGeckoID)) {

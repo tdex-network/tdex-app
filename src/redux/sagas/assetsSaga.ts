@@ -4,7 +4,7 @@ import type { NetworkString } from 'tdex-sdk';
 
 import type { AssetConfig } from '../../utils/constants';
 import { defaultPrecision, LBTC_TICKER } from '../../utils/constants';
-import { createColorFromHash, isLbtc, tickerFromAssetHash } from '../../utils/helpers';
+import { isLbtc } from '../../utils/helpers';
 import { clearAssetsInStorage, getAssetsFromStorage, setAssetsInStorage } from '../../utils/storage-helper';
 import type { addAsset } from '../actions/assetsActions';
 import { ADD_ASSET, setAsset, SET_ASSET, RESET_ASSETS } from '../actions/assetsActions';
@@ -39,7 +39,6 @@ function* addAssetSaga({ payload }: ReturnType<typeof addAsset>) {
         ticker,
         precision,
         assetHash: payload,
-        color: createColorFromHash(payload, network),
         name,
       })
     );
@@ -64,8 +63,8 @@ export async function getAssetData(
     return {
       assetHash: assetHash,
       precision: precision ?? defaultPrecision,
-      ticker: ticker || tickerFromAssetHash(network, assetHash),
-      name: name || '',
+      ticker: ticker || assetHash.slice(0, 4).toUpperCase(),
+      name: name,
     };
   } catch (e) {
     console.error(e);

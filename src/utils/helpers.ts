@@ -16,20 +16,8 @@ import { lockUtxo } from '../redux/actions/walletActions';
 
 import { throwErrorHandler } from './coinSelection';
 import type { AssetConfig, LbtcDenomination } from './constants';
-import { defaultPrecision, getColor, getMainAsset, LBTC_ASSET, LBTC_TICKER } from './constants';
+import { defaultPrecision, LBTC_ASSET, LBTC_TICKER } from './constants';
 import type { TxDisplayInterface } from './types';
-
-export const createColorFromHash = (id: string, network: NetworkString): string => {
-  let hash = 0;
-  if (id.length === 0) throw Error('id length must be > 0');
-  const color = getColor(id, network);
-  if (color) return color;
-  const ticker = tickerFromAssetHash(network, id);
-  for (let i = 0; i < ticker.length; i++) {
-    hash = ticker.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return `hsl(${hash % 360}, 70%, 50%)`;
-};
 
 export function toSatoshi(val: string, precision = defaultPrecision, unit: LbtcDenomination = 'L-BTC'): Decimal {
   return new Decimal(val).mul(Decimal.pow(10, new Decimal(precision).minus(unitToExponent(unit))));
@@ -111,7 +99,7 @@ export function unitToExponent(unit: LbtcDenomination): number {
   }
 }
 
-export function formatDate(date: any): string {
+export function formatDate(date: Date): string {
   return date.toLocaleString('en-US', {
     year: 'numeric',
     month: 'short',
@@ -162,11 +150,11 @@ export function balancesFromUtxos(
   for (const asset of Object.keys(utxosGroupedByAsset)) {
     const utxosForAsset = utxosGroupedByAsset[asset];
     const amount = sumUtxos(utxosForAsset);
-    const coinGeckoID = getMainAsset(asset, network)?.coinGeckoID;
+    const coinGeckoID = assets[asset]?.coinGeckoID;
     balances.push({
       assetHash: asset,
       amount,
-      ticker: assets[asset]?.ticker || tickerFromAssetHash(network, asset),
+      ticker: assets[asset]?.ticker || '',
       coinGeckoID,
       precision: assets[asset]?.precision ?? defaultPrecision,
       name: assets[asset]?.name ?? 'Unknown',
@@ -184,28 +172,6 @@ function sumUtxos(utxos: UtxoInterface[]): number {
     }
   }
   return sum;
-}
-
-export function tickerFromAssetHash(network: NetworkString, assetHash?: string): string {
-  if (!assetHash) return '';
-  // TODO: Get assets from store
-  const mainAsset = getMainAsset(assetHash, network);
-  if (mainAsset) return mainAsset.ticker;
-  return assetHash.slice(0, 4).toUpperCase();
-}
-
-export function precisionFromAssetHash(network: NetworkString, assetHash?: string): number | undefined {
-  if (!assetHash) return 8;
-  // TODO: Get assets from store
-  const mainAsset = getMainAsset(assetHash, network);
-  if (mainAsset) return mainAsset.precision;
-}
-
-export function nameFromAssetHash(network: NetworkString, assetHash?: string): string | undefined {
-  if (!assetHash) return '';
-  // TODO: Get assets from store
-  const mainAsset = getMainAsset(assetHash, network);
-  if (mainAsset) return mainAsset.name;
 }
 
 /**

@@ -11,9 +11,10 @@ import Refresher from '../../components/Refresher';
 import { CurrencyIcon } from '../../components/icons';
 import { addSuccessToast } from '../../redux/actions/toastActions';
 import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
+import type { AssetsState } from '../../redux/reducers/assetsReducer';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
 import { clipboardCopy } from '../../utils/clipboard';
-import { fromSatoshiFixed, tickerFromAssetHash } from '../../utils/helpers';
+import { fromSatoshiFixed } from '../../utils/helpers';
 import type { TxDisplayInterface } from '../../utils/types';
 
 export interface PreviewData {
@@ -32,20 +33,21 @@ interface TradeSummaryLocationState {
 }
 
 interface TradeSummaryProps extends RouteComponentProps<any, any, TradeSummaryLocationState> {
+  assets: AssetsState;
   network: NetworkString;
 }
 
 type SentCurrencyIconProps = {
   width: string;
   height: string;
-  network: NetworkString;
   transaction?: TxDisplayInterface;
   preview?: PreviewData;
+  assets: AssetsState;
 } & React.HTMLAttributes<any>;
-const SentCurrencyIcon = ({ width, height, network, transaction, preview }: SentCurrencyIconProps) => {
+const SentCurrencyIcon = ({ width, height, assets, transaction, preview }: SentCurrencyIconProps) => {
   return (
     <CurrencyIcon
-      currency={transaction ? tickerFromAssetHash(network, transaction.transfers?.[0]?.asset) : preview?.sent.ticker}
+      currency={transaction ? assets[transaction.transfers?.[0]?.asset].ticker : preview?.sent.ticker}
       width={width}
       height={height}
     />
@@ -55,23 +57,21 @@ const SentCurrencyIcon = ({ width, height, network, transaction, preview }: Sent
 type ReceiveCurrencyIconProps = {
   width: string;
   height: string;
-  network: NetworkString;
   transaction?: TxDisplayInterface;
   preview?: PreviewData;
+  assets: AssetsState;
 } & React.HTMLAttributes<any>;
 const ReceiveCurrencyIcon: React.FC<ReceiveCurrencyIconProps> = ({
   width,
   height,
-  network,
   transaction,
   preview,
+  assets,
   ...props
 }) => {
   return (
     <CurrencyIcon
-      currency={
-        transaction ? tickerFromAssetHash(network, transaction.transfers?.[1]?.asset) : preview?.received.ticker
-      }
+      currency={transaction ? assets[transaction.transfers?.[1]?.asset].ticker : preview?.received.ticker}
       width={width}
       height={height}
       {...props}
@@ -79,7 +79,7 @@ const ReceiveCurrencyIcon: React.FC<ReceiveCurrencyIconProps> = ({
   );
 };
 
-const TradeSummary: React.FC<TradeSummaryProps> = ({ location, network }) => {
+const TradeSummary: React.FC<TradeSummaryProps> = ({ location, network, assets }) => {
   const dispatch = useTypedDispatch();
   const preview = location.state?.preview;
   const { txid } = useParams<{ txid: string }>();
@@ -99,7 +99,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, network }) => {
                     <SentCurrencyIcon
                       width="45"
                       height="45"
-                      network={network}
+                      assets={assets}
                       transaction={transaction}
                       preview={preview}
                     />
@@ -107,7 +107,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, network }) => {
                       <ReceiveCurrencyIcon
                         width="45"
                         height="45"
-                        network={network}
+                        assets={assets}
                         transaction={transaction}
                         preview={preview}
                       />
@@ -115,7 +115,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, network }) => {
                         className="duplicate"
                         width="55"
                         height="55"
-                        network={network}
+                        assets={assets}
                         transaction={transaction}
                         preview={preview}
                       />
@@ -134,14 +134,12 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, network }) => {
                             <SentCurrencyIcon
                               width="24"
                               height="24"
-                              network={network}
+                              assets={assets}
                               transaction={transaction}
                               preview={preview}
                             />
                             <span>
-                              {transaction
-                                ? tickerFromAssetHash(network, transaction.transfers?.[0]?.asset)
-                                : preview?.sent.ticker}
+                              {transaction ? assets[transaction.transfers?.[0]?.asset].ticker : preview?.sent.ticker}
                             </span>
                           </div>
                           <p className="trade-price" data-cy="trade-summary-sent-amount">
@@ -160,13 +158,13 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, network }) => {
                             <ReceiveCurrencyIcon
                               width="24"
                               height="24"
-                              network={network}
+                              assets={assets}
                               transaction={transaction}
                               preview={preview}
                             />
                             <span>
                               {transaction
-                                ? tickerFromAssetHash(network, transaction.transfers?.[1]?.asset)
+                                ? assets[transaction.transfers?.[1]?.asset].ticker
                                 : preview?.received.ticker}
                             </span>
                           </div>

@@ -2,8 +2,8 @@ import type { AddressInterface, UtxoInterface, Outpoint, Mnemonic, StateRestorer
 import type { MasterPublicKey } from 'ldk/dist/identity/masterpubkey';
 import { createSelector } from 'reselect';
 
-import { defaultPrecision, LBTC_COINGECKOID, getMainAsset, LBTC_ASSET } from '../../utils/constants';
-import { tickerFromAssetHash, balancesFromUtxos, getIndexAndIsChangeFromAddress } from '../../utils/helpers';
+import { defaultPrecision, LBTC_COINGECKOID, LBTC_ASSET } from '../../utils/constants';
+import { balancesFromUtxos, getIndexAndIsChangeFromAddress } from '../../utils/helpers';
 import type { ActionType } from '../../utils/types';
 import type { BalanceInterface } from '../actionTypes/walletActionTypes';
 import {
@@ -145,8 +145,8 @@ export const balancesSelector = createSelector(
       balances.push({
         assetHash: asset,
         amount: 0,
-        ticker: assets[asset]?.ticker ?? tickerFromAssetHash(settings.network, asset),
-        coinGeckoID: getMainAsset(asset, settings.network)?.coinGeckoID,
+        ticker: assets[asset]?.ticker,
+        coinGeckoID: assets[asset]?.coinGeckoID,
         precision: assets[asset]?.precision ?? defaultPrecision,
         name: assets[asset]?.name ?? 'Unknown',
       });
