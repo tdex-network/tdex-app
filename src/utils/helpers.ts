@@ -154,7 +154,7 @@ export function balancesFromUtxos(
     balances.push({
       assetHash: asset,
       amount,
-      ticker: assets[asset]?.ticker || '',
+      ticker: assets[asset]?.ticker || asset.slice(0, 4).toUpperCase(),
       coinGeckoID,
       precision: assets[asset]?.precision ?? defaultPrecision,
       name: assets[asset]?.name ?? 'Unknown',
