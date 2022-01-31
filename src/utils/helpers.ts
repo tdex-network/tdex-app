@@ -9,7 +9,7 @@ import type {
 import { fetchTxHex, greedyCoinSelector, isUnblindedOutput } from 'ldk';
 import type { Dispatch } from 'redux';
 import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
-import { getSats } from 'tdex-sdk';
+import { getAsset, getSats } from 'tdex-sdk';
 
 import type { BalanceInterface } from '../redux/actionTypes/walletActionTypes';
 import { lockUtxo } from '../redux/actions/walletActions';
@@ -107,9 +107,9 @@ export function formatDate(date: Date): string {
   });
 }
 
-export function groupBy(xs: any[], key: string): any {
+export function groupByAsset(xs: any[]): any {
   return xs.reduce(function (rv, x) {
-    (rv[x[key]] = rv[x[key]] || []).push(x);
+    (rv[getAsset(x)] = rv[getAsset(x)] || []).push(x);
     return rv;
   }, {});
 }
@@ -146,7 +146,7 @@ export function balancesFromUtxos(
   network: NetworkString
 ): BalanceInterface[] {
   const balances: BalanceInterface[] = [];
-  const utxosGroupedByAsset: Record<string, UnblindedOutput[]> = groupBy(utxos, 'asset');
+  const utxosGroupedByAsset: Record<string, UnblindedOutput[]> = groupByAsset(utxos);
   for (const asset of Object.keys(utxosGroupedByAsset)) {
     const utxosForAsset = utxosGroupedByAsset[asset];
     const amount = sumUtxos(utxosForAsset);

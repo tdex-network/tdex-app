@@ -17,10 +17,8 @@ function getTransfers(
   const transfers: Transfer[] = [];
   let feeAmount: number;
   let feeAsset: string;
-
   const addToTransfers = (amount: number, asset: string, script: string) => {
     const transferIndex = transfers.findIndex((t) => t.asset === asset);
-
     if (transferIndex >= 0) {
       const tmp = transfers[transferIndex].amount + amount;
       // Check if the transfer is a fee output. Remove it for non-LBTC withdrawal.
@@ -28,7 +26,6 @@ function getTransfers(
         transfers.splice(transferIndex, 1);
         return;
       }
-
       // Deduct feeAmount on LBTC withdrawal
       if (feeAmount && isLbtc(asset, network) && transfers.length === 1) {
         transfers[transferIndex].amount = tmp + feeAmount;
@@ -37,7 +34,6 @@ function getTransfers(
       }
       return;
     }
-
     transfers.push({
       amount,
       asset,
