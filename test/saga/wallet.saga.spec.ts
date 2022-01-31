@@ -4,6 +4,7 @@ import type { AddressInterface } from 'ldk';
 import { fetchAndUnblindUtxos } from 'ldk';
 import type { PutEffect, StrictEffect } from 'redux-saga/effects';
 import type { UnblindedOutput } from 'tdex-sdk';
+import { getSats } from 'tdex-sdk';
 
 import { SET_UTXO, DELETE_UTXO, RESET_UTXOS } from '../../src/redux/actions/walletActions';
 import { outpointToString } from '../../src/redux/reducers/walletReducer';
@@ -31,7 +32,7 @@ describe('wallet saga', () => {
       const callEffect = gen.next().value as StrictEffect<IteratorResult<UnblindedOutput, number>>;
       const result = await callEffect.payload.fn();
       const put = gen.next(result).value as PutEffect<ActionType>;
-      expect(put.payload.action.payload.value).toEqual(100000000);
+      expect(getSats(put.payload.action.payload)).toEqual(100000000);
       expect(put.payload.action.type).toEqual(SET_UTXO);
     });
 
@@ -51,18 +52,6 @@ describe('wallet saga', () => {
       }
       expect(next.value?.payload.action.type).toEqual(DELETE_UTXO);
       expect(outpointToString(next.value?.payload.action.payload)).toEqual('fakeTxid:8');
-    });
-
-    test('should reset utxos if no utxos are discovered', async () => {
-      const current: Record<string, UnblindedOutput> = {};
-      current[outpointToString(utxo)] = utxo;
-      const gen = fetchAndUpdateUtxos([], current, APIURL);
-      const setIsFetchingMarkets = gen.next().value as PutEffect<ActionType<boolean>>;
-      expect(setIsFetchingMarkets.payload.action.payload).toEqual(true);
-      const callEffect = gen.next().value as StrictEffect<IteratorResult<UnblindedOutput, number>>;
-      const result = await callEffect.payload.fn();
-      const put = gen.next(result).value as PutEffect<ActionType>;
-      expect(put.payload.action.type).toEqual(RESET_UTXOS);
     });
   });
 });
