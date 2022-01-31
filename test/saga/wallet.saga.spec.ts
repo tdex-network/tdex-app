@@ -1,8 +1,9 @@
 /// <reference types="jest" />
 
-import type { AddressInterface, UtxoInterface } from 'ldk';
+import type { AddressInterface } from 'ldk';
 import { fetchAndUnblindUtxos } from 'ldk';
 import type { PutEffect, StrictEffect } from 'redux-saga/effects';
+import type { UnblindedOutput } from 'tdex-sdk';
 
 import { SET_UTXO, DELETE_UTXO } from '../../src/redux/actions/walletActions';
 import { outpointToString } from '../../src/redux/reducers/walletReducer';
@@ -14,7 +15,7 @@ jest.setTimeout(15000);
 
 describe('wallet saga', () => {
   describe('fetchAndUpdateUtxos', () => {
-    let utxo: UtxoInterface;
+    let utxo: UnblindedOutput;
     let addr: AddressInterface;
     beforeAll(async () => {
       addr = await firstAddress;
@@ -27,7 +28,7 @@ describe('wallet saga', () => {
       const gen = fetchAndUpdateUtxos([addr], {}, APIURL);
       const setIsFetchingMarkets = gen.next().value as PutEffect<ActionType<boolean>>;
       expect(setIsFetchingMarkets.payload.action.payload).toEqual(true);
-      const callEffect = gen.next().value as StrictEffect<IteratorResult<UtxoInterface, number>>;
+      const callEffect = gen.next().value as StrictEffect<IteratorResult<UnblindedOutput, number>>;
       const result = await callEffect.payload.fn();
       const put = gen.next(result).value as PutEffect<ActionType>;
       expect(put.payload.action.payload.value).toEqual(100000000);
@@ -35,7 +36,7 @@ describe('wallet saga', () => {
     });
 
     test('should delete existing utxo if spent', async () => {
-      const current: Record<string, UtxoInterface> = {};
+      const current: Record<string, UnblindedOutput> = {};
       current['fakeTxid:8'] = utxo;
       const gen = fetchAndUpdateUtxos([addr], current, APIURL);
       let next = gen.next();

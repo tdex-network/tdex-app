@@ -17,12 +17,12 @@ import {
 } from '@ionic/react';
 import classNames from 'classnames';
 import { closeOutline } from 'ionicons/icons';
-import type { UtxoInterface, StateRestorerOpts } from 'ldk';
+import type { StateRestorerOpts } from 'ldk';
 import { mnemonicRestorerFromState } from 'ldk';
 import React, { useState, useEffect, useCallback } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import type { Dispatch } from 'redux';
-import type { NetworkString } from 'tdex-sdk';
+import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
 import { TradeType } from 'tdex-sdk';
 
 import swap from '../../assets/img/swap.svg';
@@ -64,7 +64,7 @@ interface ExchangeProps extends RouteComponentProps {
   markets: TDEXMarket[];
   network: NetworkString;
   torProxy: string;
-  utxos: UtxoInterface[];
+  utxos: UnblindedOutput[];
 }
 
 const Exchange: React.FC<ExchangeProps> = ({

@@ -1,5 +1,6 @@
-import type { AddressInterface, Mnemonic, Outpoint, UtxoInterface } from 'ldk';
+import type { AddressInterface, Mnemonic, Outpoint } from 'ldk';
 import { address as addrLDK } from 'ldk';
+import type { UnblindedOutput } from 'tdex-sdk';
 
 import type { ActionType } from '../../utils/types';
 import { outpointToString } from '../reducers/walletReducer';
@@ -86,7 +87,7 @@ export const updateUtxos = (): ActionType => {
   };
 };
 
-export const setUtxo = (utxo: UtxoInterface): ActionType => {
+export const setUtxo = (utxo: UnblindedOutput): ActionType => {
   return {
     type: SET_UTXO,
     payload: utxo,
