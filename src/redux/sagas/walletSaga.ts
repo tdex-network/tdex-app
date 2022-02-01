@@ -1,6 +1,7 @@
-import type { AddressInterface, StateRestorerOpts, UtxoInterface } from 'ldk';
-import { fetchAndUnblindUtxosGenerator, fetchUtxos, fetchPrevoutAndTryToUnblindUtxo } from 'ldk';
-import { takeLatest, call, put, select, delay, all, takeEvery } from 'redux-saga/effects';
+import type { AddressInterface, StateRestorerOpts } from 'ldk';
+import { fetchAndUnblindUtxos, fetchAndUnblindUtxosGenerator } from 'ldk';
+import { takeLatest, call, put, select, delay, all, takeEvery, retry } from 'redux-saga/effects';
+import type { Output, UnblindedOutput } from 'tdex-sdk';
 
 import { UpdateUtxosError } from '../../utils/errors';
 import {
@@ -26,7 +27,7 @@ import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString, addressesSelector } from '../reducers/walletReducer';
 import type { SagaGenerator } from '../types';
 
-export function* restoreUtxos(): SagaGenerator<void, UtxoInterface[]> {
+export function* restoreUtxos(): SagaGenerator<void, UnblindedOutput[]> {
   const utxos = yield call(getUtxosFromStorage);
   for (const utxo of utxos) {
     yield put(setUtxo(utxo));
@@ -47,13 +48,13 @@ function* persistLastUsedIndexes() {
 }
 
 function* persistUtxos() {
-  const utxos: UtxoInterface[] = yield select(({ wallet }: { wallet: WalletState }) => Object.values(wallet.utxos));
+  const utxos: UnblindedOutput[] = yield select(({ wallet }: { wallet: WalletState }) => Object.values(wallet.utxos));
   yield call(setUtxosInStorage, utxos);
 }
 
 function* updateUtxosState() {
   try {
-    const [addresses, utxos, explorerLiquidAPI]: [AddressInterface[], Record<string, UtxoInterface>, string] =
+    const [addresses, utxos, explorerLiquidAPI]: [AddressInterface[], Record<string, UnblindedOutput>, string] =
       yield all([
         select(({ wallet }: { wallet: WalletState }) => Object.values(wallet.addresses)),
         select(({ wallet }: { wallet: WalletState }) => wallet.utxos),
@@ -68,15 +69,15 @@ function* updateUtxosState() {
 
 export function* fetchAndUpdateUtxos(
   addresses: AddressInterface[],
-  currentUtxos: Record<string, UtxoInterface>,
+  currentUtxos: Record<string, UnblindedOutput>,
   explorerLiquidAPI: string
-): SagaGenerator<void, IteratorResult<UtxoInterface, number>> {
+): SagaGenerator<void, IteratorResult<UnblindedOutput, number>> {
   yield put(setIsFetchingUtxos(true));
   const newOutpoints: string[] = [];
   const utxoGen = fetchAndUnblindUtxosGenerator(
     addresses,
     explorerLiquidAPI,
-    (utxo: UtxoInterface) => currentUtxos[outpointToString(utxo)] !== undefined
+    (utxo: Output) => currentUtxos[outpointToString(utxo)] !== undefined
   );
   const next = () => utxoGen.next();
   let it = yield call(next);
@@ -108,27 +109,20 @@ function* waitAndUnlock({ payload }: ReturnType<typeof unlockUtxo>) {
 }
 
 function* watchUtxoSaga({ payload }: ReturnType<typeof watchUtxo>) {
+  if (!payload) return;
   const { address, maxTry }: { address: AddressInterface; maxTry: number } = payload;
   const explorer: string = yield select(({ settings }) => settings.explorerLiquidAPI);
-  for (let t = 0; t < maxTry; t++) {
-    try {
-      const utxos: UtxoInterface[] = yield call(fetchUtxos, address.confidentialAddress, explorer);
-      if (utxos.length === 0) throw new Error();
-      const { unblindedUtxo, error }: { unblindedUtxo: UtxoInterface; error?: { message?: string } } = yield call(
-        fetchPrevoutAndTryToUnblindUtxo,
-        utxos[0],
-        address.blindingPrivateKey,
-        explorer
-      );
-      error && console.error(error);
-      if (!error) {
-        yield put(setUtxo(unblindedUtxo));
-        yield put(updateState());
-      }
-      break;
-    } catch {
-      yield delay(1_000);
-    }
+  const { unblindedUtxo, error }: { unblindedUtxo: UnblindedOutput; error?: { message?: string } } = yield retry(
+    maxTry,
+    1000,
+    fetchAndUnblindUtxos,
+    [address],
+    explorer
+  );
+  error && console.error(error);
+  if (!error) {
+    yield put(setUtxo(unblindedUtxo));
+    yield put(updateState());
   }
 }
 

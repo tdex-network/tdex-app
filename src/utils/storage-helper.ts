@@ -2,10 +2,10 @@ import { Storage } from '@capacitor/storage';
 import { stringify, parse } from 'buffer-json';
 import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
 import { IdentityType, Mnemonic } from 'ldk';
-import type { AddressInterface, TxInterface, UtxoInterface } from 'ldk';
+import type { AddressInterface, TxInterface } from 'ldk';
 import type { StateRestorerOpts } from 'ldk/dist/restorer/mnemonic-restorer';
 import type { Dispatch } from 'redux';
-import type { NetworkString, TDEXMnemonic } from 'tdex-sdk';
+import type { NetworkString, TDEXMnemonic, UnblindedOutput } from 'tdex-sdk';
 
 import type { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 import type { Pegins } from '../redux/reducers/btcReducer';
@@ -134,11 +134,11 @@ export async function clearTransactionsInStorage(): Promise<void> {
   await Storage.remove({ key: TRANSACTIONS_KEY });
 }
 
-export async function getUtxosFromStorage(): Promise<UtxoInterface[]> {
-  return getFromStorage<UtxoInterface[]>(UTXOS_KEY, []);
+export async function getUtxosFromStorage(): Promise<UnblindedOutput[]> {
+  return getFromStorage<UnblindedOutput[]>(UTXOS_KEY, []);
 }
 
-export function setUtxosInStorage(utxos: UtxoInterface[]): Promise<void> {
+export function setUtxosInStorage(utxos: UnblindedOutput[]): Promise<void> {
   return Storage.set({ key: UTXOS_KEY, value: stringify(utxos) });
 }
 

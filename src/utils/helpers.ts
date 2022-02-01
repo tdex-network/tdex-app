@@ -5,11 +5,11 @@ import type {
   CoinSelectionResult,
   CoinSelector,
   RecipientInterface,
-  UtxoInterface,
 } from 'ldk';
-import { fetchTxHex, greedyCoinSelector, isBlindedUtxo } from 'ldk';
+import { fetchTxHex, greedyCoinSelector, isUnblindedOutput } from 'ldk';
 import type { Dispatch } from 'redux';
-import type { NetworkString } from 'tdex-sdk';
+import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
+import { getAsset, getSats } from 'tdex-sdk';
 
 import type { BalanceInterface } from '../redux/actionTypes/walletActionTypes';
 import { lockUtxo } from '../redux/actions/walletActions';
@@ -107,9 +107,9 @@ export function formatDate(date: Date): string {
   });
 }
 
-export function groupBy(xs: any[], key: string): any {
+export function groupByAsset(xs: any[]): any {
   return xs.reduce(function (rv, x) {
-    (rv[x[key]] = rv[x[key]] || []).push(x);
+    (rv[getAsset(x)] = rv[getAsset(x)] || []).push(x);
     return rv;
   }, {});
 }
@@ -141,12 +141,12 @@ export async function sleep(ms: number): Promise<any> {
 
 // compute balances value from a set of utxos
 export function balancesFromUtxos(
-  utxos: UtxoInterface[],
+  utxos: UnblindedOutput[],
   assets: Record<string, AssetConfig>,
   network: NetworkString
 ): BalanceInterface[] {
   const balances: BalanceInterface[] = [];
-  const utxosGroupedByAsset: Record<string, UtxoInterface[]> = groupBy(utxos, 'asset');
+  const utxosGroupedByAsset: Record<string, UnblindedOutput[]> = groupByAsset(utxos);
   for (const asset of Object.keys(utxosGroupedByAsset)) {
     const utxosForAsset = utxosGroupedByAsset[asset];
     const amount = sumUtxos(utxosForAsset);
@@ -164,11 +164,11 @@ export function balancesFromUtxos(
   return balances;
 }
 
-function sumUtxos(utxos: UtxoInterface[]): number {
+function sumUtxos(utxos: UnblindedOutput[]): number {
   let sum = 0;
   for (const utxo of utxos) {
-    if (!isBlindedUtxo(utxo) && utxo.value) {
-      sum += utxo.value;
+    if (isUnblindedOutput(utxo) && getSats(utxo)) {
+      sum += getSats(utxo);
     }
   }
   return sum;
@@ -183,7 +183,7 @@ export function customCoinSelector(dispatch?: Dispatch): CoinSelector {
   if (!dispatch) return greedy;
   return (errorHandler = throwErrorHandler) =>
     (
-      unspents: UtxoInterface[],
+      unspents: UnblindedOutput[],
       outputs: RecipientInterface[],
       changeGetter: ChangeAddressFromAssetGetter
     ): CoinSelectionResult => {
