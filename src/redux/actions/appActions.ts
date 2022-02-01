@@ -27,7 +27,7 @@ export const updateState = (): ActionType => {
   };
 };
 
-export const setIsFetchingUtxos = (isFetchingUtxos: boolean): ActionType => {
+export const setIsFetchingUtxos = (isFetchingUtxos: boolean): ActionType<boolean> => {
   return {
     type: SET_IS_FETCHING_UTXOS,
     payload: isFetchingUtxos,
@@ -66,7 +66,7 @@ export const initAppFail = (): ActionType => {
   };
 };
 
-export const setSignedUp = (signedUp: boolean): ActionType => {
+export const setSignedUp = (signedUp: boolean): ActionType<boolean> => {
   return {
     type: SET_SIGNED_UP,
     payload: signedUp,

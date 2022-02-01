@@ -9,7 +9,7 @@ export const ADD_WATCHER_TRANSACTION = 'ADD_WATCHER_TRANSACTION';
 export const REMOVE_WATCHER_TRANSACTION = 'REMOVE_WATCHER_TRANSACTION';
 export const RESET_TRANSACTION_REDUCER = 'RESET_TRANSACTION_REDUCER';
 
-export const removeWatcherTransaction = (txID: string): ActionType => ({
+export const removeWatcherTransaction = (txID: string): ActionType<string> => ({
   type: REMOVE_WATCHER_TRANSACTION,
   payload: txID,
 });
@@ -19,7 +19,7 @@ export const addWatcherTransaction = (txID: string): ActionType => ({
   payload: txID,
 });
 
-export const watchTransaction = (txID: string, maxTry = 100): ActionType<{ txID: string; maxTry: number }> => {
+export const watchTransaction = (txID: string, maxTry = 50): ActionType<{ txID: string; maxTry: number }> => {
   return {
     type: WATCH_TRANSACTION,
     payload: {

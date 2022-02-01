@@ -31,8 +31,9 @@ import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
-import type { TDEXMarket, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
+import type { TDEXMarket, TDEXProvider, TDEXTrade } from '../../redux/actionTypes/tdexActionTypes';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import { setIsFetchingUtxos } from '../../redux/actions/appActions';
 import { updateMarkets } from '../../redux/actions/tdexActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
@@ -63,6 +64,7 @@ interface ExchangeProps extends RouteComponentProps {
   lbtcUnit: LbtcDenomination;
   markets: TDEXMarket[];
   network: NetworkString;
+  providers: TDEXProvider[];
   torProxy: string;
   utxos: UnblindedOutput[];
 }
@@ -80,6 +82,7 @@ const Exchange: React.FC<ExchangeProps> = ({
   network,
   torProxy,
   isFetchingMarkets,
+  providers,
 }) => {
   const [hasBeenSwapped, setHasBeenSwapped] = useState<boolean>(false);
   // user inputs amount
@@ -285,7 +288,10 @@ const Exchange: React.FC<ExchangeProps> = ({
         torProxy
       );
       dispatch(watchTransaction(txid));
-      dispatch(updateUtxos());
+      // Trigger spinner right away
+      dispatch(setIsFetchingUtxos(true));
+      // But update after a few seconds to make sure new utxo is ready to fetch
+      setTimeout(() => dispatch(updateUtxos()), 8_000);
       addSuccessToast('Trade successfully computed');
       const preview: PreviewData = {
         sent: {
@@ -349,7 +355,7 @@ const Exchange: React.FC<ExchangeProps> = ({
               onClose={() => setTradeError(undefined)}
               onClickRetry={() => setModalOpen(true)}
               onClickTryNext={(endpointToBan: string) => {
-                if (getMarkets().length > 1) {
+                if (providers.length > 1) {
                   setToFilterProviders([...toFilterProviders, endpointToBan]);
                 } else {
                   dispatch(addErrorToast(NoOtherProvider));
