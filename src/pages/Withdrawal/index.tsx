@@ -28,9 +28,10 @@ import WithdrawRow from '../../components/WithdrawRow';
 import { IconQR } from '../../components/icons';
 import './style.scss';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import { setIsFetchingUtxos } from '../../redux/actions/appActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
-import { unlockUtxos } from '../../redux/actions/walletActions';
+import { unlockUtxos, updateUtxos } from '../../redux/actions/walletActions';
 import { broadcastTx } from '../../redux/services/walletService';
 import { decodeBip21 } from '../../utils/bip21';
 import type { LbtcDenomination } from '../../utils/constants';
@@ -207,6 +208,10 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       const txid = await broadcastTx(txHex, explorerLiquidAPI);
       dispatch(addSuccessToast(`Transaction broadcasted. ${amount} ${balance?.ticker} sent.`));
       dispatch(watchTransaction(txid));
+      // Trigger spinner right away
+      dispatch(setIsFetchingUtxos(true));
+      // But update after a few seconds to make sure new utxo is ready to fetch
+      setTimeout(() => dispatch(updateUtxos()), 12_000);
       history.replace(`/transaction/${txid}`, {
         address: recipientAddress,
         amount: `-${amount}`,

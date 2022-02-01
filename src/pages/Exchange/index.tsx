@@ -291,7 +291,7 @@ const Exchange: React.FC<ExchangeProps> = ({
       // Trigger spinner right away
       dispatch(setIsFetchingUtxos(true));
       // But update after a few seconds to make sure new utxo is ready to fetch
-      setTimeout(() => dispatch(updateUtxos()), 8_000);
+      setTimeout(() => dispatch(updateUtxos()), 12_000);
       addSuccessToast('Trade successfully computed');
       const preview: PreviewData = {
         sent: {
