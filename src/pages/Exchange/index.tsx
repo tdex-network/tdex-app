@@ -16,7 +16,6 @@ import {
   IonChip,
 } from '@ionic/react';
 import classNames from 'classnames';
-import { closeOutline } from 'ionicons/icons';
 import type { StateRestorerOpts } from 'ldk';
 import { mnemonicRestorerFromState } from 'ldk';
 import React, { useState, useEffect, useCallback } from 'react';
