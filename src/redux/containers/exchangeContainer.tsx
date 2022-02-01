@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 
 import Exchange from '../../pages/Exchange';
 import { getTradablesAssets } from '../../utils/tdex';
-import { allUtxosSelector, balancesSelector, lastUsedIndexesSelector } from '../reducers/walletReducer';
+import { unlockedUtxosSelector, balancesSelector, lastUsedIndexesSelector } from '../reducers/walletReducer';
 import type { RootState } from '../types';
 
 const mapStateToProps = (state: RootState) => {
@@ -17,8 +17,9 @@ const mapStateToProps = (state: RootState) => {
     lbtcUnit: state.settings.denominationLBTC,
     markets: state.tdex.markets,
     network: state.settings.network,
-    utxos: allUtxosSelector(state),
+    providers: state.tdex.providers,
     torProxy: state.settings.torProxy,
+    utxos: unlockedUtxosSelector(state),
   };
 };
 

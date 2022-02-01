@@ -19,7 +19,10 @@ export const UNLOCK_UTXO = 'UNLOCK_UTXO';
 export const WATCH_UTXO = 'WATCH_UTXO';
 export const UNLOCK_UTXOS = 'UNLOCK_UTXOS';
 
-export const watchUtxo = (address: AddressInterface, maxTry = 100): ActionType => ({
+export const watchUtxo = (
+  address: AddressInterface,
+  maxTry = 50
+): ActionType<{ address: AddressInterface; maxTry: number }> => ({
   type: WATCH_UTXO,
   payload: {
     address,
@@ -47,21 +50,21 @@ export const clearAddresses = (): ActionType => {
   };
 };
 
-export const lockUtxo = (txid: string, vout: number): ActionType => {
+export const lockUtxo = (txid: string, vout: number): ActionType<string> => {
   return {
     type: LOCK_UTXO,
     payload: outpointToString({ txid, vout }),
   };
 };
 
-export const unlockUtxo = (outpointStr: string): ActionType => {
+export const unlockUtxo = (outpointStr: string): ActionType<string> => {
   return {
     type: UNLOCK_UTXO,
     payload: outpointStr,
   };
 };
 
-export const setMasterPublicKeysFromMnemonic = (mnemonic: Mnemonic): ActionType => {
+export const setMasterPublicKeysFromMnemonic = (mnemonic: Mnemonic): ActionType<Mnemonic> => {
   return {
     type: SET_MASTER_PUBLIC_KEYS_FROM_MNEMONIC,
     payload: mnemonic,
@@ -87,21 +90,21 @@ export const updateUtxos = (): ActionType => {
   };
 };
 
-export const setUtxo = (utxo: UnblindedOutput): ActionType => {
+export const setUtxo = (utxo: UnblindedOutput): ActionType<UnblindedOutput> => {
   return {
     type: SET_UTXO,
     payload: utxo,
   };
 };
 
-export const deleteUtxo = (outpoint: Outpoint): ActionType => {
+export const deleteUtxo = (outpoint: Outpoint): ActionType<Outpoint> => {
   return {
     type: DELETE_UTXO,
     payload: outpoint,
   };
 };
 
-export const setIsAuth = (isAuth: boolean): ActionType => {
+export const setIsAuth = (isAuth: boolean): ActionType<boolean> => {
   return {
     type: SET_IS_AUTH,
     payload: isAuth,

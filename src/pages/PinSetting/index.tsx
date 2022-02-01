@@ -13,6 +13,7 @@ import {
   IonModal,
 } from '@ionic/react';
 import * as bip39 from 'bip39';
+import type { MouseEventHandler } from 'react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import { useLocation } from 'react-router';
@@ -148,7 +149,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
       handleConfirm();
   }, [firstPin, handleConfirm, isRepeatScreen, secondPin]);
 
-  const handleClickTerms = (ev: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClickTerms: MouseEventHandler<HTMLAnchorElement> = (ev) => {
     ev.preventDefault();
     setTermsModalIsOpen(true);
   };
@@ -217,7 +218,11 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
                 isChecked={isTermsAccepted}
                 label={
                   <span className="terms-label">
-                    I agree with the <button onClick={handleClickTerms}>Terms and Conditions</button>
+                    {'I agree with the '}
+                    {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
+                    <a href="#" onClick={handleClickTerms}>
+                      Terms and Conditions
+                    </a>
                   </span>
                 }
               />

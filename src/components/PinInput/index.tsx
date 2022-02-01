@@ -28,7 +28,7 @@ const PinInput: React.FC<PinInputProps> = ({ onPin, on6digits, isWrongPin, input
    * @param newPin
    */
   const handleNewPinDigit = (newPin: string | null | undefined) => {
-    // Dont handle new pin if pin already validated
+    // Don't handle new pin if pin already validated
     if (isWrongPin === false || isLocked) {
       return;
     }

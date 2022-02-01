@@ -116,7 +116,7 @@ const deleteUtxoInState = (state: WalletState, outpoint: Outpoint): WalletState 
   return { ...state, utxos: newUtxosMap };
 };
 
-export const allUtxosSelector = ({ wallet }: { wallet: WalletState }): UnblindedOutput[] => {
+export const unlockedUtxosSelector = ({ wallet }: { wallet: WalletState }): UnblindedOutput[] => {
   if (Object.keys(wallet.utxosLocks).length === 0) return Object.values(wallet.utxos);
   const utxos = [];
   for (const [outpoint, utxo] of Object.entries(wallet.utxos)) {
@@ -134,11 +134,11 @@ export const allUtxosSelector = ({ wallet }: { wallet: WalletState }): Unblinded
 export const balancesSelector = createSelector(
   [
     ({ assets, settings }: RootState) => ({ assets, settings }),
-    (state: RootState) => allUtxosSelector(state),
+    (state: RootState) => state.wallet.utxos,
     (state: RootState) => transactionsAssets(state),
   ],
   ({ assets, settings }, utxos, txsAssets) => {
-    const balances = balancesFromUtxos(utxos, assets, settings.network);
+    const balances = balancesFromUtxos(Object.values(utxos), assets, settings.network);
     const balancesAssets = balances.map((b) => b.assetHash);
     for (const asset of txsAssets) {
       if (balancesAssets.includes(asset)) continue;

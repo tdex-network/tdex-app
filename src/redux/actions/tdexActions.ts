@@ -12,7 +12,7 @@ export const clearMarkets = (): ActionType => ({
   type: CLEAR_MARKETS,
 });
 
-export const addMarkets = (markets: TDEXMarket[]): ActionType => {
+export const addMarkets = (markets: TDEXMarket[]): ActionType<TDEXMarket[]> => {
   return {
     type: ADD_MARKETS,
     payload: markets,
@@ -32,7 +32,7 @@ export const addProviders = (providers: TDEXProvider[]): ActionType<TDEXProvider
   };
 };
 
-export const deleteProvider = (provider: TDEXProvider): ActionType => {
+export const deleteProvider = (provider: TDEXProvider): ActionType<TDEXProvider> => {
   return {
     type: DELETE_PROVIDER,
     payload: provider,

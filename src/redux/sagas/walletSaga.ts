@@ -1,7 +1,7 @@
 import type { AddressInterface, StateRestorerOpts } from 'ldk';
 import { fetchAndUnblindUtxos, fetchAndUnblindUtxosGenerator } from 'ldk';
 import { takeLatest, call, put, select, delay, all, takeEvery, retry } from 'redux-saga/effects';
-import type { Output, UnblindedOutput } from 'tdex-sdk';
+import type { UnblindedOutput } from 'tdex-sdk';
 
 import { UpdateUtxosError } from '../../utils/errors';
 import {
@@ -25,7 +25,7 @@ import {
 } from '../actions/walletActions';
 import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString, addressesSelector } from '../reducers/walletReducer';
-import type { SagaGenerator } from '../types';
+import type { SagaGenerator, Unwrap } from '../types';
 
 export function* restoreUtxos(): SagaGenerator<void, UnblindedOutput[]> {
   const utxos = yield call(getUtxosFromStorage);
@@ -73,15 +73,15 @@ export function* fetchAndUpdateUtxos(
   explorerLiquidAPI: string
 ): SagaGenerator<void, IteratorResult<UnblindedOutput, number>> {
   yield put(setIsFetchingUtxos(true));
+  let utxoUpdatedCount = 0;
   const newOutpoints: string[] = [];
-  const utxoGen = fetchAndUnblindUtxosGenerator(
-    addresses,
-    explorerLiquidAPI,
-    (utxo: Output) => currentUtxos[outpointToString(utxo)] !== undefined
-  );
+  const utxoGen = fetchAndUnblindUtxosGenerator(addresses, explorerLiquidAPI);
   const next = () => utxoGen.next();
   let it = yield call(next);
-  let utxoUpdatedCount = 0;
+  if (it.done) {
+    yield put(setIsFetchingUtxos(false));
+    return;
+  }
   while (!it.done) {
     const utxo = it.value;
     newOutpoints.push(outpointToString(utxo));
@@ -93,7 +93,7 @@ export function* fetchAndUpdateUtxos(
   }
   // delete spent utxos
   for (const outpoint of Object.keys(currentUtxos)) {
-    if (outpoint && !newOutpoints.includes(outpoint)) {
+    if (!newOutpoints.includes(outpoint)) {
       const [txid, vout] = outpoint.split(':');
       utxoUpdatedCount++;
       yield put(deleteUtxo({ txid, vout: parseInt(vout) }));
@@ -104,25 +104,31 @@ export function* fetchAndUpdateUtxos(
 }
 
 function* waitAndUnlock({ payload }: ReturnType<typeof unlockUtxo>) {
+  if (!payload) return;
   yield delay(60_000); // 1 min
   yield put(unlockUtxo(payload));
 }
 
 function* watchUtxoSaga({ payload }: ReturnType<typeof watchUtxo>) {
   if (!payload) return;
-  const { address, maxTry }: { address: AddressInterface; maxTry: number } = payload;
-  const explorer: string = yield select(({ settings }) => settings.explorerLiquidAPI);
-  const { unblindedUtxo, error }: { unblindedUtxo: UnblindedOutput; error?: { message?: string } } = yield retry(
-    maxTry,
-    1000,
-    fetchAndUnblindUtxos,
-    [address],
-    explorer
-  );
-  error && console.error(error);
-  if (!error) {
-    yield put(setUtxo(unblindedUtxo));
-    yield put(updateState());
+  try {
+    const { address, maxTry }: { address: AddressInterface; maxTry: number } = payload;
+    const explorer: string = yield select(({ settings }) => settings.explorerLiquidAPI);
+    const unblindedUtxos: Unwrap<ReturnType<typeof fetchAndUnblindUtxos>> = yield retry(
+      maxTry,
+      2000,
+      fetchAndUnblindUtxos,
+      [address],
+      explorer
+    );
+    if (unblindedUtxos.length) {
+      for (const unblindedUtxo of unblindedUtxos) {
+        yield put(setUtxo(unblindedUtxo));
+      }
+      yield put(updateState());
+    }
+  } catch (err) {
+    console.error(err);
   }
 }
 
