@@ -14,7 +14,6 @@ import { addErrorToast } from '../actions/toastActions';
 import type { watchUtxo } from '../actions/walletActions';
 import {
   deleteUtxo,
-  resetUtxos,
   setUtxo,
   unlockUtxo,
   ADD_ADDRESS,
@@ -81,12 +80,6 @@ export function* fetchAndUpdateUtxos(
   );
   const next = () => utxoGen.next();
   let it = yield call(next);
-  // if done = true it means that we do not find any utxos
-  if (it.done) {
-    yield put(resetUtxos());
-    yield put(setIsFetchingUtxos(false));
-    return;
-  }
   let utxoUpdatedCount = 0;
   while (!it.done) {
     const utxo = it.value;

@@ -90,15 +90,12 @@ export function* fetchAndUpdateTxs(
   );
   const next = () => txsGen.next();
   let it: IteratorResult<TxInterface, number> = yield call(next);
-  if (it.done) {
-    yield put(setIsFetchingTransactions(false));
-    return;
-  }
   while (!it.done) {
     const tx = it.value;
     yield put(setTransaction(tx));
     it = yield call(next);
   }
+  yield put(setIsFetchingTransactions(false));
 }
 
 // update the assets state when a new transaction is set in tx state
