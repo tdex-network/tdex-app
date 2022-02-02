@@ -1,7 +1,7 @@
 import type { AddressInterface, StateRestorerOpts } from 'ldk';
 import { fetchAndUnblindUtxos, fetchAndUnblindUtxosGenerator } from 'ldk';
 import { takeLatest, call, put, select, delay, all, takeEvery, retry } from 'redux-saga/effects';
-import type { UnblindedOutput } from 'tdex-sdk';
+import type { Output, UnblindedOutput } from 'tdex-sdk';
 
 import { UpdateUtxosError } from '../../utils/errors';
 import {
@@ -74,17 +74,17 @@ export function* fetchAndUpdateUtxos(
 ): SagaGenerator<void, IteratorResult<UnblindedOutput, number>> {
   yield put(setIsFetchingUtxos(true));
   let utxoUpdatedCount = 0;
-  const newOutpoints: string[] = [];
-  const utxoGen = fetchAndUnblindUtxosGenerator(addresses, explorerLiquidAPI);
+  const skippedOutpoints: string[] = []; // for deleting
+  const utxoGen = fetchAndUnblindUtxosGenerator(addresses, explorerLiquidAPI, (utxo: Output) => {
+    const outpoint = outpointToString(utxo);
+    const skip = currentUtxos[outpoint] !== undefined;
+    if (skip) skippedOutpoints.push(outpointToString(utxo));
+    return skip;
+  });
   const next = () => utxoGen.next();
   let it = yield call(next);
-  if (it.done) {
-    yield put(setIsFetchingUtxos(false));
-    return;
-  }
   while (!it.done) {
     const utxo = it.value;
-    newOutpoints.push(outpointToString(utxo));
     if (!currentUtxos[outpointToString(utxo)]) {
       utxoUpdatedCount++;
       yield put(setUtxo(utxo));
@@ -93,7 +93,7 @@ export function* fetchAndUpdateUtxos(
   }
   // delete spent utxos
   for (const outpoint of Object.keys(currentUtxos)) {
-    if (!newOutpoints.includes(outpoint)) {
+    if (!skippedOutpoints.includes(outpoint)) {
       const [txid, vout] = outpoint.split(':');
       utxoUpdatedCount++;
       yield put(deleteUtxo({ txid, vout: parseInt(vout) }));
