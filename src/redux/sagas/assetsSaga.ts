@@ -3,7 +3,7 @@ import { call, put, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import type { NetworkString } from 'tdex-sdk';
 
 import type { AssetConfig } from '../../utils/constants';
-import { defaultPrecision, LBTC_ASSET } from '../../utils/constants';
+import { defaultPrecision, LBTC_ASSET, USDT_ASSET } from '../../utils/constants';
 import { isLbtc } from '../../utils/helpers';
 import { clearAssetsInStorage, getAssetsFromStorage, setAssetsInStorage } from '../../utils/storage-helper';
 import type { addAsset } from '../actions/assetsActions';
@@ -53,6 +53,7 @@ export async function getAssetData(
 ): Promise<AssetConfig | undefined> {
   try {
     if (isLbtc(assetHash, network)) return LBTC_ASSET[network];
+    if (assetHash === USDT_ASSET[network].assetHash) return USDT_ASSET[network];
     const { precision, ticker, name } = (await axios.get(`${explorerLiquidAPI}/asset/${assetHash}`)).data;
     return {
       assetHash: assetHash,
