@@ -22,7 +22,6 @@ import {
   UPDATE_UTXOS,
   WATCH_UTXO,
   CLEAR_ADDRESSES,
-  resetUtxos,
 } from '../actions/walletActions';
 import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString, addressesSelector } from '../reducers/walletReducer';
