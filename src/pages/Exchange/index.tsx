@@ -39,7 +39,6 @@ import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos, updateUtxos } from '../../redux/actions/walletActions';
 import ExchangeRow from '../../redux/containers/exchangeRowContainer';
-import { getAssetData } from '../../redux/sagas/assetsSaga';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
 import { defaultPrecision, LBTC_ASSET, PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { AppError, IncorrectPINError, NoOtherProvider } from '../../utils/errors';
@@ -188,9 +187,7 @@ const Exchange: React.FC<ExchangeProps> = ({
     void (async (): Promise<void> => {
       if (!assetSent) return;
       const sentTradables = getTradablesAssets(getMarkets(), assetSent.assetHash);
-      const assetsData = (
-        await Promise.all(sentTradables.map((asset) => getAssetData(asset, explorerLiquidAPI, network)))
-      ).filter(Boolean) as AssetConfig[];
+      const assetsData = sentTradables.map((asset) => assets[asset]).filter(Boolean);
       // TODO: Add opposite asset and remove current
       setTradableAssetsForAssetReceived(assetsData);
       setAssetReceived(assetsData[0]);
@@ -201,9 +198,7 @@ const Exchange: React.FC<ExchangeProps> = ({
     void (async (): Promise<void> => {
       if (assetReceived) {
         const receivedTradables = getTradablesAssets(getMarkets(), assetReceived.assetHash);
-        const assetsData = (
-          await Promise.all(receivedTradables.map((asset) => getAssetData(asset, explorerLiquidAPI, network)))
-        ).filter(Boolean) as AssetConfig[];
+        const assetsData = receivedTradables.map((asset) => assets[asset]).filter(Boolean);
         // TODO: Add opposite asset and remove current
         setTradableAssetsForAssetSent(assetsData);
       }

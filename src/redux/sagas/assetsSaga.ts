@@ -4,11 +4,11 @@ import type { NetworkString } from 'tdex-sdk';
 
 import type { AssetConfig } from '../../utils/constants';
 import { defaultPrecision, LBTC_ASSET, USDT_ASSET } from '../../utils/constants';
-import { isLbtc } from '../../utils/helpers';
+import { isLbtc, isUsdt } from '../../utils/helpers';
 import { clearAssetsInStorage, getAssetsFromStorage, setAssetsInStorage } from '../../utils/storage-helper';
 import type { addAsset } from '../actions/assetsActions';
 import { ADD_ASSET, setAsset, SET_ASSET, RESET_ASSETS } from '../actions/assetsActions';
-import type { RootState, SagaGenerator } from '../types';
+import type { RootState, SagaGenerator, Unwrap } from '../types';
 
 export function* restoreAssets(): SagaGenerator<void, AssetConfig[]> {
   const assets = yield call(getAssetsFromStorage);
@@ -33,16 +33,23 @@ function* addAssetSaga({ payload }: ReturnType<typeof addAsset>) {
     explorerLiquidAPI: settings.explorerLiquidAPI,
   }));
   if (!asset) {
-    const { precision, ticker, name, coinGeckoID } = yield call(getAssetData, payload, explorerLiquidAPI, network);
-    yield put(
-      setAsset({
-        ticker,
-        precision,
-        assetHash: payload,
-        name,
-        coinGeckoID,
-      })
+    const assetData: Unwrap<ReturnType<typeof getAssetData>> = yield call(
+      getAssetData,
+      payload,
+      explorerLiquidAPI,
+      network
     );
+    if (assetData) {
+      yield put(
+        setAsset({
+          ticker: assetData.ticker,
+          precision: assetData.precision,
+          assetHash: payload,
+          name: assetData.name,
+          coinGeckoID: assetData?.coinGeckoID,
+        })
+      );
+    }
   }
 }
 
@@ -52,8 +59,10 @@ export async function getAssetData(
   network: NetworkString
 ): Promise<AssetConfig | undefined> {
   try {
+    // Return constants to include coinGeckoID field
     if (isLbtc(assetHash, network)) return LBTC_ASSET[network];
-    if (assetHash === USDT_ASSET[network].assetHash) return USDT_ASSET[network];
+    if (isUsdt(assetHash, network)) return USDT_ASSET[network];
+    //
     const { precision, ticker, name } = (await axios.get(`${explorerLiquidAPI}/asset/${assetHash}`)).data;
     return {
       assetHash: assetHash,
@@ -63,7 +72,6 @@ export async function getAssetData(
     };
   } catch (e) {
     console.error(e);
-    return;
   }
 }
 
