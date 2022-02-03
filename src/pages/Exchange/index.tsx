@@ -139,10 +139,7 @@ const Exchange: React.FC<ExchangeProps> = ({
     const lbtcInMarkets = getMarkets().find(
       (m) => m.baseAsset === LBTC_ASSET[network].assetHash || m.quoteAsset === LBTC_ASSET[network].assetHash
     );
-    setAssetSent({
-      assetHash: lbtcInMarkets ? LBTC_ASSET[network]?.assetHash : assets[balances[0]?.assetHash].assetHash,
-      ticker: lbtcInMarkets ? LBTC_ASSET[network].ticker : assets[balances[0]?.assetHash].ticker,
-    });
+    lbtcInMarkets !== undefined ? setAssetSent(LBTC_ASSET[network]) : setAssetSent(assets[balances[0]?.assetHash]);
     setSentAmount(undefined);
     setReceivedAmount(undefined);
   }, [balances, getMarkets]);

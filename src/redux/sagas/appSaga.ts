@@ -77,10 +77,11 @@ function* signInSaga({ payload: identity }: ReturnType<typeof signIn>) {
     }
     yield all([
       put(watchCurrentBtcBlockHeight()),
-      put(checkIfClaimablePeginUtxo()),
       put(updateDepositPeginUtxos()),
-      put(updatePrices()),
+      put(checkIfClaimablePeginUtxo()),
+      put(updateMarkets()),
       put(updateTransactions()),
+      put(updatePrices()),
       put(updateUtxos()),
     ]);
   } catch (e) {
