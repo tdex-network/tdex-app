@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type { AddressInterface, StateRestorerOpts } from 'ldk';
-import { fetchUtxos, IdentityType, MasterPublicKey } from 'ldk';
+import { IdentityType, MasterPublicKey } from 'ldk';
 import { address as addrLDK } from 'liquidjs-lib';
 import type ElementsPegin from 'pegin';
 import { all, call, delay, put, select, takeLatest, takeLeading } from 'redux-saga/effects';
@@ -26,8 +26,8 @@ import type { BtcState, Pegins } from '../reducers/btcReducer';
 import type { ToastState } from '../reducers/toastReducer';
 import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString } from '../reducers/walletReducer';
-import { getPeginModule } from '../services/btcService';
-import type { RootState, SagaGenerator } from '../types';
+import { fetchBitcoinUtxos, getPeginModule } from '../services/btcService';
+import type { RootState, SagaGenerator, Unwrap } from '../types';
 
 export function* restorePegins(): SagaGenerator<void, Pegins> {
   const pegins = yield call(getPeginsFromStorage);
@@ -74,10 +74,10 @@ function* updateDepositPeginUtxosState() {
 export function* fetchAndUpdateDepositPeginUtxos(pegins: Pegins, explorerBitcoinAPI: string): any {
   const depositAddresses = Object.values(pegins).map((p) => p.depositAddress);
   if (!depositAddresses.length) return;
-  let utxos;
+  let utxos: Unwrap<ReturnType<typeof fetchBitcoinUtxos>>;
   let utxoBtcUpdatedCount = 0;
   for (const claimScript in pegins) {
-    utxos = yield call(fetchUtxos, pegins[claimScript].depositAddress.address, explorerBitcoinAPI);
+    utxos = yield call(fetchBitcoinUtxos, pegins[claimScript].depositAddress.address, explorerBitcoinAPI);
     for (const utxo of utxos) {
       if (
         !pegins[claimScript].depositUtxos?.[outpointToString(utxo)] ||
@@ -88,9 +88,7 @@ export function* fetchAndUpdateDepositPeginUtxos(pegins: Pegins, explorerBitcoin
       }
     }
   }
-  if (utxoBtcUpdatedCount > 0) {
-    console.debug(`${utxoBtcUpdatedCount} btc utxos updated`);
-  }
+  if (utxoBtcUpdatedCount > 0) console.debug(`${utxoBtcUpdatedCount} btc utxos updated`);
 }
 
 /**
