@@ -10,7 +10,7 @@ import type { NetworkString } from 'tdex-sdk';
 import { getNetwork } from 'tdex-sdk';
 
 import { getFedPegScript, LBTC_ASSET } from '../../utils/constants';
-import type { Pegins } from '../reducers/btcReducer';
+import type { Pegins, DepositPeginUtxo } from '../reducers/btcReducer';
 
 import { broadcastTx } from './walletService';
 
@@ -102,6 +102,6 @@ function signClaimTx(claimTxHex: string, btcPeginTxHex: string, claimScript: str
   return transaction.toHex();
 }
 
-export async function fetchBitcoinUtxos(address: string, explorerBitcoinAPI: string): Promise<any> {
+export async function fetchBitcoinUtxos(address: string, explorerBitcoinAPI: string): Promise<DepositPeginUtxo[]> {
   return (await axios.get(`${explorerBitcoinAPI}/address/${address}/utxo`)).data;
 }

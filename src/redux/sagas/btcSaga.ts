@@ -27,7 +27,7 @@ import type { ToastState } from '../reducers/toastReducer';
 import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString } from '../reducers/walletReducer';
 import { fetchBitcoinUtxos, getPeginModule } from '../services/btcService';
-import type { RootState, SagaGenerator } from '../types';
+import type { RootState, SagaGenerator, Unwrap } from '../types';
 
 export function* restorePegins(): SagaGenerator<void, Pegins> {
   const pegins = yield call(getPeginsFromStorage);
@@ -74,7 +74,7 @@ function* updateDepositPeginUtxosState() {
 export function* fetchAndUpdateDepositPeginUtxos(pegins: Pegins, explorerBitcoinAPI: string): any {
   const depositAddresses = Object.values(pegins).map((p) => p.depositAddress);
   if (!depositAddresses.length) return;
-  let utxos;
+  let utxos: Unwrap<ReturnType<typeof fetchBitcoinUtxos>>;
   let utxoBtcUpdatedCount = 0;
   for (const claimScript in pegins) {
     utxos = yield call(fetchBitcoinUtxos, pegins[claimScript].depositAddress.address, explorerBitcoinAPI);
