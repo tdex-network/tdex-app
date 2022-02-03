@@ -101,3 +101,7 @@ function signClaimTx(claimTxHex: string, btcPeginTxHex: string, claimScript: str
   transaction.ins[0].witness = [signatureWithHashType, ecPair.publicKey];
   return transaction.toHex();
 }
+
+export async function fetchBitcoinUtxos(address: string, explorerBitcoinAPI: string): Promise<any> {
+  return (await axios.get(`${explorerBitcoinAPI}/address/${address}/utxo`)).data;
+}
