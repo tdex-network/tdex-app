@@ -47,6 +47,7 @@ platform :ios do
       force: true,
       skip_metadata: true,
       skip_screenshots: true,
+      submission_information: { add_id_info_uses_idfa: false },
     )
   end
 
