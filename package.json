@@ -38,6 +38,7 @@
     "build": "ionic build",
     "build:android": "ionic capacitor build android --no-open",
     "build:ios": "ionic capacitor build ios --no-open",
+    "bump": "fastlane bump",
     "cy:open": "cypress open",
     "cy:run": "cypress run",
     "eslint": "eslint \"./src/**/*.{ts,tsx}\" \"./test/**/*.{ts,tsx}\"",
