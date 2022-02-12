@@ -11,6 +11,25 @@ import {
 
 import { getLastUsedIndexesInStorage } from '../../utils/storage-helper';
 
+// how to do the testnet approach here
+export const getRecommendedFees = async (): Promise<any> => {
+  try {
+    // this endpoint only works on liquid.network endpoint
+    const response = await axios.get(`https://liquid.network/api/v1/fees/recommendedX`);
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    const defaultFees = {
+      fastestFee: 0.3,
+      halfHourFee: 0.2,
+      hourFee: 0.1,
+      minimumFee: 1
+    }
+    return defaultFees;
+  }
+}
+
+
 export const getAssetsRequest = (
   path: string,
   explorerLiquidAPIValue: string,

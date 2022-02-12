@@ -17,6 +17,13 @@ ion-modal {
   }
 }
 
+ion-modal.modal-medium {
+  .modal-wrapper {
+    height: 50%;
+    background: rgb(51, 51, 51);
+  }
+}
+
 ion-modal.modal-small {
   .modal-wrapper {
     height: 40%;
