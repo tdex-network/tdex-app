@@ -13,7 +13,7 @@ import Decimal from 'decimal.js';
 import type { RecipientInterface, StateRestorerOpts } from 'ldk';
 import { address, psetToUnsignedTx, walletFromCoins } from 'ldk';
 import { Psbt } from 'liquidjs-lib';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
@@ -151,14 +151,14 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     }
   }, [amount, balance, balances, lbtcUnit, network]);
 
-  const fetchRecommendedFees = useCallback(async () => {
+  const fetchRecommendedFees = async () => {
     try {
       const _recommendedFees = await getRecommendedFees();
       setRecommendedFees(_recommendedFees);
     } catch (err) {
       console.error(err);
     }
-  }, [explorerLiquidAPI]);
+  };
 
   // Check fees on component mount
   useEffect(()=> {

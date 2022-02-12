@@ -6,9 +6,9 @@ import './style.scss';
 interface CustomFeeModalProps {
   isOpen: boolean;
   close: (ev: any) => void;
-  recommendedFees: any;
-  selectedFee: any;
-  setSelectedFee: any;
+  recommendedFees: any; // wip
+  selectedFee: string;
+  setSelectedFee: (selectedFee: string) => void;
 }
 
 const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommendedFees, setSelectedFee }) => {
@@ -54,7 +54,7 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
             </div>
             <div className="custom-fee-amount">
               <span className="fee-time">1 minute</span>
-              <span className="sats-vbyte">{fastFee} sat/vbyte</span>
+              <span className="sats-vbyte">{fastFee} sat/vByte</span>
             </div>
           </IonItem>
 
@@ -71,7 +71,7 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
             </div>
             <div className="custom-fee-amount">
               <span className="fee-time">30 minutes</span>
-              <span className="sats-vbyte">{mediumFee} sat/vbyte</span>
+              <span className="sats-vbyte">{mediumFee} sat/vByte</span>
             </div>
           </IonItem>
 
@@ -89,7 +89,7 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
             </div>
             <div className="custom-fee-amount">
               <span className="fee-time">60 minutes</span>
-              <span className="sats-vbyte">{slowFee} sat/vbyte</span>
+              <span className="sats-vbyte">{slowFee} sat/vByte</span>
             </div>
           </IonItem>
         </IonList>

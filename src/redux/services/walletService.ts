@@ -11,21 +11,22 @@ import {
 
 import { getLastUsedIndexesInStorage } from '../../utils/storage-helper';
 
-// how to do the testnet approach here
 export const getRecommendedFees = async (): Promise<any> => {
   try {
-    // this endpoint only works on liquid.network endpoint
-    const response = await axios.get(`https://liquid.network/api/v1/fees/recommendedX`);
+    // this particular api endpoint only works on liquid.network endpoint
+    // still missing approach for testnet
+    // rfc on blockstream api for recommended api
+    const response = await axios.get(`https://liquid.network/api/v1/fees/recommended`);
     return response.data;
   } catch (err) {
     console.error(err);
-    const defaultFees = {
-      fastestFee: 0.3,
-      halfHourFee: 0.2,
+    const gracefulDefault = {
+      fastestFee: 0.1,
+      halfHourFee: 0.1,
       hourFee: 0.1,
       minimumFee: 1
     }
-    return defaultFees;
+    return gracefulDefault;
   }
 }
 
