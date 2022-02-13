@@ -111,7 +111,7 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
         inputs={[
           {
             name: 'satsvbyte',
-            type: 'number',
+            type: 'number', // iOS doesn't respect numeric keyboard
             value: '0.1',
           },
         ]}
@@ -120,7 +120,9 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
           {
             text: 'OK',
             handler: (data) => {
-              setSelectedFee(data.satsvbyte);
+              // Invalid satsvbyte will be replaced by the slowFee
+              const satsvbyte = isNaN(parseFloat(data.satsvbyte as any)) ? slowFee : parseFloat(data.satsvbyte);
+              setSelectedFee(satsvbyte);
               setSelectedItem('custom');
               close();
             },

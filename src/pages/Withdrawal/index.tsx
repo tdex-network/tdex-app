@@ -206,7 +206,8 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         getRecipient(),
         customCoinSelector(dispatch),
         changeAddress.confidentialAddress,
-        true
+        true,
+        selectedFee
       );
       // blind all the outputs except fee
       const recipientData = address.fromConfidential(recipientAddress);
@@ -270,7 +271,9 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         isOpen={customFeeModalOpen}
         close={() => setCustomFeeModalOpen(false)}
         recommendedFees={recommendedFees}
-        setSelectedFee={(fee: number) => setSelectedFee(fee)}
+        setSelectedFee={(fee: number) => {
+          setSelectedFee(fee);
+        }}
       />
       <Loader showLoading={loading} delay={0} />
       <IonContent className="withdrawal">
