@@ -1,4 +1,14 @@
-import { IonAlert, IonContent, IonButton, IonList, IonModal, IonHeader, IonItem, IonIcon, IonFooter } from '@ionic/react';
+import {
+  IonAlert,
+  IonContent,
+  IonButton,
+  IonList,
+  IonModal,
+  IonHeader,
+  IonItem,
+  IonIcon,
+  IonFooter,
+} from '@ionic/react';
 import { closeSharp } from 'ionicons/icons';
 import React, { useState } from 'react';
 
@@ -8,13 +18,13 @@ import './style.scss';
 interface CustomFeeModalProps {
   isOpen: boolean;
   close: () => void;
-  recommendedFees:  RecommendedFeesResult | null;
+  recommendedFees: RecommendedFeesResult | null;
   setSelectedFee: (selectedFee: number) => void;
 }
 
 const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommendedFees, setSelectedFee }) => {
   const [showCustomFeeInput, setShowCustomFeeInput] = useState(false);
-  const [selectedItem, setSelectedItem] = useState< "slow" | "medium" | "fast" | "custom">('slow');
+  const [selectedItem, setSelectedItem] = useState<'slow' | 'medium' | 'fast' | 'custom'>('slow');
 
   const slowFee = recommendedFees?.hourFee || 0.1;
   const mediumFee = recommendedFees?.halfHourFee || 0.1;
@@ -23,7 +33,6 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
   const slowFeeSelected = selectedItem === 'slow' ? 'active' : '';
   const mediumFeeSelected = selectedItem === 'medium' ? 'active' : '';
   const fastFeeSelected = selectedItem === 'fast' ? 'active' : '';
-
 
   return (
     <IonModal cssClass="custom-fee-modal modal-medium" isOpen={isOpen} onDidDismiss={close}>
@@ -90,15 +99,11 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
         </IonList>
       </IonContent>
       <IonFooter className="ion-no-border ion-justify-content-center">
-          <IonButton
-            className="sub-button"
-            data-cy="sub-button"
-            onClick={()=> setShowCustomFeeInput(true)}
-          >
-            CUSTOM FEE
-          </IonButton>
-        </IonFooter>
-        <IonAlert
+        <IonButton className="sub-button" data-cy="sub-button" onClick={() => setShowCustomFeeInput(true)}>
+          CUSTOM FEE
+        </IonButton>
+      </IonFooter>
+      <IonAlert
         isOpen={showCustomFeeInput}
         onDidDismiss={() => setShowCustomFeeInput(false)}
         header="CUSTOM FEE"
@@ -112,11 +117,14 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
         ]}
         buttons={[
           { text: 'Cancel', role: 'cancel', handler: () => setShowCustomFeeInput(false) },
-          { text: 'OK', handler: (data) => {
-            setSelectedFee(data.satsvbyte);
-            setSelectedItem('custom'); 
-            close();
-          }},
+          {
+            text: 'OK',
+            handler: (data) => {
+              setSelectedFee(data.satsvbyte);
+              setSelectedItem('custom');
+              close();
+            },
+          },
         ]}
       />
     </IonModal>

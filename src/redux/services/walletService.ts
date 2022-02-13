@@ -11,7 +11,7 @@ import {
 } from 'tdex-sdk';
 
 import { getLastUsedIndexesInStorage } from '../../utils/storage-helper';
-import {mempoolExplorerEndpoints} from '../config';
+import { mempoolExplorerEndpoints } from '../config';
 
 export type RecommendedFeesResult = {
   fastestFee: number;
@@ -21,20 +21,20 @@ export type RecommendedFeesResult = {
 };
 
 export const getRecommendedFees = async (network: NetworkString): Promise<RecommendedFeesResult> => {
-  const defaultFees : RecommendedFeesResult  = {
+  const defaultFees: RecommendedFeesResult = {
     fastestFee: 0.1,
     halfHourFee: 0.1,
     hourFee: 0.1,
-    minimumFee: 1
-  }
+    minimumFee: 1,
+  };
 
   let endpoint = mempoolExplorerEndpoints.liquid.explorerLiquidAPI;
 
-  if (network === 'testnet'){
+  if (network === 'testnet') {
     endpoint = mempoolExplorerEndpoints.testnet.explorerLiquidAPI;
   }
 
-  if (network === 'regtest'){
+  if (network === 'regtest') {
     return defaultFees;
   }
 
@@ -45,8 +45,7 @@ export const getRecommendedFees = async (network: NetworkString): Promise<Recomm
     console.error(err);
     return defaultFees;
   }
-}
-
+};
 
 export const getAssetsRequest = (
   path: string,

@@ -162,7 +162,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   }, [network]);
 
   // Check fees on component mount
-  useEffect(()=> {
+  useEffect(() => {
     fetchRecommendedFees();
   }, [fetchRecommendedFees]);
 
@@ -268,9 +268,9 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       />
       <CustomFeeModal
         isOpen={customFeeModalOpen}
-        close={()=> setCustomFeeModalOpen(false)}
+        close={() => setCustomFeeModalOpen(false)}
         recommendedFees={recommendedFees}
-        setSelectedFee={(fee:number) => setSelectedFee(fee)}
+        setSelectedFee={(fee: number) => setSelectedFee(fee)}
       />
       <Loader showLoading={loading} delay={0} />
       <IonContent className="withdrawal">
@@ -286,7 +286,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
               network={network}
             />
           )}
-
 
           <IonItem className="address-input">
             <IonInput
@@ -338,11 +337,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
           <IonItem className="fee-container">
             <span>NETWORK FEE</span>
             <div className="fee-amount ion-text-right">
-              <IonButton
-                onClick={()=> setCustomFeeModalOpen(true)}
-              >
-                {selectedFee} sat/vByte
-              </IonButton>
+              <IonButton onClick={() => setCustomFeeModalOpen(true)}>{selectedFee} sat/vByte</IonButton>
             </div>
           </IonItem>
 
