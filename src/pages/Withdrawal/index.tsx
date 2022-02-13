@@ -13,7 +13,7 @@ import Decimal from 'decimal.js';
 import type { RecipientInterface, StateRestorerOpts } from 'ldk';
 import { address, psetToUnsignedTx, walletFromCoins } from 'ldk';
 import { Psbt } from 'liquidjs-lib';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
@@ -34,6 +34,7 @@ import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos, updateUtxos } from '../../redux/actions/walletActions';
 import { broadcastTx, getRecommendedFees } from '../../redux/services/walletService';
+import type { RecommendedFeesResult } from '../../redux/services/walletService';
 import { decodeBip21 } from '../../utils/bip21';
 import type { LbtcDenomination } from '../../utils/constants';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
@@ -85,8 +86,8 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   const [recipientAddress, setRecipientAddress] = useState<string>('');
   const [modalOpen, setModalOpen] = useState(false);
   const [customFeeModalOpen, setCustomFeeModalOpen] = useState(false);
-  const [recommendedFees, setRecommendedFees] = useState<any>({});
-  const [selectedFee, setSelectedFee] = useState<string>('0.1');
+  const [recommendedFees, setRecommendedFees] = useState<RecommendedFeesResult | null>(null);
+  const [selectedFee, setSelectedFee] = useState<number>(0.1);
 
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const dispatch = useDispatch();
@@ -151,14 +152,14 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     }
   }, [amount, balance, balances, lbtcUnit, network]);
 
-  const fetchRecommendedFees = async () => {
+  const fetchRecommendedFees = useCallback(async () => {
     try {
-      const _recommendedFees = await getRecommendedFees();
+      const _recommendedFees = await getRecommendedFees(network);
       setRecommendedFees(_recommendedFees);
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [network]);
 
   // Check fees on component mount
   useEffect(()=> {
@@ -269,8 +270,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         isOpen={customFeeModalOpen}
         close={()=> setCustomFeeModalOpen(false)}
         recommendedFees={recommendedFees}
-        selectedFee={selectedFee}
-        setSelectedFee={setSelectedFee}
+        setSelectedFee={(fee:number) => setSelectedFee(fee)}
       />
       <Loader showLoading={loading} delay={0} />
       <IonContent className="withdrawal">

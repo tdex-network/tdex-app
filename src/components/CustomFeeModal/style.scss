@@ -22,7 +22,7 @@
         padding-right: 24px;
     }
 
-    .fee-content {
+    .fee-modal-content {
         margin-top: 24px;
         --padding-start: 0;
         --padding-end: 0;
@@ -49,14 +49,14 @@
               border: 2px solid var(--ion-color-secondary);
           }
         }
-        .custom-fee-name {
+        .fee-name {
           font-family: var(--ion-font-main);
           font-size: var(--ion-font-size-sub);
           display: flex;
           flex: 1;
           align-items: center;
         }
-        .custom-fee-amount {
+        .fee-amount {
           display: flex;
           flex-direction: column;
           align-items: flex-end;

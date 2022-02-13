@@ -2,6 +2,7 @@ import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import type { Mnemonic } from 'ldk';
 import type { MasterPublicKey } from 'ldk/dist/identity/masterpubkey';
+import type { NetworkString } from 'tdex-sdk';
 import {
   masterPubKeyRestorerFromEsplora,
   masterPubKeyRestorerFromState,
@@ -10,23 +11,39 @@ import {
 } from 'tdex-sdk';
 
 import { getLastUsedIndexesInStorage } from '../../utils/storage-helper';
+import {mempoolExplorerEndpoints} from '../config';
 
-export const getRecommendedFees = async (): Promise<any> => {
+export type RecommendedFeesResult = {
+  fastestFee: number;
+  halfHourFee: number;
+  hourFee: number;
+  minimumFee: number;
+};
+
+export const getRecommendedFees = async (network: NetworkString): Promise<RecommendedFeesResult> => {
+  const defaultFees : RecommendedFeesResult  = {
+    fastestFee: 0.1,
+    halfHourFee: 0.1,
+    hourFee: 0.1,
+    minimumFee: 1
+  }
+
+  let endpoint = mempoolExplorerEndpoints.liquid.explorerLiquidAPI;
+
+  if (network === 'testnet'){
+    endpoint = mempoolExplorerEndpoints.testnet.explorerLiquidAPI;
+  }
+
+  if (network === 'regtest'){
+    return defaultFees;
+  }
+
   try {
-    // this particular api endpoint only works on liquid.network endpoint
-    // still missing approach for testnet
-    // rfc on blockstream api for recommended api
-    const response = await axios.get(`https://liquid.network/api/v1/fees/recommended`);
+    const response = await axios.get(`${endpoint}/v1/fees/recommended/`);
     return response.data;
   } catch (err) {
     console.error(err);
-    const gracefulDefault = {
-      fastestFee: 0.1,
-      halfHourFee: 0.1,
-      hourFee: 0.1,
-      minimumFee: 1
-    }
-    return gracefulDefault;
+    return defaultFees;
   }
 }
 

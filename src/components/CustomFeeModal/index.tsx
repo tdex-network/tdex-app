@@ -1,33 +1,28 @@
 import { IonAlert, IonContent, IonButton, IonList, IonModal, IonHeader, IonItem, IonIcon, IonFooter } from '@ionic/react';
 import { closeSharp } from 'ionicons/icons';
-import React from 'react';
+import React, { useState } from 'react';
+
+import type { RecommendedFeesResult } from '../../redux/services/walletService';
 import './style.scss';
 
 interface CustomFeeModalProps {
   isOpen: boolean;
-  close: (ev: any) => void;
-  recommendedFees: any; // wip
-  selectedFee: string;
-  setSelectedFee: (selectedFee: string) => void;
+  close: () => void;
+  recommendedFees:  RecommendedFeesResult | null;
+  setSelectedFee: (selectedFee: number) => void;
 }
 
 const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommendedFees, setSelectedFee }) => {
+  const [showCustomFeeInput, setShowCustomFeeInput] = useState(false);
+  const [selectedItem, setSelectedItem] = useState< "slow" | "medium" | "fast" | "custom">('slow');
 
-  const [showCustomFeeInput, setShowCustomFeeInput] = React.useState(false);
-  const [selectedItem, setSelectedItem] = React.useState('slow');
-
-  const slowFee = recommendedFees['hourFee'];
-  const mediumFee = recommendedFees['halfHourFee'];
-  const fastFee = recommendedFees['fastestFee'];
+  const slowFee = recommendedFees?.hourFee || 0.1;
+  const mediumFee = recommendedFees?.halfHourFee || 0.1;
+  const fastFee = recommendedFees?.fastestFee || 0.1;
 
   const slowFeeSelected = selectedItem === 'slow' ? 'active' : '';
   const mediumFeeSelected = selectedItem === 'medium' ? 'active' : '';
   const fastFeeSelected = selectedItem === 'fast' ? 'active' : '';
-
-
-  React.useEffect(()=> {
-    console.log({recommendedFees});
-  }, [recommendedFees]);
 
 
   return (
@@ -39,20 +34,20 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
           </label>
         </div>
       </IonHeader>
-      <IonContent className="fee-content">
+      <IonContent className="fee-modal-content">
         <IonList>
           <IonItem
             className={`ion-no-margin ${fastFeeSelected}`}
-            onClick={(e) => {
+            onClick={() => {
               setSelectedFee(fastFee);
               setSelectedItem('fast');
-              close(e);
+              close();
             }}
           >
-            <div className="custom-fee-name">
+            <div className="fee-name">
               <p>FAST</p>
             </div>
-            <div className="custom-fee-amount">
+            <div className="fee-amount">
               <span className="fee-time">1 minute</span>
               <span className="sats-vbyte">{fastFee} sat/vByte</span>
             </div>
@@ -60,16 +55,16 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
 
           <IonItem
             className={`ion-no-margin ${mediumFeeSelected}`}
-            onClick={(e) => {
+            onClick={() => {
               setSelectedFee(mediumFee);
               setSelectedItem('medium');
-              close(e);
+              close();
             }}
           >
-            <div className="custom-fee-name">
+            <div className="fee-name">
               <p>MEDIUM</p>
             </div>
-            <div className="custom-fee-amount">
+            <div className="fee-amount">
               <span className="fee-time">30 minutes</span>
               <span className="sats-vbyte">{mediumFee} sat/vByte</span>
             </div>
@@ -77,17 +72,17 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
 
           <IonItem
             className={`ion-no-margin ${slowFeeSelected}`}
-            onClick={(e) => {
+            onClick={() => {
               setSelectedFee(slowFee);
               setSelectedItem('slow');
-              close(e);
+              close();
             }}
           >
-            <div className="custom-fee-name">
+            <div className="fee-name">
               <p>SLOW</p>
               <span></span>
             </div>
-            <div className="custom-fee-amount">
+            <div className="fee-amount">
               <span className="fee-time">60 minutes</span>
               <span className="sats-vbyte">{slowFee} sat/vByte</span>
             </div>
@@ -120,7 +115,7 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
           { text: 'OK', handler: (data) => {
             setSelectedFee(data.satsvbyte);
             setSelectedItem('custom'); 
-            close(null);
+            close();
           }},
         ]}
       />
