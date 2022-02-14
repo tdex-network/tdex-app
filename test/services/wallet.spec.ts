@@ -29,7 +29,7 @@ describe('Wallet Service', () => {
   it('should return default target fees on error', async () => {
     // Simulate connection error inside getRecommendFees
     jest.spyOn(axios, 'get').mockRejectedValue(new Error('error'));
-    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation();
 
     const recommendedFees = await getRecommendedFees('liquid');
 
