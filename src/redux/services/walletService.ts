@@ -2,7 +2,6 @@ import type { AxiosResponse } from 'axios';
 import axios from 'axios';
 import type { Mnemonic } from 'ldk';
 import type { MasterPublicKey } from 'ldk/dist/identity/masterpubkey';
-import type { NetworkString } from 'tdex-sdk';
 import {
   masterPubKeyRestorerFromEsplora,
   masterPubKeyRestorerFromState,
@@ -11,35 +10,20 @@ import {
 } from 'tdex-sdk';
 
 import { getLastUsedIndexesInStorage } from '../../utils/storage-helper';
-import { mempoolExplorerEndpoints } from '../config';
 
 export type RecommendedFeesResult = {
-  fastestFee: number;
-  halfHourFee: number;
-  hourFee: number;
-  minimumFee: number;
+  [targetBlock: string]: number;
 };
 
-export const getRecommendedFees = async (network: NetworkString): Promise<RecommendedFeesResult> => {
+export const getRecommendedFees = async (explorerLiquidAPIValue: string): Promise<RecommendedFeesResult> => {
   const defaultFees: RecommendedFeesResult = {
-    fastestFee: 0.1,
-    halfHourFee: 0.1,
-    hourFee: 0.1,
-    minimumFee: 1,
+    '1': 0.1,
+    '10': 0.1,
+    '25': 0.1,
   };
 
-  let endpoint = mempoolExplorerEndpoints.liquid.explorerLiquidAPI;
-
-  if (network === 'testnet') {
-    endpoint = mempoolExplorerEndpoints.testnet.explorerLiquidAPI;
-  }
-
-  if (network === 'regtest') {
-    return defaultFees;
-  }
-
   try {
-    const response = await axios.get(`${endpoint}/v1/fees/recommended/`);
+    const response = await axios.get(`${explorerLiquidAPIValue}/fee-estimates`);
     return response.data;
   } catch (err) {
     console.error(err);

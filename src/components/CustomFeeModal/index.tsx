@@ -26,9 +26,9 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
   const [showCustomFeeInput, setShowCustomFeeInput] = useState(false);
   const [selectedItem, setSelectedItem] = useState<'slow' | 'medium' | 'fast' | 'custom'>('slow');
 
-  const slowFee = recommendedFees?.hourFee || 0.1;
-  const mediumFee = recommendedFees?.halfHourFee || 0.1;
-  const fastFee = recommendedFees?.fastestFee || 0.1;
+  const slowFee = recommendedFees?.["25"] || 0.1;
+  const mediumFee = recommendedFees?.["10"] || 0.1;
+  const fastFee = recommendedFees?.["1"] || 0.1;
 
   const slowFeeSelected = selectedItem === 'slow' ? 'active' : '';
   const mediumFeeSelected = selectedItem === 'medium' ? 'active' : '';
@@ -57,7 +57,7 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
               <p>FAST</p>
             </div>
             <div className="fee-amount">
-              <span className="fee-time">1 minute</span>
+              <span className="fee-time">~ 1 minute</span>
               <span className="sats-vbyte">{fastFee} sat/vByte</span>
             </div>
           </IonItem>
@@ -74,7 +74,7 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
               <p>MEDIUM</p>
             </div>
             <div className="fee-amount">
-              <span className="fee-time">30 minutes</span>
+              <span className="fee-time">~ 10 minutes</span>
               <span className="sats-vbyte">{mediumFee} sat/vByte</span>
             </div>
           </IonItem>
@@ -92,7 +92,7 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
               <span></span>
             </div>
             <div className="fee-amount">
-              <span className="fee-time">60 minutes</span>
+              <span className="fee-time">~ 25 minutes</span>
               <span className="sats-vbyte">{slowFee} sat/vByte</span>
             </div>
           </IonItem>
@@ -120,7 +120,7 @@ const CustomFeeModal: React.FC<CustomFeeModalProps> = ({ isOpen, close, recommen
           {
             text: 'OK',
             handler: (data) => {
-              // Invalid satsvbyte will be replaced by the slowFee
+              // Invalid satsvbytes are be replaced by the slowFee
               const satsvbyte = isNaN(parseFloat(data.satsvbyte as any)) ? slowFee : parseFloat(data.satsvbyte);
               setSelectedFee(satsvbyte);
               setSelectedItem('custom');

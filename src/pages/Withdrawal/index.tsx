@@ -154,12 +154,12 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
 
   const fetchRecommendedFees = useCallback(async () => {
     try {
-      const _recommendedFees = await getRecommendedFees(network);
+      const _recommendedFees = await getRecommendedFees(explorerLiquidAPI);
       setRecommendedFees(_recommendedFees);
     } catch (err) {
       console.error(err);
     }
-  }, [network]);
+  }, [explorerLiquidAPI]);
 
   // Check fees on component mount
   useEffect(() => {
