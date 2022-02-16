@@ -2,7 +2,7 @@ import type { InputInterface, TxInterface } from 'ldk';
 import { isUnblindedOutput } from 'ldk';
 import moment from 'moment';
 import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
-import { getAsset, getSats } from 'tdex-sdk';
+import { getAsset, getSats, isConfidentialOutput } from 'tdex-sdk';
 
 import { isLbtc } from '../../utils/helpers';
 import type { Transfer, TxDisplayInterface } from '../../utils/types';
@@ -56,11 +56,10 @@ function getTransfers(
   }
 
   // Get fee output values
-  for (const output of vout) {
-    if (isUnblindedOutput(output) && output.prevout.script.toString() === '') {
-      feeAmount = getSats(output);
-      feeAsset = getAsset(output);
-    }
+  const feeOutput = vout.find((output) => !isConfidentialOutput(output) && output.prevout.script.toString() === '');
+  if (feeOutput) {
+    feeAmount = getSats(feeOutput);
+    feeAsset = getAsset(feeOutput);
   }
 
   for (const output of vout) {
