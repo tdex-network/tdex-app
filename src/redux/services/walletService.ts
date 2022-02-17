@@ -11,6 +11,26 @@ import {
 
 import { getLastUsedIndexesInStorage } from '../../utils/storage-helper';
 
+export type RecommendedFeesResult = {
+  [targetBlock: string]: number;
+};
+
+export const getRecommendedFees = async (explorerLiquidAPIValue: string): Promise<RecommendedFeesResult> => {
+  const defaultFees: RecommendedFeesResult = {
+    '1': 0.1,
+    '10': 0.1,
+    '25': 0.1,
+  };
+
+  try {
+    const response = await axios.get(`${explorerLiquidAPIValue}/fee-estimates`);
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    return defaultFees;
+  }
+};
+
 export const getAssetsRequest = (
   path: string,
   explorerLiquidAPIValue: string,

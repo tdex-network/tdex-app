@@ -13,7 +13,7 @@ import Decimal from 'decimal.js';
 import type { RecipientInterface, StateRestorerOpts } from 'ldk';
 import { address, psetToUnsignedTx, walletFromCoins } from 'ldk';
 import { Psbt } from 'liquidjs-lib';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
@@ -21,6 +21,7 @@ import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
 import { mnemonicRestorerFromState } from 'tdex-sdk';
 
 import ButtonsMainSub from '../../components/ButtonsMainSub';
+import CustomFeeModal from '../../components/CustomFeeModal';
 import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
@@ -32,7 +33,8 @@ import { setIsFetchingUtxos } from '../../redux/actions/appActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos, updateUtxos } from '../../redux/actions/walletActions';
-import { broadcastTx } from '../../redux/services/walletService';
+import { broadcastTx, getRecommendedFees } from '../../redux/services/walletService';
+import type { RecommendedFeesResult } from '../../redux/services/walletService';
 import { decodeBip21 } from '../../utils/bip21';
 import type { LbtcDenomination } from '../../utils/constants';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
@@ -83,6 +85,10 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [recipientAddress, setRecipientAddress] = useState<string>('');
   const [modalOpen, setModalOpen] = useState(false);
+  const [customFeeModalOpen, setCustomFeeModalOpen] = useState(false);
+  const [recommendedFees, setRecommendedFees] = useState<RecommendedFeesResult | null>(null);
+  const [selectedFee, setSelectedFee] = useState<number>(0.1);
+
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const dispatch = useDispatch();
 
@@ -146,6 +152,20 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     }
   }, [amount, balance, balances, lbtcUnit, network]);
 
+  const fetchRecommendedFees = useCallback(async () => {
+    try {
+      const _recommendedFees = await getRecommendedFees(explorerLiquidAPI);
+      setRecommendedFees(_recommendedFees);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [explorerLiquidAPI]);
+
+  // Check fees on component mount
+  useEffect(() => {
+    fetchRecommendedFees();
+  }, [fetchRecommendedFees]);
+
   const getRecipient = (): RecipientInterface => ({
     address: recipientAddress?.trim(),
     asset: balance?.assetHash || '',
@@ -186,7 +206,8 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         getRecipient(),
         customCoinSelector(dispatch),
         changeAddress.confidentialAddress,
-        true
+        true,
+        selectedFee
       );
       // blind all the outputs except fee
       const recipientData = address.fromConfidential(recipientAddress);
@@ -245,6 +266,14 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         needReset={needReset}
         setNeedReset={setNeedReset}
         setIsWrongPin={setIsWrongPin}
+      />
+      <CustomFeeModal
+        isOpen={customFeeModalOpen}
+        close={() => setCustomFeeModalOpen(false)}
+        recommendedFees={recommendedFees}
+        setSelectedFee={(fee: number) => {
+          setSelectedFee(fee);
+        }}
       />
       <Loader showLoading={loading} delay={0} />
       <IonContent className="withdrawal">
@@ -306,6 +335,13 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
             >
               <IconQR fill="#fff" />
             </IonButton>
+          </IonItem>
+
+          <IonItem className="fee-container">
+            <span>NETWORK FEE</span>
+            <div className="fee-amount ion-text-right">
+              <IonButton onClick={() => setCustomFeeModalOpen(true)}>{selectedFee} sat/vByte</IonButton>
+            </div>
           </IonItem>
 
           <IonRow className="ion-margin-vertical-x2">

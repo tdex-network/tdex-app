@@ -12,4 +12,28 @@
       flex: 10%;
     }
   }
+  .fee-container {
+    --background: transparent;
+    --padding-end: 0px;
+    --padding-start: 6px;
+    --padding-top: 6px;
+    span{
+      font-size: var(--ion-font-size-sub);
+      font-family: var(--ion-font-sub-heading);
+      color: var(--ion-color-tertiary);
+      text-transform: uppercase;
+    }
+    .fee-amount{
+      flex: 1;
+      height: 100%;
+      ion-button{
+        width: auto;
+        font-size: var(--ion-font-size-sub);
+        color: var(--ion-color-tertiary);
+        text-transform: none; 
+        border-radius: 8px;
+        --border-radius: 8px;
+      }
+    }
+  }
 }

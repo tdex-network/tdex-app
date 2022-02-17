@@ -1,0 +1,45 @@
+.custom-fee-modal {
+  ion-header {
+    background: var(--ion-color-primary);
+  }
+
+  ion-footer {
+    background: var(--ion-color-primary);
+  }
+
+  ion-content {
+    --background: var(--ion-color-primary);
+
+    ion-item {
+      color: var(--ion-color-tertiary);
+      border: 2px solid var(--ion-color-medium-tint);
+      height: 66px;
+      &.active {
+        --background: var(--ion-color-secondary-dark);
+        color: var(--ion-color-secondary);
+        border: 2px solid var(--ion-color-secondary);
+        span {
+          color: var(--ion-color-secondary);
+        }
+      }
+
+      .fee-name {
+        font-family: var(--ion-font-main);
+        font-size: var(--ion-font-size-sub);
+      }
+
+      .fee-amount {
+        font-size: var(--ion-font-size-main);
+
+        .fee-time {
+          font-family: var(--ion-font-sub);
+          font-weight: bold;
+        }
+
+        .sats-vbyte {
+          font-size: var(--ion-font-size-sub);
+        }
+      }
+    }
+  }
+}
