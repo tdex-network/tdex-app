@@ -168,6 +168,10 @@ export const balancesSelector = createSelector(
   }
 );
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export const balanceByAssetSelector = (assetHash: string) =>
+  createSelector([balancesSelector], (balances) => balances.find((b) => b.assetHash === assetHash));
+
 /**
  * Redux selector returning the total LBTC balance (including featuring assets with CoinGecko support)
  * @param state the current redux state

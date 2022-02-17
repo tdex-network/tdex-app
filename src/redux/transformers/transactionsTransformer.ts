@@ -56,7 +56,7 @@ function getTransfers(
   }
 
   // Get fee output values
-  const feeOutput = vout.find((output) => !isConfidentialOutput(output) && output.prevout.script.toString() === '');
+  const feeOutput = vout.find((output) => !isConfidentialOutput(output) && output.prevout?.script.toString() === '');
   if (feeOutput) {
     feeAmount = getSats(feeOutput);
     feeAsset = getAsset(feeOutput);

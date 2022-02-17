@@ -196,7 +196,7 @@ export function customCoinSelector(dispatch?: Dispatch): CoinSelector {
 }
 
 export function isLbtc(asset: string, network: NetworkString): boolean {
-  return asset === LBTC_ASSET[network].assetHash;
+  return asset === LBTC_ASSET[network]?.assetHash;
 }
 
 export function isLbtcTicker(ticker: string): boolean {

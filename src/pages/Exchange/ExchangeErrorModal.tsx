@@ -3,11 +3,11 @@ import { IonButton, IonCol, IonContent, IonGrid, IonModal, IonRow, IonText } fro
 import React, { useEffect } from 'react';
 
 import Header from '../../components/Header';
-import type { TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
+import type { TdexOrderInputResult } from '../../components/TdexOrderInput';
 import type { AppError } from '../../utils/errors';
 
 interface Props {
-  result?: TDEXProvider;
+  result?: TdexOrderInputResult;
   error?: AppError;
   onClose: () => void;
   onClickRetry: () => void;
@@ -22,7 +22,7 @@ const ExchangeErrorModal: React.FC<Props> = ({ result, error, onClose, onClickRe
   const tryNextHandler = () => {
     onClose();
     if (!result) return;
-    onClickTryNext(result.endpoint);
+    onClickTryNext(result?.order.traderClient.providerUrl);
   };
 
   const retryHandler = () => {

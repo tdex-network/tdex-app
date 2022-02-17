@@ -2,7 +2,7 @@
   @media (max-height: 700px) {
     padding: 32px 24px;
   }
-  padding: 54px 24px;
+  padding: 45px 24px;
   color: #fff;
   .subtitle {
     font-family: var(--ion-font-sub-heading);
@@ -82,4 +82,52 @@ ion-spinner {
 
 .icon {
   width: 20px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  max-width: 100vh;
+}
+
+.exchange-divider {
+  position: relative;
+  display: flex;
+  transition: all 800ms ease-in-out;
+  img {
+    position: absolute;
+    margin-top: -16px;
+    left: calc(50vw - 17px);
+    z-index: 2;
+    background: rgba(15, 255, 0, 0.12);
+    width: 32px;
+    height: 32px;
+    padding: 5px;
+    border: rgb(15, 255, 0) 1px solid;
+    border-radius: 50%;
+  }
+  &:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 1px;
+    width: calc(50% - 16px);
+    border-top: 1px solid rgb(15, 255, 0);
+  }
+  &:after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 1px;
+    width: calc(50% - 16px);
+    border-top: 1px solid rgb(15, 255, 0);
+  }
+  ion-ripple-effect {
+    height: fit-content;
+    width: 100px;
+    margin: 0 auto;
+    opacity: 0.7;
+  }
 }
