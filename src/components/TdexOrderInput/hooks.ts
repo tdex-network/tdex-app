@@ -58,6 +58,8 @@ export function useTradeState(markets: TDEXMarket[]) {
   const [focus, setFocus] = useState<'send' | 'receive'>();
   const [sendError, setSendError] = useState<Error>();
   const [receiveError, setReceiveError] = useState<Error>();
+  const [hasBeenSwapped, setHasBeenSwapped] = useState<boolean>(false);
+  const [assetSendBeforeSwap, setAssetSendBeforeSwap] = useState<string | undefined>(sendAsset);
 
   const getTradable = useCallback((asset: string) => getTradablesAssets(markets, asset), [markets]);
 
@@ -66,18 +68,36 @@ export function useTradeState(markets: TDEXMarket[]) {
     setReceiveError(undefined);
   };
   const swapAssets = () => {
+    setAssetSendBeforeSwap(sendAsset);
     const temp = sendAsset;
     setSendAsset(receiveAsset);
     setReceiveAsset(temp);
     resetErrors();
   };
 
+  // After assets have been actually swapped, setHasBeenSwapped true
+  useEffect(() => {
+    if (sendAsset !== assetSendBeforeSwap) {
+      setHasBeenSwapped(true);
+    }
+  }, [assetSendBeforeSwap, sendAsset]);
+
+  // After hasBeenSwapped has been updated to true, setSendAmount
+  useEffect(() => {
+    (async () => {
+      if (hasBeenSwapped) {
+        await setSendAmount(receiveSats ?? 0).catch(console.error);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasBeenSwapped]);
+
   const discoverFunction = useCallback(
     () => discoverBestOrder(markets, sendAsset, receiveAsset),
     [markets, receiveAsset, sendAsset]
   );
 
-  const computePriceAndUpdate = useCallback(
+  const computePriceAndUpdate =
     (sats: number, asset: string, type: 'send' | 'receive') => async (order: TradeOrder) => {
       const assetSats = await calculatePrice(sats, asset)(order);
       if (type === 'send') {
@@ -86,25 +106,20 @@ export function useTradeState(markets: TDEXMarket[]) {
         setSendSats(assetSats.sats);
       }
       return order;
-    },
-    [setReceiveSats, setSendSats]
-  );
+    };
 
-  const updateReceiveSats = useCallback(
-    (newSendSats: number) => {
-      if (!sendAsset) return;
-      setReceiveLoader(true);
-      return discoverFunction()(newSendSats ?? 0, sendAsset)
-        .then(computePriceAndUpdate(newSendSats ?? 0, sendAsset, 'send')) // set receive sats
-        .then(setBestOrder)
-        .catch(setReceiveError)
-        .finally(() => setReceiveLoader(false));
-    },
-    [computePriceAndUpdate, discoverFunction, sendAsset]
-  );
+  const updateReceiveSats = (newSendSats: number) => {
+    if (!sendAsset || (focus === 'receive' && !hasBeenSwapped)) return;
+    setReceiveLoader(true);
+    return discoverFunction()(newSendSats ?? 0, sendAsset)
+      .then(computePriceAndUpdate(newSendSats ?? 0, sendAsset, 'send')) // set receive sats
+      .then(setBestOrder)
+      .catch(setReceiveError)
+      .finally(() => setReceiveLoader(false));
+  };
 
   const updateSendSats = (newReceiveSats: number) => {
-    if (!receiveAsset) return;
+    if (!receiveAsset || (focus === 'send' && !hasBeenSwapped) || (focus === 'receive' && hasBeenSwapped)) return;
     setSendLoader(true);
     return discoverFunction()(newReceiveSats ?? 0, receiveAsset)
       .then(computePriceAndUpdate(newReceiveSats ?? 0, receiveAsset, 'receive')) // set send sats
@@ -126,7 +141,7 @@ export function useTradeState(markets: TDEXMarket[]) {
   const setReceiveAmount = async (sats: number) => {
     setReceiveError(undefined);
     setReceiveSats(sats);
-    if (focus === 'receive') await updateSendSats(sats);
+    await updateSendSats(sats);
   };
 
   useEffect(() => {
@@ -180,5 +195,6 @@ export function useTradeState(markets: TDEXMarket[]) {
     receiveError,
     setFocus,
     swapAssets,
+    setHasBeenSwapped,
   ] as const;
 }

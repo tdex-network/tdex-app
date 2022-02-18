@@ -64,6 +64,7 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, ma
     receiveError,
     setFocus,
     swapAssets,
+    setHasBeenSwapped,
   ] = useTradeState(markets);
 
   useIonViewDidEnter(() => {
@@ -108,11 +109,6 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, ma
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bestOrder]);
 
-  const swapSendAndReceiveAsset = () => {
-    swapAssets();
-    setSendAmount(receiveSats ?? 0).catch(console.error);
-  };
-
   return (
     <div className="container">
       <TradeRowInput
@@ -125,11 +121,14 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, ma
           setSendAsset(asset);
           if (sendSats) setSendAmount(sendSats).catch(console.error);
         }}
-        onChangeSats={setSendAmount}
+        onChangeSats={(sats: number) => {
+          setSendAmount(sats).catch(console.error);
+          setHasBeenSwapped(false);
+        }}
         searchableAssets={allTradableAssets}
         onFocus={() => setFocus('send')}
       />
-      <div className="exchange-divider ion-activatable" onClick={swapSendAndReceiveAsset}>
+      <div className="exchange-divider ion-activatable" onClick={swapAssets}>
         <img src={swap} alt="swap" />
         <IonRippleEffect type="unbounded" />
       </div>
