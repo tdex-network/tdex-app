@@ -39,7 +39,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsse
         </div>
       </IonHeader>
       <IonContent className="search-content">
-        {assets.length > 0 && (
+        {assets.length > 0 ? (
           <IonList>
             {assets
               .filter((asset?: AssetConfig) =>
@@ -74,6 +74,8 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsse
                 );
               })}
           </IonList>
+        ) : (
+          <p className="ion-padding-start">No asset available</p>
         )}
       </IonContent>
     </IonModal>
