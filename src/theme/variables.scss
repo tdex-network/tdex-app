@@ -38,6 +38,8 @@ body.dark {
   --ion-toolbar-background: transparent;
   --ion-tab-bar-background: rgb(26, 26, 26);
   --ion-item-background: transparent;
+  --ion-tab-bar-height: 10vh;
+  --ion-height-minus-tab-bar: calc(100vh - var(--ion-tab-bar-height));
   /** Colors **/
   --ion-text-color: #ffffff;
   /** primary **/
