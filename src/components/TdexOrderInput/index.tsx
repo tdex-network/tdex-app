@@ -16,7 +16,6 @@ import { createAmountAndUnit, useTradeState } from './hooks';
 
 interface ConnectedProps {
   assetsRegistry: Record<string, AssetConfig>;
-  allTradableAssets: AssetConfig[];
   lbtcUnit: LbtcDenomination;
 }
 
@@ -45,7 +44,7 @@ type Props = ConnectedProps & {
 // let the user chooses a tradable asset pair
 // and inputs an amount of satoshis to sell or to buy
 // if found, it returns best orders via `onInput` property
-const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, markets, lbtcUnit, onInput }) => {
+const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, markets, lbtcUnit, onInput }) => {
   const dispatch = useTypedDispatch();
 
   const [
@@ -125,7 +124,7 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, allTradableAssets, ma
           setSendAmount(sats).catch(console.error);
           setHasBeenSwapped(false);
         }}
-        searchableAssets={allTradableAssets}
+        searchableAssets={receiveAsset ? getTradablesAssets(markets, receiveAsset).map((h) => assetsRegistry[h]) : []}
         onFocus={() => setFocus('send')}
       />
       <div className="exchange-divider ion-activatable" onClick={swapAssets}>
