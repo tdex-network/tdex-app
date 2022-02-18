@@ -104,10 +104,10 @@ echo "market address 1: ${addressmarket1}"
 echo "market address 2: ${addressmarket2}"
 echo "market address 3: ${addressmarket3}"
 
-btctxid=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket0'", "asset": "'$TDEX_BASE_ASSET'", "amount": 100000}' "http://localhost:3001/faucet" | jq -r '.txId')
-usdttxid1=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket1'", "asset": "'$usdt'", "amount": 100000}' "http://localhost:3001/faucet" | jq -r '.txId')
-usdttxid2=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket2'", "asset": "'$usdt'", "amount": 100000}' "http://localhost:3001/faucet" | jq -r '.txId')
-usdttxid3=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket3'", "asset": "'$usdt'", "amount": 100000}' "http://localhost:3001/faucet" | jq -r '.txId')
+btctxid=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket0'", "asset": "'$TDEX_BASE_ASSET'", "amount": 100}' "http://localhost:3001/faucet" | jq -r '.txId')
+usdttxid1=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket1'", "asset": "'$usdt'", "amount": 1333333}' "http://localhost:3001/faucet" | jq -r '.txId')
+usdttxid2=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket2'", "asset": "'$usdt'", "amount": 1333333}' "http://localhost:3001/faucet" | jq -r '.txId')
+usdttxid3=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket3'", "asset": "'$usdt'", "amount": 1333333}' "http://localhost:3001/faucet" | jq -r '.txId')
 sleep 7
 
 btcvout=$(curl -s -X GET "http://localhost:3001/address/$addressmarket0/utxo" | jq -r '.[0].vout')
@@ -156,10 +156,10 @@ echo "market address 1: ${addressmarket1}"
 echo "market address 2: ${addressmarket2}"
 echo "market address 3: ${addressmarket3}"
 
-btctxid=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket0'", "asset": "'$TDEX_BASE_ASSET'", "amount": 100000}' "http://localhost:3001/faucet" | jq -r '.txId')
-lcadtxid1=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket1'", "asset": "'$lcad'", "amount": 1000000}' "http://localhost:3001/faucet" | jq -r '.txId')
-lcadtxid2=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket2'", "asset": "'$lcad'", "amount": 1000000}' "http://localhost:3001/faucet" | jq -r '.txId')
-lcadtxid3=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket3'", "asset": "'$lcad'", "amount": 1000000}' "http://localhost:3001/faucet" | jq -r '.txId')
+btctxid=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket0'", "asset": "'$TDEX_BASE_ASSET'", "amount": 100}' "http://localhost:3001/faucet" | jq -r '.txId')
+lcadtxid1=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket1'", "asset": "'$lcad'", "amount": 1666666}' "http://localhost:3001/faucet" | jq -r '.txId')
+lcadtxid2=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket2'", "asset": "'$lcad'", "amount": 1666666}' "http://localhost:3001/faucet" | jq -r '.txId')
+lcadtxid3=$(curl -s -X POST -H 'Content-Type: application/json' -d '{"address":"'$addressmarket3'", "asset": "'$lcad'", "amount": 1666666}' "http://localhost:3001/faucet" | jq -r '.txId')
 sleep 7
 
 btcvout=$(curl -s -X GET "http://localhost:3001/address/$addressmarket0/utxo" | jq -r '.[0].vout')
