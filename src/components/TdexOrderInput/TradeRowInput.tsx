@@ -6,6 +6,7 @@ import { chevronDownOutline } from 'ionicons/icons';
 import React, { useEffect, useRef, useState } from 'react';
 import type { NetworkString } from 'tdex-sdk';
 
+import { useDelayedRender } from '../../hooks/useDelayedRender';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
 import type { CurrencyInterface } from '../../redux/reducers/settingsReducer';
@@ -42,6 +43,10 @@ interface ComponentProps {
 }
 
 type Props = ConnectedProps & ComponentProps;
+
+const DelayedSpinner: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
+  return useDelayedRender(1000, isLoading)(() => <IonSpinner name="dots" />);
+};
 
 const TradeRowInput: React.FC<Props> = ({
   type,
@@ -177,7 +182,7 @@ const TradeRowInput: React.FC<Props> = ({
         </span>
 
         {isLoading ? (
-          <IonSpinner name="dots" />
+          <DelayedSpinner isLoading={isLoading} />
         ) : (
           <span className="ion-text-right">
             {error || localError ? (
