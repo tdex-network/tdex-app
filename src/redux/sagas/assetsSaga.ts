@@ -24,18 +24,18 @@ function* persistAssets() {
   yield call(setAssetsInStorage, currentAssets);
 }
 
-function* addAssetSaga({ payload }: ReturnType<typeof addAsset>) {
-  if (!payload) return;
+function* addAssetSaga({ payload: assetHash }: ReturnType<typeof addAsset>) {
+  if (!assetHash) return;
   // check if asset already present in state
-  const { asset, network, explorerLiquidAPI } = yield select(({ assets, settings }: RootState) => ({
-    asset: assets[payload],
-    network: settings.network,
+  const { asset, explorerLiquidAPI, network } = yield select(({ assets, settings }: RootState) => ({
+    asset: assets[assetHash],
     explorerLiquidAPI: settings.explorerLiquidAPI,
+    network: settings.network,
   }));
   if (!asset) {
     const assetData: Unwrap<ReturnType<typeof getAssetData>> = yield call(
       getAssetData,
-      payload,
+      assetHash,
       explorerLiquidAPI,
       network
     );
@@ -44,7 +44,7 @@ function* addAssetSaga({ payload }: ReturnType<typeof addAsset>) {
         setAsset({
           ticker: assetData.ticker,
           precision: assetData.precision,
-          assetHash: payload,
+          assetHash: assetHash,
           name: assetData.name,
           coinGeckoID: assetData?.coinGeckoID,
         })

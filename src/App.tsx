@@ -4,7 +4,6 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { IonApp, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import React, { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
 import { Redirect, Route } from 'react-router';
 
 import Loader from './components/Loader';
@@ -18,6 +17,7 @@ import PinModalClaimPegin from './redux/containers/pinModalClaimPeginContainer';
 import RestoreWallet from './redux/containers/restoreWalletContainer';
 import ShowMnemonicOnboarding from './redux/containers/showMnemonicOnboadingContainer';
 import Toasts from './redux/containers/toastsContainer';
+import { useTypedDispatch } from './redux/hooks';
 
 interface AppProps {
   appInit: boolean;
@@ -26,7 +26,7 @@ interface AppProps {
 }
 
 const App: React.FC<AppProps> = ({ appInit, isAuth, theme }) => {
-  const dispatch = useDispatch();
+  const dispatch = useTypedDispatch();
   const appState = useAppState();
 
   useEffect(() => {

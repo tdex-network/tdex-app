@@ -6,6 +6,7 @@ import React from 'react';
 import './style.scss';
 
 interface HeaderProps {
+  className?: string;
   defaultHref?: string;
   isTitleLarge?: boolean;
   handleBack?: () => void;
@@ -17,6 +18,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({
+  className,
   defaultHref,
   handleBack,
   handleClose,
@@ -27,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({
   customRightButton,
 }) => {
   return (
-    <IonHeader className="ion-no-border">
+    <IonHeader className={`${className} ion-no-border`}>
       <IonToolbar
         className={classNames({
           'back-button': hasBackButton,

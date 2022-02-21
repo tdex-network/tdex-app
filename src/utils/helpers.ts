@@ -37,7 +37,7 @@ export function fromSatoshiFixed(val: string, precision?: number, fixed?: number
     });
 }
 
-export function toLBTCwithUnit(lbtcValue: Decimal, unit?: LbtcDenomination): Decimal {
+export function fromUnitToLbtc(lbtcValue: Decimal, unit?: LbtcDenomination): Decimal {
   switch (unit) {
     case 'L-BTC':
       return lbtcValue;
@@ -196,7 +196,7 @@ export function customCoinSelector(dispatch?: Dispatch): CoinSelector {
 }
 
 export function isLbtc(asset: string, network: NetworkString): boolean {
-  return asset === LBTC_ASSET[network].assetHash;
+  return asset === LBTC_ASSET[network]?.assetHash;
 }
 
 export function isLbtcTicker(ticker: string): boolean {

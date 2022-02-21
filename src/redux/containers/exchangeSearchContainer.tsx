@@ -6,7 +6,7 @@ import type { RootState } from '../types';
 const mapStateToProps = (state: RootState) => {
   return {
     prices: state.rates.prices,
-    currency: state.settings.currency.value,
+    currency: state.settings.currency,
   };
 };
 

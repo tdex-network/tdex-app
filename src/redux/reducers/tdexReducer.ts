@@ -1,9 +1,9 @@
-import type { NetworkString } from 'tdex-sdk';
+import { createSelector } from 'reselect';
 
-import type { AssetConfig } from '../../utils/constants';
 import type { ActionType } from '../../utils/types';
 import type { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
 import { ADD_MARKETS, ADD_PROVIDERS, CLEAR_MARKETS, CLEAR_PROVIDERS, DELETE_PROVIDER } from '../actions/tdexActions';
+import type { RootState } from '../types';
 
 export interface TDEXState {
   providers: TDEXProvider[];
@@ -47,23 +47,14 @@ const TDEXReducer = (
   }
 };
 
-export const allAssets = ({
-  assets,
-  tdex,
-  network,
-}: {
-  assets: Record<string, AssetConfig>;
-  tdex: TDEXState;
-  network: NetworkString;
-}): AssetConfig[] => {
-  const quoteAssets = tdex.markets.map((m) => m.quoteAsset);
-  const baseAssets = tdex.markets.map((m) => m.baseAsset);
-  const uniqueAssets = [...new Set([...quoteAssets, ...baseAssets])];
-  return uniqueAssets.map((assetHash: string) => ({
-    assetHash: assetHash,
-    ticker: assets[assetHash]?.ticker || '',
-    coinGeckoID: assets[assetHash]?.coinGeckoID,
-  }));
-};
+function assetHashFromMarkets(markets: TDEXMarket[]) {
+  return Array.from(new Set(markets.flatMap((m) => [m.baseAsset, m.quoteAsset])));
+}
+
+export const selectAllTradableAssets = createSelector(
+  (state: RootState) => state.assets,
+  (state: RootState) => state.tdex.markets,
+  (assets, markets) => assetHashFromMarkets(markets).map((hash) => assets[hash])
+);
 
 export default TDEXReducer;

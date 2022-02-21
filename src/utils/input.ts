@@ -6,7 +6,7 @@ import { unitToFixedDigits } from './helpers';
 /**
  * Sanitize input amount
  * @param eventDetailValue string
- * @param setAmount Dispatch<string>
+ * @param setAmount
  * @param unit
  * @returns sanitizedValue string
  */
@@ -32,7 +32,7 @@ export function sanitizeInputAmount(
   let sanitizedValue = eventDetailValue
     // Replace comma by dot
     .replace(',', '.')
-    // Remove non numeric chars or period
+    // Remove non-numeric chars or period
     .replace(/[^0-9.]/g, '');
   // Prefix single dot
   if (sanitizedValue === '.') sanitizedValue = '0.';
