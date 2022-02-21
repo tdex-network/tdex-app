@@ -12,7 +12,7 @@ import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
 import type { CurrencyInterface } from '../../redux/reducers/settingsReducer';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
 import { defaultPrecision } from '../../utils/constants';
-import { fromSatoshiFixed, isLbtc, isLbtcTicker, toSatoshi, unitToExponent } from '../../utils/helpers';
+import { fromSatoshiFixed, fromUnitToLbtc, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import { CurrencyIcon } from '../icons';
@@ -189,8 +189,10 @@ const TradeRowInput: React.FC<Props> = ({
               <IonText color="danger">{(error || localError)?.message || 'unknown error'}</IonText>
             ) : (
               <>
-                {new Decimal(inputValue || 0)
-                  .mul(Decimal.pow(10, isLbtcTicker(balance?.ticker || '') ? -unitToExponent(lbtcUnit) : 0))
+                {fromUnitToLbtc(
+                  new Decimal(inputValue || 0),
+                  isLbtcTicker(balance?.ticker || '') ? lbtcUnit : undefined
+                )
                   .mul(price || 0)
                   .toFixed(2)}{' '}
                 {currency.value.toUpperCase()}

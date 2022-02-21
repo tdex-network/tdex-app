@@ -37,7 +37,7 @@ export function fromSatoshiFixed(val: string, precision?: number, fixed?: number
     });
 }
 
-export function toLBTCwithUnit(lbtcValue: Decimal, unit?: LbtcDenomination): Decimal {
+export function fromUnitToLbtc(lbtcValue: Decimal, unit?: LbtcDenomination): Decimal {
   switch (unit) {
     case 'L-BTC':
       return lbtcValue;

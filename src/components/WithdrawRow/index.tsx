@@ -10,7 +10,7 @@ import type { NetworkString } from 'tdex-sdk';
 
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { updatePrices } from '../../redux/actions/ratesActions';
-import { fromSatoshi, fromSatoshiFixed, isLbtc, isLbtcTicker, toLBTCwithUnit } from '../../utils/helpers';
+import { fromSatoshi, fromSatoshiFixed, isLbtc, isLbtcTicker, fromUnitToLbtc } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
 import { onPressEnterKeyCloseKeyboard, setAccessoryBar } from '../../utils/keyboard';
 import { CurrencyIcon } from '../icons';
@@ -89,7 +89,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
       })
     );
     if (price) {
-      setFiat(toLBTCwithUnit(new Decimal(sanitizedValue), unit).mul(price).toFixed(2));
+      setFiat(fromUnitToLbtc(new Decimal(sanitizedValue), unit).mul(price).toFixed(2));
     }
   };
 
