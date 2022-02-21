@@ -108,8 +108,11 @@ export function useTradeState(markets: TDEXMarket[]) {
     setReceiveLoader(true);
     return discoverFunction()(newSendSats ?? 0, sendAsset)
       .then(computePriceAndUpdate(newSendSats ?? 0, sendAsset, 'send')) // set receive sats
-      .then(setBestOrder)
-      .catch(setReceiveError)
+      .then((tradeOrder: TradeOrder) => {
+        setBestOrder(tradeOrder);
+        resetErrors();
+      })
+      .catch(setSendError)
       .finally(() => setReceiveLoader(false));
   };
 
@@ -118,8 +121,11 @@ export function useTradeState(markets: TDEXMarket[]) {
     setSendLoader(true);
     return discoverFunction()(newReceiveSats ?? 0, receiveAsset)
       .then(computePriceAndUpdate(newReceiveSats ?? 0, receiveAsset, 'receive')) // set send sats
-      .then(setBestOrder)
-      .catch(setSendError)
+      .then((tradeOrder: TradeOrder) => {
+        setBestOrder(tradeOrder);
+        resetErrors();
+      })
+      .catch(setReceiveError)
       .finally(() => setSendLoader(false));
   };
 
