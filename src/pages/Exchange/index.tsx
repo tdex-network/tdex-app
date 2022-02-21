@@ -21,7 +21,6 @@ import { mnemonicRestorerFromState } from 'ldk';
 import React, { useCallback, useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
-import { balances } from 'tdex-sdk';
 
 import tradeHistory from '../../assets/img/trade-history.svg';
 import Header from '../../components/Header';
@@ -117,7 +116,7 @@ const Exchange: React.FC<Props> = ({
 
   useIonViewWillEnter(() => {
     if (getMarkets().length === 0 || getProviders().length === 0) return openNoProvidersAvailableAlert();
-  }, [balances, getMarkets, getProviders]);
+  }, [getMarkets, getProviders]);
 
   const openNoProvidersAvailableAlert = () => {
     if (history.location.pathname === '/exchange') {

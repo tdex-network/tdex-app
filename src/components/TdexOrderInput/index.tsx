@@ -121,8 +121,8 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, markets, lbtcUnit, on
           if (sendSats) setSendAmount(sendSats).catch(console.error);
         }}
         onChangeSats={(sats: number) => {
-          setSendAmount(sats).catch(console.error);
           setHasBeenSwapped(false);
+          setSendAmount(sats).catch(console.error);
         }}
         searchableAssets={receiveAsset ? getTradablesAssets(markets, receiveAsset).map((h) => assetsRegistry[h]) : []}
         onFocus={() => setFocus('send')}
@@ -141,7 +141,10 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, markets, lbtcUnit, on
           setReceiveAsset(asset);
           if (receiveSats) setReceiveAmount(receiveSats).catch(console.error);
         }}
-        onChangeSats={setReceiveAmount}
+        onChangeSats={(sats: number) => {
+          setHasBeenSwapped(false);
+          setReceiveAmount(sats).catch(console.error);
+        }}
         searchableAssets={sendAsset ? getTradablesAssets(markets, sendAsset).map((h) => assetsRegistry[h]) : []}
         onFocus={() => setFocus('receive')}
       />

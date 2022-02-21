@@ -161,15 +161,16 @@ const TradeRowInput: React.FC<Props> = ({
         <span
           className="balance"
           onClick={() => {
-            if (!inputRef.current || !balance) return;
+            if (!inputRef.current) return;
             inputRef.current.setFocus().catch(console.error);
-            inputRef.current.value = fromSatoshiFixed(
-              balance.amount.toString() || '0',
-              balance.precision ?? defaultPrecision,
-              balance.precision ?? defaultPrecision,
-              isLbtcTicker(balance.ticker) ? lbtcUnit : undefined
+            onInputAmount(
+              fromSatoshiFixed(
+                balance?.amount.toString() || '0',
+                balance?.precision ?? defaultPrecision,
+                balance?.precision ?? defaultPrecision,
+                isLbtcTicker(balance?.ticker || '') ? lbtcUnit : undefined
+              )
             );
-            setInputValue(inputRef.current.value);
           }}
         >
           <span>Total balance:</span>
