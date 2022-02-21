@@ -114,7 +114,7 @@ export function useTradeState(markets: TDEXMarket[]) {
   };
 
   const updateSendSats = (newReceiveSats: number) => {
-    if (!receiveAsset || (focus === 'send' && !hasBeenSwapped) || (focus === 'receive' && hasBeenSwapped)) return;
+    if (!receiveAsset || focus === 'send' || (focus === 'receive' && hasBeenSwapped)) return;
     setSendLoader(true);
     return discoverFunction()(newReceiveSats ?? 0, receiveAsset)
       .then(computePriceAndUpdate(newReceiveSats ?? 0, receiveAsset, 'receive')) // set send sats

@@ -45,7 +45,7 @@ interface ComponentProps {
 type Props = ConnectedProps & ComponentProps;
 
 const DelayedSpinner: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
-  return useDelayedRender(1000, isLoading)(() => <IonSpinner name="dots" />);
+  return useDelayedRender(400, isLoading)(() => <IonSpinner name="dots" />);
 };
 
 const TradeRowInput: React.FC<Props> = ({
@@ -131,30 +131,34 @@ const TradeRowInput: React.FC<Props> = ({
           )}
         </div>
 
-        <div
-          className={classNames('coin-amount', {
-            active: (sats ?? 0) > 0,
-          })}
-        >
-          <div className="ion-text-end">
-            <IonInput
-              ref={inputRef}
-              color={(localError || error) && 'danger'}
-              data-cy={`exchange-${type}-input`}
-              disabled={isLoading}
-              enterkeyhint="done"
-              inputmode="decimal"
-              onIonChange={handleInputChange}
-              onKeyDown={onPressEnterKeyCloseKeyboard}
-              onIonFocus={onFocus}
-              pattern="^[0-9]*[.,]?[0-9]*$"
-              placeholder="0"
-              type="tel"
-              value={inputValue}
-              debounce={500}
-            />
+        {isLoading ? (
+          <DelayedSpinner isLoading={isLoading} />
+        ) : (
+          <div
+            className={classNames('coin-amount', {
+              active: (sats ?? 0) > 0,
+            })}
+          >
+            <div className="ion-text-end">
+              <IonInput
+                ref={inputRef}
+                color={(localError || error) && 'danger'}
+                data-cy={`exchange-${type}-input`}
+                disabled={isLoading}
+                enterkeyhint="done"
+                inputmode="decimal"
+                onIonChange={handleInputChange}
+                onKeyDown={onPressEnterKeyCloseKeyboard}
+                onIonFocus={onFocus}
+                pattern="^[0-9]*[.,]?[0-9]*$"
+                placeholder="0"
+                type="tel"
+                value={inputValue}
+                debounce={1250}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <div className="exchanger-row sub-row ion-margin-top">
@@ -182,9 +186,7 @@ const TradeRowInput: React.FC<Props> = ({
           )} ${isLbtcTicker(balance?.ticker || '') ? lbtcUnit : assetSelected?.ticker}`}</span>
         </span>
 
-        {isLoading ? (
-          <DelayedSpinner isLoading={isLoading} />
-        ) : (
+        {isLoading ? null : (
           <span className="ion-text-right">
             {error || localError ? (
               <IonText color="danger">{(error || localError)?.message || 'unknown error'}</IonText>
