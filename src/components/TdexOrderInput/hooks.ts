@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { TradeOrder } from 'tdex-sdk';
 
 import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
@@ -6,7 +6,7 @@ import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
 import { defaultPrecision } from '../../utils/constants';
 import { NoMarketsProvidedError } from '../../utils/errors';
 import { fromSatoshiFixed, isLbtcTicker } from '../../utils/helpers';
-import { discoverBestOrder, getTradablesAssets, marketPriceRequest } from '../../utils/tdex';
+import { discoverBestOrder, marketPriceRequest } from '../../utils/tdex';
 
 import type { SatsAsset, AmountAndUnit } from '.';
 
@@ -61,8 +61,6 @@ export function useTradeState(markets: TDEXMarket[]) {
   const [hasBeenSwapped, setHasBeenSwapped] = useState<boolean>(false);
   const [assetSendBeforeSwap, setAssetSendBeforeSwap] = useState<string | undefined>(sendAsset);
 
-  const getTradable = useCallback((asset: string) => getTradablesAssets(markets, asset), [markets]);
-
   const resetErrors = () => {
     setSendError(undefined);
     setReceiveError(undefined);
@@ -92,10 +90,7 @@ export function useTradeState(markets: TDEXMarket[]) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasBeenSwapped]);
 
-  const discoverFunction = useCallback(
-    () => discoverBestOrder(markets, sendAsset, receiveAsset),
-    [markets, receiveAsset, sendAsset]
-  );
+  const discoverFunction = () => discoverBestOrder(markets, sendAsset, receiveAsset);
 
   const computePriceAndUpdate =
     (sats: number, asset: string, type: 'send' | 'receive') => async (order: TradeOrder) => {
@@ -154,30 +149,6 @@ export function useTradeState(markets: TDEXMarket[]) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [markets.length, sendSats]);
-
-  // auto update receive asset
-  useEffect(() => {
-    if (!sendAsset) {
-      setReceiveAsset(undefined);
-      return;
-    }
-    const tradableAssets = getTradable(sendAsset);
-    if (!receiveAsset || !tradableAssets.includes(receiveAsset)) {
-      setReceiveAsset(tradableAssets[0]);
-    }
-  }, [getTradable, receiveAsset, sendAsset, setReceiveAsset]);
-
-  // auto update send asset
-  useEffect(() => {
-    if (!receiveAsset) {
-      setSendAsset(undefined);
-      return;
-    }
-    const tradableAssets = getTradable(receiveAsset);
-    if (!sendAsset || !tradableAssets.includes(sendAsset)) {
-      setSendAsset(tradableAssets[0]);
-    }
-  }, [getTradable, receiveAsset, sendAsset, setSendAsset]);
 
   return [
     bestOrder,
