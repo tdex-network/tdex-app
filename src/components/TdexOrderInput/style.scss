@@ -10,6 +10,9 @@
   .exchanger-row {
     display: flex;
     justify-content: space-between;
+    &:not(.sub-row) {
+      align-items: center;
+    }
     &.sub-row .balance {
       display: flex;
       flex-direction: column;
@@ -57,7 +60,7 @@
     --padding-end: 0;
     --inner-padding-end: 0;
     font-family: var(--ion-font-sub);
-    font-size: var(--ion-font-size-l);
+    font-size: 1.7rem;
     color: var(--ion-color-tertiary-shade);
 
     &.active {
@@ -84,7 +87,7 @@ ion-spinner {
 .container {
   display: flex;
   flex-direction: column;
-  max-width: 100vh;
+  max-width: 100vw;
 }
 
 .exchange-divider {
