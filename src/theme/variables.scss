@@ -15,6 +15,16 @@
   --ion-font-size-sub: 0.8rem;
   --ion-font-size-sub-s: 0.7rem;
   --ion-font-size-sub-xs: 0.6rem;
+  @media (min-width: 321px) and (max-width: 375px) {
+    --ion-font-size-xl: 2.1rem;
+    --ion-font-size-l: 1.7rem;
+    --ion-font-size-md: 1.35rem;
+    --ion-font-size-main: 0.95rem;
+    --ion-font-size-sub-l: 0.85rem;
+    --ion-font-size-sub: 0.75rem;
+    --ion-font-size-sub-s: 0.65rem;
+    --ion-font-size-sub-xs: 0.55rem;
+  }
   @media (max-width: 320px) {
     --ion-font-size-xl: 1.9rem;
     --ion-font-size-l: 1.45rem;
