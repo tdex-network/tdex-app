@@ -6,17 +6,14 @@ import type { CurrencyInterface } from '../../redux/reducers/settingsReducer';
 import type { AssetConfig } from '../../utils/constants';
 import { CurrencyIcon } from '../icons';
 
-interface ConnectedProps {
-  prices: Record<string, number>;
-  currency: CurrencyInterface;
-}
-
-type ExchangeSearchProps = ConnectedProps & {
+interface ExchangeSearchProps {
   assets: AssetConfig[];
   setAsset: (newAsset: AssetConfig) => void;
   isOpen: boolean;
   close: (ev: any) => void;
-};
+  prices: Record<string, number>;
+  currency: CurrencyInterface;
+}
 
 const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsset, isOpen, close, currency }) => {
   const [searchString, setSearchString] = useState('');

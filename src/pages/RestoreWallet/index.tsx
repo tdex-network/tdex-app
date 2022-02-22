@@ -3,9 +3,10 @@ import { IonContent, IonButton, IonPage, IonInput, IonGrid, IonRow, IonCol } fro
 import * as bip39 from 'bip39';
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
+import type { Dispatch } from 'redux';
 import type { NetworkString } from 'tdex-sdk';
 
 import Header from '../../components/Header';
@@ -14,13 +15,14 @@ import PageDescription from '../../components/PageDescription';
 import PinModal from '../../components/PinModal';
 import { useFocus } from '../../hooks/useFocus';
 import { useMnemonic } from '../../hooks/useMnemonic';
-import { signIn } from '../../redux/actions/appActions';
+import { setIsBackupDone, signIn } from '../../redux/actions/appActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
+import type { RootState } from '../../redux/types';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import type { AppError } from '../../utils/errors';
 import { InvalidMnemonicError, PINsDoNotMatchError, SecureStorageError } from '../../utils/errors';
 import { onPressEnterKeyFactory } from '../../utils/keyboard';
-import { clearStorage, getIdentity, setMnemonicInSecureStorage } from '../../utils/storage-helper';
+import { clearStorage, getIdentity, setMnemonicInSecureStorage, setSeedBackupFlag } from '../../utils/storage-helper';
 
 interface RestoreWalletProps extends RouteComponentProps {
   backupDone: boolean;
@@ -174,4 +176,20 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({ history, setIsBackupDone,
   );
 };
 
-export default withRouter(RestoreWallet);
+const mapStateToProps = (state: RootState) => {
+  return {
+    backupDone: state.app.backupDone,
+    network: state.settings.network,
+  };
+};
+
+const mapDispatchToProps = (dispatch: Dispatch) => {
+  return {
+    setIsBackupDone: (done: boolean) => {
+      setSeedBackupFlag(done);
+      dispatch(setIsBackupDone(done));
+    },
+  };
+};
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(RestoreWallet));

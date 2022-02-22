@@ -12,7 +12,7 @@ import {
   IonSelectOption,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import type { NetworkString } from 'tdex-sdk';
 
 import Header from '../../components/Header';
@@ -26,6 +26,7 @@ import {
 import { addSuccessToast } from '../../redux/actions/toastActions';
 import { blockstreamExplorerEndpoints, mempoolExplorerEndpoints } from '../../redux/config';
 import type { SettingsState } from '../../redux/reducers/settingsReducer';
+import type { RootState } from '../../redux/types';
 import { capitalizeFirstLetter } from '../../utils/helpers';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 
@@ -243,4 +244,14 @@ const Explorers: React.FC<ExplorersProps> = ({
   );
 };
 
-export default Explorers;
+const mapStateToProps = (state: RootState) => {
+  return {
+    explorerLiquidAPI: state.settings.explorerLiquidAPI,
+    explorerBitcoinAPI: state.settings.explorerBitcoinAPI,
+    explorerLiquidUI: state.settings.explorerLiquidUI,
+    explorerBitcoinUI: state.settings.explorerBitcoinUI,
+    network: state.settings.network,
+  };
+};
+
+export default connect(mapStateToProps)(Explorers);

@@ -4,12 +4,15 @@ import classNames from 'classnames';
 import Decimal from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
 import React, { useEffect, useRef, useState } from 'react';
+import { connect } from 'react-redux';
 import type { NetworkString } from 'tdex-sdk';
 
+import ExchangeSearch from '../../components/ExchangeSearch';
 import { useDelayedRender } from '../../hooks/useDelayedRender';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import ExchangeSearch from '../../redux/containers/exchangeSearchContainer';
 import type { CurrencyInterface } from '../../redux/reducers/settingsReducer';
+import { balanceByAssetSelector } from '../../redux/reducers/walletReducer';
+import type { RootState } from '../../redux/types';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
 import { defaultPrecision } from '../../utils/constants';
 import { fromSatoshiFixed, fromUnitToLbtc, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
@@ -25,7 +28,8 @@ export type ExchangeRowValue = {
 interface ConnectedProps {
   lbtcUnit: LbtcDenomination;
   balance?: BalanceInterface;
-  price: number;
+  prices: Record<string, number>;
+  selectedAssetPrice: number;
   currency: CurrencyInterface;
   network: NetworkString;
 }
@@ -57,7 +61,8 @@ const TradeRowInput: React.FC<Props> = ({
   onChangeAsset,
   onChangeSats,
   balance,
-  price,
+  prices,
+  selectedAssetPrice,
   error,
   currency,
   searchableAssets,
@@ -196,7 +201,7 @@ const TradeRowInput: React.FC<Props> = ({
                   new Decimal(inputValue || 0),
                   isLbtcTicker(balance?.ticker || '') ? lbtcUnit : undefined
                 )
-                  .mul(price || 0)
+                  .mul(selectedAssetPrice || 0)
                   .toFixed(2)}{' '}
                 {currency.value.toUpperCase()}
               </>
@@ -207,15 +212,30 @@ const TradeRowInput: React.FC<Props> = ({
 
       <ExchangeSearch
         assets={searchableAssets}
+        currency={currency}
         setAsset={onSelectAsset}
         isOpen={isSearchOpen}
         close={(ev: any) => {
           ev?.preventDefault();
           setIsSearchOpen(false);
         }}
+        prices={prices}
       />
     </div>
   );
 };
 
-export default TradeRowInput;
+const mapStateToProps = (state: RootState, ownProps: ComponentProps) => {
+  return {
+    balance: ownProps.assetSelected ? balanceByAssetSelector(ownProps.assetSelected.assetHash)(state) : undefined,
+    currency: state.settings.currency,
+    lbtcUnit: state.settings.denominationLBTC,
+    network: state.settings.network,
+    selectedAssetPrice: ownProps.assetSelected?.coinGeckoID
+      ? state.rates.prices[ownProps.assetSelected.coinGeckoID]
+      : 0,
+    prices: state.rates.prices,
+  };
+};
+
+export default connect(mapStateToProps)(TradeRowInput);

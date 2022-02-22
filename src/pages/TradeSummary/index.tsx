@@ -2,9 +2,9 @@ import './style.scss';
 import { IonPage, IonContent, IonItem, IonIcon, IonSkeletonText, IonRow, IonCol, IonGrid, IonText } from '@ionic/react';
 import { ellipsisHorizontal } from 'ionicons/icons';
 import React from 'react';
+import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
-import type { NetworkString } from 'tdex-sdk';
 
 import Header from '../../components/Header';
 import Refresher from '../../components/Refresher';
@@ -13,6 +13,7 @@ import { addSuccessToast } from '../../redux/actions/toastActions';
 import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import type { AssetsState } from '../../redux/reducers/assetsReducer';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
+import type { RootState } from '../../redux/types';
 import { clipboardCopy } from '../../utils/clipboard';
 import { fromSatoshiFixed } from '../../utils/helpers';
 import type { TxDisplayInterface } from '../../utils/types';
@@ -34,7 +35,6 @@ interface TradeSummaryLocationState {
 
 interface TradeSummaryProps extends RouteComponentProps<any, any, TradeSummaryLocationState> {
   assets: AssetsState;
-  network: NetworkString;
 }
 
 type SentCurrencyIconProps = {
@@ -79,7 +79,7 @@ const ReceiveCurrencyIcon: React.FC<ReceiveCurrencyIconProps> = ({
   );
 };
 
-const TradeSummary: React.FC<TradeSummaryProps> = ({ location, network, assets }) => {
+const TradeSummary: React.FC<TradeSummaryProps> = ({ location, assets }) => {
   const dispatch = useTypedDispatch();
   const preview = location.state?.preview;
   const { txid } = useParams<{ txid: string }>();
@@ -220,4 +220,10 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, network, assets }
   );
 };
 
-export default withRouter(TradeSummary);
+const mapStateToProps = (state: RootState) => {
+  return {
+    assets: state.assets,
+  };
+};
+
+export default withRouter(connect(mapStateToProps)(TradeSummary));

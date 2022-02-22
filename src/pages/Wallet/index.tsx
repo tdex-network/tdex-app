@@ -1,3 +1,4 @@
+import './style.scss';
 import {
   IonContent,
   IonList,
@@ -13,6 +14,7 @@ import {
 } from '@ionic/react';
 import { addCircleOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
 import type { NetworkString } from 'tdex-sdk';
@@ -22,11 +24,12 @@ import Header from '../../components/Header';
 import Refresher from '../../components/Refresher';
 import { CurrencyIcon } from '../../components/icons';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
+import { aggregatedLBTCBalanceSelector, balancesSelector } from '../../redux/reducers/walletReducer';
+import type { RootState } from '../../redux/types';
 import { routerLinks } from '../../routes';
 import type { LbtcDenomination } from '../../utils/constants';
 import { LBTC_ASSET, LBTC_COINGECKOID } from '../../utils/constants';
 import { capitalizeFirstLetter, fromSatoshi, fromSatoshiFixed, isLbtc, isLbtcTicker } from '../../utils/helpers';
-import './style.scss';
 
 interface WalletProps extends RouteComponentProps {
   backupDone: boolean;
@@ -216,4 +219,19 @@ const Wallet: React.FC<WalletProps> = ({
   );
 };
 
-export default withRouter(Wallet);
+const mapStateToProps = (state: RootState) => {
+  return {
+    backupDone: state.app.backupDone,
+    balances: balancesSelector(state),
+    currency: state.settings.currency.value,
+    isFetchingUtxos: state.app.isFetchingUtxos,
+    isFetchingMarkets: state.app.isFetchingMarkets,
+    isFetchingTransactions: state.app.isFetchingTransactions,
+    lbtcUnit: state.settings.denominationLBTC,
+    network: state.settings.network,
+    prices: state.rates.prices,
+    totalLBTC: aggregatedLBTCBalanceSelector(state),
+  };
+};
+
+export default withRouter(connect(mapStateToProps)(Wallet));

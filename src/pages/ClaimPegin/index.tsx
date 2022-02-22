@@ -3,6 +3,7 @@ import { IonContent, IonPage, IonGrid, IonRow, IonCol, IonButton, IonInput, IonI
 import * as bitcoinJS from 'bitcoinjs-lib';
 import type { Mnemonic } from 'ldk';
 import React, { useEffect, useState } from 'react';
+import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import type { NetworkString } from 'tdex-sdk';
 
@@ -22,6 +23,7 @@ import { useTypedDispatch } from '../../redux/hooks';
 import type { DepositPeginUtxo, Pegin, Pegins } from '../../redux/reducers/btcReducer';
 import type { ToastOpts } from '../../redux/reducers/toastReducer';
 import { claimPegins } from '../../redux/services/btcService';
+import type { RootState } from '../../redux/types';
 import { getBitcoinJSNetwork, PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import {
   ClaimPeginError,
@@ -247,4 +249,16 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
   );
 };
 
-export default ClaimPegin;
+const mapStateToProps = (state: RootState) => {
+  return {
+    currentBtcBlockHeight: state.btc.currentBlockHeight,
+    explorerLiquidUI: state.settings.explorerLiquidUI,
+    explorerBitcoinAPI: state.settings.explorerBitcoinAPI,
+    explorerLiquidAPI: state.settings.explorerLiquidAPI,
+    network: state.settings.network,
+    pegins: state.btc.pegins,
+    toasts: state.toasts,
+  };
+};
+
+export default connect(mapStateToProps)(ClaimPegin);

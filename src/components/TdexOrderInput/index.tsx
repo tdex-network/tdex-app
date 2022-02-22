@@ -1,14 +1,17 @@
 import './style.scss';
 import { IonRippleEffect, useIonViewDidEnter, useIonViewDidLeave } from '@ionic/react';
 import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
 import type { NetworkString, TradeOrder } from 'tdex-sdk';
 
 import swap from '../../assets/img/swap.svg';
+import TradeRowInput from '../../components/TdexOrderInput/TradeRowInput';
 import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { updateMarkets } from '../../redux/actions/tdexActions';
-import TradeRowInput from '../../redux/containers/tradeRowInputContainer';
 import { useTypedDispatch } from '../../redux/hooks';
+import { balancesSelector } from '../../redux/reducers/walletReducer';
+import type { RootState } from '../../redux/types';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
 import { LBTC_ASSET } from '../../utils/constants';
 import { isLbtc } from '../../utils/helpers';
@@ -168,4 +171,15 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, balances, markets, lb
   );
 };
 
-export default TdexOrderInput;
+const mapStateToProps = (state: RootState) => {
+  return {
+    assetsRegistry: state.assets,
+    balances: balancesSelector(state).filter(
+      (b) => b.amount > 0 && getTradablesAssets(state.tdex.markets, b.assetHash).length > 0
+    ),
+    lbtcUnit: state.settings.denominationLBTC,
+    network: state.settings.network,
+  };
+};
+
+export default connect(mapStateToProps)(TdexOrderInput);

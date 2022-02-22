@@ -1,20 +1,24 @@
+import './style.scss';
 import { IonContent, IonIcon, IonPage, IonGrid, IonRow, IonCol } from '@ionic/react';
 import { warningOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
+import type { Dispatch } from 'redux';
 
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Checkbox from '../../components/Checkbox';
 import Header from '../../components/Header';
 import PinModal from '../../components/PinModal';
+import { setIsBackupDone } from '../../redux/actions/appActions';
 import { addErrorToast } from '../../redux/actions/toastActions';
+import { useTypedDispatch } from '../../redux/hooks';
+import type { RootState } from '../../redux/types';
 import { routerLinks } from '../../routes';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import type { AppError } from '../../utils/errors';
 import { IncorrectPINError } from '../../utils/errors';
-import './style.scss';
-import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
+import { getMnemonicFromSecureStorage, setSeedBackupFlag } from '../../utils/storage-helper';
 
 interface BackupProps extends RouteComponentProps {
   // connected redux props
@@ -28,7 +32,7 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [needReset, setNeedReset] = useState<boolean>(false);
-  const dispatch = useDispatch();
+  const dispatch = useTypedDispatch();
 
   const handlePinConfirm = async (pin: string) => {
     try {
@@ -117,4 +121,20 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
   );
 };
 
-export default Backup;
+const mapStateToProps = (state: RootState) => {
+  return {
+    backupDone: state.app.backupDone,
+  };
+};
+
+const mapDispatchToProps = (dispatch: Dispatch) => {
+  return {
+    setIsBackupDone: (done: boolean) => {
+      setSeedBackupFlag(done);
+      dispatch(setIsBackupDone(done));
+    },
+    onError: (err: AppError) => dispatch(addErrorToast(err)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Backup);

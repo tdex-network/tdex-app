@@ -1,6 +1,6 @@
 import type { Mnemonic } from 'ldk';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import type { NetworkString } from 'tdex-sdk';
 
 import { updateState } from '../../redux/actions/appActions';
@@ -9,6 +9,7 @@ import { addErrorToast, addSuccessToast, removeToastByType } from '../../redux/a
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import type { BtcState, Pegin, Pegins } from '../../redux/reducers/btcReducer';
 import { claimPegins } from '../../redux/services/btcService';
+import type { RootState } from '../../redux/types';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { ClaimPeginError, IncorrectPINError, NoClaimFoundError, PinDigitsError } from '../../utils/errors';
 import { sleep } from '../../utils/helpers';
@@ -136,4 +137,15 @@ const PinModalClaimPegin: React.FC<PinModalClaimPeginProps> = ({
   );
 };
 
-export default PinModalClaimPegin;
+const mapStateToProps = (state: RootState) => {
+  return {
+    currentBtcBlockHeight: state.btc.currentBlockHeight,
+    explorerBitcoinAPI: state.settings.explorerBitcoinAPI,
+    explorerLiquidAPI: state.settings.explorerLiquidAPI,
+    modalClaimPegins: state.btc.modalClaimPegins,
+    network: state.settings.network,
+    pegins: state.btc.pegins,
+  };
+};
+
+export default connect(mapStateToProps)(PinModalClaimPegin);

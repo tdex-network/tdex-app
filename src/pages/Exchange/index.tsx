@@ -19,6 +19,7 @@ import { closeOutline } from 'ionicons/icons';
 import type { StateRestorerOpts } from 'ldk';
 import { mnemonicRestorerFromState } from 'ldk';
 import React, { useCallback, useState } from 'react';
+import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
 
@@ -28,14 +29,16 @@ import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
 import type { TdexOrderInputResult } from '../../components/TdexOrderInput';
+import TdexOrderInput from '../../components/TdexOrderInput';
 import type { TDEXMarket, TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
 import { setIsFetchingUtxos } from '../../redux/actions/appActions';
 import { updateMarkets } from '../../redux/actions/tdexActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos, updateUtxos } from '../../redux/actions/walletActions';
-import TdexOrderInput from '../../redux/containers/tdexOrderInputContainer';
 import { useTypedDispatch } from '../../redux/hooks';
+import { lastUsedIndexesSelector, unlockedUtxosSelector } from '../../redux/reducers/walletReducer';
+import type { RootState } from '../../redux/types';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { AppError, IncorrectPINError, NoOtherProvider } from '../../utils/errors';
 import { customCoinSelector } from '../../utils/helpers';
@@ -349,4 +352,17 @@ const Exchange: React.FC<Props> = ({
   );
 };
 
-export default Exchange;
+const mapStateToProps = (state: RootState) => {
+  return {
+    explorerLiquidAPI: state.settings.explorerLiquidAPI,
+    isFetchingMarkets: state.app.isFetchingMarkets,
+    lastUsedIndexes: lastUsedIndexesSelector(state),
+    markets: state.tdex.markets,
+    network: state.settings.network,
+    providers: state.tdex.providers,
+    torProxy: state.settings.torProxy,
+    utxos: unlockedUtxosSelector(state),
+  };
+};
+
+export default connect(mapStateToProps)(Exchange);

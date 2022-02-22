@@ -1,3 +1,4 @@
+import './style.scss';
 import { QRCodeImg } from '@cheprasov/react-qrcode';
 import {
   IonPage,
@@ -13,9 +14,9 @@ import {
 import classNames from 'classnames';
 import { checkmarkOutline } from 'ionicons/icons';
 import type { IdentityOpts, StateRestorerOpts } from 'ldk';
-import { MasterPublicKey, address as addressLDK } from 'ldk';
+import { MasterPublicKey, address as addressLDK, IdentityType } from 'ldk';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import { useLocation } from 'react-router';
 import type { MasterPublicKeyOpts, NetworkString } from 'tdex-sdk';
 import { masterPubKeyRestorerFromState } from 'tdex-sdk';
@@ -27,13 +28,13 @@ import { IconCopy, CurrencyIcon } from '../../components/icons';
 import { upsertPegins } from '../../redux/actions/btcActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { addAddress } from '../../redux/actions/walletActions';
+import { lastUsedIndexesSelector } from '../../redux/reducers/walletReducer';
 import { getPeginModule } from '../../redux/services/btcService';
+import type { RootState } from '../../redux/types';
 import { clipboardCopy } from '../../utils/clipboard';
 import type { AssetConfig } from '../../utils/constants';
 import { BTC_TICKER } from '../../utils/constants';
 import { AddressGenerationError } from '../../utils/errors';
-
-import './style.scss';
 
 interface LocationState {
   depositAsset: AssetConfig;
@@ -161,4 +162,19 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts, ne
   );
 };
 
-export default Receive;
+const mapStateToProps = (state: RootState) => {
+  return {
+    lastUsedIndexes: lastUsedIndexesSelector(state),
+    masterPubKeyOpts: {
+      chain: state.settings.network,
+      type: IdentityType.MasterPublicKey,
+      opts: {
+        masterBlindingKey: state.wallet.masterBlindKey,
+        masterPublicKey: state.wallet.masterPubKey,
+      },
+    },
+    network: state.settings.network,
+  };
+};
+
+export default connect(mapStateToProps)(Receive);
