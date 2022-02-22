@@ -60,11 +60,14 @@ export function useTradeState(markets: TDEXMarket[]) {
   const [receiveError, setReceiveError] = useState<Error>();
   const [hasBeenSwapped, setHasBeenSwapped] = useState<boolean>(false);
   const [assetSendBeforeSwap, setAssetSendBeforeSwap] = useState<string | undefined>(sendAsset);
+  const [sendAssetHasChanged, setSendAssetHasChanged] = useState<boolean>(false);
+  const [receiveAssetHasChanged, setReceiveAssetHasChanged] = useState<boolean>(false);
 
   const resetErrors = () => {
     setSendError(undefined);
     setReceiveError(undefined);
   };
+
   const swapAssets = () => {
     setAssetSendBeforeSwap(sendAsset);
     const temp = sendAsset;
@@ -72,23 +75,6 @@ export function useTradeState(markets: TDEXMarket[]) {
     setReceiveAsset(temp);
     resetErrors();
   };
-
-  // After assets have been actually swapped, setHasBeenSwapped true
-  useEffect(() => {
-    if (sendAsset !== assetSendBeforeSwap) {
-      setHasBeenSwapped(true);
-    }
-  }, [assetSendBeforeSwap, sendAsset]);
-
-  // After hasBeenSwapped has been updated to true, setSendAmount
-  useEffect(() => {
-    (async () => {
-      if (hasBeenSwapped) {
-        await setSendAmount(receiveSats ?? 0).catch(console.error);
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasBeenSwapped]);
 
   const discoverFunction = () => discoverBestOrder(markets, sendAsset, receiveAsset);
 
@@ -104,7 +90,11 @@ export function useTradeState(markets: TDEXMarket[]) {
     };
 
   const updateReceiveSats = (newSendSats: number) => {
-    if (!sendAsset || (focus === 'receive' && !hasBeenSwapped)) return;
+    if (receiveAssetHasChanged) {
+      setReceiveAssetHasChanged(false);
+      return;
+    }
+    if (receiveLoader || !sendAsset || (focus === 'receive' && !hasBeenSwapped && !sendAssetHasChanged)) return;
     setReceiveLoader(true);
     return discoverFunction()(newSendSats ?? 0, sendAsset)
       .then(computePriceAndUpdate(newSendSats ?? 0, sendAsset, 'send')) // set receive sats
@@ -117,7 +107,9 @@ export function useTradeState(markets: TDEXMarket[]) {
   };
 
   const updateSendSats = (newReceiveSats: number) => {
-    if (!receiveAsset || focus === 'send' || (focus === 'receive' && hasBeenSwapped)) return;
+    if (!receiveAsset || (focus === 'send' && !receiveAssetHasChanged) || (focus === 'receive' && hasBeenSwapped)) {
+      return;
+    }
     setSendLoader(true);
     return discoverFunction()(newReceiveSats ?? 0, receiveAsset)
       .then(computePriceAndUpdate(newReceiveSats ?? 0, receiveAsset, 'receive')) // set send sats
@@ -156,6 +148,39 @@ export function useTradeState(markets: TDEXMarket[]) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [markets.length, sendSats]);
 
+  // After assets have been actually swapped, setHasBeenSwapped true
+  useEffect(() => {
+    if (sendAsset !== assetSendBeforeSwap && !sendAssetHasChanged) {
+      setHasBeenSwapped(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assetSendBeforeSwap, sendAsset]);
+
+  // After hasBeenSwapped has been updated to true, setSendAmount
+  useEffect(() => {
+    (async () => {
+      if (hasBeenSwapped) {
+        await setSendAmount(receiveSats ?? 0).catch(console.error);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasBeenSwapped]);
+
+  useEffect(() => {
+    if (sendAssetHasChanged) {
+      setSendAmount(sendSats || 0).catch(console.error);
+      setSendAssetHasChanged(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sendAssetHasChanged]);
+
+  useEffect(() => {
+    if (receiveAssetHasChanged) {
+      setReceiveAmount(receiveSats || 0).catch(console.error);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [receiveAssetHasChanged]);
+
   return [
     bestOrder,
     sendAsset,
@@ -173,5 +198,7 @@ export function useTradeState(markets: TDEXMarket[]) {
     setFocus,
     swapAssets,
     setHasBeenSwapped,
+    setSendAssetHasChanged,
+    setReceiveAssetHasChanged,
   ] as const;
 }

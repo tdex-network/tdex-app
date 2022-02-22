@@ -69,6 +69,8 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, balances, markets, lb
     setFocus,
     swapAssets,
     setHasBeenSwapped,
+    setSendAssetHasChanged,
+    setReceiveAssetHasChanged,
   ] = useTradeState(markets);
 
   useIonViewDidEnter(() => {
@@ -132,7 +134,7 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, balances, markets, lb
         error={sendError}
         onChangeAsset={(asset: string) => {
           setSendAsset(asset);
-          if (sendSats) setSendAmount(sendSats).catch(console.error);
+          setSendAssetHasChanged(true);
         }}
         onChangeSats={(sats: number) => {
           setHasBeenSwapped(false);
@@ -153,7 +155,7 @@ const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, balances, markets, lb
         error={receiveError}
         onChangeAsset={(asset: string) => {
           setReceiveAsset(asset);
-          if (receiveSats) setReceiveAmount(receiveSats).catch(console.error);
+          setReceiveAssetHasChanged(true);
         }}
         onChangeSats={(sats: number) => {
           setHasBeenSwapped(false);
