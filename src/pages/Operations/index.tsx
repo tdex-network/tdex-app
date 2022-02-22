@@ -16,7 +16,7 @@ import {
 import classNames from 'classnames';
 import { checkmarkSharp } from 'ionicons/icons';
 import React, { useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter, useParams } from 'react-router';
 import { fromMasterBlindingKey } from 'slip77';
@@ -27,12 +27,15 @@ import depositIcon from '../../assets/img/deposit-green.svg';
 import swapIcon from '../../assets/img/swap-circle.svg';
 import Header from '../../components/Header';
 import Refresher from '../../components/Refresher';
+import WatchersLoader from '../../components/WatchersLoader';
 import { CurrencyIcon, TxIcon } from '../../components/icons';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { setModalClaimPegin } from '../../redux/actions/btcActions';
-import WatchersLoader from '../../redux/containers/watchersLoaderContainer';
 import { useTypedSelector } from '../../redux/hooks';
+import { depositPeginUtxosToDisplayTxSelector } from '../../redux/reducers/btcReducer';
 import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
+import { balancesSelector } from '../../redux/reducers/walletReducer';
+import type { RootState } from '../../redux/types';
 import type { LbtcDenomination } from '../../utils/constants';
 import { defaultPrecision, LBTC_TICKER, MAIN_ASSETS } from '../../utils/constants';
 import {
@@ -53,6 +56,7 @@ interface OperationsProps extends RouteComponentProps {
   btcTxs: TxDisplayInterface[];
   currentBtcBlockHeight: number;
   network: NetworkString;
+  watchers: string[];
 }
 
 const Operations: React.FC<OperationsProps> = ({
@@ -64,6 +68,7 @@ const Operations: React.FC<OperationsProps> = ({
   btcTxs,
   currentBtcBlockHeight,
   network,
+  watchers,
 }) => {
   const dispatch = useDispatch();
   const { asset_id } = useParams<{ asset_id: string }>();
@@ -270,7 +275,7 @@ const Operations: React.FC<OperationsProps> = ({
             <IonCol>
               <IonList>
                 <IonListHeader>Transactions</IonListHeader>
-                <WatchersLoader />
+                <WatchersLoader watchers={watchers} />
                 {balance && transactionsToDisplay.length ? (
                   transactionsToDisplay.sort(compareTxDisplayInterfaceByDate).map((tx: TxDisplayInterface, index) => {
                     const transfer = tx.transfers.find((t) => t.asset === asset_id);
@@ -377,4 +382,20 @@ const Operations: React.FC<OperationsProps> = ({
   );
 };
 
-export default withRouter(Operations);
+const mapStateToProps = (state: RootState) => {
+  return {
+    balances: balancesSelector(state),
+    btcTxs: depositPeginUtxosToDisplayTxSelector(state),
+    currentBtcBlockHeight: state.btc.currentBlockHeight,
+    currency: state.settings.currency.value,
+    explorerLiquidAPI: state.settings.explorerLiquidAPI,
+    explorerBitcoinAPI: state.settings.explorerBitcoinAPI,
+    lbtcUnit: state.settings.denominationLBTC,
+    network: state.settings.network,
+    pegins: state.btc.pegins,
+    prices: state.rates.prices,
+    watchers: state.transactions.watchers,
+  };
+};
+
+export default withRouter(connect(mapStateToProps)(Operations));

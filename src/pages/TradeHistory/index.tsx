@@ -14,6 +14,7 @@ import {
 import classNames from 'classnames';
 import { checkmarkSharp } from 'ionicons/icons';
 import React from 'react';
+import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
 import type { NetworkString } from 'tdex-sdk';
@@ -23,9 +24,11 @@ import { CurrencyIcon } from '../../components/icons';
 import { addSuccessToast } from '../../redux/actions/toastActions';
 import { useTypedDispatch } from '../../redux/hooks';
 import type { AssetsState } from '../../redux/reducers/assetsReducer';
+import { tradeTransactionsSelector } from '../../redux/reducers/transactionsReducer';
+import type { RootState } from '../../redux/types';
 import { clipboardCopy } from '../../utils/clipboard';
 import { LBTC_TICKER } from '../../utils/constants';
-import { fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
+import { compareTxDisplayInterfaceByDate, fromSatoshi, fromSatoshiFixed } from '../../utils/helpers';
 import type { TxDisplayInterface } from '../../utils/types';
 import { TxStatusEnum } from '../../utils/types';
 
@@ -143,4 +146,13 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI, ne
   );
 };
 
-export default withRouter(TradeHistory);
+const mapStateToProps = (state: RootState) => {
+  return {
+    assets: state.assets,
+    explorerLiquidUI: state.settings.explorerLiquidUI,
+    network: state.settings.network,
+    swaps: tradeTransactionsSelector(state).sort(compareTxDisplayInterfaceByDate),
+  };
+};
+
+export default withRouter(connect(mapStateToProps)(TradeHistory));

@@ -1,29 +1,29 @@
 import { IconExchange, IconSettings, IconWallet } from './components/icons';
 import Account from './pages/Account';
+import Backup from './pages/Backup';
+import ClaimPegin from './pages/ClaimPegin';
 import DeepRestoration from './pages/DeepRestoration';
 import DeleteMnemonic from './pages/DeleteMnemonic';
 import Deposit from './pages/Deposit';
+import Exchange from './pages/Exchange';
+import Explorers from './pages/Explorers';
 import Faq from './pages/Faq';
+import LiquidityProviders from './pages/LiquidityProvider';
+import Operations from './pages/Operations';
 import Privacy from './pages/Privacy';
 import QRScanner from './pages/QRScanner';
+import Receive from './pages/Receive';
 import Settings from './pages/Settings';
 import Network from './pages/Settings/Network';
+import ShowMnemonic from './pages/ShowMnemonic';
 import ShowMnemonicSettings from './pages/ShowMnemonic/show-mnemonic-settings';
 import Terms from './pages/Terms';
+import TorProxy from './pages/TorProxy';
+import TradeHistory from './pages/TradeHistory';
+import TradeSummary from './pages/TradeSummary';
 import TransactionDetails from './pages/TransactionDetails';
-import Backup from './redux/containers/backupContainer';
-import ClaimPegin from './redux/containers/claimPeginContainer';
-import Exchange from './redux/containers/exchangeContainer';
-import Explorers from './redux/containers/explorersContainer';
-import LiquidityProviders from './redux/containers/liquidityProvidersContainer';
-import Operations from './redux/containers/operationsContainer';
-import Receive from './redux/containers/receiveContainer';
-import ShowMnemonic from './redux/containers/showMnemonicContainer';
-import TorProxy from './redux/containers/torProxyContainer';
-import TradeHistory from './redux/containers/tradeHistoryContainer';
-import TradeSummary from './redux/containers/tradeSummaryContainer';
-import Wallet from './redux/containers/walletContainer';
-import Withdrawal from './redux/containers/withdrawalContainer';
+import Wallet from './pages/Wallet';
+import Withdrawal from './pages/Withdrawal';
 
 export const routerLinks = {
   wallet: '/wallet',

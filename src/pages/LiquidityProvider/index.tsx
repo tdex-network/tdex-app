@@ -17,8 +17,7 @@ import {
 } from '@ionic/react';
 import { addCircleOutline, refreshCircleOutline, trash } from 'ionicons/icons';
 import React, { useState } from 'react';
-import type { RouteComponentProps } from 'react-router';
-import { withRouter } from 'react-router';
+import { connect } from 'react-redux';
 import type { Dispatch } from 'redux';
 import type { NetworkString } from 'tdex-sdk';
 
@@ -36,10 +35,11 @@ import {
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { defaultProviderEndpoints } from '../../redux/config';
 import { useTypedDispatch } from '../../redux/hooks';
+import type { RootState } from '../../redux/types';
 import { InvalidUrl, TDEXRegistryError } from '../../utils/errors';
 import { getProvidersFromTDexRegistry } from '../../utils/tdex';
 
-interface LiquidityProvidersProps extends RouteComponentProps {
+interface LiquidityProvidersProps {
   network: NetworkString;
   providers: TDEXProvider[];
 }
@@ -250,4 +250,11 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
   );
 };
 
-export default withRouter(LiquidityProviders);
+const mapStateToProps = (state: RootState) => {
+  return {
+    network: state.settings.network,
+    providers: state.tdex.providers,
+  };
+};
+
+export default connect(mapStateToProps)(LiquidityProviders);

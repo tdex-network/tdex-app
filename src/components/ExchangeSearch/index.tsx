@@ -6,19 +6,16 @@ import type { CurrencyInterface } from '../../redux/reducers/settingsReducer';
 import type { AssetConfig } from '../../utils/constants';
 import { CurrencyIcon } from '../icons';
 
-interface ConnectedProps {
-  prices: Record<string, number>;
-  currency: CurrencyInterface;
-}
-
-type ExchangeSearchProps = ConnectedProps & {
+interface ExchangeSearchProps {
   assets: AssetConfig[];
   setAsset: (newAsset: AssetConfig) => void;
   isOpen: boolean;
   close: (ev: any) => void;
-};
+  price: number;
+  currency: CurrencyInterface;
+}
 
-const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsset, isOpen, close, currency }) => {
+const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ price, assets, setAsset, isOpen, close, currency }) => {
   const [searchString, setSearchString] = useState('');
 
   return (
@@ -67,7 +64,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsse
                       <p>{asset.ticker}</p>
                     </div>
                     <div className="search-item-amount">
-                      <span className="price">{(asset.coinGeckoID && prices[asset.coinGeckoID]) || '0'}</span>
+                      <span className="price">{price}</span>
                       <span className="fiat-currency">{currency.symbol}</span>
                     </div>
                   </IonItem>

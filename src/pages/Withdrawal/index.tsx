@@ -14,7 +14,7 @@ import type { RecipientInterface, StateRestorerOpts } from 'ldk';
 import { address, psetToUnsignedTx, walletFromCoins } from 'ldk';
 import { Psbt } from 'liquidjs-lib';
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { connect, useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
 import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
@@ -32,7 +32,9 @@ import { setIsFetchingUtxos } from '../../redux/actions/appActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos, updateUtxos } from '../../redux/actions/walletActions';
+import { balancesSelector, lastUsedIndexesSelector, unlockedUtxosSelector } from '../../redux/reducers/walletReducer';
 import { broadcastTx } from '../../redux/services/walletService';
+import type { RootState } from '../../redux/types';
 import { decodeBip21 } from '../../utils/bip21';
 import type { LbtcDenomination } from '../../utils/constants';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
@@ -325,4 +327,16 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   );
 };
 
-export default withRouter(Withdrawal);
+const mapStateToProps = (state: RootState) => {
+  return {
+    balances: balancesSelector(state),
+    explorerLiquidAPI: state.settings.explorerLiquidAPI,
+    lastUsedIndexes: lastUsedIndexesSelector(state),
+    lbtcUnit: state.settings.denominationLBTC,
+    network: state.settings.network,
+    prices: state.rates.prices,
+    utxos: unlockedUtxosSelector(state),
+  };
+};
+
+export default withRouter(connect(mapStateToProps)(Withdrawal));

@@ -4,20 +4,22 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { IonApp, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
 import { Redirect, Route } from 'react-router';
 
 import Loader from './components/Loader';
+import PinModalClaimPegin from './components/PinModal/PinModalClaimPegin';
+import Toasts from './components/Toasts';
 import BackupOnboarding from './pages/Backup/backup-onboarding';
 import Homescreen from './pages/Homescreen';
 import PinSetting from './pages/PinSetting';
+import RestoreWallet from './pages/RestoreWallet';
+import ShowMnemonicOnboarding from './pages/ShowMnemonic/ShowMnemonicOnboarding';
 import Tabs from './pages/Tabs';
 import { initApp } from './redux/actions/appActions';
 import { unlockUtxos } from './redux/actions/walletActions';
-import PinModalClaimPegin from './redux/containers/pinModalClaimPeginContainer';
-import RestoreWallet from './redux/containers/restoreWalletContainer';
-import ShowMnemonicOnboarding from './redux/containers/showMnemonicOnboadingContainer';
-import Toasts from './redux/containers/toastsContainer';
 import { useTypedDispatch } from './redux/hooks';
+import type { RootState } from './redux/types';
 
 interface AppProps {
   appInit: boolean;
@@ -96,4 +98,12 @@ const App: React.FC<AppProps> = ({ appInit, isAuth, theme }) => {
   );
 };
 
-export default App;
+const mapStateToProps = (state: RootState) => {
+  return {
+    appInit: state.app.appInit,
+    isAuth: state.wallet.isAuth,
+    theme: state.settings.theme,
+  };
+};
+
+export default connect(mapStateToProps)(App);

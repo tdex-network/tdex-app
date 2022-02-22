@@ -19,7 +19,7 @@ import '@ionic/react/css/display.css';
 import 'antd-css-utilities/utility.min.css';
 import './theme/index.scss';
 /* Store */
-import AppContainer from './redux/containers/appContainer';
+import App from './App';
 import rootSaga from './redux/saga';
 import { sagaMiddleware, store } from './redux/store';
 
@@ -27,7 +27,7 @@ sagaMiddleware.run(rootSaga);
 
 ReactDOM.render(
   <Provider store={store}>
-    <AppContainer />
+    <App />
   </Provider>,
   document.getElementById('root')
 );

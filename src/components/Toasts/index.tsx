@@ -2,10 +2,14 @@ import type { Gesture, ToastButton, GestureDetail } from '@ionic/react';
 import { createGesture, IonToast, CreateAnimation } from '@ionic/react';
 import type { CreateAnimationProps } from '@ionic/react/dist/types/components/CreateAnimation';
 import React, { useCallback, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { connect } from 'react-redux';
+import type { Dispatch } from 'redux';
 
 import { setModalClaimPegin } from '../../redux/actions/btcActions';
+import { removeAllToast, removeToast, removeToastByType } from '../../redux/actions/toastActions';
+import { useTypedDispatch } from '../../redux/hooks';
 import type { ToastOpts, ToastType } from '../../redux/reducers/toastReducer';
+import type { RootState } from '../../redux/types';
 import { TOAST_TIMEOUT_FAILURE, TOAST_TIMEOUT_SUCCESS } from '../../utils/constants';
 
 interface ToastsProps {
@@ -16,7 +20,7 @@ interface ToastsProps {
 }
 
 const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast, removeToastByType }) => {
-  const dispatch = useDispatch();
+  const dispatch = useTypedDispatch();
   const [progressStart, setProgressStart] = useState<CreateAnimationProps['progressStart']>();
   const [progressEnd, setProgressEnd] = useState<CreateAnimationProps['progressEnd']>();
   const [onFinish, setOnFinish] = useState<CreateAnimationProps['onFinish']>();
@@ -146,4 +150,18 @@ function toastColor(toastType: ToastType): string {
   }
 }
 
-export default Toasts;
+const mapStateToProps = (state: RootState) => {
+  return {
+    toasts: state.toasts,
+  };
+};
+
+const mapDispatchToProps = (dispatch: Dispatch) => {
+  return {
+    removeToast: (ID: number) => dispatch(removeToast(ID)),
+    removeAllToast: () => dispatch(removeAllToast()),
+    removeToastByType: (type: ToastType) => dispatch(removeToastByType(type)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Toasts);
