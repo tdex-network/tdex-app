@@ -28,7 +28,8 @@ export type ExchangeRowValue = {
 interface ConnectedProps {
   lbtcUnit: LbtcDenomination;
   balance?: BalanceInterface;
-  price: number;
+  prices: Record<string, number>;
+  selectedAssetPrice: number;
   currency: CurrencyInterface;
   network: NetworkString;
 }
@@ -60,7 +61,8 @@ const TradeRowInput: React.FC<Props> = ({
   onChangeAsset,
   onChangeSats,
   balance,
-  price,
+  prices,
+  selectedAssetPrice,
   error,
   currency,
   searchableAssets,
@@ -199,7 +201,7 @@ const TradeRowInput: React.FC<Props> = ({
                   new Decimal(inputValue || 0),
                   isLbtcTicker(balance?.ticker || '') ? lbtcUnit : undefined
                 )
-                  .mul(price || 0)
+                  .mul(selectedAssetPrice || 0)
                   .toFixed(2)}{' '}
                 {currency.value.toUpperCase()}
               </>
@@ -217,7 +219,7 @@ const TradeRowInput: React.FC<Props> = ({
           ev?.preventDefault();
           setIsSearchOpen(false);
         }}
-        price={price}
+        prices={prices}
       />
     </div>
   );
@@ -229,7 +231,10 @@ const mapStateToProps = (state: RootState, ownProps: ComponentProps) => {
     currency: state.settings.currency,
     lbtcUnit: state.settings.denominationLBTC,
     network: state.settings.network,
-    price: ownProps.assetSelected?.coinGeckoID ? state.rates.prices[ownProps.assetSelected.coinGeckoID] : 0,
+    selectedAssetPrice: ownProps.assetSelected?.coinGeckoID
+      ? state.rates.prices[ownProps.assetSelected.coinGeckoID]
+      : 0,
+    prices: state.rates.prices,
   };
 };
 

@@ -11,11 +11,11 @@ interface ExchangeSearchProps {
   setAsset: (newAsset: AssetConfig) => void;
   isOpen: boolean;
   close: (ev: any) => void;
-  price: number;
+  prices: Record<string, number>;
   currency: CurrencyInterface;
 }
 
-const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ price, assets, setAsset, isOpen, close, currency }) => {
+const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsset, isOpen, close, currency }) => {
   const [searchString, setSearchString] = useState('');
 
   return (
@@ -64,7 +64,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ price, assets, setAsset
                       <p>{asset.ticker}</p>
                     </div>
                     <div className="search-item-amount">
-                      <span className="price">{price}</span>
+                      <span className="price">{(asset.coinGeckoID && prices[asset.coinGeckoID]) || '0'}</span>
                       <span className="fiat-currency">{currency.symbol}</span>
                     </div>
                   </IonItem>
