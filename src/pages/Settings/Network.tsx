@@ -32,7 +32,7 @@ import { resetTransactionReducer } from '../../redux/actions/transactionsActions
 import { clearAddresses, resetUtxos, setMasterPublicKey } from '../../redux/actions/walletActions';
 import { blockstreamExplorerEndpoints, defaultProviderEndpoints } from '../../redux/config';
 import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
-import { AppError, IsAlreadyFetchingUtxosError } from '../../utils/errors';
+import { AppError, AppIsBusy } from '../../utils/errors';
 import { fromXpub } from '../../utils/fromXpub';
 import { refreshProviders } from '../LiquidityProvider';
 
@@ -40,12 +40,16 @@ const Network = (): JSX.Element => {
   const dispatch = useTypedDispatch();
   const {
     isFetchingUtxos,
+    isFetchingMarkets,
+    isFetchingTransactions,
     masterPubKey,
     masterBlindKey,
     network: networkReduxState,
     providers,
   } = useTypedSelector(({ settings, tdex, wallet, app }) => ({
     isFetchingUtxos: app.isFetchingUtxos,
+    isFetchingMarkets: app.isFetchingMarkets,
+    isFetchingTransactions: app.isFetchingTransactions,
     masterPubKey: wallet.masterPubKey,
     masterBlindKey: wallet.masterBlindKey,
     network: settings.network,
@@ -55,7 +59,7 @@ const Network = (): JSX.Element => {
 
   const handleNetworkChange = async (ev: CustomEvent<SelectChangeEventDetail<NetworkString>>) => {
     try {
-      if (isFetchingUtxos) throw IsAlreadyFetchingUtxosError;
+      if (isFetchingUtxos || isFetchingMarkets || isFetchingTransactions) throw AppIsBusy;
       const network = ev.detail.value;
       setNetworkSelectState(network);
       dispatch(setNetwork(network));
