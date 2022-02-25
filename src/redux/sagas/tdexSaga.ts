@@ -17,7 +17,7 @@ import {
   UPDATE_MARKETS,
 } from '../actions/tdexActions';
 import { addErrorToast } from '../actions/toastActions';
-import type { RootState, SagaGenerator } from '../types';
+import type { RootState, SagaGenerator, Unwrap } from '../types';
 
 function* providersToRestore() {
   try {
@@ -65,8 +65,14 @@ function* persistProviders() {
 
 function* fetchMarketsAndAddToState() {
   function* gen(provider: TDEXProvider, torProxy: string, marketsInState: TDEXMarket[]) {
-    const fetchedMarkets: TDEXMarket[] = yield retry(3, 1000 * 2, getMarketsFromProvider, provider, torProxy);
-    if (fetchedMarkets.length) {
+    const fetchedMarkets: Unwrap<ReturnType<typeof getMarketsFromProvider>> = yield retry(
+      3,
+      1000 * 2,
+      getMarketsFromProvider,
+      provider,
+      torProxy
+    );
+    if (fetchedMarkets?.length) {
       let isMarketInState = false;
       for (const fetchedMarket of fetchedMarkets) {
         isMarketInState = marketsInState.some(
@@ -98,20 +104,27 @@ function* fetchMarketsAndAddToState() {
  * @param p provider
  * @param torProxy
  */
-async function getMarketsFromProvider(p: TDEXProvider, torProxy = 'https://proxy.tdex.network'): Promise<TDEXMarket[]> {
-  const client = new TraderClient(p.endpoint, torProxy);
-  const markets: MarketInterface[] = await client.markets();
-  const results: TDEXMarket[] = [];
-  for (const market of markets) {
-    const balance = (await client.balances(market))[0].balance;
-    results.push({
-      ...market,
-      provider: p,
-      baseAmount: balance?.baseAmount,
-      quoteAmount: balance?.quoteAmount,
-    });
+async function getMarketsFromProvider(
+  p: TDEXProvider,
+  torProxy = 'https://proxy.tdex.network'
+): Promise<TDEXMarket[] | void> {
+  try {
+    const client = new TraderClient(p.endpoint, torProxy);
+    const markets: MarketInterface[] = await client.markets();
+    const results: TDEXMarket[] = [];
+    for (const market of markets) {
+      const balance = (await client.balances(market))[0].balance;
+      results.push({
+        ...market,
+        provider: p,
+        baseAmount: balance?.baseAmount,
+        quoteAmount: balance?.quoteAmount,
+      });
+    }
+    return results;
+  } catch (err) {
+    console.error(`Cannot get markets from provider ${p.name} - ${p.endpoint}`, err);
   }
-  return results;
 }
 
 function* updateAssetsFromMarkets() {

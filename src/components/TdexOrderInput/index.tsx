@@ -18,14 +18,7 @@ import { isLbtc } from '../../utils/helpers';
 import { setAccessoryBar } from '../../utils/keyboard';
 import { getTradablesAssets } from '../../utils/tdex';
 
-import { createAmountAndUnit, useTradeState } from './hooks';
-
-interface ConnectedProps {
-  assetsRegistry: Record<string, AssetConfig>;
-  balances: BalanceInterface[];
-  lbtcUnit: LbtcDenomination;
-  network: NetworkString;
-}
+import { createAmountAndUnit } from './hooks';
 
 export interface SatsAsset {
   sats?: number;
@@ -43,38 +36,67 @@ export interface TdexOrderInputResult {
   receive: SatsAsset & AmountAndUnit;
 }
 
+interface ConnectedProps {
+  assetsRegistry: Record<string, AssetConfig>;
+  balances: BalanceInterface[];
+  lbtcUnit: LbtcDenomination;
+  network: NetworkString;
+}
+
 type Props = ConnectedProps & {
   markets: TDEXMarket[];
   onInput: (tdexOrder?: TdexOrderInputResult) => void;
+  bestOrder?: TradeOrder;
+  sendAsset?: string;
+  sendSats?: number;
+  receiveAsset?: string;
+  receiveSats?: number;
+  setReceiveAsset: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setSendAsset: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setSendAmount: (amount: number) => Promise<void>;
+  setReceiveAmount: (amount: number) => Promise<void>;
+  sendLoader: boolean;
+  receiveLoader: boolean;
+  sendError: Error | undefined;
+  receiveError: Error | undefined;
+  setFocus: React.Dispatch<React.SetStateAction<'send' | 'receive' | undefined>>;
+  swapAssets: () => void;
+  setHasBeenSwapped: React.Dispatch<React.SetStateAction<boolean>>;
+  setSendAssetHasChanged: React.Dispatch<React.SetStateAction<boolean>>;
+  setReceiveAssetHasChanged: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 // two rows input component with integrated TDEX discoverer
 // let the user chooses a tradable asset pair
 // and inputs an amount of satoshis to sell or to buy
 // if found, it returns best orders via `onInput` property
-const TdexOrderInput: React.FC<Props> = ({ assetsRegistry, balances, markets, lbtcUnit, network, onInput }) => {
+const TdexOrderInput: React.FC<Props> = ({
+  assetsRegistry,
+  balances,
+  markets,
+  lbtcUnit,
+  network,
+  onInput,
+  bestOrder,
+  sendAsset,
+  sendSats,
+  receiveAsset,
+  receiveSats,
+  setReceiveAsset,
+  setSendAsset,
+  setSendAmount,
+  setReceiveAmount,
+  sendLoader,
+  receiveLoader,
+  sendError,
+  receiveError,
+  setFocus,
+  swapAssets,
+  setHasBeenSwapped,
+  setSendAssetHasChanged,
+  setReceiveAssetHasChanged,
+}) => {
   const dispatch = useTypedDispatch();
-
-  const [
-    bestOrder,
-    sendAsset,
-    sendSats,
-    receiveAsset,
-    receiveSats,
-    setReceiveAsset,
-    setSendAsset,
-    setSendAmount,
-    setReceiveAmount,
-    sendLoader,
-    receiveLoader,
-    sendError,
-    receiveError,
-    setFocus,
-    swapAssets,
-    setHasBeenSwapped,
-    setSendAssetHasChanged,
-    setReceiveAssetHasChanged,
-  ] = useTradeState(markets);
 
   useIonViewDidEnter(() => {
     setAccessoryBar(true).catch(console.error);
