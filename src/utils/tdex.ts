@@ -13,7 +13,7 @@ import type { CoinSelector, TradeOrder, IdentityInterface, UnblindedOutput } fro
 
 import type { TDEXMarket, TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 
-import { MakeTradeError } from './errors';
+import { AppError, NoMarketsAvailableForSelectedPairError } from './errors';
 
 export function createTraderClient(endpoint: string, proxy = 'https://proxy.tdex.network'): TraderClient {
   return new TraderClient(endpoint, proxy);
@@ -70,9 +70,9 @@ export async function makeTrade(
       throw new Error('Transaction not broadcasted');
     }
     return txid;
-  } catch (e) {
-    console.error('trade error:', e);
-    throw MakeTradeError;
+  } catch (err) {
+    console.error('trade error:', err);
+    throw new AppError(0, (err as Error).message);
   }
 }
 
@@ -138,7 +138,10 @@ export function discoverBestOrder(
 ): (sats: number, asset: string) => Promise<TradeOrder> {
   if (!sendAsset || !receiveAsset) throw new Error('unable to compute orders for selected market');
   const allPossibleOrders = computeOrders(markets, sendAsset, receiveAsset);
-  if (allPossibleOrders.length === 0) throw new Error(`markets not found for pair ${sendAsset}-${receiveAsset}`);
+  if (allPossibleOrders.length === 0) {
+    console.error(`markets not found for pair ${sendAsset}-${receiveAsset}`);
+    throw NoMarketsAvailableForSelectedPairError;
+  }
   return async (sats: number, asset: string): Promise<TradeOrder> => {
     if (sats <= 0) {
       return allPossibleOrders[0];

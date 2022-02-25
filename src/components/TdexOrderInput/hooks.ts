@@ -4,7 +4,7 @@ import type { TradeOrder } from 'tdex-sdk';
 import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
 import { defaultPrecision } from '../../utils/constants';
-import { NoMarketsProvidedError } from '../../utils/errors';
+import { NoMarketsAvailableForAllPairsError } from '../../utils/errors';
 import { fromSatoshiFixed, isLbtcTicker } from '../../utils/helpers';
 import { discoverBestOrder, marketPriceRequest } from '../../utils/tdex';
 
@@ -69,6 +69,7 @@ export function useTradeState(markets: TDEXMarket[]) {
   };
 
   const swapAssets = () => {
+    if (sendLoader || receiveLoader) return;
     setAssetSendBeforeSwap(sendAsset);
     const temp = sendAsset;
     setSendAsset(receiveAsset);
@@ -76,7 +77,14 @@ export function useTradeState(markets: TDEXMarket[]) {
     resetErrors();
   };
 
-  const discoverFunction = () => discoverBestOrder(markets, sendAsset, receiveAsset);
+  const discoverFunction = () => {
+    try {
+      return discoverBestOrder(markets, sendAsset, receiveAsset);
+    } catch (err) {
+      console.error('Best order discovery error', err);
+      throw err;
+    }
+  };
 
   const computePriceAndUpdate =
     (sats: number, asset: string, type: 'send' | 'receive') => async (order: TradeOrder) => {
@@ -139,8 +147,8 @@ export function useTradeState(markets: TDEXMarket[]) {
 
   useEffect(() => {
     if (markets.length === 0) {
-      setSendError(NoMarketsProvidedError);
-      setReceiveError(NoMarketsProvidedError);
+      setSendError(NoMarketsAvailableForAllPairsError);
+      setReceiveError(NoMarketsAvailableForAllPairsError);
     } else {
       resetErrors();
       setSendAmount(sendSats ?? 0).catch(console.error);
@@ -191,7 +199,9 @@ export function useTradeState(markets: TDEXMarket[]) {
     setSendAsset,
     setSendAmount,
     setReceiveAmount,
+    setSendLoader,
     sendLoader,
+    setReceiveLoader,
     receiveLoader,
     sendError,
     receiveError,

@@ -1,6 +1,7 @@
 import './style.scss';
 import { IonButton, IonCol, IonContent, IonGrid, IonModal, IonRow, IonText } from '@ionic/react';
 import React, { useEffect } from 'react';
+import type { TDEXProvider } from 'tdex-sdk';
 
 import Header from '../../components/Header';
 import type { TdexOrderInputResult } from '../../components/TdexOrderInput';
@@ -11,7 +12,7 @@ interface Props {
   error?: AppError;
   onClose: () => void;
   onClickRetry: () => void;
-  onClickTryNext: (endpoint: string) => void;
+  onClickTryNext: (provider: TDEXProvider) => void;
 }
 
 const ExchangeErrorModal: React.FC<Props> = ({ result, error, onClose, onClickRetry, onClickTryNext }) => {
@@ -22,7 +23,7 @@ const ExchangeErrorModal: React.FC<Props> = ({ result, error, onClose, onClickRe
   const tryNextHandler = () => {
     onClose();
     if (!result) return;
-    onClickTryNext(result?.order.traderClient.providerUrl);
+    onClickTryNext(result.order.market.provider);
   };
 
   const retryHandler = () => {
@@ -41,14 +42,12 @@ const ExchangeErrorModal: React.FC<Props> = ({ result, error, onClose, onClickRe
       <IonContent scrollY={false}>
         <Header title="TRADE ERROR" hasBackButton={false} hasCloseButton={!!onClose} handleClose={onClose} />
         <IonGrid className="ion-text-center error-modal-grid">
+          <h2>{`The selected provider ${result?.order.market.provider.name} can't process your trade`}</h2>
           <IonRow>
             <IonCol>
-              <IonText color="danger">The selected provider can't process your trade.</IonText>
-            </IonCol>
-          </IonRow>
-          <IonRow>
-            <IonCol>
-              <IonText color="danger">{error?.message}</IonText>
+              <IonText color="danger" className="error-message">
+                {error?.message}
+              </IonText>
             </IonCol>
           </IonRow>
 

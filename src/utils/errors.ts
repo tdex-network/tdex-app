@@ -20,7 +20,8 @@ export class AppError extends Error {
 export const MakeTradeError = new AppError(1, 'TradePropose or TradeComplete error');
 export const PinDigitsError = new AppError(2, 'PIN must contain 6 digits');
 export const InvalidTradeTypeError = new AppError(3, 'Trade type should be BUY or SELL');
-export const NoMarketsProvidedError = new AppError(4, 'No markets available');
+export const NoMarketsAvailableForAllPairsError = new AppError(4, 'No markets available for all trading pairs');
+export const NoMarketsAvailableForSelectedPairError = new AppError(5, 'No markets available for selected trading pair');
 export const IncorrectPINError = new AppError(6, 'Incorrect PIN');
 export const SecureStorageError = new AppError(7, 'Secure Storage error');
 export const PINsDoNotMatchError = new AppError(8, 'PINs needs to be equal');

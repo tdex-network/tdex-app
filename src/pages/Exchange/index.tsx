@@ -13,12 +13,13 @@ import {
   IonAlert,
   useIonAlert,
   useIonViewWillEnter,
+  IonSpinner,
 } from '@ionic/react';
 import classNames from 'classnames';
 import { closeOutline } from 'ionicons/icons';
 import type { StateRestorerOpts } from 'ldk';
 import { mnemonicRestorerFromState } from 'ldk';
-import React, { useCallback, useState } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
@@ -30,6 +31,7 @@ import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
 import type { TdexOrderInputResult } from '../../components/TdexOrderInput';
 import TdexOrderInput from '../../components/TdexOrderInput';
+import { useTradeState } from '../../components/TdexOrderInput/hooks';
 import type { TDEXMarket, TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
 import { setIsFetchingUtxos } from '../../redux/actions/appActions';
 import { updateMarkets } from '../../redux/actions/tdexActions';
@@ -39,11 +41,17 @@ import { unlockUtxos, updateUtxos } from '../../redux/actions/walletActions';
 import { useTypedDispatch } from '../../redux/hooks';
 import { lastUsedIndexesSelector, unlockedUtxosSelector } from '../../redux/reducers/walletReducer';
 import type { RootState } from '../../redux/types';
+import { routerLinks } from '../../routes';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
-import { AppError, IncorrectPINError, NoOtherProvider } from '../../utils/errors';
+import {
+  AppError,
+  IncorrectPINError,
+  NoMarketsAvailableForSelectedPairError,
+  NoOtherProvider,
+} from '../../utils/errors';
 import { customCoinSelector } from '../../utils/helpers';
 import { getConnectedTDexMnemonic } from '../../utils/storage-helper';
-import { makeTrade } from '../../utils/tdex';
+import { getTradablesAssets, makeTrade } from '../../utils/tdex';
 import type { PreviewData } from '../TradeSummary';
 
 import ExchangeErrorModal from './ExchangeErrorModal';
@@ -73,16 +81,15 @@ const Exchange: React.FC<Props> = ({
   utxos,
 }) => {
   const dispatch = useTypedDispatch();
-  const [presentNoProvidersAvailableAlert, dismissNoProvidersAvailableAlert] = useIonAlert();
-
-  // Tdex order input
   const [tdexOrderInputResult, setTdexOrderInputResult] = useState<TdexOrderInputResult>();
-  const [toFilterProviders, setToFilterProviders] = useState<string[]>([]);
-  const [showProvidersAlert, setShowProvidersAlert] = useState(false);
+  const [excludedProviders, setExcludedProviders] = useState<TDEXProvider[]>([]);
+  const [presentNoProvidersAvailableAlert, dismissNoProvidersAvailableAlert] = useIonAlert();
+  const [showExcludedProvidersAlert, setShowExcludedProvidersAlert] = useState(false);
   const [tradeError, setTradeError] = useState<AppError>();
 
   const getPinModalDescription = () =>
     `Enter your secret PIN to send ${tdexOrderInputResult?.send.amount} ${tdexOrderInputResult?.send.unit} and receive ${tdexOrderInputResult?.receive.amount} ${tdexOrderInputResult?.receive.unit}.`;
+
   const getProviderName = (endpoint: string) => markets.find((m) => m.provider.endpoint === endpoint)?.provider.name;
 
   // confirm flow
@@ -91,38 +98,66 @@ const Exchange: React.FC<Props> = ({
   const [isBusyMakingTrade, setIsBusyMakingTrade] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
 
-  const isSameProviderEndpoint = (providerEndpoint: string) =>
+  const isSameProviderEndpoint = (provider: TDEXProvider) =>
     function (market: TDEXMarket) {
-      return market.provider.endpoint === providerEndpoint;
+      return market.provider.endpoint === provider.endpoint;
     };
 
-  const withoutProviders = useCallback(
-    (...endpoints: string[]) =>
-      function (market: TDEXMarket) {
-        const isSameProviderFns = endpoints.map(isSameProviderEndpoint);
-        for (const fn of isSameProviderFns) {
-          if (fn(market)) return false;
-        }
-        return true;
-      },
-    []
-  );
+  const withoutProviders = (...providers: TDEXProvider[]) =>
+    function (market: TDEXMarket) {
+      const isSameProviderFns = providers.map(isSameProviderEndpoint);
+      for (const fn of isSameProviderFns) {
+        if (fn(market)) return false;
+      }
+      return true;
+    };
 
-  const getMarkets = useCallback(
-    () => markets.filter(withoutProviders(...toFilterProviders)),
-    [markets, toFilterProviders, withoutProviders]
-  );
-  const getProviders = useCallback(
-    () => providers.filter((p) => !toFilterProviders.includes(p.endpoint)),
-    [providers, toFilterProviders]
-  );
+  const getAllMarketsFromNotExcludedProviders = () => markets.filter(withoutProviders(...excludedProviders));
+
+  const getAllMarketsFromNotExcludedProvidersAndOnlySelectedPair = (providerToBan: TDEXProvider) => {
+    return markets
+      .filter(withoutProviders(...[...excludedProviders, providerToBan]))
+      .filter(
+        (m) =>
+          (m.baseAsset === sendAsset || m.baseAsset === receiveAsset) &&
+          (m.quoteAsset === sendAsset || m.quoteAsset === receiveAsset)
+      );
+  };
+
+  const getAllProvidersExceptExcluded = () =>
+    providers.filter((p) => !excludedProviders.map((p) => p.endpoint).includes(p.endpoint));
 
   useIonViewWillEnter(() => {
-    if (getMarkets().length === 0 || getProviders().length === 0) return openNoProvidersAvailableAlert();
-  }, [getMarkets, getProviders]);
+    if (providers.length === 0) {
+      openNoProvidersAvailableAlert();
+    }
+  }, [providers]);
+
+  const [
+    bestOrder,
+    sendAsset,
+    sendSats,
+    receiveAsset,
+    receiveSats,
+    setReceiveAsset,
+    setSendAsset,
+    setSendAmount,
+    setReceiveAmount,
+    setSendLoader,
+    sendLoader,
+    setReceiveLoader,
+    receiveLoader,
+    sendError,
+    receiveError,
+    setFocus,
+    swapAssets,
+    setHasBeenSwapped,
+    setSendAssetHasChanged,
+    setReceiveAssetHasChanged,
+  ] = useTradeState(getAllMarketsFromNotExcludedProviders());
 
   const openNoProvidersAvailableAlert = () => {
-    if (history.location.pathname === '/exchange') {
+    if (history.location.pathname === routerLinks.exchange) {
       presentNoProvidersAvailableAlert({
         header: 'No providers available',
         message:
@@ -134,7 +169,7 @@ const Exchange: React.FC<Props> = ({
             handler: () => {
               dismissNoProvidersAvailableAlert()
                 .then(() => {
-                  history.replace('/wallet');
+                  history.replace(routerLinks.wallet);
                 })
                 .catch(console.error);
             },
@@ -143,7 +178,7 @@ const Exchange: React.FC<Props> = ({
             text: 'Retry',
             handler: () => {
               dispatch(updateMarkets());
-              if (getMarkets().length === 0 || tdexOrderInputResult === undefined) {
+              if (getAllMarketsFromNotExcludedProviders().length === 0 || tdexOrderInputResult === undefined) {
                 dismissNoProvidersAvailableAlert().then(() => {
                   openNoProvidersAvailableAlert();
                 });
@@ -208,16 +243,15 @@ const Exchange: React.FC<Props> = ({
         torProxy
       );
       handleSuccess(txid);
-    } catch (e) {
+    } catch (err) {
       dispatch(unlockUtxos());
       setIsWrongPin(true);
       setTimeout(() => {
         setIsWrongPin(null);
         setNeedReset(true);
       }, PIN_TIMEOUT_FAILURE);
-      if (e instanceof AppError) {
-        setTradeError(e);
-        dispatch(addErrorToast(e));
+      if (err instanceof AppError) {
+        setTradeError(err);
       }
     } finally {
       setIsBusyMakingTrade(false);
@@ -228,30 +262,54 @@ const Exchange: React.FC<Props> = ({
     <IonPage id="exchange-page">
       <Loader showLoading={isBusyMakingTrade} delay={0} />
       <Loader
-        showLoading={history.location.pathname === '/exchange' && isFetchingMarkets && !isBusyMakingTrade}
+        showLoading={
+          history.location.pathname === routerLinks.exchange &&
+          isFetchingMarkets &&
+          !isBusyMakingTrade &&
+          !tradeError &&
+          getAllProvidersExceptExcluded().length > 0
+        }
         message="Discovering TDEX providers with best liquidity..."
         delay={0}
         backdropDismiss={true}
         duration={15000}
-        onDidDismiss={() => {
-          if (getMarkets().length === 0 || getProviders().length === 0) openNoProvidersAvailableAlert();
-        }}
+        onDidDismiss={() => providers.length === 0 && openNoProvidersAvailableAlert()}
       />
       <ExchangeErrorModal
         result={tdexOrderInputResult}
         error={tradeError}
         onClose={() => setTradeError(undefined)}
         onClickRetry={() => tdexOrderInputResult !== undefined && setPINModalOpen(true)}
-        onClickTryNext={(endpointToBan: string) => {
-          if (getProviders().length > 1) {
-            setToFilterProviders([...toFilterProviders, endpointToBan]);
+        onClickTryNext={(providerToBan: TDEXProvider) => {
+          if (getAllProvidersExceptExcluded().length > 1) {
+            if (!excludedProviders.map((p) => p.endpoint).includes(providerToBan.endpoint)) {
+              setExcludedProviders([...excludedProviders, providerToBan]);
+              setTdexOrderInputResult(undefined);
+            }
+            if (getAllMarketsFromNotExcludedProvidersAndOnlySelectedPair(providerToBan).length === 0) {
+              dispatch(addErrorToast(NoMarketsAvailableForSelectedPairError));
+              // Set next possible trading pair
+              setSendLoader(false);
+              setReceiveLoader(false);
+              setSendAmount(0).catch(console.error);
+              setReceiveAmount(0).catch(console.error);
+              const tradableAssets = getTradablesAssets(markets, sendAsset || '').filter((t) => t !== receiveAsset);
+              if (tradableAssets.length > 0) {
+                setSendAsset(sendAsset);
+                setReceiveAsset(tradableAssets[0]);
+              } else {
+                const tradableAssets = getTradablesAssets(markets, receiveAsset || '').filter((t) => t !== sendAsset);
+                setSendAsset(receiveAsset);
+                setReceiveAsset(tradableAssets[0]);
+              }
+            }
           } else {
             dispatch(addErrorToast(NoOtherProvider));
           }
         }}
       />
 
-      {getMarkets().length > 0 && (
+      {getAllMarketsFromNotExcludedProviders().length > 0 && (
         <PinModal
           open={tdexOrderInputResult !== undefined && PINModalOpen}
           title="Unlock your seed"
@@ -267,7 +325,7 @@ const Exchange: React.FC<Props> = ({
         />
       )}
 
-      {getMarkets().length > 0 && (
+      {getAllMarketsFromNotExcludedProviders().length > 0 && (
         <IonContent className="exchange-content">
           <Refresher />
           <IonGrid className="ion-no-padding">
@@ -283,28 +341,28 @@ const Exchange: React.FC<Props> = ({
               title="Exchange"
               isTitleLarge={true}
             />
-            <IonRow className="ion-align-items-start">
+            <IonRow className="ion-align-items-start ion-bg-color-primary">
               <IonAlert
-                isOpen={showProvidersAlert}
-                onDidDismiss={() => setShowProvidersAlert(false)}
+                isOpen={showExcludedProvidersAlert}
+                onDidDismiss={() => setShowExcludedProvidersAlert(false)}
                 header={'Providers excluded'}
-                message={toFilterProviders.reduce((acc, n) => acc + `${n}<br />`, '')}
+                message={excludedProviders.reduce((acc, p) => acc + `- ${p.name} - <br> ${p.endpoint} <br><br>`, '')}
                 buttons={[
                   'OK',
                   {
                     text: 'clear',
-                    handler: () => setToFilterProviders([]),
+                    handler: () => setExcludedProviders([]),
                   },
                 ]}
               />
 
-              {toFilterProviders.length > 0 && (
+              {excludedProviders.length > 0 && (
                 <IonCol className="ion-padding-start">
                   <IonChip outline color="danger">
-                    <IonLabel onClick={() => setShowProvidersAlert(true)}>
-                      {toFilterProviders.length} providers excluded
+                    <IonLabel onClick={() => setShowExcludedProvidersAlert(true)}>
+                      {excludedProviders.length} providers excluded
                     </IonLabel>
-                    <IonIcon onClick={() => setToFilterProviders([])} icon={closeOutline} />
+                    <IonIcon onClick={() => setExcludedProviders([])} icon={closeOutline} />
                   </IonChip>
                 </IonCol>
               )}
@@ -312,7 +370,28 @@ const Exchange: React.FC<Props> = ({
 
             <IonRow className="ion-align-items-start">
               <IonCol>
-                <TdexOrderInput onInput={setTdexOrderInputResult} markets={getMarkets()} />
+                <TdexOrderInput
+                  onInput={setTdexOrderInputResult}
+                  markets={getAllMarketsFromNotExcludedProviders()}
+                  bestOrder={bestOrder}
+                  sendAsset={sendAsset}
+                  sendSats={sendSats}
+                  receiveAsset={receiveAsset}
+                  receiveSats={receiveSats}
+                  setReceiveAsset={setReceiveAsset}
+                  setSendAsset={setSendAsset}
+                  setSendAmount={setSendAmount}
+                  setReceiveAmount={setReceiveAmount}
+                  sendLoader={sendLoader}
+                  receiveLoader={receiveLoader}
+                  sendError={sendError}
+                  receiveError={receiveError}
+                  setFocus={setFocus}
+                  swapAssets={swapAssets}
+                  setHasBeenSwapped={setHasBeenSwapped}
+                  setSendAssetHasChanged={setSendAssetHasChanged}
+                  setReceiveAssetHasChanged={setReceiveAssetHasChanged}
+                />
               </IonCol>
             </IonRow>
 
@@ -323,8 +402,16 @@ const Exchange: React.FC<Props> = ({
                     'button-disabled': tdexOrderInputResult === undefined,
                   })}
                   data-cy="exchange-confirm-btn"
-                  disabled={tdexOrderInputResult === undefined}
-                  onClick={() => setPINModalOpen(true)}
+                  disabled={
+                    tdexOrderInputResult === undefined ||
+                    sendSats === 0 ||
+                    receiveSats === 0 ||
+                    sendLoader ||
+                    receiveLoader
+                  }
+                  onClick={() => {
+                    setPINModalOpen(true);
+                  }}
                 >
                   CONFIRM
                 </IonButton>
@@ -336,11 +423,15 @@ const Exchange: React.FC<Props> = ({
                 <IonCol size="10" offset="1">
                   <IonText className="trade-info" color="light">
                     Market provided by:{' '}
-                    <span className="provider-info">
-                      {`${getProviderName((tdexOrderInputResult.order.market as TDEXMarket).provider.endpoint)} - ${
-                        tdexOrderInputResult.order.traderClient.providerUrl
-                      }`}
-                    </span>
+                    {sendLoader || receiveLoader || !tdexOrderInputResult ? (
+                      <IonSpinner name="dots" className="vertical-middle" />
+                    ) : (
+                      <span className="provider-info">
+                        {`${getProviderName(tdexOrderInputResult.order.market.provider.endpoint)} - ${
+                          tdexOrderInputResult.order.traderClient.providerUrl
+                        }`}
+                      </span>
+                    )}
                   </IonText>
                 </IonCol>
               </IonRow>
