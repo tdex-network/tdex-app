@@ -21,7 +21,7 @@ export function createTraderClient(endpoint: string, proxy = 'https://proxy.tdex
 
 // Create discoverer object for a specific set of trader clients
 function createDiscoverer(orders: TradeOrder[], errorHandler?: () => Promise<void>): Discoverer {
-  return new Discoverer(orders, combineDiscovery(bestBalanceDiscovery, bestPriceDiscovery), errorHandler);
+  return new Discoverer(orders, combineDiscovery(bestPriceDiscovery, bestBalanceDiscovery), errorHandler);
 }
 
 function createTradeFromTradeOrder(
