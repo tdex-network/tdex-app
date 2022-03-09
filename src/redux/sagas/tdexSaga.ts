@@ -15,6 +15,7 @@ import {
   CLEAR_PROVIDERS,
   DELETE_PROVIDER,
   UPDATE_MARKETS,
+  updateMarkets,
 } from '../actions/tdexActions';
 import { addErrorToast } from '../actions/toastActions';
 import type { RootState, SagaGenerator, Unwrap } from '../types';
@@ -138,8 +139,8 @@ function* updateAssetsFromMarkets() {
 
 export function* tdexWatcherSaga(): SagaGenerator {
   yield takeLatest(ADD_PROVIDERS, function* () {
-    yield* fetchMarketsAndAddToState();
     yield* persistProviders();
+    yield put(updateMarkets());
   });
   yield takeLatest([CLEAR_PROVIDERS, DELETE_PROVIDER], persistProviders);
   yield takeLatest(UPDATE_MARKETS, function* () {
