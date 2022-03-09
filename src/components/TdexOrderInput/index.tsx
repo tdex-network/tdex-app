@@ -8,8 +8,6 @@ import swap from '../../assets/img/swap.svg';
 import TradeRowInput from '../../components/TdexOrderInput/TradeRowInput';
 import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { updateMarkets } from '../../redux/actions/tdexActions';
-import { useTypedDispatch } from '../../redux/hooks';
 import { balancesSelector } from '../../redux/reducers/walletReducer';
 import type { RootState } from '../../redux/types';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
@@ -96,8 +94,6 @@ const TdexOrderInput: React.FC<Props> = ({
   setSendAssetHasChanged,
   setReceiveAssetHasChanged,
 }) => {
-  const dispatch = useTypedDispatch();
-
   useIonViewDidEnter(() => {
     setAccessoryBar(true).catch(console.error);
     // Set send asset default to LBTC if available in markets, or first asset in balances
