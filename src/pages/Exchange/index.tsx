@@ -128,7 +128,9 @@ const Exchange: React.FC<Props> = ({
     providers.filter((p) => !excludedProviders.map((p) => p.endpoint).includes(p.endpoint));
 
   useIonViewWillEnter(() => {
-    if (providers.length === 0) {
+    // Prevent entering Exchange page if no provider or no markets
+    // We may have the default provider set but no markets, so we need to check both
+    if (providers.length === 0 || markets.length === 0) {
       openNoProvidersAvailableAlert();
     }
   }, [providers]);
@@ -281,6 +283,7 @@ const Exchange: React.FC<Props> = ({
         onClose={() => setTradeError(undefined)}
         onClickRetry={() => tdexOrderInputResult !== undefined && setPINModalOpen(true)}
         onClickTryNext={(providerToBan: TDEXProvider) => {
+          console.log('onClickTryNext');
           if (getAllProvidersExceptExcluded().length > 1) {
             if (!excludedProviders.map((p) => p.endpoint).includes(providerToBan.endpoint)) {
               setExcludedProviders([...excludedProviders, providerToBan]);

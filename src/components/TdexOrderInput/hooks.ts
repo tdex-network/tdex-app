@@ -12,11 +12,12 @@ import type { SatsAsset, AmountAndUnit } from '.';
 
 export function createAmountAndUnit(assetsRegistry: Record<string, AssetConfig>, lbtcUnit: LbtcDenomination) {
   return (satsAsset: SatsAsset): AmountAndUnit => {
-    if (!satsAsset.asset || !satsAsset.sats)
+    if (!satsAsset.asset || !satsAsset.sats || !assetsRegistry[satsAsset.asset]) {
       return {
         amount: '0',
         unit: 'unknown',
       };
+    }
     const assetConfig = assetsRegistry[satsAsset.asset];
     return {
       amount: fromSatoshiFixed(
