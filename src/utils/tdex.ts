@@ -9,19 +9,25 @@ import {
   greedyCoinSelector,
   Discoverer,
 } from 'tdex-sdk';
-import type { CoinSelector, TradeOrder, IdentityInterface, UnblindedOutput } from 'tdex-sdk';
+import type { CoinSelector, TradeOrder, IdentityInterface, UnblindedOutput, Discovery } from 'tdex-sdk';
 
 import type { TDEXMarket, TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 
 import { AppError, NoMarketsAvailableForSelectedPairError } from './errors';
+// Self import for unit testing
+import * as tdex from './tdex';
 
 export function createTraderClient(endpoint: string, proxy = 'https://proxy.tdex.network'): TraderClient {
   return new TraderClient(endpoint, proxy);
 }
 
 // Create discoverer object for a specific set of trader clients
-function createDiscoverer(orders: TradeOrder[], errorHandler?: () => Promise<void>): Discoverer {
-  return new Discoverer(orders, combineDiscovery(bestPriceDiscovery, bestBalanceDiscovery), errorHandler);
+export function createDiscoverer(
+  orders: TradeOrder[],
+  discovery: Discovery,
+  errorHandler?: () => Promise<void>
+): Discoverer {
+  return new Discoverer(orders, discovery, errorHandler);
 }
 
 function createTradeFromTradeOrder(
@@ -83,7 +89,7 @@ export async function makeTrade(
  * @param receivedAsset the asset to receive
  * @param torProxy
  */
-function computeOrders(
+export function computeOrders(
   markets: TDEXMarket[],
   sentAsset: string,
   receivedAsset: string,
@@ -95,14 +101,14 @@ function computeOrders(
       trades.push({
         market,
         type: TradeType.SELL,
-        traderClient: createTraderClient(market.provider.endpoint, torProxy),
+        traderClient: tdex.createTraderClient(market.provider.endpoint, torProxy),
       });
     }
     if (sentAsset === market.quoteAsset && receivedAsset === market.baseAsset) {
       trades.push({
         market,
         type: TradeType.BUY,
-        traderClient: createTraderClient(market.provider.endpoint, torProxy),
+        traderClient: tdex.createTraderClient(market.provider.endpoint, torProxy),
       });
     }
   }
@@ -137,7 +143,7 @@ export function discoverBestOrder(
   receiveAsset?: string
 ): (sats: number, asset: string) => Promise<TradeOrder> {
   if (!sendAsset || !receiveAsset) throw new Error('unable to compute orders for selected market');
-  const allPossibleOrders = computeOrders(markets, sendAsset, receiveAsset);
+  const allPossibleOrders = tdex.computeOrders(markets, sendAsset, receiveAsset);
   if (allPossibleOrders.length === 0) {
     console.error(`markets not found for pair ${sendAsset}-${receiveAsset}`);
     throw NoMarketsAvailableForSelectedPairError;
@@ -147,7 +153,10 @@ export function discoverBestOrder(
       return allPossibleOrders[0];
     }
     try {
-      const discoverer = createDiscoverer(allPossibleOrders);
+      const discoverer = tdex.createDiscoverer(
+        allPossibleOrders,
+        combineDiscovery(bestPriceDiscovery, bestBalanceDiscovery)
+      );
       const bestOrders = await discoverer.discover({ asset, amount: sats });
       if (bestOrders.length === 0) throw new Error('zero best orders found by discoverer');
       return bestOrders[0];
