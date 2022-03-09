@@ -120,11 +120,6 @@ const TdexOrderInput: React.FC<Props> = ({
   }, []);
 
   useEffect(() => {
-    dispatch(updateMarkets());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
     if (sendError || receiveError) onInput(undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sendError, receiveError]);
