@@ -6,7 +6,7 @@ import type TraderClientInterface from 'tdex-sdk/dist/grpcClientInterface';
 import * as tdexUtils from '../src/utils/tdex';
 
 import MockTraderClientInterface from './fixtures/mockTraderClientInterface';
-import { marketsLbtcUsdtSameFee, mockLbtcSendAsset, mockUsdtReceiveAsset } from './fixtures/trade';
+import { mockMarketsLbtcUsdt, mockLbtcSendAsset, mockUsdtReceiveAsset } from './fixtures/trade';
 
 const makeOrder =
   (type: TradeType) =>
@@ -119,7 +119,7 @@ describe('discovery strategies', () => {
 
     it('should return first possible order when sats <= 0', async () => {
       const discoverFunction = tdexUtils.discoverBestOrder(
-        marketsLbtcUsdtSameFee,
+        mockMarketsLbtcUsdt,
         mockLbtcSendAsset,
         mockUsdtReceiveAsset
       );
@@ -139,7 +139,7 @@ describe('discovery strategies', () => {
         )
       );
       const discoverFunction = tdexUtils.discoverBestOrder(
-        marketsLbtcUsdtSameFee,
+        mockMarketsLbtcUsdt,
         mockLbtcSendAsset,
         mockUsdtReceiveAsset
       );
@@ -158,7 +158,7 @@ describe('discovery strategies', () => {
         )
       );
       const discoverFunction = tdexUtils.discoverBestOrder(
-        marketsLbtcUsdtSameFee,
+        mockMarketsLbtcUsdt,
         mockLbtcSendAsset,
         mockUsdtReceiveAsset
       );
@@ -177,7 +177,7 @@ describe('discovery strategies', () => {
         )
       );
       const discoverFunction = tdexUtils.discoverBestOrder(
-        marketsLbtcUsdtSameFee,
+        mockMarketsLbtcUsdt,
         mockLbtcSendAsset,
         mockUsdtReceiveAsset
       );
@@ -196,7 +196,7 @@ describe('discovery strategies', () => {
         )
       );
       const discoverFunction = tdexUtils.discoverBestOrder(
-        marketsLbtcUsdtSameFee,
+        mockMarketsLbtcUsdt,
         mockLbtcSendAsset,
         mockUsdtReceiveAsset
       );
