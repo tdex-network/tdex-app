@@ -260,6 +260,34 @@ const Exchange: React.FC<Props> = ({
     }
   };
 
+  const onClickTryNext = (providerToBan: TDEXProvider) => {
+    if (getAllProvidersExceptExcluded().length > 1) {
+      if (!excludedProviders.map((p) => p.endpoint).includes(providerToBan.endpoint)) {
+        setExcludedProviders([...excludedProviders, providerToBan]);
+        setTdexOrderInputResult(undefined);
+      }
+      if (getAllMarketsFromNotExcludedProvidersAndOnlySelectedPair(providerToBan).length === 0) {
+        dispatch(addErrorToast(NoMarketsAvailableForSelectedPairError));
+        // Set next possible trading pair
+        setSendLoader(false);
+        setReceiveLoader(false);
+        setSendAmount(0).catch(console.error);
+        setReceiveAmount(0).catch(console.error);
+        const tradableAssets = getTradablesAssets(markets, sendAsset || '').filter((t) => t !== receiveAsset);
+        if (tradableAssets.length > 0) {
+          setSendAsset(sendAsset);
+          setReceiveAsset(tradableAssets[0]);
+        } else {
+          const tradableAssets = getTradablesAssets(markets, receiveAsset || '').filter((t) => t !== sendAsset);
+          setSendAsset(receiveAsset);
+          setReceiveAsset(tradableAssets[0]);
+        }
+      }
+    } else {
+      dispatch(addErrorToast(NoOtherProvider));
+    }
+  };
+
   return (
     <IonPage id="exchange-page">
       <Loader showLoading={isBusyMakingTrade} delay={0} />
@@ -282,34 +310,7 @@ const Exchange: React.FC<Props> = ({
         error={tradeError}
         onClose={() => setTradeError(undefined)}
         onClickRetry={() => tdexOrderInputResult !== undefined && setPINModalOpen(true)}
-        onClickTryNext={(providerToBan: TDEXProvider) => {
-          console.log('onClickTryNext');
-          if (getAllProvidersExceptExcluded().length > 1) {
-            if (!excludedProviders.map((p) => p.endpoint).includes(providerToBan.endpoint)) {
-              setExcludedProviders([...excludedProviders, providerToBan]);
-              setTdexOrderInputResult(undefined);
-            }
-            if (getAllMarketsFromNotExcludedProvidersAndOnlySelectedPair(providerToBan).length === 0) {
-              dispatch(addErrorToast(NoMarketsAvailableForSelectedPairError));
-              // Set next possible trading pair
-              setSendLoader(false);
-              setReceiveLoader(false);
-              setSendAmount(0).catch(console.error);
-              setReceiveAmount(0).catch(console.error);
-              const tradableAssets = getTradablesAssets(markets, sendAsset || '').filter((t) => t !== receiveAsset);
-              if (tradableAssets.length > 0) {
-                setSendAsset(sendAsset);
-                setReceiveAsset(tradableAssets[0]);
-              } else {
-                const tradableAssets = getTradablesAssets(markets, receiveAsset || '').filter((t) => t !== sendAsset);
-                setSendAsset(receiveAsset);
-                setReceiveAsset(tradableAssets[0]);
-              }
-            }
-          } else {
-            dispatch(addErrorToast(NoOtherProvider));
-          }
-        }}
+        onClickTryNext={onClickTryNext}
       />
 
       {getAllMarketsFromNotExcludedProviders().length > 0 && (
