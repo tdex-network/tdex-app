@@ -35,8 +35,7 @@ describe('trade', () => {
   it('make a trade', () => {
     cy.launchWallet();
     cy.get('[data-cy=tab-exchange]').click();
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
+    cy.url().should('contain', '/exchange');
     cy.get('[data-cy=exchange-send-input]').children().type('1');
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2500);
@@ -45,6 +44,7 @@ describe('trade', () => {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
     cy.get('[data-cy=pin-input]').children().type(pin);
+    cy.url().should('contain', '/tradesummary/');
     cy.get('[data-cy=header-title]').should('contain.text', 'TRADE SUMMARY');
     cy.get('[data-cy=trade-summary-sent-amount]').should('contain.text', '-1');
   });
@@ -54,8 +54,7 @@ describe('trade', () => {
     cy.wait(6000);
     cy.launchWallet({ 'CapacitorStorage.tdex-app-lbtc-unit': 'L-sats' });
     cy.get('[data-cy=tab-exchange]').click();
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(2000);
+    cy.url().should('contain', '/exchange');
     cy.get('[data-cy=exchange-send-input]').children().type('1000');
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2500);
