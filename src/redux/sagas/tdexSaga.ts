@@ -10,10 +10,10 @@ import { setIsFetchingMarkets } from '../actions/appActions';
 import { addAsset } from '../actions/assetsActions';
 import {
   ADD_PROVIDERS,
-  addMarkets,
   addProviders,
   CLEAR_PROVIDERS,
   DELETE_PROVIDER,
+  replaceMarketsOfProvider,
   UPDATE_MARKETS,
   updateMarkets,
 } from '../actions/tdexActions';
@@ -64,8 +64,8 @@ function* persistProviders() {
   yield call(setProvidersInStorage, providers);
 }
 
-function* fetchMarketsAndAddToState() {
-  function* gen(provider: TDEXProvider, torProxy: string, marketsInState: TDEXMarket[]) {
+function* fetchMarketsAndUpdateState() {
+  function* gen(provider: TDEXProvider, torProxy: string) {
     const fetchedMarkets: Unwrap<ReturnType<typeof getMarketsFromProvider>> = yield retry(
       3,
       1000 * 2,
@@ -73,26 +73,13 @@ function* fetchMarketsAndAddToState() {
       provider,
       torProxy
     );
-    if (fetchedMarkets?.length) {
-      let isMarketInState = false;
-      for (const fetchedMarket of fetchedMarkets) {
-        isMarketInState = marketsInState.some(
-          (marketInState) =>
-            fetchedMarket.baseAsset === marketInState.baseAsset && fetchedMarket.quoteAsset === marketInState.quoteAsset
-        );
-        if (!isMarketInState) yield put(addMarkets([fetchedMarket]));
-      }
-    }
+    yield put(replaceMarketsOfProvider(provider, fetchedMarkets ?? []));
   }
   try {
     yield put(setIsFetchingMarkets(true));
-    const { torProxy, providers, markets }: { torProxy: string; markets: TDEXMarket[]; providers: TDEXProvider[] } =
-      yield select(({ settings, tdex }: RootState) => ({
-        torProxy: settings.torProxy,
-        markets: tdex.markets,
-        providers: tdex.providers,
-      }));
-    yield all(providers.map((provider) => gen(provider, torProxy, markets)));
+    const torProxy: string = yield select(({ settings }: RootState) => settings.torProxy);
+    const providers: TDEXProvider[] = yield select(({ tdex }: RootState) => tdex.providers);
+    yield all(providers.map((provider) => gen(provider, torProxy)));
     yield put(setIsFetchingMarkets(false));
   } catch (err) {
     console.error('fetchMarkets error: ', err);
@@ -144,7 +131,7 @@ export function* tdexWatcherSaga(): SagaGenerator {
   });
   yield takeLatest([CLEAR_PROVIDERS, DELETE_PROVIDER], persistProviders);
   yield takeLatest(UPDATE_MARKETS, function* () {
-    yield* fetchMarketsAndAddToState();
+    yield* fetchMarketsAndUpdateState();
     yield* updateAssetsFromMarkets();
   });
 }

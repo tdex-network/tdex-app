@@ -25,7 +25,7 @@ export function createTraderClient(endpoint: string, proxy = 'https://proxy.tdex
 export function createDiscoverer(
   orders: TradeOrder[],
   discovery: Discovery,
-  errorHandler?: () => Promise<void>
+  errorHandler?: (err: any) => Promise<void>
 ): Discoverer {
   return new Discoverer(orders, discovery, errorHandler);
 }
@@ -150,12 +150,14 @@ export function discoverBestOrder(
   }
   return async (sats: number, asset: string): Promise<TradeOrder> => {
     if (sats <= 0) {
+      // return a random order to avoid calling discoverer
       return allPossibleOrders[0];
     }
     try {
       const discoverer = tdex.createDiscoverer(
         allPossibleOrders,
-        combineDiscovery(bestPriceDiscovery, bestBalanceDiscovery)
+        combineDiscovery(bestPriceDiscovery, bestBalanceDiscovery),
+        async (err) => console.error(err)
       );
       const bestOrders = await discoverer.discover({ asset, amount: sats });
       if (bestOrders.length === 0) throw new Error('zero best orders found by discoverer');

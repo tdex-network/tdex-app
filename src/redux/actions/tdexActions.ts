@@ -7,9 +7,18 @@ export const CLEAR_PROVIDERS = 'CLEAR_PROVIDERS';
 export const UPDATE_MARKETS = 'UPDATE_MARKETS';
 export const ADD_MARKETS = 'ADD_MARKETS';
 export const CLEAR_MARKETS = 'CLEAR_MARKETS';
+export const REPLACE_MARKETS_OF_PROVIDER = 'REPLACE_MARKETS_OF_PROVIDER';
 
 export const clearMarkets = (): ActionType => ({
   type: CLEAR_MARKETS,
+});
+
+export const replaceMarketsOfProvider = (
+  providerToUpdate: TDEXProvider,
+  markets: TDEXMarket[]
+): ActionType<{ providerToUpdate: TDEXProvider; markets: TDEXMarket[] }> => ({
+  type: REPLACE_MARKETS_OF_PROVIDER,
+  payload: { providerToUpdate, markets },
 });
 
 export const addMarkets = (markets: TDEXMarket[]): ActionType<TDEXMarket[]> => {
