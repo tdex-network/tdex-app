@@ -157,7 +157,7 @@ export function discoverBestOrder(
       const discoverer = tdex.createDiscoverer(
         allPossibleOrders,
         combineDiscovery(bestPriceDiscovery, bestBalanceDiscovery),
-        async (err) => console.error(err)
+        async (err) => console.debug(err)
       );
       const bestOrders = await discoverer.discover({ asset, amount: sats });
       if (bestOrders.length === 0) throw new Error('zero best orders found by discoverer');
