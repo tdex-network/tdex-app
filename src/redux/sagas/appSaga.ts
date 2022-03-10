@@ -79,7 +79,6 @@ function* signInSaga({ payload: identity }: ReturnType<typeof signIn>) {
       put(watchCurrentBtcBlockHeight()),
       put(updateDepositPeginUtxos()),
       put(checkIfClaimablePeginUtxo()),
-      put(updateMarkets()),
       put(updateTransactions()),
       put(updatePrices()),
       put(updateUtxos()),
