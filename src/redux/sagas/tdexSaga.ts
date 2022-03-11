@@ -66,14 +66,18 @@ function* persistProviders() {
 
 function* fetchMarketsAndUpdateState() {
   function* gen(provider: TDEXProvider, torProxy: string) {
-    const fetchedMarkets: Unwrap<ReturnType<typeof getMarketsFromProvider>> = yield retry(
-      3,
-      1000 * 2,
-      getMarketsFromProvider,
-      provider,
-      torProxy
-    );
-    yield put(replaceMarketsOfProvider(provider, fetchedMarkets ?? []));
+    try {
+      const fetchedMarkets: Unwrap<ReturnType<typeof getMarketsFromProvider>> = yield retry(
+        3,
+        1000 * 2,
+        getMarketsFromProvider,
+        provider,
+        torProxy
+      );
+      yield put(replaceMarketsOfProvider(provider, fetchedMarkets ?? []));
+    } catch (err) {
+      console.error(`Cannot get markets from provider ${provider.name} - ${provider.endpoint}`, err);
+    }
   }
   try {
     yield put(setIsFetchingMarkets(true));
@@ -96,23 +100,19 @@ async function getMarketsFromProvider(
   p: TDEXProvider,
   torProxy = 'https://proxy.tdex.network'
 ): Promise<TDEXMarket[] | void> {
-  try {
-    const client = new TraderClient(p.endpoint, torProxy);
-    const markets: MarketInterface[] = await client.markets();
-    const results: TDEXMarket[] = [];
-    for (const market of markets) {
-      const balance = (await client.balances(market))[0].balance;
-      results.push({
-        ...market,
-        provider: p,
-        baseAmount: balance?.baseAmount,
-        quoteAmount: balance?.quoteAmount,
-      });
-    }
-    return results;
-  } catch (err) {
-    console.error(`Cannot get markets from provider ${p.name} - ${p.endpoint}`, err);
+  const client = new TraderClient(p.endpoint, torProxy);
+  const markets: MarketInterface[] = await client.markets();
+  const results: TDEXMarket[] = [];
+  for (const market of markets) {
+    const balance = (await client.balances(market))[0].balance;
+    results.push({
+      ...market,
+      provider: p,
+      baseAmount: balance?.baseAmount,
+      quoteAmount: balance?.quoteAmount,
+    });
   }
+  return results;
 }
 
 function* updateAssetsFromMarkets() {
