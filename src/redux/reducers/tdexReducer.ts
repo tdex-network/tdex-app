@@ -2,7 +2,14 @@ import { createSelector } from 'reselect';
 
 import type { ActionType } from '../../utils/types';
 import type { TDEXMarket, TDEXProvider } from '../actionTypes/tdexActionTypes';
-import { ADD_MARKETS, ADD_PROVIDERS, CLEAR_MARKETS, CLEAR_PROVIDERS, DELETE_PROVIDER } from '../actions/tdexActions';
+import {
+  ADD_MARKETS,
+  ADD_PROVIDERS,
+  CLEAR_MARKETS,
+  REPLACE_MARKETS_OF_PROVIDER,
+  CLEAR_PROVIDERS,
+  DELETE_PROVIDER,
+} from '../actions/tdexActions';
 import type { RootState } from '../types';
 
 export interface TDEXState {
@@ -22,6 +29,13 @@ const TDEXReducer = (
   switch (action.type) {
     case ADD_MARKETS:
       return { ...state, markets: [...state.markets, ...action.payload] };
+    case REPLACE_MARKETS_OF_PROVIDER: {
+      // Remove markets of provider received in arg
+      const marketsWithoutProviderToUpdate = state.markets.filter(
+        (market) => market.provider.endpoint !== (action.payload.providerToUpdate as TDEXProvider).endpoint
+      );
+      return { ...state, markets: [...marketsWithoutProviderToUpdate, ...action.payload.markets] };
+    }
     case CLEAR_MARKETS:
       return { ...state, markets: [] };
     case ADD_PROVIDERS: {

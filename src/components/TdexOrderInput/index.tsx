@@ -103,7 +103,7 @@ const TdexOrderInput: React.FC<Props> = ({
     // Set receive asset to first tradable asset
     const tradableAssets = getTradablesAssets(markets, sendAsset);
     setReceiveAsset(tradableAssets[0]);
-  });
+  }, [markets, sendAsset]);
 
   useIonViewDidLeave(() => {
     setAccessoryBar(false).catch(console.error);

@@ -31,13 +31,6 @@ export function createAmountAndUnit(assetsRegistry: Record<string, AssetConfig>,
   };
 }
 
-// calculate price is a wrapper of marketPrice rpc call
-// it returns the price of the asset in sats
-const calculatePrice =
-  (sats: number, asset: string) =>
-  async (order: TradeOrder): Promise<SatsAsset> =>
-    marketPriceRequest(order, sats, asset);
-
 // custom state hook using to represent an asset/sats pair
 function useAssetSats(initialAssetHash?: string) {
   const [assetHash, setAssetHash] = useState<string | undefined>(initialAssetHash);
@@ -78,56 +71,44 @@ export function useTradeState(markets: TDEXMarket[]) {
     resetErrors();
   };
 
-  const discoverFunction = () => {
-    try {
-      return discoverBestOrder(markets, sendAsset, receiveAsset);
-    } catch (err) {
-      console.error('Best order discovery error', err);
-      throw err;
-    }
-  };
-
-  const computePriceAndUpdate =
-    (sats: number, asset: string, type: 'send' | 'receive') => async (order: TradeOrder) => {
-      const assetSats = await calculatePrice(sats, asset)(order);
-      if (type === 'send') {
-        setReceiveSats(assetSats.sats);
-      } else {
-        setSendSats(assetSats.sats);
-      }
-      return order;
-    };
-
-  const updateReceiveSats = (newSendSats: number) => {
+  const updateReceiveSats = async (newSendSats: number) => {
     if (receiveAssetHasChanged) {
       setReceiveAssetHasChanged(false);
       return;
     }
     if (receiveLoader || !sendAsset || (focus === 'receive' && !hasBeenSwapped && !sendAssetHasChanged)) return;
-    setReceiveLoader(true);
-    return discoverFunction()(newSendSats ?? 0, sendAsset)
-      .then(computePriceAndUpdate(newSendSats ?? 0, sendAsset, 'send')) // set receive sats
-      .then((tradeOrder: TradeOrder) => {
-        setBestOrder(tradeOrder);
-        resetErrors();
-      })
-      .catch(setSendError)
-      .finally(() => setReceiveLoader(false));
+    try {
+      setReceiveLoader(true);
+      const bestOrder = await discoverBestOrder(markets, sendAsset, receiveAsset)(newSendSats ?? 0, sendAsset);
+      const assetSats = await marketPriceRequest(bestOrder, newSendSats ?? 0, sendAsset);
+      setReceiveSats(assetSats.sats);
+      setBestOrder(bestOrder);
+      resetErrors();
+    } catch (err) {
+      console.error(err);
+      setSendError(err as any);
+    } finally {
+      setReceiveLoader(false);
+    }
   };
 
-  const updateSendSats = (newReceiveSats: number) => {
+  const updateSendSats = async (newReceiveSats: number) => {
     if (!receiveAsset || (focus === 'send' && !receiveAssetHasChanged) || (focus === 'receive' && hasBeenSwapped)) {
       return;
     }
-    setSendLoader(true);
-    return discoverFunction()(newReceiveSats ?? 0, receiveAsset)
-      .then(computePriceAndUpdate(newReceiveSats ?? 0, receiveAsset, 'receive')) // set send sats
-      .then((tradeOrder: TradeOrder) => {
-        setBestOrder(tradeOrder);
-        resetErrors();
-      })
-      .catch(setReceiveError)
-      .finally(() => setSendLoader(false));
+    try {
+      setSendLoader(true);
+      const bestOrder = await discoverBestOrder(markets, sendAsset, receiveAsset)(newReceiveSats ?? 0, receiveAsset);
+      const assetSats = await marketPriceRequest(bestOrder, newReceiveSats ?? 0, receiveAsset);
+      setSendSats(assetSats.sats);
+      setBestOrder(bestOrder);
+      resetErrors();
+    } catch (err) {
+      console.error(err);
+      setReceiveError(err as any);
+    } finally {
+      setSendLoader(false);
+    }
   };
 
   // send sats setter

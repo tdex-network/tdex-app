@@ -11,15 +11,13 @@ import {
   IonLabel,
   IonIcon,
   IonAlert,
-  useIonAlert,
-  useIonViewWillEnter,
   IonSpinner,
 } from '@ionic/react';
 import classNames from 'classnames';
 import { closeOutline } from 'ionicons/icons';
 import type { StateRestorerOpts } from 'ldk';
 import { mnemonicRestorerFromState } from 'ldk';
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
@@ -83,7 +81,6 @@ const Exchange: React.FC<Props> = ({
   const dispatch = useTypedDispatch();
   const [tdexOrderInputResult, setTdexOrderInputResult] = useState<TdexOrderInputResult>();
   const [excludedProviders, setExcludedProviders] = useState<TDEXProvider[]>([]);
-  const [presentNoProvidersAvailableAlert, dismissNoProvidersAvailableAlert] = useIonAlert();
   const [showExcludedProvidersAlert, setShowExcludedProvidersAlert] = useState(false);
   const [tradeError, setTradeError] = useState<AppError>();
 
@@ -112,7 +109,11 @@ const Exchange: React.FC<Props> = ({
       return true;
     };
 
-  const getAllMarketsFromNotExcludedProviders = () => markets.filter(withoutProviders(...excludedProviders));
+  const getAllMarketsFromNotExcludedProviders = useCallback(
+    () => markets.filter(withoutProviders(...excludedProviders)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [markets]
+  );
 
   const getAllMarketsFromNotExcludedProvidersAndOnlySelectedPair = (providerToBan: TDEXProvider) => {
     return markets
@@ -127,13 +128,17 @@ const Exchange: React.FC<Props> = ({
   const getAllProvidersExceptExcluded = () =>
     providers.filter((p) => !excludedProviders.map((p) => p.endpoint).includes(p.endpoint));
 
-  useIonViewWillEnter(() => {
-    // Prevent entering Exchange page if no provider or no markets
-    // We may have the default provider set but no markets, so we need to check both
-    if (providers.length === 0 || markets.length === 0) {
-      openNoProvidersAvailableAlert();
+  const [showNoProvidersAvailableAlert, setShowNoProvidersAvailableAlert] = useState<boolean>(
+    !!getAllMarketsFromNotExcludedProviders().length
+  );
+
+  useEffect(() => {
+    if (getAllMarketsFromNotExcludedProviders().length > 0) {
+      setShowNoProvidersAvailableAlert(false);
+    } else {
+      setShowNoProvidersAvailableAlert(true);
     }
-  }, [providers]);
+  }, [getAllMarketsFromNotExcludedProviders]);
 
   const [
     bestOrder,
@@ -157,40 +162,6 @@ const Exchange: React.FC<Props> = ({
     setSendAssetHasChanged,
     setReceiveAssetHasChanged,
   ] = useTradeState(getAllMarketsFromNotExcludedProviders());
-
-  const openNoProvidersAvailableAlert = () => {
-    if (history.location.pathname === routerLinks.exchange) {
-      presentNoProvidersAvailableAlert({
-        header: 'No providers available',
-        message:
-          'Liquidity providers on Tor network can take a long time to respond or all your providers are offline.',
-        backdropDismiss: false,
-        buttons: [
-          {
-            text: 'Go To Wallet',
-            handler: () => {
-              dismissNoProvidersAvailableAlert()
-                .then(() => {
-                  history.replace(routerLinks.wallet);
-                })
-                .catch(console.error);
-            },
-          },
-          {
-            text: 'Retry',
-            handler: () => {
-              dispatch(updateMarkets());
-              if (getAllMarketsFromNotExcludedProviders().length === 0 || tdexOrderInputResult === undefined) {
-                dismissNoProvidersAvailableAlert().then(() => {
-                  openNoProvidersAvailableAlert();
-                });
-              }
-            },
-          },
-        ],
-      }).catch(console.error);
-    }
-  };
 
   const getIdentity = async (pin: string) => {
     try {
@@ -297,13 +268,18 @@ const Exchange: React.FC<Props> = ({
           isFetchingMarkets &&
           !isBusyMakingTrade &&
           !tradeError &&
-          getAllProvidersExceptExcluded().length > 0
+          getAllProvidersExceptExcluded().length > 0 &&
+          // At least one market is available, otherwise we display NoProvidersAvailableAlert
+          markets.length > 0
         }
         message="Discovering TDEX providers with best liquidity..."
         delay={0}
         backdropDismiss={true}
         duration={15000}
-        onDidDismiss={() => providers.length === 0 && openNoProvidersAvailableAlert()}
+        onDidDismiss={() => {
+          if (providers.length === 0 || getAllMarketsFromNotExcludedProviders().length === 0)
+            setShowNoProvidersAvailableAlert(true);
+        }}
       />
       <ExchangeErrorModal
         result={tdexOrderInputResult}
@@ -312,22 +288,42 @@ const Exchange: React.FC<Props> = ({
         onClickRetry={() => tdexOrderInputResult !== undefined && setPINModalOpen(true)}
         onClickTryNext={onClickTryNext}
       />
-
-      {getAllMarketsFromNotExcludedProviders().length > 0 && (
-        <PinModal
-          open={tdexOrderInputResult !== undefined && PINModalOpen}
-          title="Unlock your seed"
-          description={getPinModalDescription()}
-          onConfirm={onPinConfirm}
-          onClose={() => {
-            setPINModalOpen(false);
-          }}
-          isWrongPin={isWrongPin}
-          needReset={needReset}
-          setNeedReset={setNeedReset}
-          setIsWrongPin={setIsWrongPin}
-        />
-      )}
+      <PinModal
+        open={tdexOrderInputResult !== undefined && PINModalOpen}
+        title="Unlock your seed"
+        description={getPinModalDescription()}
+        onConfirm={onPinConfirm}
+        onClose={() => {
+          setPINModalOpen(false);
+        }}
+        isWrongPin={isWrongPin}
+        needReset={needReset}
+        setNeedReset={setNeedReset}
+        setIsWrongPin={setIsWrongPin}
+      />
+      <IonAlert
+        isOpen={showNoProvidersAvailableAlert && history.location.pathname === routerLinks.exchange}
+        header="No providers available"
+        message="Liquidity providers on Tor network can take a long time to respond or all your providers are offline."
+        backdropDismiss={false}
+        buttons={[
+          {
+            text: 'Go To Wallet',
+            handler: () => {
+              history.replace(routerLinks.wallet);
+            },
+          },
+          {
+            text: 'Retry',
+            handler: () => {
+              dispatch(updateMarkets());
+              // false then true to trigger rerender if already true
+              setShowNoProvidersAvailableAlert(false);
+              setShowNoProvidersAvailableAlert(true);
+            },
+          },
+        ]}
+      />
 
       {getAllMarketsFromNotExcludedProviders().length > 0 && (
         <IonContent className="exchange-content">
@@ -422,7 +418,7 @@ const Exchange: React.FC<Props> = ({
               </IonCol>
             </IonRow>
 
-            {tdexOrderInputResult && (
+            {tdexOrderInputResult && sendSats !== 0 && (
               <IonRow className="market-provider ion-margin-vertical-x2 ion-text-center">
                 <IonCol size="10" offset="1">
                   <IonText className="trade-info" color="light">
