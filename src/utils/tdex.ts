@@ -133,13 +133,10 @@ const TDexRegistryMainnet = 'https://raw.githubusercontent.com/TDex-network/tdex
 const TDexRegistryTestnet = 'https://raw.githubusercontent.com/tdex-network/tdex-registry/testnet/registry.json';
 
 export async function getProvidersFromTDexRegistry(network: NetworkString): Promise<TDEXProvider[]> {
-  if (network === 'liquid') {
-    return (await axios.get(TDexRegistryMainnet)).data;
-  } else if (network === 'testnet') {
+  if (network === 'testnet') {
     return (await axios.get(TDexRegistryTestnet)).data;
-  } else {
-    return (await axios.get(TDexRegistryMainnet)).data;
   }
+  return (await axios.get(TDexRegistryMainnet)).data;
 }
 
 // discover the best order from a set of markets
