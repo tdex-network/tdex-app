@@ -9,7 +9,7 @@ import {
   greedyCoinSelector,
   Discoverer,
 } from 'tdex-sdk';
-import type { CoinSelector, TradeOrder, IdentityInterface, UnblindedOutput, Discovery } from 'tdex-sdk';
+import type { CoinSelector, TradeOrder, IdentityInterface, UnblindedOutput, Discovery, NetworkString } from 'tdex-sdk';
 
 import type { TDEXMarket, TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 
@@ -129,10 +129,14 @@ export function getTradablesAssets(markets: TDEXMarket[], asset: string): string
   return tradable;
 }
 
-const TDexRegistryURL = 'https://raw.githubusercontent.com/TDex-network/tdex-registry/master/registry.json';
+const TDexRegistryMainnet = 'https://raw.githubusercontent.com/TDex-network/tdex-registry/master/registry.json';
+const TDexRegistryTestnet = 'https://raw.githubusercontent.com/tdex-network/tdex-registry/testnet/registry.json';
 
-export async function getProvidersFromTDexRegistry(): Promise<TDEXProvider[]> {
-  return (await axios.get(TDexRegistryURL)).data;
+export async function getProvidersFromTDexRegistry(network: NetworkString): Promise<TDEXProvider[]> {
+  if (network === 'testnet') {
+    return (await axios.get(TDexRegistryTestnet)).data;
+  }
+  return (await axios.get(TDexRegistryMainnet)).data;
 }
 
 // discover the best order from a set of markets

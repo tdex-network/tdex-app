@@ -33,10 +33,9 @@ function* providersToRestore() {
   const { network, defaultProvider }: { network: NetworkString; defaultProvider: string } = yield select(
     ({ settings }) => settings
   );
-  if (network === 'liquid') {
-    // try to fetch providers from registry only on liquid
+  if (network === 'liquid' || network === 'testnet') {
     try {
-      const providersFromRegistry: TDEXProvider[] = yield call(getProvidersFromTDexRegistry);
+      const providersFromRegistry: TDEXProvider[] = yield call(getProvidersFromTDexRegistry, network);
       return providersFromRegistry;
     } catch (e) {
       yield put(addErrorToast(TDEXRegistryError));
