@@ -103,8 +103,8 @@
     "redux-saga": "^1.1.3",
     "reselect": "^4.1.5",
     "scrypt-js": "^3.0.1",
-    "slip77": "^0.1.1",
-    "tdex-sdk": "^1.7.12"
+    "slip77": "0.1.1",
+    "tdex-sdk": "1.7.13"
   },
   "devDependencies": {
     "@babel/core": "^7.17.5",

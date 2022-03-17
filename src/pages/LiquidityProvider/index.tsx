@@ -49,9 +49,9 @@ export const refreshProviders = async (
   network: NetworkString,
   dispatch: Dispatch
 ): Promise<void> => {
-  if (network === 'liquid') {
+  if (network === 'liquid' || network === 'testnet') {
     try {
-      const providersFromRegistry = await getProvidersFromTDexRegistry();
+      const providersFromRegistry = await getProvidersFromTDexRegistry(network);
       const currentEndpoints = providers.map((provider) => provider.endpoint);
       const newProviders = providersFromRegistry.filter((p) => !currentEndpoints.includes(p.endpoint));
       if (newProviders.length) {
@@ -63,10 +63,6 @@ export const refreshProviders = async (
     } catch {
       dispatch(addErrorToast(TDEXRegistryError));
     }
-  } else if (network === 'testnet') {
-    dispatch(clearProviders());
-    dispatch(clearMarkets());
-    dispatch(addProviders([{ endpoint: defaultProviderEndpoints.testnet, name: 'Default provider' }]));
   } else {
     dispatch(clearProviders());
     dispatch(clearMarkets());

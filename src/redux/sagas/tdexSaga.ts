@@ -36,7 +36,7 @@ function* providersToRestore() {
   if (network === 'liquid') {
     // try to fetch providers from registry only on liquid
     try {
-      const providersFromRegistry: TDEXProvider[] = yield call(getProvidersFromTDexRegistry);
+      const providersFromRegistry: TDEXProvider[] = yield call(getProvidersFromTDexRegistry, network);
       return providersFromRegistry;
     } catch (e) {
       yield put(addErrorToast(TDEXRegistryError));
