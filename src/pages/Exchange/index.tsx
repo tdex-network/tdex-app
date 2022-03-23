@@ -31,13 +31,14 @@ import type { TdexOrderInputResult } from '../../components/TdexOrderInput';
 import TdexOrderInput from '../../components/TdexOrderInput';
 import { useTradeState } from '../../components/TdexOrderInput/hooks';
 import type { TDEXMarket, TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
+import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { setIsFetchingUtxos } from '../../redux/actions/appActions';
 import { updateMarkets } from '../../redux/actions/tdexActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { watchTransaction } from '../../redux/actions/transactionsActions';
 import { unlockUtxos, updateUtxos } from '../../redux/actions/walletActions';
 import { useTypedDispatch } from '../../redux/hooks';
-import { lastUsedIndexesSelector, unlockedUtxosSelector } from '../../redux/reducers/walletReducer';
+import { balancesSelector, lastUsedIndexesSelector, unlockedUtxosSelector } from '../../redux/reducers/walletReducer';
 import type { RootState } from '../../redux/types';
 import { routerLinks } from '../../routes';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
@@ -55,6 +56,7 @@ import type { PreviewData } from '../TradeSummary';
 import ExchangeErrorModal from './ExchangeErrorModal';
 
 export interface ExchangeConnectedProps {
+  balances: BalanceInterface[];
   explorerLiquidAPI: string;
   isFetchingMarkets: boolean;
   lastUsedIndexes: StateRestorerOpts;
@@ -68,6 +70,7 @@ export interface ExchangeConnectedProps {
 type Props = RouteComponentProps & ExchangeConnectedProps;
 
 const Exchange: React.FC<Props> = ({
+  balances,
   explorerLiquidAPI,
   history,
   isFetchingMarkets,
@@ -161,7 +164,7 @@ const Exchange: React.FC<Props> = ({
     setHasBeenSwapped,
     setSendAssetHasChanged,
     setReceiveAssetHasChanged,
-  ] = useTradeState(getAllMarketsFromNotExcludedProviders());
+  ] = useTradeState(getAllMarketsFromNotExcludedProviders(), balances);
 
   const getIdentity = async (pin: string) => {
     try {
@@ -445,6 +448,7 @@ const Exchange: React.FC<Props> = ({
 
 const mapStateToProps = (state: RootState) => {
   return {
+    balances: balancesSelector(state),
     explorerLiquidAPI: state.settings.explorerLiquidAPI,
     isFetchingMarkets: state.app.isFetchingMarkets,
     lastUsedIndexes: lastUsedIndexesSelector(state),

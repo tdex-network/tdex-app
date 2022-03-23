@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { TradeOrder } from 'tdex-sdk';
 
 import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
+import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
 import { defaultPrecision } from '../../utils/constants';
 import { NoMarketsAvailableForAllPairsError } from '../../utils/errors';
@@ -39,7 +40,7 @@ function useAssetSats(initialAssetHash?: string) {
 }
 
 // eslint-disable-next-line
-export function useTradeState(markets: TDEXMarket[]) {
+export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[]) {
   const [sendAsset, sendSats, setSendAsset, setSendSats] = useAssetSats(
     markets.length > 0 ? markets[0].baseAsset : undefined
   );
@@ -81,6 +82,8 @@ export function useTradeState(markets: TDEXMarket[]) {
       setReceiveLoader(true);
       const bestOrder = await discoverBestOrder(markets, sendAsset, receiveAsset)(newSendSats ?? 0, sendAsset);
       const assetSats = await marketPriceRequest(bestOrder, newSendSats ?? 0, sendAsset);
+      const sendBalance = balances.find((b) => b.assetHash === sendAsset)?.amount;
+      if (newSendSats > (sendBalance ?? 0)) throw new Error(`send amount greater than balance`);
       setReceiveSats(assetSats.sats);
       setBestOrder(bestOrder);
       resetErrors();
@@ -100,6 +103,8 @@ export function useTradeState(markets: TDEXMarket[]) {
       setSendLoader(true);
       const bestOrder = await discoverBestOrder(markets, sendAsset, receiveAsset)(newReceiveSats ?? 0, receiveAsset);
       const assetSats = await marketPriceRequest(bestOrder, newReceiveSats ?? 0, receiveAsset);
+      const sendBalance = balances.find((b) => b.assetHash === sendAsset)?.amount;
+      if (assetSats.sats > (sendBalance ?? 0)) throw new Error(`receive amount greater than send balance`);
       setSendSats(assetSats.sats);
       setBestOrder(bestOrder);
       resetErrors();

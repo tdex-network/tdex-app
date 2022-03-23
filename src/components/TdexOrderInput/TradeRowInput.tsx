@@ -83,10 +83,6 @@ const TradeRowInput: React.FC<Props> = ({
     setInputValue(stringAmount === '0' ? '' : stringAmount);
     const satoshis = toSatoshi(stringAmount, assetSelected.precision, unitLBTC).toNumber();
     onChangeSats(satoshis);
-    if (type === 'send' && satoshis > (balance ? balance.amount : 0)) {
-      // only check balance in case of `send` input
-      throw new Error(`amount greater than balance`);
-    }
   };
 
   const handleInputChange = (e: CustomEvent) => {
