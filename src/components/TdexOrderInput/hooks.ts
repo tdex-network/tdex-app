@@ -104,7 +104,7 @@ export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[
       const bestOrder = await discoverBestOrder(markets, sendAsset, receiveAsset)(newReceiveSats ?? 0, receiveAsset);
       const assetSats = await marketPriceRequest(bestOrder, newReceiveSats ?? 0, receiveAsset);
       const sendBalance = balances.find((b) => b.assetHash === sendAsset)?.amount;
-      if (assetSats.sats > (sendBalance ?? 0)) throw new Error(`not enough balance to receive that amount`);
+      if (assetSats.sats > (sendBalance ?? 0)) throw new Error(`not enough balance`);
       setSendSats(assetSats.sats);
       setBestOrder(bestOrder);
       resetErrors();
