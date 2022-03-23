@@ -80,10 +80,10 @@ export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[
     if (receiveLoader || !sendAsset || (focus === 'receive' && !hasBeenSwapped && !sendAssetHasChanged)) return;
     try {
       setReceiveLoader(true);
-      const bestOrder = await discoverBestOrder(markets, sendAsset, receiveAsset)(newSendSats ?? 0, sendAsset);
-      const assetSats = await marketPriceRequest(bestOrder, newSendSats ?? 0, sendAsset);
       const sendBalance = balances.find((b) => b.assetHash === sendAsset)?.amount;
       if (newSendSats > (sendBalance ?? 0)) throw new Error(`send amount greater than balance`);
+      const bestOrder = await discoverBestOrder(markets, sendAsset, receiveAsset)(newSendSats ?? 0, sendAsset);
+      const assetSats = await marketPriceRequest(bestOrder, newSendSats ?? 0, sendAsset);
       setReceiveSats(assetSats.sats);
       setBestOrder(bestOrder);
       resetErrors();
@@ -104,7 +104,7 @@ export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[
       const bestOrder = await discoverBestOrder(markets, sendAsset, receiveAsset)(newReceiveSats ?? 0, receiveAsset);
       const assetSats = await marketPriceRequest(bestOrder, newReceiveSats ?? 0, receiveAsset);
       const sendBalance = balances.find((b) => b.assetHash === sendAsset)?.amount;
-      if (assetSats.sats > (sendBalance ?? 0)) throw new Error(`receive amount greater than send balance`);
+      if (assetSats.sats > (sendBalance ?? 0)) throw new Error(`not enough balance to receive that amount`);
       setSendSats(assetSats.sats);
       setBestOrder(bestOrder);
       resetErrors();
