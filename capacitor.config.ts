@@ -7,9 +7,10 @@ const config: CapacitorConfig = {
   appName: 'TDEX',
   bundledWebRuntime: false,
   webDir: 'build',
+  backgroundColor: "#000000",
   plugins: {
     SplashScreen: {
-      launchShowDuration: 0,
+      launchShowDuration: 100,
     },
   },
   cordova: {},
