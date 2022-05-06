@@ -103,7 +103,7 @@ async function getMarketsFromProvider(
   const markets: MarketInterface[] = await client.markets();
   const results: TDEXMarket[] = [];
   for (const market of markets) {
-    const balance = (await client.balances(market))[0].balance;
+    const balance = (await client.balance(market)).balance;
     results.push({
       ...market,
       provider: p,

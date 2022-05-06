@@ -1,31 +1,25 @@
-import type { PriceWithFee, BalanceWithFee } from 'tdex-protobuf/generated/js/types_pb';
-import type TraderClientInterface from 'tdex-sdk/dist/grpcClientInterface';
+import type { BalanceWithFee, Preview } from 'tdex-sdk/dist-web/api-spec/protobuf/gen/js/tdex/v1/types_pb';
+import type TraderClientInterface from 'tdex-sdk/dist-web/grpcClientInterface';
 
 interface Args {
-  balance?: BalanceWithFee.AsObject;
-  price?: PriceWithFee.AsObject;
+  balance: BalanceWithFee;
+  preview?: Preview;
   providerUrl?: string;
 }
 
 export default class MockTraderClientInterface implements TraderClientInterface {
-  balance?: BalanceWithFee.AsObject;
-  price?: PriceWithFee.AsObject;
+  balanceWithFee: BalanceWithFee;
+  preview?: Preview;
 
   providerUrl: string;
   client: any;
 
-  constructor({ balance, price, providerUrl }: Args) {
-    this.balance = balance;
-    this.price = price;
+  constructor({ balance, preview, providerUrl }: Args) {
+    this.balanceWithFee = balance;
+    this.preview = preview;
     this.providerUrl = providerUrl ?? '';
   }
 
-  tradePropose(_: { baseAsset: string; quoteAsset: string }, __: number, ___: Uint8Array): Promise<Uint8Array> {
-    throw new Error('Method not implemented.');
-  }
-  tradeComplete(_: Uint8Array): Promise<string> {
-    throw new Error('Method not implemented.');
-  }
   proposeTrade(_: { baseAsset: string; quoteAsset: string }, __: number, ___: Uint8Array): Promise<Uint8Array> {
     throw new Error('Method not implemented.');
   }
@@ -35,17 +29,12 @@ export default class MockTraderClientInterface implements TraderClientInterface 
   markets(): Promise<{ baseAsset: string; quoteAsset: string; feeBasisPoint: number }[]> {
     throw new Error('Method not implemented.');
   }
-  marketPrice(
-    _: { baseAsset: string; quoteAsset: string },
-    __: number,
-    ___: number,
-    ____: string
-  ): Promise<PriceWithFee.AsObject[]> {
-    if (!this.price) throw new Error('u need to set up a mocked price');
-    return Promise.resolve([this.price]);
+  marketPrice(_: { baseAsset: string; quoteAsset: string }, __: number, ___: number, ____: string): Promise<Preview[]> {
+    if (!this.preview) throw new Error('u need to set up a mocked preview');
+    return Promise.resolve([this.preview]);
   }
-  balances(_: { baseAsset: string; quoteAsset: string }): Promise<BalanceWithFee.AsObject[]> {
+  balance(_: { baseAsset: string; quoteAsset: string }): Promise<BalanceWithFee> {
     if (!this.balance) throw new Error('u need to set up a mocked balance');
-    return Promise.resolve([this.balance]);
+    return Promise.resolve(this.balanceWithFee);
   }
 }
