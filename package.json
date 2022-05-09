@@ -57,7 +57,7 @@
     "tdex:run": "bash scripts/tdexd-run",
     "tdex:run-init": "bash scripts/tdexd-run-initialized.sh",
     "tdex:run-initialized": "curl https://raw.githubusercontent.com/TDex-network/tdex-sdk/master/scripts/tdexd-run -o tdex-run && bash tdex-run && rm tdex-run",
-    "test": "BABEL_ENV=test npx jest"
+    "test": "react-scripts test"
   },
   "dependencies": {
     "@capacitor-community/barcode-scanner": "^2.0.1",
@@ -119,7 +119,6 @@
     "@testing-library/react": "^12.1.0",
     "@types/bs58check": "^2.1.0",
     "@types/buffer-json": "^2.0.0",
-    "@types/jest": "^27.0.2",
     "@types/node": "^16.11.21",
     "@types/qs": "^6.9.7",
     "@types/react": "^17.0.39",
@@ -135,8 +134,7 @@
     "prettier": "^2.5.1",
     "redux-devtools-extension": "^2.13.9",
     "sass": "^1.49.8",
-    "tdex-react-scripts-v4": "^4.0.7",
-    "ts-jest": "^27.1.3",
+    "tdex-react-scripts-v4": "^4.0.8",
     "typescript": "^4.5.5"
   },
   "resolutions": {

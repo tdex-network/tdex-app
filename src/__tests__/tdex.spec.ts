@@ -3,10 +3,9 @@ import type { TradeOrder } from 'tdex-sdk';
 import { bestBalanceDiscovery, bestPriceDiscovery, combineDiscovery, Discoverer, TradeType } from 'tdex-sdk';
 import type TraderClientInterface from 'tdex-sdk/dist/grpcClientInterface';
 
-import * as tdexUtils from '../src/utils/tdex';
-
-import MockTraderClientInterface from './fixtures/mockTraderClientInterface';
-import { mockMarketsLbtcUsdt, mockLbtcSendAsset, mockUsdtReceiveAsset } from './fixtures/trade';
+import MockTraderClientInterface from '../../test/fixtures/mockTraderClientInterface';
+import { mockLbtcSendAsset, mockMarketsLbtcUsdt, mockUsdtReceiveAsset } from '../../test/fixtures/trade';
+import * as tdexUtils from '../utils/tdex';
 
 const makeOrder =
   (type: TradeType) =>
