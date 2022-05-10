@@ -134,7 +134,7 @@
     "prettier": "^2.5.1",
     "redux-devtools-extension": "^2.13.9",
     "sass": "^1.49.8",
-    "tdex-react-scripts-v4": "^4.0.8",
+    "tdex-react-scripts-v4": "^4.0.10",
     "typescript": "^4.5.5"
   },
   "resolutions": {
