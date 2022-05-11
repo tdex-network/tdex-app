@@ -179,10 +179,10 @@ export async function marketPriceRequest(
   asset: string
 ): Promise<{
   asset: string;
-  sats: number;
+  sats: string;
 }> {
   const otherAsset = asset === order.market.baseAsset ? order.market.quoteAsset : order.market.baseAsset;
-  if (sats <= 0) return { asset: otherAsset, sats: 0 };
+  if (sats <= 0) return { asset: otherAsset, sats: String(0) };
   const response = await order.traderClient.marketPrice(order.market, order.type, sats, asset);
   return {
     asset: response[0].asset,

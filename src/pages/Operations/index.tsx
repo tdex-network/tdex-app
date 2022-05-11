@@ -19,9 +19,10 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter, useParams } from 'react-router';
-import { fromMasterBlindingKey } from 'slip77';
+import { SLIP77Factory } from 'slip77';
 import type { NetworkString } from 'tdex-sdk';
 import { getNetwork, payments } from 'tdex-sdk';
+import * as ecc from 'tiny-secp256k1';
 
 import depositIcon from '../../assets/img/deposit-green.svg';
 import swapIcon from '../../assets/img/swap-circle.svg';
@@ -58,6 +59,8 @@ interface OperationsProps extends RouteComponentProps {
   network: NetworkString;
   watchers: string[];
 }
+
+const slip77 = SLIP77Factory(ecc);
 
 const Operations: React.FC<OperationsProps> = ({
   balances,
@@ -100,7 +103,7 @@ const Operations: React.FC<OperationsProps> = ({
     if (TxTypeEnum[tx.type] === 'Swap') {
       history.push(`/tradesummary/${tx.txId}`);
     } else if (TxTypeEnum[tx.type] === 'Send' || TxTypeEnum[tx.type] === 'Receive') {
-      const master = fromMasterBlindingKey(masterBlingKey);
+      const master = slip77.fromMasterBlindingKey(masterBlingKey);
       const derived = master.derive(tx.transfers[0].script);
       const p2wpkh = payments.p2wpkh({
         output: Buffer.from(tx.transfers[0].script, 'hex'),

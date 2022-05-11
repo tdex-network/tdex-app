@@ -1,5 +1,5 @@
-import { upsertPegins } from '../../src/redux/actions/btcActions';
-import btcReducer, { initialState } from '../../src/redux/reducers/btcReducer';
+import { upsertPegins } from '../../redux/actions/btcActions';
+import btcReducer, { initialState } from '../../redux/reducers/btcReducer';
 
 describe('Btc reducer', () => {
   test('should return the initial state of one pegin plus two new pegins', () => {

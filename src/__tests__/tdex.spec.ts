@@ -3,10 +3,9 @@ import type { TradeOrder } from 'tdex-sdk';
 import { bestBalanceDiscovery, bestPriceDiscovery, combineDiscovery, Discoverer, TradeType } from 'tdex-sdk';
 import type TraderClientInterface from 'tdex-sdk/dist/grpcClientInterface';
 
-import * as tdexUtils from '../src/utils/tdex';
-
-import MockTraderClientInterface from './fixtures/mockTraderClientInterface';
-import { mockMarketsLbtcUsdt, mockLbtcSendAsset, mockUsdtReceiveAsset } from './fixtures/trade';
+import MockTraderClientInterface from '../../test/fixtures/mockTraderClientInterface';
+import { mockLbtcSendAsset, mockMarketsLbtcUsdt, mockUsdtReceiveAsset } from '../../test/fixtures/trade';
+import * as tdexUtils from '../utils/tdex';
 
 const makeOrder =
   (type: TradeType) =>
@@ -29,26 +28,26 @@ describe('discovery strategies', () => {
   beforeAll(() => {
     traderClient1 = new MockTraderClientInterface({
       providerUrl: 'traderClient1',
-      balance: { balance: { baseAmount: 1, quoteAmount: 1000 } },
-      price: { amount: 10, asset: '' },
+      balance: { balance: { baseAmount: String(1), quoteAmount: String(1000) } },
+      preview: { amount: String(10), asset: '' },
     });
 
     traderClient2 = new MockTraderClientInterface({
       providerUrl: 'traderClient2',
-      balance: { balance: { baseAmount: 10, quoteAmount: 10 } },
-      price: { amount: 100, asset: '' },
+      balance: { balance: { baseAmount: String(10), quoteAmount: String(10) } },
+      preview: { amount: String(100), asset: '' },
     });
 
     traderClient3 = new MockTraderClientInterface({
       providerUrl: 'traderClient3',
-      balance: { balance: { baseAmount: 50, quoteAmount: 70 } },
-      price: { amount: 400, asset: '' },
+      balance: { balance: { baseAmount: String(50), quoteAmount: String(70) } },
+      preview: { amount: String(400), asset: '' },
     });
 
     traderClient4 = new MockTraderClientInterface({
       providerUrl: 'traderClient4',
-      balance: { balance: { baseAmount: 100, quoteAmount: 100 } },
-      price: { amount: 1000, asset: '' },
+      balance: { balance: { baseAmount: String(100), quoteAmount: String(100) } },
+      preview: { amount: String(1000), asset: '' },
     });
   });
 
