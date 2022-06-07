@@ -1,3 +1,4 @@
+const { whenTest } = require('@craco/craco');
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
@@ -34,7 +35,7 @@ const consoleBrowserify = path.resolve('node_modules/console-browserify');
 const cryptoBrowserify = path.resolve('node_modules/crypto-browserify');
 
 module.exports = {
-  babel: {
+  babel: whenTest(() => ({
     include: ['src', 'test', path.join('node_modules', '@protobuf-ts', 'runtime')],
     plugins: [
       [
@@ -50,7 +51,7 @@ module.exports = {
         },
       ],
     ],
-  },
+  })),
   jest: {
     configure: (jestConfig, { env, paths, resolve, rootDir }) => {
       jestConfig.transformIgnorePatterns = [
