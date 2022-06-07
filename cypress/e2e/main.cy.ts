@@ -33,7 +33,6 @@ describe('onboarding', () => {
 
 describe('trade', () => {
   it('make a trade', () => {
-    console.log('cy', cy);
     cy.launchWallet();
     cy.get('[data-cy=tab-exchange]').click();
     cy.url().should('contain', '/exchange');
