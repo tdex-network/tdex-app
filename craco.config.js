@@ -1,5 +1,4 @@
 const { whenTest } = require('@craco/craco');
-const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
 
@@ -33,6 +32,7 @@ const enableImportsFromExternalPaths = (webpackConfig, paths) => {
 
 const consoleBrowserify = path.resolve('node_modules/console-browserify');
 const cryptoBrowserify = path.resolve('node_modules/crypto-browserify');
+const test = path.resolve('test');
 
 module.exports = {
   babel: whenTest(() => ({
@@ -102,7 +102,13 @@ module.exports = {
       //
       const fallback = webpackConfig.resolve.fallback || {};
       Object.assign(fallback, {
+        buffer: require.resolve('buffer'),
+        crypto: require.resolve('crypto-browserify'),
         fs: false,
+        os: require.resolve('os-browserify/browser'),
+        path: require.resolve('path-browserify'),
+        stream: require.resolve('stream-browserify'),
+        util: require.resolve('util'),
       });
       webpackConfig.resolve.fallback = fallback;
       //
@@ -110,7 +116,9 @@ module.exports = {
         new webpack.ProvidePlugin({
           Buffer: ['buffer', 'Buffer'],
         }),
-        new NodePolyfillPlugin(),
+        new webpack.ProvidePlugin({
+          process: 'process/browser',
+        }),
       ]);
       //
       webpackConfig.experiments = {
@@ -128,14 +136,9 @@ module.exports = {
             ...webpackConfig.optimization.minimizer[0].options.minimizer.options.mangle,
             reserved: ['Buffer'],
           };
-          return webpackConfig;
-        },
-      },
-    },
-    {
-      plugin: {
-        overrideWebpackConfig: ({ webpackConfig }) => {
-          enableImportsFromExternalPaths(webpackConfig, [consoleBrowserify, cryptoBrowserify]);
+          // import outside /src
+          enableImportsFromExternalPaths(webpackConfig, [consoleBrowserify, cryptoBrowserify, test]);
+          //
           return webpackConfig;
         },
       },

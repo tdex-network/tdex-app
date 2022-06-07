@@ -1,7 +1,9 @@
-import { startDevServer } from '@cypress/webpack-dev-server';
 import { defineConfig } from 'cypress';
+import path from 'path';
 
 const { createWebpackDevConfig } = require('@craco/craco');
+const webpackPreprocessor = require('@cypress/webpack-preprocessor');
+const findWebpack = require('find-webpack');
 
 const cracoConfig = require('./craco.config.js');
 
@@ -13,12 +15,24 @@ export default defineConfig({
 
   e2e: {
     setupNodeEvents(on, config) {
-      on('dev-server:start', async (options: any) => {
-        return startDevServer({
-          options,
-          webpackConfig: webpackCracoConfig,
-        });
-      });
+      // file:preprocessor
+      // if we just pass webpackOptions to the preprocessor
+      // it won't work - because react-scripts by default
+      // includes plugins that split specs into chunks, etc.
+      // https://github.com/cypress-io/cypress-webpack-preprocessor/issues/31
+      const cleanOptions = {
+        reactScripts: true,
+        addFolderToTranspile: [path.resolve('cypress')],
+      };
+      const cleanedWebpackCracoConfig = findWebpack.cleanForCypress(cleanOptions, webpackCracoConfig);
+      const options = {
+        // send in the options from your webpack.config.js, so it works the same
+        // as your app's code
+        webpackOptions: cleanedWebpackCracoConfig,
+        watchOptions: {},
+      };
+      on('file:preprocessor', webpackPreprocessor(options));
+      ////
       on('task', {
         error(message: any) {
           console.error(message);

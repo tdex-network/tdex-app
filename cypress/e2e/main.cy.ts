@@ -1,11 +1,11 @@
 /// <reference types="cypress" />
 
 import markets from '../../test/fixtures/trade.integration.json';
-import { faucet } from '../../test/test-utils';
-import { randomAddress, firstAddress, pin } from '../fixtures/fixtures.json';
+import * as testUtils from '../../test/test-utils';
+import fixtures from '../fixtures/fixtures.json';
 
 before(() => {
-  faucet(firstAddress, 100).catch(console.error);
+  testUtils.faucet(fixtures.firstAddress, 100).catch(console.error);
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(10_000);
 });
@@ -33,6 +33,7 @@ describe('onboarding', () => {
 
 describe('trade', () => {
   it('make a trade', () => {
+    console.log('cy', cy);
     cy.launchWallet();
     cy.get('[data-cy=tab-exchange]').click();
     cy.url().should('contain', '/exchange');
@@ -43,7 +44,7 @@ describe('trade', () => {
     cy.get('[data-cy=description-p]').should('contain', 'Enter your secret PIN to send 1 L-BTC and receive');
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.get('[data-cy=pin-input]').children().type(pin);
+    cy.get('[data-cy=pin-input]').children().type(fixtures.pin);
     cy.url().should('contain', '/tradesummary/');
     cy.get('[data-cy=header-title]').should('contain.text', 'TRADE SUMMARY');
     cy.get('[data-cy=trade-summary-sent-amount]').should('contain.text', '-1');
@@ -62,7 +63,7 @@ describe('trade', () => {
     cy.get('[data-cy=description-p]').should('contain', 'Enter your secret PIN to send 1000 L-sats and receive');
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
-    cy.get('[data-cy=pin-input]').children().type(pin);
+    cy.get('[data-cy=pin-input]').children().type(fixtures.pin);
     cy.get('[data-cy=header-title]').should('contain.text', 'TRADE SUMMARY');
     cy.get('[data-cy=trade-summary-sent-amount]').should('contain.text', '-1000');
   });
@@ -70,7 +71,7 @@ describe('trade', () => {
 
 describe('withdraw', () => {
   it('withdraw all L-BTC', () => {
-    cy.faucet(firstAddress, 10);
+    cy.faucet(fixtures.firstAddress, 10);
     cy.launchWallet();
     cy.get('[data-cy=item-asset-L-BTC]').click();
     cy.get('[data-cy=button-send]').click();
@@ -79,20 +80,20 @@ describe('withdraw', () => {
     cy.get('[data-cy=button-send-max]').click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get('[data-cy=input-addr-withdraw]').children().type(randomAddress);
+    cy.get('[data-cy=input-addr-withdraw]').children().type(fixtures.randomAddress);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(4000);
     cy.get('[data-cy=main-button]').click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get('[data-cy=pin-input]').children().type(pin);
+    cy.get('[data-cy=pin-input]').children().type(fixtures.pin);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get('[data-cy=header-title]').should('contain.text', 'SEND DETAILS');
   });
 
   it('withdraw 1 L-BTC', () => {
-    cy.faucet(firstAddress, 10);
+    cy.faucet(fixtures.firstAddress, 10);
     cy.launchWallet();
     cy.get('[data-cy=item-asset-L-BTC]').click();
     cy.get('[data-cy=button-send]').click();
@@ -101,20 +102,20 @@ describe('withdraw', () => {
     cy.get('[data-cy=input-withdraw-amount]').children().type('1');
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get('[data-cy=input-addr-withdraw]').children().type(randomAddress);
+    cy.get('[data-cy=input-addr-withdraw]').children().type(fixtures.randomAddress);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(4000);
     cy.get('[data-cy=main-button]').click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get('[data-cy=pin-input]').children().type(pin);
+    cy.get('[data-cy=pin-input]').children().type(fixtures.pin);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get('[data-cy=header-title]').should('contain.text', 'SEND DETAILS');
   });
 
   it('withdraw all USDt', () => {
-    cy.faucet(firstAddress, 100, markets[0].market.quoteAsset);
+    cy.faucet(fixtures.firstAddress, 100, markets[0].market.quoteAsset);
     cy.launchWallet();
     cy.get('[data-cy=item-asset-USDt]').click();
     cy.get('[data-cy=button-send]').click();
@@ -123,20 +124,20 @@ describe('withdraw', () => {
     cy.get('[data-cy=button-send-max]').click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get('[data-cy=input-addr-withdraw]').children().type(randomAddress);
+    cy.get('[data-cy=input-addr-withdraw]').children().type(fixtures.randomAddress);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(4000);
     cy.get('[data-cy=main-button]').click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get('[data-cy=pin-input]').children().type(pin);
+    cy.get('[data-cy=pin-input]').children().type(fixtures.pin);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get('[data-cy=header-title]').should('contain.text', 'SEND DETAILS');
   });
 
   it('withdraw 10 USDt', () => {
-    cy.faucet(firstAddress, 100, markets[0].market.quoteAsset);
+    cy.faucet(fixtures.firstAddress, 100, markets[0].market.quoteAsset);
     cy.launchWallet();
     cy.get('[data-cy=item-asset-USDt]').click();
     cy.get('[data-cy=button-send]').click();
@@ -145,13 +146,13 @@ describe('withdraw', () => {
     cy.get('[data-cy=input-withdraw-amount]').children().type('10');
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get('[data-cy=input-addr-withdraw]').children().type(randomAddress);
+    cy.get('[data-cy=input-addr-withdraw]').children().type(fixtures.randomAddress);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(4000);
     cy.get('[data-cy=main-button]').click();
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get('[data-cy=pin-input]').children().type(pin);
+    cy.get('[data-cy=pin-input]').children().type(fixtures.pin);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get('[data-cy=header-title]').should('contain.text', 'SEND DETAILS');
