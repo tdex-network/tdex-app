@@ -1,24 +1,7 @@
-import type { RenderOptions, RenderResult } from '@testing-library/react';
-import { render } from '@testing-library/react';
 import axios from 'axios';
 import { IdentityType } from 'ldk';
-import type { ReactElement } from 'react';
-import { MemoryRouter } from 'react-router';
 import { PrivateKey } from 'tdex-sdk';
 import * as ecc from 'tiny-secp256k1';
-
-const AllTheProviders = ({ children }: { children: any }) => {
-  return <MemoryRouter>{children}</MemoryRouter>;
-};
-
-const customRender = (ui: ReactElement, options?: Omit<RenderOptions, 'queries'>): RenderResult =>
-  render(ui, { wrapper: AllTheProviders, ...options });
-
-export * from '@testing-library/react';
-
-export { customRender as render };
-
-// mocked values
 
 export const fakePrices = {
   '5ac9f65c0efcc4775e0baec4ec03abdde22473cd3cf33c0419ca290e0751b225': 45000,
