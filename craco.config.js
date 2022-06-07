@@ -76,13 +76,7 @@ module.exports = {
         if (rule.oneOf instanceof Array) {
           const jsRule = rule.oneOf.find((r) => r.test?.toString() === '/\\.(js|mjs|jsx|ts|tsx)$/');
           const oneOf = rule.oneOf.filter((r) => r.test?.toString() !== '/\\.(js|mjs|jsx|ts|tsx)$/');
-          jsRule.include = [
-            paths.appSrc,
-            path.join(paths.appNodeModules, '@protobuf-ts', 'runtime'),
-            /* path.join(paths.appNodeModules, 'tdex-sdk', 'src', 'api-spec', 'protobuf', 'gen', 'js', 'tdex', 'v1'),
-            path.join(paths.appNodeModules, 'tdex-sdk', 'dist-web', 'api-spec', 'protobuf', 'gen', 'js', 'tdex', 'v1'),
-            path.join(paths.appNodeModules, 'tdex-sdk', 'dist-web', 'api-spec', 'protobuf', 'gen', 'js'),*/
-          ];
+          jsRule.include = [paths.appSrc, path.join(paths.appNodeModules, '@protobuf-ts', 'runtime')];
           jsRule.options.plugins.push(
             [
               '@babel/plugin-proposal-class-properties',
