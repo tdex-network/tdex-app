@@ -6,6 +6,7 @@ import type ElementsPegin from 'pegin';
 import { all, call, delay, put, select, takeLatest, takeLeading } from 'redux-saga/effects';
 import type { NetworkString, Restorer } from 'tdex-sdk';
 import { masterPubKeyRestorerFromState } from 'tdex-sdk';
+import * as ecc from 'tiny-secp256k1';
 
 import { NoClaimFoundError, PeginRestorationError, UpdateUtxosError } from '../../utils/errors';
 import { getPeginsFromStorage, setPeginsInStorage } from '../../utils/storage-helper';
@@ -133,6 +134,7 @@ function* restorePeginsFromDepositAddress(action: ActionType) {
         masterBlindingKey: masterBlindKey,
         masterPublicKey: masterPubKey,
       },
+      ecclib: ecc,
     });
     const restoredMasterPubKeyFn: Restorer<StateRestorerOpts, MasterPublicKey> = yield call(
       masterPubKeyRestorerFromState,

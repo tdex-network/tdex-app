@@ -1,0 +1,149 @@
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+const path = require('path');
+const webpack = require('webpack');
+
+const findWebpackPlugin = (webpackConfig, pluginName) =>
+  webpackConfig.resolve.plugins.find(({ constructor }) => constructor && constructor.name === pluginName);
+
+const enableTypescriptImportsFromExternalPaths = (webpackConfig, newIncludePaths) => {
+  const oneOfRule = webpackConfig.module.rules.find((rule) => rule.oneOf);
+  if (oneOfRule) {
+    const tsxRule = oneOfRule.oneOf.find((rule) => rule.test && rule.test.toString().includes('tsx'));
+    if (tsxRule) {
+      tsxRule.include = Array.isArray(tsxRule.include)
+        ? [...tsxRule.include, ...newIncludePaths]
+        : [tsxRule.include, ...newIncludePaths];
+    }
+  }
+};
+
+const addPathsToModuleScopePlugin = (webpackConfig, paths) => {
+  const moduleScopePlugin = findWebpackPlugin(webpackConfig, 'ModuleScopePlugin');
+  if (!moduleScopePlugin) {
+    throw new Error(`Expected to find plugin "ModuleScopePlugin", but didn't.`);
+  }
+  moduleScopePlugin.appSrcs = [...moduleScopePlugin.appSrcs, ...paths];
+};
+
+const enableImportsFromExternalPaths = (webpackConfig, paths) => {
+  enableTypescriptImportsFromExternalPaths(webpackConfig, paths);
+  addPathsToModuleScopePlugin(webpackConfig, paths);
+};
+
+const consoleBrowserify = path.resolve('node_modules/console-browserify');
+const cryptoBrowserify = path.resolve('node_modules/crypto-browserify');
+
+module.exports = {
+  babel: {
+    include: ['src', 'test', path.join('node_modules', '@protobuf-ts', 'runtime')],
+    plugins: [
+      [
+        '@babel/plugin-proposal-class-properties',
+        {
+          loose: true,
+        },
+      ],
+      [
+        '@babel/plugin-transform-classes',
+        {
+          loose: true,
+        },
+      ],
+    ],
+  },
+  jest: {
+    configure: (jestConfig, { env, paths, resolve, rootDir }) => {
+      jestConfig.transformIgnorePatterns = [
+        '/node_modules/(?!capacitor-secure-storage-plugin|@protobuf-ts/runtime|tdex-sdk).+\\.(js)$',
+        '^.+\\.module\\.(css|sass|scss)$',
+      ];
+      return jestConfig;
+    },
+  },
+  webpack: {
+    configure: (webpackConfig, { env, paths }) => {
+      webpackConfig.ignoreWarnings = [
+        function ignoreSourcemapsloaderWarnings(warning) {
+          return (
+            warning.module &&
+            warning.module.resource.includes('node_modules') &&
+            warning.details &&
+            warning.details.includes('source-map-loader')
+          );
+        },
+      ];
+      webpackConfig.module.rules = webpackConfig.module.rules.map((rule) => {
+        if (rule.oneOf instanceof Array) {
+          const jsRule = rule.oneOf.find((r) => r.test?.toString() === '/\\.(js|mjs|jsx|ts|tsx)$/');
+          const oneOf = rule.oneOf.filter((r) => r.test?.toString() !== '/\\.(js|mjs|jsx|ts|tsx)$/');
+          jsRule.include = [
+            paths.appSrc,
+            path.join(paths.appNodeModules, '@protobuf-ts', 'runtime'),
+            /* path.join(paths.appNodeModules, 'tdex-sdk', 'src', 'api-spec', 'protobuf', 'gen', 'js', 'tdex', 'v1'),
+            path.join(paths.appNodeModules, 'tdex-sdk', 'dist-web', 'api-spec', 'protobuf', 'gen', 'js', 'tdex', 'v1'),
+            path.join(paths.appNodeModules, 'tdex-sdk', 'dist-web', 'api-spec', 'protobuf', 'gen', 'js'),*/
+          ];
+          jsRule.options.plugins.push(
+            [
+              '@babel/plugin-proposal-class-properties',
+              {
+                loose: true,
+              },
+            ],
+            [
+              '@babel/plugin-transform-classes',
+              {
+                loose: true,
+              },
+            ]
+          );
+          return {
+            ...rule,
+            oneOf: [{ test: /\.wasm$/, type: 'webassembly/async' }, jsRule, ...oneOf],
+          };
+        }
+        return rule;
+      });
+      //
+      const fallback = webpackConfig.resolve.fallback || {};
+      Object.assign(fallback, {
+        fs: false,
+      });
+      webpackConfig.resolve.fallback = fallback;
+      //
+      webpackConfig.plugins = (webpackConfig.plugins || []).concat([
+        new webpack.ProvidePlugin({
+          Buffer: ['buffer', 'Buffer'],
+        }),
+        new NodePolyfillPlugin(),
+      ]);
+      //
+      webpackConfig.experiments = {
+        asyncWebAssembly: true,
+      };
+      return webpackConfig;
+    },
+  },
+  plugins: [
+    {
+      plugin: {
+        overrideWebpackConfig: ({ webpackConfig }) => {
+          // Terser
+          webpackConfig.optimization.minimizer[0].options.minimizer.options.mangle = {
+            ...webpackConfig.optimization.minimizer[0].options.minimizer.options.mangle,
+            reserved: ['Buffer'],
+          };
+          return webpackConfig;
+        },
+      },
+    },
+    {
+      plugin: {
+        overrideWebpackConfig: ({ webpackConfig }) => {
+          enableImportsFromExternalPaths(webpackConfig, [consoleBrowserify, cryptoBrowserify]);
+          return webpackConfig;
+        },
+      },
+    },
+  ],
+};

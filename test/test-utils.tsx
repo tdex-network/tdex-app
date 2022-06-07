@@ -1,13 +1,13 @@
 import type { RenderOptions, RenderResult } from '@testing-library/react';
 import { render } from '@testing-library/react';
 import axios from 'axios';
-import { IdentityType, PrivateKey } from 'ldk';
-import React from 'react';
-import type { FC, ReactElement } from 'react';
+import { IdentityType } from 'ldk';
+import type { ReactElement } from 'react';
 import { MemoryRouter } from 'react-router';
+import { PrivateKey } from 'tdex-sdk';
+import * as ecc from 'tiny-secp256k1';
 
-const AllTheProviders: FC = ({ children }) => {
-  // @ts-ignore
+const AllTheProviders = ({ children }: { children: any }) => {
   return <MemoryRouter>{children}</MemoryRouter>;
 };
 
@@ -53,6 +53,7 @@ export const privKeyIdentity = new PrivateKey({
     signingKeyWIF: 'cPNMJD4VyFnQjGbGs3kcydRzAbDCXrLAbvH6wTCqs88qg1SkZT3J',
     blindingKeyWIF: 'cRdrvnPMLV7CsEak2pGrgG4MY7S3XN1vjtcgfemCrF7KJRPeGgW6',
   },
+  ecclib: ecc,
 });
 
 export const firstAddress = privKeyIdentity.getNextAddress();

@@ -13,6 +13,7 @@ import {
 import { IdentityType, MasterPublicKey } from 'ldk';
 import React, { useState } from 'react';
 import type { NetworkString } from 'tdex-sdk';
+import * as ecc from 'tiny-secp256k1';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
@@ -100,6 +101,7 @@ const Network = (): JSX.Element => {
           masterBlindingKey: masterBlindKey,
           baseDerivationPath: network === 'regtest' || network === 'testnet' ? "m/84'/1'/0'" : "m/84'/0'/0'",
         },
+        ecclib: ecc,
       });
       dispatch(signIn(masterPubKeyIdentity));
       dispatch(addSuccessToast(`Network and explorer endpoints successfully updated`));
