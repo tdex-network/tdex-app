@@ -1,6 +1,5 @@
 import axios from 'axios';
-import { IdentityType } from 'ldk';
-import { PrivateKey } from 'tdex-sdk';
+import { PrivateKey, IdentityType } from 'tdex-sdk';
 import * as ecc from 'tiny-secp256k1';
 
 export const fakePrices = {

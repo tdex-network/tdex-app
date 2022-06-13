@@ -55,7 +55,7 @@ module.exports = {
   jest: {
     configure: (jestConfig, { env, paths, resolve, rootDir }) => {
       jestConfig.transformIgnorePatterns = [
-        '/node_modules/(?!capacitor-secure-storage-plugin|@protobuf-ts/runtime|tdex-sdk).+\\.(js)$',
+        '[/\\\\]node_modules[/\\\\](?!@protobuf-ts/runtime).+\\.(js|jsx|mjs|cjs|ts|tsx)$',
         '^.+\\.module\\.(css|sass|scss)$',
       ];
       return jestConfig;
@@ -76,7 +76,7 @@ module.exports = {
       webpackConfig.module.rules = webpackConfig.module.rules.map((rule) => {
         if (rule.oneOf instanceof Array) {
           const jsRule = rule.oneOf.find((r) => r.test?.toString() === '/\\.(js|mjs|jsx|ts|tsx)$/');
-          const oneOf = rule.oneOf.filter((r) => r.test?.toString() !== '/\\.(js|mjs|jsx|ts|tsx)$/');
+          const otherRules = rule.oneOf.filter((r) => r.test?.toString() !== '/\\.(js|mjs|jsx|ts|tsx)$/');
           jsRule.include = [paths.appSrc, path.join(paths.appNodeModules, '@protobuf-ts', 'runtime')];
           jsRule.options.plugins.push(
             [
@@ -94,7 +94,7 @@ module.exports = {
           );
           return {
             ...rule,
-            oneOf: [{ test: /\.wasm$/, type: 'webassembly/async' }, jsRule, ...oneOf],
+            oneOf: [{ test: /\.wasm$/, type: 'webassembly/async' }, jsRule, ...otherRules],
           };
         }
         return rule;

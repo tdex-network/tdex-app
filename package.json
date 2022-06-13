@@ -169,7 +169,7 @@
     "@types/react-router": "^5.1.18",
     "@types/react-router-dom": "^5.3.3",
     "cordova-res": "^0.15.4",
-    "cypress": "^10.0.3",
+    "cypress": "^10.1.0",
     "cypress-localstorage-commands": "^2.1.0",
     "eslint-plugin-cypress": "^2.12.1",
     "jest-canvas-mock": "^2.4.0",
