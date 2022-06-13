@@ -1,3 +1,4 @@
+/** @jest-environment node */
 /// <reference types="jest" />
 
 import type { AddressInterface } from 'ldk';
