@@ -64,7 +64,9 @@ const Homescreen: React.FC = () => {
     };
     init()
       .catch(console.error)
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setTimeout(() => setLoading(false), 100);
+      });
   });
 
   return (
@@ -82,21 +84,25 @@ const Homescreen: React.FC = () => {
         setIsWrongPin={setIsWrongPin}
       />
       <IonContent>
-        <IonGrid className="ion-text-center ion-justify-content-evenly">
-          <IonRow className="img-container">
-            <IonCol size="8" offset="2" sizeMd="6" offsetMd="3">
-              <img src={logo} alt="tdex logo" />
-            </IonCol>
-          </IonRow>
+        {loading ? (
+          <></>
+        ) : (
+          <IonGrid className="ion-text-center ion-justify-content-evenly">
+            <IonRow className="img-container">
+              <IonCol size="8" offset="2" sizeMd="6" offsetMd="3">
+                <img src={logo} alt="tdex logo" />
+              </IonCol>
+            </IonRow>
 
-          <ButtonsMainSub
-            mainTitle="SETUP WALLET"
-            mainLink="/onboarding/backup"
-            subTitle="RESTORE WALLET"
-            subLink="/restore"
-            className="btn-container"
-          />
-        </IonGrid>
+            <ButtonsMainSub
+              mainTitle="SETUP WALLET"
+              mainLink="/onboarding/backup"
+              subTitle="RESTORE WALLET"
+              subLink="/restore"
+              className="btn-container"
+            />
+          </IonGrid>
+        )}
       </IonContent>
     </IonPage>
   );
