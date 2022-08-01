@@ -8,10 +8,11 @@ import BtseIcon from '../../assets/img/coins/btse.svg';
 import CurrencyPlaceholderIcon from '../../assets/img/coins/currency-placeholder.svg';
 import LbtcIcon from '../../assets/img/coins/lbtc.svg';
 import LcadIcon from '../../assets/img/coins/lcad.svg';
+import LeafIcon from '../../assets/img/coins/leaf.svg';
 import UsdtIcon from '../../assets/img/coins/usdt.svg';
 import DepositIconBlack from '../../assets/img/deposit-black.svg';
 import DepositIcon from '../../assets/img/deposit.svg';
-import { BTC_TICKER, BJDE_TICKER, BTSE_TICKER, LBTC_TICKER, LCAD_TICKER, USDT_TICKER } from '../../utils/constants';
+import { BTC_TICKER, BJDE_TICKER, BTSE_TICKER, LBTC_TICKER, LCAD_TICKER, USDT_TICKER, LEAF_TICKER } from '../../utils/constants';
 import { TxTypeEnum } from '../../utils/types';
 
 interface IconInterface {
@@ -146,6 +147,8 @@ export const CurrencyIcon = ({ currency, ...props }: any): any => {
       return <img src={BtseIcon} {...props} alt="BTSE" />;
     case BJDE_TICKER:
       return <img src={BjdeIcon} {...props} alt="Blockstream Jade" />;
+    case LEAF_TICKER:
+      return <img src={LeafIcon} {...props} alt="Leaf" />;
     default:
       return <img src={CurrencyPlaceholderIcon} {...props} alt="placeholder" />;
   }

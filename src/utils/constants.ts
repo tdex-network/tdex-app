@@ -16,6 +16,8 @@ export const LCAD_TICKER = 'LCAD';
 export const BTSE_TICKER = 'BTSE';
 // Blockstream Jade voucher
 export const BJDE_TICKER = 'B-JDE';
+// Distributed Forest 
+export const LEAF_TICKER = 'LEAF';
 
 export const LBTC_COINGECKOID = 'bitcoin';
 export const USDT_COINGECKOID = 'tether';
