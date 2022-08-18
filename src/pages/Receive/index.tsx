@@ -21,10 +21,12 @@ import { useLocation } from 'react-router';
 import type { MasterPublicKeyOpts, NetworkString } from 'tdex-sdk';
 import { masterPubKeyRestorerFromState } from 'tdex-sdk';
 
+import BtcIcon from '../../assets/img/coins/btc.svg';
+import CurrencyIcon from '../../components/CurrencyIcon';
 import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
-import { IconCopy, CurrencyIcon } from '../../components/icons';
+import { IconCopy } from '../../components/icons';
 import { upsertPegins } from '../../redux/actions/btcActions';
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { addAddress } from '../../redux/actions/walletActions';
@@ -104,6 +106,7 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts, ne
     ? state?.depositAsset?.ticker?.toUpperCase()
     : '';
 
+  console.log('state?.depositAsset', state?.depositAsset);
   return (
     <IonPage id="receive-page">
       <Loader showLoading={loading} />
@@ -111,7 +114,11 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts, ne
         <IonGrid>
           <Header hasBackButton={true} title={`RECEIVE ${title}`} />
           <div className="ion-text-center">
-            <CurrencyIcon currency={state?.depositAsset?.ticker} width="48" height="48" />
+            {isBitcoin ? (
+              <img src={BtcIcon} alt="btc icon" className="currency-icon" width={48} height={48} />
+            ) : (
+              <CurrencyIcon assetHash={state?.depositAsset?.assetHash} size={48} />
+            )}
           </div>
           {isBitcoin && (
             <PageDescription

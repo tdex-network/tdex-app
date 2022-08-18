@@ -3,8 +3,9 @@ import { addCircleOutline } from 'ionicons/icons';
 import React, { useMemo } from 'react';
 import type { RouteComponentProps } from 'react-router';
 
+import BtcIcon from '../../assets/img/coins/btc.svg';
+import CurrencyIcon from '../../components/CurrencyIcon';
 import Header from '../../components/Header';
-import { CurrencyIcon } from '../../components/icons';
 import './style.scss';
 import { useTypedSelector } from '../../redux/hooks';
 import { routerLinks } from '../../routes';
@@ -14,27 +15,45 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
   const network = useTypedSelector(({ settings }) => settings.network);
 
   const generateGridItems = useMemo(() => {
-    return [BTC_ASSET]
-      .concat(MAIN_ASSETS[network])
-      .map((asset, i) => {
-        return (
-          <button
-            disabled={asset.ticker === BTC_ASSET.ticker && network === 'testnet'}
-            className="deposit-grid-item ion-justify-content-center ion-align-items-center"
-            key={i}
-            onClick={() =>
-              history.push({
-                pathname: routerLinks.receive,
-                state: { depositAsset: asset },
-              })
-            }
-          >
-            <CurrencyIcon currency={asset.ticker} />
-            <span className="deposit-grid-item-name">{asset.name}</span>
-            <span className="deposit-grid-item-ticker">{asset.ticker}</span>
-          </button>
-        );
-      })
+    const btcButton = (
+      <button
+        disabled={network === 'testnet'}
+        className="deposit-grid-item ion-justify-content-center ion-align-items-center"
+        key="btc"
+        onClick={() =>
+          history.push({
+            pathname: routerLinks.receive,
+            state: { depositAsset: BTC_ASSET },
+          })
+        }
+      >
+        <img src={BtcIcon} alt="btc icon" className="currency-icon" width={45} height={45} />
+        <span className="deposit-grid-item-name">{BTC_ASSET.name}</span>
+        <span className="deposit-grid-item-ticker">{BTC_ASSET.ticker}</span>
+      </button>
+    );
+
+    return [btcButton]
+      .concat(
+        MAIN_ASSETS[network].map((asset, i) => {
+          return (
+            <button
+              className="deposit-grid-item ion-justify-content-center ion-align-items-center"
+              key={i}
+              onClick={() =>
+                history.push({
+                  pathname: routerLinks.receive,
+                  state: { depositAsset: asset },
+                })
+              }
+            >
+              <CurrencyIcon assetHash={asset.assetHash} size={45} />
+              <span className="deposit-grid-item-name">{asset.name}</span>
+              <span className="deposit-grid-item-ticker">{asset.ticker}</span>
+            </button>
+          );
+        })
+      )
       .concat(
         <button
           className="deposit-grid-item ion-justify-content-center ion-align-items-center"

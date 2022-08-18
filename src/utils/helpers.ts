@@ -16,7 +16,7 @@ import { lockUtxo } from '../redux/actions/walletActions';
 
 import { throwErrorHandler } from './coinSelection';
 import type { AssetConfig, LbtcDenomination } from './constants';
-import { defaultPrecision, LBTC_ASSET, LBTC_TICKER, USDT_ASSET } from './constants';
+import { defaultPrecision, LBTC_ASSET, LBTC_TICKER, LCAD_ASSET, USDT_ASSET } from './constants';
 import type { TxDisplayInterface } from './types';
 
 export function toSatoshi(val: string, precision = defaultPrecision, unit: LbtcDenomination = 'L-BTC'): Decimal {
@@ -205,6 +205,10 @@ export function isLbtcTicker(ticker: string): boolean {
 
 export function isUsdt(asset: string, network: NetworkString): boolean {
   return asset === USDT_ASSET[network].assetHash;
+}
+
+export function isLcad(asset: string, network: NetworkString): boolean {
+  return asset === LCAD_ASSET[network].assetHash;
 }
 
 /**

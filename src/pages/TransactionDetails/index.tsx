@@ -4,9 +4,9 @@ import React, { useEffect, useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter, useParams } from 'react-router';
 
+import CurrencyIcon from '../../components/CurrencyIcon';
 import Header from '../../components/Header';
 import Refresher from '../../components/Refresher';
-import { CurrencyIcon } from '../../components/icons';
 import { addSuccessToast } from '../../redux/actions/toastActions';
 import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import { transactionSelector } from '../../redux/reducers/transactionsReducer';
@@ -69,7 +69,7 @@ const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDeta
           />
           <IonRow>
             <IonCol className="header-info ion-text-center">
-              <CurrencyIcon currency={assets[locationState?.asset || '']?.ticker} />
+              <CurrencyIcon assetHash={locationState?.asset || ''} />
               <p className="info-amount">
                 {assets[locationState?.asset || '']?.name ?? assets[locationState?.asset || '']?.ticker}
               </p>

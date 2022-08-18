@@ -6,9 +6,9 @@ import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
 
+import CurrencyIcon from '../../components/CurrencyIcon';
 import Header from '../../components/Header';
 import Refresher from '../../components/Refresher';
-import { CurrencyIcon } from '../../components/icons';
 import { addSuccessToast } from '../../redux/actions/toastActions';
 import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import type { AssetsState } from '../../redux/reducers/assetsReducer';
@@ -20,10 +20,12 @@ import type { TxDisplayInterface } from '../../utils/types';
 
 export interface PreviewData {
   sent: {
+    asset: string;
     ticker: string;
     amount: string;
   };
   received: {
+    asset: string;
     ticker: string;
     amount: string;
   };
@@ -38,43 +40,31 @@ interface TradeSummaryProps extends RouteComponentProps<any, any, TradeSummaryLo
 }
 
 type SentCurrencyIconProps = {
-  width: string;
-  height: string;
+  size: number;
   transaction?: TxDisplayInterface;
   preview?: PreviewData;
   assets: AssetsState;
-} & React.HTMLAttributes<any>;
-const SentCurrencyIcon = ({ width, height, assets, transaction, preview }: SentCurrencyIconProps) => {
+};
+const SentCurrencyIcon = ({ size, assets, transaction, preview }: SentCurrencyIconProps) => {
   return (
     <CurrencyIcon
-      currency={transaction ? assets[transaction.transfers?.[0]?.asset]?.ticker : preview?.sent.ticker}
-      width={width}
-      height={height}
+      assetHash={transaction ? assets[transaction.transfers?.[0]?.asset]?.assetHash : preview?.sent.asset ?? ''}
+      size={size}
     />
   );
 };
 
 type ReceiveCurrencyIconProps = {
-  width: string;
-  height: string;
+  size: number;
   transaction?: TxDisplayInterface;
   preview?: PreviewData;
   assets: AssetsState;
-} & React.HTMLAttributes<any>;
-const ReceiveCurrencyIcon: React.FC<ReceiveCurrencyIconProps> = ({
-  width,
-  height,
-  transaction,
-  preview,
-  assets,
-  ...props
-}) => {
+};
+const ReceiveCurrencyIcon: React.FC<ReceiveCurrencyIconProps> = ({ size, transaction, preview, assets }) => {
   return (
     <CurrencyIcon
-      currency={transaction ? assets[transaction.transfers?.[1]?.asset]?.ticker : preview?.received.ticker}
-      width={width}
-      height={height}
-      {...props}
+      assetHash={transaction ? assets[transaction.transfers?.[1]?.asset]?.assetHash : preview?.received.asset ?? ''}
+      size={size}
     />
   );
 };
@@ -96,29 +86,10 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, assets }) => {
               <IonRow className="ion-margin-bottom ion-text-center">
                 <IonCol>
                   <div className="transaction-icons">
-                    <SentCurrencyIcon
-                      width="45"
-                      height="45"
-                      assets={assets}
-                      transaction={transaction}
-                      preview={preview}
-                    />
+                    <SentCurrencyIcon size={45} assets={assets} transaction={transaction} preview={preview} />
                     <div className="receive-icon-container">
-                      <ReceiveCurrencyIcon
-                        width="45"
-                        height="45"
-                        assets={assets}
-                        transaction={transaction}
-                        preview={preview}
-                      />
-                      <ReceiveCurrencyIcon
-                        className="duplicate"
-                        width="55"
-                        height="55"
-                        assets={assets}
-                        transaction={transaction}
-                        preview={preview}
-                      />
+                      <ReceiveCurrencyIcon size={45} assets={assets} transaction={transaction} preview={preview} />
+                      <ReceiveCurrencyIcon size={55} assets={assets} transaction={transaction} preview={preview} />
                     </div>
                   </div>
                 </IonCol>
@@ -131,13 +102,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, assets }) => {
                       <div className="trade-items">
                         <div className="trade-item">
                           <div className="name">
-                            <SentCurrencyIcon
-                              width="24"
-                              height="24"
-                              assets={assets}
-                              transaction={transaction}
-                              preview={preview}
-                            />
+                            <SentCurrencyIcon size={24} assets={assets} transaction={transaction} preview={preview} />
                             <span>
                               {transaction ? assets[transaction.transfers?.[0]?.asset]?.ticker : preview?.sent.ticker}
                             </span>
@@ -156,8 +121,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, assets }) => {
                         <div className="trade-item">
                           <div className="name">
                             <ReceiveCurrencyIcon
-                              width="24"
-                              height="24"
+                              size={24}
                               assets={assets}
                               transaction={transaction}
                               preview={preview}

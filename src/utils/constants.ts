@@ -1,6 +1,10 @@
 import * as bitcoinJS from 'bitcoinjs-lib';
 import type { NetworkString } from 'tdex-sdk';
 
+import BtseIcon from '../assets/img/coins/btse.svg';
+import LbtcIcon from '../assets/img/coins/lbtc.svg';
+import LcadIcon from '../assets/img/coins/lcad.svg';
+import UsdtIcon from '../assets/img/coins/usdt.svg';
 import type { CurrencyInterface } from '../redux/reducers/settingsReducer';
 
 export const defaultPrecision = 8;
@@ -93,6 +97,54 @@ export const USDT_ASSET: Record<NetworkString, AssetConfig> = {
   },
 };
 
+export const LCAD_ASSET: Record<NetworkString, AssetConfig> = {
+  liquid: {
+    assetHash: '0e99c1a6da379d1f4151fb9df90449d40d0608f6cb33a5bcbfc8c265f42bab0a',
+    name: 'Liquid CAD',
+    color: LCAD_COLOR,
+    precision: 8,
+    ticker: LCAD_TICKER,
+  },
+  testnet: {
+    assetHash: 'ac3e0ff248c5051ffd61e00155b7122e5ebc04fd397a0ecbdd4f4e4a56232926',
+    name: 'Liquid CAD',
+    color: LCAD_COLOR,
+    precision: 8,
+    ticker: LCAD_TICKER,
+  },
+  regtest: {
+    assetHash: '0e99c1a6da379d1f4151fb9df90449d40d0608f6cb33a5bcbfc8c265f42bab0a',
+    name: 'Liquid CAD',
+    color: LCAD_COLOR,
+    precision: 8,
+    ticker: LCAD_TICKER,
+  },
+};
+
+export const BTSE_ASSET: Record<NetworkString, AssetConfig> = {
+  liquid: {
+    assetHash: 'b00b0ff0b11ebd47f7c6f57614c046dbbd204e84bf01178baf2be3713a206eb7',
+    name: 'BTSE Token',
+    color: BTSE_COLOR,
+    precision: 8,
+    ticker: BTSE_TICKER,
+  },
+  testnet: {
+    assetHash: 'b00b0ff0b11ebd47f7c6f57614c046dbbd204e84bf01178baf2be3713a206eb7',
+    name: 'BTSE Token',
+    color: BTSE_COLOR,
+    precision: 8,
+    ticker: BTSE_TICKER,
+  },
+  regtest: {
+    assetHash: 'b00b0ff0b11ebd47f7c6f57614c046dbbd204e84bf01178baf2be3713a206eb7',
+    name: 'BTSE Token',
+    color: BTSE_COLOR,
+    precision: 8,
+    ticker: BTSE_TICKER,
+  },
+};
+
 export const BTC_ASSET: AssetConfig = {
   coinGeckoID: LBTC_COINGECKOID,
   ticker: BTC_TICKER,
@@ -103,60 +155,9 @@ export const BTC_ASSET: AssetConfig = {
 };
 
 export const MAIN_ASSETS: Record<NetworkString, AssetConfig[]> = {
-  liquid: [
-    LBTC_ASSET['liquid'],
-    USDT_ASSET['liquid'],
-    {
-      ticker: LCAD_TICKER,
-      assetHash: '0e99c1a6da379d1f4151fb9df90449d40d0608f6cb33a5bcbfc8c265f42bab0a',
-      color: LCAD_COLOR,
-      precision: 8,
-      name: 'Liquid CAD',
-    },
-    {
-      ticker: BTSE_TICKER,
-      assetHash: 'b00b0ff0b11ebd47f7c6f57614c046dbbd204e84bf01178baf2be3713a206eb7',
-      color: BTSE_COLOR,
-      precision: 8,
-      name: 'BTSE Token',
-    },
-  ],
-  testnet: [
-    LBTC_ASSET['testnet'],
-    USDT_ASSET['testnet'],
-    {
-      ticker: LCAD_TICKER,
-      assetHash: 'ac3e0ff248c5051ffd61e00155b7122e5ebc04fd397a0ecbdd4f4e4a56232926',
-      color: LCAD_COLOR,
-      precision: 8,
-      name: 'Liquid CAD',
-    },
-    {
-      ticker: BTSE_TICKER,
-      assetHash: 'b00b0ff0b11ebd47f7c6f57614c046dbbd204e84bf01178baf2be3713a206eb7',
-      color: BTSE_COLOR,
-      precision: 8,
-      name: 'BTSE Token',
-    },
-  ],
-  regtest: [
-    LBTC_ASSET['regtest'],
-    USDT_ASSET['regtest'],
-    {
-      ticker: LCAD_TICKER,
-      assetHash: '0e99c1a6da379d1f4151fb9df90449d40d0608f6cb33a5bcbfc8c265f42bab0a',
-      color: LCAD_COLOR,
-      precision: 8,
-      name: 'Liquid CAD',
-    },
-    {
-      ticker: BTSE_TICKER,
-      assetHash: 'b00b0ff0b11ebd47f7c6f57614c046dbbd204e84bf01178baf2be3713a206eb7',
-      color: BTSE_COLOR,
-      precision: 8,
-      name: 'BTSE Token',
-    },
-  ],
+  liquid: [LBTC_ASSET['liquid'], USDT_ASSET['liquid'], LCAD_ASSET['liquid'], BTSE_ASSET['liquid']],
+  testnet: [LBTC_ASSET['testnet'], USDT_ASSET['testnet'], LCAD_ASSET['testnet'], BTSE_ASSET['testnet']],
+  regtest: [LBTC_ASSET['regtest'], USDT_ASSET['regtest'], LCAD_ASSET['regtest'], BTSE_ASSET['regtest']],
 };
 
 export const getFedPegScript = (network: NetworkString): string =>
@@ -204,4 +205,27 @@ export function getBitcoinJSNetwork(chain: NetworkString): bitcoinJS.networks.Ne
   } else {
     return bitcoinJS.networks.regtest;
   }
+}
+
+// featured assets map: from an asset hash, get local image path
+const featuredAssetsMap = new Map<string, string>();
+featuredAssetsMap.set(LBTC_ASSET['liquid'].assetHash, LbtcIcon);
+featuredAssetsMap.set(LBTC_ASSET['testnet'].assetHash, LbtcIcon);
+featuredAssetsMap.set(LBTC_ASSET['regtest'].assetHash, LbtcIcon);
+featuredAssetsMap.set(USDT_ASSET['liquid'].assetHash, UsdtIcon);
+featuredAssetsMap.set(USDT_ASSET['testnet'].assetHash, UsdtIcon);
+featuredAssetsMap.set(LCAD_ASSET['liquid'].assetHash, LcadIcon);
+featuredAssetsMap.set(LCAD_ASSET['testnet'].assetHash, LcadIcon);
+featuredAssetsMap.set(BTSE_ASSET['liquid'].assetHash, BtseIcon);
+featuredAssetsMap.set(BTSE_ASSET['testnet'].assetHash, BtseIcon);
+
+// given an asset hash, return url for image path from mempool
+const getRemoteImagePath = (hash: string) => `https://liquid.network/api/v1/asset/${hash}/icon`;
+
+// getter function using to look for assets on testnet and regtest
+// and return the correct asset icon path (with asset hash from mainnet)
+export function getAssetImagePath(assetHash: string): string {
+  const localImagePath = featuredAssetsMap.get(assetHash);
+  if (localImagePath) return localImagePath;
+  return getRemoteImagePath(assetHash);
 }

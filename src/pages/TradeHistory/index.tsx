@@ -19,8 +19,8 @@ import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
 import type { NetworkString } from 'tdex-sdk';
 
+import CurrencyIcon from '../../components/CurrencyIcon';
 import Header from '../../components/Header';
-import { CurrencyIcon } from '../../components/icons';
 import { addSuccessToast } from '../../redux/actions/toastActions';
 import { useTypedDispatch } from '../../redux/hooks';
 import type { AssetsState } from '../../redux/reducers/assetsReducer';
@@ -85,8 +85,8 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI, ne
                   >
                     <IonRow>
                       <IonCol className="icon" size="1.2">
-                        <CurrencyIcon currency={tickerSent} />
-                        <CurrencyIcon currency={tickerReceived} />
+                        <CurrencyIcon assetHash={transferSent.asset} />
+                        <CurrencyIcon assetHash={transferReceived.asset} />
                       </IonCol>
                       <IonCol className="pl-1" size="4.3">
                         <div className="asset">{`${tickerSent}/${tickerReceived}`}</div>

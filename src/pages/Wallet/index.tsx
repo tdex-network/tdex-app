@@ -20,9 +20,9 @@ import { withRouter } from 'react-router';
 import type { NetworkString } from 'tdex-sdk';
 
 import CircleTotalBalance from '../../components/CircleTotalBalance';
+import CurrencyIcon from '../../components/CurrencyIcon';
 import Header from '../../components/Header';
 import Refresher from '../../components/Refresher';
-import { CurrencyIcon } from '../../components/icons';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { aggregatedLBTCBalanceSelector, balancesSelector } from '../../redux/reducers/walletReducer';
 import type { RootState } from '../../redux/types';
@@ -165,7 +165,7 @@ const Wallet: React.FC<WalletProps> = ({
                   >
                     <div className="asset-container">
                       <div className="asset-details">
-                        <CurrencyIcon currency={balance.ticker} />
+                        <CurrencyIcon assetHash={balance.assetHash} />
                         <div>{balance.coinGeckoID ? capitalizeFirstLetter(balance.coinGeckoID) : balance.ticker}</div>
                       </div>
                       <div className="amount-container ion-text-right">

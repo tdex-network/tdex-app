@@ -26,10 +26,11 @@ import * as ecc from 'tiny-secp256k1';
 
 import depositIcon from '../../assets/img/deposit-green.svg';
 import swapIcon from '../../assets/img/swap-circle.svg';
+import CurrencyIcon from '../../components/CurrencyIcon';
 import Header from '../../components/Header';
 import Refresher from '../../components/Refresher';
 import WatchersLoader from '../../components/WatchersLoader';
-import { CurrencyIcon, TxIcon } from '../../components/icons';
+import { TxIcon } from '../../components/icons';
 import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
 import { setModalClaimPegin } from '../../redux/actions/btcActions';
 import { useTypedSelector } from '../../redux/hooks';
@@ -38,7 +39,7 @@ import { transactionsByAssetSelector } from '../../redux/reducers/transactionsRe
 import { balancesSelector } from '../../redux/reducers/walletReducer';
 import type { RootState } from '../../redux/types';
 import type { LbtcDenomination } from '../../utils/constants';
-import { defaultPrecision, LBTC_TICKER, MAIN_ASSETS } from '../../utils/constants';
+import { defaultPrecision, LBTC_ASSET, LBTC_TICKER, MAIN_ASSETS } from '../../utils/constants';
 import {
   compareTxDisplayInterfaceByDate,
   fromSatoshi,
@@ -164,7 +165,7 @@ const Operations: React.FC<OperationsProps> = ({
                   pathname: '/receive',
                   state: {
                     depositAsset: {
-                      asset: balance?.assetHash,
+                      assetHash: balance?.assetHash,
                       ticker: balance?.ticker ?? LBTC_TICKER[network],
                       coinGeckoID: balance?.coinGeckoID ?? 'L-BTC',
                     },
@@ -268,7 +269,11 @@ const Operations: React.FC<OperationsProps> = ({
           <Header title={`${balance?.name || balance?.ticker}`} hasBackButton={true} />
           <IonRow className="ion-margin-bottom header-info ion-text-center ion-margin-vertical">
             <IonCol>
-              {balance ? <CurrencyIcon currency={balance?.ticker} /> : <CurrencyIcon currency={LBTC_TICKER[network]} />}
+              {balance ? (
+                <CurrencyIcon assetHash={balance?.assetHash} />
+              ) : (
+                <CurrencyIcon assetHash={LBTC_ASSET[network].assetHash} />
+              )}
               {AssetBalance}
             </IonCol>
           </IonRow>

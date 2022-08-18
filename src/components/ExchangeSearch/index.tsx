@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 
 import type { CurrencyInterface } from '../../redux/reducers/settingsReducer';
 import type { AssetConfig } from '../../utils/constants';
-import { CurrencyIcon } from '../icons';
+import CurrencyIcon from '../CurrencyIcon';
 
 interface ExchangeSearchProps {
   assets: AssetConfig[];
@@ -59,7 +59,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsse
                   >
                     <div className="search-item-name">
                       <span>
-                        <CurrencyIcon currency={asset.ticker} />
+                        <CurrencyIcon assetHash={asset.assetHash} />
                       </span>
                       <p>{asset.ticker}</p>
                     </div>
