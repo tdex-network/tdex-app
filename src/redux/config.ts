@@ -41,10 +41,10 @@ const defaultProviderEndpoints = {
 if (process.env.NODE_ENV === 'production') {
   network = {
     chain: 'liquid',
-    explorerLiquidAPI: blockstreamExplorerEndpoints.liquid.explorerLiquidAPI,
-    explorerLiquidUI: blockstreamExplorerEndpoints.liquid.explorerLiquidUI,
-    explorerBitcoinAPI: blockstreamExplorerEndpoints.liquid.explorerBitcoinAPI,
-    explorerBitcoinUI: blockstreamExplorerEndpoints.liquid.explorerBitcoinUI,
+    explorerLiquidAPI: mempoolExplorerEndpoints.liquid.explorerLiquidAPI,
+    explorerLiquidUI: mempoolExplorerEndpoints.liquid.explorerLiquidUI,
+    explorerBitcoinAPI: mempoolExplorerEndpoints.liquid.explorerBitcoinAPI,
+    explorerBitcoinUI: mempoolExplorerEndpoints.liquid.explorerBitcoinUI,
   };
   defaultProvider = {
     name: 'Default provider',
@@ -53,10 +53,10 @@ if (process.env.NODE_ENV === 'production') {
 } else if (process.env.REACT_APP_CHAIN === 'testnet') {
   network = {
     chain: 'testnet',
-    explorerLiquidAPI: blockstreamExplorerEndpoints.testnet.explorerLiquidAPI,
-    explorerLiquidUI: blockstreamExplorerEndpoints.testnet.explorerLiquidUI,
-    explorerBitcoinAPI: blockstreamExplorerEndpoints.testnet.explorerBitcoinAPI,
-    explorerBitcoinUI: blockstreamExplorerEndpoints.testnet.explorerBitcoinUI,
+    explorerLiquidAPI: mempoolExplorerEndpoints.testnet.explorerLiquidAPI,
+    explorerLiquidUI: mempoolExplorerEndpoints.testnet.explorerLiquidUI,
+    explorerBitcoinAPI: mempoolExplorerEndpoints.testnet.explorerBitcoinAPI,
+    explorerBitcoinUI: mempoolExplorerEndpoints.testnet.explorerBitcoinUI,
   };
   defaultProvider = {
     name: 'Default provider',
