@@ -2,16 +2,10 @@ import type { CSSProperties } from 'react';
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-import BjdeIcon from '../../assets/img/coins/blockstream_jade.svg';
 import BtcIcon from '../../assets/img/coins/btc.svg';
-import BtseIcon from '../../assets/img/coins/btse.svg';
 import CurrencyPlaceholderIcon from '../../assets/img/coins/currency-placeholder.svg';
-import LbtcIcon from '../../assets/img/coins/lbtc.svg';
-import LcadIcon from '../../assets/img/coins/lcad.svg';
-import UsdtIcon from '../../assets/img/coins/usdt.svg';
 import DepositIconBlack from '../../assets/img/deposit-black.svg';
 import DepositIcon from '../../assets/img/deposit.svg';
-import { BTC_TICKER, BJDE_TICKER, BTSE_TICKER, LBTC_TICKER, LCAD_TICKER, USDT_TICKER } from '../../utils/constants';
 import { TxTypeEnum } from '../../utils/types';
 
 interface IconInterface {
@@ -130,26 +124,6 @@ export const IconQR = (props: IconInterface): JSX.Element => (
     />
   </svg>
 );
-
-export const CurrencyIcon = ({ currency, ...props }: any): any => {
-  switch (currency) {
-    case BTC_TICKER:
-      return <img src={BtcIcon} {...props} alt="BTC" />;
-    case LBTC_TICKER['liquid']:
-    case LBTC_TICKER['testnet']:
-      return <img src={LbtcIcon} {...props} alt="L-BTC" />;
-    case USDT_TICKER:
-      return <img src={UsdtIcon} {...props} alt="USDt" />;
-    case LCAD_TICKER:
-      return <img src={LcadIcon} {...props} alt="LCAD" />;
-    case BTSE_TICKER:
-      return <img src={BtseIcon} {...props} alt="BTSE" />;
-    case BJDE_TICKER:
-      return <img src={BjdeIcon} {...props} alt="Blockstream Jade" />;
-    default:
-      return <img src={CurrencyPlaceholderIcon} {...props} alt="placeholder" />;
-  }
-};
 
 export const TxIcon = ({ type }: any): any => {
   const theme = useSelector((state: any) => state.settings.theme);

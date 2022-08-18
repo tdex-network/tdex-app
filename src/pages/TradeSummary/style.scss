@@ -7,13 +7,14 @@
       position: relative;
       top: 0;
       left: 0;
-    }
-    img.duplicate {
-      filter: invert(50%) brightness(33%) contrast(100%);
-      position: absolute;
-      top: -6px;
-      left: -1px;
-      z-index: -1;
+
+      img:nth-child(2) {
+        filter: invert(50%) brightness(33%) contrast(100%);
+        position: absolute;
+        top: -6px;
+        left: -1px;
+        z-index: -1;
+      }
     }
   }
   

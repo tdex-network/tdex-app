@@ -7,6 +7,7 @@ import type { FC, ReactElement } from 'react';
 import { MemoryRouter } from 'react-router';
 
 const AllTheProviders: FC = ({ children }) => {
+  // @ts-ignore
   return <MemoryRouter>{children}</MemoryRouter>;
 };
 

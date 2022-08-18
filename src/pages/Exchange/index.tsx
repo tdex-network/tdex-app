@@ -189,10 +189,12 @@ const Exchange: React.FC<Props> = ({
     addSuccessToast('Trade successfully computed');
     const preview: PreviewData = {
       sent: {
+        asset: tdexOrderInputResult?.send.asset ?? '',
         ticker: tdexOrderInputResult?.send.unit || 'unknown',
         amount: `-${tdexOrderInputResult?.send.amount || '??'}`,
       },
       received: {
+        asset: tdexOrderInputResult?.receive.asset ?? '',
         ticker: tdexOrderInputResult?.receive.unit || 'unknown',
         amount: tdexOrderInputResult?.receive.amount || '??',
       },

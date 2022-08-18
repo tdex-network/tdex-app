@@ -13,7 +13,7 @@ import { updatePrices } from '../../redux/actions/ratesActions';
 import { fromSatoshi, fromSatoshiFixed, isLbtc, isLbtcTicker, fromUnitToLbtc } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
 import { onPressEnterKeyCloseKeyboard, setAccessoryBar } from '../../utils/keyboard';
-import { CurrencyIcon } from '../icons';
+import CurrencyIcon from '../CurrencyIcon';
 
 interface WithdrawRowInterface {
   amount: string;
@@ -98,7 +98,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
       <div className="exchanger-row">
         <div className="coin-name">
           <span className="icon-wrapper">
-            <CurrencyIcon currency={balance.ticker} />
+            <CurrencyIcon assetHash={balance.assetHash} />
           </span>
           <span>{isLbtcTicker(balance.ticker) ? lbtcUnit : balance.ticker.toUpperCase()}</span>
           <IonIcon className="icon" icon={chevronDownOutline} />

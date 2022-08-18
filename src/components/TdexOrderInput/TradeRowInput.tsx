@@ -18,7 +18,7 @@ import { defaultPrecision } from '../../utils/constants';
 import { fromSatoshiFixed, fromUnitToLbtc, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
-import { CurrencyIcon } from '../icons';
+import CurrencyIcon from '../CurrencyIcon';
 
 export type ExchangeRowValue = {
   amount: string;
@@ -124,7 +124,7 @@ const TradeRowInput: React.FC<Props> = ({
           {assetSelected && (
             <>
               <span className="icon-wrapper">
-                <CurrencyIcon currency={assetSelected.ticker} />
+                <CurrencyIcon assetHash={assetSelected.assetHash} />
               </span>
               <span>{isLbtc(assetSelected.assetHash, network) ? lbtcUnit : assetSelected.ticker.toUpperCase()}</span>
               <IonIcon className="icon" icon={chevronDownOutline} />
