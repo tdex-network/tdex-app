@@ -14,7 +14,7 @@ export default defineConfig({
   viewportWidth: 360,
 
   e2e: {
-    setupNodeEvents(on, config) {
+    setupNodeEvents(on: Cypress.PluginEvents, config: Cypress.PluginConfigOptions) {
       // file:preprocessor
       // if we just pass webpackOptions to the preprocessor
       // it won't work - because react-scripts by default
@@ -25,6 +25,38 @@ export default defineConfig({
         addFolderToTranspile: [path.resolve('cypress')],
       };
       const cleanedWebpackCracoConfig = findWebpack.cleanForCypress(cleanOptions, webpackCracoConfig);
+      // Patch webpackConfig.output, so it returns a `publicPath`, even though output is overwritten in webpackPreprocessor
+      // Credit: https://github.com/cypress-io/cypress/issues/8900#issuecomment-866897397
+      // https://github.com/cypress-io/cypress/issues/18435
+      const publicPath = '';
+      let outputOptions = {};
+      Object.defineProperty(cleanedWebpackCracoConfig, 'output', {
+        get: () => {
+          return { ...outputOptions, publicPath };
+        },
+        set: function (x) {
+          outputOptions = x;
+        },
+      });
+
+      /*
+      // Attempt to fix "Buffer is not defined" error
+      let plugins: never[] = [];
+      Object.defineProperty(cleanedWebpackCracoConfig, 'plugins', {
+        get: () => {
+          return [
+            ...plugins,
+            new webpack.ProvidePlugin({
+              Buffer: ['buffer', 'Buffer'],
+              process: 'process/browser',
+            }),
+          ];
+        },
+        set: function (x) {
+          plugins = x;
+        },
+      });
+       */
       const options = {
         // send in the options from your webpack.config.js, so it works the same
         // as your app's code

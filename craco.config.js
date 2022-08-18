@@ -115,8 +115,6 @@ module.exports = {
       webpackConfig.plugins = (webpackConfig.plugins || []).concat([
         new webpack.ProvidePlugin({
           Buffer: ['buffer', 'Buffer'],
-        }),
-        new webpack.ProvidePlugin({
           process: 'process/browser',
         }),
       ]);
