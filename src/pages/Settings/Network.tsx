@@ -31,7 +31,7 @@ import {
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { resetTransactionReducer } from '../../redux/actions/transactionsActions';
 import { clearAddresses, resetUtxos, setMasterPublicKey } from '../../redux/actions/walletActions';
-import { blockstreamExplorerEndpoints, defaultProviderEndpoints } from '../../redux/config';
+import { defaultProviderEndpoints, mempoolExplorerEndpoints } from '../../redux/config';
 import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import { AppError, AppIsBusy } from '../../utils/errors';
 import { fromXpub } from '../../utils/fromXpub';
@@ -64,18 +64,18 @@ const Network = (): JSX.Element => {
       const network = ev.detail.value;
       setNetworkSelectState(network);
       dispatch(setNetwork(network));
-      // We set explorer endpoints to Blockstream. User can then adjust favorite endpoints in Explorer setting screen.
+      // We set explorer endpoints to Mempool. User can then adjust favorite endpoints in Explorer setting screen.
       if (network === 'liquid') {
-        dispatch(setExplorerLiquidAPI(blockstreamExplorerEndpoints.liquid.explorerLiquidAPI));
-        dispatch(setExplorerLiquidUI(blockstreamExplorerEndpoints.liquid.explorerLiquidUI));
-        dispatch(setExplorerBitcoinAPI(blockstreamExplorerEndpoints.liquid.explorerBitcoinAPI));
-        dispatch(setExplorerBitcoinUI(blockstreamExplorerEndpoints.liquid.explorerBitcoinUI));
+        dispatch(setExplorerLiquidAPI(mempoolExplorerEndpoints.liquid.explorerLiquidAPI));
+        dispatch(setExplorerLiquidUI(mempoolExplorerEndpoints.liquid.explorerLiquidUI));
+        dispatch(setExplorerBitcoinAPI(mempoolExplorerEndpoints.liquid.explorerBitcoinAPI));
+        dispatch(setExplorerBitcoinUI(mempoolExplorerEndpoints.liquid.explorerBitcoinUI));
         dispatch(setDefaultProvider(defaultProviderEndpoints.liquid));
       } else if (network === 'testnet') {
-        dispatch(setExplorerLiquidAPI(blockstreamExplorerEndpoints.testnet.explorerLiquidAPI));
-        dispatch(setExplorerLiquidUI(blockstreamExplorerEndpoints.testnet.explorerLiquidUI));
-        dispatch(setExplorerBitcoinAPI(blockstreamExplorerEndpoints.testnet.explorerBitcoinAPI));
-        dispatch(setExplorerBitcoinUI(blockstreamExplorerEndpoints.testnet.explorerBitcoinUI));
+        dispatch(setExplorerLiquidAPI(mempoolExplorerEndpoints.testnet.explorerLiquidAPI));
+        dispatch(setExplorerLiquidUI(mempoolExplorerEndpoints.testnet.explorerLiquidUI));
+        dispatch(setExplorerBitcoinAPI(mempoolExplorerEndpoints.testnet.explorerBitcoinAPI));
+        dispatch(setExplorerBitcoinUI(mempoolExplorerEndpoints.testnet.explorerBitcoinUI));
         dispatch(setDefaultProvider(defaultProviderEndpoints.testnet));
       } else {
         dispatch(setExplorerLiquidAPI('http://localhost:3001'));
