@@ -106,7 +106,6 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts, ne
     ? state?.depositAsset?.ticker?.toUpperCase()
     : '';
 
-  console.log('state?.depositAsset', state?.depositAsset);
   return (
     <IonPage id="receive-page">
       <Loader showLoading={loading} />
