@@ -16,12 +16,12 @@
 // ***********************************************************
 
 import './commands';
-import type fixtures from '../fixtures/fixtures.json';
+import type { localStorage } from '../fixtures/fixtures.json';
 
 declare global {
   namespace Cypress {
     interface Chainable {
-      launchWallet(opts?: Partial<typeof fixtures.localStorage>): Chainable;
+      launchWallet(opts?: Partial<typeof localStorage>): Chainable;
       faucet(address: string, amount: number, asset?: string): Chainable;
     }
   }

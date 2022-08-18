@@ -98,7 +98,7 @@ describe('discovery strategies', () => {
   });
 
   describe('discoverBestOrder', () => {
-    beforeAll(() => {
+    it('should return first possible order when sats <= 0', async () => {
       const spyCreateTraderClient = jest.spyOn(tdexUtils, 'createTraderClient');
       spyCreateTraderClient.mockImplementation((endpoint: string) => {
         if (endpoint === 'http://provider1') {
@@ -114,9 +114,6 @@ describe('discovery strategies', () => {
           return traderClient1;
         }
       });
-    });
-
-    it('should return first possible order when sats <= 0', async () => {
       const discoverFunction = tdexUtils.discoverBestOrder(
         mockMarketsLbtcUsdt,
         mockLbtcSendAsset,

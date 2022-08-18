@@ -31,27 +31,27 @@ jobs:
         run: sleep 5s
         shell: bash
 
-      - name: Cypress run
-        uses: cypress-io/github-action@v2
-        with:
-          start: yarn run serve:no-open
-          wait-on: 'http://localhost:8100'
+      #- name: Cypress run
+      #  uses: cypress-io/github-action@v4
+      #  with:
+      #    start: yarn run serve:no-open
+      #    wait-on: 'http://localhost:8100'
 
-      - uses: actions/upload-artifact@v2
-        # NOTE: screenshots will be generated only if E2E test failed
-        # thus we store screenshots only on failures
-        if: failure()
-        with:
-          name: cypress-screenshots
-          path: cypress/screenshots
-          retention-days: 5
+      #- uses: actions/upload-artifact@v2
+      # NOTE: screenshots will be generated only if E2E test failed
+      # thus we store screenshots only on failures
+      # if: failure()
+      # with:
+      #  name: cypress-screenshots
+      #  path: cypress/screenshots
+      #  retention-days: 5
 
-      - uses: actions/upload-artifact@v2
-        if: always()
-        with:
-          name: cypress-videos
-          path: cypress/videos
-          retention-days: 5
+      #- uses: actions/upload-artifact@v2
+      #  if: always()
+      #  with:
+      #    name: cypress-videos
+      #    path: cypress/videos
+      #    retention-days: 5
 
       - run: yarn install --frozen-lockfile
 

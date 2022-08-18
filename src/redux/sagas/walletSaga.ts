@@ -2,6 +2,7 @@ import type { AddressInterface, StateRestorerOpts } from 'ldk';
 import { fetchAndUnblindUtxos, fetchAndUnblindUtxosGenerator } from 'ldk';
 import { takeLatest, call, put, select, delay, all, takeEvery, retry } from 'redux-saga/effects';
 import type { Output, UnblindedOutput } from 'tdex-sdk';
+import * as ecc from 'tiny-secp256k1';
 
 import { UpdateUtxosError } from '../../utils/errors';
 import {
@@ -75,7 +76,7 @@ export function* fetchAndUpdateUtxos(
   yield put(setIsFetchingUtxos(true));
   let utxoUpdatedCount = 0;
   const skippedOutpoints: string[] = []; // for deleting
-  const utxoGen = fetchAndUnblindUtxosGenerator(addresses, explorerLiquidAPI, (utxo: Output) => {
+  const utxoGen = fetchAndUnblindUtxosGenerator(ecc, addresses, explorerLiquidAPI, (utxo: Output) => {
     const outpoint = outpointToString(utxo);
     const skip = currentUtxos[outpoint] !== undefined;
     if (skip) skippedOutpoints.push(outpointToString(utxo));
@@ -118,6 +119,7 @@ function* watchUtxoSaga({ payload }: ReturnType<typeof watchUtxo>) {
       maxTry,
       2000,
       fetchAndUnblindUtxos,
+      ecc,
       [address],
       explorer
     );

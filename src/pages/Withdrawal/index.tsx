@@ -187,7 +187,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       const withdrawPset = wallet.sendTx(
         getRecipient(),
         customCoinSelector(dispatch),
-        changeAddress.confidentialAddress,
+        () => changeAddress.confidentialAddress,
         true
       );
       // blind all the outputs except fee

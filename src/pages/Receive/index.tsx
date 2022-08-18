@@ -20,6 +20,7 @@ import { connect, useDispatch } from 'react-redux';
 import { useLocation } from 'react-router';
 import type { MasterPublicKeyOpts, NetworkString } from 'tdex-sdk';
 import { masterPubKeyRestorerFromState } from 'tdex-sdk';
+import * as ecc from 'tiny-secp256k1';
 
 import BtcIcon from '../../assets/img/coins/btc.svg';
 import CurrencyIcon from '../../components/CurrencyIcon';
@@ -178,6 +179,7 @@ const mapStateToProps = (state: RootState) => {
         masterBlindingKey: state.wallet.masterBlindKey,
         masterPublicKey: state.wallet.masterPubKey,
       },
+      ecclib: ecc,
     },
     network: state.settings.network,
   };

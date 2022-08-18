@@ -1,18 +1,22 @@
 import axios from 'axios';
 import type { BIP32Interface } from 'bip32';
-import * as bip32 from 'bip32';
+import BIP32Factory from 'bip32';
 import * as btclib from 'bitcoinjs-lib';
+import type { ECPairInterface } from 'ecpair';
+import ECPairFactory from 'ecpair';
 import type { Mnemonic } from 'ldk';
-import { confidential, ECPair, script as bscript, Transaction } from 'liquidjs-lib';
-import type { ECPairInterface } from 'liquidjs-lib/types/ecpair';
+import { confidential, script as bscript, Transaction } from 'liquidjs-lib';
 import ElementsPegin from 'pegin';
 import type { NetworkString } from 'tdex-sdk';
 import { getNetwork } from 'tdex-sdk';
+import * as ecc from 'tiny-secp256k1';
 
 import { getFedPegScript, LBTC_ASSET } from '../../utils/constants';
 import type { Pegins, DepositPeginUtxo } from '../reducers/btcReducer';
 
 import { broadcastTx } from './walletService';
+
+const bip32 = BIP32Factory(ecc);
 
 export async function getPeginModule(network: NetworkString): Promise<ElementsPegin> {
   let peginModule: ElementsPegin;
@@ -83,7 +87,7 @@ export async function claimPegins(
 function generateSigningPrivKey(mnemonic: Mnemonic, derivationPath: string, network: NetworkString): ECPairInterface {
   const node: BIP32Interface = bip32.fromBase58(mnemonic.masterPrivateKeyNode.toBase58(), getNetwork(network));
   const child: BIP32Interface = node.derivePath(derivationPath);
-  return ECPair.fromWIF(child.toWIF(), getNetwork(network));
+  return ECPairFactory(ecc).fromWIF(child.toWIF(), getNetwork(network));
 }
 
 function signClaimTx(claimTxHex: string, btcPeginTxHex: string, claimScript: string, ecPair: ECPairInterface): string {

@@ -20,7 +20,8 @@
     "jsx": "react-jsx",
     "noFallthroughCasesInSwitch": true,
     "importHelpers": true,
-    "strictNullChecks": true
+    "strictNullChecks": true,
+    "baseUrl": "./"
   },
   "include": [
     "src/**/*",

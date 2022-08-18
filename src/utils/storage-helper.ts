@@ -6,6 +6,7 @@ import type { AddressInterface, TxInterface } from 'ldk';
 import type { StateRestorerOpts } from 'ldk/dist/restorer/mnemonic-restorer';
 import type { Dispatch } from 'redux';
 import type { NetworkString, TDEXMnemonic, UnblindedOutput } from 'tdex-sdk';
+import * as ecc from 'tiny-secp256k1';
 
 import type { TDEXProvider } from '../redux/actionTypes/tdexActionTypes';
 import type { Pegins } from '../redux/reducers/btcReducer';
@@ -321,6 +322,7 @@ export async function getConnectedIdentity(
       opts: {
         mnemonic: toRestoreMnemonic,
       },
+      ecclib: ecc,
     },
     dispatch
   );
@@ -339,6 +341,7 @@ export async function getConnectedTDexMnemonic(
       opts: {
         mnemonic: toRestoreMnemonic,
       },
+      ecclib: ecc,
     },
     dispatch
   );
@@ -357,6 +360,7 @@ export async function getIdentity(pin: string, network: NetworkString): Promise<
     opts: {
       mnemonic: toRestoreMnemonic,
     },
+    ecclib: ecc,
   });
 }
 

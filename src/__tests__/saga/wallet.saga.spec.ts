@@ -1,3 +1,4 @@
+/** @jest-environment node */
 /// <reference types="jest" />
 
 import type { AddressInterface } from 'ldk';
@@ -5,6 +6,7 @@ import { fetchAndUnblindUtxos } from 'ldk';
 import type { PutEffect, StrictEffect } from 'redux-saga/effects';
 import type { UnblindedOutput } from 'tdex-sdk';
 import { getSats } from 'tdex-sdk';
+import * as ecc from 'tiny-secp256k1';
 
 import { faucet, firstAddress, APIURL, sleep } from '../../../test/test-utils';
 import { SET_UTXO, DELETE_UTXO } from '../../redux/actions/walletActions';
@@ -22,7 +24,7 @@ describe('wallet saga', () => {
       addr = await firstAddress;
       await sleep(5000);
       const txid = await faucet(addr.confidentialAddress);
-      utxo = (await fetchAndUnblindUtxos([addr], APIURL, (utxo) => utxo.txid !== txid))[0];
+      utxo = (await fetchAndUnblindUtxos(ecc, [addr], APIURL, (utxo) => utxo.txid !== txid))[0];
     });
 
     test('should discover and add utxo', async () => {
