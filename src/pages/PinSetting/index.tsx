@@ -157,7 +157,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <IonPage id="pin-setting-page">
       <Loader showLoading={loading} />
-      <IonModal id="terms-modal" cssClass="modal-big" isOpen={termsModalIsOpen}>
+      <IonModal id="terms-modal" className="modal-big" isOpen={termsModalIsOpen}>
         <IonContent>
           <IonGrid>
             <Header

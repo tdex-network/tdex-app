@@ -35,7 +35,7 @@ const ExchangeErrorModal: React.FC<Props> = ({ result, error, onClose, onClickRe
     <IonModal
       id="exchange-error-modal"
       onDidDismiss={onClose}
-      cssClass="modal-big"
+      className="modal-big"
       isOpen={error !== undefined}
       keyboardClose={false}
     >

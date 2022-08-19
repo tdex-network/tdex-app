@@ -121,7 +121,7 @@ const Explorers: React.FC<ExplorersProps> = ({
             <IonCol size="11" offset="0.5">
               <IonItem className="input">
                 <IonLabel>Select your explorer</IonLabel>
-                <IonSelect value={explorerGroup} onIonChange={handleExplorerChange}>
+                <IonSelect selectedText=" " value={explorerGroup} onIonChange={handleExplorerChange}>
                   {network === 'liquid' && (
                     <>
                       <IonSelectOption value="blockstream">Blockstream</IonSelectOption>
@@ -144,7 +144,7 @@ const Explorers: React.FC<ExplorersProps> = ({
           <IonRow className="ion-margin-vertical">
             <IonCol size="11" offset="0.5">
               <IonItem className="input">
-                <IonLabel position="floating" color="tertiary">
+                <IonLabel position="stacked" color="tertiary">
                   Bitcoin UI endpoint
                 </IonLabel>
                 <IonInput
@@ -162,7 +162,7 @@ const Explorers: React.FC<ExplorersProps> = ({
           <IonRow className="ion-margin-vertical">
             <IonCol size="11" offset="0.5">
               <IonItem className="input">
-                <IonLabel position="floating" color="tertiary">
+                <IonLabel position="stacked" color="tertiary">
                   Liquid UI endpoint
                 </IonLabel>
                 <IonInput
@@ -180,7 +180,7 @@ const Explorers: React.FC<ExplorersProps> = ({
           <IonRow className="ion-margin-vertical">
             <IonCol size="11" offset="0.5">
               <IonItem className="input">
-                <IonLabel position="floating" color="tertiary">
+                <IonLabel position="stacked" color="tertiary">
                   Bitcoin API endpoint
                 </IonLabel>
                 <IonInput
@@ -198,7 +198,7 @@ const Explorers: React.FC<ExplorersProps> = ({
           <IonRow className="ion-margin-vertical">
             <IonCol size="11" offset="0.5">
               <IonItem className="input">
-                <IonLabel position="floating" color="tertiary">
+                <IonLabel position="stacked" color="tertiary">
                   Liquid API endpoint
                 </IonLabel>
                 <IonInput

@@ -37,6 +37,7 @@ const Homescreen: React.FC = () => {
           setIsWrongPin(null);
           setNeedReset(true);
           setLoading(false);
+          setPinModalIsOpen(false);
           // setIsAuth will cause redirect to /wallet
           // Restore state
           dispatch(signIn(mnemonic));

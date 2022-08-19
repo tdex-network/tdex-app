@@ -19,7 +19,7 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
 
   return (
     <div className="search">
-      <IonModal cssClass="modal-small" isOpen={isOpen} onDidDismiss={close}>
+      <IonModal className="modal-small" isOpen={isOpen} onDidDismiss={close}>
         <IonHeader className="ion-no-border">
           <div>
             <label className="search-bar">

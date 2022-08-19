@@ -1,35 +1,16 @@
-ion-modal {
-  .modal-wrapper {
-    border-top-left-radius: 10px !important;
-    border-top-right-radius: 10px !important;
-    position: absolute;
-    bottom: 0;
-  }
-  .modal-shadow {
-    z-index: -1 !important;
-  }
+ion-modal::part(content) {
+  border-top-left-radius: 10px !important;
+  border-top-right-radius: 10px !important;
+  position: absolute;
+  bottom: 0;
 }
 
-.modal-big {
-  .modal-wrapper {
-    height: 99% !important;
-    width: 100%;
-  }
+ion-modal.modal-big::part(content) {
+  height: 99% !important;
+  width: 100%;
 }
 
-ion-modal.modal-small {
-  .modal-wrapper {
-    height: 40%;
-    background: rgb(51, 51, 51);
-  }
-  .modal-shadow {
-    z-index: -1 !important;
-  }
-}
-.light {
-  ion-modal.modal-small {
-    .modal-wrapper {
-      background: #f4f4f4;
-    }
-  }
+ion-modal.modal-small::part(content) {
+  height: 40%;
+  background: rgb(51, 51, 51);
 }
