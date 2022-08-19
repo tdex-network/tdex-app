@@ -29,7 +29,7 @@ const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({ closeModal, o
   };
 
   return (
-    <IonModal isOpen={openModal} cssClass="modal-big withdrawal" keyboardClose={false}>
+    <IonModal isOpen={openModal} className="modal-big withdrawal" keyboardClose={false}>
       <IonContent>
         <IonGrid>
           <Header title="CLEAR MY KEY" hasBackButton={false} hasCloseButton={true} handleClose={closeModal} />

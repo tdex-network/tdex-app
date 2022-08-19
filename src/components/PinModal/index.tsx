@@ -92,7 +92,7 @@ const PinModal: React.FC<PinModalProps> = ({
     <IonModal
       id="pin-modal"
       animated={false}
-      cssClass="modal-big"
+      className="modal-big"
       isOpen={open}
       keyboardClose={false}
       onDidDismiss={onDidDismiss ? onClose : undefined}

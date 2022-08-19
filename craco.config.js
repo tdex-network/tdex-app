@@ -57,6 +57,7 @@ module.exports = {
       jestConfig.transformIgnorePatterns = [
         '[/\\\\]node_modules[/\\\\](?!@protobuf-ts/runtime).+\\.(js|jsx|mjs|cjs|ts|tsx)$',
         '^.+\\.module\\.(css|sass|scss)$',
+        'node_modules/(?!(@ionic/react|@ionic/react-router|@ionic/core|@stencil/core|ionicons)/)',
       ];
       return jestConfig;
     },

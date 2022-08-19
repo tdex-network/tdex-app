@@ -72,6 +72,7 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({ history, setIsBackupDone,
             .then((mnemonic) => {
               setIsWrongPin(false);
               setTimeout(() => {
+                setModalOpen(undefined);
                 setIsWrongPin(null);
                 setLoading(false);
                 // setIsAuth will cause redirect to /wallet

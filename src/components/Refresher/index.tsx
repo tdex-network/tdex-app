@@ -14,7 +14,7 @@ const Refresher: React.FC<{ onRefresh?: () => void }> = ({ onRefresh }) => {
       onIonRefresh={(e) => {
         dispatch(updateState());
         if (onRefresh) onRefresh();
-        // An other top-right spinner shows actual update state
+        // Another top-right spinner shows actual update state
         setTimeout(() => e.detail.complete(), 1000);
       }}
     >

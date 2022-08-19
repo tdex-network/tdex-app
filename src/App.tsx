@@ -1,7 +1,7 @@
 import { useAppState } from '@capacitor-community/react-hooks/app';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
-import { IonApp, IonRouterOutlet } from '@ionic/react';
+import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import React, { useEffect } from 'react';
 import { connect } from 'react-redux';
@@ -26,6 +26,8 @@ interface AppProps {
   isAuth: boolean;
   theme: string;
 }
+
+setupIonicReact();
 
 const App: React.FC<AppProps> = ({ appInit, isAuth, theme }) => {
   const dispatch = useTypedDispatch();

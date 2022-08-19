@@ -19,7 +19,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsse
   const [searchString, setSearchString] = useState('');
 
   return (
-    <IonModal cssClass="modal-small" isOpen={isOpen} onDidDismiss={close}>
+    <IonModal className="modal-small" isOpen={isOpen} onDidDismiss={close}>
       <IonHeader className="ion-no-border">
         <div>
           <label className="search-bar">
