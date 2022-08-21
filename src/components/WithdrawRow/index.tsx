@@ -1,4 +1,4 @@
-import type { InputChangeEventDetail } from '@ionic/core';
+import type { InputChangeEventDetail } from '@ionic/core/components';
 import { IonIcon, IonInput, IonText } from '@ionic/react';
 import classNames from 'classnames';
 import Decimal from 'decimal.js';
