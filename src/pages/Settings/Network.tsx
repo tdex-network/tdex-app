@@ -1,4 +1,4 @@
-import type { SelectChangeEventDetail } from '@ionic/core';
+import type { SelectChangeEventDetail } from '@ionic/core/components';
 import {
   IonCol,
   IonContent,

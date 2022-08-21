@@ -1,5 +1,4 @@
-import type { RangeChangeEventDetail } from '@ionic/core';
-import type { RangeValue } from '@ionic/core/dist/types/components/range/range-interface';
+import type { RangeValue, RangeChangeEventDetail } from '@ionic/core/components';
 import { IonButton, IonCol, IonContent, IonGrid, IonItem, IonPage, IonRange, IonRow } from '@ionic/react';
 import type { Mnemonic } from 'ldk';
 import React, { useState } from 'react';
