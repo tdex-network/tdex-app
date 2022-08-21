@@ -5,6 +5,7 @@ import type {
   CoinSelectionResult,
   CoinSelector,
   RecipientInterface,
+  BlindingKeyGetter,
 } from 'ldk';
 import { fetchTxHex, greedyCoinSelector, isUnblindedOutput } from 'ldk';
 import type { Dispatch } from 'redux';
@@ -229,5 +230,17 @@ export function getIndexAndIsChangeFromAddress(addr: AddressInterface): {
   return {
     index: parseInt(derivationPathSplitted[derivationPathSplitted.length - 1]),
     isChange: parseInt(derivationPathSplitted[derivationPathSplitted.length - 2]) !== 0,
+  };
+}
+
+export function blindingKeyGetterFactory(
+  scriptsToAddressInterface: Record<string, AddressInterface>
+): BlindingKeyGetter {
+  return (script: string) => {
+    try {
+      return scriptsToAddressInterface[script]?.blindingPrivateKey;
+    } catch (_) {
+      return undefined;
+    }
   };
 }

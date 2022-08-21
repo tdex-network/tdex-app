@@ -1,9 +1,10 @@
-import type { BlindingKeyGetter, TxInterface, AddressInterface } from 'ldk';
-import { fetchAndUnblindTxsGenerator, fetchTx, isUnblindedOutput, unblindTransaction } from 'ldk';
+import type { TxInterface, AddressInterface } from 'ldk';
+import { fetchTx, isUnblindedOutput, unblindTransaction } from 'ldk';
 import { takeLatest, call, put, select, takeEvery, retry, delay } from 'redux-saga/effects';
-import { getAsset } from 'tdex-sdk';
+import { ElectrsBatchServer, getAsset, txsFetchGenerator } from 'tdex-sdk';
 
 import { UpdateTransactionsError } from '../../utils/errors';
+import { blindingKeyGetterFactory } from '../../utils/helpers';
 import {
   clearTransactionsInStorage,
   getTransactionsFromStorage,
@@ -77,12 +78,12 @@ export function* fetchAndUpdateTxs(
   explorerLiquidAPI: string
 ): Generator<any, any, any> {
   yield put(setIsFetchingTransactions(true));
-  const identityBlindKeyGetter = blindKeyGetterFactory(scriptsToAddressInterface);
-
-  const txsGen = fetchAndUnblindTxsGenerator(
+  const blindingKeyGetter = blindingKeyGetterFactory(scriptsToAddressInterface);
+  const api = ElectrsBatchServer.fromURLs('https://electrs-batch-server.vulpem.com', explorerLiquidAPI);
+  const txsGen = txsFetchGenerator(
     addresses,
-    identityBlindKeyGetter,
-    explorerLiquidAPI,
+    async (script) => blindingKeyGetter(script),
+    api,
     (tx: TxInterface) => {
       const txInStore = currentTxs[tx.txid];
       // skip if tx is already in store AND confirmed
@@ -120,8 +121,8 @@ function* watchTransactionSaga({ payload }: ReturnType<typeof watchTransaction>)
     const scriptsToAddress: Record<string, AddressInterface> = yield select(
       ({ wallet }: { wallet: WalletState }) => wallet.addresses
     );
-    const blindKeyGetter = blindKeyGetterFactory(scriptsToAddress);
-    const { unblindedTx, errors } = yield call(unblindTransaction, tx, blindKeyGetter);
+    const blindKeyGetter = blindingKeyGetterFactory(scriptsToAddress);
+    const { unblindedTx, errors } = yield call(unblindTransaction, tx, async (script) => blindKeyGetter(script));
     if (errors.length > 0) {
       errors.forEach((err: { message?: string }) => {
         console.error(err.message);
@@ -139,16 +140,6 @@ function* watchTransactionSaga({ payload }: ReturnType<typeof watchTransaction>)
     console.error(err);
   }
   yield put(removeWatcherTransaction(txID));
-}
-
-function blindKeyGetterFactory(scriptsToAddressInterface: Record<string, AddressInterface>): BlindingKeyGetter {
-  return (script: string) => {
-    try {
-      return scriptsToAddressInterface[script]?.blindingPrivateKey;
-    } catch (_) {
-      return undefined;
-    }
-  };
 }
 
 function* resetTransactions() {

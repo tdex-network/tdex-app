@@ -1,10 +1,10 @@
 import type { AddressInterface, StateRestorerOpts } from 'ldk';
-import { fetchAndUnblindUtxos, fetchAndUnblindUtxosGenerator } from 'ldk';
 import { takeLatest, call, put, select, delay, all, takeEvery, retry } from 'redux-saga/effects';
 import type { Output, UnblindedOutput } from 'tdex-sdk';
-import * as ecc from 'tiny-secp256k1';
+import { ElectrsBatchServer, fetchAllUtxos, utxosFetchGenerator } from 'tdex-sdk';
 
 import { UpdateUtxosError } from '../../utils/errors';
+import { blindingKeyGetterFactory } from '../../utils/helpers';
 import {
   getUtxosFromStorage,
   setAddressesInStorage,
@@ -55,12 +55,15 @@ function* persistUtxos() {
 
 function* updateUtxosState() {
   try {
-    const [addresses, utxos, explorerLiquidAPI]: [AddressInterface[], Record<string, UnblindedOutput>, string] =
-      yield all([
-        select(({ wallet }: { wallet: WalletState }) => Object.values(wallet.addresses)),
-        select(({ wallet }: { wallet: WalletState }) => wallet.utxos),
-        select(({ settings }) => settings.explorerLiquidAPI),
-      ]);
+    const [addresses, utxos, explorerLiquidAPI]: [
+      Record<string, AddressInterface>,
+      Record<string, UnblindedOutput>,
+      string
+    ] = yield all([
+      select(({ wallet }: { wallet: WalletState }) => wallet.addresses),
+      select(({ wallet }: { wallet: WalletState }) => wallet.utxos),
+      select(({ settings }) => settings.explorerLiquidAPI),
+    ]);
     yield call(fetchAndUpdateUtxos, addresses, utxos, explorerLiquidAPI);
   } catch (error) {
     console.error(error);
@@ -69,19 +72,26 @@ function* updateUtxosState() {
 }
 
 export function* fetchAndUpdateUtxos(
-  addresses: AddressInterface[],
+  addresses: Record<string, AddressInterface>,
   currentUtxos: Record<string, UnblindedOutput>,
   explorerLiquidAPI: string
 ): SagaGenerator<void, IteratorResult<UnblindedOutput, number>> {
   yield put(setIsFetchingUtxos(true));
   let utxoUpdatedCount = 0;
   const skippedOutpoints: string[] = []; // for deleting
-  const utxoGen = fetchAndUnblindUtxosGenerator(ecc, addresses, explorerLiquidAPI, (utxo: Output) => {
-    const outpoint = outpointToString(utxo);
-    const skip = currentUtxos[outpoint] !== undefined;
-    if (skip) skippedOutpoints.push(outpointToString(utxo));
-    return skip;
-  });
+  const api = ElectrsBatchServer.fromURLs('https://electrs-batch-server.vulpem.com', explorerLiquidAPI);
+  const blindingKeyGetter = blindingKeyGetterFactory(addresses);
+  const utxoGen = utxosFetchGenerator(
+    Object.values(addresses).map((addr) => addr.confidentialAddress),
+    async (script) => blindingKeyGetter(script),
+    api,
+    (utxo: Output) => {
+      const outpoint = outpointToString(utxo);
+      const skip = currentUtxos[outpoint] !== undefined;
+      if (skip) skippedOutpoints.push(outpointToString(utxo));
+      return skip;
+    }
+  );
   const next = () => utxoGen.next();
   let it = yield call(next);
   while (!it.done) {
@@ -114,14 +124,18 @@ function* watchUtxoSaga({ payload }: ReturnType<typeof watchUtxo>) {
   if (!payload) return;
   try {
     const { address, maxTry }: { address: AddressInterface; maxTry: number } = payload;
-    const explorer: string = yield select(({ settings }) => settings.explorerLiquidAPI);
-    const unblindedUtxos: Unwrap<ReturnType<typeof fetchAndUnblindUtxos>> = yield retry(
+    const explorerLiquidAPI: string = yield select(({ settings }) => settings.explorerLiquidAPI);
+    const api = ElectrsBatchServer.fromURLs('https://electrs-batch-server.vulpem.com', explorerLiquidAPI);
+    const blindingKeyGetter = blindingKeyGetterFactory({
+      [address.toOutputScript(address.confidentialAddress).toString('hex')]: address,
+    });
+    const unblindedUtxos: Unwrap<ReturnType<typeof fetchAllUtxos>> = yield retry(
       maxTry,
       2000,
-      fetchAndUnblindUtxos,
-      ecc,
-      [address],
-      explorer
+      fetchAllUtxos,
+      [address.confidentialAddress],
+      async (script) => blindingKeyGetter(script),
+      api
     );
     if (unblindedUtxos.length) {
       for (const unblindedUtxo of unblindedUtxos) {
