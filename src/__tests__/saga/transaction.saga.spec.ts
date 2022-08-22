@@ -56,6 +56,7 @@ describe('Transaction saga', () => {
       expect(setIsFetchingTransactions.payload.action.payload).toEqual(true);
       const callEffect = gen.next().value as CallEffect<IteratorResult<TxInterface, number>>;
       const result = await callEffect.payload.fn();
+      // This corresponds to setIsFetchingTransactions(false) call
       expect(gen.next(result).value.payload.action.payload).toEqual(false);
       expect(gen.next(result).done).toEqual(true);
     });
