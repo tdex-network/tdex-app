@@ -13,8 +13,20 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - name: Checkout electrs-batch-server repo
+        uses: actions/checkout@v3
+        with:
+          repository: liquality/electrs-batch-server
+          path: electrs-batch-server
+          run: |
+            export ELECTRS_URL=http://localhost:3001
+            export PORT=6000
+            npm install
+            npm start
+
+      - uses: actions/checkout@v3
+        with:
+          path: main
 
       - name: Run Nigiri
         uses: vulpemventures/nigiri-github-action@v1

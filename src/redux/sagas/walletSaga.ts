@@ -55,31 +55,37 @@ function* persistUtxos() {
 
 function* updateUtxosState() {
   try {
-    const [addresses, utxos, explorerLiquidAPI]: [
+    const [addresses, utxos, explorerLiquidAPI, electrsBatchAPI]: [
       Record<string, AddressInterface>,
       Record<string, UnblindedOutput>,
+      string,
       string
     ] = yield all([
       select(({ wallet }: { wallet: WalletState }) => wallet.addresses),
       select(({ wallet }: { wallet: WalletState }) => wallet.utxos),
       select(({ settings }) => settings.explorerLiquidAPI),
+      select(({ settings }) => settings.electrsBatchAPI),
     ]);
-    yield call(fetchAndUpdateUtxos, addresses, utxos, explorerLiquidAPI);
+    if (Object.values(addresses).length > 0) {
+      yield call(fetchAndUpdateUtxos, addresses, utxos, explorerLiquidAPI, electrsBatchAPI);
+    }
   } catch (error) {
     console.error(error);
     yield put(addErrorToast(UpdateUtxosError));
+    yield put(setIsFetchingUtxos(false));
   }
 }
 
 export function* fetchAndUpdateUtxos(
   addresses: Record<string, AddressInterface>,
   currentUtxos: Record<string, UnblindedOutput>,
-  explorerLiquidAPI: string
+  explorerLiquidAPI: string,
+  electrsBatchAPI: string
 ): SagaGenerator<void, IteratorResult<UnblindedOutput, number>> {
   yield put(setIsFetchingUtxos(true));
   let utxoUpdatedCount = 0;
   const skippedOutpoints: string[] = []; // for deleting
-  const api = ElectrsBatchServer.fromURLs('https://electrs-batch-server.vulpem.com', explorerLiquidAPI);
+  const api = ElectrsBatchServer.fromURLs(electrsBatchAPI, explorerLiquidAPI);
   const blindingKeyGetter = blindingKeyGetterFactory(addresses);
   const utxoGen = utxosFetchGenerator(
     Object.values(addresses).map((addr) => addr.confidentialAddress),
@@ -124,8 +130,9 @@ function* watchUtxoSaga({ payload }: ReturnType<typeof watchUtxo>) {
   if (!payload) return;
   try {
     const { address, maxTry }: { address: AddressInterface; maxTry: number } = payload;
+    const electrsBatchAPI: string = yield select(({ settings }) => settings.electrsBatchAPI);
     const explorerLiquidAPI: string = yield select(({ settings }) => settings.explorerLiquidAPI);
-    const api = ElectrsBatchServer.fromURLs('https://electrs-batch-server.vulpem.com', explorerLiquidAPI);
+    const api = ElectrsBatchServer.fromURLs(electrsBatchAPI, explorerLiquidAPI);
     const blindingKeyGetter = blindingKeyGetterFactory({
       [address.toOutputScript(address.confidentialAddress).toString('hex')]: address,
     });

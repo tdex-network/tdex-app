@@ -31,6 +31,7 @@ export interface SettingsState {
   explorerBitcoinAPI: string;
   explorerBitcoinUI: string;
   explorerLiquidUI: string;
+  electrsBatchAPI: string;
   network: NetworkString;
   theme: string;
   torProxy: string;
@@ -44,6 +45,7 @@ const initialState: SettingsState = {
   explorerBitcoinAPI: network.explorerBitcoinAPI,
   explorerBitcoinUI: network.explorerBitcoinUI,
   explorerLiquidUI: network.explorerLiquidUI,
+  electrsBatchAPI: network.electrsBatchAPI,
   theme: 'dark',
   network: network.chain,
   torProxy: 'https://proxy.tdex.network',

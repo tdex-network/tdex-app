@@ -43,24 +43,30 @@ function* updateTransactions() {
     const {
       addresses,
       explorerLiquidAPI,
+      electrsBatchAPI,
       currentTxs,
     }: {
       addresses: Record<string, AddressInterface>;
       explorerLiquidAPI: string;
+      electrsBatchAPI: string;
       currentTxs: Record<string, TxInterface>;
     } = yield select(({ wallet, settings, transactions }: RootState) => ({
       addresses: wallet.addresses,
       explorerLiquidAPI: settings.explorerLiquidAPI,
+      electrsBatchAPI: settings.electrsBatchAPI,
       currentTxs: transactions.txs,
     }));
     const toSearch: string[] = [];
     for (const { confidentialAddress } of Object.values(addresses)) {
       toSearch.unshift(confidentialAddress);
     }
-    yield call(fetchAndUpdateTxs, toSearch, addresses, currentTxs, explorerLiquidAPI);
+    if (toSearch.length > 0) {
+      yield call(fetchAndUpdateTxs, toSearch, addresses, currentTxs, explorerLiquidAPI, electrsBatchAPI);
+    }
   } catch (e) {
     console.error(e);
     yield put(addErrorToast(UpdateTransactionsError));
+    yield put(setIsFetchingTransactions(false));
   }
 }
 
@@ -70,16 +76,18 @@ function* updateTransactions() {
  * @param scriptsToAddressInterface a record using to build a BlindingKeyGetter.
  * @param currentTxs
  * @param explorerLiquidAPI esplora URL used to fetch transactions.
+ * @param electrsBatchAPI
  */
 export function* fetchAndUpdateTxs(
   addresses: string[],
   scriptsToAddressInterface: Record<string, AddressInterface>,
   currentTxs: Record<string, TxInterface>,
-  explorerLiquidAPI: string
+  explorerLiquidAPI: string,
+  electrsBatchAPI: string
 ): Generator<any, any, any> {
   yield put(setIsFetchingTransactions(true));
   const blindingKeyGetter = blindingKeyGetterFactory(scriptsToAddressInterface);
-  const api = ElectrsBatchServer.fromURLs('https://electrs-batch-server.vulpem.com', explorerLiquidAPI);
+  const api = ElectrsBatchServer.fromURLs(electrsBatchAPI, explorerLiquidAPI);
   const txsGen = txsFetchGenerator(
     addresses,
     async (script) => blindingKeyGetter(script),

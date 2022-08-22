@@ -45,6 +45,7 @@ if (process.env.NODE_ENV === 'production') {
     explorerLiquidUI: mempoolExplorerEndpoints.liquid.explorerLiquidUI,
     explorerBitcoinAPI: mempoolExplorerEndpoints.liquid.explorerBitcoinAPI,
     explorerBitcoinUI: mempoolExplorerEndpoints.liquid.explorerBitcoinUI,
+    electrsBatchAPI: 'https://electrs-batch.vulpem.com',
   };
   defaultProvider = {
     name: 'Default provider',
@@ -57,6 +58,7 @@ if (process.env.NODE_ENV === 'production') {
     explorerLiquidUI: mempoolExplorerEndpoints.testnet.explorerLiquidUI,
     explorerBitcoinAPI: mempoolExplorerEndpoints.testnet.explorerBitcoinAPI,
     explorerBitcoinUI: mempoolExplorerEndpoints.testnet.explorerBitcoinUI,
+    electrsBatchAPI: 'https://electrs-batch-testnet.vulpem.com',
   };
   defaultProvider = {
     name: 'Default provider',
@@ -69,6 +71,7 @@ if (process.env.NODE_ENV === 'production') {
     explorerLiquidUI: 'http://localhost:5001',
     explorerBitcoinAPI: 'http://localhost:3000',
     explorerBitcoinUI: 'http://localhost:5000',
+    electrsBatchAPI: 'http://localhost:5500',
   };
   defaultProvider = {
     name: 'Default provider',

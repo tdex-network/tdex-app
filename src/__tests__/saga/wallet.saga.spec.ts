@@ -9,6 +9,7 @@ import { ElectrsBatchServer, fetchAllUtxos, getSats } from 'tdex-sdk';
 
 import { firstAddress, APIURL, sleep, faucet } from '../../../test/test-utils';
 import { SET_UTXO, DELETE_UTXO } from '../../redux/actions/walletActions';
+import { network } from '../../redux/config';
 import { outpointToString } from '../../redux/reducers/walletReducer';
 import { fetchAndUpdateUtxos } from '../../redux/sagas/walletSaga';
 import { blindingKeyGetterFactory } from '../../utils/helpers';
@@ -24,7 +25,7 @@ describe('wallet saga', () => {
       addr = await firstAddress;
       await sleep(5000);
       const txid = await faucet(addr.confidentialAddress);
-      const api = ElectrsBatchServer.fromURLs('https://electrs-batch-server.vulpem.com', APIURL);
+      const api = ElectrsBatchServer.fromURLs(network.electrsBatchAPI, APIURL);
       const blindingKeyGetter = blindingKeyGetterFactory({
         [address.toOutputScript(addr.confidentialAddress).toString('hex')]: addr,
       });
@@ -43,7 +44,8 @@ describe('wallet saga', () => {
           [address.toOutputScript(addr.confidentialAddress).toString('hex')]: addr,
         },
         {},
-        APIURL
+        APIURL,
+        network.electrsBatchAPI
       );
       const setIsFetchingMarkets = gen.next().value as PutEffect<ActionType<boolean>>;
       expect(setIsFetchingMarkets.payload.action.payload).toEqual(true);
@@ -62,7 +64,8 @@ describe('wallet saga', () => {
           [address.toOutputScript(addr.confidentialAddress).toString('hex')]: addr,
         },
         current,
-        APIURL
+        APIURL,
+        network.electrsBatchAPI
       );
       let next = gen.next();
       while (next.value?.type !== 'PUT' || next.value?.payload.action.type !== 'DELETE_UTXO') {
