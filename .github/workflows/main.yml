@@ -13,8 +13,7 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Run Nigiri
         uses: vulpemventures/nigiri-github-action@v1
@@ -26,6 +25,18 @@ jobs:
       - name: Install and Run TDEX Daemon
         shell: 'script -q -e -c "bash {0}"'
         run: yarn tdex:run-initialized
+
+      - name: Run electrs-batch-server
+        shell: bash
+        run: |
+          git clone https://github.com/liquality/electrs-batch-server.git
+          cd electrs-batch-server
+          export ELECTRS_URL=http://localhost:3001
+          export PORT=5500
+          export CONCURRENCY=10
+          npm install
+          npm start &
+          cd ..
 
       - name: Sleep for 5 seconds
         run: sleep 5s

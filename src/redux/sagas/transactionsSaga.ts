@@ -1,9 +1,10 @@
-import type { BlindingKeyGetter, TxInterface, AddressInterface } from 'ldk';
-import { fetchAndUnblindTxsGenerator, fetchTx, isUnblindedOutput, unblindTransaction } from 'ldk';
+import type { TxInterface, AddressInterface } from 'ldk';
+import { fetchTx, isUnblindedOutput, unblindTransaction } from 'ldk';
 import { takeLatest, call, put, select, takeEvery, retry, delay } from 'redux-saga/effects';
-import { getAsset } from 'tdex-sdk';
+import { ElectrsBatchServer, getAsset, txsFetchGenerator } from 'tdex-sdk';
 
 import { UpdateTransactionsError } from '../../utils/errors';
+import { blindingKeyGetterFactory } from '../../utils/helpers';
 import {
   clearTransactionsInStorage,
   getTransactionsFromStorage,
@@ -42,24 +43,30 @@ function* updateTransactions() {
     const {
       addresses,
       explorerLiquidAPI,
+      electrsBatchAPI,
       currentTxs,
     }: {
       addresses: Record<string, AddressInterface>;
       explorerLiquidAPI: string;
+      electrsBatchAPI: string;
       currentTxs: Record<string, TxInterface>;
     } = yield select(({ wallet, settings, transactions }: RootState) => ({
       addresses: wallet.addresses,
       explorerLiquidAPI: settings.explorerLiquidAPI,
+      electrsBatchAPI: settings.electrsBatchAPI,
       currentTxs: transactions.txs,
     }));
     const toSearch: string[] = [];
     for (const { confidentialAddress } of Object.values(addresses)) {
       toSearch.unshift(confidentialAddress);
     }
-    yield call(fetchAndUpdateTxs, toSearch, addresses, currentTxs, explorerLiquidAPI);
+    if (toSearch.length > 0) {
+      yield call(fetchAndUpdateTxs, toSearch, addresses, currentTxs, explorerLiquidAPI, electrsBatchAPI);
+    }
   } catch (e) {
     console.error(e);
     yield put(addErrorToast(UpdateTransactionsError));
+    yield put(setIsFetchingTransactions(false));
   }
 }
 
@@ -69,20 +76,22 @@ function* updateTransactions() {
  * @param scriptsToAddressInterface a record using to build a BlindingKeyGetter.
  * @param currentTxs
  * @param explorerLiquidAPI esplora URL used to fetch transactions.
+ * @param electrsBatchAPI
  */
 export function* fetchAndUpdateTxs(
   addresses: string[],
   scriptsToAddressInterface: Record<string, AddressInterface>,
   currentTxs: Record<string, TxInterface>,
-  explorerLiquidAPI: string
+  explorerLiquidAPI: string,
+  electrsBatchAPI: string
 ): Generator<any, any, any> {
   yield put(setIsFetchingTransactions(true));
-  const identityBlindKeyGetter = blindKeyGetterFactory(scriptsToAddressInterface);
-
-  const txsGen = fetchAndUnblindTxsGenerator(
+  const blindingKeyGetter = blindingKeyGetterFactory(scriptsToAddressInterface);
+  const api = ElectrsBatchServer.fromURLs(electrsBatchAPI, explorerLiquidAPI);
+  const txsGen = txsFetchGenerator(
     addresses,
-    identityBlindKeyGetter,
-    explorerLiquidAPI,
+    async (script) => blindingKeyGetter(script),
+    api,
     (tx: TxInterface) => {
       const txInStore = currentTxs[tx.txid];
       // skip if tx is already in store AND confirmed
@@ -120,8 +129,8 @@ function* watchTransactionSaga({ payload }: ReturnType<typeof watchTransaction>)
     const scriptsToAddress: Record<string, AddressInterface> = yield select(
       ({ wallet }: { wallet: WalletState }) => wallet.addresses
     );
-    const blindKeyGetter = blindKeyGetterFactory(scriptsToAddress);
-    const { unblindedTx, errors } = yield call(unblindTransaction, tx, blindKeyGetter);
+    const blindKeyGetter = blindingKeyGetterFactory(scriptsToAddress);
+    const { unblindedTx, errors } = yield call(unblindTransaction, tx, async (script) => blindKeyGetter(script));
     if (errors.length > 0) {
       errors.forEach((err: { message?: string }) => {
         console.error(err.message);
@@ -139,16 +148,6 @@ function* watchTransactionSaga({ payload }: ReturnType<typeof watchTransaction>)
     console.error(err);
   }
   yield put(removeWatcherTransaction(txID));
-}
-
-function blindKeyGetterFactory(scriptsToAddressInterface: Record<string, AddressInterface>): BlindingKeyGetter {
-  return (script: string) => {
-    try {
-      return scriptsToAddressInterface[script]?.blindingPrivateKey;
-    } catch (_) {
-      return undefined;
-    }
-  };
 }
 
 function* resetTransactions() {

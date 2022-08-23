@@ -7,6 +7,7 @@ import type { CallEffect, PutEffect } from 'redux-saga/effects';
 
 import { faucet, firstAddress, APIURL, sleep } from '../../../test/test-utils';
 import { SET_TRANSACTION } from '../../redux/actions/transactionsActions';
+import { config } from '../../redux/config';
 import { fetchAndUpdateTxs } from '../../redux/sagas/transactionsSaga';
 import type { ActionType } from '../../utils/types';
 
@@ -29,7 +30,8 @@ describe('Transaction saga', () => {
           [address.toOutputScript(addr.confidentialAddress).toString('hex')]: addr,
         },
         {},
-        APIURL
+        APIURL,
+        config.explorers.electrsBatchAPI
       );
       const setIsFetchingTransactions = gen.next().value as PutEffect<ActionType<boolean>>;
       expect(setIsFetchingTransactions.payload.action.payload).toEqual(true);
@@ -43,14 +45,33 @@ describe('Transaction saga', () => {
     });
 
     test('should skip if no tx to discover', async () => {
-      const gen = fetchAndUpdateTxs([], {}, {}, APIURL);
+      const gen = fetchAndUpdateTxs(
+        ['el1qq2cwwnqhgcwpwy2w7wmqdsf7w5yduzjnyv5723qxnzrkaadcnrvqms0zymen4hckr6st9g2dk7rnm5xs8jwvqhqjujzseynj0'],
+        {},
+        {},
+        APIURL,
+        config.explorers.electrsBatchAPI
+      );
       const setIsFetchingTransactions = gen.next().value as PutEffect<ActionType<boolean>>;
       expect(setIsFetchingTransactions.payload.action.payload).toEqual(true);
       const callEffect = gen.next().value as CallEffect<IteratorResult<TxInterface, number>>;
       const result = await callEffect.payload.fn();
-      // setIsFetchingTransactions(false)
+      // This corresponds to setIsFetchingTransactions(false) call
       expect(gen.next(result).value.payload.action.payload).toEqual(false);
       expect(gen.next(result).done).toEqual(true);
+    });
+
+    test('should throw error 400 if empty addresses', async () => {
+      const gen = fetchAndUpdateTxs([], {}, {}, APIURL, config.explorers.electrsBatchAPI);
+      const setIsFetchingTransactions = gen.next().value as PutEffect<ActionType<boolean>>;
+      expect(setIsFetchingTransactions.payload.action.payload).toEqual(true);
+      const callEffect = gen.next().value as CallEffect<IteratorResult<TxInterface, number>>;
+      try {
+        await callEffect.payload.fn();
+      } catch (err) {
+        // @ts-ignore
+        expect(err.message).toMatch('Request failed with status code 400');
+      }
     });
   });
 });

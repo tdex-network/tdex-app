@@ -24,6 +24,8 @@ import {
   setDefaultProviderInStorage,
   setThemeInStorage,
   getThemeFromStorage,
+  setElectrsBatchApiInStorage,
+  getElectrsBatchApiFromStorage,
 } from '../../utils/storage-helper';
 import type { ActionType } from '../../utils/types';
 import {
@@ -47,6 +49,8 @@ import {
   setNetwork,
   setDefaultProvider,
   SET_DEFAULT_PROVIDER,
+  SET_ELECTRS_BATCH_API,
+  setElectrsBatchApi,
 } from '../actions/settingsActions';
 import type { CurrencyInterface } from '../reducers/settingsReducer';
 import type { SagaGenerator } from '../types';
@@ -124,6 +128,17 @@ export function* restoreExplorerBitcoinUI(): SagaGenerator<void, string | null> 
   }
 }
 
+export function* restoreElectrsBatchAPI(): SagaGenerator<void, string | null> {
+  try {
+    const electrsBatchAPI = yield call(getElectrsBatchApiFromStorage);
+    if (electrsBatchAPI) {
+      yield put(setElectrsBatchApi(electrsBatchAPI));
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 export function* restoreTorProxy(): SagaGenerator<void, string | null> {
   try {
     const torProxy: string | null = yield call(getTorProxyFromStorage);
@@ -183,6 +198,10 @@ function* persistExplorerBitcoinUI(action: ActionType) {
   yield call(setExplorerBitcoinUIInStorage, action.payload);
 }
 
+function* persistElectrsBatchAPI(action: ActionType) {
+  yield call(setElectrsBatchApiInStorage, action.payload);
+}
+
 function* persistTorProxy(action: ActionType) {
   yield call(setTorProxyInStorage, action.payload);
 }
@@ -214,6 +233,7 @@ export function* settingsWatcherSaga(): SagaGenerator {
   yield takeLatest(SET_EXPLORER_BITCOIN_API, persistExplorerBitcoinAPI);
   yield takeLatest(SET_EXPLORER_LIQUID_UI, persistExplorerLiquidUI);
   yield takeLatest(SET_EXPLORER_BITCOIN_UI, persistExplorerBitcoinUI);
+  yield takeLatest(SET_ELECTRS_BATCH_API, persistElectrsBatchAPI);
   yield takeLatest(SET_TOR_PROXY, persistTorProxy);
   yield takeLatest(SET_CURRENCY, persistCurrency);
   yield takeLatest(SET_THEME, function* (action: ActionType) {
