@@ -7,7 +7,7 @@ import type { CallEffect, PutEffect } from 'redux-saga/effects';
 
 import { faucet, firstAddress, APIURL, sleep } from '../../../test/test-utils';
 import { SET_TRANSACTION } from '../../redux/actions/transactionsActions';
-import { network } from '../../redux/config';
+import { config } from '../../redux/config';
 import { fetchAndUpdateTxs } from '../../redux/sagas/transactionsSaga';
 import type { ActionType } from '../../utils/types';
 
@@ -31,7 +31,7 @@ describe('Transaction saga', () => {
         },
         {},
         APIURL,
-        network.electrsBatchAPI
+        config.explorers.electrsBatchAPI
       );
       const setIsFetchingTransactions = gen.next().value as PutEffect<ActionType<boolean>>;
       expect(setIsFetchingTransactions.payload.action.payload).toEqual(true);
@@ -50,7 +50,7 @@ describe('Transaction saga', () => {
         {},
         {},
         APIURL,
-        network.electrsBatchAPI
+        config.explorers.electrsBatchAPI
       );
       const setIsFetchingTransactions = gen.next().value as PutEffect<ActionType<boolean>>;
       expect(setIsFetchingTransactions.payload.action.payload).toEqual(true);
@@ -62,7 +62,7 @@ describe('Transaction saga', () => {
     });
 
     test('should throw error 400 if empty addresses', async () => {
-      const gen = fetchAndUpdateTxs([], {}, {}, APIURL, network.electrsBatchAPI);
+      const gen = fetchAndUpdateTxs([], {}, {}, APIURL, config.explorers.electrsBatchAPI);
       const setIsFetchingTransactions = gen.next().value as PutEffect<ActionType<boolean>>;
       expect(setIsFetchingTransactions.payload.action.payload).toEqual(true);
       const callEffect = gen.next().value as CallEffect<IteratorResult<TxInterface, number>>;

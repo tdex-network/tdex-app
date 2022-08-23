@@ -32,6 +32,7 @@ const EXPLORER_KEY = 'tdex-app-explorer';
 const EXPLORER_BITCOIN_KEY = 'tdex-app-explorer-bitcoin';
 const EXPLORER_LIQUID_UI_KEY = 'tdex-app-explorer-liquid-ui';
 const EXPLORER_BITCOIN_UI_KEY = 'tdex-app-explorer-bitcoin-ui';
+const ELECTRS_BATCH_API_KEY = 'tdex-app-electrs-batch-api';
 const TOR_PROXY_KEY = 'tdex-app-tor-proxy';
 const CURRENCY_KEY = 'tdex-app-currency';
 const LBTC_DENOMINATION_KEY = 'tdex-app-lbtc-unit';
@@ -97,6 +98,14 @@ export async function getExplorerBitcoinFromStorage(): Promise<string | null> {
 
 export function setExplorerBitcoinInStorage(explorerBitcoin: string): Promise<void> {
   return Storage.set({ key: EXPLORER_BITCOIN_KEY, value: explorerBitcoin });
+}
+
+export async function getElectrsBatchApiFromStorage(): Promise<string | null> {
+  return (await Storage.get({ key: ELECTRS_BATCH_API_KEY })).value;
+}
+
+export function setElectrsBatchApiInStorage(electrsBatchAPI: string): Promise<void> {
+  return Storage.set({ key: ELECTRS_BATCH_API_KEY, value: electrsBatchAPI });
 }
 
 export async function getExplorerLiquidUIFromStorage(): Promise<string | null> {

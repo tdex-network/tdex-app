@@ -14,8 +14,9 @@ import {
   SET_TOR_PROXY,
   SET_NETWORK,
   SET_DEFAULT_PROVIDER,
+  SET_ELECTRS_BATCH_API,
 } from '../actions/settingsActions';
-import { defaultProvider, network } from '../config';
+import { config } from '../config';
 
 export interface CurrencyInterface {
   name: string;
@@ -39,15 +40,15 @@ export interface SettingsState {
 
 const initialState: SettingsState = {
   currency: CURRENCIES[0],
-  defaultProvider: defaultProvider.endpoint,
+  defaultProvider: config.defaultProvider.endpoint,
   denominationLBTC: LBTC_DENOMINATIONS[0],
-  explorerLiquidAPI: network.explorerLiquidAPI,
-  explorerBitcoinAPI: network.explorerBitcoinAPI,
-  explorerBitcoinUI: network.explorerBitcoinUI,
-  explorerLiquidUI: network.explorerLiquidUI,
-  electrsBatchAPI: network.electrsBatchAPI,
+  explorerLiquidAPI: config.explorers.explorerLiquidAPI,
+  explorerBitcoinAPI: config.explorers.explorerBitcoinAPI,
+  explorerBitcoinUI: config.explorers.explorerBitcoinUI,
+  explorerLiquidUI: config.explorers.explorerLiquidUI,
+  electrsBatchAPI: config.explorers.electrsBatchAPI,
   theme: 'dark',
-  network: network.chain,
+  network: config.explorers.chain,
   torProxy: 'https://proxy.tdex.network',
 };
 
@@ -92,6 +93,11 @@ const settingsReducer = (state: SettingsState = initialState, action: ActionType
       return {
         ...state,
         explorerLiquidUI: action.payload,
+      };
+    case SET_ELECTRS_BATCH_API:
+      return {
+        ...state,
+        electrsBatchAPI: action.payload,
       };
     case SET_TOR_PROXY:
       return {
