@@ -45,7 +45,7 @@ if (process.env.NODE_ENV === 'production') {
     explorerLiquidUI: mempoolExplorerEndpoints.liquid.explorerLiquidUI,
     explorerBitcoinAPI: mempoolExplorerEndpoints.liquid.explorerBitcoinAPI,
     explorerBitcoinUI: mempoolExplorerEndpoints.liquid.explorerBitcoinUI,
-    electrsBatchAPI: 'https://electrs-batch.vulpem.com',
+    electrsBatchAPI: 'https://electrs-batch.sevenlabs.io',
   };
   defaultProvider = {
     name: 'Default provider',
@@ -58,7 +58,7 @@ if (process.env.NODE_ENV === 'production') {
     explorerLiquidUI: mempoolExplorerEndpoints.testnet.explorerLiquidUI,
     explorerBitcoinAPI: mempoolExplorerEndpoints.testnet.explorerBitcoinAPI,
     explorerBitcoinUI: mempoolExplorerEndpoints.testnet.explorerBitcoinUI,
-    electrsBatchAPI: 'https://electrs-batch-testnet.vulpem.com',
+    electrsBatchAPI: 'https://electrs-batch-testnet.sevenlabs.io',
   };
   defaultProvider = {
     name: 'Default provider',
