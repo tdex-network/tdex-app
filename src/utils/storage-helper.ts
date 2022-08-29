@@ -1,6 +1,5 @@
-import { Storage } from '@capacitor/storage';
+import { Preferences } from '@capacitor/preferences';
 import { stringify, parse } from 'buffer-json';
-import { SecureStoragePlugin } from 'capacitor-secure-storage-plugin';
 import { IdentityType, Mnemonic } from 'ldk';
 import type { AddressInterface, TxInterface } from 'ldk';
 import type { StateRestorerOpts } from 'ldk/dist/restorer/mnemonic-restorer';
@@ -39,19 +38,19 @@ const LBTC_DENOMINATION_KEY = 'tdex-app-lbtc-unit';
 const LAST_USED_INDEXES_KEY = 'tdex-app-last-used-indexes';
 
 export async function getThemeFromStorage(): Promise<string | null> {
-  return (await Storage.get({ key: 'theme' })).value;
+  return (await Preferences.get({ key: 'theme' })).value;
 }
 
 export function setThemeInStorage(theme: string): Promise<void> {
-  return Storage.set({ key: 'theme', value: theme });
+  return Preferences.set({ key: 'theme', value: theme });
 }
 
 export async function getLBTCDenominationFromStorage(): Promise<string> {
-  return (await Storage.get({ key: LBTC_DENOMINATION_KEY })).value || LBTC_DENOMINATIONS[0];
+  return (await Preferences.get({ key: LBTC_DENOMINATION_KEY })).value || LBTC_DENOMINATIONS[0];
 }
 
 export function setLBTCDenominationInStorage(denomination: string): Promise<void> {
-  return Storage.set({
+  return Preferences.set({
     key: LBTC_DENOMINATION_KEY,
     value: denomination,
   });
@@ -62,74 +61,74 @@ export async function getCurrencyFromStorage(): Promise<CurrencyInterface> {
 }
 
 export function setCurrencyInStorage(currency: CurrencyInterface): Promise<void> {
-  return Storage.set({
+  return Preferences.set({
     key: CURRENCY_KEY,
     value: stringify(currency),
   });
 }
 
 export async function getDefaultProviderFromStorage(): Promise<string | null> {
-  return (await Storage.get({ key: DEFAULT_PROVIDER_KEY })).value;
+  return (await Preferences.get({ key: DEFAULT_PROVIDER_KEY })).value;
 }
 
 export function setDefaultProviderInStorage(defaultProvider: string): Promise<void> {
-  return Storage.set({ key: DEFAULT_PROVIDER_KEY, value: defaultProvider });
+  return Preferences.set({ key: DEFAULT_PROVIDER_KEY, value: defaultProvider });
 }
 
 export async function getNetworkFromStorage(): Promise<string | null> {
-  return (await Storage.get({ key: NETWORK_KEY })).value;
+  return (await Preferences.get({ key: NETWORK_KEY })).value;
 }
 
 export function setNetworkInStorage(network: NetworkString): Promise<void> {
-  return Storage.set({ key: NETWORK_KEY, value: network });
+  return Preferences.set({ key: NETWORK_KEY, value: network });
 }
 
 export async function getExplorerFromStorage(): Promise<string | null> {
-  return (await Storage.get({ key: EXPLORER_KEY })).value;
+  return (await Preferences.get({ key: EXPLORER_KEY })).value;
 }
 
 export function setExplorerInStorage(explorer: string): Promise<void> {
-  return Storage.set({ key: EXPLORER_KEY, value: explorer });
+  return Preferences.set({ key: EXPLORER_KEY, value: explorer });
 }
 
 export async function getExplorerBitcoinFromStorage(): Promise<string | null> {
-  return (await Storage.get({ key: EXPLORER_BITCOIN_KEY })).value;
+  return (await Preferences.get({ key: EXPLORER_BITCOIN_KEY })).value;
 }
 
 export function setExplorerBitcoinInStorage(explorerBitcoin: string): Promise<void> {
-  return Storage.set({ key: EXPLORER_BITCOIN_KEY, value: explorerBitcoin });
+  return Preferences.set({ key: EXPLORER_BITCOIN_KEY, value: explorerBitcoin });
 }
 
 export async function getElectrsBatchApiFromStorage(): Promise<string | null> {
-  return (await Storage.get({ key: ELECTRS_BATCH_API_KEY })).value;
+  return (await Preferences.get({ key: ELECTRS_BATCH_API_KEY })).value;
 }
 
 export function setElectrsBatchApiInStorage(electrsBatchAPI: string): Promise<void> {
-  return Storage.set({ key: ELECTRS_BATCH_API_KEY, value: electrsBatchAPI });
+  return Preferences.set({ key: ELECTRS_BATCH_API_KEY, value: electrsBatchAPI });
 }
 
 export async function getExplorerLiquidUIFromStorage(): Promise<string | null> {
-  return (await Storage.get({ key: EXPLORER_LIQUID_UI_KEY })).value;
+  return (await Preferences.get({ key: EXPLORER_LIQUID_UI_KEY })).value;
 }
 
 export function setExplorerLiquidUIInStorage(explorer: string): Promise<void> {
-  return Storage.set({ key: EXPLORER_LIQUID_UI_KEY, value: explorer });
+  return Preferences.set({ key: EXPLORER_LIQUID_UI_KEY, value: explorer });
 }
 
 export async function getExplorerBitcoinUIFromStorage(): Promise<string | null> {
-  return (await Storage.get({ key: EXPLORER_BITCOIN_UI_KEY })).value;
+  return (await Preferences.get({ key: EXPLORER_BITCOIN_UI_KEY })).value;
 }
 
 export function setExplorerBitcoinUIInStorage(explorerBitcoin: string): Promise<void> {
-  return Storage.set({ key: EXPLORER_BITCOIN_UI_KEY, value: explorerBitcoin });
+  return Preferences.set({ key: EXPLORER_BITCOIN_UI_KEY, value: explorerBitcoin });
 }
 
 export async function getTorProxyFromStorage(): Promise<string | null> {
-  return (await Storage.get({ key: TOR_PROXY_KEY })).value;
+  return (await Preferences.get({ key: TOR_PROXY_KEY })).value;
 }
 
 export function setTorProxyInStorage(torProxy: string): Promise<void> {
-  return Storage.set({ key: TOR_PROXY_KEY, value: torProxy });
+  return Preferences.set({ key: TOR_PROXY_KEY, value: torProxy });
 }
 
 export async function getTransactionsFromStorage(): Promise<TxInterface[]> {
@@ -137,11 +136,11 @@ export async function getTransactionsFromStorage(): Promise<TxInterface[]> {
 }
 
 export function setTransactionsInStorage(txs: TxInterface[]): Promise<void> {
-  return Storage.set({ key: TRANSACTIONS_KEY, value: stringify(txs) });
+  return Preferences.set({ key: TRANSACTIONS_KEY, value: stringify(txs) });
 }
 
 export async function clearTransactionsInStorage(): Promise<void> {
-  await Storage.remove({ key: TRANSACTIONS_KEY });
+  await Preferences.remove({ key: TRANSACTIONS_KEY });
 }
 
 export async function getUtxosFromStorage(): Promise<UnblindedOutput[]> {
@@ -149,7 +148,7 @@ export async function getUtxosFromStorage(): Promise<UnblindedOutput[]> {
 }
 
 export function setUtxosInStorage(utxos: UnblindedOutput[]): Promise<void> {
-  return Storage.set({ key: UTXOS_KEY, value: stringify(utxos) });
+  return Preferences.set({ key: UTXOS_KEY, value: stringify(utxos) });
 }
 
 export async function getAssetsFromStorage(): Promise<AssetConfig[]> {
@@ -157,11 +156,11 @@ export async function getAssetsFromStorage(): Promise<AssetConfig[]> {
 }
 
 export function setAssetsInStorage(assets: AssetConfig[]): Promise<void> {
-  return Storage.set({ key: ASSETS_KEY, value: stringify(assets) });
+  return Preferences.set({ key: ASSETS_KEY, value: stringify(assets) });
 }
 
 export async function clearAssetsInStorage(): Promise<void> {
-  await Storage.remove({ key: ASSETS_KEY });
+  await Preferences.remove({ key: ASSETS_KEY });
 }
 
 /**
@@ -169,9 +168,9 @@ export async function clearAssetsInStorage(): Promise<void> {
  */
 export function setSeedBackupFlag(flag: boolean): void {
   if (flag) {
-    Storage.set({ key: SEED_BACKUP_FLAG_KEY, value: '1' }).catch(console.error);
+    Preferences.set({ key: SEED_BACKUP_FLAG_KEY, value: '1' }).catch(console.error);
   } else {
-    Storage.remove({ key: SEED_BACKUP_FLAG_KEY }).catch(console.error);
+    Preferences.remove({ key: SEED_BACKUP_FLAG_KEY }).catch(console.error);
   }
 }
 
@@ -180,7 +179,7 @@ export function setSeedBackupFlag(flag: boolean): void {
  */
 export async function seedBackupFlag(): Promise<boolean> {
   try {
-    const { value } = await Storage.get({ key: SEED_BACKUP_FLAG_KEY });
+    const { value } = await Preferences.get({ key: SEED_BACKUP_FLAG_KEY });
     return !!value;
   } catch {
     return false;
@@ -192,7 +191,7 @@ export async function seedBackupFlag(): Promise<boolean> {
  * @param providers
  */
 export function setProvidersInStorage(providers: TDEXProvider[]): Promise<void> {
-  return Storage.set({
+  return Preferences.set({
     key: PROVIDERS_KEY,
     value: stringify(providers),
   });
@@ -203,26 +202,26 @@ export async function getProvidersFromStorage(): Promise<TDEXProvider[]> {
 }
 
 export function setAddressesInStorage(addresses: AddressInterface[]): Promise<void> {
-  return Storage.set({
+  return Preferences.set({
     key: ADDRESSES_KEY,
     value: stringify(addresses),
   });
 }
 
 export function setLastUsedIndexesInStorage(lastUsedIndexes: StateRestorerOpts): Promise<void> {
-  return Storage.set({
+  return Preferences.set({
     key: LAST_USED_INDEXES_KEY,
     value: stringify(lastUsedIndexes),
   });
 }
 
 export async function getLastUsedIndexesInStorage(): Promise<StateRestorerOpts | null> {
-  const idx = await Storage.get({ key: LAST_USED_INDEXES_KEY });
+  const idx = await Preferences.get({ key: LAST_USED_INDEXES_KEY });
   return idx.value ? parse(idx.value) : null;
 }
 
 export function setPeginsInStorage(pegins: Pegins): Promise<void> {
-  return Storage.set({
+  return Preferences.set({
     key: PEGINS_KEY,
     value: stringify(pegins),
   });
@@ -243,7 +242,7 @@ export async function getAddressesFromStorage(): Promise<AddressInterface[]> {
  * @param newPIN new PIN.
  */
 export async function changePin(currentPIN: string, newPIN: string): Promise<boolean> {
-  const mnemonic = await removeMnemonicFromSecureStorage(currentPIN);
+  const mnemonic = await removeMnemonicFromStorage(currentPIN);
   return setMnemonicInSecureStorage(mnemonic, newPIN);
 }
 
@@ -253,31 +252,21 @@ export async function changePin(currentPIN: string, newPIN: string): Promise<boo
  * @param pin the password pin
  */
 export async function setMnemonicInSecureStorage(mnemonic: string, pin: string): Promise<boolean> {
-  try {
-    const encryptedData = await encrypt(mnemonic, pin);
-    const { value } = await SecureStoragePlugin.set({
-      key: MNEMONIC_KEY,
-      value: JSON.stringify(encryptedData),
-    });
-
-    if (!value) {
-      throw new Error('unable to set the mnemonic in secure storage');
-    }
-
-    return value;
-  } catch (err: any) {
-    console.error(err);
-    throw err;
-  }
+  const encryptedData = await encrypt(mnemonic, pin);
+  await Preferences.set({
+    key: MNEMONIC_KEY,
+    value: JSON.stringify(encryptedData),
+  });
+  return true;
 }
 
 /**
  * get mnemonic encrypted in secure storage + decrypt it using PIN
  * @param pin password pin
  */
-export async function getMnemonicFromSecureStorage(pin: string): Promise<string> {
-  const { value } = await SecureStoragePlugin.get({ key: MNEMONIC_KEY });
-  const encryptedData: Encrypted = JSON.parse(value);
+export async function getMnemonicFromStorage(pin: string): Promise<string> {
+  const { value } = await Preferences.get({ key: MNEMONIC_KEY });
+  const encryptedData: Encrypted = JSON.parse(value ?? '');
   return decrypt(encryptedData, pin);
 }
 
@@ -285,9 +274,10 @@ export async function getMnemonicFromSecureStorage(pin: string): Promise<string>
  * return true if a mnemonic is already stored by the app.
  * false otherwise.
  */
-export async function mnemonicInSecureStorage(): Promise<boolean> {
+export async function checkMnemonicInStorage(): Promise<boolean> {
   try {
-    await SecureStoragePlugin.get({ key: MNEMONIC_KEY });
+    const { value } = await Preferences.get({ key: MNEMONIC_KEY });
+    if (!value) throw new Error('No mnemonic in storage');
     return true;
   } catch (_) {
     return false;
@@ -298,8 +288,8 @@ export async function mnemonicInSecureStorage(): Promise<boolean> {
  * Delete the mnemonic from secure storage + clean all other cached data
  * @param pin using to decrypt the existing mnemonic.
  */
-export async function removeMnemonicFromSecureStorage(pin: string): Promise<string> {
-  const mnemonic = await getMnemonicFromSecureStorage(pin); // will throw an error if the pin can't decrypt the mnemonic
+export async function removeMnemonicFromStorage(pin: string): Promise<string> {
+  const mnemonic = await getMnemonicFromStorage(pin); // will throw an error if the pin can't decrypt the mnemonic
   await clearStorage();
   return mnemonic;
 }
@@ -308,8 +298,7 @@ export async function removeMnemonicFromSecureStorage(pin: string): Promise<stri
  * function using to remove all TDEX data from storage
  */
 export async function clearStorage(): Promise<void> {
-  await SecureStoragePlugin.clear();
-  await Storage.clear();
+  await Preferences.clear();
 }
 
 /**
@@ -323,7 +312,7 @@ export async function getConnectedIdentity(
   dispatch: Dispatch,
   network: NetworkString
 ): Promise<MnemonicRedux> {
-  const toRestoreMnemonic = await getMnemonicFromSecureStorage(pin);
+  const toRestoreMnemonic = await getMnemonicFromStorage(pin);
   return new MnemonicRedux(
     {
       chain: network,
@@ -342,7 +331,7 @@ export async function getConnectedTDexMnemonic(
   dispatch: Dispatch,
   network: NetworkString
 ): Promise<TDEXMnemonic> {
-  const toRestoreMnemonic = await getMnemonicFromSecureStorage(pin);
+  const toRestoreMnemonic = await getMnemonicFromStorage(pin);
   return new TDexMnemonicRedux(
     {
       chain: network,
@@ -362,7 +351,7 @@ export async function getConnectedTDexMnemonic(
  * @param network
  */
 export async function getIdentity(pin: string, network: NetworkString): Promise<Mnemonic> {
-  const toRestoreMnemonic = await getMnemonicFromSecureStorage(pin);
+  const toRestoreMnemonic = await getMnemonicFromStorage(pin);
   return new Mnemonic({
     chain: network,
     type: IdentityType.Mnemonic,
@@ -375,7 +364,7 @@ export async function getIdentity(pin: string, network: NetworkString): Promise<
 
 async function getFromStorage<T>(key: string, defaultValue: T): Promise<T> {
   try {
-    const { value } = await Storage.get({ key });
+    const { value } = await Preferences.get({ key });
     if (!value) return defaultValue;
     return parse(value) as T;
   } catch (error) {

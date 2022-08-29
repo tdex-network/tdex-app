@@ -6,7 +6,7 @@ import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import type { AppError } from '../../utils/errors';
 import { IncorrectPINError } from '../../utils/errors';
-import { changePin, getMnemonicFromSecureStorage } from '../../utils/storage-helper';
+import { changePin, getMnemonicFromStorage } from '../../utils/storage-helper';
 import Loader from '../Loader';
 
 interface ChangePinModalsProps {
@@ -46,7 +46,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({ open, onDeleted, onCl
 
   const onFirstPinConfirm = (firstPin: string) => {
     setLoading(true);
-    getMnemonicFromSecureStorage(firstPin)
+    getMnemonicFromStorage(firstPin)
       .then(() => {
         setCurrentPin(firstPin);
         setIsWrongPin(false);

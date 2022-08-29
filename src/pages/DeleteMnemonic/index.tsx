@@ -7,7 +7,7 @@ import { useLocation } from 'react-router';
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
 import { resetAll } from '../../redux/actions/rootActions';
-import { removeMnemonicFromSecureStorage } from '../../utils/storage-helper';
+import { removeMnemonicFromStorage } from '../../utils/storage-helper';
 
 interface LocationState {
   pin: string;
@@ -21,7 +21,7 @@ const DeleteMnemonic: React.FC<RouteComponentProps> = ({ history }) => {
 
   const deleteMnemonic = async () => {
     setIsLoading(true);
-    const success = await removeMnemonicFromSecureStorage(state?.pin);
+    const success = await removeMnemonicFromStorage(state?.pin);
     if (!success) {
       setErrorMsg('Error: your key has not been deleted. Please contact support.');
       setIsLoading(false);

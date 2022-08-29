@@ -22,7 +22,7 @@ import PinModal from '../../components/PinModal';
 import { addErrorToast } from '../../redux/actions/toastActions';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { IncorrectPINError } from '../../utils/errors';
-import { getMnemonicFromSecureStorage } from '../../utils/storage-helper';
+import { getMnemonicFromStorage } from '../../utils/storage-helper';
 import './style.scss';
 
 const Account: React.FC<RouteComponentProps> = ({ history }) => {
@@ -36,7 +36,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
   const [pinModalOpen, setPinModalOpen] = useState(false);
 
   const handlePinConfirm = (pin: string) => {
-    getMnemonicFromSecureStorage(pin)
+    getMnemonicFromStorage(pin)
       .then((mnemonic) => {
         setIsWrongPin(false);
         setPinNeedReset(true);

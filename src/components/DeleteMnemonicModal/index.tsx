@@ -1,7 +1,7 @@
 import { IonButton, IonContent, IonModal, IonGrid, IonCol, IonRow } from '@ionic/react';
 import React, { useState } from 'react';
 
-import { removeMnemonicFromSecureStorage } from '../../utils/storage-helper';
+import { removeMnemonicFromStorage } from '../../utils/storage-helper';
 import Header from '../Header';
 import PageDescription from '../PageDescription';
 
@@ -18,7 +18,7 @@ const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({ closeModal, o
 
   const deleteMnemonic = async () => {
     setIsLoading(true);
-    const success = await removeMnemonicFromSecureStorage(pin);
+    const success = await removeMnemonicFromStorage(pin);
     if (!success) {
       setErrorMsg('Error: your key has not been deleted. Please contact support.');
       setIsLoading(false);

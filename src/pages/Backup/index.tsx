@@ -18,7 +18,7 @@ import { routerLinks } from '../../routes';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import type { AppError } from '../../utils/errors';
 import { IncorrectPINError } from '../../utils/errors';
-import { getMnemonicFromSecureStorage, setSeedBackupFlag } from '../../utils/storage-helper';
+import { getMnemonicFromStorage, setSeedBackupFlag } from '../../utils/storage-helper';
 
 interface BackupProps extends RouteComponentProps {
   // connected redux props
@@ -36,7 +36,7 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
 
   const handlePinConfirm = async (pin: string) => {
     try {
-      const mnemonic = await getMnemonicFromSecureStorage(pin);
+      const mnemonic = await getMnemonicFromStorage(pin);
       setIsWrongPin(false);
       setTimeout(() => {
         history.push({

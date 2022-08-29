@@ -1,4 +1,4 @@
-import { Clipboard } from '@ionic-native/clipboard';
+import { Clipboard } from '@awesome-cordova-plugins/clipboard';
 
 export const clipboardCopy = (str?: string, cb?: () => void): void => {
   if (!str) return;
