@@ -27,7 +27,7 @@ import {
 import type { WalletState } from '../reducers/walletReducer';
 import type { RootState, SagaGenerator } from '../types';
 
-const MAX_ADDRESSES_TX_GENERATOR = 20;
+const MAX_ADDRESSES_TX_GENERATOR = 15;
 
 export function* restoreTransactions(): SagaGenerator<void, TxInterface[]> {
   const txs = yield call(getTransactionsFromStorage);

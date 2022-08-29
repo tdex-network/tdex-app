@@ -61,17 +61,12 @@ describe('Transaction saga', () => {
       expect(gen.next(result).done).toEqual(true);
     });
 
-    test('should throw error 400 if empty addresses', async () => {
+    test('should not call txsFetchGenerator if no addresses', async () => {
       const gen = fetchAndUpdateTxs([], {}, {}, APIURL, config.explorers.electrsBatchAPI);
       const setIsFetchingTransactions = gen.next().value as PutEffect<ActionType<boolean>>;
       expect(setIsFetchingTransactions.payload.action.payload).toEqual(true);
-      const callEffect = gen.next().value as CallEffect<IteratorResult<TxInterface, number>>;
-      try {
-        await callEffect.payload.fn();
-      } catch (err) {
-        // @ts-ignore
-        expect(err.message).toMatch('Request failed with status code 400');
-      }
+      const setIsFetchingTransactions2 = gen.next().value as PutEffect<ActionType<boolean>>;
+      expect(setIsFetchingTransactions2.payload.action.payload).toEqual(false);
     });
   });
 });
