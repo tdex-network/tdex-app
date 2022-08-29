@@ -244,3 +244,11 @@ export function blindingKeyGetterFactory(
     }
   };
 }
+
+export function splitArray<T>(arr: T[], maxElementsInArray: number): T[][] {
+  const result: T[][] = [];
+  while (arr.length > 0) {
+    result.push(arr.splice(0, maxElementsInArray));
+  }
+  return result;
+}
