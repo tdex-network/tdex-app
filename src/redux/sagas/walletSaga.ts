@@ -1,6 +1,6 @@
 import type { AddressInterface, StateRestorerOpts } from 'ldk';
 import { takeLatest, call, put, select, delay, all, takeEvery, retry } from 'redux-saga/effects';
-import type {EsploraUtxo, UnblindedOutput} from 'tdex-sdk';
+import type { EsploraUtxo, UnblindedOutput } from 'tdex-sdk';
 import { ElectrsBatchServer, fetchAllUtxos, utxosFetchGenerator } from 'tdex-sdk';
 
 import { UpdateUtxosError } from '../../utils/errors';

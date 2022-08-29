@@ -1,8 +1,8 @@
 import type { TxInterface, AddressInterface } from 'ldk';
 import { fetchTx, isUnblindedOutput, unblindTransaction } from 'ldk';
 import { takeLatest, call, put, select, takeEvery, retry, delay } from 'redux-saga/effects';
-import type { EsploraTx} from 'tdex-sdk';
-import {ElectrsBatchServer, getAsset, txsFetchGenerator} from 'tdex-sdk';
+import type { EsploraTx } from 'tdex-sdk';
+import { ElectrsBatchServer, getAsset, txsFetchGenerator } from 'tdex-sdk';
 
 import { UpdateTransactionsError } from '../../utils/errors';
 import { blindingKeyGetterFactory } from '../../utils/helpers';
