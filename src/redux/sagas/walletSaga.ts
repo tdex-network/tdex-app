@@ -4,7 +4,7 @@ import type { EsploraUtxo, UnblindedOutput } from 'tdex-sdk';
 import { ElectrsBatchServer, fetchAllUtxos, utxosFetchGenerator } from 'tdex-sdk';
 
 import { UpdateUtxosError } from '../../utils/errors';
-import { blindingKeyGetterFactory } from '../../utils/helpers';
+import { blindingKeyGetterFactory, splitArray } from '../../utils/helpers';
 import {
   getUtxosFromStorage,
   setAddressesInStorage,
@@ -27,6 +27,8 @@ import {
 import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString, addressesSelector } from '../reducers/walletReducer';
 import type { SagaGenerator, Unwrap } from '../types';
+
+const MAX_ADDRESSES_UTXO_GENERATOR = 50;
 
 export function* restoreUtxos(): SagaGenerator<void, UnblindedOutput[]> {
   const utxos = yield call(getUtxosFromStorage);
@@ -87,33 +89,41 @@ export function* fetchAndUpdateUtxos(
   const skippedOutpoints: string[] = []; // for deleting
   const api = ElectrsBatchServer.fromURLs(electrsBatchAPI, explorerLiquidAPI);
   const blindingKeyGetter = blindingKeyGetterFactory(addresses);
-  const utxoGen = utxosFetchGenerator(
-    Object.values(addresses).map((addr) => addr.confidentialAddress),
-    async (script) => blindingKeyGetter(script),
-    api,
-    (utxo: EsploraUtxo) => {
-      const outpoint = outpointToString(utxo);
-      const skip = currentUtxos[outpoint] !== undefined;
-      if (skip) skippedOutpoints.push(outpointToString(utxo));
-      return skip;
-    }
+  const splittedAddresses = splitArray(
+    Object.values(addresses).map((a) => a.confidentialAddress),
+    MAX_ADDRESSES_UTXO_GENERATOR
   );
-  const next = () => utxoGen.next();
-  let it = yield call(next);
-  while (!it.done) {
-    const utxo = it.value;
-    if (!currentUtxos[outpointToString(utxo)]) {
-      utxoUpdatedCount++;
-      yield put(setUtxo(utxo));
+  const utxoGens = splittedAddresses.reverse().map((addresses) =>
+    utxosFetchGenerator(
+      addresses,
+      async (script) => blindingKeyGetter(script),
+      api,
+      (utxo: EsploraUtxo) => {
+        const outpoint = outpointToString(utxo);
+        const skip = currentUtxos[outpoint] !== undefined;
+        if (skip) skippedOutpoints.push(outpointToString(utxo));
+        return skip;
+      }
+    )
+  );
+  for (let utxoGen of utxoGens) {
+    const next = () => utxoGen.next();
+    let it = yield call(next);
+    while (!it.done) {
+      const utxo = it.value;
+      if (!currentUtxos[outpointToString(utxo)]) {
+        utxoUpdatedCount++;
+        yield put(setUtxo(utxo));
+      }
+      it = yield call(next);
     }
-    it = yield call(next);
-  }
-  // delete spent utxos
-  for (const outpoint of Object.keys(currentUtxos)) {
-    if (!skippedOutpoints.includes(outpoint)) {
-      const [txid, vout] = outpoint.split(':');
-      utxoUpdatedCount++;
-      yield put(deleteUtxo({ txid, vout: parseInt(vout) }));
+    // delete spent utxos
+    for (const outpoint of Object.keys(currentUtxos)) {
+      if (!skippedOutpoints.includes(outpoint)) {
+        const [txid, vout] = outpoint.split(':');
+        utxoUpdatedCount++;
+        yield put(deleteUtxo({ txid, vout: parseInt(vout) }));
+      }
     }
   }
   if (utxoUpdatedCount > 0) console.debug(`${utxoUpdatedCount} utxos updated`);

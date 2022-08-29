@@ -5,7 +5,7 @@ import type { EsploraTx } from 'tdex-sdk';
 import { ElectrsBatchServer, getAsset, txsFetchGenerator } from 'tdex-sdk';
 
 import { UpdateTransactionsError } from '../../utils/errors';
-import { blindingKeyGetterFactory } from '../../utils/helpers';
+import { blindingKeyGetterFactory, splitArray } from '../../utils/helpers';
 import {
   clearTransactionsInStorage,
   getTransactionsFromStorage,
@@ -26,6 +26,8 @@ import {
 } from '../actions/transactionsActions';
 import type { WalletState } from '../reducers/walletReducer';
 import type { RootState, SagaGenerator } from '../types';
+
+const MAX_ADDRESSES_TX_GENERATOR = 20;
 
 export function* restoreTransactions(): SagaGenerator<void, TxInterface[]> {
   const txs = yield call(getTransactionsFromStorage);
@@ -89,22 +91,30 @@ export function* fetchAndUpdateTxs(
   yield put(setIsFetchingTransactions(true));
   const blindingKeyGetter = blindingKeyGetterFactory(scriptsToAddressInterface);
   const api = ElectrsBatchServer.fromURLs(electrsBatchAPI, explorerLiquidAPI);
-  const txsGen = txsFetchGenerator(
-    addresses,
-    async (script) => blindingKeyGetter(script),
-    api,
-    (tx: EsploraTx) => {
-      const txInStore = currentTxs[tx.txid];
-      // skip if tx is already in store AND confirmed
-      return !!txInStore?.status.confirmed;
-    }
+  const splittedAddresses = splitArray(
+    addresses.map((addr) => addr),
+    MAX_ADDRESSES_TX_GENERATOR
   );
-  const next = () => txsGen.next();
-  let it: IteratorResult<TxInterface, number> = yield call(next);
-  while (!it.done) {
-    const tx = it.value;
-    yield put(setTransaction(tx));
-    it = yield call(next);
+  const txsGens = splittedAddresses.reverse().map((addresses) =>
+    txsFetchGenerator(
+      addresses,
+      async (script) => blindingKeyGetter(script),
+      api,
+      (tx: EsploraTx) => {
+        const txInStore = currentTxs[tx.txid];
+        // skip if tx is already in store AND confirmed
+        return !!txInStore?.status.confirmed;
+      }
+    )
+  );
+  for (let txsGen of txsGens) {
+    const next = () => txsGen.next();
+    let it: IteratorResult<TxInterface, number> = yield call(next);
+    while (!it.done) {
+      const tx = it.value;
+      yield put(setTransaction(tx));
+      it = yield call(next);
+    }
   }
   yield put(setIsFetchingTransactions(false));
 }
