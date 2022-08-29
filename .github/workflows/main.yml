@@ -29,7 +29,7 @@ jobs:
       - name: Run electrs-batch-server
         shell: bash
         run: |
-          git clone https://github.com/liquality/electrs-batch-server.git
+          git clone https://github.com/vulpemventures/electrs-batch-server.git
           cd electrs-batch-server
           export ELECTRS_URL=http://localhost:3001
           export PORT=5500

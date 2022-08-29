@@ -100,11 +100,11 @@ export function setExplorerBitcoinInStorage(explorerBitcoin: string): Promise<vo
 }
 
 export async function getElectrsBatchApiFromStorage(): Promise<string | null> {
-  return (await Storage.get({ key: ELECTRS_BATCH_API_KEY })).value;
+  return (await Preferences.get({ key: ELECTRS_BATCH_API_KEY })).value;
 }
 
 export function setElectrsBatchApiInStorage(electrsBatchAPI: string): Promise<void> {
-  return Storage.set({ key: ELECTRS_BATCH_API_KEY, value: electrsBatchAPI });
+  return Preferences.set({ key: ELECTRS_BATCH_API_KEY, value: electrsBatchAPI });
 }
 
 export async function getExplorerLiquidUIFromStorage(): Promise<string | null> {
@@ -242,7 +242,7 @@ export async function getAddressesFromStorage(): Promise<AddressInterface[]> {
  * @param newPIN new PIN.
  */
 export async function changePin(currentPIN: string, newPIN: string): Promise<boolean> {
-  const mnemonic = await removeMnemonicFromSecureStorage(currentPIN);
+  const mnemonic = await removeMnemonicFromStorage(currentPIN);
   return setMnemonicInSecureStorage(mnemonic, newPIN);
 }
 
@@ -264,7 +264,7 @@ export async function setMnemonicInSecureStorage(mnemonic: string, pin: string):
  * get mnemonic encrypted in secure storage + decrypt it using PIN
  * @param pin password pin
  */
-export async function getMnemonicFromSecureStorage(pin: string): Promise<string> {
+export async function getMnemonicFromStorage(pin: string): Promise<string> {
   const { value } = await Preferences.get({ key: MNEMONIC_KEY });
   const encryptedData: Encrypted = JSON.parse(value ?? '');
   return decrypt(encryptedData, pin);
@@ -274,9 +274,10 @@ export async function getMnemonicFromSecureStorage(pin: string): Promise<string>
  * return true if a mnemonic is already stored by the app.
  * false otherwise.
  */
-export async function mnemonicInSecureStorage(): Promise<boolean> {
+export async function checkMnemonicInStorage(): Promise<boolean> {
   try {
-    await Preferences.get({ key: MNEMONIC_KEY });
+    const { value } = await Preferences.get({ key: MNEMONIC_KEY });
+    if (!value) throw new Error('No mnemonic in storage');
     return true;
   } catch (_) {
     return false;
@@ -287,8 +288,8 @@ export async function mnemonicInSecureStorage(): Promise<boolean> {
  * Delete the mnemonic from secure storage + clean all other cached data
  * @param pin using to decrypt the existing mnemonic.
  */
-export async function removeMnemonicFromSecureStorage(pin: string): Promise<string> {
-  const mnemonic = await getMnemonicFromSecureStorage(pin); // will throw an error if the pin can't decrypt the mnemonic
+export async function removeMnemonicFromStorage(pin: string): Promise<string> {
+  const mnemonic = await getMnemonicFromStorage(pin); // will throw an error if the pin can't decrypt the mnemonic
   await clearStorage();
   return mnemonic;
 }
@@ -311,7 +312,7 @@ export async function getConnectedIdentity(
   dispatch: Dispatch,
   network: NetworkString
 ): Promise<MnemonicRedux> {
-  const toRestoreMnemonic = await getMnemonicFromSecureStorage(pin);
+  const toRestoreMnemonic = await getMnemonicFromStorage(pin);
   return new MnemonicRedux(
     {
       chain: network,
@@ -330,7 +331,7 @@ export async function getConnectedTDexMnemonic(
   dispatch: Dispatch,
   network: NetworkString
 ): Promise<TDEXMnemonic> {
-  const toRestoreMnemonic = await getMnemonicFromSecureStorage(pin);
+  const toRestoreMnemonic = await getMnemonicFromStorage(pin);
   return new TDexMnemonicRedux(
     {
       chain: network,
@@ -350,7 +351,7 @@ export async function getConnectedTDexMnemonic(
  * @param network
  */
 export async function getIdentity(pin: string, network: NetworkString): Promise<Mnemonic> {
-  const toRestoreMnemonic = await getMnemonicFromSecureStorage(pin);
+  const toRestoreMnemonic = await getMnemonicFromStorage(pin);
   return new Mnemonic({
     chain: network,
     type: IdentityType.Mnemonic,

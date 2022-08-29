@@ -13,7 +13,7 @@ import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { IncorrectPINError } from '../../utils/errors';
 import { setKeyboardTheme } from '../../utils/keyboard';
-import { getIdentity, mnemonicInSecureStorage } from '../../utils/storage-helper';
+import { getIdentity, checkMnemonicInStorage } from '../../utils/storage-helper';
 
 const Homescreen: React.FC = () => {
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
@@ -60,7 +60,7 @@ const Homescreen: React.FC = () => {
       setLoading(true);
       if (!appInit) dispatch(initApp());
       await setKeyboardTheme(KeyboardStyle.Dark);
-      const mnemonicExists = await mnemonicInSecureStorage();
+      const mnemonicExists = await checkMnemonicInStorage();
       if (mnemonicExists) setPinModalIsOpen(true);
     };
     init()

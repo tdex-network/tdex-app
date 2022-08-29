@@ -1,7 +1,8 @@
 import type { TxInterface, AddressInterface } from 'ldk';
 import { fetchTx, isUnblindedOutput, unblindTransaction } from 'ldk';
 import { takeLatest, call, put, select, takeEvery, retry, delay } from 'redux-saga/effects';
-import { ElectrsBatchServer, getAsset, txsFetchGenerator } from 'tdex-sdk';
+import type { EsploraTx} from 'tdex-sdk';
+import {ElectrsBatchServer, getAsset, txsFetchGenerator} from 'tdex-sdk';
 
 import { UpdateTransactionsError } from '../../utils/errors';
 import { blindingKeyGetterFactory } from '../../utils/helpers';
@@ -92,7 +93,7 @@ export function* fetchAndUpdateTxs(
     addresses,
     async (script) => blindingKeyGetter(script),
     api,
-    (tx: TxInterface) => {
+    (tx: EsploraTx) => {
       const txInStore = currentTxs[tx.txid];
       // skip if tx is already in store AND confirmed
       return !!txInStore?.status.confirmed;

@@ -98,6 +98,9 @@
     "test": "craco test"
   },
   "dependencies": {
+    "@awesome-cordova-plugins/clipboard": "^5.44.0",
+    "@awesome-cordova-plugins/core": "5.44.0",
+    "@awesome-cordova-plugins/screen-orientation": "5.44.0",
     "@capacitor-community/barcode-scanner": "^3.0.0",
     "@capacitor-community/react-hooks": "^0.0.11",
     "@capacitor/android": "^4.1.0",
@@ -111,11 +114,8 @@
     "@capacitor/status-bar": "^4.0.1",
     "@cheprasov/react-qrcode": "^1.0.1",
     "@cypress/webpack-preprocessor": "^5.12.2",
-    "@ionic-native/clipboard": "^5.36.0",
-    "@ionic-native/core": "^5.36.0",
-    "@ionic-native/screen-orientation": "^5.36.0",
-    "@ionic/react": "^6.2.3",
-    "@ionic/react-router": "^6.2.3",
+    "@ionic/react": "^6.2.4",
+    "@ionic/react-router": "^6.2.4",
     "@types/lodash.merge": "^4.6.7",
     "antd-css-utilities": "^1.0.3",
     "axios": "^0.27.2",
@@ -149,7 +149,7 @@
     "scrypt-js": "^3.0.1",
     "slip77": "^0.2.0",
     "stream-browserify": "^3.0.0",
-    "tdex-sdk": "1.7.23",
+    "tdex-sdk": "1.7.24",
     "tiny-secp256k1": "^2.2.1",
     "util": "^0.12.4"
   },

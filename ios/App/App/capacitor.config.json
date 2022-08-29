@@ -2,5 +2,11 @@
 	"appId": "io.sevenlabs.app",
 	"appName": "TDEX",
 	"bundledWebRuntime": false,
-	"webDir": "build"
+	"webDir": "build",
+	"plugins": {
+		"SplashScreen": {
+			"launchShowDuration": 0
+		}
+	},
+	"cordova": {}
 }
