@@ -1,4 +1,4 @@
-import {IconExchange, IconSettings, IconWallet} from './components/icons';
+import { IconExchange, IconSettings, IconWallet } from './components/icons';
 import Account from './pages/Account';
 import Backup from './pages/Backup';
 import ClaimPegin from './pages/ClaimPegin';
@@ -14,7 +14,7 @@ import Privacy from './pages/Privacy';
 import QRScanner from './pages/QRScanner';
 import Receive from './pages/Receive';
 import Settings from './pages/Settings';
-import Language from "./pages/Settings/Language";
+import Language from './pages/Settings/Language';
 import Network from './pages/Settings/Network';
 import ShowMnemonic from './pages/ShowMnemonic';
 import ShowMnemonicSettings from './pages/ShowMnemonic/show-mnemonic-settings';
@@ -53,7 +53,7 @@ export const routerLinks = {
   explorers: '/settings/explorers',
   network: '/settings/network',
   torProxy: '/settings/tor-proxy',
-  language: '/settings/language'
+  language: '/settings/language',
 };
 
 export const ROUTES = [

@@ -1,4 +1,4 @@
-import type {SelectChangeEventDetail} from '@ionic/core/components';
+import type { SelectChangeEventDetail } from '@ionic/core/components';
 import {
   IonCol,
   IonContent,
@@ -11,20 +11,20 @@ import {
   IonSelectOption,
 } from '@ionic/react';
 import i18n from 'i18next';
-import React, {useState} from 'react';
-import {useTranslation} from "react-i18next";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
 
 const Language = (): JSX.Element => {
   const [languageSelectState, setLanguageSelectState] = useState<string>(i18n.language);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const handleLanguageChange = async (ev: CustomEvent<SelectChangeEventDetail<string>>) => {
     const lng = ev.detail.value;
     setLanguageSelectState(lng);
-    await i18n.changeLanguage(lng)
+    await i18n.changeLanguage(lng);
   };
 
   return (
@@ -35,10 +35,12 @@ const Language = (): JSX.Element => {
             className="mb-2"
             title={t('settings.menu.general.language.pageTitle')}
             hasBackButton={true}
-            hasCloseButton={false}/>
+            hasCloseButton={false}
+          />
           <PageDescription
             description={t('settings.menu.general.language.descriptionContent')}
-            title={t('settings.menu.general.language.descriptionTitle')}/>
+            title={t('settings.menu.general.language.descriptionTitle')}
+          />
           <IonRow className="ion-margin-vertical">
             <IonCol size="11" offset="0.5">
               <IonItem className="input">
