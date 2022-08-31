@@ -12,12 +12,12 @@ import {
   IonRow,
   IonText,
 } from '@ionic/react';
-import {chevronForwardOutline, eye, lockOpen, trashOutline} from 'ionicons/icons';
-import React, {useState} from 'react';
-import {useTranslation} from "react-i18next";
-import {useDispatch} from 'react-redux';
-import type {RouteComponentProps} from 'react-router';
-import {withRouter} from 'react-router';
+import { chevronForwardOutline, eye, lockOpen, trashOutline } from 'ionicons/icons';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useDispatch } from 'react-redux';
+import type { RouteComponentProps } from 'react-router';
+import { withRouter } from 'react-router';
 
 import ChangePinModals from '../../../components/ChangePinModals';
 import Header from '../../../components/Header';
@@ -28,11 +28,11 @@ import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../../utils/constan
 import { IncorrectPINError } from '../../../utils/errors';
 import { getMnemonicFromStorage } from '../../../utils/storage-helper';
 
-const Account: React.FC<RouteComponentProps> = ({history}) => {
+const Account: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
   const [routeToGo, setRouteToGo] = useState<string>();
   const [showChangePinModal, setShowChangePinModal] = useState(false);
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   // Pin modal
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
@@ -50,13 +50,13 @@ const Account: React.FC<RouteComponentProps> = ({history}) => {
           if (routeToGo === '/settings/show-mnemonic') {
             history.replace({
               pathname: routeToGo,
-              state: { mnemonic },
+              state: {mnemonic},
             });
           }
           if (routeToGo === '/settings/delete-mnemonic') {
             history.replace({
               pathname: routeToGo,
-              state: { pin },
+              state: {pin},
             });
           }
         }, PIN_TIMEOUT_SUCCESS);
@@ -103,7 +103,7 @@ const Account: React.FC<RouteComponentProps> = ({history}) => {
                   }}
                 >
                   <div className="item-main-info">
-                    <IonIcon icon={eye} />
+                    <IonIcon icon={eye}/>
                     <div className="item-start">
                       <div className="main-row">Show mnemonic</div>
                       <IonText className="description">
@@ -135,14 +135,14 @@ const Account: React.FC<RouteComponentProps> = ({history}) => {
                   }}
                 >
                   <div className="item-main-info">
-                    <IonIcon icon={lockOpen} />
+                    <IonIcon icon={lockOpen}/>
                     <div className="item-start">
                       <div className="main-row">Set new pin</div>
                       <IonText className="description">
                         Change the secure PIN using to encrypt your wallet's seed.
                       </IonText>
                     </div>
-                    <IonIcon icon={chevronForwardOutline} />
+                    <IonIcon icon={chevronForwardOutline}/>
                   </div>
                 </IonItem>
                 <ChangePinModals

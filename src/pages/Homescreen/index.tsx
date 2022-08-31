@@ -1,20 +1,20 @@
 import './style.scss';
-import {KeyboardStyle} from '@capacitor/keyboard';
-import {IonCol, IonContent, IonGrid, IonPage, IonRow, useIonViewWillEnter} from '@ionic/react';
-import React, {useState} from 'react';
-import {useTranslation} from "react-i18next";
+import { KeyboardStyle } from '@capacitor/keyboard';
+import { IonCol, IonContent, IonGrid, IonPage, IonRow, useIonViewWillEnter } from '@ionic/react';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import logo from '../../assets/img/tdex_3d_logo.svg';
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
-import {initApp, signIn} from '../../redux/actions/appActions';
-import {addErrorToast} from '../../redux/actions/toastActions';
-import {useTypedDispatch, useTypedSelector} from '../../redux/hooks';
-import {PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS} from '../../utils/constants';
-import {IncorrectPINError} from '../../utils/errors';
-import {setKeyboardTheme} from '../../utils/keyboard';
-import {checkMnemonicInStorage, getIdentity} from '../../utils/storage-helper';
+import { initApp, signIn } from '../../redux/actions/appActions';
+import { addErrorToast } from '../../redux/actions/toastActions';
+import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
+import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
+import { IncorrectPINError } from '../../utils/errors';
+import { setKeyboardTheme } from '../../utils/keyboard';
+import { checkMnemonicInStorage, getIdentity } from '../../utils/storage-helper';
 
 const Homescreen: React.FC = () => {
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
@@ -22,12 +22,12 @@ const Homescreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [needReset, setNeedReset] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState('Searching mnemonic in secure storage...');
-  const {appInit, network} = useTypedSelector(({app, settings}) => ({
+  const { appInit, network } = useTypedSelector(({ app, settings }) => ({
     appInit: app.appInit,
     network: settings.network,
   }));
   const dispatch = useTypedDispatch();
-  const {t} = useTranslation();
+  const { t } = useTranslation();
 
   const onConfirmPinModal = (pin: string) => {
     getIdentity(pin, network)
@@ -72,7 +72,7 @@ const Homescreen: React.FC = () => {
 
   return (
     <IonPage id="homescreen">
-      <Loader message={loadingMessage} showLoading={loading}/>
+      <Loader message={loadingMessage} showLoading={loading} />
       <PinModal
         onClose={() => setPinModalIsOpen(false)}
         needReset={needReset}
@@ -88,7 +88,7 @@ const Homescreen: React.FC = () => {
         <IonGrid className="ion-text-center ion-justify-content-evenly">
           <IonRow className="img-container">
             <IonCol size="8" offset="2" sizeMd="6" offsetMd="3">
-              <img src={logo} alt="tdex logo"/>
+              <img src={logo} alt="tdex logo" />
             </IonCol>
           </IonRow>
 
