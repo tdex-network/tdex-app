@@ -1,0 +1,68 @@
+{
+  "translation": {
+    "homescreen": {
+      "btnMainTitle": "SETUP WALLET",
+      "btnSubTitle": "RESTORE WALLET"
+    },
+    "settings": {
+      "pageTitle": "Settings",
+      "menu": {
+        "general": {
+          "title": "General",
+          "account": {
+            "menuTitle": "Account",
+            "pageTitle": "ACCOUNT"
+          },
+          "manageLiquidityProvider": {
+            "menuTitle": "Manage liquidity provider"
+          },
+          "unit": {
+            "menuTitle": "L-BTC unit"
+          },
+          "defaultCurrency": {
+            "menuTitle": "Default Currency"
+          },
+          "explorers": {
+            "menuTitle": "Explorers endpoints"
+          },
+          "network": {
+            "menuTitle": "Network"
+          },
+          "torProxy": {
+            "menuTitle": "Tor proxy endpoint"
+          },
+          "deepRestoration": {
+            "menuTitle": "Deep restoration"
+          },
+          "claimLiquidBitcoin": {
+            "menuTitle": "Claim Liquid Bitcoin"
+          },
+          "language": {
+            "menuTitle": "Language",
+            "pageTitle": "LANGUAGE",
+            "descriptionTitle": "Set language",
+            "descriptionContent": "You can choose your favorite language",
+            "selectLabel": "Select a language",
+            "optionEnglish": "English",
+            "optionFrench": "French"
+          }
+        },
+        "support": {
+          "title": "Support",
+          "faq": {
+            "menuTitle": "FAQ"
+          },
+          "privacy": {
+            "menuTitle": "Privacy"
+          },
+          "termsConditions": {
+            "menuTitle": "Terms & Conditions"
+          }
+        }
+      }
+    },
+    "cancel": "cancel",
+    "save": "save",
+    "pinModalUnlockWallet": "Enter your secret PIN to unlock your wallet"
+  }
+}

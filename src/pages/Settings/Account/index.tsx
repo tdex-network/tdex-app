@@ -1,22 +1,23 @@
 import './style.scss';
 
 import {
-  IonContent,
-  IonList,
-  IonItem,
-  IonPage,
-  IonListHeader,
-  IonText,
-  IonIcon,
-  IonGrid,
-  IonRow,
   IonCol,
+  IonContent,
+  IonGrid,
+  IonIcon,
+  IonItem,
+  IonList,
+  IonListHeader,
+  IonPage,
+  IonRow,
+  IonText,
 } from '@ionic/react';
-import { chevronForwardOutline, eye, lockOpen, trashOutline } from 'ionicons/icons';
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import type { RouteComponentProps } from 'react-router';
-import { withRouter } from 'react-router';
+import {chevronForwardOutline, eye, lockOpen, trashOutline} from 'ionicons/icons';
+import React, {useState} from 'react';
+import {useTranslation} from "react-i18next";
+import {useDispatch} from 'react-redux';
+import type {RouteComponentProps} from 'react-router';
+import {withRouter} from 'react-router';
 
 import ChangePinModals from '../../../components/ChangePinModals';
 import Header from '../../../components/Header';
@@ -27,10 +28,11 @@ import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../../utils/constan
 import { IncorrectPINError } from '../../../utils/errors';
 import { getMnemonicFromStorage } from '../../../utils/storage-helper';
 
-const Account: React.FC<RouteComponentProps> = ({ history }) => {
+const Account: React.FC<RouteComponentProps> = ({history}) => {
   const dispatch = useDispatch();
   const [routeToGo, setRouteToGo] = useState<string>();
   const [showChangePinModal, setShowChangePinModal] = useState(false);
+  const {t} = useTranslation();
 
   // Pin modal
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
@@ -78,7 +80,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
         setNeedReset={setPinNeedReset}
         open={pinModalOpen}
         title="Unlock your seed"
-        description="Enter your secret PIN to unlock your wallet"
+        description={t('pinModalUnlockWallet')}
         onConfirm={handlePinConfirm}
         onClose={() => setPinModalOpen(false)}
         isWrongPin={isWrongPin}

@@ -1,0 +1,70 @@
+{
+  "translation": {
+    "homescreen": {
+      "btnMainTitle": "INITIALISER",
+      "btnSubTitle": "RESTORER"
+    },
+    "settings": {
+      "pageTitle": "Paramètres",
+      "menu": {
+        "general": {
+          "title": "Général",
+          "account": {
+            "menuTitle": "Compte",
+            "pageTitle": "COMPTE"
+          },
+          "manageLiquidityProvider": {
+            "menuTitle": "Fournisseur de liquidité"
+          },
+          "unit": {
+            "menuTitle": "Unité L-BTC"
+          },
+          "defaultCurrency": {
+            "menuTitle": "Devise"
+          },
+          "explorers": {
+            "menuTitle": "Explorateurs"
+          },
+          "network": {
+            "menuTitle": "Réseau"
+          },
+          "torProxy": {
+            "menuTitle": "Proxy Tor"
+          },
+          "deepRestoration": {
+            "menuTitle": "Restauration en profondeur"
+          },
+          "claimLiquidBitcoin": {
+            "menuTitle": "Réclamation de Bitcoin Liquid"
+          },
+          "language": {
+            "menuTitle": "Langue",
+            "pageTitle": "LANGUE",
+            "descriptionTitle": "Définissez une langue",
+            "descriptionContent": "Vous pouvez choisir votre langue préférée",
+            "selectLabel": "Selectionnez une langue",
+            "optionEnglish": "Anglais",
+            "optionFrench": "Français"
+          }
+        },
+        "support": {
+          "title": "Support",
+          "faq": {
+            "menuTitle": "FAQ"
+          },
+          "privacy": {
+            "menuTitle": "Vie privée"
+          },
+          "termsConditions": {
+            "menuTitle": "Conditions générales"
+          }
+        }
+      }
+    }
+  },
+  "common": {
+    "cancel": "annuler",
+    "save": "sauvegarder",
+    "pinModalUnlockWallet": "Saisissez votre code PIN secret pour déverrouiller votre porte-monnaie."
+  }
+}
