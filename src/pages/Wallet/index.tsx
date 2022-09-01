@@ -1,19 +1,20 @@
 import './style.scss';
 import {
-  IonContent,
-  IonList,
-  IonItem,
-  IonPage,
-  IonListHeader,
   IonButton,
-  IonIcon,
-  IonGrid,
-  IonRow,
   IonCol,
+  IonContent,
+  IonGrid,
+  IonIcon,
+  IonItem,
+  IonList,
+  IonListHeader,
+  IonPage,
+  IonRow,
   IonSpinner,
 } from '@ionic/react';
 import { addCircleOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
@@ -60,6 +61,7 @@ const Wallet: React.FC<WalletProps> = ({
   const [assets, setAssets] = useState<BalanceInterface[]>([]);
   const [fiats, setFiats] = useState<number[]>([]);
   const UNKNOWN = -1;
+  const { t } = useTranslation();
 
   const getFiatValue = (balance: BalanceInterface) => {
     const balanceIndex = balances?.findIndex((b) => b?.ticker === balance?.ticker);
@@ -105,7 +107,7 @@ const Wallet: React.FC<WalletProps> = ({
         <Refresher />
         <IonGrid>
           <Header
-            title="Wallet"
+            title={t('wallet.pageTitle')}
             hasCloseButton={true}
             hasBackButton={false}
             isTitleLarge={true}
@@ -132,7 +134,7 @@ const Wallet: React.FC<WalletProps> = ({
           <IonList scroll-y={true}>
             <IonListHeader className="ion-no-margin">
               <IonRow className="ion-align-items-center">
-                <IonCol size="10">Asset list</IonCol>
+                <IonCol size="10">{t('wallet.assetList')}</IonCol>
                 <IonCol size="2">
                   <IonButton
                     className="ion-no-padding"
@@ -182,7 +184,7 @@ const Wallet: React.FC<WalletProps> = ({
                           {fiatValue < 0
                             ? fiatValue === UNKNOWN
                               ? ''
-                              : 'loading'
+                              : t('loading')
                             : `${fiatValue?.toFixed(2)} ${currency.toUpperCase()}`}
                         </div>
                       </div>
@@ -207,7 +209,7 @@ const Wallet: React.FC<WalletProps> = ({
                       history.push({ pathname: routerLinks.backup });
                     }}
                   >
-                    RECEIVE ASSETS
+                    {t('wallet.btnReceiveAssets')}
                   </IonButton>
                 </IonCol>
               </IonRow>

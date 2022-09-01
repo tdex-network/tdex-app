@@ -78,8 +78,8 @@ const Homescreen: React.FC = () => {
         needReset={needReset}
         setNeedReset={setNeedReset}
         open={pinModalIsOpen}
-        title="Enter your secret PIN"
-        description="Unlock your wallet"
+        title={t('pinModalUnlockWallet.desc')}
+        description={t('pinModalUnlockWallet.title')}
         onConfirm={onConfirmPinModal}
         isWrongPin={isWrongPin}
         setIsWrongPin={setIsWrongPin}

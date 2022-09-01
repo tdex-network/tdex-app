@@ -1,8 +1,9 @@
 import './style.scss';
-import { IonContent, IonPage, IonGrid, IonRow, IonCol, IonButton, IonInput, IonItem } from '@ionic/react';
+import { IonButton, IonCol, IonContent, IonGrid, IonInput, IonItem, IonPage, IonRow } from '@ionic/react';
 import * as bitcoinJS from 'bitcoinjs-lib';
 import type { Mnemonic } from 'ldk';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import type { NetworkString } from 'tdex-sdk';
@@ -65,6 +66,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
   const [inputBtcPeginAddress, setInputBtcPeginAddress] = useState<string>();
   const [mnemonic, setMnemonic] = useState<Mnemonic>();
   const dispatch = useTypedDispatch();
+  const { t } = useTranslation();
 
   useEffect(() => {
     toasts.forEach((t) => {
@@ -91,7 +93,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
                 });
               });
               dispatch(upsertPegins(successPegins));
-              dispatch(addSuccessToast(`Claim transaction successful`));
+              dispatch(addSuccessToast(t('settings.general.claim.toastSuccess')));
               managePinSuccess().catch(console.error);
               setInputBtcPeginAddress(undefined);
               dispatch(checkIfClaimablePeginUtxo());
@@ -173,8 +175,8 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
       <Loader showLoading={isLoading} delay={0} />
       <PinModal
         open={modalOpen}
-        title="Enter your secret PIN"
-        description={`Enter your secret PIN to claim funds`}
+        title={t('settings.general.claim.pinTitle')}
+        description={t('settings.general.claim.pinDesc')}
         onConfirm={handleClaimModalConfirm}
         onClose={() => {
           setModalOpen(false);
@@ -186,10 +188,10 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
       />
       <IonContent id="claim-pegin">
         <IonGrid className="ion-text-center ion-justify-content-center">
-          <Header hasBackButton={true} title="CLAIM LIQUID BITCOIN" />
+          <Header hasBackButton={true} title={t('settings.general.claim.pageTitle')} />
           <PageDescription
-            description="Here you can manually claim your deposit in case the process was interrupted abruptly. Please only use this section if your deposit has 102 confirmations or more. You can only claim a deposit made from this application and this set of keys. To claim, please insert the BTC address below."
-            title="Claim your Liquid Bitcoin"
+            description={t('settings.general.claim.pageDescDesc')}
+            title={t('settings.general.claim.pageDescTitle')}
           />
           {/**/}
           <IonRow className="ion-margin-vertical-x2">
@@ -199,7 +201,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
                   className="ion-text-left"
                   inputmode="text"
                   onIonChange={(e) => setInputBtcPeginAddress(e.detail.value || '')}
-                  placeholder="BTC deposit address"
+                  placeholder={t('settings.general.claim.placeholderAddress')}
                   value={inputBtcPeginAddress}
                 />
               </IonItem>
@@ -216,7 +218,7 @@ const ClaimPegin: React.FC<ClaimPeginProps> = ({
                     setModalOpen(true);
                   }}
                 >
-                  CLAIM
+                  {t('settings.general.claim.btn')}
                 </IonButton>
               </IonRow>
             </IonCol>
