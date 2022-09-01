@@ -176,7 +176,7 @@ const Operations: React.FC<OperationsProps> = ({
             >
               <div>
                 <img src={depositIcon} alt="deposit" />
-                <span className="ion-text-capitalize">{t('receive')}</span>
+                {t('receive')}
               </div>
             </IonButton>
             <IonButton
@@ -188,13 +188,13 @@ const Operations: React.FC<OperationsProps> = ({
             >
               <div>
                 <img src={depositIcon} alt="withdraw" className="icon-withdraw" />
-                <span className="ion-text-capitalize">{t('send')}</span>
+                {t('send')}
               </div>
             </IonButton>
             <IonButton className="coin-action-button" routerLink="/exchange">
               <div>
                 <img src={swapIcon} alt="swap" />
-                <span className="ion-text-capitalize">{t('swap')}</span>
+                {t('swap')}
               </div>
             </IonButton>
           </IonButtons>
