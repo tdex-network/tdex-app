@@ -1,24 +1,25 @@
 import './style.scss';
 import {
-  IonPage,
-  IonButtons,
-  IonContent,
-  IonList,
-  IonItem,
   IonButton,
-  IonListHeader,
-  IonText,
-  IonIcon,
-  IonGrid,
-  IonRow,
+  IonButtons,
   IonCol,
+  IonContent,
+  IonGrid,
+  IonIcon,
+  IonItem,
+  IonList,
+  IonListHeader,
+  IonPage,
+  IonRow,
+  IonText,
 } from '@ionic/react';
 import classNames from 'classnames';
 import { checkmarkSharp } from 'ionicons/icons';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect, useDispatch, useSelector } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
-import { withRouter, useParams } from 'react-router';
+import { useParams, withRouter } from 'react-router';
 import { SLIP77Factory } from 'slip77';
 import type { NetworkString } from 'tdex-sdk';
 import { getNetwork, payments } from 'tdex-sdk';
@@ -78,7 +79,7 @@ const Operations: React.FC<OperationsProps> = ({
   const { asset_id } = useParams<{ asset_id: string }>();
   const [balance, setBalance] = useState<BalanceInterface>();
   const masterBlingKey = useTypedSelector(({ wallet }) => wallet.masterBlindKey);
-
+  const { t } = useTranslation();
   const transactionsByAsset = useSelector(transactionsByAssetSelector(asset_id));
   const transactionsToDisplay = isLbtc(asset_id, network) ? transactionsByAsset.concat(btcTxs) : transactionsByAsset;
 
@@ -175,7 +176,7 @@ const Operations: React.FC<OperationsProps> = ({
             >
               <div>
                 <img src={depositIcon} alt="deposit" />
-                Receive
+                <span className="ion-text-capitalize">{t('receive')}</span>
               </div>
             </IonButton>
             <IonButton
@@ -187,20 +188,20 @@ const Operations: React.FC<OperationsProps> = ({
             >
               <div>
                 <img src={depositIcon} alt="withdraw" className="icon-withdraw" />
-                Send
+                <span className="ion-text-capitalize">{t('send')}</span>
               </div>
             </IonButton>
             <IonButton className="coin-action-button" routerLink="/exchange">
               <div>
                 <img src={swapIcon} alt="swap" />
-                Swap
+                <span className="ion-text-capitalize">{t('swap')}</span>
               </div>
             </IonButton>
           </IonButtons>
         </IonCol>
       </IonRow>
     ),
-    [asset_id, balance?.assetHash, balance?.coinGeckoID, balance?.ticker, history, network]
+    [asset_id, balance?.assetHash, balance?.coinGeckoID, balance?.ticker, history, network, t]
   );
 
   const AssetBalance = useMemo(
@@ -367,7 +368,7 @@ const Operations: React.FC<OperationsProps> = ({
                                         );
                                       }}
                                     >
-                                      ClAIM NOW
+                                      {t('claimNow')}
                                     </IonButton>
                                   </IonCol>
                                 </IonRow>
@@ -379,7 +380,7 @@ const Operations: React.FC<OperationsProps> = ({
                     );
                   })
                 ) : (
-                  <p>You don't have any transactions yet</p>
+                  <p>{t('operation.noTxs')}</p>
                 )}
               </IonList>
             </IonCol>

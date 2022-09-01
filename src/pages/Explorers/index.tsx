@@ -12,17 +12,18 @@ import {
   IonSelectOption,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import type { NetworkString } from 'tdex-sdk';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
 import {
-  setExplorerLiquidAPI,
+  setElectrsBatchApi,
   setExplorerBitcoinAPI,
   setExplorerBitcoinUI,
+  setExplorerLiquidAPI,
   setExplorerLiquidUI,
-  setElectrsBatchApi,
 } from '../../redux/actions/settingsActions';
 import { addSuccessToast } from '../../redux/actions/toastActions';
 import { blockstreamExplorerEndpoints, configRegtest, mempoolExplorerEndpoints } from '../../redux/config';
@@ -57,6 +58,7 @@ const Explorers: React.FC<ExplorersProps> = ({
   const [electrsBatchAPIInput, setElectrsBatchAPIInput] = useState<SettingsState['electrsBatchAPI']>('');
 
   const dispatch = useTypedDispatch();
+  const { t } = useTranslation();
 
   useEffect(() => {
     setExplorerBitcoinAPIInput(explorerBitcoinAPI);
@@ -127,10 +129,10 @@ const Explorers: React.FC<ExplorersProps> = ({
     <IonPage id="explorers">
       <IonContent>
         <IonGrid>
-          <Header title="EXPLORERS" hasBackButton={true} hasCloseButton={false} />
+          <Header title={t('settings.general.explorers.pageTitle')} hasBackButton={true} hasCloseButton={false} />
           <PageDescription
-            description="Select a preset of backend APIs Electrs-compatible and frontend explorers Esplora-compatible or enter custom compatible endpoints."
-            title="Set explorer endpoints"
+            description={t('settings.general.explorers.pageDescDesc')}
+            title={t('settings.general.explorers.pageDescTitle')}
           />
           <IonRow className="ion-margin-vertical">
             <IonCol size="11" offset="0.5">
@@ -150,7 +152,7 @@ const Explorers: React.FC<ExplorersProps> = ({
                     </>
                   )}
                   {network === 'regtest' && <IonSelectOption value="localhost">Localhost</IonSelectOption>}
-                  <IonSelectOption value="custom">Custom</IonSelectOption>
+                  <IonSelectOption value="custom">{t('settings.general.explorers.custom')}</IonSelectOption>
                 </IonSelect>
               </IonItem>
             </IonCol>

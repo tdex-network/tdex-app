@@ -10,6 +10,21 @@
       "assetList": "Asset list",
       "btnReceiveAssets": "RECEIVE ASSETS"
     },
+    "exchange": {
+      "pageTitle": "Exchange",
+      "providersExcluded": "Providers excluded",
+      "marketProvidedBy": "Market provided by",
+      "noProviderAlert": {
+        "title": "No providers available",
+        "desc": "Liquidity providers on Tor network can take a long time to respond or all your providers are offline.",
+        "btn1": "Go To Wallet",
+        "btn2": "Retry"
+      },
+      "pinModalUnlock": {
+        "title": "Unlock your seed",
+        "desc": "Enter your secret PIN to send {{sendAmount}} {{sendUnit}} and receive {{receiveAmount}} {{receiveUnit}}."
+      }
+    },
     "settings": {
       "pageTitle": "Settings",
       "general": {
@@ -32,7 +47,12 @@
             },
             "deleteMnemonic": {
               "title": "Delete mnemonic",
-              "desc": "Definitively removes your seed from this device. Be extremely careful, after deletion it will be impossible to retrieve your key from tdex-app."
+              "desc": "Definitively removes your seed from this device. Be extremely careful, after deletion it will be impossible to retrieve your key from tdex-app.",
+              "pageTitle": "CLEAR MY KEY",
+              "pageDescTitle": "Delete your mnemonic",
+              "pageDescDesc": "Clicking on \"Delete\" will delete your mnemonic on this device. Be sure to back it up!",
+              "btn": "Delete",
+              "error": "Error: your key has not been deleted. Please contact support."
             }
           }
         },
@@ -46,7 +66,11 @@
           "menuTitle": "Default Currency"
         },
         "explorers": {
-          "menuTitle": "Explorers endpoints"
+          "menuTitle": "Explorers endpoints",
+          "pageTitle": "EXPLORATEURS",
+          "pageDescTitle": "Set explorer endpoints",
+          "pageDescDesc": "Select a preset of backend APIs Electrs-compatible and frontend explorers Esplora-compatible or enter custom compatible endpoints.",
+          "custom": "Custom"
         },
         "network": {
           "menuTitle": "Network"
@@ -55,7 +79,12 @@
           "menuTitle": "Tor proxy endpoint"
         },
         "deepRestoration": {
-          "menuTitle": "Deep restoration"
+          "menuTitle": "Deep restoration",
+          "pageTitle": "DEEP RESTORATION",
+          "gapLimit": "Choose the gap limit for the account discovery",
+          "scan": "Scan the Liquid Network up to {{rangeValue}} consecutive unused addresses. If new funds are discovered, they will show up in your balance.",
+          "pinTitle": "Account discovery",
+          "pinDesc": "Enter your PIN to start scanning"
         },
         "claim": {
           "menuTitle": "Claim Liquid Bitcoin",
@@ -91,6 +120,9 @@
         }
       }
     },
+    "operation": {
+      "noTxs": "You don't have any transactions yet"
+    },
     "backup": {
       "pageTitle": "BACKUP WALLET",
       "title": "Back up your secret phrase",
@@ -99,13 +131,54 @@
       "btnMainTitle": "CONTINUE TO RECEIVE",
       "btnSubTitle": "BACKUP NOW"
     },
+    "withdraw": {
+      "pageTitle": "SEND",
+      "pinDesc": "Enter your secret PIN to send",
+      "placeholder": "Paste address here or scan QR code",
+      "btnMainTitle": "CONFIRM",
+      "btnSubTitle": "CANCEL"
+    },
+    "tradeSummary": {
+      "pageTitle": "TRADE SUMMARY"
+    },
+    "tradeHistory": {
+      "noTrades": "You don't have any trades transactions. They will appear here."
+    },
+    "exchangeSearch": {
+      "noAsset": "No asset available"
+    },
+    "denominationSearch": {
+      "placeholder": "Search currency"
+    },
+    "changePinModals": {
+      "firstModal": {
+        "title": "Unlock wallet",
+        "desc": "Enter your current PIN."
+      },
+      "secondModal": {
+        "title": "New PIN",
+        "desc": "Set up the new PIN."
+      },
+      "toastSuccess": "PIN has been changed."
+    },
     "cancel": "cancel",
     "save": "save",
     "loading": "loading",
+    "receive": "RECEIVE",
+    "send": "SEND",
+    "swap": "swap",
+    "details": "DETAILS",
     "pinModalUnlockWallet": {
       "pageTitle": "INSERT PIN",
       "title": "Unlock wallet",
       "desc": "Enter your secret PIN"
-    }
+    },
+    "clipboardCopyAddress": "Address copied!",
+    "clipboardCopyTx": "TxID copied!",
+    "address": "Address",
+    "completed": "completed",
+    "pending": "pending",
+    "liquidAsset": "Liquid Asset",
+    "claimNow": "CLAIM NOW"
   }
 }

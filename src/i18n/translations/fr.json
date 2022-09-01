@@ -10,6 +10,21 @@
       "assetList": "Liste d'actifs",
       "btnReceiveAssets": "RECEVOIR DES ACTIFS"
     },
+    "exchange": {
+      "pageTitle": "Échange",
+      "providersExcluded": "Fournisseurs exclus",
+      "marketProvidedBy": "Marché offert par",
+      "noProviderAlert": {
+        "title": "Pas de fournisseur disponible",
+        "desc": "Les fournisseurs de liquidités sur le réseau Tor peuvent mettre beaucoup de temps à répondre ou tous vos fournisseurs sont hors ligne.",
+        "btn1": "Aller Au Portefeuille",
+        "btn2": "Réessayer"
+      },
+      "pinModalUnlock": {
+        "title": "Déverrouiller votre portemonnaie",
+        "desc": "Entrer votre PIN secret pour envoyer {{sendAmount}} {{sendUnit}} et recevoir {{receiveAmount}} {{receiveUnit}}."
+      }
+    },
     "settings": {
       "pageTitle": "Paramètres",
       "general": {
@@ -32,7 +47,12 @@
             },
             "deleteMnemonic": {
               "title": "Supprimer mnémonique",
-              "desc": "Supprimez définitivement votre portefeuille de cet appareil. Soyez extrêmement prudent, après la suppression il sera impossible de le récupérer à partir de tdex-app."
+              "desc": "Supprimez définitivement votre portefeuille de cet appareil. Soyez extrêmement prudent, après la suppression il sera impossible de le récupérer à partir de tdex-app.",
+              "pageTitle": "SUPPRIMER MON PORTEFEUILLE",
+              "pageDescTitle": "Supprimez votre mnémonique",
+              "pageDescDesc": "Cliquez sur \"Supprimer\" supprimera votre mnémonique sur cet appareil. Assurez-vous de la sauvegarder!",
+              "btn": "Supprimer",
+              "error": "Erreur : votre clé n'a pas été supprimée. Veuillez contacter le support."
             }
           }
         },
@@ -46,7 +66,11 @@
           "menuTitle": "Devise"
         },
         "explorers": {
-          "menuTitle": "Explorateurs"
+          "menuTitle": "Explorateurs",
+          "pageTitle": "EXPLORATEURS",
+          "pageDescTitle": "Définissez l'explorateur",
+          "pageDescDesc": "Sélectionnez un ensemble prédéfini d'API backend compatibles avec Electrs et d'explorateurs frontend compatibles avec Esplora ou saisissez des urls compatibles personnalisées.",
+          "custom": "Personnalisé"
         },
         "network": {
           "menuTitle": "Réseau"
@@ -55,7 +79,12 @@
           "menuTitle": "Proxy Tor"
         },
         "deepRestoration": {
-          "menuTitle": "Restauration en profondeur"
+          "menuTitle": "Restauration en profondeur",
+          "pageTitle": "RESTAURATION EN PROFONDEUR",
+          "gapLimit": "Choisissez la limite d'écart pour la découverte du compte",
+          "scan": "Scannez le réseau Liquid jusqu'à {{rangeValue}} adresses consécutives inutilisées. Si de nouveaux fonds sont découverts, ils apparaîtront dans votre solde.",
+          "pinTitle": "Account discovery",
+          "pinDesc": "Enter your PIN to start scanning"
         },
         "claim": {
           "menuTitle": "Réclamation de Bitcoin Liquid",
@@ -66,7 +95,8 @@
           "pinTitle": "Saisissez votre code PIN",
           "pinDesc": "Déverrouiller votre portemonnaie pour réclamer vos fonds",
           "placeholderAddress": "Adresse de dépôt BTC",
-          "btn": "RECLAMEZ"
+          "btn": "RECLAMEZ",
+          "toast": "RECLAMEZ MAINTENANT"
         },
         "language": {
           "menuTitle": "Langue",
@@ -91,6 +121,9 @@
         }
       }
     },
+    "operation": {
+      "noTxs": "Vous n'avez pas encore de transactions"
+    },
     "backup": {
       "pageTitle": "SAUVEGARDE PORTEFEUILLE",
       "title": "Sauvegardez votre phrase secrète",
@@ -99,13 +132,53 @@
       "btnMainTitle": "CONTINUEZ A RECEVOIR",
       "btnSubTitle": "SAUVEGARDEZ MAINTENANT"
     },
+    "withdraw": {
+      "pageTitle": "ENVOYER",
+      "pinDesc": "Entrez votre PIN secret pour envoyer",
+      "placeholder": "Collez votre adresse ou scannez le QR code",
+      "btnMainTitle": "CONFIRMER",
+      "btnSubTitle": "ANNULER"
+    },
+    "tradeSummary": {
+      "pageTitle": "RESUMÉ DES ÉCHANGES"
+    },
+    "tradeHistory": {
+      "noTrades": "Vous n'avez pas de transactions d'échange. Elles apparaîtront ici."
+    },
+    "exchangeSearch": {
+      "noAsset": "Pas d'actif disponible"
+    },
+    "denominationSearch": {
+      "placeholder": "Chercher la devise"
+    },
+    "changePinModals": {
+      "firstModal": {
+        "title": "Déverrouiller votre portemonnaie",
+        "desc": "Entrez votre PIN actuel."
+      },
+      "secondModal": {
+        "title": "Nouveau PIN",
+        "desc": "Choisissez le nouveau PIN."
+      },
+      "toastSuccess": "PIN has been changed."
+    },
     "cancel": "annuler",
     "save": "sauvegarder",
     "loading": "chargement",
+    "receive": "RECEVOIR",
+    "send": "ENVOYER",
+    "swap": "échanger",
+    "details": "DETAILS",
     "pinModalUnlockWallet": {
       "pageTitle": "INSEREZ PIN",
       "title": "Déverrouiller votre portemonnaie",
       "desc": "Saisissez votre code PIN"
-    }
+    },
+    "clipboardCopyAddress": "Adresse copiée!",
+    "clipboardCopyTx": "TxID copiée!",
+    "address": "Adresse",
+    "completed": "confirmé",
+    "pending": "en attente",
+    "liquidAsset": "Actif Liquid"
   }
 }

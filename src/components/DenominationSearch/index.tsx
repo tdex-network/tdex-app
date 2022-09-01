@@ -1,6 +1,7 @@
-import { IonContent, IonList, IonModal, IonHeader, IonItem, IonInput, IonIcon } from '@ionic/react';
+import { IonContent, IonHeader, IonIcon, IonInput, IonItem, IonList, IonModal } from '@ionic/react';
 import { closeSharp, searchSharp } from 'ionicons/icons';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 
 import { updatePrices } from '../../redux/actions/ratesActions';
@@ -15,6 +16,7 @@ interface DenominationSearchProps {
 const DenominationSearch: React.FC<DenominationSearchProps> = ({ isOpen, close }) => {
   const [searchString, setSearchString] = useState('');
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   return (
     <div className="search">
@@ -26,7 +28,7 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({ isOpen, close }
               <IonInput
                 inputMode="search"
                 color="light-contrast"
-                placeholder="Search currency"
+                placeholder={t('denominationSearch.placeholder')}
                 value={searchString}
                 onIonChange={(e) => setSearchString(e.detail.value || '')}
               />
