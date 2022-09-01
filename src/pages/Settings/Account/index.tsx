@@ -79,8 +79,8 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
         needReset={needPinReset}
         setNeedReset={setPinNeedReset}
         open={pinModalOpen}
-        title="Unlock your seed"
-        description={t('pinModalUnlockWallet')}
+        title={t('pinModalUnlockWallet.title')}
+        description={t('pinModalUnlockWallet.desc')}
         onConfirm={handlePinConfirm}
         onClose={() => setPinModalOpen(false)}
         isWrongPin={isWrongPin}
@@ -89,12 +89,12 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
       {/* IDENTITY */}
       <IonContent className="account">
         <IonGrid>
-          <Header title="ACCOUNT" hasBackButton={true} />
+          <Header title={t('settings.general.account.pageTitle')} hasBackButton={true} />
           <IonRow>
             <IonCol>
               {/* Show Mnemonic */}
               <IonList>
-                <IonListHeader>Identity</IonListHeader>
+                <IonListHeader>{t('settings.general.account.identity.title')}</IonListHeader>
                 <IonItem
                   className="list-item"
                   onClick={() => {
@@ -105,9 +105,9 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
                   <div className="item-main-info">
                     <IonIcon icon={eye}/>
                     <div className="item-start">
-                      <div className="main-row">Show mnemonic</div>
+                      <div className="main-row">{t('settings.general.account.identity.showMnemonic.title')}</div>
                       <IonText className="description">
-                        Display the secret mnemonic stored in your device's secure storage.
+                        {t('settings.general.account.identity.showMnemonic.desc')}
                       </IonText>
                     </div>
                     <IonIcon icon={chevronForwardOutline} />
@@ -126,7 +126,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
               </IonList>
 
               <IonList>
-                <IonListHeader>Security</IonListHeader>
+                <IonListHeader>{t('settings.general.account.security.title')}</IonListHeader>
                 {/* Change PIN */}
                 <IonItem
                   className="list-item"
@@ -137,10 +137,8 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
                   <div className="item-main-info">
                     <IonIcon icon={lockOpen}/>
                     <div className="item-start">
-                      <div className="main-row">Set new pin</div>
-                      <IonText className="description">
-                        Change the secure PIN using to encrypt your wallet's seed.
-                      </IonText>
+                      <div className="main-row">{t('settings.general.account.security.newPin.title')}</div>
+                      <IonText className="description">{t('settings.general.account.security.newPin.desc')}</IonText>
                     </div>
                     <IonIcon icon={chevronForwardOutline}/>
                   </div>
@@ -165,10 +163,9 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
                   <div className="item-main-info">
                     <IonIcon icon={trashOutline} />
                     <div className="item-start">
-                      <div className="main-row">Delete Mnemonic</div>
+                      <div className="main-row">{t('settings.general.account.security.deleteMnemonic.title')}</div>
                       <IonText className="description">
-                        Definitively removes your seed from this device. Be extremely careful, after deletion it will be
-                        impossible to retrieve your key from tdex-app.
+                        {t('settings.general.account.security.deleteMnemonic.desc')}
                       </IonText>
                     </div>
                     <IonIcon icon={chevronForwardOutline} />

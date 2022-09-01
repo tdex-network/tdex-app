@@ -1,5 +1,6 @@
-import { IonContent, IonModal, useIonViewWillEnter, useIonViewWillLeave, IonGrid } from '@ionic/react';
+import { IonContent, IonGrid, IonModal, useIonViewWillEnter, useIonViewWillLeave } from '@ionic/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 
 import { addErrorToast } from '../../redux/actions/toastActions';
@@ -39,6 +40,7 @@ const PinModal: React.FC<PinModalProps> = ({
   const [isPinInputLocked, setIsPinInputLocked] = useState<boolean>(false);
   const dispatch = useDispatch();
   const inputRef = useRef<any>(null);
+  const { t } = useTranslation();
 
   const handleConfirm = useCallback(() => {
     const validRegexp = new RegExp('\\d{6}');
@@ -99,7 +101,12 @@ const PinModal: React.FC<PinModalProps> = ({
     >
       <IonContent scrollY={false}>
         <IonGrid className="ion-text-center ion-justify-content-center">
-          <Header title="INSERT PIN" hasBackButton={false} hasCloseButton={!!onClose} handleClose={onClose} />
+          <Header
+            title={t('pinModalUnlockWallet.pageTitle')}
+            hasBackButton={false}
+            hasCloseButton={!!onClose}
+            handleClose={onClose}
+          />
           <PageDescription centerDescription={true} description={description} title={title} />
           <PinInput
             isLocked={isPinInputLocked}

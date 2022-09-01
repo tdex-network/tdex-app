@@ -33,21 +33,21 @@ const Language = (): JSX.Element => {
         <IonGrid>
           <Header
             className="mb-2"
-            title={t('settings.menu.general.language.pageTitle')}
+            title={t('settings.general.language.pageTitle')}
             hasBackButton={true}
             hasCloseButton={false}
           />
           <PageDescription
-            description={t('settings.menu.general.language.descriptionContent')}
-            title={t('settings.menu.general.language.descriptionTitle')}
+            description={t('settings.general.language.descriptionContent')}
+            title={t('settings.general.language.descriptionTitle')}
           />
           <IonRow className="ion-margin-vertical">
             <IonCol size="11" offset="0.5">
               <IonItem className="input">
-                <IonLabel>{t('settings.menu.general.language.selectLabel')}</IonLabel>
+                <IonLabel>{t('settings.general.language.selectLabel')}</IonLabel>
                 <IonSelect selectedText=" " value={languageSelectState} onIonChange={handleLanguageChange}>
-                  <IonSelectOption value="en">{t('settings.menu.general.language.optionEnglish')}</IonSelectOption>
-                  <IonSelectOption value="fr">{t('settings.menu.general.language.optionFrench')}</IonSelectOption>
+                  <IonSelectOption value="en">{t('settings.general.language.optionEnglish')}</IonSelectOption>
+                  <IonSelectOption value="fr">{t('settings.general.language.optionFrench')}</IonSelectOption>
                 </IonSelect>
               </IonItem>
             </IonCol>

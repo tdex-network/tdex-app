@@ -4,65 +4,108 @@
       "btnMainTitle": "SETUP WALLET",
       "btnSubTitle": "RESTORE WALLET"
     },
+    "wallet": {
+      "pageTitle": "Wallet",
+      "balance": "Total Balance",
+      "assetList": "Asset list",
+      "btnReceiveAssets": "RECEIVE ASSETS"
+    },
     "settings": {
       "pageTitle": "Settings",
-      "menu": {
-        "general": {
-          "title": "General",
-          "account": {
-            "menuTitle": "Account",
-            "pageTitle": "ACCOUNT"
+      "general": {
+        "title": "General",
+        "account": {
+          "menuTitle": "Account",
+          "pageTitle": "ACCOUNT",
+          "identity": {
+            "title": "Identity",
+            "showMnemonic": {
+              "title": "Show mnemonic",
+              "desc": "Display the secret mnemonic stored in your device's secure storage."
+            }
           },
-          "manageLiquidityProvider": {
-            "menuTitle": "Manage liquidity provider"
-          },
-          "unit": {
-            "menuTitle": "L-BTC unit"
-          },
-          "defaultCurrency": {
-            "menuTitle": "Default Currency"
-          },
-          "explorers": {
-            "menuTitle": "Explorers endpoints"
-          },
-          "network": {
-            "menuTitle": "Network"
-          },
-          "torProxy": {
-            "menuTitle": "Tor proxy endpoint"
-          },
-          "deepRestoration": {
-            "menuTitle": "Deep restoration"
-          },
-          "claimLiquidBitcoin": {
-            "menuTitle": "Claim Liquid Bitcoin"
-          },
-          "language": {
-            "menuTitle": "Language",
-            "pageTitle": "LANGUAGE",
-            "descriptionTitle": "Set language",
-            "descriptionContent": "You can choose your favorite language",
-            "selectLabel": "Select a language",
-            "optionEnglish": "English",
-            "optionFrench": "French"
+          "security": {
+            "title": "Security",
+            "newPin": {
+              "title": "Set new pin",
+              "desc": "Change the secure PIN using to encrypt your wallet's seed."
+            },
+            "deleteMnemonic": {
+              "title": "Delete mnemonic",
+              "desc": "Definitively removes your seed from this device. Be extremely careful, after deletion it will be impossible to retrieve your key from tdex-app."
+            }
           }
         },
-        "support": {
-          "title": "Support",
-          "faq": {
-            "menuTitle": "FAQ"
-          },
-          "privacy": {
-            "menuTitle": "Privacy"
-          },
-          "termsConditions": {
-            "menuTitle": "Terms & Conditions"
-          }
+        "manageLiquidityProvider": {
+          "menuTitle": "Manage liquidity provider"
+        },
+        "unit": {
+          "menuTitle": "L-BTC unit"
+        },
+        "defaultCurrency": {
+          "menuTitle": "Default Currency"
+        },
+        "explorers": {
+          "menuTitle": "Explorers endpoints"
+        },
+        "network": {
+          "menuTitle": "Network"
+        },
+        "torProxy": {
+          "menuTitle": "Tor proxy endpoint"
+        },
+        "deepRestoration": {
+          "menuTitle": "Deep restoration"
+        },
+        "claim": {
+          "menuTitle": "Claim Liquid Bitcoin",
+          "pageTitle": "CLAIM LIQUID BITCOIN",
+          "pageDescTitle": "Claim your Liquid Bitcoin",
+          "pageDescDesc": "Here you can manually claim your deposit in case the process was interrupted abruptly. Please only use this section if your deposit has 102 confirmations or more. You can only claim a deposit made from this application and this set of keys. To claim, please insert the BTC address below.",
+          "toastSuccess": "Claim transaction successful",
+          "pinTitle": "Enter your secret PIN",
+          "pinDesc": "Enter your secret PIN to claim funds",
+          "placeholderAddress": "BTC deposit address",
+          "btn": "CLAIM"
+        },
+        "language": {
+          "menuTitle": "Language",
+          "pageTitle": "LANGUAGE",
+          "descriptionTitle": "Set language",
+          "descriptionContent": "You can choose your favorite language",
+          "selectLabel": "Select a language",
+          "optionEnglish": "English",
+          "optionFrench": "French"
+        }
+      },
+      "support": {
+        "title": "Support",
+        "faq": {
+          "menuTitle": "FAQ"
+        },
+        "privacy": {
+          "menuTitle": "Privacy"
+        },
+        "termsConditions": {
+          "menuTitle": "Terms & Conditions"
         }
       }
     },
+    "backup": {
+      "pageTitle": "BACKUP WALLET",
+      "title": "Back up your secret phrase",
+      "desc1": "Your secret 12-words recovery phrase is the only way to recover your funds if you lose access to your wallet.",
+      "desc2": "Write it down safely and store it in a secure location.",
+      "btnMainTitle": "CONTINUE TO RECEIVE",
+      "btnSubTitle": "BACKUP NOW"
+    },
     "cancel": "cancel",
     "save": "save",
-    "pinModalUnlockWallet": "Enter your secret PIN to unlock your wallet"
+    "loading": "loading",
+    "pinModalUnlockWallet": {
+      "pageTitle": "INSERT PIN",
+      "title": "Unlock wallet",
+      "desc": "Enter your secret PIN"
+    }
   }
 }

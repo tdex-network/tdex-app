@@ -4,67 +4,108 @@
       "btnMainTitle": "INITIALISER",
       "btnSubTitle": "RESTORER"
     },
+    "wallet": {
+      "pageTitle": "Portefeuille",
+      "balance": "Balance Totale",
+      "assetList": "Liste d'actifs",
+      "btnReceiveAssets": "RECEVOIR DES ACTIFS"
+    },
     "settings": {
       "pageTitle": "Paramètres",
-      "menu": {
-        "general": {
-          "title": "Général",
-          "account": {
-            "menuTitle": "Compte",
-            "pageTitle": "COMPTE"
+      "general": {
+        "title": "Général",
+        "account": {
+          "menuTitle": "Compte",
+          "pageTitle": "COMPTE",
+          "identity": {
+            "title": "Identité",
+            "showMnemonic": {
+              "title": "Voir mnémonique",
+              "desc": "Affichez la mnémonique secrete stockée dans la mémoire sécurisée de votre appareil."
+            }
           },
-          "manageLiquidityProvider": {
-            "menuTitle": "Fournisseur de liquidité"
-          },
-          "unit": {
-            "menuTitle": "Unité L-BTC"
-          },
-          "defaultCurrency": {
-            "menuTitle": "Devise"
-          },
-          "explorers": {
-            "menuTitle": "Explorateurs"
-          },
-          "network": {
-            "menuTitle": "Réseau"
-          },
-          "torProxy": {
-            "menuTitle": "Proxy Tor"
-          },
-          "deepRestoration": {
-            "menuTitle": "Restauration en profondeur"
-          },
-          "claimLiquidBitcoin": {
-            "menuTitle": "Réclamation de Bitcoin Liquid"
-          },
-          "language": {
-            "menuTitle": "Langue",
-            "pageTitle": "LANGUE",
-            "descriptionTitle": "Définissez une langue",
-            "descriptionContent": "Vous pouvez choisir votre langue préférée",
-            "selectLabel": "Selectionnez une langue",
-            "optionEnglish": "Anglais",
-            "optionFrench": "Français"
+          "security": {
+            "title": "Securité",
+            "newPin": {
+              "title": "Changer code pin",
+              "desc": "Changez le code PIN utilisé pour chiffrer votre portefeuille."
+            },
+            "deleteMnemonic": {
+              "title": "Supprimer mnémonique",
+              "desc": "Supprimez définitivement votre portefeuille de cet appareil. Soyez extrêmement prudent, après la suppression il sera impossible de le récupérer à partir de tdex-app."
+            }
           }
         },
-        "support": {
-          "title": "Support",
-          "faq": {
-            "menuTitle": "FAQ"
-          },
-          "privacy": {
-            "menuTitle": "Vie privée"
-          },
-          "termsConditions": {
-            "menuTitle": "Conditions générales"
-          }
+        "manageLiquidityProvider": {
+          "menuTitle": "Fournisseur de liquidité"
+        },
+        "unit": {
+          "menuTitle": "Unité L-BTC"
+        },
+        "defaultCurrency": {
+          "menuTitle": "Devise"
+        },
+        "explorers": {
+          "menuTitle": "Explorateurs"
+        },
+        "network": {
+          "menuTitle": "Réseau"
+        },
+        "torProxy": {
+          "menuTitle": "Proxy Tor"
+        },
+        "deepRestoration": {
+          "menuTitle": "Restauration en profondeur"
+        },
+        "claim": {
+          "menuTitle": "Réclamation de Bitcoin Liquid",
+          "pageTitle": "RÉCLAMEZ BITCOIN LIQUID",
+          "pageDescTitle": "Réclamez vos Bitcoin Liquid",
+          "pageDescDesc": "Vous pouvez ici réclamer manuellement votre dépôt au cas où le processus aurait été interrompu brusquement. Veuillez n'utiliser cette section que si votre dépôt a 102 confirmations ou plus. Vous ne pouvez réclamer qu'un dépôt effectué à partir de cette application et de ce jeu de clés. Pour réclamer, veuillez insérer l'adresse BTC ci-dessous.",
+          "toastSuccess": "Transaction de réclamation réussie",
+          "pinTitle": "Saisissez votre code PIN",
+          "pinDesc": "Déverrouiller votre portemonnaie pour réclamer vos fonds",
+          "placeholderAddress": "Adresse de dépôt BTC",
+          "btn": "RECLAMEZ"
+        },
+        "language": {
+          "menuTitle": "Langue",
+          "pageTitle": "LANGUE",
+          "descriptionTitle": "Définissez une langue",
+          "descriptionContent": "Vous pouvez choisir votre langue préférée",
+          "selectLabel": "Selectionnez une langue",
+          "optionEnglish": "Anglais",
+          "optionFrench": "Français"
+        }
+      },
+      "support": {
+        "title": "Support",
+        "faq": {
+          "menuTitle": "FAQ"
+        },
+        "privacy": {
+          "menuTitle": "Vie privée"
+        },
+        "termsConditions": {
+          "menuTitle": "Conditions générales"
         }
       }
-    }
-  },
-  "common": {
+    },
+    "backup": {
+      "pageTitle": "SAUVEGARDE PORTEFEUILLE",
+      "title": "Sauvegardez votre phrase secrète",
+      "desc1": "Votre phrase secrète de récupération en 12 mots est le seul moyen de récupérer vos fonds si vous perdez l'accès à votre portefeuille.",
+      "desc2": "Notez-le en toute sécurité et conservez-le dans un endroit sûr.",
+      "btnMainTitle": "CONTINUEZ A RECEVOIR",
+      "btnSubTitle": "SAUVEGARDEZ MAINTENANT"
+    },
     "cancel": "annuler",
     "save": "sauvegarder",
-    "pinModalUnlockWallet": "Saisissez votre code PIN secret pour déverrouiller votre porte-monnaie."
+    "loading": "chargement",
+    "pinModalUnlockWallet": {
+      "pageTitle": "INSEREZ PIN",
+      "title": "Déverrouiller votre portemonnaie",
+      "desc": "Saisissez votre code PIN"
+    }
   }
 }
