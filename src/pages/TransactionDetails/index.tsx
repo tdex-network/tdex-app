@@ -1,8 +1,9 @@
 import './style.scss';
-import { IonPage, IonContent, IonSkeletonText, IonGrid, IonRow, IonCol } from '@ionic/react';
+import { IonCol, IonContent, IonGrid, IonPage, IonRow, IonSkeletonText } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { RouteComponentProps } from 'react-router';
-import { withRouter, useParams } from 'react-router';
+import { useParams, withRouter } from 'react-router';
 
 import CurrencyIcon from '../../components/CurrencyIcon';
 import Header from '../../components/Header';
@@ -14,11 +15,6 @@ import { clipboardCopy } from '../../utils/clipboard';
 import type { LbtcDenomination } from '../../utils/constants';
 import { isLbtc } from '../../utils/helpers';
 import { TxStatusEnum } from '../../utils/types';
-
-const statusText = {
-  confirmed: 'completed',
-  pending: 'pending',
-};
 
 interface transactionDetailsLocationState {
   address: string;
@@ -38,6 +34,12 @@ const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDeta
   const transaction = useTypedSelector(transactionSelector(txid));
   const assets = useTypedSelector(({ assets }) => assets);
   const [locationState, setLocationState] = useState<transactionDetailsLocationState>();
+  const { t } = useTranslation();
+
+  const statusText = {
+    confirmed: t('completed'),
+    pending: t('pending'),
+  };
 
   useEffect(() => {
     if (location.state) {
@@ -65,7 +67,7 @@ const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDeta
         <IonGrid>
           <Header
             hasBackButton={true}
-            title={`${locationState?.amount && locationState.amount > 0 ? 'RECEIVE' : 'SEND'} DETAILS`}
+            title={`${locationState?.amount && locationState.amount > 0 ? t('receive') : t('send')} ${t('details')}`}
           />
           <IonRow>
             <IonCol className="header-info ion-text-center">
@@ -112,11 +114,11 @@ const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDeta
                   className="item-main-info"
                   onClick={() => {
                     clipboardCopy(`${explorerLiquidUI}/address/${locationState?.address}`, () => {
-                      dispatch(addSuccessToast('Address copied!'));
+                      dispatch(addSuccessToast(t('clipboardCopyAddress')));
                     });
                   }}
                 >
-                  <div className="item-start main-row">Address</div>
+                  <div className="item-start main-row">{t('address')}</div>
                   <div className="item-end sub-row">{locationState?.address || ''}</div>
                 </div>
 
@@ -124,7 +126,7 @@ const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDeta
                   className="item-main-info"
                   onClick={() => {
                     clipboardCopy(`${explorerLiquidUI}/tx/${txid}`, () => {
-                      dispatch(addSuccessToast('TxID copied!'));
+                      dispatch(addSuccessToast(t('clipboardCopyTx')));
                     });
                   }}
                 >

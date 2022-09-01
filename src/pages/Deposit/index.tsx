@@ -1,18 +1,21 @@
-import { IonContent, IonPage, IonIcon, IonGrid } from '@ionic/react';
+import './style.scss';
+
+import { IonContent, IonGrid, IonIcon, IonPage } from '@ionic/react';
 import { addCircleOutline } from 'ionicons/icons';
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { RouteComponentProps } from 'react-router';
 
 import BtcIcon from '../../assets/img/coins/btc.svg';
 import CurrencyIcon from '../../components/CurrencyIcon';
 import Header from '../../components/Header';
-import './style.scss';
 import { useTypedSelector } from '../../redux/hooks';
 import { routerLinks } from '../../routes';
 import { BTC_ASSET, MAIN_ASSETS } from '../../utils/constants';
 
 const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
   const network = useTypedSelector(({ settings }) => settings.network);
+  const { t } = useTranslation();
 
   const generateGridItems = useMemo(() => {
     const btcButton = (
@@ -63,8 +66,8 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
               pathname: routerLinks.receive,
               state: {
                 depositAsset: {
-                  name: 'Liquid Asset',
-                  ticker: 'Liquid Asset',
+                  name: t('liquidAsset'),
+                  ticker: t('liquidAsset'),
                 },
               },
             })
@@ -74,13 +77,13 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
           <span className="deposit-grid-item-name">Add Liquid Asset</span>
         </button>
       );
-  }, [history, network]);
+  }, [history, network, t]);
 
   return (
     <IonPage>
       <IonContent>
         <IonGrid>
-          <Header title="RECEIVE" hasBackButton={true} />
+          <Header title={t('receive')} hasBackButton={true} />
           <div className="deposit-grid ion-margin-vertical ion-text-center">{generateGridItems}</div>
         </IonGrid>
       </IonContent>

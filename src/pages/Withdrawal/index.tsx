@@ -14,6 +14,7 @@ import type { RecipientInterface, StateRestorerOpts } from 'ldk';
 import { address, psetToUnsignedTx, walletFromCoins } from 'ldk';
 import { Psbt } from 'liquidjs-lib';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect, useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
@@ -87,6 +88,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   const [modalOpen, setModalOpen] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   useIonViewDidLeave(() => {
     setRecipientAddress('');
@@ -236,7 +238,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       <PinModal
         open={modalOpen}
         title="Unlock your seed"
-        description={`Enter your secret PIN to send ${amount} ${
+        description={`${t('withdraw.pinDesc')} ${amount} ${
           isLbtcTicker(balance?.ticker || '') ? lbtcUnit : balance?.ticker
         }.`}
         onConfirm={createTxAndBroadcast}
@@ -251,7 +253,10 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       <Loader showLoading={loading} delay={0} />
       <IonContent className="withdrawal">
         <IonGrid>
-          <Header title={`Send ${balance ? balance.ticker.toUpperCase() : ''}`} hasBackButton={true} />
+          <Header
+            title={`${t('withdraw.pageTitle')} ${balance ? balance.ticker.toUpperCase() : ''}`}
+            hasBackButton={true}
+          />
           {balance && (
             <WithdrawRow
               amount={amount}
@@ -270,7 +275,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
               enterkeyhint="done"
               onKeyDown={onPressEnterKeyCloseKeyboard}
               value={recipientAddress}
-              placeholder="Paste address here or scan QR code"
+              placeholder={t('withdraw.placeholder')}
               onIonChange={(ev) => {
                 if (ev.detail.value) {
                   if (ev.detail.value.startsWith('liquidnetwork')) {
@@ -313,8 +318,8 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
           <IonRow className="ion-margin-vertical-x2">
             <IonCol>
               <ButtonsMainSub
-                mainTitle="CONFIRM"
-                subTitle="CANCEL"
+                mainTitle={t('withdraw.btnMainTitle')}
+                subTitle={t('withdraw.btnSubTitle')}
                 mainOnClick={() => setModalOpen(true)}
                 mainDisabled={!isValid()}
                 subOnClick={history.goBack}

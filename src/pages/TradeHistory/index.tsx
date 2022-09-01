@@ -1,19 +1,20 @@
 import './style.scss';
 import {
-  IonPage,
-  IonContent,
-  IonList,
-  IonItem,
-  IonListHeader,
-  IonIcon,
-  IonText,
-  IonGrid,
-  IonRow,
   IonCol,
+  IonContent,
+  IonGrid,
+  IonIcon,
+  IonItem,
+  IonList,
+  IonListHeader,
+  IonPage,
+  IonRow,
+  IonText,
 } from '@ionic/react';
 import classNames from 'classnames';
 import { checkmarkSharp } from 'ionicons/icons';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
@@ -41,6 +42,7 @@ interface TradeHistoryProps extends RouteComponentProps {
 
 const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI, network, assets }) => {
   const dispatch = useTypedDispatch();
+  const { t } = useTranslation();
 
   const renderStatusText: any = (status: TxStatusEnum) => {
     const capitalized = (status[0].toUpperCase() + status.slice(1)) as keyof typeof TxStatusEnum;
@@ -120,7 +122,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI, ne
                         className="mt-1"
                         onClick={() => {
                           clipboardCopy(`${explorerLiquidUI}/tx/${tx.txId}`, () => {
-                            dispatch(addSuccessToast('Transaction Id copied'));
+                            dispatch(addSuccessToast(t('clipboardCopyTx')));
                           });
                         }}
                       >
@@ -136,7 +138,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI, ne
           ) : (
             <IonRow className="ion-text-center ion-margin">
               <IonCol size="10" offset="1">
-                <p>You don't have any trades transactions. They will appear here.</p>
+                <p>{t('tradeHistory.noTrades')}</p>
               </IonCol>
             </IonRow>
           )}

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 
 import PinModal from '../../components/PinModal';
@@ -22,6 +23,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({ open, onDeleted, onCl
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [needReset, setNeedReset] = useState<boolean>(false);
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const onError = (e: AppError) => {
     console.error(e);
@@ -65,7 +67,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({ open, onDeleted, onCl
     setLoading(true);
     changePin(currentPin, secondPin)
       .then(() => {
-        dispatch(addSuccessToast('PIN has been changed.'));
+        dispatch(addSuccessToast(t('changePinModals.toastSuccess')));
         onDeleted();
       })
       .catch(() => {
@@ -81,8 +83,8 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({ open, onDeleted, onCl
         needReset={needReset}
         setNeedReset={setNeedReset}
         open={modalOpen === 'first'}
-        title="Unlock wallet"
-        description="Enter your current PIN."
+        title={t('changePinModals.firstModal.title')}
+        description={t('changePinModals.firstModal.desc')}
         onConfirm={onFirstPinConfirm}
         onClose={onClose}
         isWrongPin={isWrongPin}
@@ -92,8 +94,8 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({ open, onDeleted, onCl
         needReset={needReset}
         setNeedReset={setNeedReset}
         open={modalOpen === 'second'}
-        title="New PIN"
-        description="Set up the new PIN."
+        title={t('changePinModals.secondModal.title')}
+        description={t('changePinModals.secondModal.desc')}
         onConfirm={onSecondPinConfirm}
         onClose={onClose}
         isWrongPin={isWrongPin}
