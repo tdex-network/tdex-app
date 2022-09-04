@@ -23,7 +23,13 @@
       "pinModalUnlock": {
         "title": "Déverrouiller votre portemonnaie",
         "desc": "Entrer votre PIN secret pour envoyer {{sendAmount}} {{sendUnit}} et recevoir {{receiveAmount}} {{receiveUnit}}."
-      }
+      },
+      "sectionTitle": {
+        "youReceive": "Vous recevez",
+        "youSend": "Vous envoyez"
+      },
+      "totalBalance": "Balance totale:",
+      "confirmBtn": "confirmer"
     },
     "settings": {
       "pageTitle": "Paramètres",
@@ -56,14 +62,35 @@
             }
           }
         },
-        "manageLiquidityProvider": {
-          "menuTitle": "Fournisseur de liquidité"
+        "providers": {
+          "menuTitle": "Fournisseur de liquidité",
+          "pageTitle": "fournisseurs tdex",
+          "sectionTitle": "Fournisseurs",
+          "addProviderBtn": "ajouter un fournisseur",
+          "refreshBtn": "rafraichir",
+          "refreshProviderSuccessToast": "{{newProviders}} nouveaux fournisseurs depuis le registre TDEX!",
+          "createNewProviderModal": {
+            "modalTitle": "créer un nouveau fournisseur",
+            "name": {
+              "title": "Nom du fournisseur",
+              "desc": "nom du fournisseur à ajouter"
+            },
+            "endpoint": {
+              "title": "Point d'accès"
+            }
+          },
+          "deleteAlert": {
+            "title": "Confirmer la suppression",
+            "desc": "Supprimer le fournisseur {{name}} - {{endpoint}}"
+          }
         },
         "unit": {
-          "menuTitle": "Unité L-BTC"
+          "menuTitle": "Unité L-BTC",
+          "placeholder": "Chercher la dénomination"
         },
         "defaultCurrency": {
-          "menuTitle": "Devise"
+          "menuTitle": "Devise",
+          "placeholder": "Chercher la devise"
         },
         "explorers": {
           "menuTitle": "Explorateurs",
@@ -143,13 +170,11 @@
       "pageTitle": "RESUMÉ DES ÉCHANGES"
     },
     "tradeHistory": {
+      "pageTitle": "Historique des échanges",
       "noTrades": "Vous n'avez pas de transactions d'échange. Elles apparaîtront ici."
     },
     "exchangeSearch": {
       "noAsset": "Pas d'actif disponible"
-    },
-    "denominationSearch": {
-      "placeholder": "Chercher la devise"
     },
     "changePinModals": {
       "firstModal": {
@@ -162,11 +187,14 @@
       },
       "toastSuccess": "PIN has been changed."
     },
+    "confirm": "confirmer",
     "cancel": "annuler",
+    "abort": "annuler",
+    "delete": "supprimer",
     "save": "sauvegarder",
     "loading": "chargement",
-    "receive": "RECEVOIR",
-    "send": "ENVOYER",
+    "receive": "recevoir",
+    "send": "envoyer",
     "swap": "échanger",
     "details": "DETAILS",
     "pinModalUnlockWallet": {

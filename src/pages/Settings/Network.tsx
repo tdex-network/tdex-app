@@ -12,6 +12,7 @@ import {
 } from '@ionic/react';
 import { IdentityType, MasterPublicKey } from 'ldk';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { NetworkString } from 'tdex-sdk';
 import * as ecc from 'tiny-secp256k1';
 
@@ -64,6 +65,7 @@ const Network = (): JSX.Element => {
     providers: tdex.providers,
   }));
   const [networkSelectState, setNetworkSelectState] = useState<NetworkString>(networkReduxState);
+  const { t } = useTranslation();
 
   const handleNetworkChange = async (ev: CustomEvent<SelectChangeEventDetail<NetworkString>>) => {
     try {
@@ -95,7 +97,7 @@ const Network = (): JSX.Element => {
         dispatch(setDefaultProvider(defaultProviderEndpoints.regtest));
       }
       // Refresh providers
-      await refreshProviders(providers, network, dispatch);
+      await refreshProviders(providers, network, dispatch, t);
       dispatch(clearAddresses());
       dispatch(resetUtxos());
       dispatch(resetAssets(network));

@@ -61,7 +61,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
                 history.push('/liquidity-provider');
               }}
             >
-              <span>{t('settings.general.manageLiquidityProvider.menuTitle')}</span>
+              <span>{t('settings.general.providers.menuTitle')}</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 

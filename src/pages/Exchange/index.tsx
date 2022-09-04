@@ -425,7 +425,7 @@ const Exchange: React.FC<Props> = ({
                     setPINModalOpen(true);
                   }}
                 >
-                  CONFIRM
+                  {t('exchange.confirmBtn')}
                 </IonButton>
               </IonCol>
             </IonRow>
