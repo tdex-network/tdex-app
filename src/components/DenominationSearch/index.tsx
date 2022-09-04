@@ -28,7 +28,7 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({ isOpen, close }
               <IonInput
                 inputMode="search"
                 color="light-contrast"
-                placeholder={t('denominationSearch.placeholder')}
+                placeholder={t('settings.general.unit.placeholder')}
                 value={searchString}
                 onIonChange={(e) => setSearchString(e.detail.value || '')}
               />

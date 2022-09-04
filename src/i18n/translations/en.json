@@ -23,7 +23,13 @@
       "pinModalUnlock": {
         "title": "Unlock your seed",
         "desc": "Enter your secret PIN to send {{sendAmount}} {{sendUnit}} and receive {{receiveAmount}} {{receiveUnit}}."
-      }
+      },
+      "sectionTitle": {
+        "youReceive": "You receive",
+        "youSend": "You send"
+      },
+      "totalBalance": "Total balance:",
+      "confirmBtn": "confirm"
     },
     "settings": {
       "pageTitle": "Settings",
@@ -56,14 +62,35 @@
             }
           }
         },
-        "manageLiquidityProvider": {
-          "menuTitle": "Manage liquidity provider"
+        "providers": {
+          "menuTitle": "Manage liquidity provider",
+          "pageTitle": "tdex providers",
+          "sectionTitle": "Providers",
+          "addProviderBtn": "add provider",
+          "refreshBtn": "refresh",
+          "refreshProviderSuccessToast": "{{newProviders}} new providers from TDEX registry!",
+          "createNewProviderModal": {
+            "modalTitle": "create new provider",
+            "name": {
+              "title": "Provider name",
+              "desc": "name the provider to add"
+            },
+            "endpoint": {
+              "title": "Endpoint"
+            }
+          },
+          "deleteAlert": {
+            "title": "Confirm delete",
+            "desc": "Delete the provider {{name}} - {{endpoint}}"
+          }
         },
         "unit": {
-          "menuTitle": "L-BTC unit"
+          "menuTitle": "L-BTC unit",
+          "placeholder": "Search denomination"
         },
         "defaultCurrency": {
-          "menuTitle": "Default Currency"
+          "menuTitle": "Default Currency",
+          "placeholder": "Search currency"
         },
         "explorers": {
           "menuTitle": "Explorers endpoints",
@@ -142,13 +169,11 @@
       "pageTitle": "TRADE SUMMARY"
     },
     "tradeHistory": {
+      "pageTitle": "trade history",
       "noTrades": "You don't have any trades transactions. They will appear here."
     },
     "exchangeSearch": {
       "noAsset": "No asset available"
-    },
-    "denominationSearch": {
-      "placeholder": "Search currency"
     },
     "changePinModals": {
       "firstModal": {
@@ -161,13 +186,16 @@
       },
       "toastSuccess": "PIN has been changed."
     },
+    "confirm": "confirm",
     "cancel": "cancel",
+    "abort": "abort",
+    "delete": "delete",
     "save": "save",
     "loading": "loading",
-    "receive": "RECEIVE",
-    "send": "SEND",
+    "receive": "receive",
+    "send": "send",
     "swap": "swap",
-    "details": "DETAILS",
+    "details": "details",
     "pinModalUnlockWallet": {
       "pageTitle": "INSERT PIN",
       "title": "Unlock wallet",

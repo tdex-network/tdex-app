@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import Decimal from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
 import React, { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import type { NetworkString } from 'tdex-sdk';
 
@@ -74,6 +75,7 @@ const TradeRowInput: React.FC<Props> = ({
   const [inputValue, setInputValue] = useState('');
   const [localError, setLocalError] = useState<Error>();
   const onSelectAsset = (asset: AssetConfig) => onChangeAsset(asset.assetHash);
+  const { t } = useTranslation();
 
   const onInputAmount = (amount: string) => {
     if (!assetSelected) return;
@@ -111,9 +113,11 @@ const TradeRowInput: React.FC<Props> = ({
     setInputValue(newAmountFromSats);
   }, [sats, assetSelected, lbtcUnit, network]);
 
+  const sectionTitle = type === 'receive' ? t('exchange.sectionTitle.youReceive') : t('exchange.sectionTitle.youSend');
+
   return (
     <div className="exchange-coin-container">
-      <h2 className="subtitle">{`You ${type}`}</h2>
+      <h2 className="subtitle">{sectionTitle}</h2>
       <div className="exchanger-row">
         <div
           className="coin-name"
@@ -178,7 +182,7 @@ const TradeRowInput: React.FC<Props> = ({
             );
           }}
         >
-          <span>Total balance:</span>
+          <span>{t('exchange.totalBalance')}</span>
           <span>{`${fromSatoshiFixed(
             balance?.amount.toString() || '0',
             balance?.precision ?? defaultPrecision,

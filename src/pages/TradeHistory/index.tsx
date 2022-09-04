@@ -65,7 +65,7 @@ const TradeHistory: React.FC<TradeHistoryProps> = ({ swaps, explorerLiquidUI, ne
     <IonPage id="trade-history">
       <IonContent>
         <IonGrid>
-          <Header hasBackButton={true} title="TRADE HISTORY" />
+          <Header hasBackButton={true} title={t('tradeHistory.pageTitle')} />
           {swaps.length > 0 ? (
             <IonList>
               <IonListHeader>Swaps</IonListHeader>
