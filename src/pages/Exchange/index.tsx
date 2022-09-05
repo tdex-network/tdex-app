@@ -284,7 +284,7 @@ const Exchange: React.FC<Props> = ({
           // At least one market is available, otherwise we display NoProvidersAvailableAlert
           markets.length > 0
         }
-        message="Discovering TDEX providers with best liquidity..."
+        message={t('exchange.loaderMsg')}
         delay={0}
         backdropDismiss={true}
         duration={15000}

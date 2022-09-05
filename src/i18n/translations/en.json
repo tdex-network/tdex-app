@@ -29,7 +29,8 @@
         "youSend": "You send"
       },
       "totalBalance": "Total balance:",
-      "confirmBtn": "confirm"
+      "confirmBtn": "confirm",
+      "loaderMsg": "Discovering TDEX providers with best liquidity..."
     },
     "settings": {
       "pageTitle": "Settings",
@@ -41,8 +42,13 @@
           "identity": {
             "title": "Identity",
             "showMnemonic": {
-              "title": "Show mnemonic",
-              "desc": "Display the secret mnemonic stored in your device's secure storage."
+              "menuTitle": "Show mnemonic",
+              "menuDesc": "Display the secret mnemonic stored in your device's secure storage.",
+              "pageTitle": "show mnemonic",
+              "pageDescTitle": "Secret Phrase",
+              "pageDescDesc": "Save your 12 words recovery phrase in the correct order",
+              "checkbox": "I have saved my secret phrase",
+              "btn": "CONTINUE TO RECEIVE"
             }
           },
           "security": {
@@ -97,13 +103,28 @@
           "pageTitle": "EXPLORATEURS",
           "pageDescTitle": "Set explorer endpoints",
           "pageDescDesc": "Select a preset of backend APIs Electrs-compatible and frontend explorers Esplora-compatible or enter custom compatible endpoints.",
-          "custom": "Custom"
+          "custom": "Custom",
+          "selectLabel": "Select your explorer",
+          "bitcoinUI": "Bitcoin UI endpoint",
+          "liquidUI": "Liquid UI endpoint",
+          "bitcoinAPI": "Bitcoin API endpoint",
+          "liquidAPI": "Liquid API endpoint",
+          "electrsBatchAPI": "Electrs batch API endpoint"
         },
         "network": {
-          "menuTitle": "Network"
+          "menuTitle": "Network",
+          "pageTitle": "network",
+          "pageDescTitle": "Set network",
+          "pageDescDesc": "Select a network between mainnet, testnet and regtest",
+          "selectLabel": "Select your network",
+          "changeNetworkSuccessToast": "Network and explorer endpoints successfully updated"
         },
         "torProxy": {
-          "menuTitle": "Tor proxy endpoint"
+          "menuTitle": "Tor proxy endpoint",
+          "pageTitle": "Tor Proxy",
+          "desc": "Natively, web browsers do not support the Tor protocol. That's why we are using a Tor proxy to redirect requests to onion endpoints. By default, clients use https://proxy.tdex.network as proxy. If you want to use your own, specify your proxy endpoint below.",
+          "addProxyToastSuccess": "New Tor proxy endpoint has been saved",
+          "addProxyBtn": "SAVE ENDPOINT"
         },
         "deepRestoration": {
           "menuTitle": "Deep restoration",
@@ -195,7 +216,10 @@
     "receive": "receive",
     "send": "send",
     "swap": "swap",
+    "copy": "copy",
+    "copied": "copied",
     "details": "details",
+    "continue": "continue",
     "pinModalUnlockWallet": {
       "pageTitle": "INSERT PIN",
       "title": "Unlock wallet",

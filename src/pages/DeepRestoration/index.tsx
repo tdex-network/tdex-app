@@ -108,7 +108,7 @@ const DeepRestoration: React.FC = () => {
           <IonRow>
             <IonCol size="9" offset="1.5" sizeMd="6" offsetMd="3">
               <IonButton className="main-button" onClick={() => setIsPinModalOpen(true)}>
-                Confirm
+                {t('confirm')}
               </IonButton>
             </IonCol>
           </IonRow>

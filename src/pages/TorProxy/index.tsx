@@ -1,11 +1,13 @@
 import { IonButton, IonCol, IonContent, IonGrid, IonInput, IonItem, IonPage, IonRow } from '@ionic/react';
 import React, { useState } from 'react';
-import { connect, useDispatch } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 
 import Header from '../../components/Header';
 import { setTorProxy } from '../../redux/actions/settingsActions';
 import { addSuccessToast } from '../../redux/actions/toastActions';
+import { useTypedDispatch } from '../../redux/hooks';
 import type { RootState } from '../../redux/types';
 
 interface TorProxyProps extends RouteComponentProps {
@@ -14,20 +16,17 @@ interface TorProxyProps extends RouteComponentProps {
 
 const TorProxy: React.FC<TorProxyProps> = ({ torProxy }) => {
   const [inputTorProxy, setInputTorProxy] = useState<string>(torProxy);
-  const dispatch = useDispatch();
+  const dispatch = useTypedDispatch();
+  const { t } = useTranslation();
 
   return (
     <IonPage id="tor-proxy">
       <IonContent>
         <IonGrid>
-          <Header title="TOR PROXY" hasBackButton={true} />
+          <Header title={t('settings.general.torProxy.pageTitle')} hasBackButton={true} />
           <IonRow className="ion-margin-vertical">
             <IonCol className="ion-text-left" size="10" offset="1">
-              <p data-testid="description-p">
-                Natively, web browsers do not support the Tor protocol. That's why we are using a Tor proxy to redirect
-                requests to onion endpoints. By default, clients use https://proxy.tdex.network as proxy. If you want to
-                use your own, specify your proxy endpoint below.
-              </p>
+              <p data-testid="description-p">{t('settings.general.torProxy.desc')}</p>
             </IonCol>
           </IonRow>
           {/**/}
@@ -53,10 +52,10 @@ const TorProxy: React.FC<TorProxyProps> = ({ torProxy }) => {
                   disabled={!inputTorProxy}
                   onClick={() => {
                     dispatch(setTorProxy(inputTorProxy));
-                    dispatch(addSuccessToast(`New Tor proxy endpoint has been saved`));
+                    dispatch(addSuccessToast(t('settings.general.torProxy.addProxyToastSuccess')));
                   }}
                 >
-                  SAVE ENDPOINT
+                  {t('settings.general.torProxy.addProxyBtn')}
                 </IonButton>
               </IonRow>
             </IonCol>

@@ -114,7 +114,7 @@ const Network = (): JSX.Element => {
         ecclib: ecc,
       });
       dispatch(signIn(masterPubKeyIdentity));
-      dispatch(addSuccessToast(`Network and explorer endpoints successfully updated`));
+      dispatch(addSuccessToast(t('settings.general.network.changeNetworkSuccessToast')));
     } catch (err) {
       console.error(err);
       if (err instanceof AppError) {
@@ -127,13 +127,16 @@ const Network = (): JSX.Element => {
     <IonPage id="settings-network">
       <IonContent>
         <IonGrid>
-          <Header title="NETWORK" hasBackButton={true} hasCloseButton={false} />
-          <PageDescription description="Select a network between mainnet, testnet and regtest" title="Set network" />
+          <Header title={t('settings.general.network.pageTitle')} hasBackButton={true} hasCloseButton={false} />
+          <PageDescription
+            description={t('settings.general.network.pageDescDesc')}
+            title={t('settings.general.network.pageDescTitle')}
+          />
           <IonRow className="ion-margin-vertical">
             <IonCol size="11" offset="0.5">
               <IonItem className="input">
-                <IonLabel>Select your network</IonLabel>
-                <IonSelect value={networkSelectState} onIonChange={handleNetworkChange}>
+                <IonLabel>{t('settings.general.network.selectLabel')}</IonLabel>
+                <IonSelect value={networkSelectState} onIonChange={handleNetworkChange} cancelText={t('cancel')}>
                   <IonSelectOption value="liquid">Mainnet</IonSelectOption>
                   <IonSelectOption value="testnet">Testnet</IonSelectOption>
                   <IonSelectOption value="regtest">Regtest</IonSelectOption>

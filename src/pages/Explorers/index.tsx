@@ -137,7 +137,7 @@ const Explorers: React.FC<ExplorersProps> = ({
           <IonRow className="ion-margin-vertical">
             <IonCol size="11" offset="0.5">
               <IonItem className="input">
-                <IonLabel>Select your explorer</IonLabel>
+                <IonLabel>{t('settings.general.explorers.selectLabel')}</IonLabel>
                 <IonSelect selectedText=" " value={explorerGroup} onIonChange={handleExplorerChange}>
                   {network === 'liquid' && (
                     <>
@@ -162,7 +162,7 @@ const Explorers: React.FC<ExplorersProps> = ({
             <IonCol size="11" offset="0.5">
               <IonItem className="input">
                 <IonLabel position="stacked" color="tertiary">
-                  Bitcoin UI endpoint
+                  {t('settings.general.explorers.bitcoinUI')}
                 </IonLabel>
                 <IonInput
                   readonly={explorerGroup !== 'custom'}
@@ -180,7 +180,7 @@ const Explorers: React.FC<ExplorersProps> = ({
             <IonCol size="11" offset="0.5">
               <IonItem className="input">
                 <IonLabel position="stacked" color="tertiary">
-                  Liquid UI endpoint
+                  {t('settings.general.explorers.liquidUI')}
                 </IonLabel>
                 <IonInput
                   readonly={explorerGroup !== 'custom'}
@@ -198,7 +198,7 @@ const Explorers: React.FC<ExplorersProps> = ({
             <IonCol size="11" offset="0.5">
               <IonItem className="input">
                 <IonLabel position="stacked" color="tertiary">
-                  Bitcoin API endpoint
+                  {t('settings.general.explorers.bitcoinAPI')}
                 </IonLabel>
                 <IonInput
                   readonly={explorerGroup !== 'custom'}
@@ -216,7 +216,7 @@ const Explorers: React.FC<ExplorersProps> = ({
             <IonCol size="11" offset="0.5">
               <IonItem className="input">
                 <IonLabel position="stacked" color="tertiary">
-                  Liquid API endpoint
+                  {t('settings.general.explorers.liquidAPI')}
                 </IonLabel>
                 <IonInput
                   readonly={explorerGroup !== 'custom'}
@@ -234,7 +234,7 @@ const Explorers: React.FC<ExplorersProps> = ({
             <IonCol size="11" offset="0.5">
               <IonItem className="input">
                 <IonLabel position="stacked" color="tertiary">
-                  Electrs batch API endpoint
+                  {t('settings.general.explorers.electrsBatchAPI')}
                 </IonLabel>
                 <IonInput
                   readonly={explorerGroup !== 'custom'}

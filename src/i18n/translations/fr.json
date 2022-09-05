@@ -29,7 +29,8 @@
         "youSend": "Vous envoyez"
       },
       "totalBalance": "Balance totale:",
-      "confirmBtn": "confirmer"
+      "confirmBtn": "confirmer",
+      "loaderMsg": "Recherche des fournisseurs TDEX avec la meilleure liquidité..."
     },
     "settings": {
       "pageTitle": "Paramètres",
@@ -41,8 +42,13 @@
           "identity": {
             "title": "Identité",
             "showMnemonic": {
-              "title": "Voir mnémonique",
-              "desc": "Affichez la mnémonique secrete stockée dans la mémoire sécurisée de votre appareil."
+              "menuTitle": "Voir mnémonique",
+              "menuDesc": "Affichez la mnémonique secrete stockée dans la mémoire sécurisée de votre appareil.",
+              "pageTitle": "Voir mnémonique",
+              "pageDescTitle": "Phrase Secrète",
+              "pageDescDesc": "Copiez votre phrase de récupération de 12 mots dans le bon ordre",
+              "checkbox": "J'ai sauvegardé ma phrase secrète",
+              "btn": "CONTINUER À RECEVOIR"
             }
           },
           "security": {
@@ -97,13 +103,28 @@
           "pageTitle": "EXPLORATEURS",
           "pageDescTitle": "Définissez l'explorateur",
           "pageDescDesc": "Sélectionnez un ensemble prédéfini d'API backend compatibles avec Electrs et d'explorateurs frontend compatibles avec Esplora ou saisissez des urls compatibles personnalisées.",
-          "custom": "Personnalisé"
+          "custom": "Personnalisé",
+          "selectLabel": "Selectionner votre explorateur",
+          "bitcoinUI": "Bitcoin UI",
+          "liquidUI": "Liquid UI",
+          "bitcoinAPI": "Bitcoin API",
+          "liquidAPI": "Liquid API",
+          "electrsBatchAPI": "Electrs batch API"
         },
         "network": {
-          "menuTitle": "Réseau"
+          "menuTitle": "Réseau",
+          "pageTitle": "réseau",
+          "pageDescTitle": "Définir le réseau",
+          "pageDescDesc": "Sélectionner un réseau entre mainnet, testnet et regtest",
+          "selectLabel": "Sélectionner votre réseau",
+          "changeNetworkSuccessToast": "Le réseau et les urls des explorateurs ont été mis à jour avec succès"
         },
         "torProxy": {
-          "menuTitle": "Proxy Tor"
+          "menuTitle": "Proxy Tor",
+          "pageTitle": "Proxy Tor",
+          "desc": "Nativement, les navigateurs web ne supportent pas le protocole Tor. C'est pourquoi nous utilisons un proxy Tor pour rediriger les requêtes vers les urls oignon. Par défaut, les clients utilisent https://proxy.tdex.network comme proxy. Si vous voulez utiliser le vôtre, spécifiez l'url de votre proxy ci-dessous",
+          "addProxyToastSuccess": "Un nouveau proxy Tor a été enregistré",
+          "addProxyBtn": "ENREGISTRER"
         },
         "deepRestoration": {
           "menuTitle": "Restauration en profondeur",
@@ -196,7 +217,10 @@
     "receive": "recevoir",
     "send": "envoyer",
     "swap": "échanger",
-    "details": "DETAILS",
+    "copy": "copier",
+    "copied": "copié",
+    "details": "details",
+    "continue": "continuer",
     "pinModalUnlockWallet": {
       "pageTitle": "INSEREZ PIN",
       "title": "Déverrouiller votre portemonnaie",

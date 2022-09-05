@@ -105,9 +105,9 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
                   <div className="item-main-info">
                     <IonIcon icon={eye}/>
                     <div className="item-start">
-                      <div className="main-row">{t('settings.general.account.identity.showMnemonic.title')}</div>
+                      <div className="main-row">{t('settings.general.account.identity.showMnemonic.menuTitle')}</div>
                       <IonText className="description">
-                        {t('settings.general.account.identity.showMnemonic.desc')}
+                        {t('settings.general.account.identity.showMnemonic.menuDesc')}
                       </IonText>
                     </div>
                     <IonIcon icon={chevronForwardOutline} />
