@@ -16,7 +16,7 @@ i18n
   .use(initReactI18next)
   .use(LanguageDetector)
   .init({
-    debug: true,
+    // debug: true,
     resources,
     fallbackLng: 'en',
     interpolation: {
