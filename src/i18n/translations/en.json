@@ -1,5 +1,6 @@
 {
   "translation": {
+    "//PAGES": "///PAGES",
     "homescreen": {
       "btnMainTitle": "SETUP WALLET",
       "btnSubTitle": "RESTORE WALLET"
@@ -257,6 +258,12 @@
       },
       "toastSuccess": "PIN has been changed."
     },
+    "pinModalUnlockWallet": {
+      "pageTitle": "INSERT PIN",
+      "title": "Unlock wallet",
+      "desc": "Enter your secret PIN"
+    },
+    "//TERMS": "///TERMS",
     "confirm": "confirm",
     "cancel": "cancel",
     "abort": "abort",
@@ -270,17 +277,37 @@
     "copied": "copied",
     "details": "details",
     "continue": "continue",
-    "pinModalUnlockWallet": {
-      "pageTitle": "INSERT PIN",
-      "title": "Unlock wallet",
-      "desc": "Enter your secret PIN"
-    },
     "clipboardCopyAddress": "Address copied!",
     "clipboardCopyTx": "TxID copied!",
     "address": "Address",
     "completed": "completed",
     "pending": "pending",
     "liquidAsset": "Liquid Asset",
-    "claimNow": "CLAIM NOW"
+    "claimNow": "CLAIM NOW",
+    "//ERRORS": "///ERRORS",
+    "MakeTradeError": "TradePropose or TradeComplete error",
+    "PinDigitsError": "PIN must contain 6 digits",
+    "InvalidTradeTypeError": "Trade type should be BUY or SELL",
+    "NoMarketsAvailableForAllPairsError": "No markets available for all trading pairs",
+    "NoMarketsAvailableForSelectedPairError": "No markets available for selected trading pair",
+    "IncorrectPINError": "Incorrect PIN",
+    "SecureStorageError": "Secure Storage error",
+    "PINsDoNotMatchError": "PINs needs to be equal",
+    "QRCodeScanError": "QR Scanner scan failed",
+    "AddressGenerationError": "Unable to generate new address",
+    "InvalidMnemonicError": "Invalid mnemonic error",
+    "WithdrawTxError": "An error occurred while sending withdraw transaction",
+    "TDEXRegistryError": "Unable to fetch providers from registry",
+    "UpdateTransactionsError": "Tx update error occurs",
+    "UpdateUtxosError": "Utxo update error occurs",
+    "DeepRestorationError": "Account discovery has failed",
+    "ClaimPeginError": "Claim pegin bitcoin has failed",
+    "NoClaimFoundError": "No claims have been found",
+    "PeginRestorationError": "Pegin restoration has failed",
+    "InvalidBitcoinAddress": "Invalid Bitcoin address",
+    "FailedToRestoreProvidersError": "Failed to restore providers",
+    "AppIsBusy": "App is busy. Please try in a moment",
+    "InvalidUrl": "Invalid URL",
+    "NoOtherProvider": "No other provider to choose from"
   }
 }

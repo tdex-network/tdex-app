@@ -1,5 +1,6 @@
 {
   "translation": {
+    "//PAGES": "///PAGES",
     "homescreen": {
       "btnMainTitle": "INITIALISER",
       "btnSubTitle": "RESTORER"
@@ -258,6 +259,12 @@
       },
       "toastSuccess": "PIN has been changed."
     },
+    "pinModalUnlockWallet": {
+      "pageTitle": "INSEREZ PIN",
+      "title": "Déverrouiller votre portemonnaie",
+      "desc": "Saisissez votre code PIN"
+    },
+    "//TERMS": "///TERMS",
     "confirm": "confirmer",
     "cancel": "annuler",
     "abort": "annuler",
@@ -271,16 +278,37 @@
     "copied": "copié",
     "details": "details",
     "continue": "continuer",
-    "pinModalUnlockWallet": {
-      "pageTitle": "INSEREZ PIN",
-      "title": "Déverrouiller votre portemonnaie",
-      "desc": "Saisissez votre code PIN"
-    },
     "clipboardCopyAddress": "Adresse copiée!",
     "clipboardCopyTx": "TxID copiée!",
     "address": "Adresse",
     "completed": "confirmé",
     "pending": "en attente",
-    "liquidAsset": "Actif Liquid"
+    "liquidAsset": "Actif Liquid",
+    "claimNow": "Réclamez maintenant",
+    "//ERRORS": "///ERRORS",
+    "MakeTradeError": "Erreur TradePropose ou TradeComplete",
+    "PinDigitsError": "Le code PIN doit contenir six chiffres",
+    "InvalidTradeTypeError": "Le type Trade doit être BUY ou SELL",
+    "NoMarketsAvailableForAllPairsError": "Aucun marché n'est disponible pour toutes les paires",
+    "NoMarketsAvailableForSelectedPairError": "Aucun marché n'est disponible pour la paire sélectionnée",
+    "IncorrectPINError": "PIN incorrect",
+    "SecureStorageError": "Erreur du stockage sécurisé",
+    "PINsDoNotMatchError": "Les codes PIN doivent être égaux",
+    "QRCodeScanError": "Échec de la numérisation du QR code",
+    "AddressGenerationError": "Impossible de générer une nouvelle adresse",
+    "InvalidMnemonicError": "Erreur de mnémonique invalide",
+    "WithdrawTxError": "Une erreur s'est produite lors de l'envoi de la transaction de retrait",
+    "TDEXRegistryError": "Impossible de récupérer les fournisseurs à partir du registre",
+    "UpdateTransactionsError": "Une erreur de mise à jour des transactions s'est produite",
+    "UpdateUtxosError": "Une erreur de mise à jour des UTXOs s'est produite",
+    "DeepRestorationError": "La restoration du compte a échoué",
+    "ClaimPeginError": "Le peg-in a échoué",
+    "NoClaimFoundError": "Aucune réclamation trouvée",
+    "PeginRestorationError": "La restoration du peg-in a échoué",
+    "InvalidBitcoinAddress": "Addresse Bitcoin invalide",
+    "FailedToRestoreProvidersError": "Échec de la restauration des fournisseurs",
+    "AppIsBusy": "L'application est occupée. Veuillez essayer dans un moment",
+    "InvalidUrl": "URL invalide",
+    "NoOtherProvider": "Aucun autre fournisseur ne peut être choisi"
   }
 }
