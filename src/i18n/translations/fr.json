@@ -202,7 +202,17 @@
           "p20": "Vous pouvez également poser des questions sur le canal communautaire <0>Telegram</0>."
         },
         "privacy": {
-          "menuTitle": "Vie privée"
+          "menuTitle": "Vie privée",
+          "pageTitle": "Politique de confidentialité",
+          "p0": "Chaque individu devrait avoir un droit inaliénable à la vie privée. Dans un monde où la technologie est de plus en plus utilisée pour identifier, surveiller et suivre les utilisateurs, l'application TDEX prend des mesures dans la direction opposée. L'application TDEX ne recueille ni ne partage vos informations. C'est notre politique en un mot.",
+          "title": "Politique de confidentialité de l'application TDEX",
+          "t1": "Informations que nous ne collectons pas",
+          "p1": "TDEX App ne stocke aucune information d'identification de votre appareil, telle que votre adresse IP ou vos agents utilisateurs ou vos transactions. TDEX App est conçu de manière à ne stocker aucune information. Vous n'avez pas besoin d'un numéro de téléphone, d'une adresse électronique ou de toute autre information liée à votre identité ou à vos liquidités pour utiliser l'application TDEX. TDEX App est privé par défaut.",
+          "t2": "Les informations qui sont partagées avec TDEX App",
+          "p21": "Si vous utilisez l'application TDEX sur votre téléphone Android ou iOS, Google ou Apple peuvent stocker des informations sur la façon dont vous utilisez l'application. Ils peuvent enregistrer le moment où l'appli est fermée, ouverte, la durée d'utilisation, les journaux de pannes et le modèle de votre appareil. Ces informations d'utilisation peuvent également être associées à votre compte Google ou Apple. Les seules informations que reçoit TDEX App sont le nombre de téléchargements et de plantages.",
+          "p22": "Si vous envisagez d'utiliser l'application TDEX sur un téléphone portable, il est utile de lire les règles de confidentialité d'Apple ou de Google. Si vous utilisez iOS, consultez les directives d'examen de l'App Store d'Apple. Pour Android, lisez la section sur les données utilisateur du Developer Policy Center de Google. En outre, si vous téléchargez l'application TDEX et l'installez manuellement avec l'apk du dépôt GitHub de TDEX, consultez la déclaration de confidentialité de GitHub.",
+          "p23": "En outre, TDEX s'appuie sur Blockstream.info/liquid comme source de données de Liquid Blockchain par défaut, mais vous pouvez changer à partir de Paramètres > Explorateurs. Pour la conversion des montants FIAT, il s'appuie sur les API publiques de CoinGecko. De même, TDEX App n'a aucune influence et/ou connaissance de si et comment les fournisseurs de liquidité TDEX collectent ou utilisent les données relatives aux transactions de swap atomique.",
+          "p3": "Cette politique est effective à partir du 6 mai 2021."
         },
         "termsConditions": {
           "menuTitle": "Conditions générales"
