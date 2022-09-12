@@ -149,7 +149,7 @@
     "scrypt-js": "^3.0.1",
     "slip77": "^0.2.0",
     "stream-browserify": "^3.0.0",
-    "tdex-sdk": "1.7.24",
+    "tdex-sdk": "1.7.25",
     "tiny-secp256k1": "^2.2.1",
     "util": "^0.12.4"
   },
