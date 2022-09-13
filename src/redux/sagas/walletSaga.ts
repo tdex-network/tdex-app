@@ -1,5 +1,6 @@
 import type { AddressInterface, StateRestorerOpts } from 'ldk';
-import { takeLatest, call, put, select, delay, all, takeEvery, retry } from 'redux-saga/effects';
+import { address as addrLDK } from 'liquidjs-lib';
+import { all, call, delay, put, retry, select, takeEvery, takeLatest } from 'redux-saga/effects';
 import type { EsploraUtxo, UnblindedOutput } from 'tdex-sdk';
 import { ElectrsBatchServer, fetchAllUtxos, utxosFetchGenerator } from 'tdex-sdk';
 
@@ -144,7 +145,7 @@ function* watchUtxoSaga({ payload }: ReturnType<typeof watchUtxo>) {
     const explorerLiquidAPI: string = yield select(({ settings }) => settings.explorerLiquidAPI);
     const api = ElectrsBatchServer.fromURLs(electrsBatchAPI, explorerLiquidAPI);
     const blindingKeyGetter = blindingKeyGetterFactory({
-      [address.toOutputScript(address.confidentialAddress).toString('hex')]: address,
+      [addrLDK.toOutputScript(address.confidentialAddress).toString('hex')]: address,
     });
     const unblindedUtxos: Unwrap<ReturnType<typeof fetchAllUtxos>> = yield retry(
       maxTry,

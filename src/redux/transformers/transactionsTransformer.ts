@@ -1,37 +1,32 @@
-import type { InputInterface, TxInterface } from 'ldk';
-import { isUnblindedOutput } from 'ldk';
+import type { TxInterface, networks } from 'ldk';
+import { isUnblindedOutput, getNetwork } from 'ldk';
 import moment from 'moment';
 import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
 import { getAsset, getSats, isConfidentialOutput } from 'tdex-sdk';
 
-import { isLbtc } from '../../utils/helpers';
 import type { Transfer, TxDisplayInterface } from '../../utils/types';
 import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
 
+/**
+ * Take two vectors: vin and vout representing a transaction
+ * then, using the whole list of a wallet's script, we return a set of Transfers
+ * @param vin
+ * @param vout
+ * @param walletScripts
+ * @param network
+ */
 function getTransfers(
-  vin: InputInterface[],
-  vout: UnblindedOutput[],
+  vin: TxInterface['vin'],
+  vout: TxInterface['vout'],
   walletScripts: string[],
-  network: NetworkString
+  network: networks.Network
 ): Transfer[] {
   const transfers: Transfer[] = [];
-  let feeAmount: number;
-  let feeAsset: string;
+
   const addToTransfers = (amount: number, asset: string, script: string) => {
     const transferIndex = transfers.findIndex((t) => t.asset === asset);
     if (transferIndex >= 0) {
-      const tmp = transfers[transferIndex].amount + amount;
-      // Check if the transfer is a fee output. Remove it for non-LBTC withdrawal.
-      if (Math.abs(tmp) === feeAmount && asset === feeAsset) {
-        transfers.splice(transferIndex, 1);
-        return;
-      }
-      // Deduct feeAmount on LBTC withdrawal
-      if (feeAmount && isLbtc(asset, network) && transfers.length === 1) {
-        transfers[transferIndex].amount = tmp + feeAmount;
-      } else {
-        transfers[transferIndex].amount = tmp;
-      }
+      transfers[transferIndex].amount += amount;
       return;
     }
     transfers.push({
@@ -42,37 +37,42 @@ function getTransfers(
   };
 
   for (const input of vin) {
-    if (
-      input.prevout &&
-      isUnblindedOutput(input.prevout) &&
-      walletScripts.includes(input.prevout.prevout.script.toString('hex'))
-    ) {
-      addToTransfers(
-        -1 * getSats(input.prevout),
-        getAsset(input.prevout),
-        input.prevout.prevout.script.toString('hex')
+    if (!input.prevout) throw new Error('malformed tx interface (missing prevout)');
+    if (!walletScripts.includes(input.prevout.prevout.script.toString('hex'))) continue;
+    if (isConfidentialOutput(input.prevout.prevout) && !isUnblindedOutput(input.prevout)) {
+      throw new Error(
+        `prevout ${input.prevout.txid}:${input.prevout.vout} is not unblinded but is a confidential output, amount displayed may be wrong`
       );
     }
+    addToTransfers(-1 * getSats(input.prevout), getAsset(input.prevout), input.prevout.prevout.script.toString('hex'));
   }
 
-  // Get fee output values
-  const feeOutput = vout.find((output) => !isConfidentialOutput(output) && output.prevout?.script.toString() === '');
-  if (feeOutput) {
-    feeAmount = getSats(feeOutput);
-    feeAsset = getAsset(feeOutput);
-  }
+  let feeAmount = 0;
+  let feeAsset = network.assetHash;
 
   for (const output of vout) {
-    if (
-      isUnblindedOutput(output) &&
-      walletScripts.includes(output.prevout.script.toString('hex')) &&
-      output.prevout.script.toString('hex') !== ''
-    ) {
-      addToTransfers(getSats(output), getAsset(output), output.prevout.script.toString('hex'));
+    if (output.prevout.script.length === 0) {
+      // handle the fee output
+      feeAmount = getSats(output);
+      feeAsset = getAsset(output);
+      continue;
     }
+    if (!walletScripts.includes(output.prevout.script.toString('hex'))) continue;
+    if (isConfidentialOutput(output.prevout) && !isUnblindedOutput(output))
+      throw new Error(`prevout ${output.txid}:${output.vout} is not unblinded but is a confidential output`);
+    addToTransfers(getSats(output), getAsset(output), output.prevout.script.toString('hex'));
   }
 
-  return transfers;
+  return transfers.filter((t, index, rest) => {
+    if (t.asset === feeAsset && Math.abs(t.amount) === feeAmount) {
+      if (rest.length === 1) {
+        transfers[index].amount = 0;
+        return true;
+      }
+      return false;
+    }
+    return true;
+  });
 }
 
 export function txTypeFromTransfer(transfers: Transfer[]): TxTypeEnum {
@@ -80,16 +80,13 @@ export function txTypeFromTransfer(transfers: Transfer[]): TxTypeEnum {
     if (transfers[0].amount > 0) {
       return TxTypeEnum.Receive;
     }
-
     if (transfers[0].amount < 0) {
       return TxTypeEnum.Send;
     }
   }
-
   if (transfers.length >= 2) {
     return TxTypeEnum.Swap;
   }
-
   return TxTypeEnum.Unknown;
 }
 
@@ -104,7 +101,7 @@ export function toDisplayTransaction(
   walletScripts: string[],
   network: NetworkString
 ): TxDisplayInterface {
-  const transfers = getTransfers(tx.vin, tx.vout as UnblindedOutput[], walletScripts, network);
+  const transfers = getTransfers(tx.vin, tx.vout as UnblindedOutput[], walletScripts, getNetwork(network));
   return {
     txId: tx.txid,
     blockTime: tx.status.blockTime ? moment(tx.status.blockTime * 1000) : undefined,
