@@ -10,6 +10,7 @@ chmod +x ./gradlew
 cd ..
 
 # Sign
+# On MacOS: /Users/xxx/Library/Android/sdk/build-tools/32.0.0/apksigner
 apksigner sign \
   --ks ./tdex-app-release-key.keystore \
   --out ./android/app/build/outputs/apk/release/app-release-signed.apk \
