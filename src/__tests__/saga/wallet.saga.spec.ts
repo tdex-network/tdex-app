@@ -2,16 +2,17 @@
 /// <reference types="jest" />
 
 import type { AddressInterface } from 'ldk';
-import { fetchAndUnblindUtxos } from 'ldk';
+import { address } from 'ldk';
 import type { PutEffect, StrictEffect } from 'redux-saga/effects';
 import type { UnblindedOutput } from 'tdex-sdk';
-import { getSats } from 'tdex-sdk';
-import * as ecc from 'tiny-secp256k1';
+import { ElectrsBatchServer, fetchAllUtxos, getSats } from 'tdex-sdk';
 
-import { faucet, firstAddress, APIURL, sleep } from '../../../test/test-utils';
+import { firstAddress, APIURL, sleep, faucet } from '../../../test/test-utils';
 import { SET_UTXO, DELETE_UTXO } from '../../redux/actions/walletActions';
+import { config } from '../../redux/config';
 import { outpointToString } from '../../redux/reducers/walletReducer';
 import { fetchAndUpdateUtxos } from '../../redux/sagas/walletSaga';
+import { blindingKeyGetterFactory } from '../../utils/helpers';
 import type { ActionType } from '../../utils/types';
 
 jest.setTimeout(15000);
@@ -24,11 +25,28 @@ describe('wallet saga', () => {
       addr = await firstAddress;
       await sleep(5000);
       const txid = await faucet(addr.confidentialAddress);
-      utxo = (await fetchAndUnblindUtxos(ecc, [addr], APIURL, (utxo) => utxo.txid !== txid))[0];
+      const api = ElectrsBatchServer.fromURLs(config.explorers.electrsBatchAPI, APIURL);
+      const blindingKeyGetter = blindingKeyGetterFactory({
+        [address.toOutputScript(addr.confidentialAddress).toString('hex')]: addr,
+      });
+      const utxos = await fetchAllUtxos([addr.confidentialAddress], async (script) => blindingKeyGetter(script), api);
+      const utxoTmp = utxos.find((utxo) => utxo.txid === txid);
+      if (utxoTmp) {
+        utxo = utxoTmp;
+      } else {
+        throw new Error('faucet utxo not found');
+      }
     });
 
     test('should discover and add utxo', async () => {
-      const gen = fetchAndUpdateUtxos([addr], {}, APIURL);
+      const gen = fetchAndUpdateUtxos(
+        {
+          [address.toOutputScript(addr.confidentialAddress).toString('hex')]: addr,
+        },
+        {},
+        APIURL,
+        config.explorers.electrsBatchAPI
+      );
       const setIsFetchingMarkets = gen.next().value as PutEffect<ActionType<boolean>>;
       expect(setIsFetchingMarkets.payload.action.payload).toEqual(true);
       const callEffect = gen.next().value as StrictEffect<IteratorResult<UnblindedOutput, number>>;
@@ -41,7 +59,14 @@ describe('wallet saga', () => {
     test('should delete existing utxo if spent', async () => {
       const current: Record<string, UnblindedOutput> = {};
       current['fakeTxid:8'] = utxo;
-      const gen = fetchAndUpdateUtxos([addr], current, APIURL);
+      const gen = fetchAndUpdateUtxos(
+        {
+          [address.toOutputScript(addr.confidentialAddress).toString('hex')]: addr,
+        },
+        current,
+        APIURL,
+        config.explorers.electrsBatchAPI
+      );
       let next = gen.next();
       while (next.value?.type !== 'PUT' || next.value?.payload.action.type !== 'DELETE_UTXO') {
         if (next.done) break;

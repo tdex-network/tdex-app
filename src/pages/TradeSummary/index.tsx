@@ -108,9 +108,9 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, assets }) => {
                             </span>
                           </div>
                           <p className="trade-price" data-cy="trade-summary-sent-amount">
-                            {transaction
-                              ? fromSatoshiFixed(transaction.transfers?.[0]?.amount.toString() ?? '0', 8, 8)
-                              : preview?.sent.amount}
+                            {preview
+                              ? preview?.sent.amount
+                              : fromSatoshiFixed(transaction?.transfers?.[0]?.amount.toString() ?? '0', 8, 8)}
                           </p>
                         </div>
 
@@ -134,9 +134,9 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, assets }) => {
                           </div>
                           <p className="trade-price">
                             +
-                            {transaction
-                              ? fromSatoshiFixed(transaction.transfers?.[1]?.amount.toString() ?? '0', 8, 8)
-                              : preview?.received.amount}
+                            {preview
+                              ? preview?.received.amount
+                              : fromSatoshiFixed(transaction?.transfers?.[1]?.amount.toString() ?? '0', 8, 8)}
                           </p>
                         </div>
                       </div>

@@ -1,9 +1,11 @@
-import type { BlindingKeyGetter, TxInterface, AddressInterface } from 'ldk';
-import { fetchAndUnblindTxsGenerator, fetchTx, isUnblindedOutput, unblindTransaction } from 'ldk';
+import type { TxInterface, AddressInterface } from 'ldk';
+import { fetchTx, isUnblindedOutput, unblindTransaction } from 'ldk';
 import { takeLatest, call, put, select, takeEvery, retry, delay } from 'redux-saga/effects';
-import { getAsset } from 'tdex-sdk';
+import type { EsploraTx } from 'tdex-sdk';
+import { ElectrsBatchServer, getAsset, txsFetchGenerator } from 'tdex-sdk';
 
 import { UpdateTransactionsError } from '../../utils/errors';
+import { blindingKeyGetterFactory, splitArray } from '../../utils/helpers';
 import {
   clearTransactionsInStorage,
   getTransactionsFromStorage,
@@ -25,6 +27,8 @@ import {
 import type { WalletState } from '../reducers/walletReducer';
 import type { RootState, SagaGenerator } from '../types';
 
+const MAX_ADDRESSES_TX_GENERATOR = 15;
+
 export function* restoreTransactions(): SagaGenerator<void, TxInterface[]> {
   const txs = yield call(getTransactionsFromStorage);
   for (const tx of txs) {
@@ -42,24 +46,30 @@ function* updateTransactions() {
     const {
       addresses,
       explorerLiquidAPI,
+      electrsBatchAPI,
       currentTxs,
     }: {
       addresses: Record<string, AddressInterface>;
       explorerLiquidAPI: string;
+      electrsBatchAPI: string;
       currentTxs: Record<string, TxInterface>;
     } = yield select(({ wallet, settings, transactions }: RootState) => ({
       addresses: wallet.addresses,
       explorerLiquidAPI: settings.explorerLiquidAPI,
+      electrsBatchAPI: settings.electrsBatchAPI,
       currentTxs: transactions.txs,
     }));
     const toSearch: string[] = [];
     for (const { confidentialAddress } of Object.values(addresses)) {
       toSearch.unshift(confidentialAddress);
     }
-    yield call(fetchAndUpdateTxs, toSearch, addresses, currentTxs, explorerLiquidAPI);
+    if (toSearch.length > 0) {
+      yield call(fetchAndUpdateTxs, toSearch, addresses, currentTxs, explorerLiquidAPI, electrsBatchAPI);
+    }
   } catch (e) {
     console.error(e);
     yield put(addErrorToast(UpdateTransactionsError));
+    yield put(setIsFetchingTransactions(false));
   }
 }
 
@@ -69,32 +79,42 @@ function* updateTransactions() {
  * @param scriptsToAddressInterface a record using to build a BlindingKeyGetter.
  * @param currentTxs
  * @param explorerLiquidAPI esplora URL used to fetch transactions.
+ * @param electrsBatchAPI
  */
 export function* fetchAndUpdateTxs(
   addresses: string[],
   scriptsToAddressInterface: Record<string, AddressInterface>,
   currentTxs: Record<string, TxInterface>,
-  explorerLiquidAPI: string
+  explorerLiquidAPI: string,
+  electrsBatchAPI: string
 ): Generator<any, any, any> {
   yield put(setIsFetchingTransactions(true));
-  const identityBlindKeyGetter = blindKeyGetterFactory(scriptsToAddressInterface);
-
-  const txsGen = fetchAndUnblindTxsGenerator(
-    addresses,
-    identityBlindKeyGetter,
-    explorerLiquidAPI,
-    (tx: TxInterface) => {
-      const txInStore = currentTxs[tx.txid];
-      // skip if tx is already in store AND confirmed
-      return !!txInStore?.status.confirmed;
-    }
+  const blindingKeyGetter = blindingKeyGetterFactory(scriptsToAddressInterface);
+  const api = ElectrsBatchServer.fromURLs(electrsBatchAPI, explorerLiquidAPI);
+  const splittedAddresses = splitArray(
+    addresses.map((addr) => addr),
+    MAX_ADDRESSES_TX_GENERATOR
   );
-  const next = () => txsGen.next();
-  let it: IteratorResult<TxInterface, number> = yield call(next);
-  while (!it.done) {
-    const tx = it.value;
-    yield put(setTransaction(tx));
-    it = yield call(next);
+  const txsGens = splittedAddresses.reverse().map((addresses) =>
+    txsFetchGenerator(
+      addresses,
+      async (script) => blindingKeyGetter(script),
+      api,
+      (tx: EsploraTx) => {
+        const txInStore = currentTxs[tx.txid];
+        // skip if tx is already in store AND confirmed
+        return !!txInStore?.status.confirmed;
+      }
+    )
+  );
+  for (let txsGen of txsGens) {
+    const next = () => txsGen.next();
+    let it: IteratorResult<TxInterface, number> = yield call(next);
+    while (!it.done) {
+      const tx = it.value;
+      yield put(setTransaction(tx));
+      it = yield call(next);
+    }
   }
   yield put(setIsFetchingTransactions(false));
 }
@@ -120,8 +140,8 @@ function* watchTransactionSaga({ payload }: ReturnType<typeof watchTransaction>)
     const scriptsToAddress: Record<string, AddressInterface> = yield select(
       ({ wallet }: { wallet: WalletState }) => wallet.addresses
     );
-    const blindKeyGetter = blindKeyGetterFactory(scriptsToAddress);
-    const { unblindedTx, errors } = yield call(unblindTransaction, tx, blindKeyGetter);
+    const blindKeyGetter = blindingKeyGetterFactory(scriptsToAddress);
+    const { unblindedTx, errors } = yield call(unblindTransaction, tx, async (script) => blindKeyGetter(script));
     if (errors.length > 0) {
       errors.forEach((err: { message?: string }) => {
         console.error(err.message);
@@ -139,16 +159,6 @@ function* watchTransactionSaga({ payload }: ReturnType<typeof watchTransaction>)
     console.error(err);
   }
   yield put(removeWatcherTransaction(txID));
-}
-
-function blindKeyGetterFactory(scriptsToAddressInterface: Record<string, AddressInterface>): BlindingKeyGetter {
-  return (script: string) => {
-    try {
-      return scriptsToAddressInterface[script]?.blindingPrivateKey;
-    } catch (_) {
-      return undefined;
-    }
-  };
 }
 
 function* resetTransactions() {

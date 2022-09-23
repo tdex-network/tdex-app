@@ -1,4 +1,4 @@
-import type { SelectChangeEventDetail } from '@ionic/core';
+import type { SelectChangeEventDetail } from '@ionic/core/components';
 import {
   IonCol,
   IonContent,
@@ -22,6 +22,7 @@ import { resetAssets } from '../../redux/actions/assetsActions';
 import { resetBtcReducer } from '../../redux/actions/btcActions';
 import {
   setDefaultProvider,
+  setElectrsBatchApi,
   setExplorerBitcoinAPI,
   setExplorerBitcoinUI,
   setExplorerLiquidAPI,
@@ -31,7 +32,13 @@ import {
 import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
 import { resetTransactionReducer } from '../../redux/actions/transactionsActions';
 import { clearAddresses, resetUtxos, setMasterPublicKey } from '../../redux/actions/walletActions';
-import { defaultProviderEndpoints, mempoolExplorerEndpoints } from '../../redux/config';
+import {
+  configProduction,
+  configRegtest,
+  configTestnet,
+  defaultProviderEndpoints,
+  mempoolExplorerEndpoints,
+} from '../../redux/config';
 import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import { AppError, AppIsBusy } from '../../utils/errors';
 import { fromXpub } from '../../utils/fromXpub';
@@ -70,18 +77,21 @@ const Network = (): JSX.Element => {
         dispatch(setExplorerLiquidUI(mempoolExplorerEndpoints.liquid.explorerLiquidUI));
         dispatch(setExplorerBitcoinAPI(mempoolExplorerEndpoints.liquid.explorerBitcoinAPI));
         dispatch(setExplorerBitcoinUI(mempoolExplorerEndpoints.liquid.explorerBitcoinUI));
+        dispatch(setElectrsBatchApi(configProduction.explorers.electrsBatchAPI));
         dispatch(setDefaultProvider(defaultProviderEndpoints.liquid));
       } else if (network === 'testnet') {
         dispatch(setExplorerLiquidAPI(mempoolExplorerEndpoints.testnet.explorerLiquidAPI));
         dispatch(setExplorerLiquidUI(mempoolExplorerEndpoints.testnet.explorerLiquidUI));
         dispatch(setExplorerBitcoinAPI(mempoolExplorerEndpoints.testnet.explorerBitcoinAPI));
         dispatch(setExplorerBitcoinUI(mempoolExplorerEndpoints.testnet.explorerBitcoinUI));
+        dispatch(setElectrsBatchApi(configTestnet.explorers.electrsBatchAPI));
         dispatch(setDefaultProvider(defaultProviderEndpoints.testnet));
       } else {
         dispatch(setExplorerLiquidAPI('http://localhost:3001'));
         dispatch(setExplorerBitcoinAPI('http://localhost:3000'));
         dispatch(setExplorerBitcoinUI('http://localhost:5000'));
         dispatch(setExplorerLiquidUI('http://localhost:5001'));
+        dispatch(setElectrsBatchApi(configRegtest.explorers.electrsBatchAPI));
         dispatch(setDefaultProvider(defaultProviderEndpoints.regtest));
       }
       // Refresh providers
