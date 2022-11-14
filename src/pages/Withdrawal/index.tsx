@@ -12,7 +12,7 @@ import {
 import Decimal from 'decimal.js';
 import type { RecipientInterface, StateRestorerOpts } from 'ldk';
 import { address, psetToUnsignedTx, walletFromCoins } from 'ldk';
-import { Psbt } from 'liquidjs-lib';
+import { Psbt } from 'liquidjs-lib/src/psbt';
 import React, { useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
