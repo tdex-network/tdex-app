@@ -1,7 +1,7 @@
 import assert from 'assert';
 import type { TradeOrder } from 'tdex-sdk';
 import { bestBalanceDiscovery, bestPriceDiscovery, combineDiscovery, Discoverer, TradeType } from 'tdex-sdk';
-import type TraderClientInterface from 'tdex-sdk/dist/grpcClientInterface';
+import type TraderClientInterface from 'tdex-sdk/dist-web/clientInterface';
 
 import MockTraderClientInterface from '../../test/fixtures/mockTraderClientInterface';
 import { mockLbtcSendAsset, mockMarketsLbtcUsdt, mockUsdtReceiveAsset } from '../../test/fixtures/trade';

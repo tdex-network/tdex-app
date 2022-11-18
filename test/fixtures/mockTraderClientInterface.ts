@@ -1,5 +1,5 @@
 import type { BalanceWithFee, Preview } from 'tdex-sdk/dist-web/api-spec/protobuf/gen/js/tdex/v1/types_pb';
-import type TraderClientInterface from 'tdex-sdk/dist-web/grpcClientInterface';
+import type TraderClientInterface from 'tdex-sdk/dist-web/clientInterface';
 
 interface Args {
   balance: BalanceWithFee;
@@ -10,7 +10,7 @@ interface Args {
 export default class MockTraderClientInterface implements TraderClientInterface {
   balanceWithFee: BalanceWithFee;
   preview?: Preview;
-
+  clientType: string = 'MOCK';
   providerUrl: string;
   client: any;
 
