@@ -37,6 +37,7 @@ function getTransfers(
   };
 
   for (const input of vin) {
+    if (input.isPegin) continue;
     if (!input.prevout) throw new Error('malformed tx interface (missing prevout)');
     if (!walletScripts.includes(input.prevout.prevout.script.toString('hex'))) continue;
     if (isConfidentialOutput(input.prevout.prevout) && !isUnblindedOutput(input.prevout)) {
