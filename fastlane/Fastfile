@@ -1,4 +1,4 @@
-fastlane_version '2.102.0'
+fastlane_version '2.111.0'
 
 # iOS Lanes 🍏
 platform :ios do
