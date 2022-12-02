@@ -2,7 +2,6 @@ fastlane_version '2.102.0'
 
 # iOS Lanes 🍏
 platform :ios do
-
   desc 'Fetch certificates and provisioning profiles'
   lane :certificates do
     match(app_identifier: 'io.sevenlabs.app', type: 'development', readonly: true)
@@ -50,13 +49,11 @@ platform :ios do
       submission_information: { add_id_info_uses_idfa: false },
     )
   end
-
 end
 
 
 # Android Lanes 🤖
 platform :android do
-
   desc 'Build the Android application apk.'
   lane :apk do
     gradle(task: 'clean', project_dir: 'android/')
@@ -68,15 +65,14 @@ platform :android do
   desc 'Ship to PlayStore.'
   lane :prod do
     git_check
-    build
+    apk
     supply(
       track: 'production',
     )
   end
-
 end
 
-## Bump 
+## Bump
 desc 'Android: Increment versionCode and set versionName to package.json version.'
 package = load_json(json_path: "./package.json")
 
@@ -84,7 +80,6 @@ private_lane :inc_ver_and do
   increment_version_code(
     gradle_file_path: "./android/app/build.gradle",
   )
-
   increment_version_name(
     gradle_file_path: "./android/app/build.gradle",
     version_name: package['version']
@@ -95,7 +90,6 @@ end
 desc 'iOS: Increment build number and set the version to package.json version.'
 private_lane :inc_ver_ios do
 package = load_json(json_path: "./package.json")
-
   increment_build_number(
     xcodeproj: './ios/App/App.xcodeproj'
   )
