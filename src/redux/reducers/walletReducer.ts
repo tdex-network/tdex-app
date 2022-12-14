@@ -2,6 +2,7 @@ import type { AddressInterface, Outpoint, Mnemonic, StateRestorerOpts } from 'ld
 import type { MasterPublicKey } from 'ldk/dist/identity/masterpubkey';
 import { createSelector } from 'reselect';
 import type { UnblindedOutput } from 'tdex-sdk';
+import { toXpub } from 'tdex-sdk';
 
 import { defaultPrecision, LBTC_COINGECKOID, LBTC_ASSET } from '../../utils/constants';
 import { balancesFromUtxos, getIndexAndIsChangeFromAddress } from '../../utils/helpers';
@@ -18,7 +19,6 @@ import {
   UNLOCK_UTXO,
   UNLOCK_UTXOS,
   CLEAR_ADDRESSES,
-  SET_MASTER_PUBLIC_KEY,
 } from '../actions/walletActions';
 import type { RootState } from '../types';
 
@@ -76,10 +76,9 @@ function walletReducer(state = initialState, action: ActionType): WalletState {
       return {
         ...state,
         masterBlindKey: (action.payload as Mnemonic).masterBlindingKey,
-        masterPubKey: (action.payload as Mnemonic).masterPublicKey,
+        // use xpub format for all networks to be more compatible with all other wallets that only uses xpub in Liquid (specter)
+        masterPubKey: toXpub((action.payload as Mnemonic).masterPublicKey),
       };
-    case SET_MASTER_PUBLIC_KEY:
-      return { ...state, masterPubKey: action.payload };
     case LOCK_UTXO:
       return {
         ...state,
