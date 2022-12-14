@@ -13,7 +13,6 @@ export const SET_UTXO = 'SET_UTXO';
 export const DELETE_UTXO = 'DELETE_UTXO';
 export const RESET_UTXOS = 'RESET_UTXOS';
 export const SET_MASTER_PUBLIC_KEYS_FROM_MNEMONIC = 'SET_MASTER_PUBLIC_KEYS_FROM_MNEMONIC';
-export const SET_MASTER_PUBLIC_KEY = 'SET_MASTER_PUBLIC_KEY';
 export const LOCK_UTXO = 'LOCK_UTXO';
 export const UNLOCK_UTXO = 'UNLOCK_UTXO';
 export const WATCH_UTXO = 'WATCH_UTXO';
@@ -68,13 +67,6 @@ export const setMasterPublicKeysFromMnemonic = (mnemonic: Mnemonic): ActionType<
   return {
     type: SET_MASTER_PUBLIC_KEYS_FROM_MNEMONIC,
     payload: mnemonic,
-  };
-};
-
-export const setMasterPublicKey = (masterPubKey: string): ActionType<string> => {
-  return {
-    type: SET_MASTER_PUBLIC_KEY,
-    payload: masterPubKey,
   };
 };
 
