@@ -15,6 +15,7 @@ import Receive from './pages/Receive';
 import Settings from './pages/Settings';
 import Account from './pages/Settings/Account';
 import Network from './pages/Settings/Network';
+import WalletInfo from './pages/Settings/WalletInfo';
 import ShowMnemonic from './pages/ShowMnemonic';
 import ShowMnemonicSettings from './pages/ShowMnemonic/show-mnemonic-settings';
 import Terms from './pages/Terms';
@@ -47,6 +48,7 @@ export const routerLinks = {
   privacy: '/privacy',
   settings: '/settings',
   showMnemonicSettings: '/settings/show-mnemonic',
+  walletInfo: '/settings/wallet-info',
   terms: '/terms',
   deepRestoration: '/settings/deep-restoration',
   explorers: '/settings/explorers',
@@ -130,6 +132,10 @@ export const ROUTES = [
   {
     path: routerLinks.showMnemonicSettings,
     component: ShowMnemonicSettings,
+  },
+  {
+    path: routerLinks.walletInfo,
+    component: WalletInfo,
   },
   {
     path: routerLinks.deleteMnemonic,

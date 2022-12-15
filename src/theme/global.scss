@@ -44,3 +44,31 @@ span {
 .vertical-middle {
   vertical-align: middle !important
 }
+
+.addr-txt {
+  &:focus-visible {
+    outline: 0;
+  }
+  width: 100%;
+  font-family: var(--ion-font-main);
+  font-size: var(--ion-font-size-sub);
+  overflow: scroll;
+  line-height: 30px;
+  white-space: nowrap;
+
+  &__multiline {
+    line-height: normal;
+    white-space: normal;
+  }
+}
+
+.copy-icon {
+  width: 24px;
+  height: 24px;
+  margin-left: 10px;
+}
+
+.copied-icon {
+  width: 24px;
+  height: 24px;
+}
