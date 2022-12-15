@@ -40,6 +40,7 @@ import {
   mempoolExplorerEndpoints,
 } from '../../redux/config';
 import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
+import { BASE_DERIVATION_PATH_MAINNET_LEGACY, BASE_DERIVATION_PATH_TESTNET } from '../../utils/constants';
 import { AppError, AppIsBusy } from '../../utils/errors';
 import { refreshProviders } from '../LiquidityProvider';
 
@@ -106,7 +107,7 @@ const Network = (): JSX.Element => {
         opts: {
           masterPublicKey: masterPubKey,
           masterBlindingKey: masterBlindKey,
-          baseDerivationPath: network === 'regtest' || network === 'testnet' ? "m/84'/1'/0'" : "m/84'/0'/0'",
+          baseDerivationPath: network === 'liquid' ? BASE_DERIVATION_PATH_MAINNET_LEGACY : BASE_DERIVATION_PATH_TESTNET,
         },
         ecclib: ecc,
       });

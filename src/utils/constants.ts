@@ -229,3 +229,7 @@ export function getAssetImagePath(assetHash: string): string {
   if (localImagePath) return localImagePath;
   return getRemoteImagePath(assetHash);
 }
+
+export const BASE_DERIVATION_PATH_MAINNET = "m/84'/1776'/0'";
+export const BASE_DERIVATION_PATH_MAINNET_LEGACY = "m/84'/0'/0'";
+export const BASE_DERIVATION_PATH_TESTNET = "m/84'/1'/0'";

@@ -22,6 +22,7 @@ import ChangePinModals from '../../../components/ChangePinModals';
 import Header from '../../../components/Header';
 import PinModal from '../../../components/PinModal';
 import { addErrorToast } from '../../../redux/actions/toastActions';
+import { routerLinks } from '../../../routes';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../../utils/constants';
 import { IncorrectPINError } from '../../../utils/errors';
 import { getMnemonicFromStorage } from '../../../utils/storage-helper';
@@ -106,6 +107,16 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
                       <IonText className="description">
                         Display the secret mnemonic stored in your device's secure storage.
                       </IonText>
+                    </div>
+                    <IonIcon icon={chevronForwardOutline} />
+                  </div>
+                </IonItem>
+                <IonItem className="list-item" onClick={() => history.push(routerLinks.walletInfo)}>
+                  <div className="item-main-info">
+                    <IonIcon icon={eye} />
+                    <div className="item-start">
+                      <div className="main-row">Show information</div>
+                      <IonText className="description">Display additional wallet information.</IonText>
                     </div>
                     <IonIcon icon={chevronForwardOutline} />
                   </div>
