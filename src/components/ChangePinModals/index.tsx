@@ -58,7 +58,10 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({ open, onDeleted, onCl
       .catch(() => {
         onError(IncorrectPINError);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        setNeedReset(true);
+      });
   };
 
   const onSecondPinConfirm = (secondPin: string) => {
@@ -71,7 +74,10 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({ open, onDeleted, onCl
       .catch(() => {
         onError(IncorrectPINError);
       })
-      .finally(() => setLoading(false));
+      .finally(() => {
+        setLoading(false);
+        setNeedReset(true);
+      });
   };
 
   return (
@@ -80,7 +86,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({ open, onDeleted, onCl
       <PinModal
         needReset={needReset}
         setNeedReset={setNeedReset}
-        open={modalOpen === 'first'}
+        open={open && modalOpen === 'first'}
         title="Unlock wallet"
         description="Enter your current PIN."
         onConfirm={onFirstPinConfirm}
@@ -91,7 +97,7 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({ open, onDeleted, onCl
       <PinModal
         needReset={needReset}
         setNeedReset={setNeedReset}
-        open={modalOpen === 'second'}
+        open={open && modalOpen === 'second'}
         title="New PIN"
         description="Set up the new PIN."
         onConfirm={onSecondPinConfirm}

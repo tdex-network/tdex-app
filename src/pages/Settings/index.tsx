@@ -1,3 +1,5 @@
+import './style.scss';
+
 import type { AppInfo } from '@capacitor/app';
 import { App } from '@capacitor/app';
 import { Device } from '@capacitor/device';
@@ -13,8 +15,6 @@ import CurrencySearch from '../../components/CurrencySearch';
 import DenominationSearch from '../../components/DenominationSearch';
 import Header from '../../components/Header';
 import { routerLinks } from '../../routes';
-
-import './style.scss';
 
 const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   const { currency, unitLBTC } = useSelector((state: any) => ({

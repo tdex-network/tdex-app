@@ -1,3 +1,5 @@
+import './style.scss';
+
 import {
   IonContent,
   IonList,
@@ -16,14 +18,13 @@ import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
 
-import ChangePinModals from '../../components/ChangePinModals';
-import Header from '../../components/Header';
-import PinModal from '../../components/PinModal';
-import { addErrorToast } from '../../redux/actions/toastActions';
-import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
-import { IncorrectPINError } from '../../utils/errors';
-import { getMnemonicFromStorage } from '../../utils/storage-helper';
-import './style.scss';
+import ChangePinModals from '../../../components/ChangePinModals';
+import Header from '../../../components/Header';
+import PinModal from '../../../components/PinModal';
+import { addErrorToast } from '../../../redux/actions/toastActions';
+import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../../utils/constants';
+import { IncorrectPINError } from '../../../utils/errors';
+import { getMnemonicFromStorage } from '../../../utils/storage-helper';
 
 const Account: React.FC<RouteComponentProps> = ({ history }) => {
   const dispatch = useDispatch();
@@ -131,16 +132,14 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
                     <IonIcon icon={chevronForwardOutline} />
                   </div>
                 </IonItem>
-                {showChangePinModal && (
-                  <ChangePinModals
-                    open={showChangePinModal}
-                    onClose={() => setShowChangePinModal(false)}
-                    onDeleted={() => {
-                      setShowChangePinModal(false);
-                      history.push('/homescreen');
-                    }}
-                  />
-                )}
+                <ChangePinModals
+                  open={showChangePinModal}
+                  onClose={() => setShowChangePinModal(false)}
+                  onDeleted={() => {
+                    setShowChangePinModal(false);
+                    history.push('/homescreen');
+                  }}
+                />
 
                 {/* Delete Mnemonic */}
                 <IonItem
