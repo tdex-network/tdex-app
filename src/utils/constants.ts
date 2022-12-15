@@ -230,6 +230,6 @@ export function getAssetImagePath(assetHash: string): string {
   return getRemoteImagePath(assetHash);
 }
 
-// TODO: Use 1776 for mainnet
-export const BASE_DERIVATION_PATH_MAINNET = "m/84'/0'/0'";
-export const BASE_DERIVATION_PATH_NOT_MAINNET = "m/84'/1'/0'";
+export const BASE_DERIVATION_PATH_MAINNET = "m/84'/1776'/0'";
+export const BASE_DERIVATION_PATH_MAINNET_LEGACY = "m/84'/0'/0'";
+export const BASE_DERIVATION_PATH_TESTNET = "m/84'/1'/0'";
