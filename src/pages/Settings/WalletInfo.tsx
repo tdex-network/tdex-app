@@ -11,6 +11,7 @@ import { IconCopy } from '../../components/icons';
 import { addSuccessToast } from '../../redux/actions/toastActions';
 import type { RootState } from '../../redux/types';
 import { clipboardCopy } from '../../utils/clipboard';
+import { BASE_DERIVATION_PATH_MAINNET, BASE_DERIVATION_PATH_NOT_MAINNET } from '../../utils/constants';
 
 interface WalletInfoProps extends RouteComponentProps {
   masterPubKey: string;
@@ -20,8 +21,8 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ masterPubKey, network }) => {
   const dispatch = useDispatch();
   const [xpubCopied, setXpubCopied] = React.useState(false);
   const [pathCopied, setPathCopied] = React.useState(false);
-  console.log('network', network);
-  const derivationPath = network === 'liquid' ? "m/84'/0'/0'" : "m/84'/1'/0'";
+  const derivationPath = network === 'liquid' ? BASE_DERIVATION_PATH_MAINNET : BASE_DERIVATION_PATH_NOT_MAINNET;
+
   return (
     <IonPage>
       <IonContent className="show-xpub-content">
