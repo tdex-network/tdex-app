@@ -228,6 +228,9 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       }, PIN_TIMEOUT_FAILURE);
       dispatch(unlockUtxos());
       dispatch(addErrorToast(WithdrawTxError));
+    } finally {
+      setModalOpen(false);
+      setLoading(false);
     }
   };
 
