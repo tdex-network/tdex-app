@@ -1,5 +1,4 @@
 import { IconExchange, IconSettings, IconWallet } from './components/icons';
-import Account from './pages/Account';
 import Backup from './pages/Backup';
 import ClaimPegin from './pages/ClaimPegin';
 import DeepRestoration from './pages/DeepRestoration';
@@ -14,6 +13,7 @@ import Privacy from './pages/Privacy';
 import QRScanner from './pages/QRScanner';
 import Receive from './pages/Receive';
 import Settings from './pages/Settings';
+import Account from './pages/Settings/Account';
 import Network from './pages/Settings/Network';
 import ShowMnemonic from './pages/ShowMnemonic';
 import ShowMnemonicSettings from './pages/ShowMnemonic/show-mnemonic-settings';
