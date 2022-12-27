@@ -23,7 +23,7 @@ const TorProxy: React.FC<TorProxyProps> = ({ torProxy }) => {
           <Header title="TOR PROXY" hasBackButton={true} />
           <IonRow className="ion-margin-vertical">
             <IonCol className="ion-text-left" size="10" offset="1">
-              <p data-cy="description-p">
+              <p data-testid="description-p">
                 Natively, web browsers do not support the Tor protocol. That's why we are using a Tor proxy to redirect
                 requests to onion endpoints. By default, clients use https://proxy.tdex.network as proxy. If you want to
                 use your own, specify your proxy endpoint below.

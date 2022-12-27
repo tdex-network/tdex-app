@@ -7,12 +7,13 @@ import type { PutEffect, StrictEffect } from 'redux-saga/effects';
 import type { UnblindedOutput } from 'tdex-sdk';
 import { ElectrsBatchServer, fetchAllUtxos, getSats } from 'tdex-sdk';
 
-import { firstAddress, APIURL, sleep, faucet } from '../../../test/test-utils';
+import faucet, { APIURL } from '../../../test/faucet';
+import { firstAddress } from '../../../test/test-utils';
 import { SET_UTXO, DELETE_UTXO } from '../../redux/actions/walletActions';
 import { config } from '../../redux/config';
 import { outpointToString } from '../../redux/reducers/walletReducer';
 import { fetchAndUpdateUtxos } from '../../redux/sagas/walletSaga';
-import { blindingKeyGetterFactory } from '../../utils/helpers';
+import { blindingKeyGetterFactory, sleep } from '../../utils/helpers';
 import type { ActionType } from '../../utils/types';
 
 jest.setTimeout(15000);

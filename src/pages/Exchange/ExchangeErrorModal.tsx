@@ -53,17 +53,17 @@ const ExchangeErrorModal: React.FC<Props> = ({ result, error, onClose, onClickRe
 
           <IonRow className="ion-margin-top">
             <IonCol size="12">
-              <IonButton className="main-button" data-cy="main-button" onClick={retryHandler}>
+              <IonButton className="main-button" data-testid="main-button" onClick={retryHandler}>
                 RETRY
               </IonButton>
             </IonCol>
             <IonCol size="12">
-              <IonButton className="main-button" data-cy="main-button" onClick={tryNextHandler}>
+              <IonButton className="main-button" data-testid="main-button" onClick={tryNextHandler}>
                 TRY NEXT PROVIDER
               </IonButton>
             </IonCol>
             <IonCol size="12">
-              <IonButton className="main-button" data-cy="main-button" onClick={onClose}>
+              <IonButton className="main-button" data-testid="main-button" onClick={onClose}>
                 CANCEL
               </IonButton>
             </IonCol>

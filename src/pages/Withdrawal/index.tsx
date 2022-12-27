@@ -268,7 +268,8 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
 
           <IonItem className="address-input">
             <IonInput
-              data-cy="input-addr-withdraw"
+              name="input-addr-withdraw"
+              data-testid="input-addr-withdraw"
               inputmode="text"
               enterkeyhint="done"
               onKeyDown={onPressEnterKeyCloseKeyboard}

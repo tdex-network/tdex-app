@@ -55,3 +55,6 @@ resources/windows/splash
 # Cypress
 cypress/videos
 cypress/screenshots
+/test-results/
+/playwright-report/
+/playwright/.cache/

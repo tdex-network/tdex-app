@@ -180,7 +180,7 @@ const Operations: React.FC<OperationsProps> = ({
             </IonButton>
             <IonButton
               className="coin-action-button"
-              data-cy="button-send"
+              data-testid="button-send"
               onClick={() => {
                 history.push(`/withdraw/${asset_id}`);
               }}

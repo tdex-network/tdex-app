@@ -230,7 +230,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
                 <IonCol size="9" offset="1.5">
                   <IonButton
                     className="main-button"
-                    data-cy="main-button"
+                    data-testid="main-button"
                     disabled={!isPinValidated || !isTermsAccepted}
                     onClick={() => {
                       if (isPinValidated && isTermsAccepted) {

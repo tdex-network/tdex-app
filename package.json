@@ -159,6 +159,7 @@
     "@craco/craco": "^7.0.0",
     "@ionic/cli": "^6.20.1",
     "@ionic/prettier-config": "^2.0.0",
+    "@playwright/test": "^1.29.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@types/bs58check": "^2.1.0",
     "@types/buffer-json": "^2.0.1",

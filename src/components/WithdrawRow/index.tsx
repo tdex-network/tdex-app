@@ -111,7 +111,8 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
         >
           <div className="ion-text-end">
             <IonInput
-              data-cy="input-withdraw-amount"
+              name="input-withdraw-amount"
+              data-testid="input-withdraw-amount"
               autofocus={true}
               color={error && 'danger'}
               enterkeyhint="done"
@@ -128,7 +129,7 @@ const WithdrawRow: React.FC<WithdrawRowInterface> = ({ amount, balance, price, s
       </div>
 
       <div className="exchanger-row sub-row">
-        <span className="balance" onClick={() => setAmount(residualBalance)} data-cy="button-send-max">
+        <span className="balance" onClick={() => setAmount(residualBalance)} data-testid="button-send-max">
           <div className="overflow-hidden text-no-wrap">
             {`MAX `}
             {error || !residualBalance ? (
