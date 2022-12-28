@@ -17,12 +17,8 @@
   },
   "eslintConfig": {
     "extends": [
-      "plugin:cypress/recommended",
       "react-app"
     ],
-    "env": {
-      "cypress/globals": true
-    },
     "globals": {
       "module": true
     },
@@ -73,9 +69,7 @@
     "build:android": "ionic capacitor build android --no-open",
     "build:ios": "ionic capacitor build ios --no-open",
     "bump": "fastlane bump",
-    "cy:open": "cypress open",
-    "cy:run": "cypress run",
-    "cy:run-debug": "DEBUG=cypress:* cypress run --browser chrome --config-file ./cypress.config.ts",
+    "e2e": "yarn playwright test",
     "eslint": "eslint \"./src/**/*.{ts,tsx}\" \"./test/**/*.{ts,tsx}\"",
     "fmt": "npm run eslint -- --fix && npm run prettier -- --write",
     "ionic:build": "craco build",
@@ -113,7 +107,6 @@
     "@capacitor/splash-screen": "^4.0.1",
     "@capacitor/status-bar": "^4.0.1",
     "@cheprasov/react-qrcode": "^1.0.1",
-    "@cypress/webpack-preprocessor": "^5.15.5",
     "@ionic/react": "^6.2.4",
     "@ionic/react-router": "^6.2.4",
     "@types/lodash.merge": "^4.6.7",
@@ -171,9 +164,6 @@
     "@types/react-router": "^5.1.18",
     "@types/react-router-dom": "^5.3.3",
     "cordova-res": "^0.15.4",
-    "cypress": "^11.1.0",
-    "cypress-localstorage-commands": "^2.2.1",
-    "eslint-plugin-cypress": "^2.12.1",
     "jest-canvas-mock": "^2.4.0",
     "prettier": "^2.7.1",
     "react-scripts": "^5.0.1",

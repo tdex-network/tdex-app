@@ -52,9 +52,6 @@ resources/windows/splash
 # keys
 *.keystore*
 
-# Cypress
-cypress/videos
-cypress/screenshots
 /test-results/
 /playwright-report/
 /playwright/.cache/
