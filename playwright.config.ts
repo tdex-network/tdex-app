@@ -10,20 +10,19 @@ import { devices } from '@playwright/test';
 const config: PlaywrightTestConfig = {
   testDir: './test',
   /* Maximum time one test can run for. */
-  timeout: 50 * 1000,
+  timeout: 30 * 1000,
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.
      * For example in `await expect(locator).toHaveText();`
      */
-    timeout: 25_000,
+    timeout: 15_000,
   },
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 0,
-  // Parallel exec is too heavy for Nigiri
-  // fullyParallel: true,
+  retries: process.env.CI ? 1 : 0,
+  // Parallel exec doesn't work with Nigiri
+  fullyParallel: false,
   workers: 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
@@ -39,13 +38,13 @@ const config: PlaywrightTestConfig = {
     {
       name: 'Mobile Chrome',
       use: {
-        ...devices['Pixel 5'],
+        ...devices['Galaxy S8'],
       },
     },
     {
       name: 'Mobile Safari',
       use: {
-        ...devices['iPhone 12'],
+        ...devices['iPhone SE'],
       },
     },
   ],
