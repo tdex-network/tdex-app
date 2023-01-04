@@ -20,7 +20,7 @@ import { connect, useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
 import { SLIP77Factory } from 'slip77';
-import type { BIP174SigningData, NetworkString, UnblindedOutput } from 'tdex-sdk';
+import type { BIP174SigningData, NetworkString, OwnedInput, UnblindedOutput } from 'tdex-sdk';
 import {
   Pset,
   Creator as PsetCreator,
@@ -241,33 +241,21 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       });
       const pset = PsetCreator.newPset({ inputs, outputs });
       const updater = new PsetUpdater(pset);
+      updater.addInputs(inputs);
       const zkpLib = await secp256k1();
       const zkpValidator = new ZKPValidator(zkpLib);
       let zkpGenerator = new ZKPGenerator(zkpLib);
-      let inputIndex = 0;
-      for (const unspent of inputs) {
-        if (unspent.toPartialInput().witnessUtxo) {
-          updater.addInWitnessUtxo(inputIndex, unspent.toPartialInput().witnessUtxo!);
-          updater.addInUtxoRangeProof(inputIndex, unspent.toPartialInput().witnessUtxo!.rangeProof!);
-        }
-        updater.addInSighashType(inputIndex, Transaction.SIGHASH_ALL);
-        zkpGenerator = new ZKPGenerator(
-          zkpLib,
-          ZKPGenerator.WithOwnedInputs([
-            {
-              index: inputIndex,
-              asset: unspent.toPartialInput().explicitAsset!,
-              value: unspent.toPartialInput().explicitValue!.toString(),
-              assetBlindingFactor: ZERO,
-              valueBlindingFactor: ZERO,
-            },
-          ])
-        );
-        inputIndex++;
-      }
-      const ownedInputs = zkpGenerator.unblindInputs(pset);
       const outputBlindingArgs = zkpGenerator.blindOutputs(pset, Pset.ECCKeysGenerator(ecc));
-      const blinder = new PsetBlinder(pset, ownedInputs, zkpValidator, zkpGenerator);
+      const unblindedInputs: OwnedInput[] = [];
+      unblindedInputs.push(
+        ...selectedUtxos.map((utxo) => {
+          return {
+            index: utxo.vout,
+            ...utxo.unblindData,
+          };
+        })
+      );
+      const blinder = new PsetBlinder(pset, unblindedInputs, zkpValidator, zkpGenerator);
       blinder.blindLast({ outputBlindingArgs });
       const master = slip77.fromMasterBlindingKey(masterBlindKey);
       const derived = master.derive(addressLDK.toOutputScript(changeAddress.confidentialAddress));
