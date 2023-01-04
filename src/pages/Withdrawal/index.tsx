@@ -206,6 +206,8 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     return PsetExtractor.extract(pset);
   };
 
+  const ZERO: Buffer = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex');
+
   const createTxAndBroadcast = async (pin: string) => {
     try {
       if (!isValid()) return;
@@ -239,6 +241,9 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       });
       const pset = PsetCreator.newPset({ inputs, outputs });
       const updater = new PsetUpdater(pset);
+      const zkpLib = await secp256k1();
+      const zkpValidator = new ZKPValidator(zkpLib);
+      let zkpGenerator = new ZKPGenerator(zkpLib);
       let inputIndex = 0;
       for (const unspent of inputs) {
         if (unspent.toPartialInput().witnessUtxo) {
@@ -246,14 +251,20 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
           updater.addInUtxoRangeProof(inputIndex, unspent.toPartialInput().witnessUtxo!.rangeProof!);
         }
         updater.addInSighashType(inputIndex, Transaction.SIGHASH_ALL);
+        zkpGenerator = new ZKPGenerator(
+          zkpLib,
+          ZKPGenerator.WithOwnedInputs([
+            {
+              index: inputIndex,
+              asset: unspent.toPartialInput().explicitAsset!,
+              value: unspent.toPartialInput().explicitValue!.toString(),
+              assetBlindingFactor: ZERO,
+              valueBlindingFactor: ZERO,
+            },
+          ])
+        );
         inputIndex++;
       }
-      const zkpLib = await secp256k1();
-      const zkpValidator = new ZKPValidator(zkpLib);
-      const zkpGenerator = new ZKPGenerator(
-        zkpLib,
-        ZKPGenerator.WithBlindingKeysOfInputs([Buffer.from(changeAddress.blindingPrivateKey, 'hex')]) // TODO: Which blinding key to use ?
-      );
       const ownedInputs = zkpGenerator.unblindInputs(pset);
       const outputBlindingArgs = zkpGenerator.blindOutputs(pset, Pset.ECCKeysGenerator(ecc));
       const blinder = new PsetBlinder(pset, ownedInputs, zkpValidator, zkpGenerator);
