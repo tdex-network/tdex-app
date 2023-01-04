@@ -11,6 +11,7 @@ import {
   useIonViewWillEnter,
   useIonViewWillLeave,
 } from '@ionic/react';
+import secp256k1 from '@vulpemventures/secp256k1-zkp';
 import classNames from 'classnames';
 import { checkmarkOutline } from 'ionicons/icons';
 import type { IdentityOpts, StateRestorerOpts } from 'ldk';
@@ -48,6 +49,8 @@ interface ReceiveProps {
   masterPubKeyOpts: IdentityOpts<MasterPublicKeyOpts>;
   network: NetworkString;
 }
+
+const zkpLib = await secp256k1();
 
 const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts, network }) => {
   const [copied, setCopied] = useState(false);
@@ -180,6 +183,7 @@ const mapStateToProps = (state: RootState) => {
         masterPublicKey: state.wallet.masterPubKey,
       },
       ecclib: ecc,
+      zkplib: zkpLib,
     },
     network: state.settings.network,
   };

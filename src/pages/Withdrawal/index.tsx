@@ -9,16 +9,33 @@ import {
   IonRow,
   useIonViewDidLeave,
 } from '@ionic/react';
+import secp256k1 from '@vulpemventures/secp256k1-zkp';
+import { signature } from 'bitcoinjs-lib/src/script';
 import Decimal from 'decimal.js';
-import type { RecipientInterface, StateRestorerOpts } from 'ldk';
-import { address, psetToUnsignedTx, walletFromCoins } from 'ldk';
-import { Psbt } from 'liquidjs-lib/src/psbt';
+import type { RecipientInterface, StateRestorerOpts, AddressInterface } from 'ldk';
+import { address as addressLDK } from 'ldk';
+import { Transaction } from 'liquidjs-lib';
 import React, { useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
-import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
-import { mnemonicRestorerFromState } from 'tdex-sdk';
+import { SLIP77Factory } from 'slip77';
+import type { BIP174SigningData, CoinSelectorErrorFn, NetworkString, OwnedInput, UnblindedOutput } from 'tdex-sdk';
+import {
+  Pset,
+  Creator as PsetCreator,
+  Signer as PsetSigner,
+  Updater as PsetUpdater,
+  Finalizer as PsetFinalizer,
+  Extractor as PsetExtractor,
+  Blinder as PsetBlinder,
+  ZKPValidator,
+  ZKPGenerator,
+  createFeeOutput,
+  DEFAULT_SATS_PER_BYTE,
+  getNetwork,
+} from 'tdex-sdk';
+import * as ecc from 'tiny-secp256k1';
 
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Header from '../../components/Header';
@@ -36,12 +53,15 @@ import { balancesSelector, lastUsedIndexesSelector, unlockedUtxosSelector } from
 import { broadcastTx } from '../../redux/services/walletService';
 import type { RootState } from '../../redux/types';
 import { decodeBip21 } from '../../utils/bip21';
+import { throwErrorHandler } from '../../utils/coinSelection';
 import type { LbtcDenomination } from '../../utils/constants';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { IncorrectPINError, WithdrawTxError } from '../../utils/errors';
 import { customCoinSelector, fromLbtcToUnit, fromSatoshi, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import { getConnectedIdentity } from '../../utils/storage-helper';
+
+const slip77 = SLIP77Factory(ecc);
 
 interface WithdrawalProps
   extends RouteComponentProps<
@@ -63,6 +83,8 @@ interface WithdrawalProps
   network: NetworkString;
   prices: Record<string, number>;
   utxos: UnblindedOutput[];
+  masterBlindKey: string;
+  addresses: Record<string, AddressInterface>;
 }
 
 const Withdrawal: React.FC<WithdrawalProps> = ({
@@ -75,6 +97,8 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   network,
   prices,
   utxos,
+  masterBlindKey,
+  addresses,
 }) => {
   const { asset_id } = useParams<{ asset_id: string }>();
   const [balance, setBalance] = useState<BalanceInterface>();
@@ -164,6 +188,28 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     return recipientAddress !== '';
   };
 
+  const signTransaction = (pset: Pset, signers: any[], sighashType: number): Transaction => {
+    const signer = new PsetSigner(pset);
+    signers.forEach((keyPairs, i) => {
+      const preimage = pset.getInputPreimage(i, sighashType);
+      keyPairs.forEach((kp: any) => {
+        const partialSig: BIP174SigningData = {
+          partialSig: {
+            pubkey: kp.publicKey,
+            signature: signature.encode(kp.sign(preimage), sighashType),
+          },
+        };
+        signer.addSignature(i, partialSig, Pset.ECDSASigValidator(ecc));
+      });
+    });
+    if (!pset.validateAllSignatures(Pset.ECDSASigValidator(ecc))) {
+      throw new Error('Failed to sign pset');
+    }
+    const finalizer = new PsetFinalizer(pset);
+    finalizer.finalize();
+    return PsetExtractor.extract(pset);
+  };
+
   const createTxAndBroadcast = async (pin: string) => {
     try {
       if (!isValid()) return;
@@ -180,32 +226,97 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       } catch (_) {
         throw IncorrectPINError;
       }
-      // Craft single recipient Pset
-      const wallet = walletFromCoins(utxos, network);
-      await mnemonicRestorerFromState(identity)(lastUsedIndexes);
+      // Craft single recipient Pset v2
       const changeAddress = await identity.getNextChangeAddress();
-      const withdrawPset = wallet.sendTx(
-        getRecipient(),
-        customCoinSelector(dispatch),
-        () => changeAddress.confidentialAddress,
-        true
+      const selector = customCoinSelector(dispatch);
+      const firstSelection = selector(throwErrorHandler)(
+        utxos,
+        [getRecipient()],
+        () => changeAddress.confidentialAddress
       );
-      // blind all the outputs except fee
-      const recipientData = address.fromConfidential(recipientAddress);
-      const recipientScript = address.toOutputScript(recipientData.unconfidentialAddress);
-      const outputsToBlind: number[] = [];
-      const blindKeyMap = new Map<number, string>();
-      psetToUnsignedTx(withdrawPset).outs.forEach((out, index) => {
-        if (out.script.length === 0) return;
-        outputsToBlind.push(index);
-        if (out.script.equals(recipientScript)) blindKeyMap.set(index, recipientData.blindingKey.toString('hex'));
+      let nbConfOutputs = 0;
+      let nbUnconfOutputs = 1; // init to 1 for the future fee output
+      if (addressLDK.isConfidential(getRecipient().address)) {
+        nbUnconfOutputs++;
+      } else {
+        nbUnconfOutputs++;
+      }
+      for (const change of firstSelection.changeOutputs) {
+        if (addressLDK.isConfidential(change.address)) nbConfOutputs++;
+        else nbUnconfOutputs++;
+      }
+      const fee = createFeeOutput(
+        firstSelection.selectedUtxos.length,
+        nbConfOutputs,
+        nbUnconfOutputs,
+        DEFAULT_SATS_PER_BYTE,
+        getNetwork(network).assetHash
+      );
+      let errorHandler: CoinSelectorErrorFn = throwErrorHandler;
+      errorHandler = (asset: string, need: number, has: number) => {
+        if (asset === getRecipient().asset) {
+          // Substract fee from amount
+          getRecipient().value = has - fee.value;
+          return;
+        } // do not throw error if not enough fund with recipient's asset.
+        throwErrorHandler(asset, need, has);
+      };
+      const { selectedUtxos, changeOutputs } = selector(errorHandler)(
+        utxos,
+        [getRecipient(), fee],
+        () => changeAddress.confidentialAddress
+      );
+      const outs = [getRecipient(), ...changeOutputs]; // TODO: add fee output
+      const pset = PsetCreator.newPset();
+      const updater = new PsetUpdater(pset);
+      selectedUtxos.forEach(({ txid, vout, prevout }) => {
+        updater.addInputs([
+          {
+            txid: txid,
+            txIndex: vout,
+            witnessUtxo: prevout,
+            sighashType: Transaction.SIGHASH_ALL,
+          },
+        ]);
       });
-      const blindedPset = await identity.blindPset(withdrawPset, outputsToBlind, blindKeyMap);
-      // Sign tx
-      const signedPset = await identity.signPset(blindedPset);
-      // Broadcast tx
-      const txHex = Psbt.fromBase64(signedPset).finalizeAllInputs().extractTransaction().toHex();
-      const txid = await broadcastTx(txHex, explorerLiquidAPI);
+      outs.forEach(({ asset, value, address }) => {
+        updater.addOutputs([
+          {
+            script: addressLDK.toOutputScript(address),
+            asset: asset,
+            amount: value,
+          },
+        ]);
+      });
+      updater.addOutputs([
+        {
+          script: undefined,
+          asset: getNetwork(network).assetHash,
+          amount: fee.value,
+        },
+      ]);
+      const zkpLib = await secp256k1();
+      const zkpValidator = new ZKPValidator(zkpLib);
+      let zkpGenerator = new ZKPGenerator(zkpLib);
+      const outputBlindingArgs = zkpGenerator.blindOutputs(pset, Pset.ECCKeysGenerator(ecc));
+      const unblindedInputs: OwnedInput[] = [];
+      unblindedInputs.push(
+        ...selectedUtxos.map((utxo, index) => {
+          return {
+            index,
+            ...utxo.unblindData,
+          };
+        })
+      );
+      const blinder = new PsetBlinder(pset, unblindedInputs, zkpValidator, zkpGenerator);
+      blinder.blindLast({ outputBlindingArgs });
+      const rawTx = signTransaction(
+        pset,
+        selectedUtxos.map((utxo) => addresses[utxo.prevout.script.toString('hex')].publicKey),
+        Transaction.SIGHASH_ALL
+      );
+      console.log(rawTx.toHex());
+      const txid = await broadcastTx(rawTx.toHex(), explorerLiquidAPI);
       dispatch(addSuccessToast(`Transaction broadcasted. ${amount} ${balance?.ticker} sent.`));
       dispatch(watchTransaction(txid));
       // Trigger spinner right away
@@ -333,6 +444,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
 
 const mapStateToProps = (state: RootState) => {
   return {
+    addresses: state.wallet.addresses,
     balances: balancesSelector(state),
     explorerLiquidAPI: state.settings.explorerLiquidAPI,
     lastUsedIndexes: lastUsedIndexesSelector(state),
@@ -340,6 +452,7 @@ const mapStateToProps = (state: RootState) => {
     network: state.settings.network,
     prices: state.rates.prices,
     utxos: unlockedUtxosSelector(state),
+    masterBlindKey: state.wallet.masterBlindKey,
   };
 };
 

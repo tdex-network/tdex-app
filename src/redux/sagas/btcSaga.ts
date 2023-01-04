@@ -1,3 +1,4 @@
+import secp256k1 from '@vulpemventures/secp256k1-zkp';
 import axios from 'axios';
 import type { AddressInterface, StateRestorerOpts } from 'ldk';
 import { IdentityType, MasterPublicKey } from 'ldk';
@@ -99,7 +100,7 @@ export function* fetchAndUpdateDepositPeginUtxos(pegins: Pegins, explorerBitcoin
  * @param action
  * @returns pegins Pegins of provided depositAddressSearch
  */
-function* restorePeginsFromDepositAddress(action: ActionType) {
+async function* restorePeginsFromDepositAddress(action: ActionType) {
   try {
     const [pegins, addresses, masterBlindKey, masterPubKey, lastUsedIndexes, explorerBitcoinAPI, network]: [
       Pegins,
@@ -124,6 +125,7 @@ function* restorePeginsFromDepositAddress(action: ActionType) {
     const peginModule: ElementsPegin = yield call(getPeginModule, network);
     const retrievedPegins: Pegins = {};
     const addrs = Object.entries(addresses).reverse();
+    const zkplib = await secp256k1();
     // Search extra 5 addresses
     // Needed if last action of user before losing wallet data was to generate addresses that received btc funds but not Liquid assets.
     // Those addresses are not restored by LDK
@@ -135,6 +137,7 @@ function* restorePeginsFromDepositAddress(action: ActionType) {
         masterPublicKey: masterPubKey,
       },
       ecclib: ecc,
+      zkplib: zkplib,
     });
     const restoredMasterPubKeyFn: Restorer<StateRestorerOpts, MasterPublicKey> = yield call(
       masterPubKeyRestorerFromState,
