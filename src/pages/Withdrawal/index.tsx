@@ -12,7 +12,7 @@ import {
 import secp256k1 from '@vulpemventures/secp256k1-zkp';
 import { signature } from 'bitcoinjs-lib/src/script';
 import Decimal from 'decimal.js';
-import type { RecipientInterface, StateRestorerOpts } from 'ldk';
+import type { RecipientInterface, StateRestorerOpts, AddressInterface } from 'ldk';
 import { address as addressLDK } from 'ldk';
 import { Transaction } from 'liquidjs-lib';
 import React, { useEffect, useState } from 'react';
@@ -29,8 +29,6 @@ import {
   Finalizer as PsetFinalizer,
   Extractor as PsetExtractor,
   Blinder as PsetBlinder,
-  CreatorInput,
-  CreatorOutput,
   ZKPValidator,
   ZKPGenerator,
 } from 'tdex-sdk';
@@ -82,6 +80,7 @@ interface WithdrawalProps
   prices: Record<string, number>;
   utxos: UnblindedOutput[];
   masterBlindKey: string;
+  addresses: Record<string, AddressInterface>;
 }
 
 const Withdrawal: React.FC<WithdrawalProps> = ({
@@ -95,6 +94,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   prices,
   utxos,
   masterBlindKey,
+  addresses,
 }) => {
   const { asset_id } = useParams<{ asset_id: string }>();
   const [balance, setBalance] = useState<BalanceInterface>();
@@ -206,8 +206,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     return PsetExtractor.extract(pset);
   };
 
-  const ZERO: Buffer = Buffer.from('0000000000000000000000000000000000000000000000000000000000000000', 'hex');
-
   const createTxAndBroadcast = async (pin: string) => {
     try {
       if (!isValid()) return;
@@ -233,33 +231,47 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         () => changeAddress.confidentialAddress
       );
       const outs = [getRecipient(), ...changeOutputs]; // TODO: add fee output
-      const inputs = selectedUtxos.map(({ txid, vout }) => {
-        return new CreatorInput(txid, vout);
-      });
-      const outputs = outs.map(({ asset, value, address }) => {
-        return new CreatorOutput(asset, value, addressLDK.toOutputScript(address));
-      });
-      const pset = PsetCreator.newPset({ inputs, outputs });
+      const pset = PsetCreator.newPset();
       const updater = new PsetUpdater(pset);
-      updater.addInputs(inputs);
+      selectedUtxos.forEach(({ txid, vout, prevout }) => {
+        updater.addInputs([
+          {
+            txid: txid,
+            txIndex: vout,
+            witnessUtxo: prevout,
+            sighashType: Transaction.SIGHASH_ALL,
+          },
+        ]);
+      });
+      outs.forEach(({ asset, value, address }) => {
+        updater.addOutputs([
+          {
+            script: addressLDK.toOutputScript(address),
+            asset: asset,
+            amount: value,
+          },
+        ]);
+      });
       const zkpLib = await secp256k1();
       const zkpValidator = new ZKPValidator(zkpLib);
       let zkpGenerator = new ZKPGenerator(zkpLib);
       const outputBlindingArgs = zkpGenerator.blindOutputs(pset, Pset.ECCKeysGenerator(ecc));
       const unblindedInputs: OwnedInput[] = [];
       unblindedInputs.push(
-        ...selectedUtxos.map((utxo) => {
+        ...selectedUtxos.map((utxo, index) => {
           return {
-            index: utxo.vout,
+            index,
             ...utxo.unblindData,
           };
         })
       );
       const blinder = new PsetBlinder(pset, unblindedInputs, zkpValidator, zkpGenerator);
       blinder.blindLast({ outputBlindingArgs });
-      const master = slip77.fromMasterBlindingKey(masterBlindKey);
-      const derived = master.derive(addressLDK.toOutputScript(changeAddress.confidentialAddress));
-      const rawTx = signTransaction(pset, [derived.publicKey], Transaction.SIGHASH_ALL); // TODO: Which public key to use ?
+      const rawTx = signTransaction(
+        pset,
+        selectedUtxos.map((utxo) => addresses[utxo.prevout.script.toString('hex')].publicKey),
+        Transaction.SIGHASH_ALL
+      );
       console.log(rawTx.toHex());
       const txid = await broadcastTx(rawTx.toHex(), explorerLiquidAPI);
       dispatch(addSuccessToast(`Transaction broadcasted. ${amount} ${balance?.ticker} sent.`));
@@ -389,6 +401,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
 
 const mapStateToProps = (state: RootState) => {
   return {
+    addresses: state.wallet.addresses,
     balances: balancesSelector(state),
     explorerLiquidAPI: state.settings.explorerLiquidAPI,
     lastUsedIndexes: lastUsedIndexesSelector(state),
