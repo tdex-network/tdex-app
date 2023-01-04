@@ -77,7 +77,7 @@ const Operations: React.FC<OperationsProps> = ({
   const dispatch = useDispatch();
   const { asset_id } = useParams<{ asset_id: string }>();
   const [balance, setBalance] = useState<BalanceInterface>();
-  const masterBlingKey = useTypedSelector(({ wallet }) => wallet.masterBlindKey);
+  const masterBlindKey = useTypedSelector(({ wallet }) => wallet.masterBlindKey);
 
   const transactionsByAsset = useSelector(transactionsByAssetSelector(asset_id));
   const transactionsToDisplay = isLbtc(asset_id, network) ? transactionsByAsset.concat(btcTxs) : transactionsByAsset;
@@ -104,7 +104,7 @@ const Operations: React.FC<OperationsProps> = ({
     if (TxTypeEnum[tx.type] === 'Swap') {
       history.push(`/tradesummary/${tx.txId}`);
     } else if (TxTypeEnum[tx.type] === 'Send' || TxTypeEnum[tx.type] === 'Receive') {
-      const master = slip77.fromMasterBlindingKey(masterBlingKey);
+      const master = slip77.fromMasterBlindingKey(masterBlindKey);
       const derived = master.derive(tx.transfers[0].script);
       const p2wpkh = payments.p2wpkh({
         output: Buffer.from(tx.transfers[0].script, 'hex'),
