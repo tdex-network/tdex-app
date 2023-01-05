@@ -1,6 +1,7 @@
 import { IonContent, IonPage, IonGrid, IonIcon, IonItem } from '@ionic/react';
 import { checkmarkOutline } from 'ionicons/icons';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect, useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
@@ -22,17 +23,18 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ masterPubKey, network }) => {
   const [xpubCopied, setXpubCopied] = React.useState(false);
   const [pathCopied, setPathCopied] = React.useState(false);
   const derivationPath = network === 'liquid' ? BASE_DERIVATION_PATH_MAINNET_LEGACY : BASE_DERIVATION_PATH_TESTNET;
+  const { t } = useTranslation();
 
   return (
     <IonPage>
       <IonContent className="show-xpub-content">
         <IonGrid className="ion-text-center ion-justify-content-center">
-          <Header hasBackButton={true} title="INFORMATION" />
+          <Header hasBackButton={true} title={t('settings.general.account.identity.showInformation.pageTitle')} />
           <PageDescription
-            description="Additional wallet information useful for view-only wallet restoration."
-            title="Wallet Information"
+            description={t('settings.general.account.identity.showInformation.pageDescDesc')}
+            title={t('settings.general.account.identity.showInformation.pageDescTitle')}
           />
-          <h6 className="ion-text-left mt-8">Extended Public Key</h6>
+          <h6 className="ion-text-left mt-8">{t('settings.general.account.identity.showInformation.xpub')}</h6>
           <IonItem>
             <div className="addr-txt addr-txt__multiline">{masterPubKey}</div>
             <div
@@ -55,7 +57,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ masterPubKey, network }) => {
             </div>
           </IonItem>
 
-          <h6 className="ion-text-left mt-8">Base Derivation Path</h6>
+          <h6 className="ion-text-left mt-8">{t('settings.general.account.identity.showInformation.path')}</h6>
           <IonItem>
             <div className="addr-txt">{derivationPath}</div>
             <div

@@ -3,7 +3,7 @@
     "//PAGES": "///PAGES",
     "homescreen": {
       "btnMainTitle": "INITIALISER",
-      "btnSubTitle": "RESTORER"
+      "btnSubTitle": "RESTAURER"
     },
     "wallet": {
       "pageTitle": "Portefeuille",
@@ -50,6 +50,15 @@
               "pageDescDesc": "Copiez votre phrase de récupération de 12 mots dans le bon ordre",
               "checkbox": "J'ai sauvegardé ma phrase secrète",
               "btn": "CONTINUER À RECEVOIR"
+            },
+            "showInformation": {
+              "menuTitle": "Afficher les informations",
+              "menuDesc": "Afficher des informations supplémentaires sur le portefeuille.",
+              "pageTitle": "INFORMATION",
+              "pageDescTitle": "Informations sur le portefeuille",
+              "pageDescDesc": "Informations supplémentaires sur le portefeuille, utiles pour la restauration du portefeuille en lecture seule.",
+              "xpub": "Clé Publique Étendue",
+              "path": "Base du Chemin de Dérivation"
             }
           },
           "security": {
@@ -257,12 +266,22 @@
         "title": "Nouveau PIN",
         "desc": "Choisissez le nouveau PIN."
       },
-      "toastSuccess": "PIN has been changed."
+      "toastSuccess": "Le code PIN a été modifié."
     },
     "pinModalUnlockWallet": {
       "pageTitle": "INSEREZ PIN",
       "title": "Déverrouiller votre portemonnaie",
       "desc": "Saisissez votre code PIN"
+    },
+    "restoreWallet": {
+      "pageTitle": "PHRASE SECRÈTE",
+      "title": "Restaurer le Portefeuille",
+      "desc": "Écrivez votre phrase de récupération de 12 mots dans l'ordre",
+      "modalFirstTitle": "Définissez votre code PIN secret",
+      "modalFirstDesc": "Saisissez un code PIN secret à 6 chiffres pour sécuriser votre portefeuille.",
+      "modalSecondTitle": "Répétez votre code PIN secret",
+      "modalSecondDesc": "Confirmez votre code PIN secret.",
+      "btn": "RESTAURER"
     },
     "//TERMS": "///TERMS",
     "confirm": "confirmer",

@@ -50,6 +50,15 @@
               "pageDescDesc": "Save your 12 words recovery phrase in the correct order",
               "checkbox": "I have saved my secret phrase",
               "btn": "CONTINUE TO RECEIVE"
+            },
+            "showInformation": {
+              "menuTitle": "Show information",
+              "menuDesc": "Display additional wallet information.",
+              "pageTitle": "INFORMATION",
+              "pageDescTitle": "Wallet Information",
+              "pageDescDesc": "Additional wallet information useful for view-only wallet restoration.",
+              "xpub": "Extended Public Key",
+              "path": "Base Derivation Path"
             }
           },
           "security": {
@@ -262,6 +271,16 @@
       "pageTitle": "INSERT PIN",
       "title": "Unlock wallet",
       "desc": "Enter your secret PIN"
+    },
+    "restoreWallet": {
+      "pageTitle": "SECRET PHRASE",
+      "title": "Restore Wallet",
+      "desc": "Paste your 12 words recovery phrase in the correct order",
+      "modalFirstTitle": "Set your secret PIN",
+      "modalFirstDesc": "Enter a 6-digit secret PIN to secure your wallet's seed.",
+      "modalSecondTitle": "Repeat your secret PIN",
+      "modalSecondDesc": "Confirm your secret PIN.",
+      "btn": "RESTORE"
     },
     "//TERMS": "///TERMS",
     "confirm": "confirm",

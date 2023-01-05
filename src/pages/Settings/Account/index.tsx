@@ -50,13 +50,13 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
           if (routeToGo === '/settings/show-mnemonic') {
             history.replace({
               pathname: routeToGo,
-              state: {mnemonic},
+              state: { mnemonic },
             });
           }
           if (routeToGo === '/settings/delete-mnemonic') {
             history.replace({
               pathname: routeToGo,
-              state: {pin},
+              state: { pin },
             });
           }
         }, PIN_TIMEOUT_SUCCESS);
@@ -103,7 +103,7 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
                   }}
                 >
                   <div className="item-main-info">
-                    <IonIcon icon={eye}/>
+                    <IonIcon icon={eye} />
                     <div className="item-start">
                       <div className="main-row">{t('settings.general.account.identity.showMnemonic.menuTitle')}</div>
                       <IonText className="description">
@@ -117,8 +117,10 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
                   <div className="item-main-info">
                     <IonIcon icon={eye} />
                     <div className="item-start">
-                      <div className="main-row">Show information</div>
-                      <IonText className="description">Display additional wallet information.</IonText>
+                      <div className="main-row">{t('settings.general.account.identity.showInformation.menuTitle')}</div>
+                      <IonText className="description">
+                        {t('settings.general.account.identity.showInformation.menuDesc')}
+                      </IonText>
                     </div>
                     <IonIcon icon={chevronForwardOutline} />
                   </div>
@@ -135,12 +137,12 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
                   }}
                 >
                   <div className="item-main-info">
-                    <IonIcon icon={lockOpen}/>
+                    <IonIcon icon={lockOpen} />
                     <div className="item-start">
                       <div className="main-row">{t('settings.general.account.security.newPin.title')}</div>
                       <IonText className="description">{t('settings.general.account.security.newPin.desc')}</IonText>
                     </div>
-                    <IonIcon icon={chevronForwardOutline}/>
+                    <IonIcon icon={chevronForwardOutline} />
                   </div>
                 </IonItem>
                 <ChangePinModals
