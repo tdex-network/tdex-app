@@ -1,7 +1,8 @@
 import './style.scss';
 import { KeyboardStyle } from '@capacitor/keyboard';
-import { IonContent, IonPage, useIonViewWillEnter, IonGrid, IonRow, IonCol } from '@ionic/react';
+import { IonCol, IonContent, IonGrid, IonPage, IonRow, useIonViewWillEnter } from '@ionic/react';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import logo from '../../assets/img/tdex_3d_logo.svg';
 import ButtonsMainSub from '../../components/ButtonsMainSub';
@@ -13,7 +14,7 @@ import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { IncorrectPINError } from '../../utils/errors';
 import { setKeyboardTheme } from '../../utils/keyboard';
-import { getIdentity, checkMnemonicInStorage } from '../../utils/storage-helper';
+import { checkMnemonicInStorage, getIdentity } from '../../utils/storage-helper';
 
 const Homescreen: React.FC = () => {
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
@@ -26,6 +27,7 @@ const Homescreen: React.FC = () => {
     network: settings.network,
   }));
   const dispatch = useTypedDispatch();
+  const { t } = useTranslation();
 
   const onConfirmPinModal = (pin: string) => {
     getIdentity(pin, network)
@@ -76,8 +78,8 @@ const Homescreen: React.FC = () => {
         needReset={needReset}
         setNeedReset={setNeedReset}
         open={pinModalIsOpen}
-        title="Enter your secret PIN"
-        description="Unlock your wallet"
+        title={t('pinModalUnlockWallet.desc')}
+        description={t('pinModalUnlockWallet.title')}
         onConfirm={onConfirmPinModal}
         isWrongPin={isWrongPin}
         setIsWrongPin={setIsWrongPin}
@@ -91,9 +93,9 @@ const Homescreen: React.FC = () => {
           </IonRow>
 
           <ButtonsMainSub
-            mainTitle="SETUP WALLET"
+            mainTitle={t('homescreen.btnMainTitle')}
             mainLink="/onboarding/backup"
-            subTitle="RESTORE WALLET"
+            subTitle={t('homescreen.btnSubTitle')}
             subLink="/restore"
             className="btn-container"
           />

@@ -1,11 +1,12 @@
+import './style.scss';
+
 import { IonItem, IonSkeletonText, IonSpinner } from '@ionic/react';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 
 import { addSuccessToast } from '../../redux/actions/toastActions';
 import { clipboardCopy } from '../../utils/clipboard';
-
-import './style.scss';
 
 interface TransactionLoaderProps {
   txID: string;
@@ -13,13 +14,15 @@ interface TransactionLoaderProps {
 
 const TransactionLoader: React.FC<TransactionLoaderProps> = ({ txID }) => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
+
   return (
     <IonItem
       key={txID}
       className="list-item transaction-item tx-loader"
       onClick={() => {
         clipboardCopy(txID, () => {
-          dispatch(addSuccessToast('Tx ID copied in clipboard'));
+          dispatch(addSuccessToast(t('clipboardCopyTx')));
         });
       }}
     >

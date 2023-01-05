@@ -12,6 +12,7 @@ import {
 } from '@ionic/react';
 import { IdentityType, MasterPublicKey } from 'ldk';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { NetworkString } from 'tdex-sdk';
 import * as ecc from 'tiny-secp256k1';
 
@@ -64,6 +65,7 @@ const Network = (): JSX.Element => {
     providers: tdex.providers,
   }));
   const [networkSelectState, setNetworkSelectState] = useState<NetworkString>(networkReduxState);
+  const { t } = useTranslation();
 
   const handleNetworkChange = async (ev: CustomEvent<SelectChangeEventDetail<NetworkString>>) => {
     try {
@@ -95,7 +97,7 @@ const Network = (): JSX.Element => {
         dispatch(setDefaultProvider(defaultProviderEndpoints.regtest));
       }
       // Refresh providers
-      await refreshProviders(providers, network, dispatch);
+      await refreshProviders(providers, network, dispatch, t);
       dispatch(clearAddresses());
       dispatch(resetUtxos());
       dispatch(resetAssets(network));
@@ -112,7 +114,7 @@ const Network = (): JSX.Element => {
         ecclib: ecc,
       });
       dispatch(signIn(masterPubKeyIdentity));
-      dispatch(addSuccessToast(`Network and explorer endpoints successfully updated`));
+      dispatch(addSuccessToast(t('settings.general.network.changeNetworkSuccessToast')));
     } catch (err) {
       console.error(err);
       if (err instanceof AppError) {
@@ -125,13 +127,16 @@ const Network = (): JSX.Element => {
     <IonPage id="settings-network">
       <IonContent>
         <IonGrid>
-          <Header title="NETWORK" hasBackButton={true} hasCloseButton={false} />
-          <PageDescription description="Select a network between mainnet, testnet and regtest" title="Set network" />
+          <Header title={t('settings.general.network.pageTitle')} hasBackButton={true} hasCloseButton={false} />
+          <PageDescription
+            description={t('settings.general.network.pageDescDesc')}
+            title={t('settings.general.network.pageDescTitle')}
+          />
           <IonRow className="ion-margin-vertical">
             <IonCol size="11" offset="0.5">
               <IonItem className="input">
-                <IonLabel>Select your network</IonLabel>
-                <IonSelect value={networkSelectState} onIonChange={handleNetworkChange}>
+                <IonLabel>{t('settings.general.network.selectLabel')}</IonLabel>
+                <IonSelect value={networkSelectState} onIonChange={handleNetworkChange} cancelText={t('cancel')}>
                   <IonSelectOption value="liquid">Mainnet</IonSelectOption>
                   <IonSelectOption value="testnet">Testnet</IonSelectOption>
                   <IonSelectOption value="regtest">Regtest</IonSelectOption>

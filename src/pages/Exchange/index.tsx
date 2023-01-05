@@ -1,23 +1,24 @@
 import './style.scss';
 import {
-  IonContent,
-  IonPage,
-  IonText,
-  IonGrid,
-  IonRow,
-  IonCol,
+  IonAlert,
   IonButton,
   IonChip,
-  IonLabel,
+  IonCol,
+  IonContent,
+  IonGrid,
   IonIcon,
-  IonAlert,
+  IonLabel,
+  IonPage,
+  IonRow,
   IonSpinner,
+  IonText,
 } from '@ionic/react';
 import classNames from 'classnames';
 import { closeOutline } from 'ionicons/icons';
 import type { StateRestorerOpts } from 'ldk';
 import { mnemonicRestorerFromState } from 'ldk';
 import React, { useCallback, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
@@ -86,9 +87,15 @@ const Exchange: React.FC<Props> = ({
   const [excludedProviders, setExcludedProviders] = useState<TDEXProvider[]>([]);
   const [showExcludedProvidersAlert, setShowExcludedProvidersAlert] = useState(false);
   const [tradeError, setTradeError] = useState<AppError>();
+  const { t } = useTranslation();
 
   const getPinModalDescription = () =>
-    `Enter your secret PIN to send ${tdexOrderInputResult?.send.amount} ${tdexOrderInputResult?.send.unit} and receive ${tdexOrderInputResult?.receive.amount} ${tdexOrderInputResult?.receive.unit}.`;
+    t('exchange.pinModalUnlock.desc', {
+      sendAmount: tdexOrderInputResult?.send.amount,
+      sendUnit: tdexOrderInputResult?.send.unit,
+      receiveAmount: tdexOrderInputResult?.receive.amount,
+      receiveUnit: tdexOrderInputResult?.receive.unit,
+    });
 
   const getProviderName = (endpoint: string) => markets.find((m) => m.provider.endpoint === endpoint)?.provider.name;
 
@@ -277,7 +284,7 @@ const Exchange: React.FC<Props> = ({
           // At least one market is available, otherwise we display NoProvidersAvailableAlert
           markets.length > 0
         }
-        message="Discovering TDEX providers with best liquidity..."
+        message={t('exchange.loaderMsg')}
         delay={0}
         backdropDismiss={true}
         duration={15000}
@@ -308,18 +315,18 @@ const Exchange: React.FC<Props> = ({
       />
       <IonAlert
         isOpen={showNoProvidersAvailableAlert && history.location.pathname === routerLinks.exchange}
-        header="No providers available"
-        message="Liquidity providers on Tor network can take a long time to respond or all your providers are offline."
+        header={t('exchange.noProviderAlert.title')}
+        message={t('exchange.noProviderAlert.desc')}
         backdropDismiss={false}
         buttons={[
           {
-            text: 'Go To Wallet',
+            text: t('exchange.noProviderAlert.btn1'),
             handler: () => {
               history.replace(routerLinks.wallet);
             },
           },
           {
-            text: 'Retry',
+            text: t('exchange.noProviderAlert.btn2'),
             handler: () => {
               dispatch(updateMarkets());
               // false then true to trigger rerender if already true
@@ -343,14 +350,14 @@ const Exchange: React.FC<Props> = ({
                   <img src={tradeHistory} alt="trade history" />
                 </IonButton>
               }
-              title="Exchange"
+              title={t('exchange.pageTitle')}
               isTitleLarge={true}
             />
             <IonRow className="ion-align-items-start ion-bg-color-primary">
               <IonAlert
                 isOpen={showExcludedProvidersAlert}
                 onDidDismiss={() => setShowExcludedProvidersAlert(false)}
-                header={'Providers excluded'}
+                header={t('exchange.providersExcluded')}
                 message={excludedProviders.reduce((acc, p) => acc + `- ${p.name} - <br> ${p.endpoint} <br><br>`, '')}
                 buttons={[
                   'OK',
@@ -418,7 +425,7 @@ const Exchange: React.FC<Props> = ({
                     setPINModalOpen(true);
                   }}
                 >
-                  CONFIRM
+                  {t('exchange.confirmBtn')}
                 </IonButton>
               </IonCol>
             </IonRow>
@@ -427,7 +434,7 @@ const Exchange: React.FC<Props> = ({
               <IonRow className="market-provider ion-margin-vertical-x2 ion-text-center">
                 <IonCol size="10" offset="1">
                   <IonText className="trade-info" color="light">
-                    Market provided by:{' '}
+                    {t('exchange.marketProvidedBy')}:{' '}
                     {sendLoader || receiveLoader || !tdexOrderInputResult ? (
                       <IonSpinner name="dots" className="vertical-middle" />
                     ) : (

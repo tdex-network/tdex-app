@@ -1,5 +1,6 @@
-import { IonContent, IonPage, IonGrid, IonRow, IonButton, IonCol } from '@ionic/react';
+import { IonButton, IonCol, IonContent, IonGrid, IonPage, IonRow } from '@ionic/react';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useLocation } from 'react-router';
@@ -29,16 +30,17 @@ interface LocationState {
 const ShowMnemonic: React.FC<ShowMnemonicProps> = ({ history, setIsBackupDone }) => {
   const [isSeedSaved, setIsSeedSaved] = useState(false);
   const { state } = useLocation<LocationState>();
+  const { t } = useTranslation();
 
   return (
     <IonPage>
       <IonContent className="show-mnemonic-content">
         <IonGrid className="ion-text-center ion-justify-content-center">
-          <Header hasBackButton={false} title="SHOW MNEMONIC" />
+          <Header hasBackButton={false} title={t('settings.general.account.identity.showMnemonic.pageTitle')} />
           <PageDescription
             centerDescription={true}
-            description="Save your 12 words recovery phrase in the correct order"
-            title="Secret Phrase"
+            description={t('settings.general.account.identity.showMnemonic.pageDescDesc')}
+            title={t('settings.general.account.identity.showMnemonic.pageDescTitle')}
           />
           <IonRow>
             <IonCol>
@@ -54,7 +56,7 @@ const ShowMnemonic: React.FC<ShowMnemonicProps> = ({ history, setIsBackupDone })
             }}
             inputName="seedSave"
             isChecked={isSeedSaved}
-            label={<span>I have saved my secret phrase</span>}
+            label={<span>{t('settings.general.account.identity.showMnemonic.checkbox')}</span>}
           />
           <IonRow className="ion-margin-vertical-x2">
             <IonCol size="9" offset="1.5">
@@ -66,7 +68,7 @@ const ShowMnemonic: React.FC<ShowMnemonicProps> = ({ history, setIsBackupDone })
                   history.push({ pathname: routerLinks.deposit });
                 }}
               >
-                CONTINUE TO RECEIVE
+                {t('continue')}
               </IonButton>
             </IonCol>
           </IonRow>

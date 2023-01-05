@@ -1,5 +1,6 @@
-import { IonContent, IonPage, IonGrid, IonRow, IonButton, IonCol } from '@ionic/react';
+import { IonButton, IonCol, IonContent, IonGrid, IonPage, IonRow } from '@ionic/react';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router';
 
 import Header from '../../components/Header';
@@ -13,13 +14,14 @@ interface LocationState {
 const ShowMnemonicSettings: React.FC = () => {
   const { state } = useLocation<LocationState>();
   const [copied, setCopied] = useState<boolean>(false);
+  const { t } = useTranslation();
 
   return (
     <IonPage>
       <IonContent className="show-mnemonic-content">
         <IonGrid className="ion-text-center ion-justify-content-center">
-          <Header hasBackButton={true} title="SHOW MNEMONIC" />
-          <h2 className="ion-text-center">Secret Phrase</h2>
+          <Header hasBackButton={true} title={t('settings.general.account.identity.showMnemonic.pageTitle')} />
+          <h2 className="ion-text-center">{t('settings.general.account.identity.showMnemonic.pageDescTitle')}</h2>
           <IonRow>
             <IonCol>
               <WordList mnemonic={state?.mnemonic ?? ''} />
@@ -38,7 +40,7 @@ const ShowMnemonicSettings: React.FC = () => {
                   });
                 }}
               >
-                {copied ? 'Copied' : 'Copy'}
+                {copied ? t('copied') : t('copy')}
               </IonButton>
             </IonCol>
           </IonRow>

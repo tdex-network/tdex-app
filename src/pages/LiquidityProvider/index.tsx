@@ -17,6 +17,8 @@ import {
 } from '@ionic/react';
 import { addCircleOutline, refreshCircleOutline, trash } from 'ionicons/icons';
 import React, { useState } from 'react';
+import type { TFunction } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import type { Dispatch } from 'redux';
 import type { NetworkString } from 'tdex-sdk';
@@ -47,7 +49,8 @@ interface LiquidityProvidersProps {
 export const refreshProviders = async (
   providers: TDEXProvider[],
   network: NetworkString,
-  dispatch: Dispatch
+  dispatch: Dispatch,
+  t: TFunction
 ): Promise<void> => {
   if (network === 'liquid' || network === 'testnet') {
     try {
@@ -59,7 +62,11 @@ export const refreshProviders = async (
         dispatch(clearMarkets());
         dispatch(addProviders(providersFromRegistry));
       }
-      dispatch(addSuccessToast(`${newProviders.length} new providers from TDEX registry!`));
+      dispatch(
+        addSuccessToast(
+          t('settings.general.providers.refreshProviderSuccessToast', { newProviders: newProviders.length })
+        )
+      );
     } catch {
       dispatch(addErrorToast(TDEXRegistryError));
     }
@@ -77,6 +84,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
   const [newProviderName, setNewProviderName] = useState('');
   const [newProviderEndpoint, setNewProviderEndpoint] = useState('');
   const [registryFetching, setRegistryFetching] = useState(false);
+  const { t } = useTranslation();
 
   const isDuplicateProviderEndpoint = () =>
     newProvider && providers.some((provider) => provider.endpoint === newProviderEndpoint);
@@ -85,12 +93,12 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
 
   const alertButtons = [
     {
-      text: 'Abort',
+      text: t('abort'),
       role: 'cancel',
       handler: () => setProviderToDelete(undefined),
     },
     {
-      text: 'Delete',
+      text: t('delete'),
       handler: () => {
         if (providerToDelete) {
           dispatch(deleteProvider(providerToDelete));
@@ -104,10 +112,13 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
   return (
     <IonPage>
       <IonAlert
-        header="Confirm delete"
+        header={t('settings.general.providers.deleteAlert.title')}
         isOpen={providerToDelete !== undefined}
         buttons={alertButtons}
-        message={`Delete the provider ${providerToDelete?.name} - ${providerToDelete?.endpoint}.`}
+        message={t('settings.general.providers.deleteAlert.desc', {
+          name: providerToDelete?.name,
+          endpoint: providerToDelete?.endpoint,
+        })}
         onDidDismiss={() => setProviderToDelete(undefined)}
       />
 
@@ -125,24 +136,28 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
               <Header
                 hasBackButton={false}
                 hasCloseButton={true}
-                title="CREATE NEW PROVIDER"
+                title={t('settings.general.providers.createNewProviderModal.modalTitle')}
                 handleClose={() => setNewProvider(false)}
               />
               <IonRow>
                 <IonCol>
                   <IonList>
                     <IonItem>
-                      <IonLabel position="stacked">Provider name</IonLabel>
+                      <IonLabel position="stacked">
+                        {t('settings.general.providers.createNewProviderModal.name.title')}
+                      </IonLabel>
                       <IonInput
                         required
                         value={newProviderName}
                         onIonChange={(e) => setNewProviderName(e.detail.value || '')}
                         inputmode="text"
-                        placeholder="name the provider to add"
+                        placeholder={t('settings.general.providers.createNewProviderModal.name.desc')}
                       />
                     </IonItem>
                     <IonItem>
-                      <IonLabel position="stacked">Endpoint</IonLabel>
+                      <IonLabel position="stacked">
+                        {t('settings.general.providers.createNewProviderModal.endpoint.title')}
+                      </IonLabel>
                       <IonInput
                         color={isDuplicateProviderEndpoint() ? 'danger' : undefined}
                         required
@@ -163,8 +178,8 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
               <IonRow className="ion-margin-vertical-x2">
                 <IonCol>
                   <ButtonsMainSub
-                    mainTitle="CONFIRM"
-                    subTitle="CANCEL"
+                    mainTitle={t('confirm')}
+                    subTitle={t('cancel')}
                     mainDisabled={isNewProviderInvalid()}
                     mainOnClick={() => {
                       const url = new URL(newProviderEndpoint);
@@ -194,9 +209,9 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
         </IonModal>
 
         <IonGrid>
-          <Header title="TDEX PROVIDERS" hasBackButton={true} />
+          <Header title={t('settings.general.providers.pageTitle')} hasBackButton={true} />
           <IonList>
-            <IonListHeader>Providers</IonListHeader>
+            <IonListHeader>{t('settings.general.providers.sectionTitle')}</IonListHeader>
             {providers.map((provider: TDEXProvider, index: number) => {
               return (
                 <IonItem className="provider-container" key={index}>
@@ -222,7 +237,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
             <IonCol size="12">
               <IonButton className="main-button" onClick={() => setNewProvider(true)}>
                 <IonIcon slot="start" icon={addCircleOutline} />
-                ADD PROVIDER
+                {t('settings.general.providers.addProviderBtn')}
               </IonButton>
             </IonCol>
             <IonCol>
@@ -231,12 +246,12 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
                 disabled={registryFetching}
                 onClick={async () => {
                   setRegistryFetching(true);
-                  await refreshProviders(providers, network, dispatch);
+                  await refreshProviders(providers, network, dispatch, t);
                   setRegistryFetching(false);
                 }}
               >
                 <IonIcon slot="start" icon={refreshCircleOutline} />
-                Refresh
+                {t('settings.general.providers.refreshBtn')}
               </IonButton>
             </IonCol>
           </IonRow>

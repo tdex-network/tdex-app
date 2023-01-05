@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
+import './i18n';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';

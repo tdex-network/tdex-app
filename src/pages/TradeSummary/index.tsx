@@ -1,7 +1,8 @@
 import './style.scss';
-import { IonPage, IonContent, IonItem, IonIcon, IonSkeletonText, IonRow, IonCol, IonGrid, IonText } from '@ionic/react';
+import { IonCol, IonContent, IonGrid, IonIcon, IonItem, IonPage, IonRow, IonSkeletonText, IonText } from '@ionic/react';
 import { ellipsisHorizontal } from 'ionicons/icons';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
@@ -75,12 +76,14 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, assets }) => {
   const { txid } = useParams<{ txid: string }>();
   const transaction = useTypedSelector(transactionSelector(txid));
   const { explorerLiquidUI } = useTypedSelector(({ settings }) => ({ explorerLiquidUI: settings.explorerLiquidUI }));
+  const { t } = useTranslation();
+
   return (
     <IonPage id="trade-summary">
       <IonContent>
         <Refresher />
         <IonGrid>
-          <Header title="TRADE SUMMARY" hasBackButton={true} />
+          <Header title={t('tradeSummary.pageTitle')} hasBackButton={true} />
           {(transaction || preview) && (
             <>
               <IonRow className="ion-margin-bottom ion-text-center">
@@ -153,7 +156,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, assets }) => {
                           className="transaction-info-values"
                           onClick={() => {
                             clipboardCopy(`${explorerLiquidUI}/tx/${txid}`, () => {
-                              dispatch(addSuccessToast('TxID copied!'));
+                              dispatch(addSuccessToast(t('clipboardCopyTx')));
                             });
                           }}
                         >
@@ -166,7 +169,9 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, assets }) => {
                             <></>
                           ) : (
                             <span className="transaction-col-value pending">
-                              <IonText color="warning">PENDING</IonText>
+                              <IonText color="warning" className="ion-text-uppercase">
+                                {t('pending')}
+                              </IonText>
                               <IonIcon color="warning" icon={ellipsisHorizontal} />
                             </span>
                           )}

@@ -1,7 +1,8 @@
-import type { Gesture, ToastButton, GestureDetail } from '@ionic/react';
-import { createGesture, IonToast, CreateAnimation } from '@ionic/react';
+import type { Gesture, GestureDetail, ToastButton } from '@ionic/react';
+import { CreateAnimation, createGesture, IonToast } from '@ionic/react';
 import type { CreateAnimationProps } from '@ionic/react/dist/types/components/CreateAnimation';
 import React, { useCallback, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import type { Dispatch } from 'redux';
 
@@ -28,6 +29,7 @@ const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast, removeToastByType 
   const toastEl = useRef<any>(null);
   const gesture = useRef<Gesture | null>(null);
   const started = useRef<boolean>(false);
+  const { t } = useTranslation();
 
   const onMove = useCallback(
     (ev: GestureDetail) => {
@@ -90,7 +92,7 @@ const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast, removeToastByType 
         {
           side: 'end',
           role: 'claim',
-          text: 'CLAIM NOW',
+          text: t('claimNow'),
           handler: () => {
             dispatch(setModalClaimPegin({ isOpen: true }));
           },

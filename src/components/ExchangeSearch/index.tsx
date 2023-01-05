@@ -1,6 +1,7 @@
-import { IonContent, IonList, IonModal, IonHeader, IonItem, IonInput, IonIcon } from '@ionic/react';
+import { IonContent, IonHeader, IonIcon, IonInput, IonItem, IonList, IonModal } from '@ionic/react';
 import { closeSharp, searchSharp } from 'ionicons/icons';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import type { CurrencyInterface } from '../../redux/reducers/settingsReducer';
 import type { AssetConfig } from '../../utils/constants';
@@ -17,6 +18,7 @@ interface ExchangeSearchProps {
 
 const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsset, isOpen, close, currency }) => {
   const [searchString, setSearchString] = useState('');
+  const { t } = useTranslation();
 
   return (
     <IonModal className="modal-small" isOpen={isOpen} onDidDismiss={close}>
@@ -72,7 +74,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsse
               })}
           </IonList>
         ) : (
-          <p className="ion-padding-start">No asset available</p>
+          <p className="ion-padding-start">{t('exchangeSearch.noAsset')}</p>
         )}
       </IonContent>
     </IonModal>

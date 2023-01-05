@@ -3,6 +3,7 @@ import { IonContent, IonButton, IonPage, IonInput, IonGrid, IonRow, IonCol } fro
 import * as bip39 from 'bip39';
 import classNames from 'classnames';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect, useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
@@ -38,6 +39,7 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({ history, setIsBackupDone,
   const [loading, setLoading] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const handleConfirm = () => {
     if (!bip39.validateMnemonic(mnemonic.join(' '))) {
@@ -107,12 +109,8 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({ history, setIsBackupDone,
       <Loader showLoading={loading} />
       <PinModal
         open={modalOpen === 'first' || modalOpen === 'second'}
-        title={modalOpen === 'first' ? 'Set your secret PIN' : 'Repeat your secret PIN'}
-        description={
-          modalOpen === 'first'
-            ? "Enter a 6-digit secret PIN to secure your wallet's seed."
-            : 'Confirm your secret PIN.'
-        }
+        title={modalOpen === 'first' ? t('restoreWallet.modalFirstTitle') : t('restoreWallet.modalSecondTitle')}
+        description={modalOpen === 'first' ? t('restoreWallet.modalFirstDesc') : t('restoreWallet.modalSecondDesc')}
         onConfirm={modalOpen === 'first' ? onFirstPinConfirm : onSecondPinConfirm}
         onClose={
           modalOpen === 'first'
@@ -134,11 +132,11 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({ history, setIsBackupDone,
       />
       <IonContent className="restore-wallet">
         <IonGrid className="ion-text-center">
-          <Header hasBackButton={true} title="SECRET PHRASE" />
+          <Header hasBackButton={true} title={t('restoreWallet.pageTitle')} />
           <PageDescription
             centerDescription={true}
-            description="Paste your 12 words recovery phrase in the correct order"
-            title="Restore Wallet"
+            description={t('restoreWallet.desc')}
+            title={t('restoreWallet.title')}
           />
           <div className="restore-input-wrapper ion-margin-vertical">
             {mnemonic.map((item: string, index: number) => {
@@ -167,7 +165,7 @@ const RestoreWallet: React.FC<RestoreWalletProps> = ({ history, setIsBackupDone,
           <IonRow className="restore-btn-container">
             <IonCol size="9" offset="1.5" sizeMd="6" offsetMd="3">
               <IonButton disabled={mnemonic.includes('')} onClick={handleConfirm} className="main-button">
-                RESTORE WALLET
+                {t('restoreWallet.btn')}
               </IonButton>
             </IonCol>
           </IonRow>

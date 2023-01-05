@@ -1,3 +1,6 @@
+/* eslint-disable import/no-mutable-exports */
+import i18n from 'i18next';
+
 export class AppError extends Error {
   public readonly code: number;
   public description: string;
@@ -8,40 +11,67 @@ export class AppError extends Error {
     this.description = description;
   }
 
-  toToastMessage(): string {
-    return `Error ${this.code}: ${this.description}`;
-  }
-
   static fromError(error: Error): AppError {
     return new AppError(-1, error.message);
   }
+
+  toToastMessage(): string {
+    return `Error ${this.code}: ${this.description}`;
+  }
 }
 
-export const MakeTradeError = new AppError(1, 'TradePropose or TradeComplete error');
-export const PinDigitsError = new AppError(2, 'PIN must contain 6 digits');
-export const InvalidTradeTypeError = new AppError(3, 'Trade type should be BUY or SELL');
-export const NoMarketsAvailableForAllPairsError = new AppError(4, 'No markets available for all trading pairs');
-export const NoMarketsAvailableForSelectedPairError = new AppError(5, 'No markets available for selected trading pair');
-export const IncorrectPINError = new AppError(6, 'Incorrect PIN');
-export const SecureStorageError = new AppError(7, 'Secure Storage error');
-export const PINsDoNotMatchError = new AppError(8, 'PINs needs to be equal');
-export const QRCodeScanError = new AppError(9, 'QR Scanner scan failed');
-export const AddressGenerationError = new AppError(10, 'Unable to generate new address');
-export const InvalidMnemonicError = new AppError(11, 'Invalid mnemonic error');
-export const WithdrawTxError = new AppError(12, 'An error occurred while sending withdraw transaction');
-export const TDEXRegistryError = new AppError(13, 'Unable to fetch providers from registry');
-export const UpdateTransactionsError = new AppError(14, 'Tx update error occurs');
-export const UpdateUtxosError = new AppError(15, 'Utxo update error occurs');
-export const DeepRestorationError = new AppError(16, 'Account discovery has failed');
+export let MakeTradeError: AppError;
+export let PinDigitsError: AppError;
+export let InvalidTradeTypeError: AppError;
+export let NoMarketsAvailableForAllPairsError: AppError;
+export let NoMarketsAvailableForSelectedPairError: AppError;
+export let IncorrectPINError: AppError;
+export let SecureStorageError: AppError;
+export let PINsDoNotMatchError: AppError;
+export let QRCodeScanError: AppError;
+export let AddressGenerationError: AppError;
+export let InvalidMnemonicError: AppError;
+export let WithdrawTxError: AppError;
+export let TDEXRegistryError: AppError;
+export let UpdateTransactionsError: AppError;
+export let UpdateUtxosError: AppError;
+export let DeepRestorationError: AppError;
+export let ClaimPeginError: AppError;
+export let NoClaimFoundError: AppError;
+export let PeginRestorationError: AppError;
+export let InvalidBitcoinAddress: AppError;
+export let FailedToRestoreProvidersError: AppError;
+export let AppIsBusy: AppError;
+export let InvalidUrl: AppError;
+export let NoOtherProvider: AppError;
 
-// Pegin
-export const ClaimPeginError = new AppError(17, 'Claim pegin bitcoin has failed');
-export const NoClaimFoundError = new AppError(18, 'No claims have been found');
-export const PeginRestorationError = new AppError(19, 'Pegin restoration has failed');
-//
-export const InvalidBitcoinAddress = new AppError(20, 'Invalid Bitcoin address');
-export const FailedToRestoreProvidersError = new AppError(21, 'Failed to restore providers');
-export const AppIsBusy = new AppError(22, 'App is busy. Please try in a moment');
-export const InvalidUrl = new AppError(23, 'Invalid URL');
-// When all providers are excluded except one
-export const NoOtherProvider = new AppError(24, 'No other provider to choose from');
+if (i18n.isInitialized) {
+  MakeTradeError = new AppError(1, i18n.t('MakeTradeError'));
+  PinDigitsError = new AppError(2, i18n.t('PinDigitsError'));
+  InvalidTradeTypeError = new AppError(3, i18n.t('InvalidTradeTypeError'));
+  NoMarketsAvailableForAllPairsError = new AppError(4, i18n.t('NoMarketsAvailableForAllPairsError'));
+  NoMarketsAvailableForSelectedPairError = new AppError(5, i18n.t('NoMarketsAvailableForSelectedPairError'));
+  IncorrectPINError = new AppError(6, i18n.t('IncorrectPINError'));
+  SecureStorageError = new AppError(7, i18n.t('SecureStorageError'));
+  PINsDoNotMatchError = new AppError(8, i18n.t('PINsDoNotMatchError'));
+  QRCodeScanError = new AppError(9, i18n.t('QRCodeScanError'));
+  AddressGenerationError = new AppError(10, i18n.t('AddressGenerationError'));
+  InvalidMnemonicError = new AppError(11, i18n.t('InvalidMnemonicError'));
+  WithdrawTxError = new AppError(12, i18n.t('WithdrawTxError'));
+  TDEXRegistryError = new AppError(13, i18n.t('TDEXRegistryError'));
+  UpdateTransactionsError = new AppError(14, i18n.t('UpdateTransactionsError'));
+  UpdateUtxosError = new AppError(15, i18n.t('UpdateUtxosError'));
+  DeepRestorationError = new AppError(16, i18n.t('DeepRestorationError'));
+
+  // Pegin
+  ClaimPeginError = new AppError(17, i18n.t('ClaimPeginError'));
+  NoClaimFoundError = new AppError(18, i18n.t('NoClaimFoundError'));
+  PeginRestorationError = new AppError(19, i18n.t('PeginRestorationError'));
+  //
+  InvalidBitcoinAddress = new AppError(20, i18n.t('InvalidBitcoinAddress'));
+  FailedToRestoreProvidersError = new AppError(21, i18n.t('FailedToRestoreProvidersError'));
+  AppIsBusy = new AppError(22, i18n.t('AppIsBusy'));
+  InvalidUrl = new AppError(23, i18n.t('InvalidUrl'));
+  // When all providers are excluded except one
+  NoOtherProvider = new AppError(24, i18n.t('NoOtherProvider'));
+}

@@ -1,12 +1,12 @@
 import './style.scss';
-
 import type { AppInfo } from '@capacitor/app';
 import { App } from '@capacitor/app';
 import { Device } from '@capacitor/device';
 import type { DeviceInfo } from '@capacitor/device/dist/esm/definitions';
-import { IonContent, IonList, IonItem, IonPage, IonListHeader, IonGrid, IonIcon } from '@ionic/react';
+import { IonContent, IonGrid, IonIcon, IonItem, IonList, IonListHeader, IonPage } from '@ionic/react';
 import { chevronForwardOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
@@ -24,6 +24,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   const [currencySearchOpen, setCurrencySearchOpen] = useState(false);
   const [LBTCUnitSearchOpen, setLBTCUnitSearchOpen] = useState(false);
   const [appVersion, setAppVersion] = useState<string>();
+  const { t } = useTranslation();
 
   useEffect(() => {
     Device.getInfo().then(({ platform }: DeviceInfo) => {
@@ -49,9 +50,9 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
         <IonGrid>
           <Header title="Settings" hasBackButton={false} isTitleLarge={true} />
           <IonList>
-            <IonListHeader>General</IonListHeader>
+            <IonListHeader>{t('settings.general.title')}</IonListHeader>
             <IonItem onClick={() => history.push('/account')}>
-              <span>Account</span>
+              <span>{t('settings.general.account.menuTitle')}</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 
@@ -60,12 +61,12 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
                 history.push('/liquidity-provider');
               }}
             >
-              <span>Manage liquidity provider</span>
+              <span>{t('settings.general.providers.menuTitle')}</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 
             <IonItem onClick={() => setLBTCUnitSearchOpen(true)}>
-              <span>L-BTC unit</span>
+              <span>{t('settings.general.unit.menuTitle')}</span>
               <IonItem slot="end" className="ion-no-padding ion-no-margin">
                 <span className="chosen-currency green-label">{unitLBTC}</span>
                 <IonIcon icon={chevronForwardOutline} color="text-color" className="ion-no-margin" />
@@ -73,7 +74,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
             </IonItem>
 
             <IonItem onClick={() => setCurrencySearchOpen(true)}>
-              <span>Default currency</span>
+              <span>{t('settings.general.defaultCurrency.menuTitle')}</span>
               <IonItem slot="end" className="ion-no-padding ion-no-margin">
                 <span className="chosen-currency green-label">{currency.value.toUpperCase()}</span>
                 <IonIcon icon={chevronForwardOutline} color="text-color" className="ion-no-margin" />
@@ -81,27 +82,32 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
             </IonItem>
 
             <IonItem onClick={() => history.push(routerLinks.explorers)}>
-              <span>Explorers endpoints</span>
+              <span>{t('settings.general.explorers.menuTitle')}</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 
             <IonItem onClick={() => history.push(routerLinks.network)}>
-              <span>Network</span>
+              <span>{t('settings.general.network.menuTitle')}</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 
             <IonItem onClick={() => history.push(routerLinks.torProxy)}>
-              <span>Tor proxy endpoint</span>
+              <span>{t('settings.general.torProxy.menuTitle')}</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 
             <IonItem onClick={() => history.push(routerLinks.deepRestoration)}>
-              <span>Deep restoration</span>
+              <span>{t('settings.general.deepRestoration.menuTitle')}</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 
             <IonItem onClick={() => history.push(routerLinks.claimPegin)}>
-              <span>Claim Liquid Bitcoin</span>
+              <span>{t('settings.general.claim.menuTitle')}</span>
+              <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
+            </IonItem>
+
+            <IonItem onClick={() => history.push(routerLinks.language)}>
+              <span>{t('settings.general.language.menuTitle')}</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 
@@ -127,17 +133,17 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
           </IonList>
           {/**/}
           <IonList>
-            <IonListHeader>Support</IonListHeader>
+            <IonListHeader>{t('settings.support.title')}</IonListHeader>
             <IonItem onClick={() => history.push('/faq')}>
-              <span>FAQ</span>
+              <span>{t('settings.support.faq.menuTitle')}</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
             <IonItem onClick={() => history.push('/privacy')}>
-              <span>Privacy</span>
+              <span>{t('settings.support.privacy.menuTitle')}</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
             <IonItem onClick={() => history.push('/terms')}>
-              <span>Terms & Conditions</span>
+              <span>{t('settings.support.termsConditions.menuTitle')}</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
           </IonList>

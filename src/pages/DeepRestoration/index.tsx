@@ -1,7 +1,8 @@
-import type { RangeValue, RangeChangeEventDetail } from '@ionic/core/components';
+import type { RangeChangeEventDetail, RangeValue } from '@ionic/core/components';
 import { IonButton, IonCol, IonContent, IonGrid, IonItem, IonPage, IonRange, IonRow } from '@ionic/react';
 import type { Mnemonic } from 'ldk';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { mnemonicRestorerFromEsplora } from 'tdex-sdk';
 
 import Header from '../../components/Header';
@@ -21,6 +22,7 @@ const DeepRestoration: React.FC = () => {
   const [needReset, setNeedReset] = useState<boolean>(false);
   const [isLoading, setLoading] = useState(false);
   const dispatch = useTypedDispatch();
+  const { t } = useTranslation();
 
   const handlePinConfirm = async (pin: string) => {
     try {
@@ -66,8 +68,8 @@ const DeepRestoration: React.FC = () => {
         needReset={needReset}
         setNeedReset={setNeedReset}
         open={isPinModalOpen}
-        title="Account discovery"
-        description="Enter your PIN to start scanning"
+        title={t('settings.general.deepRestoration.pinTitle')}
+        description={t('settings.general.deepRestoration.pinDesc')}
         onConfirm={handlePinConfirm}
         onClose={() => setIsPinModalOpen(false)}
         isWrongPin={isWrongPin}
@@ -75,10 +77,10 @@ const DeepRestoration: React.FC = () => {
       />
       <IonContent>
         <IonGrid className="ion-text-center ion-justify-content-center">
-          <Header hasBackButton={true} title="DEEP RESTORATION" />
+          <Header hasBackButton={true} title={t('settings.general.deepRestoration.pageTitle')} />
           <IonRow className="ion-margin-vertical">
             <IonCol offset="1" size="10">
-              <p>Choose the gap limit for the account discovery</p>
+              <p>{t('settings.general.deepRestoration.gapLimit')}</p>
             </IonCol>
           </IonRow>
           <IonRow className="ion-margin-vertical">
@@ -100,15 +102,13 @@ const DeepRestoration: React.FC = () => {
           </IonRow>
           <IonRow className="ion-margin-vertical-x2">
             <IonCol offset="1" size="10">
-              <p>
-                {`Scan the Liquid Network up to ${rangeValue} consecutive unused addresses. If new funds are discovered, they will show up in your balance.`}
-              </p>
+              <p>{t('settings.general.deepRestoration.scan', { rangeValue })}</p>
             </IonCol>
           </IonRow>
           <IonRow>
             <IonCol size="9" offset="1.5" sizeMd="6" offsetMd="3">
               <IonButton className="main-button" onClick={() => setIsPinModalOpen(true)}>
-                Confirm
+                {t('confirm')}
               </IonButton>
             </IonCol>
           </IonRow>

@@ -1,5 +1,6 @@
 import { IonButton, IonCol, IonContent, IonGrid, IonPage, IonRow } from '@ionic/react';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useLocation } from 'react-router';
@@ -18,12 +19,13 @@ const DeleteMnemonic: React.FC<RouteComponentProps> = ({ history }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const deleteMnemonic = async () => {
     setIsLoading(true);
     const success = await removeMnemonicFromStorage(state?.pin);
     if (!success) {
-      setErrorMsg('Error: your key has not been deleted. Please contact support.');
+      setErrorMsg(t('settings.general.account.security.deleteMnemonic.error'));
       setIsLoading(false);
       return;
     }
@@ -36,15 +38,15 @@ const DeleteMnemonic: React.FC<RouteComponentProps> = ({ history }) => {
     <IonPage id="delete-menemonic">
       <IonContent>
         <IonGrid>
-          <Header hasBackButton={true} title="CLEAR MY KEY" />
+          <Header hasBackButton={true} title={t('settings.general.account.security.deleteMnemonic.pageTitle')} />
           <PageDescription
-            description='Clicking on "Delete" will delete your mnemonic on this device. Be sure to back it up!'
-            title="Delete your mnemonic"
+            description={t('settings.general.account.security.deleteMnemonic.pageDescDesc')}
+            title={t('settings.general.account.security.deleteMnemonic.pageDescTitle')}
           />
           <IonRow className="ion-margin-vertical-x2">
             <IonCol size="9" offset="1.5" sizeMd="8" offsetMd="2">
               <IonButton onClick={deleteMnemonic} disabled={isLoading} className="main-button">
-                Delete
+                {t('settings.general.account.security.deleteMnemonic.btn')}
               </IonButton>
             </IonCol>
           </IonRow>

@@ -1,7 +1,8 @@
 import './style.scss';
-import { IonContent, IonIcon, IonPage, IonGrid, IonRow, IonCol } from '@ionic/react';
+import { IonCol, IonContent, IonGrid, IonIcon, IonPage, IonRow } from '@ionic/react';
 import { warningOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import type { Dispatch } from 'redux';
@@ -33,6 +34,7 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [needReset, setNeedReset] = useState<boolean>(false);
   const dispatch = useTypedDispatch();
+  const { t } = useTranslation();
 
   const handlePinConfirm = async (pin: string) => {
     try {
@@ -63,8 +65,8 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
         needReset={needReset}
         setNeedReset={setNeedReset}
         open={isPinModalOpen}
-        title="Unlock wallet"
-        description="Enter your current PIN."
+        title={t('pinModalUnlockWallet.title')}
+        description={t('pinModalUnlockWallet.desc')}
         onConfirm={handlePinConfirm}
         onClose={() => setIsPinModalOpen(false)}
         isWrongPin={isWrongPin}
@@ -73,7 +75,7 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
       {/* /// */}
       <IonContent className="backup-content">
         <IonGrid className="ion-text-center ion-justify-content-center">
-          <Header hasBackButton={false} title="BACKUP WALLET" />
+          <Header hasBackButton={false} title={t('backup.pageTitle')} />
           <IonRow className="icon-row ion-margin-vertical">
             <IonCol>
               <IonIcon icon={warningOutline} color="success" />
@@ -81,16 +83,13 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
           </IonRow>
           <IonRow className="ion-text-center">
             <IonCol offset="1" size="10">
-              <h2>Back up your secret phrase</h2>
+              <h2>{t('backup.title')}</h2>
             </IonCol>
           </IonRow>
           <IonRow className="ion-text-left">
             <IonCol offset="1" size="10">
-              <p className="ion-no-margin">
-                Your secret 12-words recovery phrase is the only way to recover your funds if you lose access to your
-                wallet.
-              </p>
-              <p>Write it down safely and store it in a secure location.</p>
+              <p className="ion-no-margin">{t('backup.desc1')}</p>
+              <p>{t('backup.desc2')}</p>
             </IonCol>
           </IonRow>
           <Checkbox
@@ -107,8 +106,8 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
           />
           <ButtonsMainSub
             className="ion-margin-vertical-x2"
-            mainTitle="CONTINUE TO RECEIVE"
-            subTitle="BACKUP NOW"
+            mainTitle={t('backup.btnMainTitle')}
+            subTitle={t('backup.btnSubTitle')}
             mainDisabled={!isSeedSaved}
             mainOnClick={() => history.push({ pathname: routerLinks.deposit })}
             subOnClick={() => {

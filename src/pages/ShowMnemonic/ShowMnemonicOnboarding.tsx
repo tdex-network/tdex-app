@@ -1,9 +1,10 @@
-import { IonContent, IonPage, IonGrid, IonRow, IonButton, useIonViewWillEnter, IonCol } from '@ionic/react';
+import { IonButton, IonCol, IonContent, IonGrid, IonPage, IonRow, useIonViewWillEnter } from '@ionic/react';
 import * as bip39 from 'bip39';
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
-import { useLocation } from 'react-router';
 import type { RouteComponentProps } from 'react-router';
+import { useLocation } from 'react-router';
 import type { Dispatch } from 'redux';
 
 import Checkbox from '../../components/Checkbox';
@@ -31,6 +32,7 @@ const ShowMnemonicOnboarding: React.FC<ShowMnemonicProps> = ({ backupDone, histo
   const { state } = useLocation<LocationState>();
   const [isSeedSaved, setIsSeedSaved] = useState(false);
   const [mnemonic, setMnemonic] = useState<string>('');
+  const { t } = useTranslation();
 
   useIonViewWillEnter(() => {
     if (!backupDone || !state?.mnemonic) {
@@ -42,11 +44,11 @@ const ShowMnemonicOnboarding: React.FC<ShowMnemonicProps> = ({ backupDone, histo
     <IonPage>
       <IonContent className="show-mnemonic-content">
         <IonGrid className="ion-text-center ion-justify-content-center">
-          <Header hasBackButton={true} title="SHOW MNEMONIC" />
+          <Header hasBackButton={true} title={t('settings.general.account.identity.showMnemonic.pageTitle')} />
           <PageDescription
             centerDescription={true}
-            description="Save your 12 words recovery phrase in the correct order"
-            title="Secret Phrase"
+            description={t('settings.general.account.identity.showMnemonic.pageDescDesc')}
+            title={t('settings.general.account.identity.showMnemonic.pageDescTitle')}
           />
           <IonRow>
             <IonCol>
@@ -62,7 +64,7 @@ const ShowMnemonicOnboarding: React.FC<ShowMnemonicProps> = ({ backupDone, histo
             }}
             inputName="seedSave"
             isChecked={isSeedSaved}
-            label={<span>I have saved my secret phrase</span>}
+            label={<span>{t('settings.general.account.identity.showMnemonic.checkbox')}</span>}
           />
           <IonRow className="ion-margin-vertical-x2">
             <IonCol size="9" offset="1.5">

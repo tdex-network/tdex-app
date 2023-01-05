@@ -1,0 +1,333 @@
+{
+  "translation": {
+    "//PAGES": "///PAGES",
+    "homescreen": {
+      "btnMainTitle": "INITIALISER",
+      "btnSubTitle": "RESTAURER"
+    },
+    "wallet": {
+      "pageTitle": "Portefeuille",
+      "balance": "Balance Totale",
+      "assetList": "Liste d'actifs",
+      "btnReceiveAssets": "RECEVOIR DES ACTIFS"
+    },
+    "exchange": {
+      "pageTitle": "Échange",
+      "providersExcluded": "Fournisseurs exclus",
+      "marketProvidedBy": "Marché offert par",
+      "noProviderAlert": {
+        "title": "Pas de fournisseur disponible",
+        "desc": "Les fournisseurs de liquidités sur le réseau Tor peuvent mettre beaucoup de temps à répondre ou tous vos fournisseurs sont hors ligne.",
+        "btn1": "Aller Au Portefeuille",
+        "btn2": "Réessayer"
+      },
+      "pinModalUnlock": {
+        "title": "Déverrouiller votre portemonnaie",
+        "desc": "Entrer votre PIN secret pour envoyer {{sendAmount}} {{sendUnit}} et recevoir {{receiveAmount}} {{receiveUnit}}."
+      },
+      "sectionTitle": {
+        "youReceive": "Vous recevez",
+        "youSend": "Vous envoyez"
+      },
+      "totalBalance": "Balance totale:",
+      "confirmBtn": "CONFIRMER",
+      "loaderMsg": "Recherche des fournisseurs TDEX avec la meilleure liquidité..."
+    },
+    "settings": {
+      "pageTitle": "Paramètres",
+      "general": {
+        "title": "Général",
+        "account": {
+          "menuTitle": "Compte",
+          "pageTitle": "COMPTE",
+          "identity": {
+            "title": "Identité",
+            "showMnemonic": {
+              "menuTitle": "Voir mnémonique",
+              "menuDesc": "Affichez la mnémonique secrete stockée dans la mémoire sécurisée de votre appareil.",
+              "pageTitle": "Voir mnémonique",
+              "pageDescTitle": "Phrase Secrète",
+              "pageDescDesc": "Copiez votre phrase de récupération de 12 mots dans le bon ordre",
+              "checkbox": "J'ai sauvegardé ma phrase secrète",
+              "btn": "CONTINUER À RECEVOIR"
+            },
+            "showInformation": {
+              "menuTitle": "Afficher les informations",
+              "menuDesc": "Afficher des informations supplémentaires sur le portefeuille.",
+              "pageTitle": "INFORMATION",
+              "pageDescTitle": "Informations sur le portefeuille",
+              "pageDescDesc": "Informations supplémentaires sur le portefeuille, utiles pour la restauration du portefeuille en lecture seule.",
+              "xpub": "Clé Publique Étendue",
+              "path": "Base du Chemin de Dérivation"
+            }
+          },
+          "security": {
+            "title": "Securité",
+            "newPin": {
+              "title": "Changer code pin",
+              "desc": "Changez le code PIN utilisé pour chiffrer votre portefeuille."
+            },
+            "deleteMnemonic": {
+              "title": "Supprimer mnémonique",
+              "desc": "Supprimez définitivement votre portefeuille de cet appareil. Soyez extrêmement prudent, après la suppression il sera impossible de le récupérer à partir de tdex-app.",
+              "pageTitle": "SUPPRIMER MON PORTEFEUILLE",
+              "pageDescTitle": "Supprimez votre mnémonique",
+              "pageDescDesc": "Cliquez sur \"Supprimer\" supprimera votre mnémonique sur cet appareil. Assurez-vous de la sauvegarder!",
+              "btn": "Supprimer",
+              "error": "Erreur : votre clé n'a pas été supprimée. Veuillez contacter le support."
+            }
+          }
+        },
+        "providers": {
+          "menuTitle": "Fournisseur de liquidité",
+          "pageTitle": "fournisseurs tdex",
+          "sectionTitle": "Fournisseurs",
+          "addProviderBtn": "ajouter un fournisseur",
+          "refreshBtn": "rafraichir",
+          "refreshProviderSuccessToast": "{{newProviders}} nouveaux fournisseurs depuis le registre TDEX!",
+          "createNewProviderModal": {
+            "modalTitle": "créer un nouveau fournisseur",
+            "name": {
+              "title": "Nom du fournisseur",
+              "desc": "nom du fournisseur à ajouter"
+            },
+            "endpoint": {
+              "title": "Point d'accès"
+            }
+          },
+          "deleteAlert": {
+            "title": "Confirmer la suppression",
+            "desc": "Supprimer le fournisseur {{name}} - {{endpoint}}"
+          }
+        },
+        "unit": {
+          "menuTitle": "Unité L-BTC",
+          "placeholder": "Chercher la dénomination"
+        },
+        "defaultCurrency": {
+          "menuTitle": "Devise",
+          "placeholder": "Chercher la devise"
+        },
+        "explorers": {
+          "menuTitle": "Explorateurs",
+          "pageTitle": "EXPLORATEURS",
+          "pageDescTitle": "Définissez l'explorateur",
+          "pageDescDesc": "Sélectionnez un ensemble prédéfini d'API backend compatibles avec Electrs et d'explorateurs frontend compatibles avec Esplora ou saisissez des urls compatibles personnalisées.",
+          "custom": "Personnalisé",
+          "selectLabel": "Selectionner votre explorateur",
+          "bitcoinUI": "Bitcoin UI",
+          "liquidUI": "Liquid UI",
+          "bitcoinAPI": "Bitcoin API",
+          "liquidAPI": "Liquid API",
+          "electrsBatchAPI": "Electrs batch API"
+        },
+        "network": {
+          "menuTitle": "Réseau",
+          "pageTitle": "réseau",
+          "pageDescTitle": "Définir le réseau",
+          "pageDescDesc": "Sélectionner un réseau entre mainnet, testnet et regtest",
+          "selectLabel": "Sélectionner votre réseau",
+          "changeNetworkSuccessToast": "Le réseau et les urls des explorateurs ont été mis à jour avec succès"
+        },
+        "torProxy": {
+          "menuTitle": "Proxy Tor",
+          "pageTitle": "Proxy Tor",
+          "desc": "Nativement, les navigateurs web ne supportent pas le protocole Tor. C'est pourquoi nous utilisons un proxy Tor pour rediriger les requêtes vers les urls oignon. Par défaut, les clients utilisent https://proxy.tdex.network comme proxy. Si vous voulez utiliser le vôtre, spécifiez l'url de votre proxy ci-dessous",
+          "addProxyToastSuccess": "Un nouveau proxy Tor a été enregistré",
+          "addProxyBtn": "ENREGISTRER"
+        },
+        "deepRestoration": {
+          "menuTitle": "Restauration en profondeur",
+          "pageTitle": "RESTAURATION EN PROFONDEUR",
+          "gapLimit": "Choisissez la limite d'écart pour la découverte du compte",
+          "scan": "Scannez le réseau Liquid jusqu'à {{rangeValue}} adresses consécutives inutilisées. Si de nouveaux fonds sont découverts, ils apparaîtront dans votre solde.",
+          "pinTitle": "Account discovery",
+          "pinDesc": "Enter your PIN to start scanning"
+        },
+        "claim": {
+          "menuTitle": "Réclamation de Bitcoin Liquid",
+          "pageTitle": "RÉCLAMEZ BITCOIN LIQUID",
+          "pageDescTitle": "Réclamez vos Bitcoin Liquid",
+          "pageDescDesc": "Vous pouvez ici réclamer manuellement votre dépôt au cas où le processus aurait été interrompu brusquement. Veuillez n'utiliser cette section que si votre dépôt a 102 confirmations ou plus. Vous ne pouvez réclamer qu'un dépôt effectué à partir de cette application et de ce jeu de clés. Pour réclamer, veuillez insérer l'adresse BTC ci-dessous.",
+          "toastSuccess": "Transaction de réclamation réussie",
+          "pinTitle": "Saisissez votre code PIN",
+          "pinDesc": "Déverrouiller votre portemonnaie pour réclamer vos fonds",
+          "placeholderAddress": "Adresse de dépôt BTC",
+          "btn": "RECLAMEZ",
+          "toast": "RECLAMEZ MAINTENANT"
+        },
+        "language": {
+          "menuTitle": "Langue",
+          "pageTitle": "LANGUE",
+          "descriptionTitle": "Définissez une langue",
+          "descriptionContent": "Vous pouvez choisir votre langue préférée",
+          "selectLabel": "Selectionnez une langue",
+          "optionEnglish": "Anglais",
+          "optionFrench": "Français"
+        }
+      },
+      "support": {
+        "title": "Support",
+        "faq": {
+          "menuTitle": "FAQ",
+          "pageTitle": "FAQ",
+          "t1": "Qu'est-ce que TDEX App ?",
+          "p1": "T(True)DEX App est l'implémentation de référence du protocole open source <0>TDEX</0>",
+          "t2": "Qu'est-ce que le protocol TDEX ?",
+          "p2": "Il s'agit du premier protocole d'échange décentralisé (DEX) du genre basé sur l'échange atomique et construit sur le réseau Liquid. Il s'agit d'une solution open-source orientée vers la communauté qui vise à devenir le cadre d'un marché secondaire rapide et sécurisé pour les actifs Liquid. TDEX facilite la génération de liquidités d'une manière qui tire parti de la sécurité du bitcoin tout en atténuant ses défauts en matière de confidentialité et de fongibilité, renforçant ainsi les bases de la finance Liquide (LiFi) - la version de la finance décentralisée (DeFi) du réseau Liquid.",
+          "t3": "Qu'est-ce que le réseau Liquid ?",
+          "p3": "<0>Le réseau Liquid</0> est une sidechain Bitcoin basée sur Elements, développée par Blockstream. En tant que réseau de règlement décentralisé pour les commerçants et les échanges, il permet des transactions plus rapides et véritablement confidentielles en Bitcoin et Tether. En outre, il facilite l'émission d'actifs numériques personnalisés, appelés Issued Assets. Une fédération forte distribuée à l'échelle mondiale sécurise et valide les transactions sur le réseau, éliminant ainsi tout point de défaillance unique. Pour en savoir plus, lisez le <1>livre blanc de Liquid</1>.",
+          "t4": "Comment puis-je avoir des Liquid Bitcoin (L-BTC) ?",
+          "p4": "Il existe plusieurs façons d'acquérir des L-BTC, vous pouvez effectuer un peg en BTC dans l'App TDEX ou acheter des L-BTC auprès de plusieurs tiers. Veuillez consulter la liste des sources tierces sur le <0>site officiel de Liquid</0>.",
+          "t5": "Qu'est-ce qu'un Atomic Swap ?",
+          "p5": "Un Atomic Swap est une méthode décentralisée, de pair à pair, pour échanger des crypto-actifs sans faire appel à un intermédiaire tiers. Il s'agit d'un processus instantané, avec un règlement presque en temps réel, et dans lequel les contreparties ont un contrôle total.",
+          "t6": "Qu'est-ce que les Confidential Transactions ?",
+          "p6": "Toute transaction comporte deux éléments principaux : le montant et le type d'actif. Confidential Transaction (CT) est une méthode permettant de dissimuler ces informations, tout en prouvant à tout vérificateur que la somme des valeurs d'entrée et de sortie est égale à zéro. Développées par Gregory Maxwell, les CT s'appuient sur les engagements de Pedersen pour éliminer les doubles dépenses et autres risques, tout en préservant la vie privée. Pour en savoir plus, lisez <0>l'article sur les Bulletproofs</0> de Poelstra et al.",
+          "t7": "Qu'est-ce qu'un fournisseur de liquidité ?",
+          "p7": "Un fournisseur de liquidité (Provider) sur TDEX est, fondamentalement, l'équivalent de ce qui est communément appelé un market maker. Ils fournissent la liquidité aux paires d'actifs négociables de la bourse en détenant des paires mutuellement appariées comprenant un actif de cotation et un actif de base. Cela s'applique à n'importe quelle paire d'actifs et pas nécessairement aux paires de bitcoins. TDEX incite les fournisseurs à utiliser des points d'extrémité toujours actifs, ce qui résout en grande partie le problème de <0>Double Coïncidence des Besoins</0>. Le rôle principal des fournisseurs sur TDEX est de s'assurer que les traders disposent de marchés facilement disponibles, ce qui a été un point douloureux constant pour la plupart des DEX. Les traders, quant à eux, peuvent découvrir les Fournisseurs en utilisant l'application TDEX ou tout autre url basée sur le SDK TDEX.",
+          "t8": "Puis-je devenir un fournisseur de liquidité sur TDEX ?",
+          "p8": "Oui, bien sûr. TDEX est open-source, ce qui signifie que tout le monde peut s'y joindre en tant que fournisseur de liquidités ou trader ou développeur. Pour participer en tant que fournisseur, vous devez <0>exécuter un serveur toujours actif (Daemon)</0> sur le réseau - conformément au <1>Protocole de Négociation</1> - soit en l'exécutant via Docker, soit en tant qu'application standalone.",
+          "t9": "J'ai perdu mon code PIN, aidez-moi!",
+          "p9": "L'oubli de votre code PIN n'est pas un problème majeur, tant que vous vous souvenez de votre mnémonique. Si vous ne pouvez pas vous connecter à votre portefeuille à l'aide du code PIN, vous pouvez le restorer en utilisant la mnémonique.",
+          "t10": "J'ai perdu ma mnémonique, à l'aide!",
+          "p10": "Désolé pour votre perte, mais il n'y a aucun moyen de récupérer votre mnémonique si vous le perdez. TDEX n'a pas accès à votre mnémonique et ne peut pas vous aider dans ce cas. Idéalement, il est conseillé de noter votre mnémonique et de la conserver en lieu sûr. Toutefois, si vous vous souvenez de votre code PIN, vous pouvez l'utiliser pour vous connecter et récupérer votre mnémonique dans le menu des paramètres du portefeuille.",
+          "t11": "Comment réinstaller l'application TDEX, à l'aide !",
+          "p11": "Ne supprimez jamais votre application avant de supprimer le mnémonique si vous voulez effacer et réinstaller à nouveau. Donc, avant de supprimer votre application, vous devez cliquer sur le menu Paramètres > Compte > Supprimer la mnémonique. Maintenant vous pouvez supprimer votre application et recommencer à zéro!",
+          "t12": "Vais-je perdre l'accès à mes liquidités si mon smartphone est volé?",
+          "p12": "Détendez-vous ! Vous n'avez pas à vous inquiéter si votre smartphone a été volé, mais que la phrase mnémonique n'est pas compromise. Pour retrouver l'accès à vos liquidités, il vous suffit de réinstaller l'application TDEX et le portefeuille sur un nouvel appareil. Cependant, assurez-vous que votre phrase mnémonique n'a pas été volée, car c'est ce qui est nécessaire en fin de compte pour accéder à vos actifs, et pas seulement le dispositif physique.",
+          "t13": "Quel est le prix du service offert par TDEX App ?",
+          "p13": "TDEX est un projet véritablement décentralisé, à code source ouvert et orienté vers la communauté. De par sa conception, le protocole ne fait pas payer de frais, du moins en lui-même. Toutefois, les fournisseurs de liquidité peuvent facturer des frais pour le service qu'ils offrent, à savoir fournir et maintenir la liquidité pour les paires d'actifs afin que vous puissiez effectuer des transactions basées sur des swaps.",
+          "t14": "Comment puis-je déposer des BTC ?",
+          "p14": "Pour déposer des BTC, vous devez effectuer un peg-in sur le réseau Liquid. Vous pouvez effectuer un peg-in sans confiance dans le réseau depuis notre application.",
+          "t15": "Je ne vois pas mon dépôt. Comment puis-je récupérer mes fonds ?",
+          "p15": "En cas d'incident au cours du processus d'enregistrement (si vous perdez votre appareil avant la confirmation complète, par exemple), il est possible de récupérer vos fonds en saisissant votre adresse de dépôt dans la section \"Réclamation de Bitcoin Liquid\" de l'application.",
+          "t16": "Combien de temps faut-il pour que mon peg-in soit confirmé?",
+          "p16": "Pour réussir le peg-in de BTC en Liquid, 102 confirmations sur la blockchain de BTC sont nécessaires. Il faut compter environ une journée pour que le peg-in soit terminé. Vous pouvez suivre le processus à partir de la section L-BTC de l'application TDEX.",
+          "t17": "Qui reçoit les frais de transaction que je paie ?",
+          "p17": "Les commissions sont versées aux fournisseurs de liquidités qui exécutent des daemons sur le réseau TDEX.",
+          "t18": "Quelles sont les plateformes compatibles avec TDEX App ?",
+          "p18": "TDEX App dispose d'une application pour Android, qui est disponible sur Google Play Store, et d'une autre pour iOS, que vous pouvez obtenir sur l'Apple Store. En outre, comme TDEX est un logiciel libre et dispose d'un kit de développement logiciel (SDK) robuste, vous pouvez créer vos propres applications. Vous pouvez également contribuer au développement du protocole sur <0>GitHub</0>",
+          "t19": "Ma question ne trouve pas de réponse dans cette FAQ. Comment puis-je vous contacter ?",
+          "p19": "TDEX est un projet à code source ouvert, vous pouvez donc compter sur le soutien de la communauté. La principale méthode pour demander de l'aide à la communauté consiste à utiliser les <0>canaux officiels Github</0>",
+          "p20": "Vous pouvez également poser des questions sur le canal communautaire <0>Telegram</0>."
+        },
+        "privacy": {
+          "menuTitle": "Vie privée",
+          "pageTitle": "Politique de confidentialité",
+          "p0": "Chaque individu devrait avoir un droit inaliénable à la vie privée. Dans un monde où la technologie est de plus en plus utilisée pour identifier, surveiller et suivre les utilisateurs, l'application TDEX prend des mesures dans la direction opposée. L'application TDEX ne recueille ni ne partage vos informations. C'est notre politique en un mot.",
+          "title": "Politique de confidentialité de l'application TDEX",
+          "t1": "Informations que nous ne collectons pas",
+          "p1": "TDEX App ne stocke aucune information d'identification de votre appareil, telle que votre adresse IP ou vos agents utilisateurs ou vos transactions. TDEX App est conçu de manière à ne stocker aucune information. Vous n'avez pas besoin d'un numéro de téléphone, d'une adresse électronique ou de toute autre information liée à votre identité ou à vos liquidités pour utiliser l'application TDEX. TDEX App est privé par défaut.",
+          "t2": "Les informations qui sont partagées avec TDEX App",
+          "p21": "Si vous utilisez l'application TDEX sur votre téléphone Android ou iOS, Google ou Apple peuvent stocker des informations sur la façon dont vous utilisez l'application. Ils peuvent enregistrer le moment où l'appli est fermée, ouverte, la durée d'utilisation, les journaux de pannes et le modèle de votre appareil. Ces informations d'utilisation peuvent également être associées à votre compte Google ou Apple. Les seules informations que reçoit TDEX App sont le nombre de téléchargements et de plantages.",
+          "p22": "Si vous envisagez d'utiliser l'application TDEX sur un téléphone portable, il est utile de lire les règles de confidentialité d'Apple ou de Google. Si vous utilisez iOS, consultez les directives d'examen de l'App Store d'Apple. Pour Android, lisez la section sur les données utilisateur du Developer Policy Center de Google. En outre, si vous téléchargez l'application TDEX et l'installez manuellement avec l'apk du dépôt GitHub de TDEX, consultez la déclaration de confidentialité de GitHub.",
+          "p23": "En outre, TDEX s'appuie sur Blockstream.info/liquid comme source de données de Liquid Blockchain par défaut, mais vous pouvez changer à partir de Paramètres > Explorateurs. Pour la conversion des montants FIAT, il s'appuie sur les API publiques de CoinGecko. De même, TDEX App n'a aucune influence et/ou connaissance de si et comment les fournisseurs de liquidité TDEX collectent ou utilisent les données relatives aux transactions de swap atomique.",
+          "p3": "Cette politique est effective à partir du 6 mai 2021."
+        },
+        "termsConditions": {
+          "menuTitle": "Conditions générales"
+        }
+      }
+    },
+    "operation": {
+      "noTxs": "Vous n'avez pas encore de transactions"
+    },
+    "backup": {
+      "pageTitle": "SAUVEGARDE PORTEFEUILLE",
+      "title": "Sauvegardez votre phrase secrète",
+      "desc1": "Votre phrase secrète de récupération en 12 mots est le seul moyen de récupérer vos fonds si vous perdez l'accès à votre portefeuille.",
+      "desc2": "Notez-le en toute sécurité et conservez-le dans un endroit sûr.",
+      "btnMainTitle": "CONTINUEZ A RECEVOIR",
+      "btnSubTitle": "SAUVEGARDEZ MAINTENANT"
+    },
+    "withdraw": {
+      "pageTitle": "ENVOYER",
+      "pinDesc": "Entrez votre PIN secret pour envoyer",
+      "placeholder": "Collez votre adresse ou scannez le QR code",
+      "btnMainTitle": "CONFIRMER",
+      "btnSubTitle": "ANNULER"
+    },
+    "tradeSummary": {
+      "pageTitle": "RESUMÉ DES ÉCHANGES"
+    },
+    "tradeHistory": {
+      "pageTitle": "Historique des échanges",
+      "noTrades": "Vous n'avez pas de transactions d'échange. Elles apparaîtront ici."
+    },
+    "exchangeSearch": {
+      "noAsset": "Pas d'actif disponible"
+    },
+    "changePinModals": {
+      "firstModal": {
+        "title": "Déverrouiller votre portemonnaie",
+        "desc": "Entrez votre PIN actuel."
+      },
+      "secondModal": {
+        "title": "Nouveau PIN",
+        "desc": "Choisissez le nouveau PIN."
+      },
+      "toastSuccess": "Le code PIN a été modifié."
+    },
+    "pinModalUnlockWallet": {
+      "pageTitle": "INSEREZ PIN",
+      "title": "Déverrouiller votre portemonnaie",
+      "desc": "Saisissez votre code PIN"
+    },
+    "restoreWallet": {
+      "pageTitle": "PHRASE SECRÈTE",
+      "title": "Restaurer le Portefeuille",
+      "desc": "Écrivez votre phrase de récupération de 12 mots dans l'ordre",
+      "modalFirstTitle": "Définissez votre code PIN secret",
+      "modalFirstDesc": "Saisissez un code PIN secret à 6 chiffres pour sécuriser votre portefeuille.",
+      "modalSecondTitle": "Répétez votre code PIN secret",
+      "modalSecondDesc": "Confirmez votre code PIN secret.",
+      "btn": "RESTAURER"
+    },
+    "//TERMS": "///TERMS",
+    "confirm": "confirmer",
+    "cancel": "annuler",
+    "abort": "annuler",
+    "delete": "supprimer",
+    "save": "sauvegarder",
+    "loading": "chargement",
+    "receive": "recevoir",
+    "send": "envoyer",
+    "swap": "échanger",
+    "copy": "copier",
+    "copied": "copié",
+    "details": "details",
+    "continue": "continuer",
+    "clipboardCopyAddress": "Adresse copiée!",
+    "clipboardCopyTx": "TxID copiée!",
+    "address": "Adresse",
+    "completed": "confirmé",
+    "pending": "en attente",
+    "liquidAsset": "Actif Liquid",
+    "claimNow": "Réclamez maintenant",
+    "//ERRORS": "///ERRORS",
+    "MakeTradeError": "Erreur TradePropose ou TradeComplete",
+    "PinDigitsError": "Le code PIN doit contenir six chiffres",
+    "InvalidTradeTypeError": "Le type Trade doit être BUY ou SELL",
+    "NoMarketsAvailableForAllPairsError": "Aucun marché n'est disponible pour toutes les paires",
+    "NoMarketsAvailableForSelectedPairError": "Aucun marché n'est disponible pour la paire sélectionnée",
+    "IncorrectPINError": "PIN incorrect",
+    "SecureStorageError": "Erreur du stockage sécurisé",
+    "PINsDoNotMatchError": "Les codes PIN doivent être égaux",
+    "QRCodeScanError": "Échec de la numérisation du QR code",
+    "AddressGenerationError": "Impossible de générer une nouvelle adresse",
+    "InvalidMnemonicError": "Erreur de mnémonique invalide",
+    "WithdrawTxError": "Une erreur s'est produite lors de l'envoi de la transaction de retrait",
+    "TDEXRegistryError": "Impossible de récupérer les fournisseurs à partir du registre",
+    "UpdateTransactionsError": "Une erreur de mise à jour des transactions s'est produite",
+    "UpdateUtxosError": "Une erreur de mise à jour des UTXOs s'est produite",
+    "DeepRestorationError": "La restoration du compte a échoué",
+    "ClaimPeginError": "Le peg-in a échoué",
+    "NoClaimFoundError": "Aucune réclamation trouvée",
+    "PeginRestorationError": "La restoration du peg-in a échoué",
+    "InvalidBitcoinAddress": "Addresse Bitcoin invalide",
+    "FailedToRestoreProvidersError": "Échec de la restauration des fournisseurs",
+    "AppIsBusy": "L'application est occupée. Veuillez essayer dans un moment",
+    "InvalidUrl": "URL invalide",
+    "NoOtherProvider": "Aucun autre fournisseur ne peut être choisi"
+  }
+}
