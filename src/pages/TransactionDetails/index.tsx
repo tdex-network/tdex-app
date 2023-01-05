@@ -67,7 +67,9 @@ const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDeta
         <IonGrid>
           <Header
             hasBackButton={true}
-            title={`${locationState?.amount && locationState.amount > 0 ? t('receive') : t('send')} ${t('details')}`}
+            title={`${
+              locationState?.amount && locationState.amount > 0 ? t('receive').toUpperCase() : t('send').toUpperCase()
+            } ${t('details').toUpperCase()}`}
           />
           <IonRow>
             <IonCol className="header-info ion-text-center">
