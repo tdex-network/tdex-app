@@ -68,6 +68,7 @@ test.describe('onboarded', () => {
     test('make a trade', async ({ page }) => {
       await page.getByTestId('tab-exchange').click();
       await expect(page).toHaveURL(/exchange/);
+      await page.waitForTimeout(2000);
       await page.fill('input[name=exchange-send-input]', '1');
       await page.getByRole('button', { name: /CONFIRM/ }).click();
       await expect(page.getByTestId('description-p')).toHaveText(/Enter your secret PIN to send 1 L-BTC and receive/);
