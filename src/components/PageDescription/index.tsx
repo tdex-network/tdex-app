@@ -15,7 +15,7 @@ const PageDescription: React.FC<PageDescriptionProps> = ({ title, description, c
     <div className="page-description ion-margin-vertical">
       <IonRow>
         <IonCol className="ion-text-center" size="10" offset="1">
-          <h2 data-cy="description-title">{title}</h2>
+          <h2 data-testid="description-title">{title}</h2>
         </IonCol>
       </IonRow>
       <IonRow>
@@ -27,7 +27,7 @@ const PageDescription: React.FC<PageDescriptionProps> = ({ title, description, c
           size="10"
           offset="1"
         >
-          <p className="ion-no-margin" data-cy="description-p">
+          <p className="ion-no-margin" data-testid="description-p">
             {description}
           </p>
         </IonCol>

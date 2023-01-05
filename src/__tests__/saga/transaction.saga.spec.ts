@@ -5,10 +5,12 @@ import type { TxInterface, AddressInterface } from 'ldk';
 import { address } from 'ldk';
 import type { CallEffect, PutEffect } from 'redux-saga/effects';
 
-import { faucet, firstAddress, APIURL, sleep } from '../../../test/test-utils';
+import faucet, { APIURL } from '../../../test/faucet';
+import { firstAddress } from '../../../test/test-utils';
 import { SET_TRANSACTION } from '../../redux/actions/transactionsActions';
 import { config } from '../../redux/config';
 import { fetchAndUpdateTxs } from '../../redux/sagas/transactionsSaga';
+import { sleep } from '../../utils/helpers';
 import type { ActionType } from '../../utils/types';
 
 jest.setTimeout(15000);

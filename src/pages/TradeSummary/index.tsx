@@ -107,7 +107,7 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, assets }) => {
                               {transaction ? assets[transaction.transfers?.[0]?.asset]?.ticker : preview?.sent.ticker}
                             </span>
                           </div>
-                          <p className="trade-price" data-cy="trade-summary-sent-amount">
+                          <p className="trade-price" data-testid="trade-summary-sent-amount">
                             {preview
                               ? preview?.sent.amount
                               : fromSatoshiFixed(transaction?.transfers?.[0]?.amount.toString() ?? '0', 8, 8)}

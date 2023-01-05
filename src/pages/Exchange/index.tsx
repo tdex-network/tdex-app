@@ -406,7 +406,7 @@ const Exchange: React.FC<Props> = ({
                   className={classNames('main-button', {
                     'button-disabled': tdexOrderInputResult === undefined,
                   })}
-                  data-cy="exchange-confirm-btn"
+                  data-testid="exchange-confirm-btn"
                   disabled={
                     tdexOrderInputResult === undefined ||
                     sendSats === 0 ||

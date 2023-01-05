@@ -39,7 +39,7 @@ const Checkbox: React.FC<CheckboxProps> = ({ handleChange, inputName, isChecked,
         <label>
           <input
             type="checkbox"
-            data-cy="checkbox"
+            data-testid="checkbox"
             name={inputName}
             checked={isChecked}
             onChange={(e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.checked)}

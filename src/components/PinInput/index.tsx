@@ -63,9 +63,10 @@ const PinInput: React.FC<PinInputProps> = ({ onPin, on6digits, isWrongPin, input
               ))}
             </IonRow>
             <IonInput
+              name="pin-input"
               autofocus={true}
               ref={inputRef}
-              data-cy="pin-input"
+              data-testid="pin-input"
               enterkeyhint="done"
               onKeyDown={onPressEnterKeyFactory(on6digits)}
               inputmode={isPlatform('android') ? 'tel' : 'numeric'}

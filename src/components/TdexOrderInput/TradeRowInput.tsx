@@ -32,6 +32,7 @@ interface ConnectedProps {
   selectedAssetPrice: number;
   currency: CurrencyInterface;
   network: NetworkString;
+  isFetchingTransactions: boolean;
 }
 
 interface ComponentProps {
@@ -68,6 +69,7 @@ const TradeRowInput: React.FC<Props> = ({
   searchableAssets,
   onFocus,
   network,
+  isFetchingTransactions,
 }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const inputRef = useRef<HTMLIonInputElement>(null);
@@ -143,9 +145,11 @@ const TradeRowInput: React.FC<Props> = ({
             <div className="ion-text-end">
               <IonInput
                 ref={inputRef}
+                name={`exchange-${type}-input`}
                 color={(localError || error) && 'danger'}
-                data-cy={`exchange-${type}-input`}
-                disabled={isLoading}
+                data-testid={`exchange-${type}-input`}
+                // isFetchingTransactions fixes https://github.com/tdex-network/tdex-app/issues/535
+                disabled={isLoading || isFetchingTransactions}
                 enterkeyhint="done"
                 inputmode="decimal"
                 onIonChange={handleInputChange}
@@ -223,6 +227,7 @@ const TradeRowInput: React.FC<Props> = ({
 
 const mapStateToProps = (state: RootState, ownProps: ComponentProps) => {
   return {
+    isFetchingTransactions: state.app.isFetchingTransactions,
     balance: ownProps.assetSelected ? balanceByAssetSelector(ownProps.assetSelected.assetHash)(state) : undefined,
     currency: state.settings.currency,
     lbtcUnit: state.settings.denominationLBTC,

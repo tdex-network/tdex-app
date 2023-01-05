@@ -30,7 +30,7 @@ const ButtonsMainSub: React.FC<ButtonsMainSubProps> = ({
         <IonRow className="ion-justify-content-center">
           <IonButton
             className="main-button"
-            data-cy="main-button"
+            data-testid="main-button"
             disabled={mainDisabled}
             routerLink={mainLink}
             onClick={mainOnClick}
@@ -41,7 +41,7 @@ const ButtonsMainSub: React.FC<ButtonsMainSubProps> = ({
         <IonRow className="ion-justify-content-center">
           <IonButton
             className="sub-button"
-            data-cy="sub-button"
+            data-testid="sub-button"
             disabled={subDisabled}
             routerLink={subLink}
             onClick={subOnClick}

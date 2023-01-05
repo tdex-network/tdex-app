@@ -157,7 +157,7 @@ const Wallet: React.FC<WalletProps> = ({
                 return (
                   <IonItem
                     aria-label={balance.ticker}
-                    data-cy={`item-asset-${balance.ticker}`}
+                    data-testid={`item-asset-${balance.ticker}`}
                     key={balance.assetHash}
                     onClick={() => {
                       history.push(`/operations/${balance.assetHash}`);
@@ -198,7 +198,7 @@ const Wallet: React.FC<WalletProps> = ({
                 <IonCol size="9" offset="1.5" sizeMd="6" offsetMd="3">
                   <IonButton
                     className="main-button"
-                    data-cy="main-button"
+                    data-testid="main-button"
                     onClick={() => {
                       if (backupDone) {
                         history.push({ pathname: routerLinks.deposit });
