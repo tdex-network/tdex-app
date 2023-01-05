@@ -30,7 +30,7 @@
         "youSend": "You send"
       },
       "totalBalance": "Total balance:",
-      "confirmBtn": "confirm",
+      "confirmBtn": "CONFIRM",
       "loaderMsg": "Discovering TDEX providers with best liquidity..."
     },
     "settings": {

@@ -30,7 +30,7 @@
         "youSend": "Vous envoyez"
       },
       "totalBalance": "Balance totale:",
-      "confirmBtn": "confirmer",
+      "confirmBtn": "CONFIRMER",
       "loaderMsg": "Recherche des fournisseurs TDEX avec la meilleure liquidité..."
     },
     "settings": {
