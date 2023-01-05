@@ -20,7 +20,7 @@ import { connect, useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
 import { SLIP77Factory } from 'slip77';
-import type { BIP174SigningData, NetworkString, OwnedInput, UnblindedOutput } from 'tdex-sdk';
+import type { BIP174SigningData, CoinSelectorErrorFn, NetworkString, OwnedInput, UnblindedOutput } from 'tdex-sdk';
 import {
   Pset,
   Creator as PsetCreator,
@@ -31,6 +31,9 @@ import {
   Blinder as PsetBlinder,
   ZKPValidator,
   ZKPGenerator,
+  createFeeOutput,
+  DEFAULT_SATS_PER_BYTE,
+  getNetwork,
 } from 'tdex-sdk';
 import * as ecc from 'tiny-secp256k1';
 
@@ -50,6 +53,7 @@ import { balancesSelector, lastUsedIndexesSelector, unlockedUtxosSelector } from
 import { broadcastTx } from '../../redux/services/walletService';
 import type { RootState } from '../../redux/types';
 import { decodeBip21 } from '../../utils/bip21';
+import { throwErrorHandler } from '../../utils/coinSelection';
 import type { LbtcDenomination } from '../../utils/constants';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { IncorrectPINError, WithdrawTxError } from '../../utils/errors';
@@ -223,11 +227,43 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         throw IncorrectPINError;
       }
       // Craft single recipient Pset v2
-      const changeAddress = await identity.getNextChangeAddress();
       const selector = customCoinSelector(dispatch);
-      const { selectedUtxos, changeOutputs } = selector(() => null)(
+      const firstSelection = selector(throwErrorHandler)(
         utxos,
-        [getRecipient()], // TODO: add fee output
+        [getRecipient()],
+        () => changeAddress.confidentialAddress
+      );
+      let nbConfOutputs = 0;
+      let nbUnconfOutputs = 1; // init to 1 for the future fee output
+      if (addressLDK.isConfidential(getRecipient().address)) {
+        nbUnconfOutputs++;
+      } else {
+        nbUnconfOutputs++;
+      }
+      for (const change of firstSelection.changeOutputs) {
+        if (addressLDK.isConfidential(change.address)) nbConfOutputs++;
+        else nbUnconfOutputs++;
+      }
+      const fee = createFeeOutput(
+        firstSelection.selectedUtxos.length,
+        nbConfOutputs,
+        nbUnconfOutputs,
+        DEFAULT_SATS_PER_BYTE,
+        getNetwork(network).assetHash
+      );
+      const changeAddress = await identity.getNextChangeAddress();
+      let errorHandler: CoinSelectorErrorFn = throwErrorHandler;
+      errorHandler = (asset: string, need: number, has: number) => {
+        if (asset === getRecipient().asset) {
+          // Substract fee from amount
+          getRecipient().value = has - fee.value;
+          return;
+        } // do not throw error if not enough fund with recipient's asset.
+        throwErrorHandler(asset, need, has);
+      };
+      const { selectedUtxos, changeOutputs } = selector(errorHandler)(
+        utxos,
+        [getRecipient(), fee],
         () => changeAddress.confidentialAddress
       );
       const outs = [getRecipient(), ...changeOutputs]; // TODO: add fee output
@@ -252,6 +288,13 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
           },
         ]);
       });
+      updater.addOutputs([
+        {
+          script: undefined,
+          asset: getNetwork(network).assetHash,
+          amount: fee.value,
+        },
+      ]);
       const zkpLib = await secp256k1();
       const zkpValidator = new ZKPValidator(zkpLib);
       let zkpGenerator = new ZKPGenerator(zkpLib);

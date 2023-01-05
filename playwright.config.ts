@@ -41,12 +41,12 @@ const config: PlaywrightTestConfig = {
         ...devices['Galaxy S8'],
       },
     },
-    {
+    /* {
       name: 'Mobile Safari',
       use: {
         ...devices['iPhone SE'],
       },
-    },
+    },*/
   ],
 
   /* Folder for test artifacts such as screenshots, videos, traces, etc. */

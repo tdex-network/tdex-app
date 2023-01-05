@@ -1,3 +1,4 @@
+import secp256k1 from '@vulpemventures/secp256k1-zkp';
 import type { AddressInterface, StateRestorerOpts } from 'ldk';
 import { address as addrLDK } from 'liquidjs-lib';
 import { all, call, delay, put, retry, select, takeEvery, takeLatest } from 'redux-saga/effects';
@@ -28,6 +29,8 @@ import {
 import type { WalletState } from '../reducers/walletReducer';
 import { outpointToString, addressesSelector } from '../reducers/walletReducer';
 import type { SagaGenerator, Unwrap } from '../types';
+
+const zkplib = await secp256k1();
 
 const MAX_ADDRESSES_UTXO_GENERATOR = 50;
 
@@ -99,6 +102,7 @@ export function* fetchAndUpdateUtxos(
       addresses,
       async (script) => blindingKeyGetter(script),
       api,
+      zkplib,
       (utxo: EsploraUtxo) => {
         const outpoint = outpointToString(utxo);
         const skip = currentUtxos[outpoint] !== undefined;
@@ -153,7 +157,8 @@ function* watchUtxoSaga({ payload }: ReturnType<typeof watchUtxo>) {
       fetchAllUtxos,
       [address.confidentialAddress],
       async (script) => blindingKeyGetter(script),
-      api
+      api,
+      zkplib
     );
     if (unblindedUtxos.length) {
       for (const unblindedUtxo of unblindedUtxos) {

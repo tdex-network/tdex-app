@@ -58,24 +58,24 @@
   integrity sha512-sEnuDPpOJR/fcafHMjpcpGN5M2jbUGUHwmuWKM/YdPzeEDJg8bgmbcWQFUfE32MQjti1koACvoPVsDe8Uq+idg==
 
 "@babel/core@^7.1.0", "@babel/core@^7.11.1", "@babel/core@^7.12.3", "@babel/core@^7.16.0", "@babel/core@^7.7.2", "@babel/core@^7.8.0":
-  version "7.20.7"
-  resolved "https://registry.yarnpkg.com/@babel/core/-/core-7.20.7.tgz#37072f951bd4d28315445f66e0ec9f6ae0c8c35f"
-  integrity sha512-t1ZjCluspe5DW24bn2Rr1CDb2v9rn/hROtg9a2tmd0+QYf4bsloYfLQzjG4qHPNMhWtKdGC33R5AxGR2Af2cBw==
+  version "7.20.12"
+  resolved "https://registry.yarnpkg.com/@babel/core/-/core-7.20.12.tgz#7930db57443c6714ad216953d1356dac0eb8496d"
+  integrity sha512-XsMfHovsUYHFMdrIHkZphTN/2Hzzi78R08NuHfDBehym2VsPDL6Zn/JAD/JQdnRvbSsbQc4mVaU1m6JgtTEElg==
   dependencies:
     "@ampproject/remapping" "^2.1.0"
     "@babel/code-frame" "^7.18.6"
     "@babel/generator" "^7.20.7"
     "@babel/helper-compilation-targets" "^7.20.7"
-    "@babel/helper-module-transforms" "^7.20.7"
+    "@babel/helper-module-transforms" "^7.20.11"
     "@babel/helpers" "^7.20.7"
     "@babel/parser" "^7.20.7"
     "@babel/template" "^7.20.7"
-    "@babel/traverse" "^7.20.7"
+    "@babel/traverse" "^7.20.12"
     "@babel/types" "^7.20.7"
     convert-source-map "^1.7.0"
     debug "^4.1.0"
     gensync "^1.0.0-beta.2"
-    json5 "^2.2.1"
+    json5 "^2.2.2"
     semver "^6.3.0"
 
 "@babel/eslint-parser@^7.16.3":
@@ -123,9 +123,9 @@
     semver "^6.3.0"
 
 "@babel/helper-create-class-features-plugin@^7.18.6", "@babel/helper-create-class-features-plugin@^7.20.5", "@babel/helper-create-class-features-plugin@^7.20.7":
-  version "7.20.7"
-  resolved "https://registry.yarnpkg.com/@babel/helper-create-class-features-plugin/-/helper-create-class-features-plugin-7.20.7.tgz#d0e1f8d7e4ed5dac0389364d9c0c191d948ade6f"
-  integrity sha512-LtoWbDXOaidEf50hmdDqn9g8VEzsorMexoWMQdQODbvmqYmaF23pBP5VNPAGIFHsFQCIeKokDiz3CH5Y2jlY6w==
+  version "7.20.12"
+  resolved "https://registry.yarnpkg.com/@babel/helper-create-class-features-plugin/-/helper-create-class-features-plugin-7.20.12.tgz#4349b928e79be05ed2d1643b20b99bb87c503819"
+  integrity sha512-9OunRkbT0JQcednL0UFvbfXpAsUXiGjUk0a7sN8fUXX7Mue79cUSMjHGDRRi/Vz9vYlpIhLV5fMD5dKoMhhsNQ==
   dependencies:
     "@babel/helper-annotate-as-pure" "^7.18.6"
     "@babel/helper-environment-visitor" "^7.18.9"
@@ -133,6 +133,7 @@
     "@babel/helper-member-expression-to-functions" "^7.20.7"
     "@babel/helper-optimise-call-expression" "^7.18.6"
     "@babel/helper-replace-supers" "^7.20.7"
+    "@babel/helper-skip-transparent-expression-wrappers" "^7.20.0"
     "@babel/helper-split-export-declaration" "^7.18.6"
 
 "@babel/helper-create-regexp-features-plugin@^7.18.6", "@babel/helper-create-regexp-features-plugin@^7.20.5":
@@ -196,7 +197,7 @@
   dependencies:
     "@babel/types" "^7.18.6"
 
-"@babel/helper-module-transforms@^7.18.6", "@babel/helper-module-transforms@^7.20.11", "@babel/helper-module-transforms@^7.20.7":
+"@babel/helper-module-transforms@^7.18.6", "@babel/helper-module-transforms@^7.20.11":
   version "7.20.11"
   resolved "https://registry.yarnpkg.com/@babel/helper-module-transforms/-/helper-module-transforms-7.20.11.tgz#df4c7af713c557938c50ea3ad0117a7944b2f1b0"
   integrity sha512-uRy78kN4psmji1s2QtbtcCSaj/LILFDp0f/ymhpQH5QY3nljUZCaNWz9X1dEj/8MBdBEFECs7yRhKn8i7NjZgg==
@@ -1073,10 +1074,10 @@
     "@babel/parser" "^7.20.7"
     "@babel/types" "^7.20.7"
 
-"@babel/traverse@^7.20.10", "@babel/traverse@^7.20.5", "@babel/traverse@^7.20.7", "@babel/traverse@^7.7.2":
-  version "7.20.10"
-  resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.20.10.tgz#2bf98239597fcec12f842756f186a9dde6d09230"
-  integrity sha512-oSf1juCgymrSez8NI4A2sr4+uB/mFd9MXplYGPEBnfAuWmmyeVcHa6xLPiaRBcXkcb/28bgxmQLTVwFKE1yfsg==
+"@babel/traverse@^7.20.10", "@babel/traverse@^7.20.12", "@babel/traverse@^7.20.5", "@babel/traverse@^7.20.7", "@babel/traverse@^7.7.2":
+  version "7.20.12"
+  resolved "https://registry.yarnpkg.com/@babel/traverse/-/traverse-7.20.12.tgz#7f0f787b3a67ca4475adef1f56cb94f6abd4a4b5"
+  integrity sha512-MsIbFN0u+raeja38qboyF8TIT7K0BFzz/Yd/77ta4MsUsmP2RAnidIlwq7d5HFQrH/OZJecGV6B71C4zAgpoSQ==
   dependencies:
     "@babel/code-frame" "^7.18.6"
     "@babel/generator" "^7.20.7"
@@ -3545,7 +3546,7 @@ bip174@^2.1.0:
   resolved "https://registry.yarnpkg.com/bip174/-/bip174-2.1.0.tgz#cd3402581feaa5116f0f00a0eaee87a5843a2d30"
   integrity sha512-lkc0XyiX9E9KiVAS1ZiOqK1xfiwvf4FXDDdkDq5crcDzOq+xGytY+14qCsqz7kCiy8rpN1CRNfacRhf9G3JNSA==
 
-bip32@^3.0.1, bip32@^3.1.0:
+bip32@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/bip32/-/bip32-3.1.0.tgz#ce90e020d0e6b41e891a0122ff053efabcce1ccc"
   integrity sha512-eoeajYEzJ4d6yyVtby8C+XkCeKItiC4Mx56a0M9VaqTMC73SWOm4xVZG7SaR8e/yp4eSyky2XcBpH3DApPdu7Q==
@@ -3557,7 +3558,7 @@ bip32@^3.0.1, bip32@^3.1.0:
     typeforce "^1.11.5"
     wif "^2.0.6"
 
-bip39@^3.0.3:
+bip39@^3.0.4:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/bip39/-/bip39-3.0.4.tgz#5b11fed966840b5e1b8539f0f54ab6392969b2a0"
   integrity sha512-YZKQlb752TrUWqHWj7XAwCSjYEgGAk+/Aas3V7NyjQeZYsztO8JnQUaCWhcnL4T+jL8nvB8typ2jRPzTlgugNw==
@@ -7677,7 +7678,7 @@ json5@^1.0.1:
   dependencies:
     minimist "^1.2.0"
 
-json5@^2.1.2, json5@^2.2.0, json5@^2.2.1:
+json5@^2.1.2, json5@^2.2.0, json5@^2.2.2:
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/json5/-/json5-2.2.3.tgz#78cd6f1a19bdc12b73db5ad0c61efd66c1e29283"
   integrity sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==
@@ -7767,17 +7768,17 @@ lazy-ass@1.6.0:
   resolved "https://registry.yarnpkg.com/lazy-ass/-/lazy-ass-1.6.0.tgz#7999655e8646c17f089fdd187d150d3324d54513"
   integrity sha512-cc8oEVoctTvsFZ/Oje/kGnHbpWHYBe8IAJe4C0QNc3t8uM/0Y8+erSz/7Y1ALuXTEZTMvxXwO6YbX1ey3ujiZw==
 
-ldk@^0.5.8:
+ldk@^0.5.8, "ldk@https://github.com/Janaka-Steph/ldk.git#fix-confidential":
   version "0.5.8"
-  resolved "https://registry.yarnpkg.com/ldk/-/ldk-0.5.8.tgz#c9ee3af9397843cb166689789e39d4e9c0d25f67"
-  integrity sha512-IMsMKRxFNFhgM1SaqaCI84ABVTV9nd3AzXMP1zeX5ByD/R5lnWhzy9xrz8xxPsf1kSCEBs/N0uA1twSXQznuVw==
+  resolved "https://github.com/Janaka-Steph/ldk.git#9ce8770ef3744c6c917643bf45fe363f995e3e1d"
   dependencies:
+    "@vulpemventures/secp256k1-zkp" "^2.1.1"
     axios "^0.21.1"
-    bip32 "^3.0.1"
-    bip39 "^3.0.3"
+    bip32 "^3.1.0"
+    bip39 "^3.0.4"
     bs58check "^2.1.2"
-    ecpair "^2.0.1"
-    liquidjs-lib "^6.0.2-liquid.7"
+    ecpair "^2.1.0"
+    liquidjs-lib "6.0.2-liquid.23"
     slip77 "^0.2.0"
     tslib "^2.3.1"
 
@@ -7821,7 +7822,7 @@ lines-and-columns@^1.1.6:
   resolved "https://registry.yarnpkg.com/lines-and-columns/-/lines-and-columns-1.2.4.tgz#eca284f75d2965079309dc0ad9255abb2ebc1632"
   integrity sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==
 
-liquidjs-lib@^6.0.2-liquid.7:
+liquidjs-lib@6.0.2-liquid.23:
   version "6.0.2-liquid.23"
   resolved "https://registry.yarnpkg.com/liquidjs-lib/-/liquidjs-lib-6.0.2-liquid.23.tgz#5bd8f132410e8bf1775726d78a2bde132ba405cd"
   integrity sha512-LaHjE+n7va0CkQYCzp1OgKYTTrT4MH4wVGARBLm/oDHAWtZCGE65c9/wzkmUhqFUMd3xSnWqLHKlWD7NFMOjdg==

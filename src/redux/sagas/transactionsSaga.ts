@@ -1,3 +1,4 @@
+import secp256k1 from '@vulpemventures/secp256k1-zkp';
 import type { TxInterface, AddressInterface } from 'ldk';
 import { fetchTx, isUnblindedOutput, unblindTransaction } from 'ldk';
 import { takeLatest, call, put, select, takeEvery, retry, delay } from 'redux-saga/effects';
@@ -26,6 +27,8 @@ import {
 } from '../actions/transactionsActions';
 import type { WalletState } from '../reducers/walletReducer';
 import type { RootState, SagaGenerator } from '../types';
+
+const zkplib = await secp256k1();
 
 const MAX_ADDRESSES_TX_GENERATOR = 15;
 
@@ -100,6 +103,7 @@ export function* fetchAndUpdateTxs(
       addresses,
       async (script) => blindingKeyGetter(script),
       api,
+      zkplib,
       (tx: EsploraTx) => {
         const txInStore = currentTxs[tx.txid];
         // skip if tx is already in store AND confirmed
@@ -141,7 +145,12 @@ function* watchTransactionSaga({ payload }: ReturnType<typeof watchTransaction>)
       ({ wallet }: { wallet: WalletState }) => wallet.addresses
     );
     const blindKeyGetter = blindingKeyGetterFactory(scriptsToAddress);
-    const { unblindedTx, errors } = yield call(unblindTransaction, tx, async (script) => blindKeyGetter(script));
+    const { unblindedTx, errors } = yield call(
+      unblindTransaction,
+      tx,
+      async (script) => blindKeyGetter(script),
+      zkplib
+    );
     if (errors.length > 0) {
       errors.forEach((err: { message?: string }) => {
         console.error(err.message);

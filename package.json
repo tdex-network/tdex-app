@@ -170,5 +170,8 @@
     "redux-devtools-extension": "^2.13.9",
     "sass": "^1.54.4",
     "typescript": "^4.7.4"
+  },
+  "resolutions": {
+    "ldk": "https://github.com/Janaka-Steph/ldk.git#fix-confidential"
   }
 }
