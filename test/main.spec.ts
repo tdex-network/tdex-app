@@ -66,6 +66,7 @@ test.describe('onboarded', () => {
 
   test.describe('trade', () => {
     test('make a trade', async ({ page }) => {
+      await page.getByTestId('tab-exchange').waitFor();
       await page.getByTestId('tab-exchange').click();
       await expect(page).toHaveURL(/exchange/);
       await page.waitForTimeout(2000);
@@ -112,6 +113,7 @@ test.describe('onboarded', () => {
 
     test('withdraw 1 L-BTC', async ({ page }) => {
       faucet(fixtures.firstAddress, 10);
+      await page.getByTestId('item-asset-L-BTC').waitFor();
       await page.getByTestId('item-asset-L-BTC').click();
       await page.getByTestId('button-send').click();
       await page.locator('input[name=input-withdraw-amount]').fill('1');
