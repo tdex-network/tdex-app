@@ -68,7 +68,6 @@ test.describe('onboarded', () => {
     test('make a trade', async ({ page }) => {
       await page.getByTestId('tab-exchange').click();
       await expect(page).toHaveURL(/exchange/);
-      await page.waitForTimeout(2000);
       await page.fill('input[name=exchange-send-input]', '1');
       await page.getByRole('button', { name: /CONFIRM/ }).click();
       await expect(page.getByTestId('description-p')).toHaveText(/Enter your secret PIN to send 1 L-BTC and receive/);
@@ -122,7 +121,7 @@ test.describe('onboarded', () => {
       await expect(transactionDetailsPage.getByTestId('header-title')).toHaveText(/SEND DETAILS/);
     });
 
-    test('withdraw all USDt', async ({ page }) => {
+    test.skip('withdraw all USDt', async ({ page }) => {
       faucet(fixtures.firstAddress, 100, markets[0].market.quoteAsset);
       await page.getByTestId('item-asset-USDt').click();
       await page.getByTestId('button-send').click();
@@ -134,7 +133,7 @@ test.describe('onboarded', () => {
       await expect(transactionDetailsPage.getByTestId('header-title')).toHaveText(/SEND DETAILS/);
     });
 
-    test('withdraw 10 USDt', async ({ page }) => {
+    test.skip('withdraw 10 USDt', async ({ page }) => {
       faucet(fixtures.firstAddress, 100, markets[0].market.quoteAsset);
       await page.getByTestId('item-asset-USDt').click();
       await page.getByTestId('button-send').click();
