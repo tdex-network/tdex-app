@@ -188,7 +188,8 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         getRecipient(),
         customCoinSelector(dispatch),
         () => changeAddress.confidentialAddress,
-        true
+        true,
+        0.2
       );
       // blind all the outputs except fee
       const recipientData = address.fromConfidential(recipientAddress);
