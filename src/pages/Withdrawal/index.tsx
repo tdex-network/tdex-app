@@ -19,7 +19,6 @@ import React, { useEffect, useState } from 'react';
 import { connect, useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useParams, withRouter } from 'react-router';
-import { SLIP77Factory } from 'slip77';
 import type { BIP174SigningData, CoinSelectorErrorFn, NetworkString, OwnedInput, UnblindedOutput } from 'tdex-sdk';
 import {
   Pset,
@@ -60,8 +59,6 @@ import { IncorrectPINError, WithdrawTxError } from '../../utils/errors';
 import { customCoinSelector, fromLbtcToUnit, fromSatoshi, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import { getConnectedIdentity } from '../../utils/storage-helper';
-
-const slip77 = SLIP77Factory(ecc);
 
 interface WithdrawalProps
   extends RouteComponentProps<
