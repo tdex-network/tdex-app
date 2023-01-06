@@ -1,5 +1,8 @@
+import secp256k1 from '@vulpemventures/secp256k1-zkp';
 import { PrivateKey, IdentityType } from 'tdex-sdk';
 import * as ecc from 'tiny-secp256k1';
+
+const zkpLib = await secp256k1();
 
 export const privKeyIdentity = new PrivateKey({
   chain: 'regtest',
@@ -9,6 +12,7 @@ export const privKeyIdentity = new PrivateKey({
     blindingKeyWIF: 'cRdrvnPMLV7CsEak2pGrgG4MY7S3XN1vjtcgfemCrF7KJRPeGgW6',
   },
   ecclib: ecc,
+  zkplib: zkpLib,
 });
 
 export const firstAddress = privKeyIdentity.getNextAddress();

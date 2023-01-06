@@ -1,6 +1,7 @@
 /** @jest-environment node */
 /// <reference types="jest" />
 
+import secp256k1 from '@vulpemventures/secp256k1-zkp';
 import type { AddressInterface } from 'ldk';
 import { address } from 'ldk';
 import type { PutEffect, StrictEffect } from 'redux-saga/effects';
@@ -30,7 +31,13 @@ describe('wallet saga', () => {
       const blindingKeyGetter = blindingKeyGetterFactory({
         [address.toOutputScript(addr.confidentialAddress).toString('hex')]: addr,
       });
-      const utxos = await fetchAllUtxos([addr.confidentialAddress], async (script) => blindingKeyGetter(script), api);
+      const zkplib = await secp256k1();
+      const utxos = await fetchAllUtxos(
+        [addr.confidentialAddress],
+        async (script) => blindingKeyGetter(script),
+        api,
+        zkplib
+      );
       const utxoTmp = utxos.find((utxo) => utxo.txid === txid);
       if (utxoTmp) {
         utxo = utxoTmp;

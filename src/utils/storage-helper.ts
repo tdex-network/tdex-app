@@ -1,4 +1,5 @@
 import { Preferences } from '@capacitor/preferences';
+import secp256k1 from '@vulpemventures/secp256k1-zkp';
 import { stringify, parse } from 'buffer-json';
 import { IdentityType, Mnemonic } from 'ldk';
 import type { AddressInterface, TxInterface } from 'ldk';
@@ -312,6 +313,7 @@ export async function getConnectedIdentity(
   dispatch: Dispatch,
   network: NetworkString
 ): Promise<MnemonicRedux> {
+  const zkp = await secp256k1();
   const toRestoreMnemonic = await getMnemonicFromStorage(pin);
   return new MnemonicRedux(
     {
@@ -321,6 +323,7 @@ export async function getConnectedIdentity(
         mnemonic: toRestoreMnemonic,
       },
       ecclib: ecc,
+      zkplib: zkp,
     },
     dispatch
   );
@@ -331,6 +334,7 @@ export async function getConnectedTDexMnemonic(
   dispatch: Dispatch,
   network: NetworkString
 ): Promise<TDEXMnemonic> {
+  const zkp = await secp256k1();
   const toRestoreMnemonic = await getMnemonicFromStorage(pin);
   return new TDexMnemonicRedux(
     {
@@ -340,6 +344,7 @@ export async function getConnectedTDexMnemonic(
         mnemonic: toRestoreMnemonic,
       },
       ecclib: ecc,
+      zkplib: zkp,
     },
     dispatch
   );
@@ -351,6 +356,7 @@ export async function getConnectedTDexMnemonic(
  * @param network
  */
 export async function getIdentity(pin: string, network: NetworkString): Promise<Mnemonic> {
+  const zkp = await secp256k1();
   const toRestoreMnemonic = await getMnemonicFromStorage(pin);
   return new Mnemonic({
     chain: network,
@@ -359,6 +365,7 @@ export async function getIdentity(pin: string, network: NetworkString): Promise<
       mnemonic: toRestoreMnemonic,
     },
     ecclib: ecc,
+    zkplib: zkp,
   });
 }
 

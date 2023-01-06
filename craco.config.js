@@ -121,6 +121,7 @@ module.exports = {
       //
       webpackConfig.experiments = {
         asyncWebAssembly: true,
+        topLevelAwait: true,
       };
       return webpackConfig;
     },

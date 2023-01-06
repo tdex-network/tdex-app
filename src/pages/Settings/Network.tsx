@@ -10,6 +10,7 @@ import {
   IonSelect,
   IonSelectOption,
 } from '@ionic/react';
+import secp256k1 from '@vulpemventures/secp256k1-zkp';
 import { IdentityType, MasterPublicKey } from 'ldk';
 import React, { useState } from 'react';
 import type { NetworkString } from 'tdex-sdk';
@@ -43,6 +44,8 @@ import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
 import { BASE_DERIVATION_PATH_MAINNET_LEGACY, BASE_DERIVATION_PATH_TESTNET } from '../../utils/constants';
 import { AppError, AppIsBusy } from '../../utils/errors';
 import { refreshProviders } from '../LiquidityProvider';
+
+const zkpLib = await secp256k1();
 
 const Network = (): JSX.Element => {
   const dispatch = useTypedDispatch();
@@ -110,6 +113,7 @@ const Network = (): JSX.Element => {
           baseDerivationPath: network === 'liquid' ? BASE_DERIVATION_PATH_MAINNET_LEGACY : BASE_DERIVATION_PATH_TESTNET,
         },
         ecclib: ecc,
+        zkplib: zkpLib,
       });
       dispatch(signIn(masterPubKeyIdentity));
       dispatch(addSuccessToast(`Network and explorer endpoints successfully updated`));
