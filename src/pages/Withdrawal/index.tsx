@@ -227,6 +227,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         throw IncorrectPINError;
       }
       // Craft single recipient Pset v2
+      const changeAddress = await identity.getNextChangeAddress();
       const selector = customCoinSelector(dispatch);
       const firstSelection = selector(throwErrorHandler)(
         utxos,
@@ -251,7 +252,6 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         DEFAULT_SATS_PER_BYTE,
         getNetwork(network).assetHash
       );
-      const changeAddress = await identity.getNextChangeAddress();
       let errorHandler: CoinSelectorErrorFn = throwErrorHandler;
       errorHandler = (asset: string, need: number, has: number) => {
         if (asset === getRecipient().asset) {

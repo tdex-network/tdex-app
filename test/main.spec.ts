@@ -124,7 +124,7 @@ test.describe('onboarded', () => {
       await expect(transactionDetailsPage.getByTestId('header-title')).toHaveText(/SEND DETAILS/);
     });
 
-    test.skip('withdraw all USDt', async ({ page }) => {
+    test('withdraw all USDt', async ({ page }) => {
       faucet(fixtures.firstAddress, 100, markets[0].market.quoteAsset);
       await page.getByTestId('item-asset-USDt').click();
       await page.getByTestId('button-send').click();
@@ -136,7 +136,7 @@ test.describe('onboarded', () => {
       await expect(transactionDetailsPage.getByTestId('header-title')).toHaveText(/SEND DETAILS/);
     });
 
-    test.skip('withdraw 10 USDt', async ({ page }) => {
+    test('withdraw 10 USDt', async ({ page }) => {
       faucet(fixtures.firstAddress, 100, markets[0].market.quoteAsset);
       await page.getByTestId('item-asset-USDt').click();
       await page.getByTestId('button-send').click();

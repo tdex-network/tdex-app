@@ -143,7 +143,7 @@
     "scrypt-js": "^3.0.1",
     "slip77": "^0.2.0",
     "stream-browserify": "^3.0.0",
-    "tdex-sdk": "1.8.2",
+    "tdex-sdk": "https://github.com/Janaka-Steph/tdex-sdk.git#ldk-next",
     "tiny-secp256k1": "^2.2.1",
     "util": "^0.12.4"
   },
@@ -170,8 +170,5 @@
     "redux-devtools-extension": "^2.13.9",
     "sass": "^1.54.4",
     "typescript": "^4.7.4"
-  },
-  "resolutions": {
-    "ldk": "https://github.com/Janaka-Steph/ldk.git#fix-confidential"
   }
 }
