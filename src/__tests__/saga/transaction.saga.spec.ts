@@ -20,7 +20,7 @@ describe('Transaction saga', () => {
     let addr: AddressInterface;
 
     beforeAll(async () => {
-      addr = await firstAddress;
+      addr = await firstAddress();
       await sleep(5000);
       await faucet(addr.confidentialAddress);
     });

@@ -24,7 +24,7 @@ describe('wallet saga', () => {
     let utxo: UnblindedOutput;
     let addr: AddressInterface;
     beforeAll(async () => {
-      addr = await firstAddress;
+      addr = await firstAddress();
       await sleep(5000);
       const txid = await faucet(addr.confidentialAddress);
       const api = ElectrsBatchServer.fromURLs(config.explorers.electrsBatchAPI, APIURL);
