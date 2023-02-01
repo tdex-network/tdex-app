@@ -1,6 +1,6 @@
 import './style.scss';
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 import { Capacitor } from '@capacitor/core';
+import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 import {
   IonButton,
   IonCol,
