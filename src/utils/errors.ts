@@ -33,15 +33,16 @@ export const TDEXRegistryError = new AppError(13, 'Unable to fetch providers fro
 export const UpdateTransactionsError = new AppError(14, 'Tx update error occurs');
 export const UpdateUtxosError = new AppError(15, 'Utxo update error occurs');
 export const DeepRestorationError = new AppError(16, 'Account discovery has failed');
+export const NoMnemonicError = new AppError(17, 'No mnemonic found in wallet');
 
 // Pegin
-export const ClaimPeginError = new AppError(17, 'Claim pegin bitcoin has failed');
-export const NoClaimFoundError = new AppError(18, 'No claims have been found');
-export const PeginRestorationError = new AppError(19, 'Pegin restoration has failed');
+export const ClaimPeginError = new AppError(18, 'Claim pegin bitcoin has failed');
+export const NoClaimFoundError = new AppError(19, 'No claims have been found');
+export const PeginRestorationError = new AppError(20, 'Pegin restoration has failed');
 //
-export const InvalidBitcoinAddress = new AppError(20, 'Invalid Bitcoin address');
-export const FailedToRestoreProvidersError = new AppError(21, 'Failed to restore providers');
-export const AppIsBusy = new AppError(22, 'App is busy. Please try in a moment');
-export const InvalidUrl = new AppError(23, 'Invalid URL');
+export const InvalidBitcoinAddress = new AppError(21, 'Invalid Bitcoin address');
+export const FailedToRestoreProvidersError = new AppError(22, 'Failed to restore providers');
+export const AppIsBusy = new AppError(23, 'App is busy. Please try in a moment');
+export const InvalidUrl = new AppError(24, 'Invalid URL');
 // When all providers are excluded except one
-export const NoOtherProvider = new AppError(24, 'No other provider to choose from');
+export const NoOtherProvider = new AppError(25, 'No other provider to choose from');

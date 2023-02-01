@@ -1,21 +1,19 @@
+export {};
+/*
 import './style.scss';
 import { IonRippleEffect, useIonViewDidEnter, useIonViewDidLeave } from '@ionic/react';
 import React, { useEffect } from 'react';
-import { connect } from 'react-redux';
-import type { NetworkString, TradeOrder } from 'tdex-sdk';
 
 import swap from '../../assets/img/swap.svg';
-import TradeRowInput from '../../components/TdexOrderInput/TradeRowInput';
-import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
-import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { balancesSelector } from '../../redux/reducers/walletReducer';
-import type { RootState } from '../../redux/types';
-import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
+import { getTradablesAssets } from '../../services/tdexService';
+import { useAssetStore } from '../../store/assetStore';
+import { useSettingsStore } from '../../store/settingsStore';
+import type { TDEXMarket } from '../../store/tdexStore';
 import { LBTC_ASSET } from '../../utils/constants';
 import { isLbtc } from '../../utils/helpers';
 import { setAccessoryBar } from '../../utils/keyboard';
-import { getTradablesAssets } from '../../utils/tdex';
 
+import { TradeRowInput } from './TradeRowInput';
 import { createAmountAndUnit } from './hooks';
 
 export interface SatsAsset {
@@ -34,14 +32,7 @@ export interface TdexOrderInputResult {
   receive: SatsAsset & AmountAndUnit;
 }
 
-interface ConnectedProps {
-  assetsRegistry: Record<string, AssetConfig>;
-  balances: BalanceInterface[];
-  lbtcUnit: LbtcDenomination;
-  network: NetworkString;
-}
-
-type Props = ConnectedProps & {
+type Props = {
   markets: TDEXMarket[];
   onInput: (tdexOrder?: TdexOrderInputResult) => void;
   bestOrder?: TradeOrder;
@@ -68,12 +59,8 @@ type Props = ConnectedProps & {
 // let the user chooses a tradable asset pair
 // and inputs an amount of satoshis to sell or to buy
 // if found, it returns best orders via `onInput` property
-const TdexOrderInput: React.FC<Props> = ({
-  assetsRegistry,
-  balances,
+export const TdexOrderInput: React.FC<Props> = ({
   markets,
-  lbtcUnit,
-  network,
   onInput,
   bestOrder,
   sendAsset,
@@ -94,11 +81,15 @@ const TdexOrderInput: React.FC<Props> = ({
   setSendAssetHasChanged,
   setReceiveAssetHasChanged,
 }) => {
+  const assets = useAssetStore((state) => state.assets);
+  const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
+  const network = useSettingsStore((state) => state.network);
+  //
   useIonViewDidEnter(() => {
     setAccessoryBar(true).catch(console.error);
     // Set send asset default to LBTC if available in markets, or first asset in balances
     const lbtcInMarkets = markets.find((m) => isLbtc(m.baseAsset, network) || isLbtc(m.quoteAsset, network));
-    const sendAsset = lbtcInMarkets !== undefined ? LBTC_ASSET[network].assetHash : balances[0]?.assetHash;
+    const sendAsset = lbtcInMarkets !== undefined ? LBTC_ASSET[network].assetHash : assets[0]?.assetHash;
     setSendAsset(sendAsset);
     // Set receive asset to first tradable asset
     const tradableAssets = getTradablesAssets(markets, sendAsset);
@@ -120,7 +111,7 @@ const TdexOrderInput: React.FC<Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sendError, receiveError]);
 
-  const createAmountAndUnitFn = createAmountAndUnit(assetsRegistry, lbtcUnit);
+  const createAmountAndUnitFn = createAmountAndUnit(assets, lbtcUnit);
 
   useEffect(() => {
     const sendValues = {
@@ -145,7 +136,7 @@ const TdexOrderInput: React.FC<Props> = ({
       <TradeRowInput
         type="send"
         sats={sendSats}
-        assetSelected={sendAsset ? assetsRegistry[sendAsset] : undefined}
+        assetSelected={sendAsset ? assets[sendAsset] : undefined}
         isLoading={sendLoader}
         error={sendError}
         onChangeAsset={(asset: string) => {
@@ -156,7 +147,7 @@ const TdexOrderInput: React.FC<Props> = ({
           setHasBeenSwapped(false);
           setSendAmount(sats).catch(console.error);
         }}
-        searchableAssets={receiveAsset ? getTradablesAssets(markets, receiveAsset).map((h) => assetsRegistry[h]) : []}
+        searchableAssets={receiveAsset ? getTradablesAssets(markets, receiveAsset).map((h) => assets[h]) : []}
         onFocus={() => setFocus('send')}
       />
       <div className="exchange-divider ion-activatable" onClick={swapAssets}>
@@ -166,7 +157,7 @@ const TdexOrderInput: React.FC<Props> = ({
       <TradeRowInput
         type="receive"
         sats={receiveSats}
-        assetSelected={receiveAsset ? assetsRegistry[receiveAsset] : undefined}
+        assetSelected={receiveAsset ? assets[receiveAsset] : undefined}
         isLoading={receiveLoader}
         error={receiveError}
         onChangeAsset={(asset: string) => {
@@ -177,22 +168,10 @@ const TdexOrderInput: React.FC<Props> = ({
           setHasBeenSwapped(false);
           setReceiveAmount(sats).catch(console.error);
         }}
-        searchableAssets={sendAsset ? getTradablesAssets(markets, sendAsset).map((h) => assetsRegistry[h]) : []}
+        searchableAssets={sendAsset ? getTradablesAssets(markets, sendAsset).map((h) => assets[h]) : []}
         onFocus={() => setFocus('receive')}
       />
     </div>
   );
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    assetsRegistry: state.assets,
-    balances: balancesSelector(state).filter(
-      (b) => b.amount > 0 && getTradablesAssets(state.tdex.markets, b.assetHash).length > 0
-    ),
-    lbtcUnit: state.settings.denominationLBTC,
-    network: state.settings.network,
-  };
-};
-
-export default connect(mapStateToProps)(TdexOrderInput);
+ */

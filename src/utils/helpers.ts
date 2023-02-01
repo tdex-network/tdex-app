@@ -1,24 +1,9 @@
 import { Decimal } from 'decimal.js';
-import type {
-  AddressInterface,
-  ChangeAddressFromAssetGetter,
-  CoinSelectionResult,
-  CoinSelector,
-  RecipientInterface,
-  BlindingKeyGetter,
-} from 'ldk';
-import { fetchTxHex, greedyCoinSelector, isUnblindedOutput } from 'ldk';
-import type { Dispatch } from 'redux';
-import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
-import { getAsset, getSats } from 'tdex-sdk';
 
-import type { BalanceInterface } from '../redux/actionTypes/walletActionTypes';
-import { lockUtxo } from '../redux/actions/walletActions';
+import type { ScriptDetails, Outpoint, TxHeuristic } from '../store/walletStore';
 
-import { throwErrorHandler } from './coinSelection';
-import type { AssetConfig, LbtcDenomination } from './constants';
+import type { LbtcDenomination, NetworkString } from './constants';
 import { defaultPrecision, LBTC_ASSET, LBTC_TICKER, LCAD_ASSET, USDT_ASSET } from './constants';
-import type { TxDisplayInterface } from './types';
 
 export function toSatoshi(val: string, precision = defaultPrecision, unit: LbtcDenomination = 'L-BTC'): Decimal {
   return new Decimal(val).mul(Decimal.pow(10, new Decimal(precision).minus(unitToExponent(unit))));
@@ -108,92 +93,12 @@ export function formatDate(date: Date): string {
   });
 }
 
-export function groupByAsset(xs: any[]): any {
-  return xs.reduce(function (rv, x) {
-    (rv[getAsset(x)] = rv[getAsset(x)] || []).push(x);
-    return rv;
-  }, {});
-}
-
 export function capitalizeFirstLetter(string: string): string {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-/**
- * Use esplora server to fetchTxHex
- * @param txid
- * @param explorerLiquidAPI
- */
-export async function waitForTx(txid: string, explorerLiquidAPI: string): Promise<void> {
-  let go = true;
-  while (go) {
-    try {
-      await fetchTxHex(txid, explorerLiquidAPI);
-      go = false;
-    } catch (_) {
-      await sleep(800);
-    }
-  }
-}
-
 export async function sleep(ms: number): Promise<any> {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-// compute balances value from a set of utxos
-export function balancesFromUtxos(
-  utxos: UnblindedOutput[],
-  assets: Record<string, AssetConfig>,
-  network: NetworkString
-): BalanceInterface[] {
-  const balances: BalanceInterface[] = [];
-  const utxosGroupedByAsset: Record<string, UnblindedOutput[]> = groupByAsset(utxos);
-  for (const asset of Object.keys(utxosGroupedByAsset)) {
-    const utxosForAsset = utxosGroupedByAsset[asset];
-    const amount = sumUtxos(utxosForAsset);
-    const coinGeckoID = assets[asset]?.coinGeckoID;
-    balances.push({
-      assetHash: asset,
-      amount,
-      ticker: assets[asset]?.ticker || asset.slice(0, 4).toUpperCase(),
-      coinGeckoID,
-      precision: assets[asset]?.precision ?? defaultPrecision,
-      name: assets[asset]?.name ?? 'Unknown',
-    });
-  }
-
-  return balances;
-}
-
-function sumUtxos(utxos: UnblindedOutput[]): number {
-  let sum = 0;
-  for (const utxo of utxos) {
-    if (isUnblindedOutput(utxo) && getSats(utxo)) {
-      sum += getSats(utxo);
-    }
-  }
-  return sum;
-}
-
-/**
- * Returns a custom coinSelector
- * @param dispatch if defined, will lock the selected utxos.
- */
-export function customCoinSelector(dispatch?: Dispatch): CoinSelector {
-  const greedy = greedyCoinSelector();
-  if (!dispatch) return greedy;
-  return (errorHandler = throwErrorHandler) =>
-    (
-      unspents: UnblindedOutput[],
-      outputs: RecipientInterface[],
-      changeGetter: ChangeAddressFromAssetGetter
-    ): CoinSelectionResult => {
-      const result = greedy(errorHandler)(unspents, outputs, changeGetter);
-      for (const utxo of result.selectedUtxos) {
-        dispatch(lockUtxo(utxo.txid, utxo.vout));
-      }
-      return result;
-    };
 }
 
 export function isLbtc(asset: string, network: NetworkString): boolean {
@@ -215,11 +120,11 @@ export function isLcad(asset: string, network: NetworkString): boolean {
 /**
  * function can be used with sort()
  */
-export function compareTxDisplayInterfaceByDate(a: TxDisplayInterface, b: TxDisplayInterface): number {
+export function compareTxDate(a: TxHeuristic, b: TxHeuristic): number {
   return b.blockTime?.diff(a.blockTime) || 0;
 }
 
-export function getIndexAndIsChangeFromAddress(addr: AddressInterface): {
+export function getIndexAndIsChangeFromAddress(addr: ScriptDetails): {
   index: number;
   isChange: boolean;
 } {
@@ -233,22 +138,6 @@ export function getIndexAndIsChangeFromAddress(addr: AddressInterface): {
   };
 }
 
-export function blindingKeyGetterFactory(
-  scriptsToAddressInterface: Record<string, AddressInterface>
-): BlindingKeyGetter {
-  return (script: string) => {
-    try {
-      return scriptsToAddressInterface[script]?.blindingPrivateKey;
-    } catch (_) {
-      return undefined;
-    }
-  };
-}
-
-export function splitArray<T>(arr: T[], maxElementsInArray: number): T[][] {
-  const result: T[][] = [];
-  while (arr.length > 0) {
-    result.push(arr.splice(0, maxElementsInArray));
-  }
-  return result;
+export function outpointToString(outpoint: Outpoint): string {
+  return `${outpoint.txid}:${outpoint.vout}`;
 }

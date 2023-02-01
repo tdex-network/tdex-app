@@ -1,3 +1,4 @@
+import './style.scss';
 import { IonContent, IonPage, IonIcon, IonGrid } from '@ionic/react';
 import { addCircleOutline } from 'ionicons/icons';
 import React, { useMemo } from 'react';
@@ -6,14 +7,13 @@ import type { RouteComponentProps } from 'react-router';
 import BtcIcon from '../../assets/img/coins/btc.svg';
 import CurrencyIcon from '../../components/CurrencyIcon';
 import Header from '../../components/Header';
-import './style.scss';
-import { useTypedSelector } from '../../redux/hooks';
 import { routerLinks } from '../../routes';
+import { useSettingsStore } from '../../store/settingsStore';
 import { BTC_ASSET, MAIN_ASSETS } from '../../utils/constants';
 
 const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
-  const network = useTypedSelector(({ settings }) => settings.network);
-
+  const network = useSettingsStore((state) => state.network);
+  //
   const generateGridItems = useMemo(() => {
     const btcButton = (
       <button

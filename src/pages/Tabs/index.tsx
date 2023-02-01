@@ -1,3 +1,4 @@
+import './style.scss';
 import { IonPage, IonContent, IonTabs, IonTabBar, IonTabButton, IonRouterOutlet } from '@ionic/react';
 import classNames from 'classnames';
 import React from 'react';
@@ -5,7 +6,6 @@ import type { RouteComponentProps } from 'react-router';
 import { Redirect, Route, withRouter } from 'react-router';
 
 import { ROUTES, TABS } from '../../routes';
-import './style.scss';
 
 const ROUTES_SORTED_BY_TAB: Record<string, string[]> = {
   wallet: ['wallet', 'operations', 'qrscanner', 'receive', 'withdraw'],
@@ -19,7 +19,6 @@ const Tabs: React.FC<RouteComponentProps> = ({ history, location }) => {
     for (const routeName of routes) {
       if (location.pathname.includes(routeName)) return true;
     }
-
     return false;
   };
 

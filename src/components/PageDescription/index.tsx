@@ -1,8 +1,8 @@
+import './style.scss';
+
 import { IonCol, IonRow } from '@ionic/react';
 import classNames from 'classnames';
 import type { PropsWithChildren } from 'react';
-import React from 'react';
-import './style.scss';
 
 export interface PageDescriptionProps extends PropsWithChildren<any> {
   centerDescription?: boolean;

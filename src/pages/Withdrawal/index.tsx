@@ -1,3 +1,4 @@
+import './style.scss';
 import {
   IonButton,
   IonCol,
@@ -10,15 +11,10 @@ import {
   useIonViewDidLeave,
 } from '@ionic/react';
 import Decimal from 'decimal.js';
-import type { RecipientInterface, StateRestorerOpts } from 'ldk';
-import { address, psetToUnsignedTx, walletFromCoins } from 'ldk';
-import { Psbt } from 'liquidjs-lib/src/psbt';
+import { address, Creator, networks, Updater } from 'liquidjs-lib';
 import React, { useEffect, useState } from 'react';
-import { connect, useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
-import { useParams, withRouter } from 'react-router';
-import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
-import { mnemonicRestorerFromState } from 'tdex-sdk';
+import { useParams } from 'react-router';
 
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Header from '../../components/Header';
@@ -26,59 +22,45 @@ import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import WithdrawRow from '../../components/WithdrawRow';
 import { IconQR } from '../../components/icons';
-import './style.scss';
-import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { setIsFetchingUtxos } from '../../redux/actions/appActions';
-import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
-import { watchTransaction } from '../../redux/actions/transactionsActions';
-import { unlockUtxos, updateUtxos } from '../../redux/actions/walletActions';
-import { balancesSelector, lastUsedIndexesSelector, unlockedUtxosSelector } from '../../redux/reducers/walletReducer';
-import { broadcastTx } from '../../redux/services/walletService';
-import type { RootState } from '../../redux/types';
+import { WsElectrumChainSource } from '../../services/chainSource';
+import { SignerService } from '../../services/signerService';
+import { ElectrumWS } from '../../services/ws/ws-electrs';
+import { useAppStore } from '../../store/appStore';
+import { useAssetStore } from '../../store/assetStore';
+import { useSettingsStore } from '../../store/settingsStore';
+import { useToastStore } from '../../store/toastStore';
+import type { Recipient } from '../../store/walletStore';
+import { useWalletStore } from '../../store/walletStore';
 import { decodeBip21 } from '../../utils/bip21';
-import type { LbtcDenomination } from '../../utils/constants';
-import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
+import type { LbtcDenomination, NetworkString } from '../../utils/constants';
+import { LBTC_ASSET, PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
+import { decrypt } from '../../utils/crypto';
 import { IncorrectPINError, WithdrawTxError } from '../../utils/errors';
-import { customCoinSelector, fromLbtcToUnit, fromSatoshi, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
+import { fromLbtcToUnit, fromSatoshi, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
-import { getConnectedIdentity } from '../../utils/storage-helper';
 
-interface WithdrawalProps
-  extends RouteComponentProps<
-    any,
-    any,
-    {
-      address: string;
-      amount: string;
-      asset: string;
-      lbtcUnit?: LbtcDenomination;
-      precision?: number;
-      network?: NetworkString;
-    }
-  > {
-  balances: BalanceInterface[];
-  explorerLiquidAPI: string;
-  lastUsedIndexes: StateRestorerOpts;
-  lbtcUnit: LbtcDenomination;
-  network: NetworkString;
-  prices: Record<string, number>;
-  utxos: UnblindedOutput[];
-}
+type LocationState = {
+  address: string;
+  amount: string;
+  asset: string;
+  lbtcUnit?: LbtcDenomination;
+  precision?: number;
+  network?: NetworkString;
+};
 
-const Withdrawal: React.FC<WithdrawalProps> = ({
-  balances,
-  explorerLiquidAPI,
-  history,
-  location,
-  lastUsedIndexes,
-  lbtcUnit,
-  network,
-  prices,
-  utxos,
-}) => {
+export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> = ({ history, location }) => {
+  const setIsFetchingUtxos = useAppStore((state) => state.setIsFetchingUtxos);
+  const assets = useAssetStore((state) => state.assets);
+  const network = useSettingsStore((state) => state.network);
+  const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
+  const addErrorToast = useToastStore((state) => state.addErrorToast);
+  const addSuccessToast = useToastStore((state) => state.addSuccessToast);
+  const balances = useWalletStore((state) => state.balances);
+  const encryptedMnemonic = useWalletStore((state) => state.encryptedMnemonic);
+  const getNextAddress = useWalletStore((state) => state.getNextAddress);
+  const selectUtxos = useWalletStore((state) => state.selectUtxos);
+  //
   const { asset_id } = useParams<{ asset_id: string }>();
-  const [balance, setBalance] = useState<BalanceInterface>();
-  const [price, setPrice] = useState<number>();
   const [amount, setAmount] = useState<string>('');
   const [error, setError] = useState('');
   const [needReset, setNeedReset] = useState<boolean>(false);
@@ -86,33 +68,10 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   const [recipientAddress, setRecipientAddress] = useState<string>('');
   const [modalOpen, setModalOpen] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
-  const dispatch = useDispatch();
 
   useIonViewDidLeave(() => {
     setRecipientAddress('');
   });
-
-  // Set current asset balance
-  useEffect(() => {
-    const balanceSelected = balances.find((bal) => bal.assetHash === asset_id);
-    if (balanceSelected) {
-      setBalance(balanceSelected);
-    }
-  }, [balances, asset_id]);
-
-  // effect for fiat equivalent
-  useEffect(() => {
-    if (balance?.coinGeckoID) {
-      const p = prices[balance.coinGeckoID];
-      if (!p) {
-        setPrice(undefined);
-        return;
-      }
-      setPrice(p);
-      return;
-    }
-    setPrice(undefined);
-  }, [balance?.coinGeckoID, prices]);
 
   useEffect(() => {
     if (location.state) {
@@ -124,20 +83,20 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
   // Check amount validity
   useEffect(() => {
     try {
-      if (!balance) return;
+      if (!balances?.[asset_id]) return;
       if (
         fromSatoshi(
-          balance.amount.toString(),
-          balance.precision,
-          isLbtc(balance.assetHash, network) ? lbtcUnit : undefined
+          balances[asset_id].value.toString(),
+          assets[asset_id].precision,
+          isLbtc(asset_id, network) ? lbtcUnit : undefined
         ).lessThan(amount || '0')
       ) {
         setError('Amount is greater than your balance');
         return;
       }
       //
-      const LBTCBalance = balances.find((b) => b.coinGeckoID === 'bitcoin');
-      if (!LBTCBalance || LBTCBalance.amount === 0) {
+      const LBTCBalance = balances[LBTC_ASSET[network].assetHash].value;
+      if (!LBTCBalance || LBTCBalance === 0) {
         setError('You need LBTC to pay fees');
         return;
       }
@@ -146,21 +105,21 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     } catch (err) {
       console.error(err);
     }
-  }, [amount, balance, balances, lbtcUnit, network]);
+  }, [amount, asset_id, assets, balances, lbtcUnit, network]);
 
-  const getRecipient = (): RecipientInterface => ({
+  const getRecipient = (): Recipient => ({
     address: recipientAddress?.trim(),
-    asset: balance?.assetHash || '',
+    asset: asset_id,
     value: toSatoshi(
       amount || '0',
-      balance?.precision,
-      isLbtcTicker(balance?.ticker || '') ? lbtcUnit : undefined
+      assets[asset_id]?.precision,
+      isLbtcTicker(assets[asset_id]?.ticker || '') ? lbtcUnit : undefined
     ).toNumber(),
   });
 
   const isValid = (): boolean => {
     if (error) return false;
-    if (!balance || new Decimal(amount || '0').lessThanOrEqualTo(0)) return false;
+    if (!balances?.[asset_id].value || new Decimal(amount || '0').lessThanOrEqualTo(0)) return false;
     return recipientAddress !== '';
   };
 
@@ -168,10 +127,10 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     try {
       if (!isValid()) return;
       setLoading(true);
-      // Check pin
-      let identity;
       try {
-        identity = await getConnectedIdentity(pin, dispatch, network);
+        // Check pin
+        if (!encryptedMnemonic) throw new Error('No mnemonic found in wallet');
+        await decrypt(encryptedMnemonic, pin);
         setIsWrongPin(false);
         setTimeout(() => {
           setIsWrongPin(null);
@@ -180,18 +139,103 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       } catch (_) {
         throw IncorrectPINError;
       }
-      // Craft single recipient Pset
-      const wallet = walletFromCoins(utxos, network);
-      await mnemonicRestorerFromState(identity)(lastUsedIndexes);
-      const changeAddress = await identity.getNextChangeAddress();
-      const withdrawPset = wallet.sendTx(
-        getRecipient(),
-        customCoinSelector(dispatch),
-        () => changeAddress.confidentialAddress,
-        true,
-        0.2
+      // Craft single recipient Pset v2
+      const pset = Creator.newPset();
+      const coinSelection = await selectUtxos([getRecipient()], true);
+      const updater = new Updater(pset);
+      // Update tx
+      // get the witness utxos from repository
+      /*
+      const witnessUtxos = await Promise.all(
+        coinSelection.utxos.map((utxo) => {
+          return getWitnessUtxo(utxo.txid, utxo.vout);
+        })
       );
+      updater.addInputs(
+        coinSelection.utxos.map((utxo, i) => ({
+          txid: utxo.txid,
+          txIndex: utxo.vout,
+          sighashType: Transaction.SIGHASH_ALL,
+          witnessUtxo: witnessUtxos[i],
+        }))
+      );
+      */
+      updater.addOutputs([
+        {
+          asset: getRecipient().asset,
+          amount: getRecipient().value,
+          script: address.toOutputScript(getRecipient()?.address ?? '', networks[network]),
+          blinderIndex: 0,
+          blindingPublicKey: address.fromConfidential(getRecipient()?.address ?? '').blindingKey,
+        },
+      ]);
+      if (coinSelection.changeOutputs && coinSelection.changeOutputs.length > 0) {
+        const changeScriptDetail = await getNextAddress(true);
+        updater.addOutputs([
+          {
+            asset: coinSelection.changeOutputs[0].asset,
+            amount: coinSelection.changeOutputs[0].amount,
+            script: Buffer.from(changeScriptDetail.script, 'hex'),
+            blinderIndex: 0,
+            blindingPublicKey: changeScriptDetail.blindingPublicKey
+              ? Buffer.from(changeScriptDetail.blindingPublicKey, 'hex')
+              : undefined,
+          },
+        ]);
+      }
+
+      const feeAmount = 360;
+      //const millisatoshiPerByte = 110;
+      // const size = updater.pset.estimateVirtualSize();
+      //console.log(size);
+      //const feeAmount = Math.ceil(updater.pset.estimateVirtualSize() * (millisatoshiPerByte / 1000));
+
+      if (getRecipient().asset === networks[network].assetHash && updater.pset.outputs.length > 1) {
+        // subtract fee from change output
+        updater.pset.outputs[1].value = updater.pset.outputs[1].value - feeAmount;
+      } else {
+        // reselect
+        const newCoinSelection = await selectUtxos([{ asset: networks[network].assetHash, value: feeAmount }], true);
+        /*
+        const newWitnessUtxos = await Promise.all(
+          newCoinSelection.utxos.map((utxo) => getWitnessUtxo(utxo.txid, utxo.vout))
+        );
+        updater.addInputs(
+          newCoinSelection.utxos.map((utxo, i) => ({
+            txid: utxo.txid,
+            txIndex: utxo.vout,
+            sighashType: Transaction.SIGHASH_ALL,
+            witnessUtxo: newWitnessUtxos[i],
+          }))
+        );
+        */
+        if (newCoinSelection.changeOutputs && newCoinSelection.changeOutputs.length > 0) {
+          const changeScriptDetail = await getNextAddress(true);
+          updater.addOutputs([
+            {
+              asset: newCoinSelection.changeOutputs[0].asset,
+              amount: newCoinSelection.changeOutputs[0].amount,
+              script: Buffer.from(changeScriptDetail.script, 'hex'),
+              blinderIndex: 0,
+              blindingPublicKey: changeScriptDetail.blindingPublicKey
+                ? Buffer.from(changeScriptDetail.blindingPublicKey, 'hex')
+                : undefined,
+            },
+          ]);
+        }
+        // add the fee output
+        updater.addOutputs([
+          {
+            asset: networks[network].assetHash,
+            amount: feeAmount,
+          },
+        ]);
+      }
+
+      // setFeeStr(fromSatoshiStr(feeAmount, 8) + ' L-BTC');
+
       // blind all the outputs except fee
+      /*
       const recipientData = address.fromConfidential(recipientAddress);
       const recipientScript = address.toOutputScript(recipientData.unconfidentialAddress);
       const outputsToBlind: number[] = [];
@@ -201,18 +245,24 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         outputsToBlind.push(index);
         if (out.script.equals(recipientScript)) blindKeyMap.set(index, recipientData.blindingKey.toString('hex'));
       });
-      const blindedPset = await identity.blindPset(withdrawPset, outputsToBlind, blindKeyMap);
-      // Sign tx
-      const signedPset = await identity.signPset(blindedPset);
+      const blindedPset = await blindPset(withdrawPset, outputsToBlind, blindKeyMap);
+      */
+
+      const signer = await SignerService.fromPin(pin);
+      const signedPset = await signer.signPset(updater.pset);
+      const toBroadcast = signer.finalizeAndExtract(signedPset);
       // Broadcast tx
-      const txHex = Psbt.fromBase64(signedPset).finalizeAllInputs().extractTransaction().toHex();
-      const txid = await broadcastTx(txHex, explorerLiquidAPI);
-      dispatch(addSuccessToast(`Transaction broadcasted. ${amount} ${balance?.ticker} sent.`));
-      dispatch(watchTransaction(txid));
+      const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
+      const client = new ElectrumWS(websocketExplorerURL);
+      const chainSource = new WsElectrumChainSource(client);
+      const txid = await chainSource.broadcastTransaction(toBroadcast);
+      //
+      addSuccessToast(`Transaction broadcasted. ${amount} ${assets[asset_id]?.ticker} sent.`);
+      // watchTransaction(txid);
       // Trigger spinner right away
-      dispatch(setIsFetchingUtxos(true));
+      setIsFetchingUtxos(true);
       // But update after a few seconds to make sure new utxo is ready to fetch
-      setTimeout(() => dispatch(updateUtxos()), 12_000);
+      // setTimeout(() => updateUtxos(), 12_000);
       history.replace(`/transaction/${txid}`, {
         address: recipientAddress,
         amount: `-${amount}`,
@@ -227,8 +277,8 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         setIsWrongPin(null);
         setNeedReset(true);
       }, PIN_TIMEOUT_FAILURE);
-      dispatch(unlockUtxos());
-      dispatch(addErrorToast(WithdrawTxError));
+      // unlockUtxos();
+      addErrorToast(WithdrawTxError);
     } finally {
       setModalOpen(false);
       setLoading(false);
@@ -241,7 +291,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
         open={modalOpen}
         title="Unlock your seed"
         description={`Enter your secret PIN to send ${amount} ${
-          isLbtcTicker(balance?.ticker || '') ? lbtcUnit : balance?.ticker
+          isLbtcTicker(assets[asset_id]?.ticker || '') ? lbtcUnit : assets[asset_id]?.ticker
         }.`}
         onConfirm={createTxAndBroadcast}
         onClose={() => {
@@ -255,12 +305,12 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
       <Loader showLoading={loading} delay={0} />
       <IonContent className="withdrawal">
         <IonGrid>
-          <Header title={`Send ${balance ? balance.ticker.toUpperCase() : ''}`} hasBackButton={true} />
-          {balance && (
+          <Header title={`Send ${assets[asset_id]?.ticker.toUpperCase() ?? ''}`} hasBackButton={true} />
+          {balances?.[asset_id] && (
             <WithdrawRow
               amount={amount}
-              balance={balance}
-              price={price}
+              asset={assets[asset_id]}
+              balance={balances[asset_id]}
               setAmount={setAmount}
               error={error}
               network={network}
@@ -284,11 +334,11 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
                     if (options?.amount) {
                       // Treat the amount as in btc unit
                       // Convert to user favorite unit, taking into account asset precision
-                      const unit = isLbtc(balance?.assetHash || '', network) ? lbtcUnit : undefined;
+                      const unit = isLbtc(asset_id || '', network) ? lbtcUnit : undefined;
                       const amtConverted = fromLbtcToUnit(
                         new Decimal(options?.amount as string),
                         unit,
-                        balance?.precision
+                        assets[asset_id]?.precision
                       ).toString();
                       setAmount(amtConverted);
                     }
@@ -306,7 +356,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
                   address: '',
                   asset: asset_id,
                   lbtcUnit: lbtcUnit,
-                  precision: balance?.precision,
+                  precision: assets[asset_id]?.precision,
                   network: network,
                 })
               }
@@ -331,17 +381,3 @@ const Withdrawal: React.FC<WithdrawalProps> = ({
     </IonPage>
   );
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    balances: balancesSelector(state),
-    explorerLiquidAPI: state.settings.explorerLiquidAPI,
-    lastUsedIndexes: lastUsedIndexesSelector(state),
-    lbtcUnit: state.settings.denominationLBTC,
-    network: state.settings.network,
-    prices: state.rates.prices,
-    utxos: unlockedUtxosSelector(state),
-  };
-};
-
-export default withRouter(connect(mapStateToProps)(Withdrawal));

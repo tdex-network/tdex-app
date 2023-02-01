@@ -1,3 +1,7 @@
+export const Exchange: React.FC = () => {
+  return <div>Exchange</div>;
+};
+/*
 import './style.scss';
 import {
   IonContent,
@@ -15,12 +19,8 @@ import {
 } from '@ionic/react';
 import classNames from 'classnames';
 import { closeOutline } from 'ionicons/icons';
-import type { StateRestorerOpts } from 'ldk';
-import { mnemonicRestorerFromState } from 'ldk';
 import React, { useCallback, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
-import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
 
 import tradeHistory from '../../assets/img/trade-history.svg';
 import Header from '../../components/Header';
@@ -28,60 +28,41 @@ import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
 import type { TdexOrderInputResult } from '../../components/TdexOrderInput';
-import TdexOrderInput from '../../components/TdexOrderInput';
+import { TdexOrderInput } from '../../components/TdexOrderInput';
 import { useTradeState } from '../../components/TdexOrderInput/hooks';
-import type { TDEXMarket, TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
-import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { setIsFetchingUtxos } from '../../redux/actions/appActions';
-import { updateMarkets } from '../../redux/actions/tdexActions';
-import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
-import { watchTransaction } from '../../redux/actions/transactionsActions';
-import { unlockUtxos, updateUtxos } from '../../redux/actions/walletActions';
-import { useTypedDispatch } from '../../redux/hooks';
-import { balancesSelector, lastUsedIndexesSelector, unlockedUtxosSelector } from '../../redux/reducers/walletReducer';
-import type { RootState } from '../../redux/types';
 import { routerLinks } from '../../routes';
+import { getTradablesAssets } from '../../services/tdexService';
+import { useAppStore } from '../../store/appStore';
+import { useSettingsStore } from '../../store/settingsStore';
+import type { TDEXMarket, TDEXProvider } from '../../store/tdexStore';
+import { useTdexStore } from '../../store/tdexStore';
+import { useToastStore } from '../../store/toastStore';
+import { useWalletStore } from '../../store/walletStore';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
+import { decrypt } from '../../utils/crypto';
 import {
   AppError,
   IncorrectPINError,
   NoMarketsAvailableForSelectedPairError,
   NoOtherProvider,
 } from '../../utils/errors';
-import { customCoinSelector } from '../../utils/helpers';
-import { getConnectedTDexMnemonic } from '../../utils/storage-helper';
-import { getTradablesAssets, makeTrade } from '../../utils/tdex';
 import type { PreviewData } from '../TradeSummary';
 
 import ExchangeErrorModal from './ExchangeErrorModal';
 
-export interface ExchangeConnectedProps {
-  balances: BalanceInterface[];
-  explorerLiquidAPI: string;
-  isFetchingMarkets: boolean;
-  lastUsedIndexes: StateRestorerOpts;
-  markets: TDEXMarket[];
-  network: NetworkString;
-  providers: TDEXProvider[];
-  torProxy: string;
-  utxos: UnblindedOutput[];
-}
-
-type Props = RouteComponentProps & ExchangeConnectedProps;
-
-const Exchange: React.FC<Props> = ({
-  balances,
-  explorerLiquidAPI,
-  history,
-  isFetchingMarkets,
-  lastUsedIndexes,
-  markets,
-  network,
-  providers,
-  torProxy,
-  utxos,
-}) => {
-  const dispatch = useTypedDispatch();
+export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
+  const isFetchingMarkets = useAppStore((state) => state.isFetchingMarkets);
+  const markets = useTdexStore((state) => state.markets);
+  const providers = useTdexStore((state) => state.providers);
+  const explorerLiquidAPI = useSettingsStore((state) => state.explorerLiquidAPI);
+  const network = useSettingsStore((state) => state.network);
+  const addErrorToast = useToastStore((state) => state.addErrorToast);
+  const addSuccessToast = useToastStore((state) => state.addSuccessToast);
+  const encryptedMnemonic = useWalletStore((state) => state.encryptedMnemonic);
+  const lastUsedExternalIndex = useWalletStore((state) => state.lastUsedExternalIndex);
+  const lastUsedInternalIndex = useWalletStore((state) => state.lastUsedInternalIndex);
+  const utxos = useWalletStore((state) => state.utxos);
+  //
   const [tdexOrderInputResult, setTdexOrderInputResult] = useState<TdexOrderInputResult>();
   const [excludedProviders, setExcludedProviders] = useState<TDEXProvider[]>([]);
   const [showExcludedProvidersAlert, setShowExcludedProvidersAlert] = useState(false);
@@ -166,26 +147,50 @@ const Exchange: React.FC<Props> = ({
     setReceiveAssetHasChanged,
   ] = useTradeState(getAllMarketsFromNotExcludedProviders(), balances);
 
+  const [
+    bestOrder,
+    sendAsset,
+    sendSats,
+    receiveAsset,
+    receiveSats,
+    setReceiveAsset,
+    setSendAsset,
+    setSendAmount,
+    setReceiveAmount,
+    setSendLoader,
+    sendLoader,
+    setReceiveLoader,
+    receiveLoader,
+    sendError,
+    receiveError,
+    setFocus,
+    swapAssets,
+    setHasBeenSwapped,
+    setSendAssetHasChanged,
+    setReceiveAssetHasChanged,
+  ] = useTradeState(getAllMarketsFromNotExcludedProviders(), []);
+
   const getIdentity = async (pin: string) => {
     try {
-      const toRestore = await getConnectedTDexMnemonic(pin, dispatch, network);
+      if (!encryptedMnemonic) throw new Error('No mnemonic found in wallet');
+      const toRestore = await decrypt(encryptedMnemonic, pin);
       setIsWrongPin(false);
       setTimeout(() => {
         setIsWrongPin(null);
         setNeedReset(true);
       }, PIN_TIMEOUT_SUCCESS);
-      return mnemonicRestorerFromState(toRestore)(lastUsedIndexes);
+      // return mnemonicRestorerFromState(toRestore)({ lastUsedExternalIndex, lastUsedInternalIndex });
     } catch {
       throw IncorrectPINError;
     }
   };
 
   const handleSuccess = (txid: string) => {
-    dispatch(watchTransaction(txid));
+    //watchTransaction(txid);
     // Trigger spinner right away
-    dispatch(setIsFetchingUtxos(true));
+    //setIsFetchingUtxos(true);
     // But update after a few seconds to make sure new utxo is ready to fetch
-    setTimeout(() => dispatch(updateUtxos()), 12_000);
+    //setTimeout(() => updateUtxos(), 12_000);
     addSuccessToast('Trade successfully computed');
     const preview: PreviewData = {
       sent: {
@@ -222,7 +227,7 @@ const Exchange: React.FC<Props> = ({
       );
       handleSuccess(txid);
     } catch (err) {
-      dispatch(unlockUtxos());
+      // unlockUtxos();
       setIsWrongPin(true);
       setTimeout(() => {
         setIsWrongPin(null);
@@ -243,7 +248,7 @@ const Exchange: React.FC<Props> = ({
         setTdexOrderInputResult(undefined);
       }
       if (getAllMarketsFromNotExcludedProvidersAndOnlySelectedPair(providerToBan).length === 0) {
-        dispatch(addErrorToast(NoMarketsAvailableForSelectedPairError));
+        addErrorToast(NoMarketsAvailableForSelectedPairError);
         // Set next possible trading pair
         setSendLoader(false);
         setReceiveLoader(false);
@@ -260,7 +265,7 @@ const Exchange: React.FC<Props> = ({
         }
       }
     } else {
-      dispatch(addErrorToast(NoOtherProvider));
+      addErrorToast(NoOtherProvider);
     }
   };
 
@@ -321,7 +326,10 @@ const Exchange: React.FC<Props> = ({
           {
             text: 'Retry',
             handler: () => {
-              dispatch(updateMarkets());
+              // updateMarkets();
+              //     yield* fetchMarketsAndUpdateState();
+              //     yield* updateAssetsFromMarkets();
+
               // false then true to trigger rerender if already true
               setShowNoProvidersAvailableAlert(false);
               setShowNoProvidersAvailableAlert(true);
@@ -447,19 +455,4 @@ const Exchange: React.FC<Props> = ({
     </IonPage>
   );
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    balances: balancesSelector(state),
-    explorerLiquidAPI: state.settings.explorerLiquidAPI,
-    isFetchingMarkets: state.app.isFetchingMarkets,
-    lastUsedIndexes: lastUsedIndexesSelector(state),
-    markets: state.tdex.markets,
-    network: state.settings.network,
-    providers: state.tdex.providers,
-    torProxy: state.settings.torProxy,
-    utxos: unlockedUtxosSelector(state),
-  };
-};
-
-export default connect(mapStateToProps)(Exchange);
+*/

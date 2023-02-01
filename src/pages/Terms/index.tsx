@@ -1,9 +1,9 @@
+import './style.scss';
 import { IonCol, IonContent, IonGrid, IonPage, IonRow } from '@ionic/react';
 import React from 'react';
 import type { RouteComponentProps } from 'react-router';
 
 import Header from '../../components/Header';
-import './style.scss';
 
 export const TermsContent = (
   <>

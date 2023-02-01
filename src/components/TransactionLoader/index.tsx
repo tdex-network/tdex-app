@@ -1,25 +1,24 @@
-import { IonItem, IonSkeletonText, IonSpinner } from '@ionic/react';
-import React from 'react';
-import { useDispatch } from 'react-redux';
+import './style.scss';
 
-import { addSuccessToast } from '../../redux/actions/toastActions';
+import { IonItem, IonSkeletonText, IonSpinner } from '@ionic/react';
+
+import { useToastStore } from '../../store/toastStore';
 import { clipboardCopy } from '../../utils/clipboard';
 
-import './style.scss';
 
 interface TransactionLoaderProps {
   txID: string;
 }
 
 const TransactionLoader: React.FC<TransactionLoaderProps> = ({ txID }) => {
-  const dispatch = useDispatch();
+  const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   return (
     <IonItem
       key={txID}
       className="list-item transaction-item tx-loader"
       onClick={() => {
         clipboardCopy(txID, () => {
-          dispatch(addSuccessToast('Tx ID copied in clipboard'));
+          addSuccessToast('Tx ID copied in clipboard');
         });
       }}
     >

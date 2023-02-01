@@ -1,7 +1,8 @@
+import { Preferences } from '@capacitor/preferences';
 import { IonButton, IonContent, IonModal, IonGrid, IonCol, IonRow } from '@ionic/react';
 import React, { useState } from 'react';
 
-import { removeMnemonicFromStorage } from '../../utils/storage-helper';
+import { useWalletStore } from '../../store/walletStore';
 import Header from '../Header';
 import PageDescription from '../PageDescription';
 
@@ -13,13 +14,17 @@ interface DeleteMnemonicModalProps {
 }
 
 const DeleteMnemonicModal: React.FC<DeleteMnemonicModalProps> = ({ closeModal, openModal, onConfirm, pin }) => {
+  const decryptMnemonic = useWalletStore((state) => state.decryptMnemonic);
+  //
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   const deleteMnemonic = async () => {
     setIsLoading(true);
-    const success = await removeMnemonicFromStorage(pin);
-    if (!success) {
+    try {
+      await decryptMnemonic(pin);
+      await Preferences.clear();
+    } catch (err) {
       setErrorMsg('Error: your key has not been deleted. Please contact support.');
       setIsLoading(false);
       return;

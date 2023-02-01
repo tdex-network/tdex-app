@@ -12,23 +12,15 @@ import {
   IonSelectOption,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
-import type { NetworkString } from 'tdex-sdk';
+import { shallow } from 'zustand/shallow';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
-import {
-  setExplorerLiquidAPI,
-  setExplorerBitcoinAPI,
-  setExplorerBitcoinUI,
-  setExplorerLiquidUI,
-  setElectrsBatchApi,
-} from '../../redux/actions/settingsActions';
-import { addSuccessToast } from '../../redux/actions/toastActions';
-import { blockstreamExplorerEndpoints, configRegtest, mempoolExplorerEndpoints } from '../../redux/config';
-import { useTypedDispatch } from '../../redux/hooks';
-import type { SettingsState } from '../../redux/reducers/settingsReducer';
-import type { RootState } from '../../redux/types';
+import { blockstreamExplorerEndpoints, configRegtest, mempoolExplorerEndpoints } from '../../store/config';
+import type { SettingsState } from '../../store/settingsStore';
+import { useSettingsStore } from '../../store/settingsStore';
+import { useToastStore } from '../../store/toastStore';
+import type { NetworkString } from '../../utils/constants';
 import { capitalizeFirstLetter } from '../../utils/helpers';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 
@@ -41,22 +33,43 @@ interface ExplorersProps {
   network: NetworkString;
 }
 
-const Explorers: React.FC<ExplorersProps> = ({
-  explorerLiquidAPI,
-  explorerBitcoinAPI,
-  explorerLiquidUI,
-  explorerBitcoinUI,
-  electrsBatchAPI,
-  network,
-}) => {
+export const Explorers: React.FC<ExplorersProps> = () => {
+  const addSuccessToast = useToastStore((state) => state.addSuccessToast);
+  //
+  const {
+    explorerLiquidAPI,
+    explorerBitcoinAPI,
+    explorerLiquidUI,
+    explorerBitcoinUI,
+    electrsBatchAPI,
+    network,
+    setExplorerLiquidAPI,
+    setExplorerLiquidUI,
+    setExplorerBitcoinAPI,
+    setExplorerBitcoinUI,
+    setElectrsBatchApi,
+  } = useSettingsStore(
+    (state) => ({
+      explorerLiquidAPI: state.explorerLiquidAPI,
+      explorerBitcoinAPI: state.explorerBitcoinAPI,
+      explorerLiquidUI: state.explorerLiquidUI,
+      explorerBitcoinUI: state.explorerBitcoinUI,
+      electrsBatchAPI: state.electrsBatchAPI,
+      network: state.network,
+      setExplorerLiquidAPI: state.setExplorerLiquidAPI,
+      setExplorerLiquidUI: state.setExplorerLiquidUI,
+      setExplorerBitcoinAPI: state.setExplorerBitcoinAPI,
+      setExplorerBitcoinUI: state.setExplorerBitcoinUI,
+      setElectrsBatchApi: state.setElectrsBatchApi,
+    }),
+    shallow
+  );
   const [explorerGroup, setExplorerGroup] = useState<SettingsState['explorerLiquidAPI']>('');
   const [explorerBitcoinAPIInput, setExplorerBitcoinAPIInput] = useState<SettingsState['explorerBitcoinAPI']>('');
   const [explorerLiquidAPIInput, setExplorerLiquidAPIInput] = useState<SettingsState['explorerLiquidAPI']>('');
   const [explorerBitcoinUIInput, setExplorerBitcoinUIInput] = useState<SettingsState['explorerBitcoinUI']>('');
   const [explorerLiquidUIInput, setExplorerLiquidUIInput] = useState<SettingsState['explorerLiquidUI']>('');
   const [electrsBatchAPIInput, setElectrsBatchAPIInput] = useState<SettingsState['electrsBatchAPI']>('');
-
-  const dispatch = useTypedDispatch();
 
   useEffect(() => {
     setExplorerBitcoinAPIInput(explorerBitcoinAPI);
@@ -70,37 +83,37 @@ const Explorers: React.FC<ExplorersProps> = ({
     const { value } = e.detail;
     setExplorerGroup(value);
     if (value === 'blockstream') {
-      dispatch(setExplorerLiquidAPI(blockstreamExplorerEndpoints.liquid.explorerLiquidAPI));
-      dispatch(setExplorerLiquidUI(blockstreamExplorerEndpoints.liquid.explorerLiquidUI));
-      dispatch(setExplorerBitcoinAPI(blockstreamExplorerEndpoints.liquid.explorerBitcoinAPI));
-      dispatch(setExplorerBitcoinUI(blockstreamExplorerEndpoints.liquid.explorerBitcoinUI));
-      dispatch(setElectrsBatchApi(blockstreamExplorerEndpoints.liquid.electrsBatchAPI));
+      setExplorerLiquidAPI(blockstreamExplorerEndpoints.liquid.explorerLiquidAPI);
+      setExplorerLiquidUI(blockstreamExplorerEndpoints.liquid.explorerLiquidUI);
+      setExplorerBitcoinAPI(blockstreamExplorerEndpoints.liquid.explorerBitcoinAPI);
+      setExplorerBitcoinUI(blockstreamExplorerEndpoints.liquid.explorerBitcoinUI);
+      setElectrsBatchApi(blockstreamExplorerEndpoints.liquid.electrsBatchAPI);
     } else if (value === 'blockstream-testnet') {
-      dispatch(setExplorerLiquidAPI(blockstreamExplorerEndpoints.testnet.explorerLiquidAPI));
-      dispatch(setExplorerLiquidUI(blockstreamExplorerEndpoints.testnet.explorerLiquidUI));
-      dispatch(setExplorerBitcoinAPI(blockstreamExplorerEndpoints.testnet.explorerBitcoinAPI));
-      dispatch(setExplorerBitcoinUI(blockstreamExplorerEndpoints.testnet.explorerBitcoinUI));
-      dispatch(setElectrsBatchApi(blockstreamExplorerEndpoints.testnet.electrsBatchAPI));
+      setExplorerLiquidAPI(blockstreamExplorerEndpoints.testnet.explorerLiquidAPI);
+      setExplorerLiquidUI(blockstreamExplorerEndpoints.testnet.explorerLiquidUI);
+      setExplorerBitcoinAPI(blockstreamExplorerEndpoints.testnet.explorerBitcoinAPI);
+      setExplorerBitcoinUI(blockstreamExplorerEndpoints.testnet.explorerBitcoinUI);
+      setElectrsBatchApi(blockstreamExplorerEndpoints.testnet.electrsBatchAPI);
     } else if (value === 'mempool') {
-      dispatch(setExplorerLiquidAPI(mempoolExplorerEndpoints.liquid.explorerLiquidAPI));
-      dispatch(setExplorerLiquidUI(mempoolExplorerEndpoints.liquid.explorerLiquidUI));
-      dispatch(setExplorerBitcoinAPI(mempoolExplorerEndpoints.liquid.explorerBitcoinAPI));
-      dispatch(setExplorerBitcoinUI(mempoolExplorerEndpoints.liquid.explorerBitcoinUI));
-      dispatch(setElectrsBatchApi(mempoolExplorerEndpoints.liquid.electrsBatchAPI));
+      setExplorerLiquidAPI(mempoolExplorerEndpoints.liquid.explorerLiquidAPI);
+      setExplorerLiquidUI(mempoolExplorerEndpoints.liquid.explorerLiquidUI);
+      setExplorerBitcoinAPI(mempoolExplorerEndpoints.liquid.explorerBitcoinAPI);
+      setExplorerBitcoinUI(mempoolExplorerEndpoints.liquid.explorerBitcoinUI);
+      setElectrsBatchApi(mempoolExplorerEndpoints.liquid.electrsBatchAPI);
     } else if (value === 'mempool-testnet') {
-      dispatch(setExplorerLiquidAPI(mempoolExplorerEndpoints.testnet.explorerLiquidAPI));
-      dispatch(setExplorerLiquidUI(mempoolExplorerEndpoints.testnet.explorerLiquidUI));
-      dispatch(setExplorerBitcoinAPI(mempoolExplorerEndpoints.testnet.explorerBitcoinAPI));
-      dispatch(setExplorerBitcoinUI(mempoolExplorerEndpoints.testnet.explorerBitcoinUI));
-      dispatch(setElectrsBatchApi(mempoolExplorerEndpoints.testnet.electrsBatchAPI));
+      setExplorerLiquidAPI(mempoolExplorerEndpoints.testnet.explorerLiquidAPI);
+      setExplorerLiquidUI(mempoolExplorerEndpoints.testnet.explorerLiquidUI);
+      setExplorerBitcoinAPI(mempoolExplorerEndpoints.testnet.explorerBitcoinAPI);
+      setExplorerBitcoinUI(mempoolExplorerEndpoints.testnet.explorerBitcoinUI);
+      setElectrsBatchApi(mempoolExplorerEndpoints.testnet.electrsBatchAPI);
     } else if (value === 'localhost') {
-      dispatch(setExplorerLiquidAPI(configRegtest.explorers.explorerLiquidAPI));
-      dispatch(setExplorerBitcoinAPI(configRegtest.explorers.explorerBitcoinAPI));
-      dispatch(setExplorerBitcoinUI(configRegtest.explorers.explorerBitcoinUI));
-      dispatch(setExplorerLiquidUI(configRegtest.explorers.explorerLiquidUI));
-      dispatch(setElectrsBatchApi(configRegtest.explorers.electrsBatchAPI));
+      setExplorerLiquidAPI(configRegtest.explorers.explorerLiquidAPI);
+      setExplorerBitcoinAPI(configRegtest.explorers.explorerBitcoinAPI);
+      setExplorerBitcoinUI(configRegtest.explorers.explorerBitcoinUI);
+      setExplorerLiquidUI(configRegtest.explorers.explorerLiquidUI);
+      setElectrsBatchApi(configRegtest.explorers.electrsBatchAPI);
     }
-    dispatch(addSuccessToast(`Explorer endpoints successfully changed to ${capitalizeFirstLetter(value)}`));
+    addSuccessToast(`Explorer endpoints successfully changed to ${capitalizeFirstLetter(value)}`);
   };
 
   const handleExplorerBitcoinUIChange = (e: any) => {
@@ -252,12 +265,12 @@ const Explorers: React.FC<ExplorersProps> = ({
                 <IonButton
                   onClick={() => {
                     setExplorerGroup('custom');
-                    dispatch(setExplorerBitcoinUI(explorerBitcoinUIInput));
-                    dispatch(setExplorerLiquidUI(explorerLiquidUIInput));
-                    dispatch(setExplorerBitcoinAPI(explorerBitcoinAPIInput));
-                    dispatch(setExplorerLiquidAPI(explorerLiquidAPIInput));
-                    dispatch(setElectrsBatchApi(electrsBatchAPIInput));
-                    dispatch(addSuccessToast(`Explorer endpoints successfully changed.`));
+                    setExplorerBitcoinUI(explorerBitcoinUIInput);
+                    setExplorerLiquidUI(explorerLiquidUIInput);
+                    setExplorerBitcoinAPI(explorerBitcoinAPIInput);
+                    setExplorerLiquidAPI(explorerLiquidAPIInput);
+                    setElectrsBatchApi(electrsBatchAPIInput);
+                    addSuccessToast(`Explorer endpoints successfully changed.`);
                   }}
                   disabled={
                     !explorerBitcoinUIInput ||
@@ -278,16 +291,3 @@ const Explorers: React.FC<ExplorersProps> = ({
     </IonPage>
   );
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    explorerLiquidAPI: state.settings.explorerLiquidAPI,
-    explorerBitcoinAPI: state.settings.explorerBitcoinAPI,
-    explorerLiquidUI: state.settings.explorerLiquidUI,
-    explorerBitcoinUI: state.settings.explorerBitcoinUI,
-    electrsBatchAPI: state.settings.electrsBatchAPI,
-    network: state.settings.network,
-  };
-};
-
-export default connect(mapStateToProps)(Explorers);

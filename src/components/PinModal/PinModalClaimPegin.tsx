@@ -1,44 +1,33 @@
-import type { Mnemonic } from 'ldk';
 import React, { useState } from 'react';
-import { connect, useDispatch } from 'react-redux';
-import type { NetworkString } from 'tdex-sdk';
 
-import { updateState } from '../../redux/actions/appActions';
-import { checkIfClaimablePeginUtxo, setModalClaimPegin, upsertPegins } from '../../redux/actions/btcActions';
-import { addErrorToast, addSuccessToast, removeToastByType } from '../../redux/actions/toastActions';
-import { watchTransaction } from '../../redux/actions/transactionsActions';
-import type { BtcState, Pegin, Pegins } from '../../redux/reducers/btcReducer';
-import { claimPegins } from '../../redux/services/btcService';
-import type { RootState } from '../../redux/types';
+import { BitcoinService } from '../../services/bitcoinService';
+import { useBitcoinStore } from '../../store/bitcoinStore';
+import type { Pegin } from '../../store/bitcoinStore';
+import { useSettingsStore } from '../../store/settingsStore';
+import { useToastStore } from '../../store/toastStore';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { ClaimPeginError, IncorrectPINError, NoClaimFoundError, PinDigitsError } from '../../utils/errors';
 import { sleep } from '../../utils/helpers';
-import { getIdentity } from '../../utils/storage-helper';
 import Loader from '../Loader';
 
 import PinModal from './index';
 
-interface PinModalClaimPeginProps {
-  currentBtcBlockHeight: number;
-  explorerLiquidAPI: string;
-  explorerBitcoinAPI: string;
-  modalClaimPegins: BtcState['modalClaimPegins'];
-  network: NetworkString;
-  pegins: Pegins;
-}
-
-const PinModalClaimPegin: React.FC<PinModalClaimPeginProps> = ({
-  currentBtcBlockHeight,
-  explorerLiquidAPI,
-  explorerBitcoinAPI,
-  modalClaimPegins,
-  network,
-  pegins,
-}) => {
+export const PinModalClaimPegin: React.FC = () => {
+  const pegins = useBitcoinStore((state) => state.pegins);
+  const modalClaimPegin = useBitcoinStore((state) => state.modalClaimPegin);
+  const currentBtcBlockHeight = useBitcoinStore((state) => state.currentBtcBlockHeight);
+  const setModalClaimPegin = useBitcoinStore((state) => state.setModalClaimPegin);
+  const upsertPegins = useBitcoinStore((state) => state.upsertPegins);
+  const explorerBitcoinAPI = useSettingsStore((state) => state.explorerBitcoinAPI);
+  const explorerLiquidAPI = useSettingsStore((state) => state.explorerLiquidAPI);
+  const network = useSettingsStore((state) => state.network);
+  const addErrorToast = useToastStore((state) => state.addErrorToast);
+  const addSuccessToast = useToastStore((state) => state.addSuccessToast);
+  const removeToastByType = useToastStore((state) => state.removeToastByType);
+  //
   const [needReset, setNeedReset] = useState<boolean>(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const dispatch = useDispatch();
 
   const managePinError = async (closeModal = false) => {
     setIsLoading(false);
@@ -49,7 +38,7 @@ const PinModalClaimPegin: React.FC<PinModalClaimPeginProps> = ({
     }, PIN_TIMEOUT_FAILURE);
     if (closeModal) {
       await sleep(PIN_TIMEOUT_FAILURE);
-      dispatch(setModalClaimPegin({ isOpen: false }));
+      setModalClaimPegin({ isOpen: false });
     }
   };
 
@@ -61,72 +50,72 @@ const PinModalClaimPegin: React.FC<PinModalClaimPeginProps> = ({
       setNeedReset(true);
     }, PIN_TIMEOUT_SUCCESS);
     await sleep(PIN_TIMEOUT_SUCCESS);
-    dispatch(setModalClaimPegin({ isOpen: false }));
+    setModalClaimPegin({ isOpen: false });
   };
 
   const handleClaimModalConfirm = async (pin: string) => {
     setIsLoading(true);
     const validRegexp = new RegExp('\\d{6}');
     if (!validRegexp.test(pin)) {
-      dispatch(addErrorToast(PinDigitsError));
+      addErrorToast(PinDigitsError);
       await managePinError();
     }
-    getIdentity(pin, network)
-      .then(async (mnemonic: Mnemonic) => {
-        // Try to claim a specific pegin or all of them
-        const pendingPegins = modalClaimPegins.claimScriptToClaim
-          ? {
-              [modalClaimPegins.claimScriptToClaim]: pegins[modalClaimPegins.claimScriptToClaim],
-            }
-          : pegins;
-        claimPegins(explorerBitcoinAPI, explorerLiquidAPI, pendingPegins, mnemonic, currentBtcBlockHeight, network)
-          .then(async (successPegins) => {
-            if (Object.keys(successPegins).length) {
-              Object.values(successPegins).forEach((p: Pegin) => {
-                const utxos = Object.values(p.depositUtxos ?? []);
-                utxos.forEach((utxo) => {
-                  if (utxo.claimTxId) {
-                    dispatch(watchTransaction(utxo.claimTxId));
-                  }
-                });
+    try {
+      // Try to claim a specific pegin or all of them
+      const pendingPegins = modalClaimPegin.claimScriptToClaim
+        ? {
+            [modalClaimPegin.claimScriptToClaim]: pegins[modalClaimPegin.claimScriptToClaim],
+          }
+        : pegins;
+      const bitcoinService = await BitcoinService.fromPin(pin);
+      bitcoinService
+        .claimPegins(explorerBitcoinAPI, explorerLiquidAPI, pendingPegins, currentBtcBlockHeight, network)
+        .then(async (successPegins) => {
+          if (Object.keys(successPegins).length) {
+            Object.values(successPegins).forEach((p: Pegin) => {
+              const utxos = Object.values(p.depositUtxos ?? []);
+              utxos.forEach((utxo) => {
+                if (utxo.claimTxId) {
+                  //watchTransaction(utxo.claimTxId);
+                }
               });
-              dispatch(upsertPegins(successPegins));
-              dispatch(addSuccessToast(`Claim transaction successful`));
-              await managePinSuccess();
-              dispatch(setModalClaimPegin({ claimScriptToClaim: undefined }));
-              dispatch(removeToastByType('claim-pegin'));
-              dispatch(updateState());
-            } else {
-              dispatch(addErrorToast(NoClaimFoundError));
-              managePinError(true).catch(console.log);
-            }
-          })
-          .catch((err) => {
-            console.error(err);
-            dispatch(addErrorToast(ClaimPeginError));
-            managePinError(true);
-          });
-      })
-      .catch((e) => {
-        console.error(e);
-        dispatch(addErrorToast(IncorrectPINError));
-        managePinError();
-      });
+            });
+            upsertPegins(successPegins);
+            addSuccessToast(`Claim transaction successful`);
+            await managePinSuccess();
+            setModalClaimPegin({ claimScriptToClaim: undefined });
+            removeToastByType('claim-pegin');
+            //updateState();
+          } else {
+            addErrorToast(NoClaimFoundError);
+            managePinError(true).catch(console.log);
+          }
+        })
+        .catch((err: any) => {
+          console.error(err);
+          addErrorToast(ClaimPeginError);
+          managePinError(true);
+        });
+    } catch (err) {
+      console.error(err);
+      addErrorToast(IncorrectPINError);
+      await managePinError();
+    }
   };
 
   return (
     <>
       <Loader showLoading={isLoading} delay={0} />
       <PinModal
-        open={modalClaimPegins.isOpen}
+        open={modalClaimPegin.isOpen ?? false}
         title="Enter your secret PIN"
         description={`Enter your secret PIN to claim funds`}
         onConfirm={handleClaimModalConfirm}
         onClose={() => {
-          dispatch(setModalClaimPegin({ isOpen: false }));
+          setModalClaimPegin({ isOpen: false });
           // Recreate toast (needs rerender)
-          dispatch(removeToastByType('claim-pegin'));
-          dispatch(checkIfClaimablePeginUtxo());
+          removeToastByType('claim-pegin');
+          // checkIfClaimablePeginUtxo();
         }}
         isWrongPin={isWrongPin}
         needReset={needReset}
@@ -136,16 +125,3 @@ const PinModalClaimPegin: React.FC<PinModalClaimPeginProps> = ({
     </>
   );
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    currentBtcBlockHeight: state.btc.currentBlockHeight,
-    explorerBitcoinAPI: state.settings.explorerBitcoinAPI,
-    explorerLiquidAPI: state.settings.explorerLiquidAPI,
-    modalClaimPegins: state.btc.modalClaimPegins,
-    network: state.settings.network,
-    pegins: state.btc.pegins,
-  };
-};
-
-export default connect(mapStateToProps)(PinModalClaimPegin);

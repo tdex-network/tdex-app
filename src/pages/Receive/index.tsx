@@ -13,14 +13,8 @@ import {
 } from '@ionic/react';
 import classNames from 'classnames';
 import { checkmarkOutline } from 'ionicons/icons';
-import type { IdentityOpts, StateRestorerOpts } from 'ldk';
-import { MasterPublicKey, address as addressLDK, IdentityType } from 'ldk';
 import React, { useState } from 'react';
-import { connect, useDispatch } from 'react-redux';
 import { useLocation } from 'react-router';
-import type { MasterPublicKeyOpts, NetworkString } from 'tdex-sdk';
-import { masterPubKeyRestorerFromState } from 'tdex-sdk';
-import * as ecc from 'tiny-secp256k1';
 
 import BtcIcon from '../../assets/img/coins/btc.svg';
 import CurrencyIcon from '../../components/CurrencyIcon';
@@ -28,67 +22,65 @@ import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import { IconCopy } from '../../components/icons';
-import { upsertPegins } from '../../redux/actions/btcActions';
-import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
-import { addAddress } from '../../redux/actions/walletActions';
-import { lastUsedIndexesSelector } from '../../redux/reducers/walletReducer';
-import { getPeginModule } from '../../redux/services/btcService';
-import type { RootState } from '../../redux/types';
+import { BitcoinService } from '../../services/bitcoinService';
+import type { Asset } from '../../store/assetStore';
+import { useBitcoinStore } from '../../store/bitcoinStore';
+import { useSettingsStore } from '../../store/settingsStore';
+import { useToastStore } from '../../store/toastStore';
+import { useWalletStore } from '../../store/walletStore';
 import { clipboardCopy } from '../../utils/clipboard';
-import type { AssetConfig } from '../../utils/constants';
 import { BTC_TICKER } from '../../utils/constants';
 import { AddressGenerationError } from '../../utils/errors';
 
 interface LocationState {
-  depositAsset: AssetConfig;
+  depositAsset: Asset;
 }
 
-interface ReceiveProps {
-  lastUsedIndexes: StateRestorerOpts;
-  masterPubKeyOpts: IdentityOpts<MasterPublicKeyOpts>;
-  network: NetworkString;
-}
-
-const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts, network }) => {
+export const Receive: React.FC = () => {
+  const upsertPegins = useBitcoinStore((state) => state.upsertPegins);
+  const addErrorToast = useToastStore((state) => state.addErrorToast);
+  const addSuccessToast = useToastStore((state) => state.addSuccessToast);
+  const network = useSettingsStore((state) => state.network);
+  const addScriptDetails = useWalletStore((state) => state.addScriptDetails);
+  const getNextAddress = useWalletStore((state) => state.getNextAddress);
+  const sync = useWalletStore((state) => state.sync);
+  //
   const [copied, setCopied] = useState(false);
   const [address, setAddress] = useState<string>();
   const [loading, setLoading] = useState(false);
-  const dispatch = useDispatch();
   const { state } = useLocation<LocationState>();
 
   useIonViewWillEnter(async () => {
     try {
       setLoading(true);
-      const masterPublicKey: MasterPublicKey = new MasterPublicKey(masterPubKeyOpts);
-      const restoredMasterPubKey = await masterPubKeyRestorerFromState(masterPublicKey)(lastUsedIndexes);
-      const addr = await restoredMasterPubKey.getNextAddress();
-      dispatch(addAddress(addr));
+      // Restore
+      sync(20);
+      const scriptDetail = await getNextAddress(false);
+      addScriptDetails(scriptDetail);
       if (state?.depositAsset?.ticker === BTC_TICKER) {
-        const peginModule = await getPeginModule(network);
-        const claimScript = addressLDK.toOutputScript(addr.confidentialAddress).toString('hex');
+        const peginModule = await BitcoinService.getPeginModule(network);
+        const claimScript = scriptDetail.script;
         const peginAddress = await peginModule.getMainchainAddress(claimScript);
-        const derivationPath = addr.derivationPath;
+        const derivationPath = scriptDetail.derivationPath;
         if (!derivationPath) throw new Error('Derivation path is required');
-        dispatch(
-          upsertPegins({
-            [claimScript]: {
-              depositAddress: {
-                claimScript,
-                address: peginAddress,
-                derivationPath,
-              },
+        upsertPegins({
+          [claimScript]: {
+            depositAddress: {
+              claimScript,
+              address: peginAddress,
+              derivationPath,
             },
-          })
-        );
-        dispatch(addSuccessToast('New pegin address generated'));
+          },
+        });
+        addSuccessToast('New pegin address generated');
         setAddress(peginAddress);
       } else {
-        dispatch(addSuccessToast('New address added to your account.'));
-        setAddress(addr.confidentialAddress);
+        addSuccessToast('New address added to your account.');
+        setAddress(scriptDetail.confidentialAddress);
       }
     } catch (e) {
       console.error(e);
-      dispatch(addErrorToast(AddressGenerationError));
+      addErrorToast(AddressGenerationError);
     } finally {
       setLoading(false);
     }
@@ -147,7 +139,7 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts, ne
                   onClick={() => {
                     clipboardCopy(address, () => {
                       setCopied(true);
-                      dispatch(addSuccessToast('Address copied!'));
+                      addSuccessToast('Address copied!');
                       setTimeout(() => {
                         setCopied(false);
                       }, 2000);
@@ -168,21 +160,3 @@ const Receive: React.FC<ReceiveProps> = ({ lastUsedIndexes, masterPubKeyOpts, ne
     </IonPage>
   );
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    lastUsedIndexes: lastUsedIndexesSelector(state),
-    masterPubKeyOpts: {
-      chain: state.settings.network,
-      type: IdentityType.MasterPublicKey,
-      opts: {
-        masterBlindingKey: state.wallet.masterBlindKey,
-        masterPublicKey: state.wallet.masterPubKey,
-      },
-      ecclib: ecc,
-    },
-    network: state.settings.network,
-  };
-};
-
-export default connect(mapStateToProps)(Receive);

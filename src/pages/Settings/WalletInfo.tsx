@@ -1,15 +1,14 @@
 import { IonContent, IonPage, IonGrid, IonIcon, IonItem } from '@ionic/react';
 import { checkmarkOutline } from 'ionicons/icons';
-import React from 'react';
-import { connect, useDispatch } from 'react-redux';
+import { useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
-import { withRouter } from 'react-router';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
 import { IconCopy } from '../../components/icons';
-import { addSuccessToast } from '../../redux/actions/toastActions';
-import type { RootState } from '../../redux/types';
+import { useSettingsStore } from '../../store/settingsStore';
+import { useToastStore } from '../../store/toastStore';
+import { useWalletStore } from '../../store/walletStore';
 import { clipboardCopy } from '../../utils/clipboard';
 import { BASE_DERIVATION_PATH_MAINNET_LEGACY, BASE_DERIVATION_PATH_TESTNET } from '../../utils/constants';
 
@@ -17,10 +16,14 @@ interface WalletInfoProps extends RouteComponentProps {
   masterPubKey: string;
   network: string;
 }
-const WalletInfo: React.FC<WalletInfoProps> = ({ masterPubKey, network }) => {
-  const dispatch = useDispatch();
-  const [xpubCopied, setXpubCopied] = React.useState(false);
-  const [pathCopied, setPathCopied] = React.useState(false);
+
+export const WalletInfo: React.FC<WalletInfoProps> = () => {
+  const network = useSettingsStore((state) => state.network);
+  const addSuccessToast = useToastStore((state) => state.addSuccessToast);
+  const masterPublicKey = useWalletStore((state) => state.masterPublicKey);
+
+  const [xpubCopied, setXpubCopied] = useState(false);
+  const [pathCopied, setPathCopied] = useState(false);
   const derivationPath = network === 'liquid' ? BASE_DERIVATION_PATH_MAINNET_LEGACY : BASE_DERIVATION_PATH_TESTNET;
 
   return (
@@ -34,13 +37,13 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ masterPubKey, network }) => {
           />
           <h6 className="ion-text-left mt-8">Extended Public Key</h6>
           <IonItem>
-            <div className="addr-txt addr-txt__multiline">{masterPubKey}</div>
+            <div className="addr-txt addr-txt__multiline">{masterPublicKey}</div>
             <div
               className="copy-icon"
               onClick={() => {
-                clipboardCopy(masterPubKey, () => {
+                clipboardCopy(masterPublicKey, () => {
                   setXpubCopied(true);
-                  dispatch(addSuccessToast('xPub copied!'));
+                  addSuccessToast('xPub copied!');
                   setTimeout(() => {
                     setXpubCopied(false);
                   }, 2000);
@@ -63,7 +66,7 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ masterPubKey, network }) => {
               onClick={() => {
                 clipboardCopy(derivationPath, () => {
                   setPathCopied(true);
-                  dispatch(addSuccessToast('Derivation path copied!'));
+                  addSuccessToast('Derivation path copied!');
                   setTimeout(() => {
                     setPathCopied(false);
                   }, 2000);
@@ -82,11 +85,3 @@ const WalletInfo: React.FC<WalletInfoProps> = ({ masterPubKey, network }) => {
     </IonPage>
   );
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    masterPubKey: state.wallet.masterPubKey,
-    network: state.settings.network,
-  };
-};
-export default withRouter(connect(mapStateToProps)(WalletInfo));

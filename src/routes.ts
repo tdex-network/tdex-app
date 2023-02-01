@@ -1,30 +1,30 @@
 import { IconExchange, IconSettings, IconWallet } from './components/icons';
-import Backup from './pages/Backup';
-import ClaimPegin from './pages/ClaimPegin';
+import { Backup } from './pages/Backup';
+import { ClaimPegin } from './pages/ClaimPegin';
 import DeepRestoration from './pages/DeepRestoration';
 import DeleteMnemonic from './pages/DeleteMnemonic';
 import Deposit from './pages/Deposit';
-import Exchange from './pages/Exchange';
-import Explorers from './pages/Explorers';
+import { Exchange } from './pages/Exchange';
+import { Explorers } from './pages/Explorers';
 import Faq from './pages/Faq';
-import LiquidityProviders from './pages/LiquidityProvider';
-import Operations from './pages/Operations';
+import { LiquidityProviders } from './pages/LiquidityProvider';
+import { Operations } from './pages/Operations';
 import Privacy from './pages/Privacy';
 import QRScanner from './pages/QRScanner';
-import Receive from './pages/Receive';
+import { Receive } from './pages/Receive';
 import Settings from './pages/Settings';
 import Account from './pages/Settings/Account';
 import Network from './pages/Settings/Network';
-import WalletInfo from './pages/Settings/WalletInfo';
-import ShowMnemonic from './pages/ShowMnemonic';
+import { WalletInfo } from './pages/Settings/WalletInfo';
+import { ShowMnemonic } from './pages/ShowMnemonic';
 import ShowMnemonicSettings from './pages/ShowMnemonic/show-mnemonic-settings';
 import Terms from './pages/Terms';
-import TorProxy from './pages/TorProxy';
-import TradeHistory from './pages/TradeHistory';
-import TradeSummary from './pages/TradeSummary';
+import { TorProxy } from './pages/TorProxy';
+import { TradeHistory } from './pages/TradeHistory';
+import { TradeSummary } from './pages/TradeSummary';
 import TransactionDetails from './pages/TransactionDetails';
-import Wallet from './pages/Wallet';
-import Withdrawal from './pages/Withdrawal';
+import { Wallet } from './pages/Wallet';
+import { Withdrawal } from './pages/Withdrawal';
 
 export const routerLinks = {
   wallet: '/wallet',

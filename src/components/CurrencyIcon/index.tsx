@@ -1,4 +1,4 @@
-import React from 'react';
+import { memo, useState } from 'react';
 
 import UNKNOWN_ASSET_ICON from '../../assets/img/coins/currency-placeholder.svg';
 import { getAssetImagePath } from '../../utils/constants';
@@ -25,7 +25,7 @@ const AssetImg: React.FC<{ path: string } & ImgProps> = ({ path, className, onCl
 };
 
 const CurrencyIcon: React.FC<{ assetHash: string } & ImgProps> = ({ assetHash, className, size }) => {
-  const [err, setError] = React.useState(false);
+  const [err, setError] = useState(false);
 
   if (err) {
     return <AssetImg path={UNKNOWN_ASSET_ICON} className={className} size={size} />;
@@ -36,4 +36,4 @@ const CurrencyIcon: React.FC<{ assetHash: string } & ImgProps> = ({ assetHash, c
   );
 };
 
-export default React.memo(CurrencyIcon);
+export default memo(CurrencyIcon);

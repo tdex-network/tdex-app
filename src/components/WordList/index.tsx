@@ -1,4 +1,3 @@
-import React from 'react';
 import './style.scss';
 
 const WordList: React.FC<{ mnemonic: string }> = ({ mnemonic }) => {

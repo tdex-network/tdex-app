@@ -1,10 +1,12 @@
+export {};
+/*
 import './style.scss';
 import { IonButton, IonCol, IonContent, IonGrid, IonModal, IonRow, IonText } from '@ionic/react';
 import React, { useEffect } from 'react';
-import type { TDEXProvider } from 'tdex-sdk';
 
 import Header from '../../components/Header';
 import type { TdexOrderInputResult } from '../../components/TdexOrderInput';
+import type { TDEXProvider } from '../../store/tdexStore';
 import type { AppError } from '../../utils/errors';
 
 interface Props {
@@ -75,3 +77,4 @@ const ExchangeErrorModal: React.FC<Props> = ({ result, error, onClose, onClickRe
 };
 
 export default ExchangeErrorModal;
+*/

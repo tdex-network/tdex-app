@@ -1,6 +1,6 @@
 import './style.scss';
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 import { Capacitor } from '@capacitor/core';
+import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 import {
   IonButton,
   IonCol,
@@ -12,16 +12,13 @@ import {
   useIonViewWillLeave,
 } from '@ionic/react';
 import Decimal from 'decimal.js';
-import React from 'react';
-import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useLocation, useParams, withRouter } from 'react-router';
-import type { NetworkString } from 'tdex-sdk';
 
 import Header from '../../components/Header';
-import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
+import { useToastStore } from '../../store/toastStore';
 import { decodeBip21 } from '../../utils/bip21';
-import type { LbtcDenomination } from '../../utils/constants';
+import type { LbtcDenomination, NetworkString } from '../../utils/constants';
 import { QRCodeScanError } from '../../utils/errors';
 import { isLbtc, fromLbtcToUnit } from '../../utils/helpers';
 
@@ -34,7 +31,9 @@ interface LocationState {
 }
 
 const QRCodeScanner = ({ history }: RouteComponentProps): JSX.Element => {
-  const dispatch = useDispatch();
+  const addErrorToast = useToastStore((state) => state.addErrorToast);
+  const addSuccessToast = useToastStore((state) => state.addSuccessToast);
+  //
   const { state } = useLocation<LocationState>();
   const { asset_id } = useParams<{ asset_id: string }>();
 
@@ -78,12 +77,12 @@ const QRCodeScanner = ({ history }: RouteComponentProps): JSX.Element => {
               amount: state.amount,
             });
           }
-          dispatch(addSuccessToast('Address scanned!'));
+          addSuccessToast('Address scanned!');
         }
         await stopScan();
       } catch (err) {
         console.error(err);
-        dispatch(addErrorToast(QRCodeScanError));
+        addErrorToast(QRCodeScanError);
       }
     }
   });

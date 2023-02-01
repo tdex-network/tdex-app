@@ -1,3 +1,5 @@
+export {};
+/*
 import type { BalanceWithFee, Preview } from 'tdex-sdk/dist-web/api-spec/protobuf/gen/js/tdex/v1/types_pb';
 import type TraderClientInterface from 'tdex-sdk/dist-web/clientInterface';
 
@@ -38,3 +40,4 @@ export default class MockTraderClientInterface implements TraderClientInterface 
     return Promise.resolve(this.balanceWithFee);
   }
 }
+*/

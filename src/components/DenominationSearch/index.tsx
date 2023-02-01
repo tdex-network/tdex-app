@@ -1,10 +1,9 @@
 import { IonContent, IonList, IonModal, IonHeader, IonItem, IonInput, IonIcon } from '@ionic/react';
 import { closeSharp, searchSharp } from 'ionicons/icons';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
 
-import { updatePrices } from '../../redux/actions/ratesActions';
-import { setLBTCDenomination } from '../../redux/actions/settingsActions';
+import { useSettingsStore } from '../../store/settingsStore';
+import type { LbtcDenomination } from '../../utils/constants';
 import { LBTC_DENOMINATIONS } from '../../utils/constants';
 
 interface DenominationSearchProps {
@@ -13,8 +12,8 @@ interface DenominationSearchProps {
 }
 
 const DenominationSearch: React.FC<DenominationSearchProps> = ({ isOpen, close }) => {
+  const setLbtcDenomination = useSettingsStore((state) => state.setLbtcDenomination);
   const [searchString, setSearchString] = useState('');
-  const dispatch = useDispatch();
 
   return (
     <div className="search">
@@ -37,15 +36,15 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({ isOpen, close }
         <IonContent className="search-content">
           <IonList>
             {LBTC_DENOMINATIONS.filter((denomination: string) => denomination.includes(searchString)).map(
-              (denomination: string, index: number) => {
+              (denomination: LbtcDenomination, index: number) => {
                 return (
                   <IonItem
                     className="ion-no-margin"
                     key={index}
                     data-asset={index}
                     onClick={(ev) => {
-                      dispatch(setLBTCDenomination(denomination));
-                      dispatch(updatePrices());
+                      setLbtcDenomination(denomination);
+                      // updatePrices()
                       close(ev);
                     }}
                   >

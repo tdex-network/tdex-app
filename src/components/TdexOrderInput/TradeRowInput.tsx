@@ -1,19 +1,19 @@
+export {};
+/*
 import './style.scss';
 import { IonIcon, IonInput, IonSpinner, IonText } from '@ionic/react';
 import classNames from 'classnames';
 import Decimal from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
 import React, { useEffect, useRef, useState } from 'react';
-import { connect } from 'react-redux';
-import type { NetworkString } from 'tdex-sdk';
+import type { Asset } from 'src/store/assetStore';
+import { useAssetStore } from 'src/store/assetStore';
 
 import ExchangeSearch from '../../components/ExchangeSearch';
 import { useDelayedRender } from '../../hooks/useDelayedRender';
-import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import type { CurrencyInterface } from '../../redux/reducers/settingsReducer';
-import { balanceByAssetSelector } from '../../redux/reducers/walletReducer';
-import type { RootState } from '../../redux/types';
-import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
+import { useAppStore } from '../../store/appStore';
+import { useSettingsStore } from '../../store/settingsStore';
+import { useWalletStore } from '../../store/walletStore';
 import { defaultPrecision } from '../../utils/constants';
 import { fromSatoshiFixed, fromUnitToLbtc, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
@@ -22,60 +22,50 @@ import CurrencyIcon from '../CurrencyIcon';
 
 export type ExchangeRowValue = {
   amount: string;
-  asset: AssetConfig;
+  asset: Asset;
 };
-
-interface ConnectedProps {
-  lbtcUnit: LbtcDenomination;
-  balance?: BalanceInterface;
-  prices: Record<string, number>;
-  selectedAssetPrice: number;
-  currency: CurrencyInterface;
-  network: NetworkString;
-  isFetchingTransactions: boolean;
-}
 
 interface ComponentProps {
   type: 'send' | 'receive';
   isLoading: boolean;
-  assetSelected?: AssetConfig;
+  assetSelected?: Asset;
   sats?: number;
   onChangeAsset: (asset: string) => void;
   onChangeSats: (sats: number) => void;
   error?: Error;
-  searchableAssets: AssetConfig[];
+  searchableAssets: Asset[];
   onFocus: () => void;
 }
 
-type Props = ConnectedProps & ComponentProps;
+type Props = ComponentProps;
 
 const DelayedSpinner: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
   return useDelayedRender(400, isLoading)(() => <IonSpinner name="dots" />);
 };
 
-const TradeRowInput: React.FC<Props> = ({
+export const TradeRowInput: React.FC<Props> = ({
   type,
   assetSelected,
   sats,
   isLoading,
-  lbtcUnit,
   onChangeAsset,
   onChangeSats,
-  balance,
-  prices,
-  selectedAssetPrice,
   error,
-  currency,
   searchableAssets,
   onFocus,
-  network,
-  isFetchingTransactions,
 }) => {
+  const isFetchingTransactions = useAppStore((state) => state.isFetchingTransactions);
+  const assets = useAssetStore((state) => state.assets);
+  const currency = useSettingsStore((state) => state.currency);
+  const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
+  const network = useSettingsStore((state) => state.network);
+  const balances = useWalletStore((state) => state.balances);
+  //
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const inputRef = useRef<HTMLIonInputElement>(null);
   const [inputValue, setInputValue] = useState('');
   const [localError, setLocalError] = useState<Error>();
-  const onSelectAsset = (asset: AssetConfig) => onChangeAsset(asset.assetHash);
+  const onSelectAsset = (asset: Asset) => onChangeAsset(asset.assetHash);
 
   const onInputAmount = (amount: string) => {
     if (!assetSelected) return;
@@ -174,21 +164,23 @@ const TradeRowInput: React.FC<Props> = ({
             inputRef.current.setFocus().catch(console.error);
             onInputAmount(
               fromSatoshiFixed(
-                balance?.amount.toString() || '0',
-                balance?.precision ?? defaultPrecision,
-                balance?.precision ?? defaultPrecision,
-                isLbtcTicker(balance?.ticker || '') ? lbtcUnit : undefined
+                balances[assetSelected?.assetHash ?? '']?.toString() || '0',
+                assets[assetSelected?.assetHash ?? '']?.precision ?? defaultPrecision,
+                assets[assetSelected?.assetHash ?? '']?.precision ?? defaultPrecision,
+                isLbtcTicker(assets[assetSelected?.assetHash ?? '']?.ticker || '') ? lbtcUnit : undefined
               )
             );
           }}
         >
           <span>Total balance:</span>
           <span>{`${fromSatoshiFixed(
-            balance?.amount.toString() || '0',
-            balance?.precision ?? defaultPrecision,
-            balance?.precision ?? defaultPrecision,
-            isLbtcTicker(balance?.ticker || '') ? lbtcUnit : undefined
-          )} ${isLbtcTicker(balance?.ticker || '') ? lbtcUnit : assetSelected?.ticker}`}</span>
+            balances[assetSelected?.assetHash ?? '']?.toString() || '0',
+            assets[assetSelected?.assetHash ?? '']?.precision ?? defaultPrecision,
+            assets[assetSelected?.assetHash ?? '']?.precision ?? defaultPrecision,
+            isLbtcTicker(assets[assetSelected?.assetHash ?? '']?.ticker || '') ? lbtcUnit : undefined
+          )} ${
+            isLbtcTicker(assets[assetSelected?.assetHash ?? '']?.ticker || '') ? lbtcUnit : assetSelected?.ticker
+          }`}</span>
         </span>
 
         {isLoading ? null : (
@@ -199,7 +191,7 @@ const TradeRowInput: React.FC<Props> = ({
               <>
                 {fromUnitToLbtc(
                   new Decimal(inputValue || 0),
-                  isLbtcTicker(balance?.ticker || '') ? lbtcUnit : undefined
+                  isLbtcTicker(assets[assetSelected?.assetHash ?? '']?.ticker || '') ? lbtcUnit : undefined
                 )
                   .mul(selectedAssetPrice || 0)
                   .toFixed(2)}{' '}
@@ -224,19 +216,4 @@ const TradeRowInput: React.FC<Props> = ({
     </div>
   );
 };
-
-const mapStateToProps = (state: RootState, ownProps: ComponentProps) => {
-  return {
-    isFetchingTransactions: state.app.isFetchingTransactions,
-    balance: ownProps.assetSelected ? balanceByAssetSelector(ownProps.assetSelected.assetHash)(state) : undefined,
-    currency: state.settings.currency,
-    lbtcUnit: state.settings.denominationLBTC,
-    network: state.settings.network,
-    selectedAssetPrice: ownProps.assetSelected?.coinGeckoID
-      ? state.rates.prices[ownProps.assetSelected.coinGeckoID]
-      : 0,
-    prices: state.rates.prices,
-  };
-};
-
-export default connect(mapStateToProps)(TradeRowInput);
+*/

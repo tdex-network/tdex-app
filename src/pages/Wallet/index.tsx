@@ -14,89 +14,63 @@ import {
 } from '@ionic/react';
 import { addCircleOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
-import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
-import { withRouter } from 'react-router';
-import type { NetworkString } from 'tdex-sdk';
 
 import CircleTotalBalance from '../../components/CircleTotalBalance';
 import CurrencyIcon from '../../components/CurrencyIcon';
 import Header from '../../components/Header';
 import Refresher from '../../components/Refresher';
-import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { aggregatedLBTCBalanceSelector, balancesSelector } from '../../redux/reducers/walletReducer';
-import type { RootState } from '../../redux/types';
 import { routerLinks } from '../../routes';
-import type { LbtcDenomination } from '../../utils/constants';
-import { LBTC_ASSET, LBTC_COINGECKOID } from '../../utils/constants';
-import { capitalizeFirstLetter, fromSatoshi, fromSatoshiFixed, isLbtc, isLbtcTicker } from '../../utils/helpers';
+import { useAppStore } from '../../store/appStore';
+import { useAssetStore } from '../../store/assetStore';
+import { useSettingsStore } from '../../store/settingsStore';
+import type { Balance } from '../../store/walletStore';
+import { useWalletStore } from '../../store/walletStore';
+import { LBTC_ASSET } from '../../utils/constants';
+import { capitalizeFirstLetter, isLbtc, isLbtcTicker } from '../../utils/helpers';
 
-interface WalletProps extends RouteComponentProps {
-  backupDone: boolean;
-  balances: BalanceInterface[];
-  currency: string;
-  isFetchingUtxos: boolean;
-  isFetchingMarkets: boolean;
-  isFetchingTransactions: boolean;
-  lbtcUnit: LbtcDenomination;
-  network: NetworkString;
-  prices: Record<string, number>;
-  totalLBTC: BalanceInterface;
-}
-
-const Wallet: React.FC<WalletProps> = ({
-  backupDone,
-  balances,
-  currency,
-  isFetchingUtxos,
-  isFetchingMarkets,
-  isFetchingTransactions,
-  history,
-  lbtcUnit,
-  network,
-  prices,
-  totalLBTC,
-}) => {
-  const [assets, setAssets] = useState<BalanceInterface[]>([]);
-  const [fiats, setFiats] = useState<number[]>([]);
-  const UNKNOWN = -1;
-
-  const getFiatValue = (balance: BalanceInterface) => {
-    const balanceIndex = balances?.findIndex((b) => b?.ticker === balance?.ticker);
-    if (balanceIndex < 0) return UNKNOWN;
-    return fiats[balanceIndex];
-  };
+export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
+  const isBackupDone = useAppStore((state) => state.isBackupDone);
+  const isFetchingUtxos = useAppStore((state) => state.isFetchingUtxos);
+  const isFetchingMarkets = useAppStore((state) => state.isFetchingMarkets);
+  const isFetchingTransactions = useAppStore((state) => state.isFetchingTransactions);
+  const assets = useAssetStore((state) => state.assets);
+  const currency = useSettingsStore((state) => state.currency);
+  const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
+  const network = useSettingsStore((state) => state.network);
+  const balances = useWalletStore((state) => state.balances);
+  const computeBalances = useWalletStore((state) => state.computeBalances);
+  const totalLbtc = useWalletStore((state) => state.totalBtc);
+  //
+  const [balancesSorted, setBalancesSorted] = useState<[string, Balance][]>([]);
 
   useEffect(() => {
-    const fiatsValues = balances.map(({ amount, coinGeckoID }) => {
-      if (!coinGeckoID) return UNKNOWN;
-      const p = prices[coinGeckoID];
-      if (!p) return UNKNOWN;
-      return fromSatoshi(amount.toString()).mul(p).toNumber();
-    });
-    setFiats(fiatsValues);
-  }, [prices, balances, UNKNOWN]);
+    (async () => {
+      await computeBalances();
+    })();
+  }, [computeBalances]);
 
   useEffect(() => {
-    const main = [];
-    if (!balances.length) {
+    const balancesToDisplay: [string, Balance][] = [];
+    if (!Object.keys(balances ?? {}).length) {
       // Display L-BTC with empty balance
-      main.push({ ...LBTC_ASSET[network], amount: 0 });
+      balancesToDisplay.push([LBTC_ASSET[network].assetHash, { value: 0, counterValue: 0, sats: 0 }]);
     } else {
-      main.push(...balances);
+      for (const assetHash in balances) {
+        balancesToDisplay.push([assetHash, balances[assetHash]]);
+      }
+      // Sort by balance
+      balancesToDisplay.sort(([aAssetHash, aAmount], [bAssetHash, bAmount]) => {
+        if (aAmount < bAmount) return 1;
+        if (aAmount > bAmount) return -1;
+        return 0;
+      });
+      // Move L-btc at the beginning
+      const lbtcIndex = balancesToDisplay.findIndex(([assetHash]) => isLbtc(assetHash, network));
+      const [lbtcBalance] = balancesToDisplay.splice(lbtcIndex, 1);
+      balancesToDisplay.splice(0, 0, lbtcBalance);
     }
-    // Delete L-BTC from array
-    const lbtcIndex = main.findIndex((a) => isLbtc(a.assetHash, network));
-    const [lbtc] = main.splice(lbtcIndex, 1);
-    // Sort by balance
-    main.sort((a, b) => {
-      if (a.amount < b.amount) return 1;
-      if (a.amount > b.amount) return -1;
-      return 0;
-    });
-    // Add lbtc back to the beginning
-    main.splice(0, 0, lbtc);
-    setAssets(main);
+    setBalancesSorted(balancesToDisplay);
   }, [balances, network]);
 
   return (
@@ -115,17 +89,9 @@ const Wallet: React.FC<WalletProps> = ({
           />
           <IonRow className="ion-margin-vertical ion-justify-content-center">
             <CircleTotalBalance
-              totalBalance={
-                totalLBTC.amount ? fromSatoshiFixed(totalLBTC.amount.toString(), 8, undefined, lbtcUnit) : '0.00'
-              }
+              totalBalance={totalLbtc?.value.toString() ?? '0.00'}
               lbtcUnit={lbtcUnit}
-              fiatBalance={
-                totalLBTC && prices[LBTC_COINGECKOID]
-                  ? `${fromSatoshi(totalLBTC.amount.toString())
-                      .mul(prices[LBTC_COINGECKOID])
-                      .toFixed(2)} ${currency.toUpperCase()}`
-                  : `0.00 ${currency.toUpperCase()}`
-              }
+              fiatBalance={`${totalLbtc?.counterValue ?? '0.00'}  ${currency.ticker.toUpperCase()}`}
             />
           </IonRow>
 
@@ -137,7 +103,7 @@ const Wallet: React.FC<WalletProps> = ({
                   <IonButton
                     className="ion-no-padding"
                     onClick={() => {
-                      if (backupDone) {
+                      if (isBackupDone) {
                         history.push({ pathname: routerLinks.deposit });
                         return;
                       }
@@ -150,49 +116,43 @@ const Wallet: React.FC<WalletProps> = ({
               </IonRow>
             </IonListHeader>
 
-            {assets
-              .filter((b) => b !== undefined)
-              .map((balance: BalanceInterface) => {
-                const fiatValue = getFiatValue(balance);
-                return (
-                  <IonItem
-                    aria-label={balance.ticker}
-                    data-testid={`item-asset-${balance.ticker}`}
-                    key={balance.assetHash}
-                    onClick={() => {
-                      history.push(`/operations/${balance.assetHash}`);
-                    }}
-                  >
-                    <div className="asset-container">
-                      <div className="asset-details">
-                        <CurrencyIcon assetHash={balance.assetHash} />
-                        <div>{balance.coinGeckoID ? capitalizeFirstLetter(balance.coinGeckoID) : balance.ticker}</div>
-                      </div>
-                      <div className="amount-container ion-text-right">
-                        <div className="amount-token">
-                          {fromSatoshiFixed(
-                            balance.amount.toString(),
-                            balance.precision,
-                            balance.precision,
-                            isLbtcTicker(balance.ticker) ? lbtcUnit : undefined
-                          )}{' '}
-                          <span className="ticker">{isLbtcTicker(balance.ticker) ? lbtcUnit : balance.ticker}</span>
-                        </div>
-                        <div className="amount-fiat">
-                          {fiatValue < 0
-                            ? fiatValue === UNKNOWN
-                              ? ''
-                              : 'loading'
-                            : `${fiatValue?.toFixed(2)} ${currency.toUpperCase()}`}
-                        </div>
+            {balancesSorted.map(([assetHash, balance]) => {
+              return (
+                <IonItem
+                  aria-label={assets[assetHash]?.ticker}
+                  data-testid={`item-asset-${assets[assetHash]?.ticker}`}
+                  key={assetHash}
+                  onClick={() => {
+                    history.push(`/operations/${assetHash}`);
+                  }}
+                >
+                  <div className="asset-container">
+                    <div className="asset-details">
+                      <CurrencyIcon assetHash={assetHash} />
+                      <div>
+                        {assets[assetHash]?.coinGeckoID
+                          ? capitalizeFirstLetter(assets[assetHash].coinGeckoID!)
+                          : assets[assetHash]?.ticker}
                       </div>
                     </div>
-                  </IonItem>
-                );
-              })}
+                    <div className="amount-container ion-text-right">
+                      <div className="amount-token">
+                        {balance.value}{' '}
+                        <span className="ticker">
+                          {isLbtcTicker(assets[assetHash]?.ticker) ? lbtcUnit : assets[assetHash]?.ticker}
+                        </span>
+                      </div>
+                      <div className="amount-fiat">
+                        ${balance.counterValue?.toFixed(2)} ${currency.name.toUpperCase()}
+                      </div>
+                    </div>
+                  </div>
+                </IonItem>
+              );
+            })}
           </IonList>
 
-          {!totalLBTC.amount && (
+          {!totalLbtc && (
             <div className="ion-text-center ion-padding-vertical">
               <IonRow>
                 <IonCol size="9" offset="1.5" sizeMd="6" offsetMd="3">
@@ -200,7 +160,7 @@ const Wallet: React.FC<WalletProps> = ({
                     className="main-button"
                     data-testid="main-button"
                     onClick={() => {
-                      if (backupDone) {
+                      if (isBackupDone) {
                         history.push({ pathname: routerLinks.deposit });
                         return;
                       }
@@ -218,20 +178,3 @@ const Wallet: React.FC<WalletProps> = ({
     </IonPage>
   );
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    backupDone: state.app.backupDone,
-    balances: balancesSelector(state),
-    currency: state.settings.currency.value,
-    isFetchingUtxos: state.app.isFetchingUtxos,
-    isFetchingMarkets: state.app.isFetchingMarkets,
-    isFetchingTransactions: state.app.isFetchingTransactions,
-    lbtcUnit: state.settings.denominationLBTC,
-    network: state.settings.network,
-    prices: state.rates.prices,
-    totalLBTC: aggregatedLBTCBalanceSelector(state),
-  };
-};
-
-export default withRouter(connect(mapStateToProps)(Wallet));

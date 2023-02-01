@@ -1,8 +1,7 @@
 import { IonContent, IonModal, useIonViewWillEnter, useIonViewWillLeave, IonGrid } from '@ionic/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useDispatch } from 'react-redux';
 
-import { addErrorToast } from '../../redux/actions/toastActions';
+import { useToastStore } from '../../store/toastStore';
 import { PIN_TIMEOUT_FAILURE } from '../../utils/constants';
 import { PinDigitsError } from '../../utils/errors';
 import Header from '../Header';
@@ -35,9 +34,10 @@ const PinModal: React.FC<PinModalProps> = ({
   needReset,
   setNeedReset,
 }) => {
+  const addErrorToast = useToastStore((state) => state.addErrorToast);
+  //
   const [pin, setPin] = useState('');
   const [isPinInputLocked, setIsPinInputLocked] = useState<boolean>(false);
-  const dispatch = useDispatch();
   const inputRef = useRef<any>(null);
 
   const handleConfirm = useCallback(() => {
@@ -46,7 +46,7 @@ const PinModal: React.FC<PinModalProps> = ({
       setIsPinInputLocked(true);
       onConfirm(pin);
     } else {
-      dispatch(addErrorToast(PinDigitsError));
+      addErrorToast(PinDigitsError);
       setIsWrongPin(true);
       setTimeout(() => {
         setIsWrongPin(null);

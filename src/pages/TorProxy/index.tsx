@@ -1,20 +1,15 @@
 import { IonButton, IonCol, IonContent, IonGrid, IonInput, IonItem, IonPage, IonRow } from '@ionic/react';
 import React, { useState } from 'react';
-import { connect, useDispatch } from 'react-redux';
-import type { RouteComponentProps } from 'react-router';
 
 import Header from '../../components/Header';
-import { setTorProxy } from '../../redux/actions/settingsActions';
-import { addSuccessToast } from '../../redux/actions/toastActions';
-import type { RootState } from '../../redux/types';
+import { useSettingsStore } from '../../store/settingsStore';
+import { useToastStore } from '../../store/toastStore';
 
-interface TorProxyProps extends RouteComponentProps {
-  torProxy: string;
-}
-
-const TorProxy: React.FC<TorProxyProps> = ({ torProxy }) => {
+export const TorProxy: React.FC = () => {
+  const torProxy = useSettingsStore((state) => state.torProxy);
+  const setTorProxy = useSettingsStore((state) => state.setTorProxy);
+  const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const [inputTorProxy, setInputTorProxy] = useState<string>(torProxy);
-  const dispatch = useDispatch();
 
   return (
     <IonPage id="tor-proxy">
@@ -52,8 +47,8 @@ const TorProxy: React.FC<TorProxyProps> = ({ torProxy }) => {
                   className="main-button"
                   disabled={!inputTorProxy}
                   onClick={() => {
-                    dispatch(setTorProxy(inputTorProxy));
-                    dispatch(addSuccessToast(`New Tor proxy endpoint has been saved`));
+                    setTorProxy(inputTorProxy);
+                    addSuccessToast(`New Tor proxy endpoint has been saved`);
                   }}
                 >
                   SAVE ENDPOINT
@@ -66,11 +61,3 @@ const TorProxy: React.FC<TorProxyProps> = ({ torProxy }) => {
     </IonPage>
   );
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    torProxy: state.settings.torProxy,
-  };
-};
-
-export default connect(mapStateToProps)(TorProxy);

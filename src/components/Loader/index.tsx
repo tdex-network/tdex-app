@@ -1,5 +1,4 @@
 import { IonLoading } from '@ionic/react';
-import React from 'react';
 
 import { useDelayedRender } from '../../hooks/useDelayedRender';
 

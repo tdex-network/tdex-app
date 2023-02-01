@@ -1,3 +1,5 @@
+import './style.scss';
+
 import {
   IonAlert,
   IonButton,
@@ -17,61 +19,29 @@ import {
 } from '@ionic/react';
 import { addCircleOutline, refreshCircleOutline, trash } from 'ionicons/icons';
 import React, { useState } from 'react';
-import { connect } from 'react-redux';
-import type { Dispatch } from 'redux';
-import type { NetworkString } from 'tdex-sdk';
 
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Header from '../../components/Header';
-import type { TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
-import './style.scss';
-import {
-  addProviders,
-  clearMarkets,
-  clearProviders,
-  deleteProvider,
-  updateMarkets,
-} from '../../redux/actions/tdexActions';
-import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
-import { defaultProviderEndpoints } from '../../redux/config';
-import { useTypedDispatch } from '../../redux/hooks';
-import type { RootState } from '../../redux/types';
-import { InvalidUrl, TDEXRegistryError } from '../../utils/errors';
-import { getProvidersFromTDexRegistry } from '../../utils/tdex';
+import { useRefreshProviders } from '../../hooks/useRefreshProviders';
+import type { TDEXProvider } from '../../store/tdexStore';
+import { useTdexStore } from '../../store/tdexStore';
+import { useToastStore } from '../../store/toastStore';
+import type { NetworkString } from '../../utils/constants';
+import { InvalidUrl } from '../../utils/errors';
 
 interface LiquidityProvidersProps {
   network: NetworkString;
   providers: TDEXProvider[];
 }
 
-export const refreshProviders = async (
-  providers: TDEXProvider[],
-  network: NetworkString,
-  dispatch: Dispatch
-): Promise<void> => {
-  if (network === 'liquid' || network === 'testnet') {
-    try {
-      const providersFromRegistry = await getProvidersFromTDexRegistry(network);
-      const currentEndpoints = providers.map((provider) => provider.endpoint);
-      const newProviders = providersFromRegistry.filter((p) => !currentEndpoints.includes(p.endpoint));
-      if (newProviders.length) {
-        dispatch(clearProviders());
-        dispatch(clearMarkets());
-        dispatch(addProviders(providersFromRegistry));
-      }
-      dispatch(addSuccessToast(`${newProviders.length} new providers from TDEX registry!`));
-    } catch {
-      dispatch(addErrorToast(TDEXRegistryError));
-    }
-  } else {
-    dispatch(clearProviders());
-    dispatch(clearMarkets());
-    dispatch(addProviders([{ endpoint: defaultProviderEndpoints.regtest, name: 'Default provider' }]));
-  }
-};
-
-const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, network }) => {
-  const dispatch = useTypedDispatch();
+export const LiquidityProviders: React.FC<LiquidityProvidersProps> = () => {
+  const addProviders = useTdexStore((state) => state.addProviders);
+  const clearMarkets = useTdexStore((state) => state.clearMarkets);
+  const deleteProvider = useTdexStore((state) => state.deleteProvider);
+  const providers = useTdexStore((state) => state.providers);
+  const addErrorToast = useToastStore((state) => state.addErrorToast);
+  //
+  const refreshProviders = useRefreshProviders();
   const [providerToDelete, setProviderToDelete] = useState<TDEXProvider>();
   const [newProvider, setNewProvider] = useState(false);
   const [newProviderName, setNewProviderName] = useState('');
@@ -93,9 +63,9 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
       text: 'Delete',
       handler: () => {
         if (providerToDelete) {
-          dispatch(deleteProvider(providerToDelete));
-          dispatch(clearMarkets());
-          dispatch(updateMarkets());
+          deleteProvider(providerToDelete);
+          clearMarkets();
+          //updateMarkets();
         }
       },
     },
@@ -173,16 +143,14 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
                         (!newProviderEndpoint.includes('.onion') && url.protocol === 'https:')
                       ) {
                         setNewProvider(false);
-                        dispatch(
-                          addProviders([
-                            {
-                              endpoint: newProviderEndpoint.trim(),
-                              name: newProviderName.trim(),
-                            },
-                          ])
-                        );
+                        addProviders([
+                          {
+                            endpoint: newProviderEndpoint.trim(),
+                            name: newProviderName.trim(),
+                          },
+                        ]);
                       } else {
-                        dispatch(addErrorToast(InvalidUrl));
+                        addErrorToast(InvalidUrl);
                       }
                     }}
                     subOnClick={() => setNewProvider(false)}
@@ -231,7 +199,7 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
                 disabled={registryFetching}
                 onClick={async () => {
                   setRegistryFetching(true);
-                  await refreshProviders(providers, network, dispatch);
+                  await refreshProviders();
                   setRegistryFetching(false);
                 }}
               >
@@ -245,12 +213,3 @@ const LiquidityProviders: React.FC<LiquidityProvidersProps> = ({ providers, netw
     </IonPage>
   );
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    network: state.settings.network,
-    providers: state.tdex.providers,
-  };
-};
-
-export default connect(mapStateToProps)(LiquidityProviders);

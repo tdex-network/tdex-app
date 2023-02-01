@@ -1,7 +1,3 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
 /* Basic CSS for apps built with Ionic */
@@ -18,16 +14,10 @@ import '@ionic/react/css/display.css';
 /* Customization */
 import 'antd-css-utilities/utility.min.css';
 import './theme/index.scss';
+import { createRoot } from 'react-dom/client';
+
+import { App } from './App';
 /* Store */
-import App from './App';
-import rootSaga from './redux/saga';
-import { sagaMiddleware, store } from './redux/store';
 
-sagaMiddleware.run(rootSaga);
-
-ReactDOM.render(
-  <Provider store={store}>
-    <App />
-  </Provider>,
-  document.getElementById('root')
-);
+const root = createRoot(document.getElementById('root')!);
+root.render(<App />);

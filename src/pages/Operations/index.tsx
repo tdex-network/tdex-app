@@ -1,27 +1,26 @@
 import './style.scss';
 import {
-  IonPage,
-  IonButtons,
-  IonContent,
-  IonList,
-  IonItem,
   IonButton,
-  IonListHeader,
-  IonText,
-  IonIcon,
-  IonGrid,
-  IonRow,
+  IonButtons,
   IonCol,
+  IonContent,
+  IonGrid,
+  IonIcon,
+  IonItem,
+  IonList,
+  IonListHeader,
+  IonPage,
+  IonRow,
+  IonText,
 } from '@ionic/react';
 import classNames from 'classnames';
 import { checkmarkSharp } from 'ionicons/icons';
+import { payments } from 'liquidjs-lib';
+import { getNetwork } from 'liquidjs-lib/src/address';
 import React, { useEffect, useMemo, useState } from 'react';
-import { connect, useDispatch, useSelector } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
-import { withRouter, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { SLIP77Factory } from 'slip77';
-import type { NetworkString } from 'tdex-sdk';
-import { getNetwork, payments } from 'tdex-sdk';
 import * as ecc from 'tiny-secp256k1';
 
 import depositIcon from '../../assets/img/deposit-green.svg';
@@ -29,116 +28,76 @@ import swapIcon from '../../assets/img/swap-circle.svg';
 import CurrencyIcon from '../../components/CurrencyIcon';
 import Header from '../../components/Header';
 import Refresher from '../../components/Refresher';
-import WatchersLoader from '../../components/WatchersLoader';
+import { TxStatus } from '../../components/TxStatus';
 import { TxIcon } from '../../components/icons';
-import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { setModalClaimPegin } from '../../redux/actions/btcActions';
-import { useTypedSelector } from '../../redux/hooks';
-import { depositPeginUtxosToDisplayTxSelector } from '../../redux/reducers/btcReducer';
-import { transactionsByAssetSelector } from '../../redux/reducers/transactionsReducer';
-import { balancesSelector } from '../../redux/reducers/walletReducer';
-import type { RootState } from '../../redux/types';
-import type { LbtcDenomination } from '../../utils/constants';
-import { defaultPrecision, LBTC_ASSET, LBTC_TICKER, MAIN_ASSETS } from '../../utils/constants';
-import {
-  compareTxDisplayInterfaceByDate,
-  fromSatoshi,
-  fromSatoshiFixed,
-  isLbtc,
-  isLbtcTicker,
-} from '../../utils/helpers';
-import type { Transfer, TxDisplayInterface } from '../../utils/types';
-import { TxStatusEnum, TxTypeEnum } from '../../utils/types';
-
-interface OperationsProps extends RouteComponentProps {
-  balances: BalanceInterface[];
-  prices: Record<string, number>;
-  currency: string;
-  lbtcUnit: LbtcDenomination;
-  btcTxs: TxDisplayInterface[];
-  currentBtcBlockHeight: number;
-  network: NetworkString;
-  watchers: string[];
-}
+import { useAssetStore } from '../../store/assetStore';
+import { useBitcoinStore } from '../../store/bitcoinStore';
+import { useSettingsStore } from '../../store/settingsStore';
+import type { TxHeuristic } from '../../store/walletStore';
+import { TxType, useWalletStore } from '../../store/walletStore';
+import { LBTC_ASSET, LBTC_TICKER } from '../../utils/constants';
+import { compareTxDate, fromSatoshi, fromSatoshiFixed, isLbtc, isLbtcTicker } from '../../utils/helpers';
 
 const slip77 = SLIP77Factory(ecc);
 
-const Operations: React.FC<OperationsProps> = ({
-  balances,
-  prices,
-  currency,
-  history,
-  lbtcUnit,
-  btcTxs,
-  currentBtcBlockHeight,
-  network,
-  watchers,
-}) => {
-  const dispatch = useDispatch();
+export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
+  const assets = useAssetStore((state) => state.assets);
+  const setModalClaimPegin = useBitcoinStore((state) => state.setModalClaimPegin);
+  const currentBtcBlockHeight = useBitcoinStore((state) => state.currentBtcBlockHeight);
+  const getCurrentBtcBlockHeight = useBitcoinStore((state) => state.getCurrentBtcBlockHeight);
+  const currency = useSettingsStore((state) => state.currency.ticker);
+  const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
+  const network = useSettingsStore((state) => state.network);
+  const balances = useWalletStore((state) => state.balances);
+  const computeHeuristicFromTx = useWalletStore((state) => state.computeHeuristicFromTx);
+  const computeHeuristicFromPegins = useWalletStore((state) => state.computeHeuristicFromPegins);
+  const txs = useWalletStore((state) => state.txs);
+  const masterBlindingKey = useWalletStore((state) => state.masterBlindingKey);
+  //
   const { asset_id } = useParams<{ asset_id: string }>();
-  const [balance, setBalance] = useState<BalanceInterface>();
-  const masterBlingKey = useTypedSelector(({ wallet }) => wallet.masterBlindKey);
+  const [txsToDisplay, setTxsToDisplay] = useState<TxHeuristic[]>([]);
 
-  const transactionsByAsset = useSelector(transactionsByAssetSelector(asset_id));
-  const transactionsToDisplay = isLbtc(asset_id, network) ? transactionsByAsset.concat(btcTxs) : transactionsByAsset;
-
-  // effect to select the balance
   useEffect(() => {
-    const balanceSelected = balances.find((bal) => bal.assetHash === asset_id);
-    if (balanceSelected) {
-      setBalance(balanceSelected);
-    } else {
-      const asset = MAIN_ASSETS[network].find((a) => a.assetHash === asset_id);
-      setBalance({
-        assetHash: asset?.assetHash ?? '',
-        amount: 0,
-        coinGeckoID: asset?.coinGeckoID ?? '',
-        ticker: asset?.ticker ?? '',
-        precision: asset?.precision ?? defaultPrecision,
-        name: asset?.name ?? '',
-      });
-    }
-  }, [balances, asset_id, network]);
+    (async () => {
+      await getCurrentBtcBlockHeight();
+      // Compute heuristic for each tx
+      const txsHeuristicArray: TxHeuristic[] = [];
+      for (const tx of Object.values(txs ?? {})) {
+        const txHeuristic = await computeHeuristicFromTx(tx, asset_id);
+        if (txHeuristic) txsHeuristicArray.push(txHeuristic);
+      }
+      // Compute heuristic for each pegin
+      const btcTxs = computeHeuristicFromPegins();
+      btcTxs?.forEach((tx) => txsHeuristicArray.push(tx));
+      // Filter by asset and sort by date
+      const filteredTxs = txsHeuristicArray.filter((tx) => tx.asset === asset_id);
+      const sortedTxs = filteredTxs.sort(compareTxDate);
+      setTxsToDisplay(sortedTxs);
+    })();
+  }, [asset_id, computeHeuristicFromPegins, computeHeuristicFromTx, getCurrentBtcBlockHeight, txs]);
 
-  const onclickTx = (tx: TxDisplayInterface) => {
-    if (TxTypeEnum[tx.type] === 'Swap') {
-      history.push(`/tradesummary/${tx.txId}`);
-    } else if (TxTypeEnum[tx.type] === 'Send' || TxTypeEnum[tx.type] === 'Receive') {
-      const master = slip77.fromMasterBlindingKey(masterBlingKey);
-      const derived = master.derive(tx.transfers[0].script);
+  const onclickTx = (tx: TxHeuristic) => {
+    if (TxType[tx.type] === 'Swap') {
+      history.push(`/tradesummary/${tx.txid}`);
+    } else if (TxType[tx.type] === 'Withdraw' || TxType[tx.type] === 'Deposit') {
+      const master = slip77.fromMasterBlindingKey(masterBlindingKey);
+      const derived = master.derive('tx.transfers[0].script');
       const p2wpkh = payments.p2wpkh({
-        output: Buffer.from(tx.transfers[0].script, 'hex'),
+        output: Buffer.from('tx.transfers[0].script', 'hex'),
         blindkey: derived.publicKey,
         network: getNetwork(network),
       });
-      history.push(`/transaction/${tx.txId}`, {
+      history.push(`/transaction/${tx.txid}`, {
         address: p2wpkh.confidentialAddress,
         amount: fromSatoshiFixed(
-          tx.transfers[0].amount.toString(),
-          balance?.precision,
-          balance?.precision,
+          'tx.transfers[0].amount.toString()',
+          assets[asset_id]?.precision,
+          assets[asset_id]?.precision,
           isLbtc(asset_id, network) ? lbtcUnit : undefined
         ),
         asset: asset_id,
         lbtcUnit,
       });
-    }
-  };
-
-  const renderStatusText: any = (status: string) => {
-    const capitalized = (status[0].toUpperCase() + status.slice(1)) as keyof typeof TxStatusEnum;
-    switch (status) {
-      case TxStatusEnum.Confirmed:
-        return (
-          <span className="status-text confirmed">
-            <IonIcon icon={checkmarkSharp} />
-            <span className="ml-05">{TxStatusEnum[capitalized]}</span>
-          </span>
-        );
-      case TxStatusEnum.Pending:
-        return <span className="status-text pending">{TxStatusEnum[capitalized]}</span>;
-      default:
-        return <span className="status-text pending" />;
     }
   };
 
@@ -148,7 +107,7 @@ const Operations: React.FC<OperationsProps> = ({
     return currentBtcBlockHeight - txBlockHeight + 1;
   };
 
-  const checkIfPeginIsClaimable = (btcTx: TxDisplayInterface): boolean => {
+  const checkIfPeginIsClaimable = (btcTx: TxHeuristic): boolean => {
     // Check if pegin not already claimed and utxo is mature
     return !btcTx.claimTxId && getConfirmationCount(btcTx.blockHeight) >= 102;
   };
@@ -165,9 +124,9 @@ const Operations: React.FC<OperationsProps> = ({
                   pathname: '/receive',
                   state: {
                     depositAsset: {
-                      assetHash: balance?.assetHash,
-                      ticker: balance?.ticker ?? LBTC_TICKER[network],
-                      coinGeckoID: balance?.coinGeckoID ?? 'L-BTC',
+                      assetHash: assets[asset_id]?.assetHash,
+                      ticker: assets[asset_id]?.ticker ?? LBTC_TICKER[network],
+                      coinGeckoID: assets[asset_id]?.coinGeckoID ?? 'L-BTC',
                     },
                   },
                 });
@@ -200,63 +159,45 @@ const Operations: React.FC<OperationsProps> = ({
         </IonCol>
       </IonRow>
     ),
-    [asset_id, balance?.assetHash, balance?.coinGeckoID, balance?.ticker, history, network]
+    [asset_id, assets, history, network]
   );
 
   const AssetBalance = useMemo(
     () => (
       <div className="asset-balance">
         <p className="info-amount ion-no-margin">
-          {balance &&
-            fromSatoshiFixed(
-              balance?.amount.toString(),
-              balance.precision,
-              balance.precision,
-              isLbtcTicker(balance.ticker) ? lbtcUnit : undefined
-            )}
-          <span>{isLbtcTicker(balance?.ticker || '') ? lbtcUnit : balance?.ticker}</span>
+          {balances?.[asset_id]?.value ?? 0}
+          <span>{isLbtcTicker(assets[asset_id]?.ticker || '') ? lbtcUnit : assets[asset_id]?.ticker}</span>
         </p>
-        {balance?.coinGeckoID && prices[balance.coinGeckoID] && (
-          <span className="info-amount-converted">
-            {fromSatoshi(balance.amount.toString(), balance.precision).mul(prices[balance.coinGeckoID]).toFixed(2)}{' '}
-            {currency.toUpperCase()}
-          </span>
-        )}
+        <span className="info-amount-converted">
+          {balances?.[asset_id].counterValue ?? 0} {currency.toUpperCase()}
+        </span>
       </div>
     ),
-    [balance, currency, lbtcUnit, prices]
+    [asset_id, assets, balances, currency, lbtcUnit]
   );
 
-  const OperationAmount = ({
-    balance,
-    transfer,
-    tx,
-  }: {
-    balance: BalanceInterface;
-    transfer: Transfer | undefined;
-    tx: TxDisplayInterface;
-  }) => (
+  const OperationAmount = ({ transfer }: { transfer: TxHeuristic | undefined }) => (
     <div className="operation-amount">
       <div className="operation-amount__lbtc">
         {transfer
           ? fromSatoshiFixed(
               transfer.amount.toString(),
-              balance.precision,
-              balance.precision,
-              isLbtcTicker(balance.ticker) ? lbtcUnit : undefined
+              assets[asset_id].precision,
+              assets[asset_id].precision,
+              isLbtcTicker(assets[asset_id].ticker) ? lbtcUnit : undefined
             )
           : 'unknown'}
         <span className="ticker">
-          {TxTypeEnum[tx.type] === 'DepositBtc' || isLbtcTicker(balance.ticker) ? lbtcUnit : balance.ticker}
+          {TxType[transfer?.type ?? TxType.Unknow] === 'DepositBtc' || isLbtcTicker(assets[asset_id].ticker)
+            ? lbtcUnit
+            : assets[asset_id].ticker}
         </span>
       </div>
       <div className="operation-amount__fiat">
-        {transfer?.amount && balance.precision && balance?.coinGeckoID && prices[balance.coinGeckoID] && (
-          <div>
-            {fromSatoshi(transfer.amount.toString(), balance.precision).mul(prices[balance.coinGeckoID]).toFixed(2)}{' '}
-            {currency.toUpperCase()}
-          </div>
-        )}
+        <div>
+          {balances?.[asset_id].counterValue ?? 0} {currency.toUpperCase()}
+        </div>
       </div>
     </div>
   );
@@ -266,11 +207,11 @@ const Operations: React.FC<OperationsProps> = ({
       <IonContent id="operations" scrollEvents={true} onIonScrollStart={(e) => e.preventDefault()}>
         <Refresher />
         <IonGrid>
-          <Header title={`${balance?.name || balance?.ticker}`} hasBackButton={true} />
+          <Header title={`${assets[asset_id]?.name || assets[asset_id]?.ticker}`} hasBackButton={true} />
           <IonRow className="ion-margin-bottom header-info ion-text-center ion-margin-vertical">
             <IonCol>
-              {balance ? (
-                <CurrencyIcon assetHash={balance?.assetHash} />
+              {balances?.[asset_id] ? (
+                <CurrencyIcon assetHash={assets[asset_id]?.assetHash} />
               ) : (
                 <CurrencyIcon assetHash={LBTC_ASSET[network].assetHash} />
               )}
@@ -283,13 +224,11 @@ const Operations: React.FC<OperationsProps> = ({
             <IonCol>
               <IonList>
                 <IonListHeader>Transactions</IonListHeader>
-                <WatchersLoader watchers={watchers} />
-                {balance && transactionsToDisplay.length ? (
-                  transactionsToDisplay.sort(compareTxDisplayInterfaceByDate).map((tx: TxDisplayInterface, index) => {
-                    const transfer = tx.transfers.find((t) => t.asset === asset_id);
+                {txsToDisplay.length ? (
+                  txsToDisplay.map((tx: TxHeuristic, index) => {
                     return (
                       <IonItem
-                        key={`${index}-${tx.txId}`}
+                        key={`${index}-${tx.txid}`}
                         button
                         detail={false}
                         onClick={() => onclickTx(tx)}
@@ -301,33 +240,35 @@ const Operations: React.FC<OperationsProps> = ({
                           </IonCol>
                           <IonCol className="pl-1" size="5.3">
                             <div className="asset">
-                              {TxTypeEnum[tx.type] === 'DepositBtc'
+                              {TxType[tx.type] === 'DepositBtc'
                                 ? 'Receive BTC'
-                                : `${TxTypeEnum[tx.type]} ${balance.ticker}`}
+                                : `${TxType[tx.type]} ${assets[asset_id].ticker}`}
                             </div>
                             <div className="time">{tx.blockTime?.format('DD MMM YYYY HH:mm:ss')}</div>
                           </IonCol>
                           <IonCol className="ion-text-right" size="5.7">
-                            <OperationAmount balance={balance} transfer={transfer} tx={tx} />
+                            <OperationAmount transfer={undefined} />
                           </IonCol>
                         </IonRow>
                         <div className="extra-infos">
-                          {TxTypeEnum[tx.type] !== 'DepositBtc' && (
+                          {TxType[tx.type] !== 'DepositBtc' && (
                             <IonRow className="mt-1">
                               <IonCol className="pl-1" size="6" offset="1">
                                 {`Fee: ${fromSatoshi(tx.fee.toString(), 8).toFixed(8)} ${LBTC_TICKER[network]}`}
                               </IonCol>
                               <IonCol className="ion-text-right" size="5">
-                                <IonText>{renderStatusText(tx.status)}</IonText>
+                                <IonText>
+                                  <TxStatus isConfirmed={tx?.blockHeight !== undefined} />
+                                </IonText>
                               </IonCol>
                             </IonRow>
                           )}
                           <IonRow className="mt-1">
                             <IonCol className="pl-1" size="11" offset="1">
-                              TxID: {tx.txId}
+                              TxID: {tx.txid}
                             </IonCol>
                           </IonRow>
-                          {TxTypeEnum[tx.type] === 'DepositBtc' && (
+                          {TxType[tx.type] === 'DepositBtc' && (
                             <>
                               <IonRow className="mt-1">
                                 {getConfirmationCount(tx.blockHeight) < 102 && (
@@ -352,6 +293,7 @@ const Operations: React.FC<OperationsProps> = ({
                                   </IonCol>
                                 )}
                               </IonRow>
+                              masterBlindingKey
                               {checkIfPeginIsClaimable(tx) && (
                                 <IonRow className="ion-margin-top">
                                   <IonCol size="11" offset="0.5">
@@ -359,12 +301,10 @@ const Operations: React.FC<OperationsProps> = ({
                                       className="main-button claim-button"
                                       onClick={() => {
                                         // Trigger global PinModalClaimPegin in App.tsx
-                                        dispatch(
-                                          setModalClaimPegin({
-                                            isOpen: true,
-                                            claimScriptToClaim: tx.claimScript,
-                                          })
-                                        );
+                                        setModalClaimPegin({
+                                          isOpen: true,
+                                          claimScriptToClaim: tx.claimScript,
+                                        });
                                       }}
                                     >
                                       ClAIM NOW
@@ -389,21 +329,3 @@ const Operations: React.FC<OperationsProps> = ({
     </IonPage>
   );
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    balances: balancesSelector(state),
-    btcTxs: depositPeginUtxosToDisplayTxSelector(state),
-    currentBtcBlockHeight: state.btc.currentBlockHeight,
-    currency: state.settings.currency.value,
-    explorerLiquidAPI: state.settings.explorerLiquidAPI,
-    explorerBitcoinAPI: state.settings.explorerBitcoinAPI,
-    lbtcUnit: state.settings.denominationLBTC,
-    network: state.settings.network,
-    pegins: state.btc.pegins,
-    prices: state.rates.prices,
-    watchers: state.transactions.watchers,
-  };
-};
-
-export default withRouter(connect(mapStateToProps)(Operations));

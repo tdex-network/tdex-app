@@ -7,18 +7,14 @@ import { withRouter, useParams } from 'react-router';
 import CurrencyIcon from '../../components/CurrencyIcon';
 import Header from '../../components/Header';
 import Refresher from '../../components/Refresher';
-import { addSuccessToast } from '../../redux/actions/toastActions';
-import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
-import { transactionSelector } from '../../redux/reducers/transactionsReducer';
+import { useAssetStore } from '../../store/assetStore';
+import { useSettingsStore } from '../../store/settingsStore';
+import { useToastStore } from '../../store/toastStore';
+import type { TxHeuristic } from '../../store/walletStore';
+import { useWalletStore } from '../../store/walletStore';
 import { clipboardCopy } from '../../utils/clipboard';
 import type { LbtcDenomination } from '../../utils/constants';
 import { isLbtc } from '../../utils/helpers';
-import { TxStatusEnum } from '../../utils/types';
-
-const statusText = {
-  confirmed: 'completed',
-  pending: 'pending',
-};
 
 interface transactionDetailsLocationState {
   address: string;
@@ -28,16 +24,17 @@ interface transactionDetailsLocationState {
 }
 
 const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDetailsLocationState>> = ({ location }) => {
-  const dispatch = useTypedDispatch();
   const { txid } = useParams<{ txid: string }>();
-  const { explorerLiquidUI, network, lbtcUnit } = useTypedSelector(({ settings }) => ({
-    explorerLiquidUI: settings.explorerLiquidUI,
-    network: settings.network,
-    lbtcUnit: settings.denominationLBTC,
-  }));
-  const transaction = useTypedSelector(transactionSelector(txid));
-  const assets = useTypedSelector(({ assets }) => assets);
+  const assets = useAssetStore((state) => state.assets);
+  const explorerLiquidUI = useSettingsStore((state) => state.explorerLiquidUI);
+  const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
+  const network = useSettingsStore((state) => state.network);
+  const addSuccessToast = useToastStore((state) => state.addSuccessToast);
+  const txs = useWalletStore((state) => state.txs);
+  const computeHeuristicFromTx = useWalletStore((state) => state.computeHeuristicFromTx);
+  //
   const [locationState, setLocationState] = useState<transactionDetailsLocationState>();
+  const [transaction, setTransaction] = useState<TxHeuristic>();
 
   useEffect(() => {
     if (location.state) {
@@ -45,14 +42,21 @@ const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDeta
     }
   }, [location]);
 
-  const renderStatusText: any = (status: string) => {
-    switch (status) {
-      case TxStatusEnum.Confirmed:
-        return <span className="status-text confirmed">{statusText[status]}</span>;
-      case TxStatusEnum.Pending:
-        return <span className="status-text pending">{statusText[status]}</span>;
-      default:
-        return <span className="status-text pending" />;
+  useEffect(() => {
+    (async () => {
+      const transaction = txs?.[txid];
+      if (transaction) {
+        const heuristicTx = await computeHeuristicFromTx(transaction, 'details');
+        setTransaction(heuristicTx);
+      }
+    })();
+  }, [computeHeuristicFromTx, txid, txs]);
+
+  const renderStatusText: any = (isConfirmed: boolean) => {
+    if (isConfirmed) {
+      return <span className="status-text confirmed">completed</span>;
+    } else {
+      return <span className="status-text pending">pending</span>;
     }
   };
 
@@ -92,7 +96,7 @@ const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDeta
                 <div className="item-main-info">
                   <div className="item-start main-row">Status</div>
                   <div className="item-end main-row completed">
-                    {transaction ? renderStatusText(transaction?.status) : <Skeleton />}
+                    {transaction ? renderStatusText(!!transaction?.blockHeight) : <Skeleton />}
                   </div>
                 </div>
 
@@ -112,7 +116,7 @@ const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDeta
                   className="item-main-info"
                   onClick={() => {
                     clipboardCopy(`${explorerLiquidUI}/address/${locationState?.address}`, () => {
-                      dispatch(addSuccessToast('Address copied!'));
+                      addSuccessToast('Address copied!');
                     });
                   }}
                 >
@@ -124,7 +128,7 @@ const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDeta
                   className="item-main-info"
                   onClick={() => {
                     clipboardCopy(`${explorerLiquidUI}/tx/${txid}`, () => {
-                      dispatch(addSuccessToast('TxID copied!'));
+                      addSuccessToast('TxID copied!');
                     });
                   }}
                 >

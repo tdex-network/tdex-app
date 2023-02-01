@@ -1,37 +1,39 @@
 import type { RangeValue, RangeChangeEventDetail } from '@ionic/core/components';
 import { IonButton, IonCol, IonContent, IonGrid, IonItem, IonPage, IonRange, IonRow } from '@ionic/react';
-import type { Mnemonic } from 'ldk';
 import React, { useState } from 'react';
-import { mnemonicRestorerFromEsplora } from 'tdex-sdk';
 
 import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
-import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
-import { useTypedDispatch, useTypedSelector } from '../../redux/hooks';
+import { useSettingsStore } from '../../store/settingsStore';
+import { useToastStore } from '../../store/toastStore';
+import { useWalletStore } from '../../store/walletStore';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { DeepRestorationError, IncorrectPINError } from '../../utils/errors';
-import { getIdentity } from '../../utils/storage-helper';
 
 const DeepRestoration: React.FC = () => {
+  const explorerLiquidAPI = useSettingsStore((state) => state.explorerLiquidAPI);
+  const network = useSettingsStore((state) => state.network);
+  const addErrorToast = useToastStore((state) => state.addErrorToast);
+  const addSuccessToast = useToastStore((state) => state.addSuccessToast);
+  const decryptMnemonic = useWalletStore((state) => state.decryptMnemonic);
+  //
   const [rangeValue, setRangeValue] = useState<RangeValue>(20);
-  const { explorerLiquidAPI, network } = useTypedSelector(({ settings }) => settings);
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [needReset, setNeedReset] = useState<boolean>(false);
   const [isLoading, setLoading] = useState(false);
-  const dispatch = useTypedDispatch();
 
   const handlePinConfirm = async (pin: string) => {
     try {
-      const identity = await getIdentity(pin, network);
+      const mnemonic = await decryptMnemonic(pin);
       setIsWrongPin(false);
       setTimeout(async () => {
         setNeedReset(true);
         setIsPinModalOpen(false);
         setIsWrongPin(null);
         setLoading(true);
-        await handleRestoration(identity);
+        await handleRestoration(mnemonic);
       }, PIN_TIMEOUT_SUCCESS);
     } catch (err) {
       setIsWrongPin(true);
@@ -39,21 +41,23 @@ const DeepRestoration: React.FC = () => {
         setIsWrongPin(null);
         setNeedReset(true);
       }, PIN_TIMEOUT_FAILURE);
-      dispatch(addErrorToast(IncorrectPINError));
+      addErrorToast(IncorrectPINError);
       console.error(err);
     }
   };
 
-  const handleRestoration = async (identity: Mnemonic) => {
+  const handleRestoration = async (mnemonic: string) => {
     try {
+      /*
       await mnemonicRestorerFromEsplora(identity)({
         gapLimit: Number(rangeValue),
         esploraURL: explorerLiquidAPI,
       });
-      dispatch(addSuccessToast('Account discovery successful'));
+      */
+      addSuccessToast('Account discovery successful');
     } catch (err) {
       console.error(err);
-      dispatch(addErrorToast(DeepRestorationError));
+      addErrorToast(DeepRestorationError);
     } finally {
       setLoading(false);
     }

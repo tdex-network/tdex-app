@@ -1,12 +1,10 @@
 import type { CSSProperties } from 'react';
 import React from 'react';
-import { useSelector } from 'react-redux';
 
 import BtcIcon from '../../assets/img/coins/btc.svg';
 import CurrencyPlaceholderIcon from '../../assets/img/coins/currency-placeholder.svg';
-import DepositIconBlack from '../../assets/img/deposit-black.svg';
 import DepositIcon from '../../assets/img/deposit.svg';
-import { TxTypeEnum } from '../../utils/types';
+import { TxType } from '../../store/walletStore';
 
 interface IconInterface {
   width?: string;
@@ -126,14 +124,12 @@ export const IconQR = (props: IconInterface): JSX.Element => (
 );
 
 export const TxIcon = ({ type }: any): any => {
-  const theme = useSelector((state: any) => state.settings.theme);
-  const themeIcon = theme === 'light' ? DepositIconBlack : DepositIcon;
   switch (type) {
-    case TxTypeEnum.Receive:
-      return <img className="deposit" src={themeIcon} alt="deposit" />;
-    case TxTypeEnum.Send:
-      return <img className="withdraw" src={themeIcon} alt="withdraw" />;
-    case TxTypeEnum.DepositBtc:
+    case TxType.Deposit:
+      return <img className="deposit" src={DepositIcon} alt="deposit" />;
+    case TxType.Withdraw:
+      return <img className="withdraw" src={DepositIcon} alt="withdraw" />;
+    case TxType.DepositBtc:
       return <img className="deposit-btc" src={BtcIcon} alt="DepositBtc" />;
     default:
       return <img src={CurrencyPlaceholderIcon} alt="currency placeholder" />;

@@ -1,33 +1,34 @@
+export {};
+/*
 import { useEffect, useState } from 'react';
-import type { TradeOrder } from 'tdex-sdk';
 
-import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
-import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
+import type { Asset } from '../../store/assetStore';
+import type { TDEXMarket } from '../../store/tdexStore';
+import type { Balances } from '../../store/walletStore';
+import type { LbtcDenomination } from '../../utils/constants';
 import { defaultPrecision } from '../../utils/constants';
 import { NoMarketsAvailableForAllPairsError } from '../../utils/errors';
 import { fromSatoshiFixed, isLbtcTicker } from '../../utils/helpers';
-import { discoverBestOrder, marketPriceRequest } from '../../utils/tdex';
 
 import type { SatsAsset, AmountAndUnit } from '.';
 
-export function createAmountAndUnit(assetsRegistry: Record<string, AssetConfig>, lbtcUnit: LbtcDenomination) {
+export function createAmountAndUnit(assetRegistry: Record<string, Asset>, lbtcUnit: LbtcDenomination) {
   return (satsAsset: SatsAsset): AmountAndUnit => {
-    if (!satsAsset.asset || !satsAsset.sats || !assetsRegistry[satsAsset.asset]) {
+    if (!satsAsset.asset || !satsAsset.sats || !assetRegistry[satsAsset.asset]) {
       return {
         amount: '0',
         unit: 'unknown',
       };
     }
-    const assetConfig = assetsRegistry[satsAsset.asset];
+    const asset = assetRegistry[satsAsset.asset];
     return {
       amount: fromSatoshiFixed(
         satsAsset.sats.toString() || '0',
-        assetConfig.precision ?? defaultPrecision,
-        assetConfig.precision ?? defaultPrecision,
-        isLbtcTicker(assetConfig.ticker) ? lbtcUnit : undefined
+        asset.precision ?? defaultPrecision,
+        asset.precision ?? defaultPrecision,
+        isLbtcTicker(asset.ticker) ? lbtcUnit : undefined
       ),
-      unit: isLbtcTicker(assetConfig.ticker) ? lbtcUnit : assetConfig.ticker,
+      unit: isLbtcTicker(asset.ticker) ? lbtcUnit : asset.ticker,
     };
   };
 }
@@ -40,7 +41,7 @@ function useAssetSats(initialAssetHash?: string) {
 }
 
 // eslint-disable-next-line
-export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[]) {
+export function useTradeState(markets: TDEXMarket[], balances: Balances) {
   const [sendAsset, sendSats, setSendAsset, setSendSats] = useAssetSats(
     markets.length > 0 ? markets[0].baseAsset : undefined
   );
@@ -57,6 +58,7 @@ export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[
   const [assetSendBeforeSwap, setAssetSendBeforeSwap] = useState<string | undefined>(sendAsset);
   const [sendAssetHasChanged, setSendAssetHasChanged] = useState<boolean>(false);
   const [receiveAssetHasChanged, setReceiveAssetHasChanged] = useState<boolean>(false);
+  const sendBalance = balances[sendAsset ?? ''];
 
   const resetErrors = () => {
     setSendError(undefined);
@@ -80,7 +82,6 @@ export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[
     if (receiveLoader || !sendAsset || (focus === 'receive' && !hasBeenSwapped && !sendAssetHasChanged)) return;
     try {
       setReceiveLoader(true);
-      const sendBalance = balances.find((b) => b.assetHash === sendAsset)?.amount;
       if (newSendSats > (sendBalance ?? 0)) throw new Error(`not enough balance`);
       const bestOrder = await discoverBestOrder(markets, sendAsset, receiveAsset)(newSendSats ?? 0, sendAsset);
       const assetSats = await marketPriceRequest(bestOrder, newSendSats ?? 0, sendAsset);
@@ -103,7 +104,6 @@ export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[
       setSendLoader(true);
       const bestOrder = await discoverBestOrder(markets, sendAsset, receiveAsset)(newReceiveSats ?? 0, receiveAsset);
       const assetSats = await marketPriceRequest(bestOrder, newReceiveSats ?? 0, receiveAsset);
-      const sendBalance = balances.find((b) => b.assetHash === sendAsset)?.amount;
       if (Number(assetSats.sats) > (sendBalance ?? 0)) throw new Error(`not enough balance`);
       setSendSats(Number(assetSats.sats));
       setBestOrder(bestOrder);
@@ -199,3 +199,4 @@ export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[
     setReceiveAssetHasChanged,
   ] as const;
 }
+*/
