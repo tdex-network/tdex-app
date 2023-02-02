@@ -106,8 +106,8 @@ const TradeRowInput: React.FC<Props> = ({
     }
     const newAmountFromSats = fromSatoshiFixed(
       sats.toString(10),
-      assetSelected?.precision || defaultPrecision,
-      assetSelected?.precision || defaultPrecision,
+      assetSelected?.precision ?? defaultPrecision,
+      assetSelected?.precision ?? defaultPrecision,
       isLbtc(assetSelected?.assetHash ?? '', network) ? lbtcUnit : undefined
     );
     setInputValue(newAmountFromSats);
