@@ -110,7 +110,11 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, assets }) => {
                           <p className="trade-price" data-testid="trade-summary-sent-amount">
                             {preview
                               ? preview?.sent.amount
-                              : fromSatoshiFixed(transaction?.transfers?.[0]?.amount.toString() ?? '0', 8, 8)}
+                              : fromSatoshiFixed(
+                                  transaction?.transfers?.[0]?.amount.toString() ?? '0',
+                                  transaction ? assets[transaction.transfers?.[0]?.asset].precision : 8,
+                                  transaction ? assets[transaction.transfers?.[0]?.asset].precision : 8
+                                )}
                           </p>
                         </div>
 
@@ -136,7 +140,11 @@ const TradeSummary: React.FC<TradeSummaryProps> = ({ location, assets }) => {
                             +
                             {preview
                               ? preview?.received.amount
-                              : fromSatoshiFixed(transaction?.transfers?.[1]?.amount.toString() ?? '0', 8, 8)}
+                              : fromSatoshiFixed(
+                                  transaction?.transfers?.[1]?.amount.toString() ?? '0',
+                                  transaction ? assets[transaction.transfers?.[1]?.asset].precision : 8,
+                                  transaction ? assets[transaction.transfers?.[1]?.asset].precision : 8
+                                )}
                           </p>
                         </div>
                       </div>
