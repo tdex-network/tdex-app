@@ -17,7 +17,8 @@ const Deposit: React.FC<RouteComponentProps> = ({ history }) => {
   const generateGridItems = useMemo(() => {
     const btcButton = (
       <button
-        disabled={network === 'testnet'}
+        disabled={true}
+        //disabled={network === 'testnet'}
         className="deposit-grid-item ion-justify-content-center ion-align-items-center"
         key="btc"
         onClick={() =>
