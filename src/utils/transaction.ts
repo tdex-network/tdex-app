@@ -99,9 +99,7 @@ type MakeSendPsetResult = {
 export async function makeSendPset(recipients: Recipient[], feeAssetHash: string): Promise<MakeSendPsetResult> {
   const pset = Creator.newPset();
   let network = useSettingsStore.getState().network;
-  console.log('network', network);
   const coinSelection = await useWalletStore.getState().selectUtxos(recipients, true);
-  console.log('coinSelection', coinSelection);
   const ins: UpdaterInput[] = [];
   const outs: UpdaterOutput[] = [];
   // get witness utxos
@@ -113,7 +111,6 @@ export async function makeSendPset(recipients: Recipient[], feeAssetHash: string
       return undefined;
     }
   });
-  console.log('witnessUtxos', witnessUtxos);
   // add inputs
   ins.push(
     ...coinSelection.utxos.map((utxo, i) => ({
@@ -161,7 +158,6 @@ export async function makeSendPset(recipients: Recipient[], feeAssetHash: string
   // we add 50% to the min relay fee in order to be sure that the transaction will be accepted by the network
   // some inputs and outputs may be added later to pay the fees
   const relayFee = (await chainSource.getRelayFee()) * 1.5;
-  console.log('relayFee', relayFee);
   const sats1000Bytes = relayFee * 10 ** 8;
   const estimatedSize = estimateVirtualSize(updater.pset, true);
   let feeAmount = Math.ceil(estimatedSize * (sats1000Bytes / 1000));

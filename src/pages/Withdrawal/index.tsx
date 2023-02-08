@@ -138,7 +138,6 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
       const signer = await SignerService.fromPin(pin);
       const signedPset = await signer.signPset(blindedPset);
       const toBroadcast = signer.finalizeAndExtract(signedPset);
-      console.log('toBroadcast', toBroadcast);
       // Broadcast tx
       const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
       const client = new ElectrumWS(websocketExplorerURL);

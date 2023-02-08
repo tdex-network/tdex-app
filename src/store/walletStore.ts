@@ -27,7 +27,6 @@ import {
   isLcad,
   isUsdt,
   outpointToString,
-  sleep,
 } from '../utils/helpers';
 
 import { useAssetStore } from './assetStore';
@@ -548,22 +547,21 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               );
             }
             if (outputs) {
-              outputs
-                .filter((output: any) => output.address !== 'fake') // only add change outputs
-                .push(
-                  ...(outputs as { value: number }[]).map((output) => ({
+              changeOutputs.push(
+                ...outputs
+                  .filter((output: any) => output.address === undefined) // only add change outputs
+                  .map((output: { value: number }) => ({
                     asset: target.asset,
                     amount: output.value,
                   }))
-                );
+              );
             }
           }
-          console.log('lock', lock);
           if (lock) {
             const lockedOutpoints = selectedUtxos.map((utxo) => get().lockOutpoint(utxo));
-            // TODO: lock outpout
-            // await sleep(60_000);
-            lockedOutpoints.forEach((outpoints) => get().unlockOutpoint(outpoints));
+            setTimeout(() => {
+              lockedOutpoints.forEach((outpoints) => get().unlockOutpoint(outpoints));
+            }, 60_000);
           }
           return {
             utxos: selectedUtxos,
