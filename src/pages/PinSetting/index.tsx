@@ -24,11 +24,9 @@ import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import PinInput from '../../components/PinInput';
-import { useSettingsStore } from '../../store/settingsStore';
 import { useToastStore } from '../../store/toastStore';
 import { useWalletStore } from '../../store/walletStore';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
-import { encrypt } from '../../utils/crypto';
 import type { AppError } from '../../utils/errors';
 import { PinDigitsError, PINsDoNotMatchError, SecureStorageError } from '../../utils/errors';
 import { TermsContent } from '../Terms';
@@ -40,9 +38,11 @@ interface LocationState {
 const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
-  const network = useSettingsStore((state) => state.network);
   const decryptMnemonic = useWalletStore((state) => state.decryptMnemonic);
-  const setEncryptedMnemonic = useWalletStore((state) => state.setEncryptedMnemonic);
+  const setMnemonicEncrypted = useWalletStore((state) => state.setMnemonicEncrypted);
+  const setIsAuthorized = useWalletStore((state) => state.setIsAuthorized);
+  const generateMasterKeys = useWalletStore((state) => state.generateMasterKeys);
+  const sync = useWalletStore((state) => state.sync);
   //
   const { state } = useLocation<LocationState>();
   const [firstPin, setFirstPin] = useState<string>('');
@@ -94,8 +94,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
           setIsPinInputLocked(true);
           try {
             // Coming from Show Mnemonic or from Backup Wallet 'do it later'
-            const encryptedMnemonic = await encrypt(state?.mnemonic ?? bip39.generateMnemonic(), secondPin);
-            setEncryptedMnemonic(encryptedMnemonic);
+            setMnemonicEncrypted(state?.mnemonic ?? bip39.generateMnemonic(), secondPin);
             addSuccessToast('Mnemonic generated and encrypted with your PIN.');
             setIsWrongPin(false);
             setIsPinValidated(true);
@@ -133,7 +132,17 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
         onPinDigitsError(true);
       }
     }
-  }, [firstPin, isPinValidated, isRepeatScreen, onError, onPinDigitsError, secondPin, state?.mnemonic]);
+  }, [
+    addSuccessToast,
+    firstPin,
+    isPinValidated,
+    isRepeatScreen,
+    onError,
+    onPinDigitsError,
+    secondPin,
+    setMnemonicEncrypted,
+    state?.mnemonic,
+  ]);
 
   // Make sure PIN input always has focus when clicking anywhere
   const handleClick = () => {
@@ -243,9 +252,8 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
                           const mnemonic = await decryptMnemonic(firstPin);
                           setIsWrongPin(null);
                           setLoading(false);
-                          // setIsAuth will cause redirect to /wallet
-                          // Restore state
-                          // signIn(mnemonic);
+                          setIsAuthorized(true);
+                          generateMasterKeys(mnemonic);
                         } catch (err) {
                           console.error(err);
                         }

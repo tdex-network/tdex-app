@@ -10,7 +10,6 @@ import {
   IonSelect,
   IonSelectOption,
 } from '@ionic/react';
-// import * as ecc from 'tiny-secp256k1';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
@@ -39,14 +38,17 @@ const Network = (): JSX.Element => {
   const setExplorerLiquidUI = useSettingsStore((state) => state.setExplorerLiquidUI);
   const setExplorerBitcoinAPI = useSettingsStore((state) => state.setExplorerBitcoinAPI);
   const setExplorerBitcoinUI = useSettingsStore((state) => state.setExplorerBitcoinUI);
+  const setWebsocketExplorerURL = useSettingsStore((state) => state.setWebsocketExplorerURL);
   const setNetwork = useSettingsStore((state) => state.setNetwork);
   const setDefaultProvider = useSettingsStore((state) => state.setDefaultProvider);
   const setElectrsBatchApi = useSettingsStore((state) => state.setElectrsBatchApi);
   const network = useSettingsStore((state) => state.network);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const addErrorToast = useToastStore((state) => state.addErrorToast);
-  const masterPublicKey = useWalletStore((state) => state.masterPublicKey);
-  const masterBlindingKey = useWalletStore((state) => state.masterBlindingKey);
+  const resetWalletStore = useWalletStore((state) => state.resetWalletStore);
+  const sync = useWalletStore((state) => state.sync);
+  const computeBalances = useWalletStore((state) => state.computeBalances);
+  const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
   //
   const refreshProviders = useRefreshProviders();
 
@@ -56,47 +58,37 @@ const Network = (): JSX.Element => {
       const networkValue = ev.detail.value;
       setNetwork(networkValue);
       // We set explorer endpoints to Mempool. User can then adjust favorite endpoints in Explorer setting screen.
-      if (network === 'liquid') {
+      if (networkValue === 'liquid') {
         setExplorerLiquidAPI(mempoolExplorerEndpoints.liquid.explorerLiquidAPI);
         setExplorerLiquidUI(mempoolExplorerEndpoints.liquid.explorerLiquidUI);
         setExplorerBitcoinAPI(mempoolExplorerEndpoints.liquid.explorerBitcoinAPI);
         setExplorerBitcoinUI(mempoolExplorerEndpoints.liquid.explorerBitcoinUI);
+        setWebsocketExplorerURL(mempoolExplorerEndpoints.liquid.websocketExplorerURL);
         setElectrsBatchApi(configProduction.explorers.electrsBatchAPI);
         setDefaultProvider(defaultProviderEndpoints.liquid);
-      } else if (network === 'testnet') {
+      } else if (networkValue === 'testnet') {
         setExplorerLiquidAPI(mempoolExplorerEndpoints.testnet.explorerLiquidAPI);
         setExplorerLiquidUI(mempoolExplorerEndpoints.testnet.explorerLiquidUI);
         setExplorerBitcoinAPI(mempoolExplorerEndpoints.testnet.explorerBitcoinAPI);
         setExplorerBitcoinUI(mempoolExplorerEndpoints.testnet.explorerBitcoinUI);
+        setWebsocketExplorerURL(mempoolExplorerEndpoints.testnet.websocketExplorerURL);
         setElectrsBatchApi(configTestnet.explorers.electrsBatchAPI);
         setDefaultProvider(defaultProviderEndpoints.testnet);
       } else {
-        setExplorerLiquidAPI('http://localhost:3001');
-        setExplorerBitcoinAPI('http://localhost:3000');
-        setExplorerBitcoinUI('http://localhost:5000');
-        setExplorerLiquidUI('http://localhost:5001');
+        setExplorerLiquidAPI(configRegtest.explorers.explorerLiquidAPI);
+        setExplorerBitcoinAPI(configRegtest.explorers.explorerBitcoinAPI);
+        setExplorerBitcoinUI(configRegtest.explorers.explorerBitcoinUI);
+        setExplorerLiquidUI(configRegtest.explorers.explorerLiquidUI);
+        setWebsocketExplorerURL(configRegtest.explorers.websocketExplorerURL);
         setElectrsBatchApi(configRegtest.explorers.electrsBatchAPI);
         setDefaultProvider(defaultProviderEndpoints.regtest);
       }
       await refreshProviders();
       resetAssets(networkValue);
-      // clearAddresses();
-      // resetUtxos();
-      // resetTransactionReducer();
-      // resetBtcReducer();
-      /*
-      const masterPubKeyIdentity = new MasterPublicKey({
-        chain: network,
-        type: IdentityType.MasterPublicKey,
-        opts: {
-          masterPublicKey: masterPubKey,
-          masterBlindingKey: masterBlindKey,
-          baseDerivationPath: network === 'liquid' ? BASE_DERIVATION_PATH_MAINNET_LEGACY : BASE_DERIVATION_PATH_TESTNET,
-        },
-        ecclib: ecc,
-      });
-       */
-      // signIn(masterPubKeyIdentity);
+      resetWalletStore();
+      await sync();
+      await subscribeAllScripts();
+      await computeBalances();
       addSuccessToast(`Network and explorer endpoints successfully updated`);
     } catch (err) {
       console.error(err);

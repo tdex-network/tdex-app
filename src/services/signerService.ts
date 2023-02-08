@@ -1,14 +1,16 @@
 import type { BIP32Interface } from 'bip32';
 import { BIP32Factory } from 'bip32';
 import { mnemonicToSeed } from 'bip39';
-import { Pset, Signer, Transaction, script as bscript, Finalizer, Extractor } from 'liquidjs-lib';
+import { Extractor, Finalizer, Pset, script as bscript, Signer, Transaction } from 'liquidjs-lib';
 import * as ecc from 'tiny-secp256k1';
 
+import { useSettingsStore } from '../store/settingsStore';
+import type { ScriptDetails } from '../store/walletStore';
 import { useWalletStore } from '../store/walletStore';
+import { getBaseDerivationPath } from '../utils/constants';
 import { decrypt } from '../utils/crypto';
 
 const bip32 = BIP32Factory(ecc);
-const sigValidator = Pset.ECDSASigValidator(ecc);
 
 export class SignerService {
   private masterNode: BIP32Interface;
@@ -26,17 +28,34 @@ export class SignerService {
   }
 
   async signPset(pset: Pset): Promise<string> {
-    const scriptDetails = useWalletStore.getState().scriptDetails;
+    const inputsScripts = pset.inputs
+      .map((input) => input.witnessUtxo?.script)
+      .filter((script): script is Buffer => !!script)
+      .map((script) => script.toString('hex'));
+
+    let scriptsDetailsInputs: Record<string, ScriptDetails> = {};
+    for (const script of inputsScripts) {
+      const scriptDetails = useWalletStore.getState().scriptDetails[script];
+      if (scriptDetails) {
+        scriptsDetailsInputs[script] = scriptDetails;
+      }
+    }
+
     const signer = new Signer(pset);
+
     for (const [index, input] of signer.pset.inputs.entries()) {
       const script = input.witnessUtxo?.script;
       if (!script) continue;
-      if (!scriptDetails || !scriptDetails.derivationPath) continue;
-      const key = this.masterNode
-        .derivePath('0')
-        .derivePath(scriptDetails[script.toString('hex')].derivationPath?.replace('m/', '')!);
-      const sighash = input.sighashType || Transaction.SIGHASH_ALL;
+      const scriptDetailsInput = scriptsDetailsInputs[script.toString('hex')];
+      if (!scriptDetailsInput || !scriptDetailsInput.derivationPath) continue;
+      console.log(
+        "scriptDetailsInput.derivationPath.replace('m/', '')",
+        scriptDetailsInput.derivationPath.replace('m/', '')
+      );
+      const key = this.masterNode.derivePath(scriptDetailsInput.derivationPath.replace('m/', ''));
+      const sighash = input.sighashType || Transaction.SIGHASH_ALL; // '||' lets to overwrite SIGHASH_DEFAULT (0x00)
       const signature = key.sign(pset.getInputPreimage(index, sighash));
+      console.log('key.publicKey', key.publicKey);
       signer.addSignature(
         index,
         {
@@ -45,7 +64,7 @@ export class SignerService {
             signature: bscript.signature.encode(signature, sighash),
           },
         },
-        sigValidator
+        Pset.ECDSASigValidator(ecc)
       );
     }
     return signer.pset.toBase64();
@@ -53,7 +72,9 @@ export class SignerService {
 
   finalizeAndExtract(psetBase64: string): string {
     const pset = Pset.fromBase64(psetBase64);
+    console.log('pset', pset);
     const finalizer = new Finalizer(pset);
+    debugger;
     finalizer.finalize();
     return Extractor.extract(finalizer.pset).toHex();
   }

@@ -1,4 +1,3 @@
-import { BIP32Interface } from 'bip32';
 import { crypto } from 'liquidjs-lib';
 
 import type { ElectrumWS } from './ws/ws-electrs';
@@ -12,13 +11,13 @@ export interface ChainSource {
 
   fetchTransactions(txids: string[]): Promise<{ txid: string; hex: string }[]>;
 
-  fetchUnspentOutputs(scripts: Buffer[]): Promise<ListUnspentResponse[]>;
-
   fetchBlockHeader(height: number): Promise<BlockHeader>;
 
   estimateFees(targetNumberBlocks: number): Promise<number>;
 
   broadcastTransaction(hex: string): Promise<string>;
+
+  getRelayFee(): Promise<number>;
 }
 
 export type GetHistoryResponse = {
@@ -30,7 +29,6 @@ export type ListUnspentResponse = {
   tx_hash: string;
   tx_pos: number;
   height: number; // if 0 = unconfirmed
-  value: number;
 }[];
 
 export interface BlockHeader {
@@ -77,21 +75,14 @@ const EstimateFee = 'blockchain.estimatefee'; // returns fee rate in sats/kBytes
 const GetBlockHeader = 'blockchain.block.header'; // returns block header as hex string
 const GetHistoryMethod = 'blockchain.scripthash.get_history';
 const GetTransactionMethod = 'blockchain.transaction.get';
-const ListUnspentMethod = 'blockchain.scripthash.listunspent'; // returns array of Outpoint
 const SubscribeStatusMethod = 'blockchain.scripthash'; // ElectrumWS automatically adds '.subscribe'
+const GetRelayFeeMethod = 'blockchain.relayfee';
 
 export class WsElectrumChainSource implements ChainSource {
   private ws: ElectrumWS;
 
   constructor(ws: ElectrumWS) {
     this.ws = ws;
-  }
-
-  async fetchUnspentOutputs(scripts: Buffer[]): Promise<ListUnspentResponse[]> {
-    const scriptsHashes = scripts.map(toScriptHash);
-    return this.ws.batchRequest<ListUnspentResponse[]>(
-      ...scriptsHashes.map((s) => ({ method: ListUnspentMethod, params: [s] }))
-    );
   }
 
   async fetchTransactions(txids: string[]): Promise<{ txid: string; hex: string }[]> {
@@ -131,6 +122,10 @@ export class WsElectrumChainSource implements ChainSource {
 
   async broadcastTransaction(hex: string): Promise<string> {
     return this.ws.request<string>(BroadcastTransaction, hex);
+  }
+
+  async getRelayFee(): Promise<number> {
+    return this.ws.request<number>(GetRelayFeeMethod);
   }
 }
 

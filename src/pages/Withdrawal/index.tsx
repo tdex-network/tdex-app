@@ -11,7 +11,6 @@ import {
   useIonViewDidLeave,
 } from '@ionic/react';
 import Decimal from 'decimal.js';
-import { address, Creator, networks, Updater } from 'liquidjs-lib';
 import React, { useEffect, useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import { useParams } from 'react-router';
@@ -22,6 +21,7 @@ import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import WithdrawRow from '../../components/WithdrawRow';
 import { IconQR } from '../../components/icons';
+import { BlinderService } from '../../services/blinderService';
 import { WsElectrumChainSource } from '../../services/chainSource';
 import { SignerService } from '../../services/signerService';
 import { ElectrumWS } from '../../services/ws/ws-electrs';
@@ -36,8 +36,9 @@ import type { LbtcDenomination, NetworkString } from '../../utils/constants';
 import { LBTC_ASSET, PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { decrypt } from '../../utils/crypto';
 import { IncorrectPINError, WithdrawTxError } from '../../utils/errors';
-import { fromLbtcToUnit, fromSatoshi, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
+import { fromLbtcToUnit, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
+import { makeSendPset } from '../../utils/transaction';
 
 type LocationState = {
   address: string;
@@ -57,8 +58,6 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const balances = useWalletStore((state) => state.balances);
   const encryptedMnemonic = useWalletStore((state) => state.encryptedMnemonic);
-  const getNextAddress = useWalletStore((state) => state.getNextAddress);
-  const selectUtxos = useWalletStore((state) => state.selectUtxos);
   //
   const { asset_id } = useParams<{ asset_id: string }>();
   const [amount, setAmount] = useState<string>('');
@@ -84,13 +83,7 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
   useEffect(() => {
     try {
       if (!balances?.[asset_id]) return;
-      if (
-        fromSatoshi(
-          balances[asset_id].value.toString(),
-          assets[asset_id].precision,
-          isLbtc(asset_id, network) ? lbtcUnit : undefined
-        ).lessThan(amount || '0')
-      ) {
+      if (balances[asset_id].value < Number(amount)) {
         setError('Amount is greater than your balance');
         return;
       }
@@ -139,123 +132,21 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
       } catch (_) {
         throw IncorrectPINError;
       }
-      // Craft single recipient Pset v2
-      const pset = Creator.newPset();
-      const coinSelection = await selectUtxos([getRecipient()], true);
-      const updater = new Updater(pset);
-      // Update tx
-      // get the witness utxos from repository
-      /*
-      const witnessUtxos = await Promise.all(
-        coinSelection.utxos.map((utxo) => {
-          return getWitnessUtxo(utxo.txid, utxo.vout);
-        })
-      );
-      updater.addInputs(
-        coinSelection.utxos.map((utxo, i) => ({
-          txid: utxo.txid,
-          txIndex: utxo.vout,
-          sighashType: Transaction.SIGHASH_ALL,
-          witnessUtxo: witnessUtxos[i],
-        }))
-      );
-      */
-      updater.addOutputs([
-        {
-          asset: getRecipient().asset,
-          amount: getRecipient().value,
-          script: address.toOutputScript(getRecipient()?.address ?? '', networks[network]),
-          blinderIndex: 0,
-          blindingPublicKey: address.fromConfidential(getRecipient()?.address ?? '').blindingKey,
-        },
-      ]);
-      if (coinSelection.changeOutputs && coinSelection.changeOutputs.length > 0) {
-        const changeScriptDetail = await getNextAddress(true);
-        updater.addOutputs([
-          {
-            asset: coinSelection.changeOutputs[0].asset,
-            amount: coinSelection.changeOutputs[0].amount,
-            script: Buffer.from(changeScriptDetail.script, 'hex'),
-            blinderIndex: 0,
-            blindingPublicKey: changeScriptDetail.blindingPublicKey
-              ? Buffer.from(changeScriptDetail.blindingPublicKey, 'hex')
-              : undefined,
-          },
-        ]);
-      }
-
-      const feeAmount = 360;
-      //const millisatoshiPerByte = 110;
-      // const size = updater.pset.estimateVirtualSize();
-      //console.log(size);
-      //const feeAmount = Math.ceil(updater.pset.estimateVirtualSize() * (millisatoshiPerByte / 1000));
-
-      if (getRecipient().asset === networks[network].assetHash && updater.pset.outputs.length > 1) {
-        // subtract fee from change output
-        updater.pset.outputs[1].value = updater.pset.outputs[1].value - feeAmount;
-      } else {
-        // reselect
-        const newCoinSelection = await selectUtxos([{ asset: networks[network].assetHash, value: feeAmount }], true);
-        /*
-        const newWitnessUtxos = await Promise.all(
-          newCoinSelection.utxos.map((utxo) => getWitnessUtxo(utxo.txid, utxo.vout))
-        );
-        updater.addInputs(
-          newCoinSelection.utxos.map((utxo, i) => ({
-            txid: utxo.txid,
-            txIndex: utxo.vout,
-            sighashType: Transaction.SIGHASH_ALL,
-            witnessUtxo: newWitnessUtxos[i],
-          }))
-        );
-        */
-        if (newCoinSelection.changeOutputs && newCoinSelection.changeOutputs.length > 0) {
-          const changeScriptDetail = await getNextAddress(true);
-          updater.addOutputs([
-            {
-              asset: newCoinSelection.changeOutputs[0].asset,
-              amount: newCoinSelection.changeOutputs[0].amount,
-              script: Buffer.from(changeScriptDetail.script, 'hex'),
-              blinderIndex: 0,
-              blindingPublicKey: changeScriptDetail.blindingPublicKey
-                ? Buffer.from(changeScriptDetail.blindingPublicKey, 'hex')
-                : undefined,
-            },
-          ]);
-        }
-        // add the fee output
-        updater.addOutputs([
-          {
-            asset: networks[network].assetHash,
-            amount: feeAmount,
-          },
-        ]);
-      }
-
-      // setFeeStr(fromSatoshiStr(feeAmount, 8) + ' L-BTC');
-
-      // blind all the outputs except fee
-      /*
-      const recipientData = address.fromConfidential(recipientAddress);
-      const recipientScript = address.toOutputScript(recipientData.unconfidentialAddress);
-      const outputsToBlind: number[] = [];
-      const blindKeyMap = new Map<number, string>();
-      psetToUnsignedTx(withdrawPset).outs.forEach((out, index) => {
-        if (out.script.length === 0) return;
-        outputsToBlind.push(index);
-        if (out.script.equals(recipientScript)) blindKeyMap.set(index, recipientData.blindingKey.toString('hex'));
-      });
-      const blindedPset = await blindPset(withdrawPset, outputsToBlind, blindKeyMap);
-      */
-
+      const { pset } = await makeSendPset([getRecipient()], LBTC_ASSET[network].assetHash);
+      console.log('pset', pset);
+      const blinder = new BlinderService();
+      const blindedPset = await blinder.blindPset(pset);
       const signer = await SignerService.fromPin(pin);
-      const signedPset = await signer.signPset(updater.pset);
+      const signedPset = await signer.signPset(blindedPset);
+      console.log('signedPset', signedPset);
       const toBroadcast = signer.finalizeAndExtract(signedPset);
+      console.log('toBroadcast', toBroadcast);
       // Broadcast tx
       const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
       const client = new ElectrumWS(websocketExplorerURL);
       const chainSource = new WsElectrumChainSource(client);
       const txid = await chainSource.broadcastTransaction(toBroadcast);
+      console.log('txid', txid);
       //
       addSuccessToast(`Transaction broadcasted. ${amount} ${assets[asset_id]?.ticker} sent.`);
       // watchTransaction(txid);

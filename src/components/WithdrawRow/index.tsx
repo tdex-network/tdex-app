@@ -1,3 +1,4 @@
+import './style.scss';
 import type { InputChangeEventDetail } from '@ionic/core/components';
 import { IonIcon, IonInput, IonText } from '@ionic/react';
 import classNames from 'classnames';
@@ -7,8 +8,10 @@ import React, { useCallback, useEffect, useState } from 'react';
 
 import type { Asset } from '../../store/assetStore';
 import { useSettingsStore } from '../../store/settingsStore';
-import type { Balance } from '../../store/walletStore';
+import type { Balance , CoinGeckoPriceResult } from '../../store/walletStore';
+import { axiosCoinGeckoObject } from '../../store/walletStore';
 import type { NetworkString } from '../../utils/constants';
+import { LBTC_COINGECKOID } from '../../utils/constants';
 import { isLbtc, isLbtcTicker } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
 import { onPressEnterKeyCloseKeyboard, setAccessoryBar } from '../../utils/keyboard';
@@ -24,7 +27,7 @@ interface WithdrawRowProps {
 }
 
 const WithdrawRow: React.FC<WithdrawRowProps> = ({ amount, asset, balance, setAmount, error, network }) => {
-  const currencyValue = useSettingsStore((state) => state.currency.ticker);
+  const favoriteCurrencyTicker = useSettingsStore((state) => state.currency.ticker);
   const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
   const [residualBalance, setResidualBalance] = useState<number>(balance.value);
   const [fiat, setFiat] = useState<string>('0.00');
@@ -44,7 +47,7 @@ const WithdrawRow: React.FC<WithdrawRowProps> = ({ amount, asset, balance, setAm
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleInputChange = (e: CustomEvent<InputChangeEventDetail>) => {
+  const handleInputChange = async (e: CustomEvent<InputChangeEventDetail>) => {
     if (!e.detail.value || e.detail.value === '0') {
       reset();
       return;
@@ -60,10 +63,24 @@ const WithdrawRow: React.FC<WithdrawRowProps> = ({ amount, asset, balance, setAm
         useGrouping: false,
       })
     );
+    // Fetch fiat prices
+    const { data, status } = await axiosCoinGeckoObject.get<CoinGeckoPriceResult>('/simple/price', {
+      params: {
+        ids: `${LBTC_COINGECKOID}`,
+        vs_currencies: 'usd,cad,eur',
+      },
+    });
+    if (status !== 200) {
+      console.error('CoinGecko price fetching failed');
+    } else {
+      const rate = data[LBTC_COINGECKOID][favoriteCurrencyTicker];
+      const fiatAmount = (rate * +sanitizedValue).toFixed(2);
+      setFiat(fiatAmount);
+    }
   };
 
   return (
-    <div className="exchange-coin-container">
+    <div className="withdraw-coin-container">
       <div className="exchanger-row">
         <div className="coin-name">
           <span className="icon-wrapper">
@@ -113,7 +130,7 @@ const WithdrawRow: React.FC<WithdrawRowProps> = ({ amount, asset, balance, setAm
             <IonText color="danger">{error}</IonText>
           ) : (
             <span>
-              {fiat} {currencyValue?.toUpperCase()}
+              {fiat} {favoriteCurrencyTicker?.toUpperCase()}
             </span>
           )}
         </span>

@@ -59,8 +59,8 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const encryptedMnemonic = useWalletStore((state) => state.encryptedMnemonic);
-  const lastUsedExternalIndex = useWalletStore((state) => state.lastUsedExternalIndex);
-  const lastUsedInternalIndex = useWalletStore((state) => state.lastUsedInternalIndex);
+  const nextExternalIndex = useWalletStore((state) => state.nextExternalIndex);
+  const nextInternalIndex = useWalletStore((state) => state.nextInternalIndex);
   const utxos = useWalletStore((state) => state.utxos);
   //
   const [tdexOrderInputResult, setTdexOrderInputResult] = useState<TdexOrderInputResult>();
@@ -179,7 +179,7 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
         setIsWrongPin(null);
         setNeedReset(true);
       }, PIN_TIMEOUT_SUCCESS);
-      // return mnemonicRestorerFromState(toRestore)({ lastUsedExternalIndex, lastUsedInternalIndex });
+      // return mnemonicRestorerFromState(toRestore)({ nextExternalIndex, nextInternalIndex });
     } catch {
       throw IncorrectPINError;
     }

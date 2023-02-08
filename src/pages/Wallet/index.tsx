@@ -39,16 +39,9 @@ export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
   const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
   const network = useSettingsStore((state) => state.network);
   const balances = useWalletStore((state) => state.balances);
-  const computeBalances = useWalletStore((state) => state.computeBalances);
   const totalLbtc = useWalletStore((state) => state.totalBtc);
   //
   const [balancesSorted, setBalancesSorted] = useState<[string, Balance][]>([]);
-
-  useEffect(() => {
-    (async () => {
-      await computeBalances();
-    })();
-  }, [computeBalances]);
 
   useEffect(() => {
     const balancesToDisplay: [string, Balance][] = [];
@@ -143,7 +136,7 @@ export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
                         </span>
                       </div>
                       <div className="amount-fiat">
-                        ${balance.counterValue?.toFixed(2)} ${currency.name.toUpperCase()}
+                        {balance.counterValue?.toFixed(2)} {currency.ticker.toUpperCase()}
                       </div>
                     </div>
                   </div>

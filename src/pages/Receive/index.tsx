@@ -43,7 +43,6 @@ export const Receive: React.FC = () => {
   const network = useSettingsStore((state) => state.network);
   const addScriptDetails = useWalletStore((state) => state.addScriptDetails);
   const getNextAddress = useWalletStore((state) => state.getNextAddress);
-  const sync = useWalletStore((state) => state.sync);
   //
   const [copied, setCopied] = useState(false);
   const [address, setAddress] = useState<string>();
@@ -53,8 +52,6 @@ export const Receive: React.FC = () => {
   useIonViewWillEnter(async () => {
     try {
       setLoading(true);
-      // Restore
-      sync(20);
       const scriptDetail = await getNextAddress(false);
       addScriptDetails(scriptDetail);
       if (state?.depositAsset?.ticker === BTC_TICKER) {

@@ -7,8 +7,6 @@ import logo from '../../assets/img/tdex_3d_logo.svg';
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
-import { useAppStore } from '../../store/appStore';
-import { useSettingsStore } from '../../store/settingsStore';
 import { useToastStore } from '../../store/toastStore';
 import { useWalletStore } from '../../store/walletStore';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
@@ -16,8 +14,6 @@ import { IncorrectPINError } from '../../utils/errors';
 import { setKeyboardTheme } from '../../utils/keyboard';
 
 const Homescreen: React.FC = () => {
-  const isAppInitialized = useAppStore((state) => state.isAppInitialized);
-  const network = useSettingsStore((state) => state.network);
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   const decryptMnemonic = useWalletStore((state) => state.decryptMnemonic);
   //
@@ -29,7 +25,7 @@ const Homescreen: React.FC = () => {
 
   const onConfirmPinModal = (pin: string) => {
     try {
-      const mnemonic = decryptMnemonic(pin);
+      decryptMnemonic(pin);
       setLoadingMessage('Unlocking wallet...');
       setLoading(true);
       setIsWrongPin(false);

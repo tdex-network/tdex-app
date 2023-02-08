@@ -141,3 +141,13 @@ export function getIndexAndIsChangeFromAddress(addr: ScriptDetails): {
 export function outpointToString(outpoint: Outpoint): string {
   return `${outpoint.txid}:${outpoint.vout}`;
 }
+
+const emptyNonce: Buffer = Buffer.from('0x00', 'hex');
+
+function bufferNotEmptyOrNull(buffer?: Buffer): boolean {
+  return buffer != null && buffer.length > 0;
+}
+
+export function isConfidentialOutput({ rangeProof, surjectionProof, nonce }: any): boolean {
+  return bufferNotEmptyOrNull(rangeProof) && bufferNotEmptyOrNull(surjectionProof) && nonce !== emptyNonce;
+}

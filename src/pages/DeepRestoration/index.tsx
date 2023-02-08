@@ -1,22 +1,22 @@
-import type { RangeValue, RangeChangeEventDetail } from '@ionic/core/components';
-import { IonButton, IonCol, IonContent, IonGrid, IonItem, IonPage, IonRange, IonRow } from '@ionic/react';
-import React, { useState } from 'react';
+import type {RangeValue, RangeChangeEventDetail} from '@ionic/core/components';
+import {IonButton, IonCol, IonContent, IonGrid, IonItem, IonPage, IonRange, IonRow} from '@ionic/react';
+import React, {useState} from 'react';
 
 import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
-import { useSettingsStore } from '../../store/settingsStore';
-import { useToastStore } from '../../store/toastStore';
-import { useWalletStore } from '../../store/walletStore';
-import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
-import { DeepRestorationError, IncorrectPINError } from '../../utils/errors';
+import {useToastStore} from '../../store/toastStore';
+import {useWalletStore} from '../../store/walletStore';
+import {PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS} from '../../utils/constants';
+import {DeepRestorationError, IncorrectPINError} from '../../utils/errors';
 
 const DeepRestoration: React.FC = () => {
-  const explorerLiquidAPI = useSettingsStore((state) => state.explorerLiquidAPI);
-  const network = useSettingsStore((state) => state.network);
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const decryptMnemonic = useWalletStore((state) => state.decryptMnemonic);
+  const resetWalletStore = useWalletStore((state) => state.resetWalletStore);
+  const sync = useWalletStore((state) => state.sync);
+  const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
   //
   const [rangeValue, setRangeValue] = useState<RangeValue>(20);
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
@@ -48,12 +48,11 @@ const DeepRestoration: React.FC = () => {
 
   const handleRestoration = async (mnemonic: string) => {
     try {
-      /*
-      await mnemonicRestorerFromEsplora(identity)({
-        gapLimit: Number(rangeValue),
-        esploraURL: explorerLiquidAPI,
-      });
-      */
+      resetWalletStore();
+      await sync(Number(rangeValue));
+      // each script with history re-trigger updateTxsAndUtxosFromScripts but processing is skipped if script already in store
+      // then computeBalances is triggered
+      await subscribeAllScripts();
       addSuccessToast('Account discovery successful');
     } catch (err) {
       console.error(err);
@@ -65,7 +64,7 @@ const DeepRestoration: React.FC = () => {
 
   return (
     <IonPage id="deep-restoration-page">
-      <Loader message="Scanning..." showLoading={isLoading} />
+      <Loader message="Scanning..." showLoading={isLoading}/>
       <PinModal
         needReset={needReset}
         setNeedReset={setNeedReset}
@@ -79,7 +78,7 @@ const DeepRestoration: React.FC = () => {
       />
       <IonContent>
         <IonGrid className="ion-text-center ion-justify-content-center">
-          <Header hasBackButton={true} title="DEEP RESTORATION" />
+          <Header hasBackButton={true} title="DEEP RESTORATION"/>
           <IonRow className="ion-margin-vertical">
             <IonCol offset="1" size="10">
               <p>Choose the gap limit for the account discovery</p>

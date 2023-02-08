@@ -1,4 +1,4 @@
-import { IonContent, IonModal, useIonViewWillEnter, useIonViewWillLeave, IonGrid } from '@ionic/react';
+import { IonContent, IonGrid, IonModal, useIonViewWillEnter, useIonViewWillLeave } from '@ionic/react';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import { useToastStore } from '../../store/toastStore';
@@ -39,6 +39,7 @@ const PinModal: React.FC<PinModalProps> = ({
   const [pin, setPin] = useState('');
   const [isPinInputLocked, setIsPinInputLocked] = useState<boolean>(false);
   const inputRef = useRef<any>(null);
+  const modalRef = useRef<any>(null);
 
   const handleConfirm = useCallback(() => {
     const validRegexp = new RegExp('\\d{6}');
@@ -62,6 +63,13 @@ const PinModal: React.FC<PinModalProps> = ({
       inputRef.current.setFocus();
     }
   };
+
+  // Force dismiss modal when unmounting
+  useEffect(() => {
+    const ref = modalRef.current;
+    return () => ref.dismiss();
+  }, []);
+
   useIonViewWillEnter(() => {
     document.body.addEventListener('click', handleClick);
   });
@@ -90,6 +98,7 @@ const PinModal: React.FC<PinModalProps> = ({
 
   return (
     <IonModal
+      ref={modalRef}
       id="pin-modal"
       animated={false}
       className="modal-big"

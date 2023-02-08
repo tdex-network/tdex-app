@@ -1,8 +1,10 @@
+import axios from 'axios';
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
 import type { NetworkString } from '../utils/constants';
-import { MAIN_ASSETS } from '../utils/constants';
+import { defaultPrecision, LBTC_ASSET, MAIN_ASSETS, USDT_ASSET } from '../utils/constants';
+import { isLbtc, isUsdt } from '../utils/helpers';
 
 import { storage } from './capacitorPersistentStorage';
 import { useSettingsStore } from './settingsStore';
@@ -20,6 +22,7 @@ export interface AssetState {
 }
 
 interface AssetActions {
+  fetchAndStoreAssetData: (assetHash: string) => Promise<Asset | undefined>;
   setAsset: (asset: Asset) => void;
   resetAssets: (network: NetworkString) => void;
 }
@@ -39,6 +42,28 @@ export const useAssetStore = create<AssetState & AssetActions>()(
     persist(
       (set) => ({
         assets: initialAssets(network),
+        fetchAndStoreAssetData: async (assetHash: string) => {
+          let precision, ticker, name;
+          try {
+            // Return constants to include coinGeckoID field
+            if (isLbtc(assetHash, network)) return LBTC_ASSET[network];
+            if (isUsdt(assetHash, network)) return USDT_ASSET[network];
+            const res = (await axios.get(`${useSettingsStore.getState().explorerLiquidAPI}/asset/${assetHash}`)).data;
+            precision = res.precision;
+            ticker = res.ticker;
+            name = res.name;
+          } catch (err) {
+            console.error(err);
+          } finally {
+            const assetData = {
+              assetHash,
+              precision: precision ?? defaultPrecision,
+              ticker: ticker || assetHash.slice(0, 4).toUpperCase(),
+              name: name ?? 'Unknown',
+            };
+            set({ assets: { [assetHash]: assetData } }, false, 'fetchAndStoreAssetData');
+          }
+        },
         setAsset: (asset) => set({ assets: { [asset.assetHash]: asset } }, false, 'setAsset'),
         resetAssets: (network: NetworkString) => set({ assets: initialAssets(network) }, false, 'resetAssets'),
       }),

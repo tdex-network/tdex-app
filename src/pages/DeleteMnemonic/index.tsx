@@ -14,7 +14,6 @@ interface LocationState {
 
 const DeleteMnemonic: React.FC<RouteComponentProps> = ({ history }) => {
   const decryptMnemonic = useWalletStore((state) => state.decryptMnemonic);
-  const setEncryptedMnemonic = useWalletStore((state) => state.setEncryptedMnemonic);
   //
   const { state } = useLocation<LocationState>();
   const [isLoading, setIsLoading] = useState(false);

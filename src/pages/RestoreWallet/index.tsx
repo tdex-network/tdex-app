@@ -1,43 +1,33 @@
 import './style.scss';
-import { IonButton, IonCol, IonContent, IonGrid, IonInput, IonPage, IonRow } from '@ionic/react';
-import BIP32Factory from 'bip32';
+import {IonButton, IonCol, IonContent, IonGrid, IonInput, IonPage, IonRow} from '@ionic/react';
 import * as bip39 from 'bip39';
-import { mnemonicToSeedSync } from 'bip39';
 import classNames from 'classnames';
-import React, { useState } from 'react';
-import type { RouteComponentProps } from 'react-router';
-import { SLIP77Factory } from 'slip77';
-import * as ecc from 'tiny-secp256k1';
+import React, {useState} from 'react';
+import type {RouteComponentProps} from 'react-router';
 
 import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import PinModal from '../../components/PinModal';
-import { useFocus } from '../../hooks/useFocus';
-import { useMnemonic } from '../../hooks/useMnemonic';
-import { useAppStore } from '../../store/appStore';
-import { useSettingsStore } from '../../store/settingsStore';
-import { useToastStore } from '../../store/toastStore';
-import { useWalletStore } from '../../store/walletStore';
-import { getBaseDerivationPath, PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
-import { encrypt } from '../../utils/crypto';
-import type { AppError } from '../../utils/errors';
-import { InvalidMnemonicError, PINsDoNotMatchError } from '../../utils/errors';
-import { onPressEnterKeyFactory } from '../../utils/keyboard';
+import {useFocus} from '../../hooks/useFocus';
+import {useMnemonic} from '../../hooks/useMnemonic';
+import {useAppStore} from '../../store/appStore';
+import {useToastStore} from '../../store/toastStore';
+import {useWalletStore} from '../../store/walletStore';
+import {PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS} from '../../utils/constants';
+import type {AppError} from '../../utils/errors';
+import {InvalidMnemonicError, PINsDoNotMatchError} from '../../utils/errors';
+import {onPressEnterKeyFactory} from '../../utils/keyboard';
 
-const bip32 = BIP32Factory(ecc);
-const slip77 = SLIP77Factory(ecc);
-
-export const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
+export const RestoreWallet: React.FC<RouteComponentProps> = ({history}) => {
   const setIsBackupDone = useAppStore((state) => state.setIsBackupDone);
-  const network = useSettingsStore((state) => state.network);
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
-  const addScriptDetails = useWalletStore((state) => state.addScriptDetails);
-  const setEncryptedMnemonic = useWalletStore((state) => state.setEncryptedMnemonic);
+  const setMnemonicEncrypted = useWalletStore((state) => state.setMnemonicEncrypted);
   const setIsAuthorized = useWalletStore((state) => state.setIsAuthorized);
-  const setMasterBlindingKey = useWalletStore((state) => state.setMasterBlindingKey);
-  const setMasterPublicKey = useWalletStore((state) => state.setMasterPublicKey);
+  const generateMasterKeys = useWalletStore((state) => state.generateMasterKeys);
+  const sync = useWalletStore((state) => state.sync);
+  const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
   //
   const [mnemonic, setMnemonicWord] = useMnemonic();
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
@@ -71,34 +61,20 @@ export const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
     if (newPin === firstPin) {
       setLoading(true);
       const mnemonicStr = mnemonic.join(' ');
-      const encryptedMnemonic = await encrypt(mnemonicStr, newPin);
-      setEncryptedMnemonic(encryptedMnemonic);
-      setIsBackupDone(true);
+      setMnemonicEncrypted(mnemonicStr, newPin);
       addSuccessToast('Mnemonic generated and encrypted with your PIN.');
       setIsWrongPin(false);
+      setIsBackupDone(true);
+      setIsAuthorized(true);
+      generateMasterKeys(mnemonicStr);
+      await sync();
+      // each script with history re-trigger updateTxsAndUtxosFromScripts but processing is skipped if script already in store
+      // then computeBalances is triggered
+      await subscribeAllScripts();
       setTimeout(() => {
         setModalOpen(undefined);
         setIsWrongPin(null);
         setLoading(false);
-        setIsAuthorized(true); // will cause redirect to /wallet
-        const seed = mnemonicToSeedSync(mnemonicStr);
-        const masterPublicKey = bip32.fromSeed(seed).derivePath(getBaseDerivationPath(network)).neutered().toBase58();
-        setMasterPublicKey(masterPublicKey);
-        const masterBlindingKey = slip77.fromSeed(seed).masterKey.toString('hex');
-        setMasterBlindingKey(masterBlindingKey);
-        // Restore state
-        // restoreFromMnemonic / restorerFromEsplora
-        //addScriptDetails({confidentialAddress: ''})
-        // identity.getAddresses()
-        // yield put(addScriptDetails(addr));
-        /*yield all([
-          put(watchCurrentBtcBlockHeight()),
-          put(updateDepositPeginUtxos()),
-          put(checkIfClaimablePeginUtxo()),
-          put(updateTransactions()),
-          put(updatePrices()),
-          put(updateUtxos()),
-        ])*/
       }, PIN_TIMEOUT_SUCCESS);
     } else {
       onError(PINsDoNotMatchError);
@@ -122,7 +98,7 @@ export const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
 
   return (
     <IonPage>
-      <Loader showLoading={loading} />
+      <Loader showLoading={loading}/>
       <PinModal
         open={modalOpen === 'first' || modalOpen === 'second'}
         title={modalOpen === 'first' ? 'Set your secret PIN' : 'Repeat your secret PIN'}
@@ -135,15 +111,15 @@ export const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
         onClose={
           modalOpen === 'first'
             ? () => {
-                setModalOpen(undefined);
-                history.goBack();
-              }
+              setModalOpen(undefined);
+              history.goBack();
+            }
             : () => {
-                setModalOpen('first');
-                setNeedReset(true);
-                setFirstPin('');
-                setIsWrongPin(null);
-              }
+              setModalOpen('first');
+              setNeedReset(true);
+              setFirstPin('');
+              setIsWrongPin(null);
+            }
         }
         isWrongPin={isWrongPin}
         needReset={needReset}
@@ -152,7 +128,7 @@ export const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
       />
       <IonContent className="restore-wallet">
         <IonGrid className="ion-text-center">
-          <Header hasBackButton={true} title="SECRET PHRASE" />
+          <Header hasBackButton={true} title="SECRET PHRASE"/>
           <PageDescription
             centerDescription={true}
             description="Paste your 12 words recovery phrase in the correct order"
