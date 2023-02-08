@@ -390,16 +390,21 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           );
         },
         deriveBatch: async (start: number, end: number, isInternal: boolean, updateStore = true) => {
+          // TODO: improve this
           const network = useSettingsStore.getState().network;
           const node = bip32.fromBase58(get().masterPublicKey);
           const chain = isInternal ? 1 : 0;
           let scriptDetails = get().scriptDetails;
           const scripts: Buffer[] = [];
           let p2wpkhPayment: Payment;
+          let p2wpkhPayments: Payment[] = [];
           let child: BIP32Interface;
+          let childs: BIP32Interface[] = [];
           for (let i = start; i < end; i++) {
             child = node.derive(chain).derive(i);
+            childs.push(node.derive(chain).derive(i));
             p2wpkhPayment = payments.p2wpkh({ pubkey: child.publicKey, network: networks[network] });
+            p2wpkhPayments.push(p2wpkhPayment);
             const script = p2wpkhPayment.output;
             if (!script) continue;
             scripts.push(script);
@@ -409,15 +414,14 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               const { publicKey: blindingPublicKeyBuffer, privateKey: blindingPrivateKeyBuffer } =
                 get().deriveBlindingKey(script);
               if (!blindingPrivateKeyBuffer) throw new Error('Could not derive blinding key');
+              if (!p2wpkhPayments[index]?.address) throw new Error('Could not derive address');
               scriptDetails[script.toString('hex')] = {
                 blindingPrivateKey: Buffer.from(blindingPrivateKeyBuffer).toString('hex'),
                 blindingPublicKey: Buffer.from(blindingPublicKeyBuffer).toString('hex'),
-                confidentialAddress: p2wpkhPayment.address
-                  ? address.toConfidential(p2wpkhPayment.address, blindingPublicKeyBuffer)
-                  : undefined,
-                derivationPath: `${getBaseDerivationPath(network)}/${start + index}`,
+                confidentialAddress: address.toConfidential(p2wpkhPayments[index].address!, blindingPublicKeyBuffer),
+                derivationPath: `${getBaseDerivationPath(network)}/${isInternal ? '1' : '0'}/${start + index}`,
                 script: script.toString('hex'),
-                publicKey: child.publicKey.toString('hex'),
+                publicKey: childs[index].publicKey.toString('hex'),
               };
             });
             set({ scriptDetails }, false, 'deriveBatch');

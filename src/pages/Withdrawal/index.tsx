@@ -133,12 +133,10 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
         throw IncorrectPINError;
       }
       const { pset } = await makeSendPset([getRecipient()], LBTC_ASSET[network].assetHash);
-      console.log('pset', pset);
       const blinder = new BlinderService();
       const blindedPset = await blinder.blindPset(pset);
       const signer = await SignerService.fromPin(pin);
       const signedPset = await signer.signPset(blindedPset);
-      console.log('signedPset', signedPset);
       const toBroadcast = signer.finalizeAndExtract(signedPset);
       console.log('toBroadcast', toBroadcast);
       // Broadcast tx

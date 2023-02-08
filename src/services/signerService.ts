@@ -4,10 +4,8 @@ import { mnemonicToSeed } from 'bip39';
 import { Extractor, Finalizer, Pset, script as bscript, Signer, Transaction } from 'liquidjs-lib';
 import * as ecc from 'tiny-secp256k1';
 
-import { useSettingsStore } from '../store/settingsStore';
 import type { ScriptDetails } from '../store/walletStore';
 import { useWalletStore } from '../store/walletStore';
-import { getBaseDerivationPath } from '../utils/constants';
 import { decrypt } from '../utils/crypto';
 
 const bip32 = BIP32Factory(ecc);
@@ -48,14 +46,9 @@ export class SignerService {
       if (!script) continue;
       const scriptDetailsInput = scriptsDetailsInputs[script.toString('hex')];
       if (!scriptDetailsInput || !scriptDetailsInput.derivationPath) continue;
-      console.log(
-        "scriptDetailsInput.derivationPath.replace('m/', '')",
-        scriptDetailsInput.derivationPath.replace('m/', '')
-      );
       const key = this.masterNode.derivePath(scriptDetailsInput.derivationPath.replace('m/', ''));
       const sighash = input.sighashType || Transaction.SIGHASH_ALL; // '||' lets to overwrite SIGHASH_DEFAULT (0x00)
       const signature = key.sign(pset.getInputPreimage(index, sighash));
-      console.log('key.publicKey', key.publicKey);
       signer.addSignature(
         index,
         {
@@ -72,9 +65,7 @@ export class SignerService {
 
   finalizeAndExtract(psetBase64: string): string {
     const pset = Pset.fromBase64(psetBase64);
-    console.log('pset', pset);
     const finalizer = new Finalizer(pset);
-    debugger;
     finalizer.finalize();
     return Extractor.extract(finalizer.pset).toHex();
   }
