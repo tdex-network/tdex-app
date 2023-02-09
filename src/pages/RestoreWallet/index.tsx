@@ -1,25 +1,25 @@
 import './style.scss';
-import {IonButton, IonCol, IonContent, IonGrid, IonInput, IonPage, IonRow} from '@ionic/react';
+import { IonButton, IonCol, IonContent, IonGrid, IonInput, IonPage, IonRow } from '@ionic/react';
 import * as bip39 from 'bip39';
 import classNames from 'classnames';
-import React, {useState} from 'react';
-import type {RouteComponentProps} from 'react-router';
+import React, { useState } from 'react';
+import type { RouteComponentProps } from 'react-router';
 
 import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import PinModal from '../../components/PinModal';
-import {useFocus} from '../../hooks/useFocus';
-import {useMnemonic} from '../../hooks/useMnemonic';
-import {useAppStore} from '../../store/appStore';
-import {useToastStore} from '../../store/toastStore';
-import {useWalletStore} from '../../store/walletStore';
-import {PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS} from '../../utils/constants';
-import type {AppError} from '../../utils/errors';
-import {InvalidMnemonicError, PINsDoNotMatchError} from '../../utils/errors';
-import {onPressEnterKeyFactory} from '../../utils/keyboard';
+import { useFocus } from '../../hooks/useFocus';
+import { useMnemonic } from '../../hooks/useMnemonic';
+import { useAppStore } from '../../store/appStore';
+import { useToastStore } from '../../store/toastStore';
+import { useWalletStore } from '../../store/walletStore';
+import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
+import type { AppError } from '../../utils/errors';
+import { InvalidMnemonicError, PINsDoNotMatchError } from '../../utils/errors';
+import { onPressEnterKeyFactory } from '../../utils/keyboard';
 
-export const RestoreWallet: React.FC<RouteComponentProps> = ({history}) => {
+export const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const setIsBackupDone = useAppStore((state) => state.setIsBackupDone);
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
@@ -70,7 +70,7 @@ export const RestoreWallet: React.FC<RouteComponentProps> = ({history}) => {
       await sync();
       // each script with history re-trigger updateTxsAndUtxosFromScripts but processing is skipped if script already in store
       // then computeBalances is triggered
-      await subscribeAllScripts();
+      // await subscribeAllScripts();
       setTimeout(() => {
         setModalOpen(undefined);
         setIsWrongPin(null);
@@ -98,7 +98,7 @@ export const RestoreWallet: React.FC<RouteComponentProps> = ({history}) => {
 
   return (
     <IonPage>
-      <Loader showLoading={loading}/>
+      <Loader showLoading={loading} />
       <PinModal
         open={modalOpen === 'first' || modalOpen === 'second'}
         title={modalOpen === 'first' ? 'Set your secret PIN' : 'Repeat your secret PIN'}
@@ -111,15 +111,15 @@ export const RestoreWallet: React.FC<RouteComponentProps> = ({history}) => {
         onClose={
           modalOpen === 'first'
             ? () => {
-              setModalOpen(undefined);
-              history.goBack();
-            }
+                setModalOpen(undefined);
+                history.goBack();
+              }
             : () => {
-              setModalOpen('first');
-              setNeedReset(true);
-              setFirstPin('');
-              setIsWrongPin(null);
-            }
+                setModalOpen('first');
+                setNeedReset(true);
+                setFirstPin('');
+                setIsWrongPin(null);
+              }
         }
         isWrongPin={isWrongPin}
         needReset={needReset}
@@ -128,7 +128,7 @@ export const RestoreWallet: React.FC<RouteComponentProps> = ({history}) => {
       />
       <IonContent className="restore-wallet">
         <IonGrid className="ion-text-center">
-          <Header hasBackButton={true} title="SECRET PHRASE"/>
+          <Header hasBackButton={true} title="SECRET PHRASE" />
           <PageDescription
             centerDescription={true}
             description="Paste your 12 words recovery phrase in the correct order"

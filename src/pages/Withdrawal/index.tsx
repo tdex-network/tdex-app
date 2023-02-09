@@ -148,7 +148,7 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
       addSuccessToast(`Transaction broadcasted. ${amount} ${assets[asset_id]?.ticker} sent.`);
       // watchTransaction(txid);
       // Trigger spinner right away
-      setIsFetchingUtxos(true);
+      // setIsFetchingUtxos(true);
       // But update after a few seconds to make sure new utxo is ready to fetch
       // setTimeout(() => updateUtxos(), 12_000);
       history.replace(`/transaction/${txid}`, {

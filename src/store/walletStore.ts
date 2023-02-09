@@ -106,8 +106,8 @@ export type Balance = { sats: number; value: number; counterValue?: number };
 export type Balances = Record<string, Balance>;
 
 export interface TxDetails {
-  height?: number;
-  hex?: string;
+  height: number;
+  hex: string;
 }
 
 interface WalletState {
@@ -123,7 +123,7 @@ interface WalletState {
   txs: Record<string, TxDetails>; // txid, transaction
   totalBtc?: { sats: number; value: number; counterValue?: number };
   txsHeuristic?: Record<string, TxHeuristic>; // txid, TxHeuristic
-  utxos: Record<string, UnblindedOutput>; // outpointStr, utxo
+  txos: Record<string, UnblindedOutput>; // outpointStr, utxo
 }
 
 interface WalletActions {
@@ -131,10 +131,10 @@ interface WalletActions {
   changePin: (currentPIN: string, newPIN: string) => Promise<void>;
   clearScriptDetails: () => void;
   computeBalances: () => Promise<Balances>;
+  computeUtxosFromTxs: () => Promise<Record<string, UnblindedOutput>>;
   computeHeuristicFromTx: (txDetails: TxDetails, assetHash?: string) => Promise<TxHeuristic | undefined>;
   computeHeuristicFromPegins: () => TxHeuristic[] | undefined;
   decryptMnemonic: (pin: string) => Promise<string>;
-  deleteUtxo: (outpoint: Outpoint) => void;
   deriveBatch: (start: number, end: number, isInternal: boolean, updateCache?: boolean) => Promise<Buffer[]>;
   deriveBlindingKey: (script: Buffer) => { publicKey: Buffer; privateKey: Buffer };
   generateMasterKeys: (mnemonic: string) => void;
@@ -142,16 +142,16 @@ interface WalletActions {
   getNextAddress: (isInternal: boolean) => Promise<ScriptDetails>;
   lockOutpoint: (outpoint: Outpoint) => string;
   selectUtxos: (targets: Recipient[], lock: boolean) => Promise<CoinSelection>;
-  setMnemonicEncrypted: (mnemonic: string, pin: string) => void;
   setIsAuthorized: (isAuthorized: boolean) => void;
+  setMnemonicEncrypted: (mnemonic: string, pin: string) => void;
+  setTxsAndTxosFromScripts: (scripts: Buffer[], isInternal: boolean) => Promise<number>;
   subscribeAllScripts: () => Promise<void>;
   subscribeBatch: (start: number, end: number, isInternal: boolean) => Promise<void>;
   sync: (gapLimit?: number) => Promise<void>;
   resetWalletStore: () => void;
-  unblindUtxos: (outputs: Output[]) => Promise<(UnblindingData | Error)[]>;
+  unblindUtxos: (...outputs: Output[]) => Promise<(UnblindingData | Error)[]>;
   unlockOutpoint: (outpointStr: string) => void;
   unlockOutpoints: () => void;
-  updateTxsAndUtxosFromScripts: (scripts: Buffer[], isInternal: boolean) => Promise<number>;
 }
 
 const initialState: WalletState = {
@@ -167,7 +167,7 @@ const initialState: WalletState = {
   totalBtc: undefined,
   txs: {},
   txsHeuristic: undefined,
-  utxos: {},
+  txos: {},
 };
 
 const GAP_LIMIT = 10;
@@ -218,7 +218,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           const network = useSettingsStore.getState().network;
           const currency = useSettingsStore.getState().currency;
           const lbtcDenomination = useSettingsStore.getState().lbtcDenomination;
-          const utxos = get().utxos;
+          const utxos = get().computeUtxosFromTxs();
           let balances: Balances = {};
           for (const utxo of Object.values(utxos)) {
             if (utxo.blindingData) {
@@ -297,14 +297,42 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           );
           return balances;
         },
-        computeHeuristicFromTx: async (txDetails: TxDetails, assetHash = '') => {
+        computeUtxosFromTxs: async () => {
+          let utxos: Record<string, UnblindedOutput> = {};
+          const txs = get().txs;
+          const outpointsInInputs = new Set<string>();
+          const walletOutputs = new Set<string>();
+          const transactionsFromHex = Object.values(txs).map((tx) => Transaction.fromHex(tx.hex));
+          for (const tx of transactionsFromHex) {
+            for (const input of tx.ins) {
+              outpointsInInputs.add(`${Buffer.from(input.hash).reverse().toString('hex')}:${input.index}`);
+            }
+            for (let i = 0; i < tx.outs.length; i++) {
+              if (
+                !Object.keys(get().scriptDetails).find((script) => Buffer.from(script, 'hex').equals(tx.outs[i].script))
+              )
+                continue;
+              walletOutputs.add(`${tx.getId()}:${i}`);
+            }
+          }
+          const utxosOutpoints = Array.from(walletOutputs)
+            .filter((outpoint) => !outpointsInInputs.has(outpoint))
+            .map((outpoint) => {
+              const [txid, vout] = outpoint.split(':');
+              return { txid, vout: Number(vout) };
+            });
+
+          console.log('utxos', utxos);
+          return utxos;
+        },
+        computeHeuristicFromTx: async (txDetails, assetHash = '') => {
           const txTypeFromAmount = (amount?: number): TxType => {
             if (amount === undefined) return TxType.Unknow;
             if (amount === 0) return TxType.SelfTransfer;
             if (amount > 0) return TxType.Deposit;
             return TxType.Withdraw;
           };
-          const utxos = get().utxos;
+          const txos = get().txos;
           let transferAmount = 0;
           let fee = 0;
           const tx = Transaction.fromHex(txDetails.hex ?? '');
@@ -313,7 +341,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               fee = confidentialValueToSatoshi(output.value);
               continue;
             }
-            const blindingData = utxos[outpointToString({ txid: tx.getId(), vout: index })]?.blindingData;
+            const blindingData = txos[outpointToString({ txid: tx.getId(), vout: index })]?.blindingData;
             if (!blindingData) continue;
             if (blindingData.asset === assetHash) {
               transferAmount += blindingData.value;
@@ -321,7 +349,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           }
           for (const input of tx.ins) {
             const blindingData =
-              utxos[
+              txos[
                 outpointToString({
                   txid: Buffer.from(input.hash).reverse().toString('hex'),
                   vout: input.index,
@@ -377,17 +405,6 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           if (!encryptedMnemonic) throw new Error('No mnemonic found in wallet');
           return decrypt(encryptedMnemonic, pin);
         },
-        deleteUtxo: (outpoint) => {
-          set(
-            (state) => {
-              const newUtxosMap = { ...state.utxos };
-              delete newUtxosMap[outpointToString(outpoint)];
-              return { utxos: newUtxosMap };
-            },
-            false,
-            'deleteUtxo'
-          );
-        },
         deriveBatch: async (start: number, end: number, isInternal: boolean, updateStore = true) => {
           // TODO: improve this
           const network = useSettingsStore.getState().network;
@@ -410,6 +427,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           }
           if (updateStore) {
             scripts.forEach((script, index) => {
+              console.log('start + index', start, index, start + index);
               const { publicKey: blindingPublicKeyBuffer, privateKey: blindingPrivateKeyBuffer } =
                 get().deriveBlindingKey(script);
               if (!blindingPrivateKeyBuffer) throw new Error('Could not derive blinding key');
@@ -422,6 +440,11 @@ export const useWalletStore = create<WalletState & WalletActions>()(
                 script: script.toString('hex'),
                 publicKey: childs[index].publicKey.toString('hex'),
               };
+              if (isInternal) {
+                set({ nextInternalIndex: start + index }, false, 'updateTxsAndUtxosFromScripts/internal');
+              } else {
+                set({ nextExternalIndex: start + index }, false, 'updateTxsAndUtxosFromScripts/external');
+              }
             });
             set({ scriptDetails }, false, 'deriveBatch');
           }
@@ -472,12 +495,6 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             blindkey: publicKey,
           });
           if (!payment) throw new Error('Could not derive address');
-          // Update next index
-          if (isInternal) {
-            set({ nextInternalIndex: nextIndex + 1 }, false, 'getNextAddress/internal');
-          } else {
-            set({ nextExternalIndex: nextIndex + 1 }, false, 'getNextAddress/external');
-          }
           return {
             confidentialAddress: payment.confidentialAddress!,
             blindingPrivateKey: privateKey.toString('hex'),
@@ -503,14 +520,15 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               totalBtc: undefined,
               txs: {},
               txsHeuristic: undefined,
-              utxos: {},
+              // utxos: {},
             },
             false,
             'resetWalletStore'
           );
         },
+        // Coin selection
         selectUtxos: async (targets, lock = false) => {
-          const allUtxos = Object.values(get().utxos);
+          const allUtxos = Object.values(get().computeUtxosFromTxs());
           const onlyWithUnblindingData = allUtxos.filter((utxo) => utxo.blindingData);
           // accumulate targets with same asset
           targets = targets.reduce((acc, target) => {
@@ -568,18 +586,71 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             changeOutputs,
           };
         },
+        setIsAuthorized: (isAuthorized: boolean) => set({ isAuthorized }, false, 'setIsAuthorized'),
         setMnemonicEncrypted: async (mnemonic, pin) => {
           const encryptedMnemonic = await encrypt(mnemonic, pin);
           set({ encryptedMnemonic }, false, 'setMnemonicEncrypted');
         },
-        setIsAuthorized: (isAuthorized: boolean) => set({ isAuthorized }, false, 'setIsAuthorized'),
+        setTxsAndTxosFromScripts: async (scripts, isInternal) => {
+          let unusedScriptCounter = 0;
+          const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
+          const client = new ElectrumWS(websocketExplorerURL);
+          const chainSource = new WsElectrumChainSource(client);
+          const histories = await chainSource.fetchHistories(scripts);
+          for (const [index, history] of histories.entries()) {
+            if (history.length > 0) {
+              const historyTxId = history.map(({ tx_hash }) => tx_hash);
+              const txs = await chainSource.fetchTransactions(historyTxId);
+              const txsObj = Object.fromEntries(txs.map(({ txid, hex }) => [txid, { hex }]));
+              const historyObj = Object.fromEntries(history.map(({ tx_hash, height }) => [tx_hash, { height }]));
+              const txsAndHistory = Object.fromEntries(
+                Object.entries(txsObj).map(([txid, tx]) => [txid, { ...tx, ...historyObj[txid] }])
+              );
+              set((state) => ({ txs: { ...state.txs, ...txsAndHistory } }), false, 'subscribeBatch/txs');
+              // Store used scripts
+              if (isInternal) {
+                let nextInternalIndex = (get().nextInternalIndex ?? 0) + index + 1;
+                await get().deriveBatch(0, nextInternalIndex, true, true);
+              } else {
+                let nextExternalIndex = (get().nextExternalIndex ?? 0) + index + 1;
+                await get().deriveBatch(0, nextExternalIndex, false, true);
+              }
+              // set txos
+              for (const [txid, { hex }] of Object.entries(txsObj)) {
+                const tx = Transaction.fromHex(hex);
+                const unblindedResults = await get().unblindUtxos(...tx.outs);
+                for (const [vout, unblinded] of unblindedResults.entries()) {
+                  if (unblinded instanceof Error) {
+                    console.error('Error while unblinding utxos', unblinded);
+                    continue;
+                  }
+                  set(
+                    (state) => ({
+                      txos: {
+                        ...state.txos,
+                        [outpointToString({ txid, vout })]: {
+                          txid,
+                          vout,
+                          blindingData: unblindedResults[0] as UnblindingData,
+                        },
+                      },
+                    }),
+                    false,
+                    'setTransactionsFromScripts/setTxos'
+                  );
+                }
+              }
+            } else {
+              unusedScriptCounter += 1;
+            }
+          }
+          return unusedScriptCounter;
+        },
         subscribeAllScripts: async () => {
-          let nextExternalIndex = get().nextExternalIndex ?? 0;
-          let nextInternalIndex = get().nextInternalIndex ?? 0;
           const walletChains = [0, 1];
           for (const i of walletChains) {
             const isInternal = i === 1;
-            const nextIndex = isInternal ? nextInternalIndex : nextExternalIndex;
+            const nextIndex = isInternal ? get().nextInternalIndex ?? 0 : get().nextExternalIndex ?? 0;
             await get().subscribeBatch(0, nextIndex, isInternal);
           }
         },
@@ -591,9 +662,9 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           for (const script of scripts) {
             if (!script) continue;
             await chainSource.subscribeScriptStatus(script, async (_: string, status: string | null) => {
+              console.log('subscribeScriptStatus', script.toString('hex'), status);
               if (status === null) return;
-              await get().updateTxsAndUtxosFromScripts([script], isInternal);
-              await get().computeBalances();
+              await get().setTxsAndTxosFromScripts([script], isInternal);
             });
           }
         },
@@ -609,20 +680,20 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               while (unusedScriptCounter < gapLimit) {
                 const scripts = await get().deriveBatch(batchCount, batchCount + gapLimit, isInternal, false);
                 if (scripts.length === 0) break;
-                unusedScriptCounter += await get().updateTxsAndUtxosFromScripts(scripts, isInternal);
+                unusedScriptCounter += await get().setTxsAndTxosFromScripts(scripts, isInternal);
                 batchCount += gapLimit;
               }
             }
+            await get().computeBalances();
           } catch (e) {
             console.error('Error while syncing wallet', e);
           }
         },
-        unblindUtxos: async (outputs) => {
+        unblindUtxos: async (...outputs) => {
           const scriptDetails = get().scriptDetails;
           const unblindingResults: (UnblindingData | Error)[] = [];
           for (const output of outputs) {
             try {
-              const script = output.script.toString('hex');
               // if output is unconfidential, we don't need to unblind it
               if (!isConfidentialOutput(output)) {
                 unblindingResults.push({
@@ -634,10 +705,16 @@ export const useWalletStore = create<WalletState & WalletActions>()(
                 continue;
               }
               // if output is confidential, we need to unblind it
+              const script = output.script.toString('hex');
               const blindingPrivKey = scriptDetails[script]?.blindingPrivateKey;
-              if (!blindingPrivKey) throw new Error('Could not find script blindingKey in cache');
+              if (!blindingPrivKey) continue;
               const zkpLib = await zkp();
               const lib = new confidential.Confidential(zkpLib);
+              //
+              // const slip77node = slip77.fromMasterBlindingKey(get().masterBlindingKey);
+              // const blindPrivKey = slip77node.derive(output.script).privateKey;
+              // if (!blindPrivKey) throw new Error('Blinding private key error for script ' + output.script.toString('hex'));
+              //
               const unblinded = lib.unblindOutputWithKey(output, Buffer.from(blindingPrivKey, 'hex'));
               unblindingResults.push({
                 value: parseInt(unblinded.value, 10),
@@ -675,97 +752,6 @@ export const useWalletStore = create<WalletState & WalletActions>()(
         },
         unlockOutpoints: () => {
           set({ lockedOutpoints: [] }, false, 'unlockOutpoints');
-        },
-        updateTxsAndUtxosFromScripts: async (scripts, isInternal) => {
-          let newScripts: Buffer[] = [];
-          scripts.forEach((script) => {
-            // Only if we don't have the script already in store we process it
-            if (Object.keys(get().scriptDetails[script.toString('hex')] ?? {}).length === 0) {
-              newScripts.push(script);
-            }
-          });
-          if (newScripts.length === 0) return 0;
-          const historyTxsId: Set<string> = new Set();
-          const txidHeight: Map<string, number | undefined> = new Map();
-          const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
-          const client = new ElectrumWS(websocketExplorerURL);
-          const chainSource = new WsElectrumChainSource(client);
-          const histories = await chainSource.fetchHistories(newScripts);
-          let unusedScriptCounter = 0;
-          for (const [index, history] of histories.entries()) {
-            if (history.length > 0) {
-              unusedScriptCounter = 0; // reset counter
-              for (const { tx_hash, height } of history) {
-                historyTxsId.add(tx_hash);
-                txidHeight.set(tx_hash, height);
-              }
-              // Update the next index
-              if (isInternal) {
-                set({ nextInternalIndex: index + 1 }, false, 'updateTxsAndUtxosFromScripts/internal');
-              } else {
-                set({ nextExternalIndex: index + 1 }, false, 'updateTxsAndUtxosFromScripts/external');
-              }
-            } else {
-              unusedScriptCounter += 1;
-            }
-          }
-          // fetch the transactions
-          const txs = await chainSource.fetchTransactions(Array.from(historyTxsId));
-          const txsObj = Object.fromEntries(txs.map(({ txid, hex }) => [txid, { hex, height: txidHeight.get(txid) }]));
-          set((state) => ({ txs: { ...state.txs, ...txsObj } }), false, 'updateTxsAndUtxosFromScripts/txs');
-          // Store used scripts
-          if (isInternal) {
-            let nextInternalIndex = get().nextInternalIndex ?? 0;
-            await get().deriveBatch(0, nextInternalIndex, true, true);
-          } else {
-            let nextExternalIndex = get().nextExternalIndex ?? 0;
-            await get().deriveBatch(0, nextExternalIndex, false, true);
-          }
-          // update the utxos
-          const outpointsInInputs = new Set<string>();
-          const walletOutputs = new Set<string>();
-          const transactionsFromHex = Object.values(txsObj).map((tx) => Transaction.fromHex(tx.hex));
-          for (const tx of transactionsFromHex) {
-            for (const input of tx.ins) {
-              outpointsInInputs.add(`${Buffer.from(input.hash).reverse().toString('hex')}:${input.index}`);
-            }
-            for (let i = 0; i < tx.outs.length; i++) {
-              if (
-                !Object.keys(get().scriptDetails).find((script) => Buffer.from(script, 'hex').equals(tx.outs[i].script))
-              )
-                continue;
-              walletOutputs.add(`${tx.getId()}:${i}`);
-            }
-          }
-          const utxosOutpoints = Array.from(walletOutputs)
-            .filter((outpoint) => !outpointsInInputs.has(outpoint))
-            .map((outpoint) => {
-              const [txid, vout] = outpoint.split(':');
-              return { txid, vout: Number(vout) };
-            });
-          for (const { txid, vout } of utxosOutpoints) {
-            const tx = Transaction.fromHex(txsObj[txid].hex);
-            const unblindedResults = await get().unblindUtxos([tx.outs[vout]]);
-            if (unblindedResults[0] instanceof Error) {
-              console.error('Error while unblinding utxos', unblindedResults[0]);
-              continue;
-            }
-            set(
-              (state) => ({
-                utxos: {
-                  ...state.utxos,
-                  [outpointToString({ txid, vout })]: {
-                    txid,
-                    vout,
-                    blindingData: unblindedResults[0] as UnblindingData,
-                  },
-                },
-              }),
-              false,
-              'updateTxsAndUtxosFromScripts/utxos'
-            );
-          }
-          return unusedScriptCounter;
         },
       }),
       {

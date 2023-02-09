@@ -41,7 +41,7 @@ export class BlinderService {
     for (const inputIndex of inputIndexes) {
       const input = pset.inputs[inputIndex];
       const unblindOutput =
-        useWalletStore.getState().utxos[
+        useWalletStore.getState().txos[
           outpointToString({
             txid: Buffer.from(input.previousTxid).reverse().toString('hex'),
             vout: input.previousTxIndex,
