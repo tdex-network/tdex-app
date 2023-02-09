@@ -1,9 +1,7 @@
 import zkp from '@vulpemventures/secp256k1-zkp';
 import axios from 'axios';
-import type { BIP32Interface } from 'bip32';
 import BIP32Factory from 'bip32';
 import { mnemonicToSeedSync } from 'bip39';
-import type { Payment } from 'bitcoinjs-lib';
 import { address, AssetHash, confidential, networks, payments, Transaction } from 'liquidjs-lib';
 import { confidentialValueToSatoshi } from 'liquidjs-lib/src/confidential';
 import type { Output } from 'liquidjs-lib/src/transaction';
@@ -40,6 +38,11 @@ let coinSelect = require('coinselect');
 const coinGeckoUrl = 'https://api.coingecko.com/api/v3';
 export const axiosCoinGeckoObject = axios.create({ baseURL: coinGeckoUrl });
 export type CoinGeckoPriceResult = Record<string, Record<Currency['ticker'], number>>;
+
+export type PubKeyWithRelativeDerivationPath = {
+  publicKey: Buffer;
+  derivationPath: string;
+};
 
 export type UnblindingData = {
   value: number;
@@ -131,25 +134,25 @@ interface WalletActions {
   changePin: (currentPIN: string, newPIN: string) => Promise<void>;
   clearScriptDetails: () => void;
   computeBalances: () => Promise<Balances>;
-  computeUtxosFromTxs: () => Promise<Record<string, UnblindedOutput>>;
+  computeUtxosFromTxs: () => UnblindedOutput[];
   computeHeuristicFromTx: (txDetails: TxDetails, assetHash?: string) => Promise<TxHeuristic | undefined>;
   computeHeuristicFromPegins: () => TxHeuristic[] | undefined;
+  createP2PWKHScript: ({ publicKey, derivationPath }: PubKeyWithRelativeDerivationPath) => [string, ScriptDetails];
   decryptMnemonic: (pin: string) => Promise<string>;
-  deriveBatch: (start: number, end: number, isInternal: boolean, updateCache?: boolean) => Promise<Buffer[]>;
+  deriveBatchPublicKeys: (start: number, end: number, isInternal: boolean) => PubKeyWithRelativeDerivationPath[];
   deriveBlindingKey: (script: Buffer) => { publicKey: Buffer; privateKey: Buffer };
   generateMasterKeys: (mnemonic: string) => void;
-  getAllAddresses: () => Promise<string[]>;
+  //getAllAddresses: () => Promise<string[]>;
   getNextAddress: (isInternal: boolean) => Promise<ScriptDetails>;
   lockOutpoint: (outpoint: Outpoint) => string;
   selectUtxos: (targets: Recipient[], lock: boolean) => Promise<CoinSelection>;
   setIsAuthorized: (isAuthorized: boolean) => void;
   setMnemonicEncrypted: (mnemonic: string, pin: string) => void;
-  setTxsAndTxosFromScripts: (scripts: Buffer[], isInternal: boolean) => Promise<number>;
+  setTxos: () => void;
   subscribeAllScripts: () => Promise<void>;
-  subscribeBatch: (start: number, end: number, isInternal: boolean) => Promise<void>;
-  sync: (gapLimit?: number) => Promise<void>;
+  sync: (gapLimit?: number) => Promise<{ nextInternalIndex: number; nextExternalIndex: number }>;
   resetWalletStore: () => void;
-  unblindUtxos: (...outputs: Output[]) => Promise<(UnblindingData | Error)[]>;
+  unblindUtxos: (outputs: Output[]) => Promise<(UnblindingData | Error)[]>;
   unlockOutpoint: (outpointStr: string) => void;
   unlockOutpoints: () => void;
 }
@@ -214,14 +217,35 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             'clearScriptDetails'
           );
         },
+        createP2PWKHScript({ publicKey, derivationPath }: PubKeyWithRelativeDerivationPath): [string, ScriptDetails] {
+          const network = useSettingsStore.getState().network;
+          const p2wpkhPayment = payments.p2wpkh({ pubkey: publicKey, network: networks[network] });
+          const script = p2wpkhPayment.output;
+          if (!script) throw new Error('Could not derive script');
+          const { publicKey: blindingPublicKeyBuffer, privateKey: blindingPrivateKeyBuffer } =
+            get().deriveBlindingKey(script);
+          if (!blindingPrivateKeyBuffer) throw new Error('Could not derive blinding key');
+          return [
+            script.toString('hex'),
+            {
+              derivationPath,
+              publicKey: publicKey.toString('hex'),
+              script: script.toString('hex'),
+              blindingPrivateKey: blindingPrivateKeyBuffer.toString('hex'),
+              blindingPublicKey: blindingPublicKeyBuffer.toString('hex'),
+              confidentialAddress: address.toConfidential(p2wpkhPayment.address!, blindingPublicKeyBuffer),
+            },
+          ];
+        },
         computeBalances: async () => {
           const network = useSettingsStore.getState().network;
           const currency = useSettingsStore.getState().currency;
           const lbtcDenomination = useSettingsStore.getState().lbtcDenomination;
           const utxos = get().computeUtxosFromTxs();
+          console.log('computeBalances utxos', utxos);
           let balances: Balances = {};
-          for (const utxo of Object.values(utxos)) {
-            if (utxo.blindingData) {
+          for (const utxo of utxos) {
+            if (utxo?.blindingData) {
               const assetHash = utxo.blindingData?.asset;
               const assetAmount = utxo.blindingData?.value;
               balances = {
@@ -297,8 +321,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           );
           return balances;
         },
-        computeUtxosFromTxs: async () => {
-          let utxos: Record<string, UnblindedOutput> = {};
+        computeUtxosFromTxs: () => {
           const txs = get().txs;
           const outpointsInInputs = new Set<string>();
           const walletOutputs = new Set<string>();
@@ -321,9 +344,10 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               const [txid, vout] = outpoint.split(':');
               return { txid, vout: Number(vout) };
             });
-
-          console.log('utxos', utxos);
-          return utxos;
+          console.log('utxosOutpoints', utxosOutpoints);
+          console.log('get().txos', get().txos);
+          //console.log('outpointToString(outpoint)', outpointToString(outpoint));
+          return utxosOutpoints.map((outpoint) => get().txos[outpointToString(outpoint)]);
         },
         computeHeuristicFromTx: async (txDetails, assetHash = '') => {
           const txTypeFromAmount = (amount?: number): TxType => {
@@ -405,50 +429,20 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           if (!encryptedMnemonic) throw new Error('No mnemonic found in wallet');
           return decrypt(encryptedMnemonic, pin);
         },
-        deriveBatch: async (start: number, end: number, isInternal: boolean, updateStore = true) => {
-          // TODO: improve this
+        deriveBatchPublicKeys: (start, end, isInternal) => {
           const network = useSettingsStore.getState().network;
           const node = bip32.fromBase58(get().masterPublicKey);
           const chain = isInternal ? 1 : 0;
-          let scriptDetails = get().scriptDetails;
-          const scripts: Buffer[] = [];
-          let p2wpkhPayment: Payment;
-          let p2wpkhPayments: Payment[] = [];
-          let child: BIP32Interface;
-          let childs: BIP32Interface[] = [];
+          const results: PubKeyWithRelativeDerivationPath[] = [];
           for (let i = start; i < end; i++) {
-            child = node.derive(chain).derive(i);
-            childs.push(node.derive(chain).derive(i));
-            p2wpkhPayment = payments.p2wpkh({ pubkey: child.publicKey, network: networks[network] });
-            p2wpkhPayments.push(p2wpkhPayment);
-            const script = p2wpkhPayment.output;
-            if (!script) continue;
-            scripts.push(script);
-          }
-          if (updateStore) {
-            scripts.forEach((script, index) => {
-              console.log('start + index', start, index, start + index);
-              const { publicKey: blindingPublicKeyBuffer, privateKey: blindingPrivateKeyBuffer } =
-                get().deriveBlindingKey(script);
-              if (!blindingPrivateKeyBuffer) throw new Error('Could not derive blinding key');
-              if (!p2wpkhPayments[index]?.address) throw new Error('Could not derive address');
-              scriptDetails[script.toString('hex')] = {
-                blindingPrivateKey: Buffer.from(blindingPrivateKeyBuffer).toString('hex'),
-                blindingPublicKey: Buffer.from(blindingPublicKeyBuffer).toString('hex'),
-                confidentialAddress: address.toConfidential(p2wpkhPayments[index].address!, blindingPublicKeyBuffer),
-                derivationPath: `${getBaseDerivationPath(network)}/${isInternal ? '1' : '0'}/${start + index}`,
-                script: script.toString('hex'),
-                publicKey: childs[index].publicKey.toString('hex'),
-              };
-              if (isInternal) {
-                set({ nextInternalIndex: start + index }, false, 'updateTxsAndUtxosFromScripts/internal');
-              } else {
-                set({ nextExternalIndex: start + index }, false, 'updateTxsAndUtxosFromScripts/external');
-              }
+            const child = node.derive(chain).derive(i);
+            if (!child.publicKey) throw new Error('Could not derive public key');
+            results.push({
+              publicKey: child.publicKey,
+              derivationPath: `${getBaseDerivationPath(network)}/${chain}/${i}`,
             });
-            set({ scriptDetails }, false, 'deriveBatch');
           }
-          return scripts;
+          return results;
         },
         deriveBlindingKey: (script: Buffer) => {
           const blindingKeyNode = slip77.fromMasterBlindingKey(get().masterBlindingKey);
@@ -465,6 +459,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           const masterBlindingKey = slip77.fromSeed(seed).masterKey.toString('hex');
           set({ masterBlindingKey }, false, 'setMasterBlindingKey');
         },
+        /*
         getAllAddresses: async () => {
           const nextExternalIndex = get().nextExternalIndex ?? 0;
           const nextInternalIndex = get().nextInternalIndex ?? 0;
@@ -481,13 +476,17 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             }).address!;
           });
         },
+        */
         getNextAddress: async (isInternal: boolean) => {
           const network = useSettingsStore.getState().network;
           const nextIndex = isInternal ? get().nextInternalIndex ?? 0 : get().nextExternalIndex ?? 0;
-          const scriptDetails = await get().deriveBatch(nextIndex, nextIndex + 1, isInternal, true);
-          const script = scriptDetails[0];
+          const pubKey = get().deriveBatchPublicKeys(nextIndex, nextIndex + 1, isInternal);
+          const scriptDetails = get().createP2PWKHScript({
+            publicKey: pubKey[0].publicKey,
+            derivationPath: pubKey[0].derivationPath,
+          });
+          const script = Buffer.from(scriptDetails[0], 'hex');
           if (!script) throw new Error('Could not derive script');
-          await get().subscribeBatch(nextIndex, nextIndex + 1, isInternal);
           const { publicKey, privateKey } = get().deriveBlindingKey(script);
           const payment = payments.p2wpkh({
             output: script,
@@ -520,7 +519,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               totalBtc: undefined,
               txs: {},
               txsHeuristic: undefined,
-              // utxos: {},
+              txos: {},
             },
             false,
             'resetWalletStore'
@@ -528,8 +527,8 @@ export const useWalletStore = create<WalletState & WalletActions>()(
         },
         // Coin selection
         selectUtxos: async (targets, lock = false) => {
-          const allUtxos = Object.values(get().computeUtxosFromTxs());
-          const onlyWithUnblindingData = allUtxos.filter((utxo) => utxo.blindingData);
+          const availableUtxos = get().computeUtxosFromTxs();
+          const onlyWithUnblindingData = availableUtxos.filter((utxo) => utxo.blindingData);
           // accumulate targets with same asset
           targets = targets.reduce((acc, target) => {
             const existingTarget = acc.find((t) => t.asset === target.asset);
@@ -591,105 +590,121 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           const encryptedMnemonic = await encrypt(mnemonic, pin);
           set({ encryptedMnemonic }, false, 'setMnemonicEncrypted');
         },
-        setTxsAndTxosFromScripts: async (scripts, isInternal) => {
-          let unusedScriptCounter = 0;
+        setTxos: async () => {
+          const txsObj = get().txs;
+          let txos: Record<string, UnblindedOutput> = {};
+          for (const [txid, { hex }] of Object.entries(txsObj)) {
+            const tx = Transaction.fromHex(hex);
+            const unblindedResults = await get().unblindUtxos(tx.outs);
+            for (const [vout, unblinded] of unblindedResults.entries()) {
+              if (unblinded instanceof Error) {
+                console.error('Error while unblinding utxos', unblinded);
+                continue;
+              }
+              txos = {
+                ...txos,
+                [outpointToString({ txid, vout })]: {
+                  txid,
+                  vout,
+                  blindingData: unblinded,
+                },
+              };
+            }
+          }
+          set(
+            (state) => ({
+              txos: {
+                ...state.txos,
+                ...txos,
+              },
+            }),
+            false,
+            'setTxos'
+          );
+        },
+        subscribeAllScripts: async () => {
+          const scripts = Object.keys(get().scriptDetails).map((s) => Buffer.from(s, 'hex'));
+          console.warn(`subscribing to ${scripts.length} scripts`);
           const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
           const client = new ElectrumWS(websocketExplorerURL);
           const chainSource = new WsElectrumChainSource(client);
-          const histories = await chainSource.fetchHistories(scripts);
-          for (const [index, history] of histories.entries()) {
-            if (history.length > 0) {
-              const historyTxId = history.map(({ tx_hash }) => tx_hash);
+          for (const script of scripts) {
+            await chainSource.subscribeScriptStatus(script, async (_: string, __: string | null) => {
+              const history = await chainSource.fetchHistories([script]);
+              const historyTxId = history[0].map(({ tx_hash }) => tx_hash);
               const txs = await chainSource.fetchTransactions(historyTxId);
               const txsObj = Object.fromEntries(txs.map(({ txid, hex }) => [txid, { hex }]));
-              const historyObj = Object.fromEntries(history.map(({ tx_hash, height }) => [tx_hash, { height }]));
+              const historyObj = Object.fromEntries(history[0].map(({ tx_hash, height }) => [tx_hash, { height }]));
               const txsAndHistory = Object.fromEntries(
                 Object.entries(txsObj).map(([txid, tx]) => [txid, { ...tx, ...historyObj[txid] }])
               );
-              set((state) => ({ txs: { ...state.txs, ...txsAndHistory } }), false, 'subscribeBatch/txs');
-              // Store used scripts
-              if (isInternal) {
-                let nextInternalIndex = (get().nextInternalIndex ?? 0) + index + 1;
-                await get().deriveBatch(0, nextInternalIndex, true, true);
-              } else {
-                let nextExternalIndex = (get().nextExternalIndex ?? 0) + index + 1;
-                await get().deriveBatch(0, nextExternalIndex, false, true);
-              }
-              // set txos
-              for (const [txid, { hex }] of Object.entries(txsObj)) {
-                const tx = Transaction.fromHex(hex);
-                const unblindedResults = await get().unblindUtxos(...tx.outs);
-                for (const [vout, unblinded] of unblindedResults.entries()) {
-                  if (unblinded instanceof Error) {
-                    console.error('Error while unblinding utxos', unblinded);
-                    continue;
-                  }
-                  set(
-                    (state) => ({
-                      txos: {
-                        ...state.txos,
-                        [outpointToString({ txid, vout })]: {
-                          txid,
-                          vout,
-                          blindingData: unblindedResults[0] as UnblindingData,
-                        },
-                      },
-                    }),
-                    false,
-                    'setTransactionsFromScripts/setTxos'
-                  );
-                }
-              }
-            } else {
-              unusedScriptCounter += 1;
-            }
-          }
-          return unusedScriptCounter;
-        },
-        subscribeAllScripts: async () => {
-          const walletChains = [0, 1];
-          for (const i of walletChains) {
-            const isInternal = i === 1;
-            const nextIndex = isInternal ? get().nextInternalIndex ?? 0 : get().nextExternalIndex ?? 0;
-            await get().subscribeBatch(0, nextIndex, isInternal);
-          }
-        },
-        subscribeBatch: async (start: number, end: number, isInternal: boolean) => {
-          const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
-          const client = new ElectrumWS(websocketExplorerURL);
-          const chainSource = new WsElectrumChainSource(client);
-          const scripts = await get().deriveBatch(start, end, isInternal, false);
-          for (const script of scripts) {
-            if (!script) continue;
-            await chainSource.subscribeScriptStatus(script, async (_: string, status: string | null) => {
-              console.log('subscribeScriptStatus', script.toString('hex'), status);
-              if (status === null) return;
-              await get().setTxsAndTxosFromScripts([script], isInternal);
+              set((state) => ({ txs: { ...state.txs, ...txsAndHistory } }), false, 'subscribeAllScripts/txs');
             });
           }
         },
         sync: async (gapLimit = GAP_LIMIT) => {
-          try {
-            let nextExternalIndex = get().nextExternalIndex ?? 0;
-            let nextInternalIndex = get().nextInternalIndex ?? 0;
-            const walletChains = [0, 1];
-            for (const i of walletChains) {
-              const isInternal = i === 1;
-              let batchCount: number = isInternal ? nextInternalIndex : nextExternalIndex;
-              let unusedScriptCounter = 0;
-              while (unusedScriptCounter < gapLimit) {
-                const scripts = await get().deriveBatch(batchCount, batchCount + gapLimit, isInternal, false);
-                if (scripts.length === 0) break;
-                unusedScriptCounter += await get().setTxsAndTxosFromScripts(scripts, isInternal);
-                batchCount += gapLimit;
+          const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
+          const client = new ElectrumWS(websocketExplorerURL);
+          const chainSource = new WsElectrumChainSource(client);
+          //
+          const historyTxsId: Set<string> = new Set();
+          const txidHeight: Map<string, number | undefined> = new Map();
+          let restoredScripts: Record<string, ScriptDetails> = {};
+          let tempRestoredScripts: Record<string, ScriptDetails> = {};
+
+          let nextExternalIndex = get().nextExternalIndex ?? 0;
+          let nextInternalIndex = get().nextInternalIndex ?? 0;
+
+          const walletChains = [0, 1];
+          for (const i of walletChains) {
+            const isInternal = i === 1;
+            let batchCount = isInternal ? nextInternalIndex : nextExternalIndex;
+            let unusedScriptCounter = 0;
+
+            while (unusedScriptCounter <= gapLimit) {
+              const publicKeys = get().deriveBatchPublicKeys(batchCount, batchCount + gapLimit, isInternal);
+              const scriptsWithDetails = publicKeys.map((publicKey) => get().createP2PWKHScript(publicKey));
+              const scripts = scriptsWithDetails.map(([script]) => Buffer.from(script, 'hex'));
+              const histories = await chainSource.fetchHistories(scripts);
+              for (const [index, history] of histories.entries()) {
+                tempRestoredScripts[scriptsWithDetails[index][0]] = scriptsWithDetails[index][1];
+                if (history.length > 0) {
+                  unusedScriptCounter = 0; // reset counter
+                  // update the restored scripts with all the script details until now
+                  restoredScripts = { ...restoredScripts, ...tempRestoredScripts };
+                  tempRestoredScripts = {};
+                  const newMaxIndex = index + batchCount + 1;
+                  if (isInternal) nextInternalIndex = newMaxIndex;
+                  else nextExternalIndex = newMaxIndex;
+
+                  // update the history set
+                  for (const { tx_hash, height } of history) {
+                    historyTxsId.add(tx_hash);
+                    txidHeight.set(tx_hash, height);
+                  }
+                } else {
+                  unusedScriptCounter += 1;
+                }
               }
+              batchCount += gapLimit;
             }
-            await get().computeBalances();
-          } catch (e) {
-            console.error('Error while syncing wallet', e);
           }
+
+          const txs = await chainSource.fetchTransactions(Array.from(historyTxsId));
+          const txsObj = Object.fromEntries(txs.map(({ txid, hex }) => [txid, { hex }]));
+          const historyObj = Object.fromEntries(
+            Array.from(historyTxsId).map((txid) => [txid, { height: txidHeight.get(txid) ?? 0 }])
+          );
+          const txsAndHistory = Object.fromEntries(
+            Object.entries(txsObj).map(([txid, tx]) => [txid, { ...tx, ...historyObj[txid] }])
+          );
+          set((state) => ({ txs: { ...state.txs, ...txsAndHistory } }), false, 'sync/txs');
+          set({ scriptDetails: restoredScripts }, false, 'sync/scriptDetails');
+          set({ nextInternalIndex, nextExternalIndex }, false, 'sync/nextIndexes');
+          await get().setTxos();
+          return { nextInternalIndex, nextExternalIndex };
         },
-        unblindUtxos: async (...outputs) => {
+        unblindUtxos: async (outputs) => {
           const scriptDetails = get().scriptDetails;
           const unblindingResults: (UnblindingData | Error)[] = [];
           for (const output of outputs) {
@@ -710,11 +725,6 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               if (!blindingPrivKey) continue;
               const zkpLib = await zkp();
               const lib = new confidential.Confidential(zkpLib);
-              //
-              // const slip77node = slip77.fromMasterBlindingKey(get().masterBlindingKey);
-              // const blindPrivKey = slip77node.derive(output.script).privateKey;
-              // if (!blindPrivKey) throw new Error('Blinding private key error for script ' + output.script.toString('hex'));
-              //
               const unblinded = lib.unblindOutputWithKey(output, Buffer.from(blindingPrivKey, 'hex'));
               unblindingResults.push({
                 value: parseInt(unblinded.value, 10),

@@ -27,7 +27,8 @@ export const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const setIsAuthorized = useWalletStore((state) => state.setIsAuthorized);
   const generateMasterKeys = useWalletStore((state) => state.generateMasterKeys);
   const sync = useWalletStore((state) => state.sync);
-  const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
+  // const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
+  const computeBalances = useWalletStore((state) => state.computeBalances);
   //
   const [mnemonic, setMnemonicWord] = useMnemonic();
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
@@ -68,8 +69,7 @@ export const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
       setIsAuthorized(true);
       generateMasterKeys(mnemonicStr);
       await sync();
-      // each script with history re-trigger updateTxsAndUtxosFromScripts but processing is skipped if script already in store
-      // then computeBalances is triggered
+      await computeBalances();
       // await subscribeAllScripts();
       setTimeout(() => {
         setModalOpen(undefined);
