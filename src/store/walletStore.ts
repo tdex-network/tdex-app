@@ -242,7 +242,6 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           const currency = useSettingsStore.getState().currency;
           const lbtcDenomination = useSettingsStore.getState().lbtcDenomination;
           const utxos = get().computeUtxosFromTxs();
-          console.log('computeBalances utxos', utxos);
           let balances: Balances = {};
           for (const utxo of utxos) {
             if (utxo?.blindingData) {
@@ -344,9 +343,6 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               const [txid, vout] = outpoint.split(':');
               return { txid, vout: Number(vout) };
             });
-          console.log('utxosOutpoints', utxosOutpoints);
-          console.log('get().txos', get().txos);
-          //console.log('outpointToString(outpoint)', outpointToString(outpoint));
           return utxosOutpoints.map((outpoint) => get().txos[outpointToString(outpoint)]);
         },
         computeHeuristicFromTx: async (txDetails, assetHash = '') => {
