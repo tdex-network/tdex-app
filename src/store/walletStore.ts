@@ -653,6 +653,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
 
           const walletChains = [0, 1];
           for (const i of walletChains) {
+            tempRestoredScripts = {};
             const isInternal = i === 1;
             let batchCount = isInternal ? nextInternalIndex : nextExternalIndex;
             let unusedScriptCounter = 0;
