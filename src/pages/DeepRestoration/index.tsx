@@ -16,8 +16,7 @@ const DeepRestoration: React.FC = () => {
   const decryptMnemonic = useWalletStore((state) => state.decryptMnemonic);
   const resetWalletStore = useWalletStore((state) => state.resetWalletStore);
   const sync = useWalletStore((state) => state.sync);
-  // const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
-  const computBalances = useWalletStore((state) => state.computeBalances);
+  const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
   //
   const [rangeValue, setRangeValue] = useState<RangeValue>(20);
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
@@ -51,8 +50,7 @@ const DeepRestoration: React.FC = () => {
     try {
       resetWalletStore();
       await sync(Number(rangeValue));
-      await computBalances();
-      // await subscribeAllScripts();
+      await subscribeAllScripts();
       addSuccessToast('Account discovery successful');
     } catch (err) {
       console.error(err);

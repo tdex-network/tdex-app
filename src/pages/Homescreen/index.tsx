@@ -23,6 +23,16 @@ const Homescreen: React.FC = () => {
   const [needReset, setNeedReset] = useState<boolean>(false);
   const [loadingMessage, setLoadingMessage] = useState('Searching mnemonic in secure storage...');
 
+  useIonViewWillEnter(() => {
+    const init = async () => {
+      setLoading(true);
+      await setKeyboardTheme(KeyboardStyle.Dark);
+    };
+    init()
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  });
+
   const onConfirmPinModal = (pin: string) => {
     try {
       decryptMnemonic(pin);
@@ -34,9 +44,6 @@ const Homescreen: React.FC = () => {
         setNeedReset(true);
         setLoading(false);
         setPinModalIsOpen(false);
-        // setIsAuth will cause redirect to /wallet
-        // Restore state
-        // signIn(mnemonic);
       }, PIN_TIMEOUT_SUCCESS);
     } catch (err) {
       console.error(err);
@@ -49,19 +56,6 @@ const Homescreen: React.FC = () => {
       addErrorToast(IncorrectPINError);
     }
   };
-
-  useIonViewWillEnter(() => {
-    const init = async () => {
-      setLoading(true);
-      // if (!isAppInitialized) initApp();
-      await setKeyboardTheme(KeyboardStyle.Dark);
-      // const mnemonicExists = await checkMnemonicInStorage();
-      // if (mnemonicExists) setPinModalIsOpen(true);
-    };
-    init()
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  });
 
   return (
     <IonPage id="homescreen">

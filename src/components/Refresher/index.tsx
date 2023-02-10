@@ -4,15 +4,15 @@ import { chevronDownCircleOutline } from 'ionicons/icons';
 import { useWalletStore } from '../../store/walletStore';
 
 const Refresher: React.FC<{ onRefresh?: () => void }> = ({ onRefresh }) => {
-  const computeBalances = useWalletStore((state) => state.computeBalances);
   const sync = useWalletStore((state) => state.sync);
+  const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
 
   return (
     <IonRefresher
       slot="fixed"
       onIonRefresh={async (e) => {
         await sync();
-        await computeBalances();
+        await subscribeAllScripts();
         if (onRefresh) onRefresh();
         // Another top-right spinner shows actual update state
         setTimeout(() => e.detail.complete(), 1000);

@@ -27,8 +27,7 @@ export const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const setIsAuthorized = useWalletStore((state) => state.setIsAuthorized);
   const generateMasterKeys = useWalletStore((state) => state.generateMasterKeys);
   const sync = useWalletStore((state) => state.sync);
-  // const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
-  const computeBalances = useWalletStore((state) => state.computeBalances);
+  const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
   //
   const [mnemonic, setMnemonicWord] = useMnemonic();
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
@@ -62,15 +61,14 @@ export const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
     if (newPin === firstPin) {
       setLoading(true);
       const mnemonicStr = mnemonic.join(' ');
-      setMnemonicEncrypted(mnemonicStr, newPin);
+      await setMnemonicEncrypted(mnemonicStr, newPin);
       addSuccessToast('Mnemonic generated and encrypted with your PIN.');
       setIsWrongPin(false);
       setIsBackupDone(true);
       setIsAuthorized(true);
       generateMasterKeys(mnemonicStr);
       await sync();
-      await computeBalances();
-      // await subscribeAllScripts();
+      await subscribeAllScripts();
       setTimeout(() => {
         setModalOpen(undefined);
         setIsWrongPin(null);

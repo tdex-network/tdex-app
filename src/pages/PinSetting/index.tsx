@@ -42,7 +42,6 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
   const setMnemonicEncrypted = useWalletStore((state) => state.setMnemonicEncrypted);
   const setIsAuthorized = useWalletStore((state) => state.setIsAuthorized);
   const generateMasterKeys = useWalletStore((state) => state.generateMasterKeys);
-  const sync = useWalletStore((state) => state.sync);
   //
   const { state } = useLocation<LocationState>();
   const [firstPin, setFirstPin] = useState<string>('');
@@ -94,7 +93,7 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
           setIsPinInputLocked(true);
           try {
             // Coming from Show Mnemonic or from Backup Wallet 'do it later'
-            setMnemonicEncrypted(state?.mnemonic ?? bip39.generateMnemonic(), secondPin);
+            await setMnemonicEncrypted(state?.mnemonic ?? bip39.generateMnemonic(), secondPin);
             addSuccessToast('Mnemonic generated and encrypted with your PIN.');
             setIsWrongPin(false);
             setIsPinValidated(true);

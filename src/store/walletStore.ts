@@ -146,8 +146,9 @@ interface WalletActions {
   lockOutpoint: (outpoint: Outpoint) => string;
   selectUtxos: (targets: Recipient[], lock: boolean) => Promise<CoinSelection>;
   setIsAuthorized: (isAuthorized: boolean) => void;
-  setMnemonicEncrypted: (mnemonic: string, pin: string) => void;
+  setMnemonicEncrypted: (mnemonic: string, pin: string) => Promise<void>;
   setTxos: () => void;
+  subscribeScript: (script: Buffer) => Promise<void>;
   subscribeAllScripts: () => Promise<void>;
   sync: (gapLimit?: number) => Promise<{ nextInternalIndex: number; nextExternalIndex: number }>;
   resetWalletStore: () => void;
@@ -461,6 +462,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             publicKey: pubKey[0].publicKey,
             derivationPath: pubKey[0].derivationPath,
           });
+          await get().subscribeScript(Buffer.from(scriptDetails[0], 'hex'));
           // increment the account details last used index & persist the new script details
           set({ [isInternal ? 'nextInternalIndex' : 'nextExternalIndex']: nextIndex + 1 }, false, 'setNextIndex');
           set(
@@ -595,24 +597,29 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             'setTxos'
           );
         },
-        subscribeAllScripts: async () => {
-          const scripts = Object.keys(get().scriptDetails).map((s) => Buffer.from(s, 'hex'));
-          console.warn(`subscribing to ${scripts.length} scripts`);
+        subscribeScript: async (script) => {
           const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
           const client = new ElectrumWS(websocketExplorerURL);
           const chainSource = new WsElectrumChainSource(client);
+          await chainSource.subscribeScriptStatus(script, async (_: string, __: string | null) => {
+            const history = await chainSource.fetchHistories([script]);
+            const historyTxId = history[0].map(({ tx_hash }) => tx_hash);
+            const txs = await chainSource.fetchTransactions(historyTxId);
+            const txsObj = Object.fromEntries(txs.map(({ txid, hex }) => [txid, { hex }]));
+            const historyObj = Object.fromEntries(history[0].map(({ tx_hash, height }) => [tx_hash, { height }]));
+            const txsAndHistory = Object.fromEntries(
+              Object.entries(txsObj).map(([txid, tx]) => [txid, { ...tx, ...historyObj[txid] }])
+            );
+            set((state) => ({ txs: { ...state.txs, ...txsAndHistory } }), false, 'subscribeScript/txs');
+            await get().setTxos();
+            await get().computeBalances();
+          });
+        },
+        subscribeAllScripts: async () => {
+          const scripts = Object.keys(get().scriptDetails).map((s) => Buffer.from(s, 'hex'));
+          console.warn(`subscribing to ${scripts.length} scripts`);
           for (const script of scripts) {
-            await chainSource.subscribeScriptStatus(script, async (_: string, __: string | null) => {
-              const history = await chainSource.fetchHistories([script]);
-              const historyTxId = history[0].map(({ tx_hash }) => tx_hash);
-              const txs = await chainSource.fetchTransactions(historyTxId);
-              const txsObj = Object.fromEntries(txs.map(({ txid, hex }) => [txid, { hex }]));
-              const historyObj = Object.fromEntries(history[0].map(({ tx_hash, height }) => [tx_hash, { height }]));
-              const txsAndHistory = Object.fromEntries(
-                Object.entries(txsObj).map(([txid, tx]) => [txid, { ...tx, ...historyObj[txid] }])
-              );
-              set((state) => ({ txs: { ...state.txs, ...txsAndHistory } }), false, 'subscribeAllScripts/txs');
-            });
+            await get().subscribeScript(script);
           }
         },
         sync: async (gapLimit = GAP_LIMIT) => {
@@ -620,7 +627,6 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           const client = new ElectrumWS(websocketExplorerURL);
           const chainSource = new WsElectrumChainSource(client);
           //
-          const historyTxsId: Set<string> = new Set();
           const txidHeight: Map<string, number | undefined> = new Map();
           let restoredScripts: Record<string, ScriptDetails> = {};
           let tempRestoredScripts: Record<string, ScriptDetails> = {};
@@ -653,7 +659,6 @@ export const useWalletStore = create<WalletState & WalletActions>()(
 
                   // update the history set
                   for (const { tx_hash, height } of history) {
-                    historyTxsId.add(tx_hash);
                     txidHeight.set(tx_hash, height);
                   }
                 } else {
@@ -664,18 +669,13 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             }
           }
 
-          const txs = await chainSource.fetchTransactions(Array.from(historyTxsId));
-          const txsObj = Object.fromEntries(txs.map(({ txid, hex }) => [txid, { hex }]));
-          const historyObj = Object.fromEntries(
-            Array.from(historyTxsId).map((txid) => [txid, { height: txidHeight.get(txid) ?? 0 }])
-          );
-          const txsAndHistory = Object.fromEntries(
-            Object.entries(txsObj).map(([txid, tx]) => [txid, { ...tx, ...historyObj[txid] }])
-          );
-          set((state) => ({ txs: { ...state.txs, ...txsAndHistory } }), false, 'sync/txs');
-          set({ scriptDetails: restoredScripts }, false, 'sync/scriptDetails');
           set({ nextInternalIndex, nextExternalIndex }, false, 'sync/nextIndexes');
-          await get().setTxos();
+          set(
+            (state) => ({ scriptDetails: { ...state.scriptDetails, ...restoredScripts } }),
+            false,
+            'sync/scriptDetails'
+          );
+          // We set txs, txos and balances only in subscribeScript to avoid doing it twice
           return { nextInternalIndex, nextExternalIndex };
         },
         unblindUtxos: async (outputs) => {
