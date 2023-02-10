@@ -142,7 +142,6 @@ interface WalletActions {
   deriveBatchPublicKeys: (start: number, end: number, isInternal: boolean) => PubKeyWithRelativeDerivationPath[];
   deriveBlindingKey: (script: Buffer) => { publicKey: Buffer; privateKey: Buffer };
   generateMasterKeys: (mnemonic: string) => void;
-  //getAllAddresses: () => Promise<string[]>;
   getNextAddress: (isInternal: boolean) => Promise<ScriptDetails>;
   lockOutpoint: (outpoint: Outpoint) => string;
   selectUtxos: (targets: Recipient[], lock: boolean) => Promise<CoinSelection>;
@@ -455,48 +454,26 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           const masterBlindingKey = slip77.fromSeed(seed).masterKey.toString('hex');
           set({ masterBlindingKey }, false, 'setMasterBlindingKey');
         },
-        /*
-        getAllAddresses: async () => {
-          const nextExternalIndex = get().nextExternalIndex ?? 0;
-          const nextInternalIndex = get().nextInternalIndex ?? 0;
-          const network = useSettingsStore.getState().network;
-          const externalScripts = Object.keys(await get().deriveBatch(0, nextExternalIndex, false, false));
-          const internalScripts = Object.keys(await get().deriveBatch(0, nextInternalIndex, true, false));
-          const scripts = [...externalScripts, ...internalScripts];
-          return scripts.map((script) => {
-            const { publicKey } = get().deriveBlindingKey(Buffer.from(script, 'hex'));
-            return payments.p2wpkh({
-              output: Buffer.from(script, 'hex'),
-              network: networks[network],
-              blindkey: publicKey,
-            }).address!;
-          });
-        },
-        */
         getNextAddress: async (isInternal: boolean) => {
-          const network = useSettingsStore.getState().network;
           const nextIndex = isInternal ? get().nextInternalIndex ?? 0 : get().nextExternalIndex ?? 0;
           const pubKey = get().deriveBatchPublicKeys(nextIndex, nextIndex + 1, isInternal);
           const scriptDetails = get().createP2PWKHScript({
             publicKey: pubKey[0].publicKey,
             derivationPath: pubKey[0].derivationPath,
           });
-          const script = Buffer.from(scriptDetails[0], 'hex');
-          if (!script) throw new Error('Could not derive script');
-          const { publicKey, privateKey } = get().deriveBlindingKey(script);
-          const payment = payments.p2wpkh({
-            output: script,
-            network: networks[network],
-            blindkey: publicKey,
-          });
-          if (!payment) throw new Error('Could not derive address');
-          return {
-            confidentialAddress: payment.confidentialAddress!,
-            blindingPrivateKey: privateKey.toString('hex'),
-            blindingPublicKey: publicKey.toString('hex'),
-            publicKey: payment.pubkey?.toString('hex'),
-            script: script.toString('hex'),
-          };
+          // increment the account details last used index & persist the new script details
+          set({ [isInternal ? 'nextInternalIndex' : 'nextExternalIndex']: nextIndex + 1 }, false, 'setNextIndex');
+          set(
+            (state) => ({
+              scriptDetails: {
+                ...state.scriptDetails,
+                [scriptDetails[0]]: scriptDetails[1],
+              },
+            }),
+            false,
+            'setScriptDetails'
+          );
+          return scriptDetails[1];
         },
         lockOutpoint: ({ txid, vout }) => {
           const outpointStr = outpointToString({ txid, vout });
