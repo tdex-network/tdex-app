@@ -24,6 +24,7 @@ import {
   isLbtc,
   isLcad,
   isUsdt,
+  outpointStrToOutpoint,
   outpointToString,
 } from '../utils/helpers';
 
@@ -332,18 +333,23 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             for (let i = 0; i < tx.outs.length; i++) {
               if (
                 !Object.keys(get().scriptDetails).find((script) => Buffer.from(script, 'hex').equals(tx.outs[i].script))
-              )
+              ) {
                 continue;
+              }
               walletOutputs.add(`${tx.getId()}:${i}`);
             }
           }
           const utxosOutpoints = Array.from(walletOutputs)
-            .filter((outpoint) => !outpointsInInputs.has(outpoint))
-            .map((outpoint) => {
-              const [txid, vout] = outpoint.split(':');
-              return { txid, vout: Number(vout) };
-            });
-          return utxosOutpoints.map((outpoint) => get().txos[outpointToString(outpoint)]);
+            .filter((outpointStr) => !outpointsInInputs.has(outpointStr))
+            .filter((outpointStr) => !get().lockedOutpoints.find((locked) => locked === outpointStr))
+            .map((outpointStr) => outpointStrToOutpoint(outpointStr));
+          //
+          return utxosOutpoints.map((outpoint) => {
+            const outpointStr = outpointToString(outpoint);
+            const unblindedOutput = get().txos[outpointStr];
+            if (!unblindedOutput) console.error(`Output ${outpointStr} is missing`);
+            return unblindedOutput;
+          });
         },
         computeHeuristicFromTx: async (txDetails, assetHash = '') => {
           const txTypeFromAmount = (amount?: number): TxType => {
@@ -528,7 +534,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               [{ address: 'fake', value: target.value }],
               0
             );
-            if (inputs) {
+            if (inputs.length > 0) {
               selectedUtxos.push(
                 ...(inputs as { txId: string; vout: number }[]).map(
                   (input) =>
@@ -538,7 +544,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
                 )
               );
             }
-            if (outputs) {
+            if (outputs.length > 0) {
               changeOutputs.push(
                 ...outputs
                   .filter((output: any) => output.address === undefined) // only add change outputs
@@ -573,7 +579,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             const unblindedResults = await get().unblindUtxos(tx.outs);
             for (const [vout, unblinded] of unblindedResults.entries()) {
               if (unblinded instanceof Error) {
-                console.error('Error while unblinding utxos', unblinded);
+                console.debug('Error while unblinding utxos', unblinded);
                 continue;
               }
               txos = {
@@ -683,8 +689,8 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           const unblindingResults: (UnblindingData | Error)[] = [];
           for (const output of outputs) {
             try {
-              // if output is unconfidential, we don't need to unblind it
-              if (!isConfidentialOutput(output)) {
+              // if output is unconfidential and not fees, we don't need to unblind it
+              if (!isConfidentialOutput(output) && output.script.toString('hex')) {
                 unblindingResults.push({
                   value: confidentialValueToSatoshi(output.value),
                   asset: AssetHash.fromBytes(output.asset).hex,
@@ -695,11 +701,11 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               }
               // if output is confidential, we need to unblind it
               const script = output.script.toString('hex');
-              const blindingPrivKey = scriptDetails[script]?.blindingPrivateKey;
-              if (!blindingPrivKey) continue;
+              const blindingPrivateKey = scriptDetails[script]?.blindingPrivateKey;
+              if (!scriptDetails[script]?.blindingPrivateKey) throw new Error('No blinding private key');
               const zkpLib = await zkp();
               const lib = new confidential.Confidential(zkpLib);
-              const unblinded = lib.unblindOutputWithKey(output, Buffer.from(blindingPrivKey, 'hex'));
+              const unblinded = lib.unblindOutputWithKey(output, Buffer.from(blindingPrivateKey, 'hex'));
               unblindingResults.push({
                 value: parseInt(unblinded.value, 10),
                 asset: AssetHash.fromBytes(unblinded.asset).hex,

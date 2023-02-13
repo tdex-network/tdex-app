@@ -15,8 +15,7 @@ import {
 } from '@ionic/react';
 import classNames from 'classnames';
 import { checkmarkSharp } from 'ionicons/icons';
-import { payments } from 'liquidjs-lib';
-import { getNetwork } from 'liquidjs-lib/src/address';
+import { networks, payments } from 'liquidjs-lib';
 import React, { useEffect, useMemo, useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import { useParams } from 'react-router';
@@ -81,18 +80,19 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
       history.push(`/tradesummary/${tx.txid}`);
     } else if (TxType[tx.type] === 'Withdraw' || TxType[tx.type] === 'Deposit') {
       const master = slip77.fromMasterBlindingKey(masterBlindingKey);
+      // TODO: transfers
       const derived = master.derive('tx.transfers[0].script');
       const p2wpkh = payments.p2wpkh({
         output: Buffer.from('tx.transfers[0].script', 'hex'),
         blindkey: derived.publicKey,
-        network: getNetwork(network),
+        network: networks[network],
       });
       history.push(`/transaction/${tx.txid}`, {
         address: p2wpkh.confidentialAddress,
         amount: fromSatoshiFixed(
           'tx.transfers[0].amount.toString()',
-          assets[asset_id]?.precision,
-          assets[asset_id]?.precision,
+          assets[asset_id]?.precision ?? 8,
+          assets[asset_id]?.precision ?? 8,
           isLbtc(asset_id, network) ? lbtcUnit : undefined
         ),
         asset: asset_id,

@@ -1,5 +1,6 @@
 import './style.scss';
 import { IonPage, IonContent, IonSkeletonText, IonGrid, IonRow, IonCol } from '@ionic/react';
+import { Transaction } from 'liquidjs-lib';
 import React, { useEffect, useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter, useParams } from 'react-router';
@@ -14,7 +15,7 @@ import type { TxHeuristic } from '../../store/walletStore';
 import { useWalletStore } from '../../store/walletStore';
 import { clipboardCopy } from '../../utils/clipboard';
 import type { LbtcDenomination } from '../../utils/constants';
-import { isLbtc } from '../../utils/helpers';
+import { isLbtc, makeURLwithBlinders } from '../../utils/helpers';
 
 interface transactionDetailsLocationState {
   address: string;
@@ -126,8 +127,8 @@ const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDeta
 
                 <div
                   className="item-main-info"
-                  onClick={() => {
-                    clipboardCopy(`${explorerLiquidUI}/tx/${txid}`, () => {
+                  onClick={async () => {
+                    clipboardCopy(await makeURLwithBlinders(Transaction.fromHex(txs[txid].hex)), () => {
                       addSuccessToast('TxID copied!');
                     });
                   }}

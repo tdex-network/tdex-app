@@ -25,7 +25,6 @@ import { BlinderService } from '../../services/blinderService';
 import { WsElectrumChainSource } from '../../services/chainSource';
 import { SignerService } from '../../services/signerService';
 import { ElectrumWS } from '../../services/ws/ws-electrs';
-import { useAppStore } from '../../store/appStore';
 import { useAssetStore } from '../../store/assetStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useToastStore } from '../../store/toastStore';
@@ -50,7 +49,6 @@ type LocationState = {
 };
 
 export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> = ({ history, location }) => {
-  const setIsFetchingUtxos = useAppStore((state) => state.setIsFetchingUtxos);
   const assets = useAssetStore((state) => state.assets);
   const network = useSettingsStore((state) => state.network);
   const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
@@ -146,11 +144,6 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
       console.log('txid', txid);
       //
       addSuccessToast(`Transaction broadcasted. ${amount} ${assets[asset_id]?.ticker} sent.`);
-      // watchTransaction(txid);
-      // Trigger spinner right away
-      // setIsFetchingUtxos(true);
-      // But update after a few seconds to make sure new utxo is ready to fetch
-      // setTimeout(() => updateUtxos(), 12_000);
       history.replace(`/transaction/${txid}`, {
         address: recipientAddress,
         amount: `-${amount}`,
@@ -165,7 +158,6 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
         setIsWrongPin(null);
         setNeedReset(true);
       }, PIN_TIMEOUT_FAILURE);
-      // unlockUtxos();
       addErrorToast(WithdrawTxError);
     } finally {
       setModalOpen(false);
