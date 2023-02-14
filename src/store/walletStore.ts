@@ -1,5 +1,4 @@
 import zkp from '@vulpemventures/secp256k1-zkp';
-import axios from 'axios';
 import BIP32Factory from 'bip32';
 import { mnemonicToSeedSync } from 'bip39';
 import { address, AssetHash, confidential, networks, payments, Transaction } from 'liquidjs-lib';
@@ -31,14 +30,10 @@ import {
 import { useAssetStore } from './assetStore';
 import { useBitcoinStore } from './bitcoinStore';
 import { storage } from './capacitorPersistentStorage';
-import type { Currency } from './settingsStore';
+import { useRateStore } from './rateStore';
 import { useSettingsStore } from './settingsStore';
 
 let coinSelect = require('coinselect');
-
-const coinGeckoUrl = 'https://api.coingecko.com/api/v3';
-export const axiosCoinGeckoObject = axios.create({ baseURL: coinGeckoUrl });
-export type CoinGeckoPriceResult = Record<string, Record<Currency['ticker'], number>>;
 
 export type PubKeyWithRelativeDerivationPath = {
   publicKey: Buffer;
@@ -134,7 +129,7 @@ interface WalletActions {
   addScriptDetails: (scriptDetails: ScriptDetails) => void;
   changePin: (currentPIN: string, newPIN: string) => Promise<void>;
   clearScriptDetails: () => void;
-  computeBalances: () => Promise<Balances>;
+  computeBalances: () => Promise<void>;
   computeUtxosFromTxs: () => UnblindedOutput[];
   computeHeuristicFromTx: (txDetails: TxDetails, assetHash?: string) => Promise<TxHeuristic | undefined>;
   computeHeuristicFromPegins: () => TxHeuristic[] | undefined;
@@ -242,6 +237,13 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           const network = useSettingsStore.getState().network;
           const currency = useSettingsStore.getState().currency;
           const lbtcDenomination = useSettingsStore.getState().lbtcDenomination;
+          const zeroLbtcBalance = {
+            [LBTC_ASSET[network].assetHash]: {
+              sats: 0,
+              value: 0,
+              counterValue: 0,
+            },
+          };
           const utxos = get().computeUtxosFromTxs();
           let balances: Balances = {};
           for (const utxo of utxos) {
@@ -267,59 +269,46 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               }
             }
           }
-          // Fetch fiat prices
-          const { data, status } = await axiosCoinGeckoObject.get<CoinGeckoPriceResult>('/simple/price', {
-            params: {
-              ids: `${LBTC_COINGECKOID}`,
-              vs_currencies: 'usd,cad,eur',
-            },
-          });
-          if (status !== 200) {
-            console.error('CoinGecko price fetching failed');
-            return {};
-          }
           let totalSats = 0;
-          for (const [assetHash, balance] of Object.entries(balances)) {
-            // compute fiat counter-value for lbtc
-            if (isLbtc(assetHash, network)) {
-              balance.counterValue =
-                fromSatoshi(balance.sats.toString()).toNumber() * data[LBTC_COINGECKOID][currency.ticker];
-              totalSats += balance.sats;
+          let totalCounterValue = 0;
+          await useRateStore.getState().fetchFiatRates();
+          const rates = await useRateStore.getState().rates;
+          if (rates) {
+            for (const [assetHash, balance] of Object.entries(balances)) {
+              // compute fiat counter-value for lbtc
+              if (isLbtc(assetHash, network)) {
+                balance.counterValue =
+                  fromSatoshi(balance.sats.toString()).toNumber() * rates[LBTC_COINGECKOID][currency.ticker];
+                totalSats += balance.sats;
+              }
+              // compute lbtc counter-value for available fiat currencies (usd, cad)
+              if (isUsdt(assetHash, network)) {
+                balance.counterValue = fromSatoshi(balance.sats.toString()).toNumber() / rates[LBTC_COINGECKOID]['usd'];
+                totalSats += balance.counterValue;
+              }
+              if (isLcad(assetHash, network)) {
+                balance.counterValue = fromSatoshi(balance.sats.toString()).toNumber() / rates[LBTC_COINGECKOID]['cad'];
+                totalSats += balance.counterValue;
+              }
             }
-            // compute lbtc counter-value for available fiat currencies (usd, cad)
-            if (isUsdt(assetHash, network)) {
-              balance.counterValue = fromSatoshi(balance.sats.toString()).toNumber() / data[LBTC_COINGECKOID]['usd'];
-              totalSats += balance.counterValue;
-            }
-            if (isLcad(assetHash, network)) {
-              balance.counterValue = fromSatoshi(balance.sats.toString()).toNumber() / data[LBTC_COINGECKOID]['cad'];
-              totalSats += balance.counterValue;
-            }
+            //
+            totalCounterValue =
+              fromSatoshi(totalSats.toString()).toNumber() * (rates[LBTC_COINGECKOID]?.[currency.ticker] ?? 0);
           }
           // If no balances, return LBTC balance of 0
-          if (Object.keys(balances).length === 0) {
-            balances = {
-              [LBTC_ASSET[network].assetHash]: {
-                sats: 0,
-                value: 0,
-                counterValue: 0,
-              },
-            };
-          }
+          if (Object.keys(balances).length === 0) balances = zeroLbtcBalance;
           set({ balances }, false, 'computeBalances/setBalances');
           set(
             {
               totalBtc: {
                 sats: totalSats,
-                counterValue:
-                  fromSatoshi(totalSats.toString()).toNumber() * (data[LBTC_COINGECKOID]?.[currency.ticker] ?? 0),
+                counterValue: totalCounterValue,
                 value: fromSatoshi(totalSats.toString(), 8, lbtcDenomination).toNumber(),
               },
             },
             false,
             'computeBalances/setTotalBtc'
           );
-          return balances;
         },
         computeUtxosFromTxs: () => {
           const txs = get().txs;
@@ -534,7 +523,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               [{ address: 'fake', value: target.value }],
               0
             );
-            if (inputs.length > 0) {
+            if (inputs) {
               selectedUtxos.push(
                 ...(inputs as { txId: string; vout: number }[]).map(
                   (input) =>
@@ -544,7 +533,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
                 )
               );
             }
-            if (outputs.length > 0) {
+            if (outputs) {
               changeOutputs.push(
                 ...outputs
                   .filter((output: any) => output.address === undefined) // only add change outputs

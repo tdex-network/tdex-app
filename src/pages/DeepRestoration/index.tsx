@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
+import { useRateStore } from '../../store/rateStore';
 import { useToastStore } from '../../store/toastStore';
 import { useWalletStore } from '../../store/walletStore';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
@@ -15,6 +16,7 @@ const DeepRestoration: React.FC = () => {
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const decryptMnemonic = useWalletStore((state) => state.decryptMnemonic);
   const resetWalletStore = useWalletStore((state) => state.resetWalletStore);
+  const resetRateStore = useRateStore((state) => state.resetRateStore);
   const sync = useWalletStore((state) => state.sync);
   const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
   //
@@ -49,6 +51,7 @@ const DeepRestoration: React.FC = () => {
   const handleRestoration = async (mnemonic: string) => {
     try {
       resetWalletStore();
+      resetRateStore();
       await sync(Number(rangeValue));
       await subscribeAllScripts();
       addSuccessToast('Account discovery successful');
