@@ -101,7 +101,7 @@ export interface Recipient {
 // satoshi amount computed from utxos,
 // value is formatted value, either in fiat for fiat, or in favorite bitcoin unit for bitcoin
 // counterValue determined by chosen favorite currency}
-export type Balance = { sats: number; value: number; counterValue?: number };
+export type Balance = { sats: number; value: number; counterValue?: string };
 export type Balances = Record<string, Balance>;
 
 export interface TxDetails {
@@ -120,7 +120,7 @@ interface WalletState {
   masterBlindingKey: string;
   scriptDetails: Record<string, ScriptDetails>; // script, scriptDetails
   txs: Record<string, TxDetails>; // txid, transaction
-  totalBtc?: { sats: number; value: number; counterValue?: number };
+  totalBtc?: { sats: number; value: number; counterValue?: string };
   txsHeuristic?: Record<string, TxHeuristic>; // txid, TxHeuristic
   txos: Record<string, UnblindedOutput>; // outpointStr, utxo
 }
@@ -241,7 +241,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             [LBTC_ASSET[network].assetHash]: {
               sats: 0,
               value: 0,
-              counterValue: 0,
+              counterValue: '0',
             },
           };
           const utxos = get().computeUtxosFromTxs();
@@ -254,7 +254,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
                 [assetHash]: {
                   sats: (balances?.[assetHash]?.sats ?? 0) + assetAmount,
                   value: 0,
-                  counterValue: 0,
+                  counterValue: '0',
                 },
               };
               // Format amounts
@@ -270,30 +270,33 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             }
           }
           let totalSats = 0;
-          let totalCounterValue = 0;
+          let totalCounterValue = '0';
           await useRateStore.getState().fetchFiatRates();
           const rates = await useRateStore.getState().rates;
           if (rates) {
             for (const [assetHash, balance] of Object.entries(balances)) {
               // compute fiat counter-value for lbtc
               if (isLbtc(assetHash, network)) {
-                balance.counterValue =
-                  fromSatoshi(balance.sats.toString()).toNumber() * rates[LBTC_COINGECKOID][currency.ticker];
+                const val = fromSatoshi(balance.sats.toString()).toNumber() * rates[LBTC_COINGECKOID][currency.ticker];
+                balance.counterValue = val.toFixed(2);
                 totalSats += balance.sats;
               }
               // compute lbtc counter-value for available fiat currencies (usd, cad)
               if (isUsdt(assetHash, network)) {
-                balance.counterValue = fromSatoshi(balance.sats.toString()).toNumber() / rates[LBTC_COINGECKOID]['usd'];
-                totalSats += balance.counterValue;
+                const val = fromSatoshi(balance.sats.toString()).toNumber() / rates[LBTC_COINGECKOID]['usd'];
+                balance.counterValue = val.toFixed(2);
+                totalSats += val;
               }
               if (isLcad(assetHash, network)) {
-                balance.counterValue = fromSatoshi(balance.sats.toString()).toNumber() / rates[LBTC_COINGECKOID]['cad'];
-                totalSats += balance.counterValue;
+                const val = fromSatoshi(balance.sats.toString()).toNumber() / rates[LBTC_COINGECKOID]['cad'];
+                balance.counterValue = val.toFixed(2);
+                totalSats += val;
               }
             }
             //
-            totalCounterValue =
+            const val =
               fromSatoshi(totalSats.toString()).toNumber() * (rates[LBTC_COINGECKOID]?.[currency.ticker] ?? 0);
+            totalCounterValue = val.toFixed(2);
           }
           // If no balances, return LBTC balance of 0
           if (Object.keys(balances).length === 0) balances = zeroLbtcBalance;

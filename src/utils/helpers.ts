@@ -120,9 +120,7 @@ export function isLcad(asset: string, network: NetworkString): boolean {
   return asset === LCAD_ASSET[network].assetHash;
 }
 
-/**
- * function can be used with sort()
- */
+// can be used with sort()
 export function compareTxDate(a: TxHeuristic, b: TxHeuristic): number {
   return b.blockTime?.diff(a.blockTime) || 0;
 }
@@ -131,9 +129,7 @@ export function getIndexAndIsChangeFromAddress(addr: ScriptDetails): {
   index: number;
   isChange: boolean;
 } {
-  if (!addr.derivationPath) {
-    throw new Error('need derivation path to be defined');
-  }
+  if (!addr.derivationPath) throw new Error('need derivation path to be defined');
   const derivationPathSplitted = addr.derivationPath.split('/');
   return {
     index: parseInt(derivationPathSplitted[derivationPathSplitted.length - 1]),

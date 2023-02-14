@@ -47,7 +47,7 @@ export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
     const balancesToDisplay: [string, Balance][] = [];
     if (!Object.keys(balances ?? {}).length) {
       // Display L-BTC with empty balance
-      balancesToDisplay.push([LBTC_ASSET[network].assetHash, { value: 0, counterValue: 0, sats: 0 }]);
+      balancesToDisplay.push([LBTC_ASSET[network].assetHash, { value: 0, counterValue: '0', sats: 0 }]);
     } else {
       for (const assetHash in balances) {
         balancesToDisplay.push([assetHash, balances[assetHash]]);
@@ -136,7 +136,7 @@ export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
                         </span>
                       </div>
                       <div className="amount-fiat">
-                        {balance.counterValue?.toFixed(2)} {currency.ticker.toUpperCase()}
+                        {balance.counterValue} {currency.ticker.toUpperCase()}
                       </div>
                     </div>
                   </div>

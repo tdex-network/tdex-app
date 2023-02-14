@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 
 import type { Currency } from '../../store/settingsStore';
 import { useSettingsStore } from '../../store/settingsStore';
+import { useWalletStore } from '../../store/walletStore';
 import { CURRENCIES } from '../../utils/constants';
 
 interface CurrencySearchProps {
@@ -13,6 +14,7 @@ interface CurrencySearchProps {
 
 const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
   const setCurrency = useSettingsStore((state) => state.setCurrency);
+  const computeBalances = useWalletStore((state) => state.computeBalances);
   //
   const [searchString, setSearchString] = useState('');
 
@@ -47,9 +49,9 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
                   className="ion-no-margin"
                   key={index}
                   data-asset={index}
-                  onClick={(ev) => {
+                  onClick={async (ev) => {
                     setCurrency(currency);
-                    //updatePrices();
+                    await computeBalances();
                     close(ev);
                   }}
                 >
