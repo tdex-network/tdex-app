@@ -50,9 +50,14 @@ const CurrencySearch: React.FC<CurrencySearchProps> = ({ isOpen, close }) => {
                   key={index}
                   data-asset={index}
                   onClick={async (ev) => {
-                    setCurrency(currency);
-                    await computeBalances();
-                    close(ev);
+                    try {
+                      setCurrency(currency);
+                      await computeBalances();
+                    } catch (e) {
+                      console.error('Error computing balances');
+                    } finally {
+                      close(ev);
+                    }
                   }}
                 >
                   <div className="search-item-name">

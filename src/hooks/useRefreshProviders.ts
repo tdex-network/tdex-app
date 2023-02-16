@@ -13,6 +13,7 @@ export const useRefreshProviders = (): (() => Promise<void>) => {
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   const network = useSettingsStore((state) => state.network);
+
   return async () => {
     if (network === 'liquid' || network === 'testnet') {
       try {

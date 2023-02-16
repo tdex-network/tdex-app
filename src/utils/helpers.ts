@@ -185,7 +185,7 @@ export async function makeURLwithBlinders(transaction: Transaction): Promise<str
 
 export function resetAllStores(): void {
   useAppStore.getState().resetAppStore();
-  useAssetStore.getState().resetAssetStore(useSettingsStore.getState().network);
+  useAssetStore.getState().resetAssetStore();
   useBitcoinStore.getState().resetBitcoinStore();
   useRateStore.getState().resetRateStore();
   useSettingsStore.getState().resetSettingsStore();

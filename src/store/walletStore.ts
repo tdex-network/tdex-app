@@ -421,7 +421,6 @@ export const useWalletStore = create<WalletState & WalletActions>()(
         },
         decryptMnemonic: async (pin: string) => {
           const encryptedMnemonic = get().encryptedMnemonic;
-          console.log('encryptedMnemonic', encryptedMnemonic);
           if (!encryptedMnemonic) throw new Error('No mnemonic found in wallet');
           return decrypt(encryptedMnemonic, pin);
         },

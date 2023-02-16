@@ -1,8 +1,9 @@
-import { IonContent, IonList, IonModal, IonHeader, IonItem, IonInput, IonIcon } from '@ionic/react';
+import { IonContent, IonHeader, IonIcon, IonInput, IonItem, IonList, IonModal } from '@ionic/react';
 import { closeSharp, searchSharp } from 'ionicons/icons';
 import React, { useState } from 'react';
 
 import { useSettingsStore } from '../../store/settingsStore';
+import { useWalletStore } from '../../store/walletStore';
 import type { LbtcDenomination } from '../../utils/constants';
 import { LBTC_DENOMINATIONS } from '../../utils/constants';
 
@@ -13,6 +14,8 @@ interface DenominationSearchProps {
 
 const DenominationSearch: React.FC<DenominationSearchProps> = ({ isOpen, close }) => {
   const setLbtcDenomination = useSettingsStore((state) => state.setLbtcDenomination);
+  const computeBalances = useWalletStore((state) => state.computeBalances);
+  //
   const [searchString, setSearchString] = useState('');
 
   return (
@@ -25,7 +28,7 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({ isOpen, close }
               <IonInput
                 inputMode="search"
                 color="light-contrast"
-                placeholder="Search currency"
+                placeholder="Search denomination"
                 value={searchString}
                 onIonChange={(e) => setSearchString(e.detail.value || '')}
               />
@@ -42,10 +45,15 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({ isOpen, close }
                     className="ion-no-margin"
                     key={index}
                     data-asset={index}
-                    onClick={(ev) => {
-                      setLbtcDenomination(denomination);
-                      // updatePrices()
-                      close(ev);
+                    onClick={async (ev) => {
+                      try {
+                        setLbtcDenomination(denomination);
+                        await computeBalances();
+                      } catch (e) {
+                        console.error('Error computing balances');
+                      } finally {
+                        close(ev);
+                      }
                     }}
                   >
                     <div className="search-item-name">

@@ -10,7 +10,7 @@ import { useSettingsStore } from '../../store/settingsStore';
 import { useToastStore } from '../../store/toastStore';
 import { useWalletStore } from '../../store/walletStore';
 import { clipboardCopy } from '../../utils/clipboard';
-import { BASE_DERIVATION_PATH_MAINNET_LEGACY, BASE_DERIVATION_PATH_TESTNET } from '../../utils/constants';
+import { BASE_DERIVATION_PATH_MAINNET, BASE_DERIVATION_PATH_TESTNET } from '../../utils/constants';
 
 interface WalletInfoProps extends RouteComponentProps {
   masterPubKey: string;
@@ -24,7 +24,7 @@ export const WalletInfo: React.FC<WalletInfoProps> = () => {
 
   const [xpubCopied, setXpubCopied] = useState(false);
   const [pathCopied, setPathCopied] = useState(false);
-  const derivationPath = network === 'liquid' ? BASE_DERIVATION_PATH_MAINNET_LEGACY : BASE_DERIVATION_PATH_TESTNET;
+  const derivationPath = network === 'liquid' ? BASE_DERIVATION_PATH_MAINNET : BASE_DERIVATION_PATH_TESTNET;
 
   return (
     <IonPage>

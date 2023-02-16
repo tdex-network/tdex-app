@@ -10,6 +10,7 @@ import {
   IonSelect,
   IonSelectOption,
 } from '@ionic/react';
+import { useCallback, useEffect } from 'react';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
@@ -57,39 +58,6 @@ const Network = (): JSX.Element => {
       if (isFetchingUtxos || isFetchingMarkets || isFetchingTransactions) throw AppIsBusy;
       const networkValue = ev.detail.value;
       setNetwork(networkValue);
-      // We set explorer endpoints to Mempool. User can then adjust favorite endpoints in Explorer setting screen.
-      if (networkValue === 'liquid') {
-        setExplorerLiquidAPI(mempoolExplorerEndpoints.liquid.explorerLiquidAPI);
-        setExplorerLiquidUI(mempoolExplorerEndpoints.liquid.explorerLiquidUI);
-        setExplorerBitcoinAPI(mempoolExplorerEndpoints.liquid.explorerBitcoinAPI);
-        setExplorerBitcoinUI(mempoolExplorerEndpoints.liquid.explorerBitcoinUI);
-        setWebsocketExplorerURL(mempoolExplorerEndpoints.liquid.websocketExplorerURL);
-        setElectrsBatchApi(configProduction.explorers.electrsBatchAPI);
-        setDefaultProvider(defaultProviderEndpoints.liquid);
-      } else if (networkValue === 'testnet') {
-        setExplorerLiquidAPI(mempoolExplorerEndpoints.testnet.explorerLiquidAPI);
-        setExplorerLiquidUI(mempoolExplorerEndpoints.testnet.explorerLiquidUI);
-        setExplorerBitcoinAPI(mempoolExplorerEndpoints.testnet.explorerBitcoinAPI);
-        setExplorerBitcoinUI(mempoolExplorerEndpoints.testnet.explorerBitcoinUI);
-        setWebsocketExplorerURL(mempoolExplorerEndpoints.testnet.websocketExplorerURL);
-        setElectrsBatchApi(configTestnet.explorers.electrsBatchAPI);
-        setDefaultProvider(defaultProviderEndpoints.testnet);
-      } else {
-        setExplorerLiquidAPI(configRegtest.explorers.explorerLiquidAPI);
-        setExplorerBitcoinAPI(configRegtest.explorers.explorerBitcoinAPI);
-        setExplorerBitcoinUI(configRegtest.explorers.explorerBitcoinUI);
-        setExplorerLiquidUI(configRegtest.explorers.explorerLiquidUI);
-        setWebsocketExplorerURL(configRegtest.explorers.websocketExplorerURL);
-        setElectrsBatchApi(configRegtest.explorers.electrsBatchAPI);
-        setDefaultProvider(defaultProviderEndpoints.regtest);
-      }
-      await refreshProviders();
-      resetAssetStore(networkValue);
-      resetWalletForRestoration();
-      await sync();
-      await subscribeAllScripts();
-      await computeBalances();
-      addSuccessToast(`Network and explorer endpoints successfully updated`);
     } catch (err) {
       console.error(err);
       if (err instanceof AppError) {
@@ -97,6 +65,69 @@ const Network = (): JSX.Element => {
       }
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        // We set explorer endpoints to Mempool. User can then adjust favorite endpoints in Explorer setting screen.
+        if (network === 'liquid') {
+          setExplorerLiquidAPI(mempoolExplorerEndpoints.liquid.explorerLiquidAPI);
+          setExplorerLiquidUI(mempoolExplorerEndpoints.liquid.explorerLiquidUI);
+          setExplorerBitcoinAPI(mempoolExplorerEndpoints.liquid.explorerBitcoinAPI);
+          setExplorerBitcoinUI(mempoolExplorerEndpoints.liquid.explorerBitcoinUI);
+          setWebsocketExplorerURL(mempoolExplorerEndpoints.liquid.websocketExplorerURL);
+          setElectrsBatchApi(configProduction.explorers.electrsBatchAPI);
+          setDefaultProvider(defaultProviderEndpoints.liquid);
+        } else if (network === 'testnet') {
+          setExplorerLiquidAPI(mempoolExplorerEndpoints.testnet.explorerLiquidAPI);
+          setExplorerLiquidUI(mempoolExplorerEndpoints.testnet.explorerLiquidUI);
+          setExplorerBitcoinAPI(mempoolExplorerEndpoints.testnet.explorerBitcoinAPI);
+          setExplorerBitcoinUI(mempoolExplorerEndpoints.testnet.explorerBitcoinUI);
+          setWebsocketExplorerURL(mempoolExplorerEndpoints.testnet.websocketExplorerURL);
+          setElectrsBatchApi(configTestnet.explorers.electrsBatchAPI);
+          setDefaultProvider(defaultProviderEndpoints.testnet);
+        } else {
+          setExplorerLiquidAPI(configRegtest.explorers.explorerLiquidAPI);
+          setExplorerBitcoinAPI(configRegtest.explorers.explorerBitcoinAPI);
+          setExplorerBitcoinUI(configRegtest.explorers.explorerBitcoinUI);
+          setExplorerLiquidUI(configRegtest.explorers.explorerLiquidUI);
+          setWebsocketExplorerURL(configRegtest.explorers.websocketExplorerURL);
+          setElectrsBatchApi(configRegtest.explorers.electrsBatchAPI);
+          setDefaultProvider(defaultProviderEndpoints.regtest);
+        }
+        await refreshProviders();
+        resetAssetStore();
+        resetWalletForRestoration();
+        await sync();
+        await subscribeAllScripts();
+        await computeBalances();
+        addSuccessToast(`Network and explorer endpoints successfully updated`);
+      } catch (err) {
+        console.error(err);
+        if (err instanceof AppError) {
+          addErrorToast(err);
+        }
+      }
+    })();
+    // Do not include refreshProviders to prevent rerender
+    // eslint-disable-next-line
+  }, [
+    addErrorToast,
+    addSuccessToast,
+    computeBalances,
+    network,
+    resetAssetStore,
+    resetWalletForRestoration,
+    setDefaultProvider,
+    setElectrsBatchApi,
+    setExplorerBitcoinAPI,
+    setExplorerBitcoinUI,
+    setExplorerLiquidAPI,
+    setExplorerLiquidUI,
+    setWebsocketExplorerURL,
+    subscribeAllScripts,
+    sync,
+  ]);
 
   return (
     <IonPage id="settings-network">
