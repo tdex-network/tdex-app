@@ -44,8 +44,8 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
       addErrorToast(NoMnemonicError);
       return;
     }
-    const decryptedMnemonic = await decrypt(encryptedMnemonic, pin);
     try {
+      const decryptedMnemonic = await decrypt(encryptedMnemonic, pin);
       setIsWrongPin(false);
       setPinNeedReset(true);
       setTimeout(() => {
