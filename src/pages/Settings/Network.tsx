@@ -10,7 +10,7 @@ import {
   IonSelect,
   IonSelectOption,
 } from '@ionic/react';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';

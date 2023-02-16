@@ -172,7 +172,7 @@ export async function makeURLwithBlinders(transaction: Transaction): Promise<str
   for (let i = 0; i < transaction.outs.length; i++) {
     const output = transaction.outs[i];
     if (output.script.length === 0) continue;
-    const data = await useWalletStore.getState().txos[outpointToString({ txid, vout: i })];
+    const data = await useWalletStore.getState().outputHistory[outpointToString({ txid, vout: i })];
     if (!data || !data.blindingData) continue;
     blinders.push(
       `${data.blindingData.value},${data.blindingData.asset},${data.blindingData.valueBlindingFactor},${reverseHex(

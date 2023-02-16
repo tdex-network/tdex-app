@@ -118,17 +118,16 @@ interface WalletState {
   lockedOutpoints: string[];
   masterPublicKey: string;
   masterBlindingKey: string;
+  outputHistory: Record<string, UnblindedOutput>; // outpointStr, utxo
   scriptDetails: Record<string, ScriptDetails>; // script, scriptDetails
   txs: Record<string, TxDetails>; // txid, transaction
   totalBtc?: { sats: number; value: number; counterValue?: string };
   txsHeuristic?: Record<string, TxHeuristic>; // txid, TxHeuristic
-  txos: Record<string, UnblindedOutput>; // outpointStr, utxo
 }
 
 interface WalletActions {
   addScriptDetails: (scriptDetails: ScriptDetails) => void;
   changePin: (currentPIN: string, newPIN: string) => Promise<void>;
-  clearScriptDetails: () => void;
   computeBalances: () => Promise<void>;
   computeUtxosFromTxs: () => UnblindedOutput[];
   computeHeuristicFromTx: (txDetails: TxDetails, assetHash?: string) => Promise<TxHeuristic | undefined>;
@@ -143,7 +142,7 @@ interface WalletActions {
   selectUtxos: (targets: Recipient[], lock: boolean) => Promise<CoinSelection>;
   setIsAuthorized: (isAuthorized: boolean) => void;
   setMnemonicEncrypted: (mnemonic: string, pin: string) => Promise<void>;
-  setTxos: () => void;
+  setOutputs: () => void;
   subscribeScript: (script: Buffer) => Promise<void>;
   subscribeAllScripts: () => Promise<void>;
   sync: (gapLimit?: number) => Promise<{ nextInternalIndex: number; nextExternalIndex: number }>;
@@ -163,11 +162,11 @@ const initialState: WalletState = {
   nextExternalIndex: undefined,
   masterPublicKey: '',
   masterBlindingKey: '',
+  outputHistory: {},
   scriptDetails: {},
   totalBtc: undefined,
   txs: {},
   txsHeuristic: undefined,
-  txos: {},
 };
 
 const GAP_LIMIT = 10;
@@ -202,17 +201,6 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           const decryptedMnemonic = await decrypt(encryptedMnemonic, currentPIN);
           const newEncryptedMnemonic = await encrypt(decryptedMnemonic, newPIN);
           set({ encryptedMnemonic: newEncryptedMnemonic }, false, 'changePin');
-        },
-        clearScriptDetails: () => {
-          set(
-            {
-              scriptDetails: {},
-              nextInternalIndex: undefined,
-              nextExternalIndex: undefined,
-            },
-            false,
-            'clearScriptDetails'
-          );
         },
         createP2PWKHScript({ publicKey, derivationPath }: PubKeyWithRelativeDerivationPath): [string, ScriptDetails] {
           const network = useSettingsStore.getState().network;
@@ -339,7 +327,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           //
           return utxosOutpoints.map((outpoint) => {
             const outpointStr = outpointToString(outpoint);
-            const unblindedOutput = get().txos[outpointStr];
+            const unblindedOutput = get().outputHistory[outpointStr];
             if (!unblindedOutput) console.error(`Output ${outpointStr} is missing`);
             return unblindedOutput;
           });
@@ -351,7 +339,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             if (amount > 0) return TxType.Deposit;
             return TxType.Withdraw;
           };
-          const txos = get().txos;
+          const outputHistory = get().outputHistory;
           let transferAmount = 0;
           let fee = 0;
           const tx = Transaction.fromHex(txDetails.hex ?? '');
@@ -360,7 +348,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               fee = confidentialValueToSatoshi(output.value);
               continue;
             }
-            const blindingData = txos[outpointToString({ txid: tx.getId(), vout: index })]?.blindingData;
+            const blindingData = outputHistory[outpointToString({ txid: tx.getId(), vout: index })]?.blindingData;
             if (!blindingData) continue;
             if (blindingData.asset === assetHash) {
               transferAmount += blindingData.value;
@@ -368,7 +356,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           }
           for (const input of tx.ins) {
             const blindingData =
-              txos[
+              outputHistory[
                 outpointToString({
                   txid: Buffer.from(input.hash).reverse().toString('hex'),
                   vout: input.index,
@@ -493,7 +481,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               totalBtc: undefined,
               txs: {},
               txsHeuristic: undefined,
-              txos: {},
+              outputHistory: {},
             },
             false,
             'resetWalletForRestoration'
@@ -567,9 +555,9 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           const encryptedMnemonic = await encrypt(mnemonic, pin);
           set({ encryptedMnemonic }, false, 'setMnemonicEncrypted');
         },
-        setTxos: async () => {
+        setOutputs: async () => {
           const txsObj = get().txs;
-          let txos: Record<string, UnblindedOutput> = {};
+          let outputHistory: Record<string, UnblindedOutput> = {};
           for (const [txid, { hex }] of Object.entries(txsObj)) {
             const tx = Transaction.fromHex(hex);
             const unblindedResults = await get().unblindUtxos(tx.outs);
@@ -578,8 +566,8 @@ export const useWalletStore = create<WalletState & WalletActions>()(
                 console.debug('Error while unblinding utxos', unblinded);
                 continue;
               }
-              txos = {
-                ...txos,
+              outputHistory = {
+                ...outputHistory,
                 [outpointToString({ txid, vout })]: {
                   txid,
                   vout,
@@ -590,13 +578,13 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           }
           set(
             (state) => ({
-              txos: {
-                ...state.txos,
-                ...txos,
+              outputHistory: {
+                ...state.outputHistory,
+                ...outputHistory,
               },
             }),
             false,
-            'setTxos'
+            'setOutputs'
           );
         },
         subscribeScript: async (script) => {
@@ -613,7 +601,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               Object.entries(txsObj).map(([txid, tx]) => [txid, { ...tx, ...historyObj[txid] }])
             );
             set((state) => ({ txs: { ...state.txs, ...txsAndHistory } }), false, 'subscribeScript/txs');
-            await get().setTxos();
+            await get().setOutputs();
             await get().computeBalances();
           });
         },
@@ -677,7 +665,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             false,
             'sync/scriptDetails'
           );
-          // We set txs, txos and balances only in subscribeScript to avoid doing it twice
+          // We set txs, outputHistory and balances only in subscribeScript to avoid doing it twice
           return { nextInternalIndex, nextExternalIndex };
         },
         unblindUtxos: async (outputs) => {
