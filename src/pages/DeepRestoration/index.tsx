@@ -15,7 +15,7 @@ const DeepRestoration: React.FC = () => {
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const decryptMnemonic = useWalletStore((state) => state.decryptMnemonic);
-  const resetWalletStore = useWalletStore((state) => state.resetWalletStore);
+  const resetWalletForRestoration = useWalletStore((state) => state.resetWalletForRestoration);
   const resetRateStore = useRateStore((state) => state.resetRateStore);
   const sync = useWalletStore((state) => state.sync);
   const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
@@ -50,7 +50,7 @@ const DeepRestoration: React.FC = () => {
 
   const handleRestoration = async (mnemonic: string) => {
     try {
-      resetWalletStore();
+      resetWalletForRestoration();
       resetRateStore();
       await sync(Number(rangeValue));
       await subscribeAllScripts();

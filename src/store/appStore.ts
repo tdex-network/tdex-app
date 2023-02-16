@@ -19,7 +19,7 @@ interface AppActions {
   setIsFetchingMarkets: (isFetchingMarkets: boolean) => void;
   setIsFetchingTransactions: (isFetchingTransactions: boolean) => void;
   setIsSignedUp: (isSignedUp: boolean) => void;
-  resetApp: () => void;
+  resetAppStore: () => void;
 }
 
 const initialState: AppState = {
@@ -43,7 +43,7 @@ export const useAppStore = create<AppState & AppActions>()(
         setIsFetchingTransactions: (isFetchingTransactions) =>
           set({ isFetchingTransactions }, false, 'setIsFetchingTransactions'),
         setIsSignedUp: (isSignedUp) => set({ isSignedUp }, false, 'setIsSignedUp'),
-        resetApp: () => set(initialState, false, 'resetApp'),
+        resetAppStore: () => set(initialState, false, 'resetAppStore'),
       }),
       {
         name: 'app',

@@ -1,12 +1,12 @@
-import { Preferences } from '@capacitor/preferences';
 import { IonButton, IonCol, IonContent, IonGrid, IonPage, IonRow } from '@ionic/react';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import { useLocation } from 'react-router';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
 import { useWalletStore } from '../../store/walletStore';
+import { resetAllStores } from '../../utils/helpers';
 
 interface LocationState {
   pin: string;
@@ -23,14 +23,13 @@ const DeleteMnemonic: React.FC<RouteComponentProps> = ({ history }) => {
     setIsLoading(true);
     try {
       await decryptMnemonic(state?.pin);
-      await Preferences.clear();
     } catch (err) {
       setErrorMsg('Error: your key has not been deleted. Please contact support.');
       setIsLoading(false);
       return;
     }
     setIsLoading(false);
-    // resetAll();
+    resetAllStores();
     history.replace('/homescreen');
   };
 

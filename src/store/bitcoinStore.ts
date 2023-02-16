@@ -3,7 +3,6 @@ import { merge } from 'lodash';
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
-import type { NetworkString } from '../utils/constants';
 import { outpointToString } from '../utils/helpers';
 
 import { storage } from './capacitorPersistentStorage';
@@ -53,7 +52,7 @@ interface BitcoinActions {
   setDepositPeginUtxo: (utxo: DepositPeginUtxo, depositAddress: Pegin['depositAddress']) => void;
   setModalClaimPegin: (modalClaimPegins: { isOpen?: boolean; claimScriptToClaim?: string }) => void; // TODO: handle multiple pegins?
   upsertPegins: (pegins: Pegins) => void;
-  reset: (network: NetworkString) => void;
+  resetBitcoinStore: () => void;
 }
 
 const initialState: BitcoinState = {
@@ -95,7 +94,7 @@ export const useBitcoinStore = create<BitcoinState & BitcoinActions>()(
             'upsertPegins'
           );
         },
-        reset: () => set(initialState, true, 'reset'),
+        resetBitcoinStore: () => set(initialState, false, 'resetBitcoinStore'),
       }),
       {
         name: 'bitcoin',

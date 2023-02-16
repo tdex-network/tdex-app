@@ -64,9 +64,9 @@ export const App: React.FC = () => {
         console.error(err);
       }
       setIsSignedUp(true);
-      setIsAppInitialized(true);
+      if (!isAppInitialized) setIsAppInitialized(true);
     })();
-  }, [setIsAppInitialized, setIsSignedUp]);
+  }, [isAppInitialized, setIsAppInitialized, setIsSignedUp]);
 
   return (
     <IonApp>

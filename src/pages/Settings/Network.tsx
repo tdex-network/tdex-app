@@ -33,7 +33,7 @@ const Network = (): JSX.Element => {
   const isFetchingUtxos = useAppStore((state) => state.isFetchingUtxos);
   const isFetchingMarkets = useAppStore((state) => state.isFetchingMarkets);
   const isFetchingTransactions = useAppStore((state) => state.isFetchingTransactions);
-  const resetAssets = useAssetStore((state) => state.resetAssets);
+  const resetAssetStore = useAssetStore((state) => state.resetAssetStore);
   const setExplorerLiquidAPI = useSettingsStore((state) => state.setExplorerLiquidAPI);
   const setExplorerLiquidUI = useSettingsStore((state) => state.setExplorerLiquidUI);
   const setExplorerBitcoinAPI = useSettingsStore((state) => state.setExplorerBitcoinAPI);
@@ -45,7 +45,7 @@ const Network = (): JSX.Element => {
   const network = useSettingsStore((state) => state.network);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const addErrorToast = useToastStore((state) => state.addErrorToast);
-  const resetWalletStore = useWalletStore((state) => state.resetWalletStore);
+  const resetWalletForRestoration = useWalletStore((state) => state.resetWalletForRestoration);
   const sync = useWalletStore((state) => state.sync);
   const computeBalances = useWalletStore((state) => state.computeBalances);
   const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
@@ -84,8 +84,8 @@ const Network = (): JSX.Element => {
         setDefaultProvider(defaultProviderEndpoints.regtest);
       }
       await refreshProviders();
-      resetAssets(networkValue);
-      resetWalletStore();
+      resetAssetStore(networkValue);
+      resetWalletForRestoration();
       await sync();
       await subscribeAllScripts();
       await computeBalances();

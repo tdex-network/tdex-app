@@ -27,7 +27,7 @@ interface ToastActions {
   addClaimPeginToast: () => void;
   removeToast: (toastID: number) => void;
   removeToastByType: (toastType: ToastType) => void;
-  reset: () => void;
+  resetToastStore: () => void;
 }
 
 // using to increment toast ID
@@ -106,7 +106,7 @@ export const useToastStore = create<ToastState & ToastActions>()(
       removeToastByType: (toastType) => {
         set((state) => ({ toasts: state.toasts.filter(({ type }) => type !== toastType) }), false, 'removeToastByType');
       },
-      reset: () => set({ toasts: [] }, true, 'reset'),
+      resetToastStore: () => set({ toasts: [] }, false, 'resetToastStore'),
     }),
     { name: 'store', store: 'toast' }
   )

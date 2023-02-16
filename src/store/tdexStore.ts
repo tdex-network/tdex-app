@@ -28,7 +28,7 @@ export interface TdexActions {
   clearProviders: () => void;
   deleteProvider: (provider: TDEXProvider) => void;
   replaceMarketsOfProvider: (providerToUpdate: TDEXProvider, markets: TDEXMarket[]) => void;
-  reset: () => void;
+  resetTdexStore: () => void;
 }
 
 const initialState: TdexState = {
@@ -79,7 +79,7 @@ export const useTdexStore = create<TdexState & TdexActions>()(
             'replaceMarketsOfProvider'
           );
         },
-        reset: () => set(initialState, true, 'reset'),
+        resetTdexStore: () => set(initialState, false, 'resetTdexStore'),
       }),
       {
         name: 'tdex',

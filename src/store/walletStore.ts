@@ -148,21 +148,22 @@ interface WalletActions {
   subscribeAllScripts: () => Promise<void>;
   sync: (gapLimit?: number) => Promise<{ nextInternalIndex: number; nextExternalIndex: number }>;
   resetWalletStore: () => void;
+  resetWalletForRestoration: () => void;
   unblindUtxos: (outputs: Output[]) => Promise<(UnblindingData | Error)[]>;
   unlockOutpoint: (outpointStr: string) => void;
   unlockOutpoints: () => void;
 }
 
 const initialState: WalletState = {
-  scriptDetails: {},
   balances: undefined,
   encryptedMnemonic: undefined,
   isAuthorized: false,
+  lockedOutpoints: [],
   nextInternalIndex: undefined,
   nextExternalIndex: undefined,
-  lockedOutpoints: [],
   masterPublicKey: '',
   masterBlindingKey: '',
+  scriptDetails: {},
   totalBtc: undefined,
   txs: {},
   txsHeuristic: undefined,
@@ -420,6 +421,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
         },
         decryptMnemonic: async (pin: string) => {
           const encryptedMnemonic = get().encryptedMnemonic;
+          console.log('encryptedMnemonic', encryptedMnemonic);
           if (!encryptedMnemonic) throw new Error('No mnemonic found in wallet');
           return decrypt(encryptedMnemonic, pin);
         },
@@ -481,7 +483,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           return outpointStr;
         },
         // Reset all except mnemonic / master keys
-        resetWalletStore: () => {
+        resetWalletForRestoration: () => {
           set(
             {
               scriptDetails: {},
@@ -495,8 +497,11 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               txos: {},
             },
             false,
-            'resetWalletStore'
+            'resetWalletForRestoration'
           );
+        },
+        resetWalletStore: () => {
+          set(initialState, false, 'resetWalletStore');
         },
         // Coin selection
         selectUtxos: async (targets, lock = false) => {

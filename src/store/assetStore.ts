@@ -24,7 +24,7 @@ export interface AssetState {
 interface AssetActions {
   fetchAndStoreAssetData: (assetHash: string) => Promise<Asset | undefined>;
   setAsset: (asset: Asset) => void;
-  resetAssets: (network: NetworkString) => void;
+  resetAssetStore: (network: NetworkString) => void;
 }
 
 const initialAssets = (network?: NetworkString): Record<string, Asset> => {
@@ -65,7 +65,7 @@ export const useAssetStore = create<AssetState & AssetActions>()(
           }
         },
         setAsset: (asset) => set({ assets: { [asset.assetHash]: asset } }, false, 'setAsset'),
-        resetAssets: (network: NetworkString) => set({ assets: initialAssets(network) }, false, 'resetAssets'),
+        resetAssetStore: (network: NetworkString) => set({ assets: initialAssets(network) }, false, 'resetAssetStore'),
       }),
       {
         name: 'asset',

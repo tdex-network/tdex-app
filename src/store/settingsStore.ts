@@ -39,7 +39,7 @@ interface SettingsActions {
   setNetwork: (network: NetworkString) => void;
   setTorProxy: (url: string) => void;
   setWebsocketExplorerURL: (websocketExplorerURL: string) => void;
-  reset: () => void;
+  resetSettingsStore: () => void;
 }
 
 const initialState: SettingsState = {
@@ -73,7 +73,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
         setTorProxy: (torProxy) => set({ torProxy }, false, 'setTorProxy'),
         setWebsocketExplorerURL: (websocketExplorerURL) =>
           set({ websocketExplorerURL }, false, 'setWebsocketExplorerURL'),
-        reset: () => set(initialState, false, 'reset'),
+        resetSettingsStore: () => set(initialState, false, 'resetSettingsStore'),
       }),
       {
         name: 'settings',
