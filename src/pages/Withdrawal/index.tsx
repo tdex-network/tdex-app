@@ -35,7 +35,7 @@ import type { LbtcDenomination, NetworkString } from '../../utils/constants';
 import { LBTC_ASSET, PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { decrypt } from '../../utils/crypto';
 import { IncorrectPINError, WithdrawTxError } from '../../utils/errors';
-import { fromLbtcToUnit, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
+import { fromLbtcToUnit, fromSatoshi, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import { makeSendPset } from '../../utils/transaction';
 
@@ -65,6 +65,7 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
   const [recipientAddress, setRecipientAddress] = useState<string>('');
   const [modalOpen, setModalOpen] = useState(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
+  const [isMaxSend, toggleIsMaxSend] = useState<boolean>(false);
 
   useIonViewDidLeave(() => {
     setRecipientAddress('');
@@ -130,7 +131,7 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
       } catch (_) {
         throw IncorrectPINError;
       }
-      const { pset } = await makeSendPset([getRecipient()], LBTC_ASSET[network].assetHash);
+      const { pset, feeAmount } = await makeSendPset([getRecipient()], LBTC_ASSET[network].assetHash, isMaxSend);
       const blinder = new BlinderService();
       const blindedPset = await blinder.blindPset(pset);
       const signer = await SignerService.fromPin(pin);
@@ -141,12 +142,14 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
       const client = new ElectrumWS(websocketExplorerURL);
       const chainSource = new WsElectrumChainSource(client);
       const txid = await chainSource.broadcastTransaction(toBroadcast);
-      console.log('txid', txid);
-      //
-      addSuccessToast(`Transaction broadcasted. ${amount} ${assets[asset_id]?.ticker} sent.`);
+      const actualAmount =
+        isMaxSend && isLbtc(asset_id, network)
+          ? `-${Number(amount) - Number(fromSatoshi(feeAmount.toString()))}`
+          : `-${amount}`;
+      addSuccessToast(`Transaction broadcasted. ${actualAmount} ${assets[asset_id]?.ticker} sent.`);
       history.replace(`/transaction/${txid}`, {
         address: recipientAddress,
-        amount: `-${amount}`,
+        amount: actualAmount,
         asset: asset_id,
         lbtcUnit,
       });
@@ -192,6 +195,7 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
               asset={assets[asset_id]}
               balance={balances[asset_id]}
               setAmount={setAmount}
+              toggleIsMaxSend={() => toggleIsMaxSend(!isMaxSend)}
               error={error}
               network={network}
             />

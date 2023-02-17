@@ -96,7 +96,11 @@ type MakeSendPsetResult = {
 
 // create a pset with the given recipients and data recipients
 // select utxos from the main accounts
-export async function makeSendPset(recipients: Recipient[], feeAssetHash: string): Promise<MakeSendPsetResult> {
+export async function makeSendPset(
+  recipients: Recipient[],
+  feeAssetHash: string,
+  deductFeeFromAmount = false
+): Promise<MakeSendPsetResult> {
   const pset = Creator.newPset();
   let network = useSettingsStore.getState().network;
   const coinSelection = await useWalletStore.getState().selectUtxos(recipients, true);
@@ -163,80 +167,24 @@ export async function makeSendPset(recipients: Recipient[], feeAssetHash: string
   let feeAmount = Math.ceil(estimatedSize * (sats1000Bytes / 1000));
   const newIns = [];
   const newOuts = [];
-  if (feeAssetHash === networks[network].assetHash) {
-    // check if one of the change outputs can cover the fees
-    const onlyChangeOuts = outs.slice(changeOutputsStartIndex);
-    const lbtcChangeOutputIndex = onlyChangeOuts.findIndex(
-      (out) => out.asset === feeAssetHash && out.amount >= feeAmount
-    );
-    if (lbtcChangeOutputIndex !== -1) {
-      pset.outputs[changeOutputsStartIndex + lbtcChangeOutputIndex].value -= feeAmount;
-      // add the fee output
-      updater.addOutputs([
-        {
-          asset: feeAssetHash,
-          amount: feeAmount,
-        },
-      ]);
-    } else {
-      // reselect
-      const newCoinSelection = await useWalletStore.getState().selectUtxos(
-        [
-          {
-            asset: networks[network].assetHash,
-            value: feeAmount,
-            address: '',
-          },
-        ],
-        true
+  if (deductFeeFromAmount) {
+    pset.outputs[0].value -= feeAmount;
+    // add the fee output
+    updater.addOutputs([
+      {
+        asset: feeAssetHash,
+        amount: feeAmount,
+      },
+    ]);
+  } else {
+    if (feeAssetHash === networks[network].assetHash) {
+      // check if one of the change outputs can cover the fees
+      const onlyChangeOuts = outs.slice(changeOutputsStartIndex);
+      const lbtcChangeOutputIndex = onlyChangeOuts.findIndex(
+        (out) => out.asset === feeAssetHash && out.amount >= feeAmount
       );
-      // get witness utxos
-      const newWitnessUtxos = newCoinSelection.utxos.map(({ txid, vout }) => {
-        const txHex = useWalletStore.getState().txs[txid].hex;
-        if (txHex) {
-          return Transaction.fromHex(txHex).outs[vout];
-        } else {
-          return undefined;
-        }
-      });
-      // add inputs
-      newIns.push(
-        ...newCoinSelection.utxos.map((utxo, i) => ({
-          txid: utxo.txid,
-          txIndex: utxo.vout,
-          sighashType: Transaction.SIGHASH_ALL,
-          witnessUtxo: newWitnessUtxos[i],
-        }))
-      );
-      if (newCoinSelection.changeOutputs && newCoinSelection.changeOutputs.length > 0) {
-        const { confidentialAddress: changeAddress } = await useWalletStore.getState().getNextAddress(true);
-        if (!changeAddress) {
-          throw new Error('change address not found');
-        }
-        newOuts.push({
-          asset: newCoinSelection.changeOutputs[0].asset,
-          amount: newCoinSelection.changeOutputs[0].amount,
-          script: address.toOutputScript(changeAddress, networks[network]),
-          blinderIndex: 0,
-          blindingPublicKey: address.fromConfidential(changeAddress).blindingKey,
-        });
-        const outputIndex = pset.globals.outputCount;
-        // reversing the array ensures that the fee output is the last one for consistency
-        newOuts.reverse();
-        updater.addInputs(newIns).addOutputs(newOuts);
-        // re-estimate the size with new selection
-        const estimatedSize = estimateVirtualSize(updater.pset, true);
-        const newFeeAmount = Math.ceil(estimatedSize * (sats1000Bytes / 1000));
-        const diff = newFeeAmount - feeAmount;
-        // deduce from change output if possible
-        if (pset.outputs[outputIndex].value > diff) {
-          pset.outputs[outputIndex].value -= diff;
-          feeAmount = newFeeAmount;
-        } else {
-          // if change cannot cover the fee, remove it and add it to the fee output
-          feeAmount += pset.outputs[outputIndex].value;
-          pset.outputs.splice(outputIndex, 1);
-        }
+      if (lbtcChangeOutputIndex !== -1) {
+        pset.outputs[changeOutputsStartIndex + lbtcChangeOutputIndex].value -= feeAmount;
         // add the fee output
         updater.addOutputs([
           {
@@ -244,11 +192,78 @@ export async function makeSendPset(recipients: Recipient[], feeAssetHash: string
             amount: feeAmount,
           },
         ]);
+      } else {
+        // reselect
+        const newCoinSelection = await useWalletStore.getState().selectUtxos(
+          [
+            {
+              asset: networks[network].assetHash,
+              value: feeAmount,
+              address: '',
+            },
+          ],
+          true
+        );
+        // get witness utxos
+        const newWitnessUtxos = newCoinSelection.utxos.map(({ txid, vout }) => {
+          const txHex = useWalletStore.getState().txs[txid].hex;
+          if (txHex) {
+            return Transaction.fromHex(txHex).outs[vout];
+          } else {
+            return undefined;
+          }
+        });
+        // add inputs
+        newIns.push(
+          ...newCoinSelection.utxos.map((utxo, i) => ({
+            txid: utxo.txid,
+            txIndex: utxo.vout,
+            sighashType: Transaction.SIGHASH_ALL,
+            witnessUtxo: newWitnessUtxos[i],
+          }))
+        );
+        if (newCoinSelection.changeOutputs && newCoinSelection.changeOutputs.length > 0) {
+          const { confidentialAddress: changeAddress } = await useWalletStore.getState().getNextAddress(true);
+          if (!changeAddress) {
+            throw new Error('change address not found');
+          }
+          newOuts.push({
+            asset: newCoinSelection.changeOutputs[0].asset,
+            amount: newCoinSelection.changeOutputs[0].amount,
+            script: address.toOutputScript(changeAddress, networks[network]),
+            blinderIndex: 0,
+            blindingPublicKey: address.fromConfidential(changeAddress).blindingKey,
+          });
+          const outputIndex = pset.globals.outputCount;
+          // reversing the array ensures that the fee output is the last one for consistency
+          newOuts.reverse();
+          updater.addInputs(newIns).addOutputs(newOuts);
+          // re-estimate the size with new selection
+          const estimatedSize = estimateVirtualSize(updater.pset, true);
+          const newFeeAmount = Math.ceil(estimatedSize * (sats1000Bytes / 1000));
+          const diff = newFeeAmount - feeAmount;
+          // deduce from change output if possible
+          if (pset.outputs[outputIndex].value > diff) {
+            pset.outputs[outputIndex].value -= diff;
+            feeAmount = newFeeAmount;
+          } else {
+            // if change cannot cover the fee, remove it and add it to the fee output
+            feeAmount += pset.outputs[outputIndex].value;
+            pset.outputs.splice(outputIndex, 1);
+          }
+          // add the fee output
+          updater.addOutputs([
+            {
+              asset: feeAssetHash,
+              amount: feeAmount,
+            },
+          ]);
+        }
       }
+      // taxi fee
+    } else {
+      throw new Error('taxi topup not supported');
     }
-    // taxi fee
-  } else {
-    throw new Error('taxi topup not supported');
   }
 
   return {

@@ -22,11 +22,20 @@ interface WithdrawRowProps {
   asset: Asset;
   balance: Balance;
   setAmount: Dispatch<string>;
+  toggleIsMaxSend: () => void;
   error: string;
   network: NetworkString;
 }
 
-const WithdrawRow: React.FC<WithdrawRowProps> = ({ amount, asset, balance, setAmount, error, network }) => {
+const WithdrawRow: React.FC<WithdrawRowProps> = ({
+  amount,
+  asset,
+  balance,
+  setAmount,
+  toggleIsMaxSend,
+  error,
+  network,
+}) => {
   const favoriteCurrencyTicker = useSettingsStore((state) => state.currency.ticker);
   const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
   const fetchFiatRates = useRateStore((state) => state.fetchFiatRates);
@@ -109,7 +118,14 @@ const WithdrawRow: React.FC<WithdrawRowProps> = ({ amount, asset, balance, setAm
       </div>
 
       <div className="exchanger-row sub-row">
-        <span className="balance" onClick={() => setAmount(residualBalance.toString())} data-testid="button-send-max">
+        <span
+          className="balance"
+          onClick={() => {
+            setAmount(residualBalance.toString());
+            toggleIsMaxSend();
+          }}
+          data-testid="button-send-max"
+        >
           <div className="overflow-hidden text-no-wrap">
             {`MAX `}
             {error || !residualBalance ? (

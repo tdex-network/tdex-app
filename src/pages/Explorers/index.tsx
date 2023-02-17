@@ -12,7 +12,6 @@ import {
   IonSelectOption,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
-import { shallow } from 'zustand/shallow';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
