@@ -15,12 +15,9 @@ import {
 } from '@ionic/react';
 import classNames from 'classnames';
 import { checkmarkSharp } from 'ionicons/icons';
-import { networks, payments } from 'liquidjs-lib';
 import React, { useEffect, useMemo, useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import { useParams } from 'react-router';
-import { SLIP77Factory } from 'slip77';
-import * as ecc from 'tiny-secp256k1';
 
 import depositIcon from '../../assets/img/deposit-green.svg';
 import swapIcon from '../../assets/img/swap-circle.svg';
@@ -37,8 +34,6 @@ import { TxType, useWalletStore } from '../../store/walletStore';
 import { LBTC_ASSET, LBTC_TICKER } from '../../utils/constants';
 import { compareTxDate, fromSatoshi, fromSatoshiFixed, isLbtc, isLbtcTicker } from '../../utils/helpers';
 
-const slip77 = SLIP77Factory(ecc);
-
 export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   const assets = useAssetStore((state) => state.assets);
   const setModalClaimPegin = useBitcoinStore((state) => state.setModalClaimPegin);
@@ -51,7 +46,6 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   const computeHeuristicFromTx = useWalletStore((state) => state.computeHeuristicFromTx);
   const computeHeuristicFromPegins = useWalletStore((state) => state.computeHeuristicFromPegins);
   const txs = useWalletStore((state) => state.txs);
-  const masterBlindingKey = useWalletStore((state) => state.masterBlindingKey);
   //
   const { asset_id } = useParams<{ asset_id: string }>();
   const [txsToDisplay, setTxsToDisplay] = useState<TxHeuristic[]>([]);
@@ -79,18 +73,10 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
     if (TxType[tx.type] === 'Swap') {
       history.push(`/tradesummary/${tx.txid}`);
     } else if (TxType[tx.type] === 'Withdraw' || TxType[tx.type] === 'Deposit') {
-      const master = slip77.fromMasterBlindingKey(masterBlindingKey);
-      // TODO: transfers
-      const derived = master.derive('tx.transfers[0].script');
-      const p2wpkh = payments.p2wpkh({
-        output: Buffer.from('tx.transfers[0].script', 'hex'),
-        blindkey: derived.publicKey,
-        network: networks[network],
-      });
       history.push(`/transaction/${tx.txid}`, {
-        address: p2wpkh.confidentialAddress,
+        address: tx.confidentialAddress,
         amount: fromSatoshiFixed(
-          'tx.transfers[0].amount.toString()',
+          tx.amount.toString(),
           assets[asset_id]?.precision ?? 8,
           assets[asset_id]?.precision ?? 8,
           isLbtc(asset_id, network) ? lbtcUnit : undefined
@@ -177,19 +163,19 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
     [asset_id, assets, balances, currency, lbtcUnit]
   );
 
-  const OperationAmount = ({ transfer }: { transfer: TxHeuristic | undefined }) => (
+  const OperationAmount = ({ tx }: { tx: TxHeuristic | undefined }) => (
     <div className="operation-amount">
       <div className="operation-amount__lbtc">
-        {transfer
+        {tx
           ? fromSatoshiFixed(
-              transfer.amount.toString(),
+              tx.amount.toString(),
               assets[asset_id].precision,
               assets[asset_id].precision,
               isLbtcTicker(assets[asset_id].ticker) ? lbtcUnit : undefined
             )
           : 'unknown'}
         <span className="ticker">
-          {TxType[transfer?.type ?? TxType.Unknow] === 'DepositBtc' || isLbtcTicker(assets[asset_id].ticker)
+          {TxType[tx?.type ?? TxType.Unknow] === 'DepositBtc' || isLbtcTicker(assets[asset_id].ticker)
             ? lbtcUnit
             : assets[asset_id].ticker}
         </span>
@@ -247,7 +233,7 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
                             <div className="time">{tx.blockTime?.format('DD MMM YYYY HH:mm:ss')}</div>
                           </IonCol>
                           <IonCol className="ion-text-right" size="5.7">
-                            <OperationAmount transfer={undefined} />
+                            <OperationAmount tx={tx} />
                           </IonCol>
                         </IonRow>
                         <div className="extra-infos">
