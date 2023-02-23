@@ -31,19 +31,20 @@ import { useToastStore } from '../../store/toastStore';
 import type { Recipient } from '../../store/walletStore';
 import { useWalletStore } from '../../store/walletStore';
 import { decodeBip21 } from '../../utils/bip21';
-import type { LbtcDenomination, NetworkString } from '../../utils/constants';
+import type { LbtcUnit, NetworkString } from '../../utils/constants';
 import { LBTC_ASSET, PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { decrypt } from '../../utils/crypto';
 import { IncorrectPINError, WithdrawTxError } from '../../utils/errors';
-import { fromLbtcToUnit, fromSatoshi, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
+import { isLbtc, isLbtcTicker } from '../../utils/helpers';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
 import { makeSendPset } from '../../utils/transaction';
+import { fromLbtcToUnit, fromSatoshi, toSatoshi } from '../../utils/unitConversion';
 
 type LocationState = {
   address: string;
   amount: string;
   asset: string;
-  lbtcUnit?: LbtcDenomination;
+  lbtcUnit?: LbtcUnit;
   precision?: number;
   network?: NetworkString;
 };
@@ -51,7 +52,7 @@ type LocationState = {
 export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> = ({ history, location }) => {
   const assets = useAssetStore((state) => state.assets);
   const network = useSettingsStore((state) => state.network);
-  const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
+  const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const balances = useWalletStore((state) => state.balances);
@@ -103,10 +104,10 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
     address: recipientAddress?.trim(),
     asset: asset_id,
     value: toSatoshi(
-      amount || '0',
+      Number(amount) ?? 0,
       assets[asset_id]?.precision,
       isLbtcTicker(assets[asset_id]?.ticker || '') ? lbtcUnit : undefined
-    ).toNumber(),
+    ),
   });
 
   const isValid = (): boolean => {
@@ -134,7 +135,7 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
       const { pset, feeAmount } = await makeSendPset([getRecipient()], LBTC_ASSET[network].assetHash, isMaxSend);
       const blinder = new BlinderService();
       const blindedPset = await blinder.blindPset(pset);
-      const signer = await SignerService.fromPin(pin);
+      const signer = await SignerService.fromPassword(pin);
       const signedPset = await signer.signPset(blindedPset);
       const toBroadcast = signer.finalizeAndExtract(signedPset);
       // Broadcast tx
@@ -143,9 +144,7 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
       const chainSource = new WsElectrumChainSource(client);
       const txid = await chainSource.broadcastTransaction(toBroadcast);
       const actualAmount =
-        isMaxSend && isLbtc(asset_id, network)
-          ? `-${Number(amount) - Number(fromSatoshi(feeAmount.toString()))}`
-          : `-${amount}`;
+        isMaxSend && isLbtc(asset_id, network) ? `-${Number(amount) - fromSatoshi(feeAmount)}` : `-${amount}`;
       addSuccessToast(`Transaction broadcasted. ${actualAmount} ${assets[asset_id]?.ticker} sent.`);
       history.replace(`/transaction/${txid}`, {
         address: recipientAddress,
@@ -220,7 +219,7 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
                       // Convert to user favorite unit, taking into account asset precision
                       const unit = isLbtc(asset_id || '', network) ? lbtcUnit : undefined;
                       const amtConverted = fromLbtcToUnit(
-                        new Decimal(options?.amount as string),
+                        Number(options?.amount ?? 0),
                         unit,
                         assets[asset_id]?.precision
                       ).toString();

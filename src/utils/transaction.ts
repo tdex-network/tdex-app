@@ -1,12 +1,12 @@
-import type { Pset, UpdaterInput, UpdaterOutput } from 'liquidjs-lib';
-import { address, Creator, networks, payments, Transaction, Updater } from 'liquidjs-lib';
+import type { UpdaterInput, UpdaterOutput } from 'liquidjs-lib';
+import { Pset, address, Creator, networks, payments, Transaction, Updater } from 'liquidjs-lib';
 import { getScriptType, ScriptType } from 'liquidjs-lib/src/address';
 import { varSliceSize, varuint } from 'liquidjs-lib/src/bufferutils';
 
 import { WsElectrumChainSource } from '../services/chainSource';
 import { ElectrumWS } from '../services/ws/ws-electrs';
 import { useSettingsStore } from '../store/settingsStore';
-import type { Recipient } from '../store/walletStore';
+import type { Recipient, TxHeuristic } from '../store/walletStore';
 import { useWalletStore } from '../store/walletStore';
 
 const FEE_OUTPUT_SIZE = 33 + 9 + 1 + 1; // unconf fee output size
@@ -270,4 +270,32 @@ export async function makeSendPset(
     pset: updater.pset,
     feeAmount,
   };
+}
+
+// can be used with sort()
+export function compareTxDate(a: TxHeuristic, b: TxHeuristic): number {
+  return b.blockTime?.diff(a.blockTime) || 0;
+}
+
+export function isValidAmount(amount: number): boolean {
+  return !(amount <= 0 || !Number.isSafeInteger(amount));
+}
+
+export function decodePset(psetBase64: string): Pset {
+  let pset: Pset;
+  try {
+    pset = Pset.fromBase64(psetBase64);
+  } catch (ignore) {
+    throw new Error('Invalid pset');
+  }
+  return pset;
+}
+
+export function isRawTransaction(tx: string): boolean {
+  try {
+    Transaction.fromHex(tx);
+    return true;
+  } catch (ignore) {
+    return false;
+  }
 }

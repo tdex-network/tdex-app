@@ -18,7 +18,7 @@ import { useSettingsStore } from '../../store/settingsStore';
 
 const Settings: React.FC<RouteComponentProps> = ({ history }) => {
   const currency = useSettingsStore((state) => state.currency);
-  const unitLBTC = useSettingsStore((state) => state.lbtcDenomination);
+  const unitLBTC = useSettingsStore((state) => state.lbtcUnit);
   const [currencySearchOpen, setCurrencySearchOpen] = useState(false);
   const [LBTCUnitSearchOpen, setLBTCUnitSearchOpen] = useState(false);
   const [appVersion, setAppVersion] = useState<string>();

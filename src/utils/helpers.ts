@@ -1,4 +1,3 @@
-import { Decimal } from 'decimal.js';
 import type { Transaction } from 'liquidjs-lib';
 
 import { useAppStore } from '../store/appStore';
@@ -8,91 +7,11 @@ import { useRateStore } from '../store/rateStore';
 import { useSettingsStore } from '../store/settingsStore';
 import { useTdexStore } from '../store/tdexStore';
 import { useToastStore } from '../store/toastStore';
-import type { Outpoint, ScriptDetails, TxHeuristic } from '../store/walletStore';
+import type { Outpoint, ScriptDetails } from '../store/walletStore';
 import { useWalletStore } from '../store/walletStore';
 
-import type { LbtcDenomination, NetworkString } from './constants';
-import { defaultPrecision, LBTC_ASSET, LBTC_TICKER, LCAD_ASSET, USDT_ASSET } from './constants';
-
-export function toSatoshi(val: string, precision = defaultPrecision, unit: LbtcDenomination = 'L-BTC'): Decimal {
-  return new Decimal(val).mul(Decimal.pow(10, new Decimal(precision).minus(unitToExponent(unit))));
-}
-
-export function fromSatoshi(val: string, precision = defaultPrecision, unit: LbtcDenomination = 'L-BTC'): Decimal {
-  return new Decimal(val).div(Decimal.pow(10, new Decimal(precision).minus(unitToExponent(unit))));
-}
-
-export function fromSatoshiFixed(val: string, precision?: number, fixed?: number, unit?: LbtcDenomination): string {
-  return fromSatoshi(val, precision, unit)
-    .toNumber()
-    .toLocaleString('en-US', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: fixed || unitToFixedDigits(unit),
-      useGrouping: false,
-    });
-}
-
-export function fromUnitToLbtc(lbtcValue: Decimal, unit?: LbtcDenomination): Decimal {
-  switch (unit) {
-    case 'L-BTC':
-      return lbtcValue;
-    case 'L-mBTC':
-      return lbtcValue.div(Decimal.pow(10, 3));
-    case 'L-bits':
-      return lbtcValue.div(Decimal.pow(10, 6));
-    case 'L-sats':
-      return lbtcValue.div(Decimal.pow(10, 8));
-    default:
-      return lbtcValue;
-  }
-}
-
-// Convert from Lbtc value to desired unit, taking into account asset precision
-export function fromLbtcToUnit(lbtcValue: Decimal, unit?: LbtcDenomination, precision = defaultPrecision): Decimal {
-  switch (unit) {
-    case 'L-BTC':
-      return lbtcValue;
-    case 'L-mBTC':
-      return lbtcValue.mul(Decimal.pow(10, new Decimal(precision).minus(5)));
-    case 'L-bits':
-      return lbtcValue.mul(Decimal.pow(10, new Decimal(precision).minus(2)));
-    case 'L-sats':
-      return lbtcValue.mul(Decimal.pow(10, new Decimal(precision)));
-    default:
-      return lbtcValue;
-  }
-}
-
-export function unitToFixedDigits(unit?: string): number {
-  if (!unit) return 2;
-  switch (unit) {
-    case 'L-BTC':
-      return 8;
-    case 'L-mBTC':
-      return 5;
-    case 'L-bits':
-      return 2;
-    case 'L-sats':
-      return 0;
-    default:
-      return 2;
-  }
-}
-
-export function unitToExponent(unit: LbtcDenomination): number {
-  switch (unit) {
-    case 'L-BTC':
-      return 0;
-    case 'L-mBTC':
-      return 3;
-    case 'L-bits':
-      return 6;
-    case 'L-sats':
-      return 8;
-    default:
-      return 0;
-  }
-}
+import type { NetworkString } from './constants';
+import { LBTC_ASSET, LBTC_TICKER, LCAD_ASSET, USDT_ASSET } from './constants';
 
 export function formatDate(date: Date): string {
   return date.toLocaleString('en-US', {
@@ -124,11 +43,6 @@ export function isUsdt(asset: string, network: NetworkString): boolean {
 
 export function isLcad(asset: string, network: NetworkString): boolean {
   return asset === LCAD_ASSET[network].assetHash;
-}
-
-// can be used with sort()
-export function compareTxDate(a: TxHeuristic, b: TxHeuristic): number {
-  return b.blockTime?.diff(a.blockTime) || 0;
 }
 
 export function getIndexAndIsChangeFromAddress(addr: ScriptDetails): {
@@ -192,4 +106,18 @@ export function resetAllStores(): void {
   useTdexStore.getState().resetTdexStore();
   useToastStore.getState().resetToastStore();
   useWalletStore.getState().resetWalletStore();
+}
+
+/**
+ * Generates a random id of a fixed length.
+ * @param length size of the string id.
+ */
+export function makeid(length: number): string {
+  let result = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  const charactersLength = characters.length;
+  for (let i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
 }

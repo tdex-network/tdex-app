@@ -4,8 +4,8 @@ import React, { useState } from 'react';
 
 import { useSettingsStore } from '../../store/settingsStore';
 import { useWalletStore } from '../../store/walletStore';
-import type { LbtcDenomination } from '../../utils/constants';
-import { LBTC_DENOMINATIONS } from '../../utils/constants';
+import type { LbtcUnit } from '../../utils/constants';
+import { LBTC_UNITS } from '../../utils/constants';
 
 interface DenominationSearchProps {
   isOpen: boolean;
@@ -45,8 +45,8 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({ isOpen, close }
         </IonHeader>
         <IonContent className="search-content">
           <IonList>
-            {LBTC_DENOMINATIONS.filter((denomination: string) => denomination.includes(searchString)).map(
-              (denomination: LbtcDenomination, index: number) => {
+            {LBTC_UNITS.filter((denomination: string) => denomination.includes(searchString)).map(
+              (denomination: LbtcUnit, index: number) => {
                 return (
                   <IonItem
                     className="ion-no-margin"

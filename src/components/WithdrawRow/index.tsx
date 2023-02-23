@@ -37,7 +37,7 @@ const WithdrawRow: React.FC<WithdrawRowProps> = ({
   network,
 }) => {
   const favoriteCurrencyTicker = useSettingsStore((state) => state.currency.ticker);
-  const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
+  const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
   const fetchFiatRates = useRateStore((state) => state.fetchFiatRates);
   const rates = useRateStore((state) => state.rates);
   const [residualBalance, setResidualBalance] = useState<number>(balance.value);

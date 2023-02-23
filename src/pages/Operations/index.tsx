@@ -32,7 +32,9 @@ import { useSettingsStore } from '../../store/settingsStore';
 import type { TxHeuristic } from '../../store/walletStore';
 import { TxType, useWalletStore } from '../../store/walletStore';
 import { LBTC_ASSET, LBTC_TICKER } from '../../utils/constants';
-import { compareTxDate, fromSatoshi, fromSatoshiFixed, isLbtc, isLbtcTicker } from '../../utils/helpers';
+import { isLbtc, isLbtcTicker } from '../../utils/helpers';
+import { compareTxDate } from '../../utils/transaction';
+import { fromSatoshi, fromSatoshiFixed } from '../../utils/unitConversion';
 
 export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   const assets = useAssetStore((state) => state.assets);
@@ -40,7 +42,7 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   const currentBtcBlockHeight = useBitcoinStore((state) => state.currentBtcBlockHeight);
   const getCurrentBtcBlockHeight = useBitcoinStore((state) => state.getCurrentBtcBlockHeight);
   const currency = useSettingsStore((state) => state.currency.ticker);
-  const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
+  const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
   const network = useSettingsStore((state) => state.network);
   const balances = useWalletStore((state) => state.balances);
   const computeHeuristicFromTx = useWalletStore((state) => state.computeHeuristicFromTx);
@@ -76,7 +78,7 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
       history.push(`/transaction/${tx.txid}`, {
         address: tx.confidentialAddress,
         amount: fromSatoshiFixed(
-          tx.amount.toString(),
+          tx.amount,
           assets[asset_id]?.precision ?? 8,
           assets[asset_id]?.precision ?? 8,
           isLbtc(asset_id, network) ? lbtcUnit : undefined
@@ -98,6 +100,7 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
     return !btcTx.claimTxId && getConfirmationCount(btcTx.blockHeight) >= 102;
   };
 
+  // TODO: check if rerendered
   const ActionButtons = useMemo(
     () => (
       <IonRow className="ion-margin-top">
@@ -168,7 +171,7 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
       <div className="operation-amount__lbtc">
         {tx
           ? fromSatoshiFixed(
-              tx.amount.toString(),
+              tx.amount,
               assets[asset_id].precision,
               assets[asset_id].precision,
               isLbtcTicker(assets[asset_id].ticker) ? lbtcUnit : undefined
@@ -240,7 +243,7 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
                           {TxType[tx.type] !== 'DepositBtc' && (
                             <IonRow className="mt-1">
                               <IonCol className="pl-1" size="6" offset="1">
-                                {`Fee: ${fromSatoshi(tx.fee.toString(), 8).toFixed(8)} ${LBTC_TICKER[network]}`}
+                                {`Fee: ${fromSatoshi(tx.fee, 8).toFixed(8)} ${LBTC_TICKER[network]}`}
                               </IonCol>
                               <IonCol className="ion-text-right" size="5">
                                 <IonText>

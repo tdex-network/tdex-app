@@ -10,17 +10,23 @@ import { decrypt } from '../utils/crypto';
 
 const bip32 = BIP32Factory(ecc);
 
-export class SignerService {
+export interface SignerInterface {
+  signPset(pset: Pset): Promise<string>;
+
+  finalizeAndExtract(psetBase64: string): string;
+}
+
+export class SignerService implements SignerInterface {
   private masterNode: BIP32Interface;
 
   constructor(masterNode: BIP32Interface) {
     this.masterNode = masterNode;
   }
 
-  static async fromPin(pin: string): Promise<SignerService> {
+  static async fromPassword(password: string): Promise<SignerService> {
     const encryptedMnemonic = useWalletStore.getState().encryptedMnemonic;
     if (!encryptedMnemonic) throw new Error('No mnemonic found in wallet');
-    const decryptedMnemonic = await decrypt(encryptedMnemonic, pin);
+    const decryptedMnemonic = await decrypt(encryptedMnemonic, password);
     const masterNode = bip32.fromSeed(await mnemonicToSeed(decryptedMnemonic));
     return new SignerService(masterNode);
   }

@@ -1,7 +1,3 @@
-export const Exchange: React.FC = () => {
-  return <div>Exchange</div>;
-};
-/*
 import './style.scss';
 import {
   IonContent,
@@ -31,37 +27,31 @@ import type { TdexOrderInputResult } from '../../components/TdexOrderInput';
 import { TdexOrderInput } from '../../components/TdexOrderInput';
 import { useTradeState } from '../../components/TdexOrderInput/hooks';
 import { routerLinks } from '../../routes';
-import { getTradablesAssets } from '../../services/tdexService';
+import { SignerService } from '../../services/signerService';
+import { getTradablesAssets, makeTrade } from '../../services/tdexService';
+import type { UnblindedOutput } from '../../services/tdexService/transaction';
 import { useAppStore } from '../../store/appStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import type { TDEXMarket, TDEXProvider } from '../../store/tdexStore';
 import { useTdexStore } from '../../store/tdexStore';
 import { useToastStore } from '../../store/toastStore';
 import { useWalletStore } from '../../store/walletStore';
-import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
-import { decrypt } from '../../utils/crypto';
-import {
-  AppError,
-  IncorrectPINError,
-  NoMarketsAvailableForSelectedPairError,
-  NoOtherProvider,
-} from '../../utils/errors';
+import { PIN_TIMEOUT_FAILURE } from '../../utils/constants';
+import { AppError, NoMarketsAvailableForSelectedPairError, NoOtherProvider } from '../../utils/errors';
 import type { PreviewData } from '../TradeSummary';
 
 import ExchangeErrorModal from './ExchangeErrorModal';
 
 export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   const isFetchingMarkets = useAppStore((state) => state.isFetchingMarkets);
+  const explorerLiquidAPI = useSettingsStore((state) => state.explorerLiquidAPI);
+  const torProxy = useSettingsStore((state) => state.torProxy);
   const markets = useTdexStore((state) => state.markets);
   const providers = useTdexStore((state) => state.providers);
-  const explorerLiquidAPI = useSettingsStore((state) => state.explorerLiquidAPI);
-  const network = useSettingsStore((state) => state.network);
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
-  const encryptedMnemonic = useWalletStore((state) => state.encryptedMnemonic);
-  const nextExternalIndex = useWalletStore((state) => state.nextExternalIndex);
-  const nextInternalIndex = useWalletStore((state) => state.nextInternalIndex);
-  const utxos = useWalletStore((state) => state.utxos);
+  const outputHistory = useWalletStore((state) => state.outputHistory);
+  const masterBlindingKey = useWalletStore((state) => state.masterBlindingKey);
   //
   const [tdexOrderInputResult, setTdexOrderInputResult] = useState<TdexOrderInputResult>();
   const [excludedProviders, setExcludedProviders] = useState<TDEXProvider[]>([]);
@@ -145,31 +135,9 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
     setHasBeenSwapped,
     setSendAssetHasChanged,
     setReceiveAssetHasChanged,
-  ] = useTradeState(getAllMarketsFromNotExcludedProviders(), balances);
+  ] = useTradeState(getAllMarketsFromNotExcludedProviders());
 
-  const [
-    bestOrder,
-    sendAsset,
-    sendSats,
-    receiveAsset,
-    receiveSats,
-    setReceiveAsset,
-    setSendAsset,
-    setSendAmount,
-    setReceiveAmount,
-    setSendLoader,
-    sendLoader,
-    setReceiveLoader,
-    receiveLoader,
-    sendError,
-    receiveError,
-    setFocus,
-    swapAssets,
-    setHasBeenSwapped,
-    setSendAssetHasChanged,
-    setReceiveAssetHasChanged,
-  ] = useTradeState(getAllMarketsFromNotExcludedProviders(), []);
-
+  /*
   const getIdentity = async (pin: string) => {
     try {
       if (!encryptedMnemonic) throw new Error('No mnemonic found in wallet');
@@ -184,6 +152,7 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
       throw IncorrectPINError;
     }
   };
+  */
 
   const handleSuccess = (txid: string) => {
     //watchTransaction(txid);
@@ -213,16 +182,16 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
     if (!tdexOrderInputResult) return;
     setIsBusyMakingTrade(true);
     try {
-      const identity = await getIdentity(pin);
+      const signer = await SignerService.fromPassword(pin);
       // propose and complete tdex trade
       // broadcast via liquid explorer
       const txid = await makeTrade(
         tdexOrderInputResult.order,
         { amount: tdexOrderInputResult.send.sats ?? 0, asset: tdexOrderInputResult.send.asset ?? '' },
-        identity,
         explorerLiquidAPI,
-        utxos,
-        customCoinSelector(dispatch),
+        Object.values(outputHistory) as UnblindedOutput[],
+        signer,
+        masterBlindingKey,
         torProxy
       );
       handleSuccess(txid);
@@ -455,4 +424,3 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
     </IonPage>
   );
 };
-*/

@@ -1,7 +1,7 @@
 import type { Dispatch } from 'react';
 
-import type { LbtcDenomination } from './constants';
-import { unitToFixedDigits } from './helpers';
+import type { LbtcUnit } from './constants';
+import { unitToFixedDigits } from './unitConversion';
 
 /**
  * Sanitize input amount
@@ -13,7 +13,7 @@ import { unitToFixedDigits } from './helpers';
 export function sanitizeInputAmount(
   eventDetailValue: string,
   setAmount: Dispatch<string>,
-  unit: LbtcDenomination = 'L-BTC'
+  unit: LbtcUnit = 'L-BTC'
 ): string {
   // If value is one of those cases, provoke re-rendering with sanitized value
   if (

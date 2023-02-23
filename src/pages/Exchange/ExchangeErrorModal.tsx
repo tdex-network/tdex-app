@@ -1,5 +1,3 @@
-export {};
-/*
 import './style.scss';
 import { IonButton, IonCol, IonContent, IonGrid, IonModal, IonRow, IonText } from '@ionic/react';
 import React, { useEffect } from 'react';
@@ -77,4 +75,3 @@ const ExchangeErrorModal: React.FC<Props> = ({ result, error, onClose, onClickRe
 };
 
 export default ExchangeErrorModal;
-*/

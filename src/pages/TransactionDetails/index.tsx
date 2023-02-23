@@ -14,21 +14,21 @@ import { useToastStore } from '../../store/toastStore';
 import type { TxHeuristic } from '../../store/walletStore';
 import { useWalletStore } from '../../store/walletStore';
 import { clipboardCopy } from '../../utils/clipboard';
-import type { LbtcDenomination } from '../../utils/constants';
+import type { LbtcUnit } from '../../utils/constants';
 import { isLbtc, makeURLwithBlinders } from '../../utils/helpers';
 
 interface transactionDetailsLocationState {
   address: string;
   amount: number;
   asset: string;
-  lbtcUnit: LbtcDenomination;
+  lbtcUnit: LbtcUnit;
 }
 
 const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDetailsLocationState>> = ({ location }) => {
   const { txid } = useParams<{ txid: string }>();
   const assets = useAssetStore((state) => state.assets);
   const explorerLiquidUI = useSettingsStore((state) => state.explorerLiquidUI);
-  const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
+  const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
   const network = useSettingsStore((state) => state.network);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const txs = useWalletStore((state) => state.txs);

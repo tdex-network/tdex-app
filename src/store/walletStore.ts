@@ -1,7 +1,7 @@
 import zkp from '@vulpemventures/secp256k1-zkp';
 import BIP32Factory from 'bip32';
 import { mnemonicToSeedSync } from 'bip39';
-import { address, AssetHash, confidential, networks, payments, Transaction } from 'liquidjs-lib';
+import { AssetHash, confidential, networks, payments, Transaction } from 'liquidjs-lib';
 import { confidentialValueToSatoshi } from 'liquidjs-lib/src/confidential';
 import type { Output } from 'liquidjs-lib/src/transaction';
 import moment from 'moment';
@@ -17,7 +17,6 @@ import type { Encrypted } from '../utils/crypto';
 import { decrypt, encrypt } from '../utils/crypto';
 import { toXpub } from '../utils/fromXpub';
 import {
-  fromSatoshi,
   getIndexAndIsChangeFromAddress,
   isConfidentialOutput,
   isLbtc,
@@ -26,6 +25,7 @@ import {
   outpointStrToOutpoint,
   outpointToString,
 } from '../utils/helpers';
+import { fromSatoshi } from '../utils/unitConversion';
 
 import { useAssetStore } from './assetStore';
 import { useBitcoinStore } from './bitcoinStore';
@@ -219,14 +219,14 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               script: script.toString('hex'),
               blindingPrivateKey: blindingPrivateKeyBuffer.toString('hex'),
               blindingPublicKey: blindingPublicKeyBuffer.toString('hex'),
-              confidentialAddress: address.toConfidential(p2wpkhPayment.address!, blindingPublicKeyBuffer),
+              confidentialAddress: p2wpkhPayment.confidentialAddress,
             },
           ];
         },
         computeBalances: async () => {
           const network = useSettingsStore.getState().network;
           const currency = useSettingsStore.getState().currency;
-          const lbtcDenomination = useSettingsStore.getState().lbtcDenomination;
+          const lbtcUnit = useSettingsStore.getState().lbtcUnit;
           const zeroLbtcBalance = {
             [LBTC_ASSET[network].assetHash]: {
               sats: 0,
@@ -249,13 +249,9 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               };
               // Format amounts
               if (isLbtc(assetHash, network)) {
-                balances[assetHash].value = fromSatoshi(
-                  balances[assetHash].sats.toString(),
-                  8,
-                  lbtcDenomination
-                ).toNumber();
+                balances[assetHash].value = fromSatoshi(balances[assetHash].sats, 8, lbtcUnit);
               } else {
-                balances[assetHash].value = fromSatoshi(balances[assetHash].sats.toString()).toNumber();
+                balances[assetHash].value = fromSatoshi(balances[assetHash].sats);
               }
             }
           }
@@ -267,25 +263,24 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             for (const [assetHash, balance] of Object.entries(balances)) {
               // compute fiat counter-value for lbtc
               if (isLbtc(assetHash, network)) {
-                const val = fromSatoshi(balance.sats.toString()).toNumber() * rates[LBTC_COINGECKOID][currency.ticker];
+                const val = fromSatoshi(balance.sats) * rates[LBTC_COINGECKOID][currency.ticker];
                 balance.counterValue = val.toFixed(2);
                 totalSats += balance.sats;
               }
               // compute lbtc counter-value for available fiat currencies (usd, cad)
               if (isUsdt(assetHash, network)) {
-                const val = fromSatoshi(balance.sats.toString()).toNumber() / rates[LBTC_COINGECKOID]['usd'];
+                const val = fromSatoshi(balance.sats) / rates[LBTC_COINGECKOID]['usd'];
                 balance.counterValue = val.toFixed(2);
                 totalSats += val;
               }
               if (isLcad(assetHash, network)) {
-                const val = fromSatoshi(balance.sats.toString()).toNumber() / rates[LBTC_COINGECKOID]['cad'];
+                const val = fromSatoshi(balance.sats) / rates[LBTC_COINGECKOID]['cad'];
                 balance.counterValue = val.toFixed(2);
                 totalSats += val;
               }
             }
             //
-            const val =
-              fromSatoshi(totalSats.toString()).toNumber() * (rates[LBTC_COINGECKOID]?.[currency.ticker] ?? 0);
+            const val = fromSatoshi(totalSats) * (rates[LBTC_COINGECKOID]?.[currency.ticker] ?? 0);
             totalCounterValue = val.toFixed(2);
           }
           // If no balances, return LBTC balance of 0
@@ -296,7 +291,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               totalBtc: {
                 sats: totalSats,
                 counterValue: totalCounterValue,
-                value: fromSatoshi(totalSats.toString(), 8, lbtcDenomination).toNumber(),
+                value: fromSatoshi(totalSats, 8, lbtcUnit),
               },
             },
             false,

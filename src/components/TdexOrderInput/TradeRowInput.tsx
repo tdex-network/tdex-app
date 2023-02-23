@@ -1,9 +1,6 @@
-export {};
-/*
 import './style.scss';
 import { IonIcon, IonInput, IonSpinner, IonText } from '@ionic/react';
 import classNames from 'classnames';
-import Decimal from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
 import React, { useEffect, useRef, useState } from 'react';
 import type { Asset } from 'src/store/assetStore';
@@ -15,9 +12,10 @@ import { useAppStore } from '../../store/appStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useWalletStore } from '../../store/walletStore';
 import { defaultPrecision } from '../../utils/constants';
-import { fromSatoshiFixed, fromUnitToLbtc, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
+import { isLbtc, isLbtcTicker } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
+import { fromSatoshiFixed, fromUnitToLbtc, toSatoshi } from '../../utils/unitConversion';
 import CurrencyIcon from '../CurrencyIcon';
 
 export type ExchangeRowValue = {
@@ -57,7 +55,7 @@ export const TradeRowInput: React.FC<Props> = ({
   const isFetchingTransactions = useAppStore((state) => state.isFetchingTransactions);
   const assets = useAssetStore((state) => state.assets);
   const currency = useSettingsStore((state) => state.currency);
-  const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
+  const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
   const network = useSettingsStore((state) => state.network);
   const balances = useWalletStore((state) => state.balances);
   //
@@ -67,13 +65,13 @@ export const TradeRowInput: React.FC<Props> = ({
   const [localError, setLocalError] = useState<Error>();
   const onSelectAsset = (asset: Asset) => onChangeAsset(asset.assetHash);
 
-  const onInputAmount = (amount: string) => {
+  const onInputAmount = (amount: number) => {
     if (!assetSelected) return;
     const unitLBTC = isLbtc(assetSelected.assetHash, network) ? lbtcUnit : undefined;
-    const stringAmount = sanitizeInputAmount(amount, setInputValue, unitLBTC);
+    const stringAmount = sanitizeInputAmount(amount.toString(), setInputValue, unitLBTC);
     // If value is 0, use placeholder value
     setInputValue(stringAmount === '0' ? '' : stringAmount);
-    const satoshis = toSatoshi(stringAmount, assetSelected.precision, unitLBTC).toNumber();
+    const satoshis = toSatoshi(Number(stringAmount), assetSelected.precision, unitLBTC);
     onChangeSats(satoshis);
   };
 
@@ -95,7 +93,7 @@ export const TradeRowInput: React.FC<Props> = ({
       return;
     }
     const newAmountFromSats = fromSatoshiFixed(
-      sats.toString(10),
+      sats,
       assetSelected?.precision || defaultPrecision,
       assetSelected?.precision || defaultPrecision,
       isLbtc(assetSelected?.assetHash ?? '', network) ? lbtcUnit : undefined
@@ -162,23 +160,11 @@ export const TradeRowInput: React.FC<Props> = ({
           onClick={() => {
             if (!inputRef.current) return;
             inputRef.current.setFocus().catch(console.error);
-            onInputAmount(
-              fromSatoshiFixed(
-                balances[assetSelected?.assetHash ?? '']?.toString() || '0',
-                assets[assetSelected?.assetHash ?? '']?.precision ?? defaultPrecision,
-                assets[assetSelected?.assetHash ?? '']?.precision ?? defaultPrecision,
-                isLbtcTicker(assets[assetSelected?.assetHash ?? '']?.ticker || '') ? lbtcUnit : undefined
-              )
-            );
+            onInputAmount(balances?.[assetSelected?.assetHash ?? ''].value ?? 0);
           }}
         >
           <span>Total balance:</span>
-          <span>{`${fromSatoshiFixed(
-            balances[assetSelected?.assetHash ?? '']?.toString() || '0',
-            assets[assetSelected?.assetHash ?? '']?.precision ?? defaultPrecision,
-            assets[assetSelected?.assetHash ?? '']?.precision ?? defaultPrecision,
-            isLbtcTicker(assets[assetSelected?.assetHash ?? '']?.ticker || '') ? lbtcUnit : undefined
-          )} ${
+          <span>{`${balances?.[assetSelected?.assetHash ?? 0].value} ${
             isLbtcTicker(assets[assetSelected?.assetHash ?? '']?.ticker || '') ? lbtcUnit : assetSelected?.ticker
           }`}</span>
         </span>
@@ -190,12 +176,12 @@ export const TradeRowInput: React.FC<Props> = ({
             ) : (
               <>
                 {fromUnitToLbtc(
-                  new Decimal(inputValue || 0),
+                  Number(inputValue),
                   isLbtcTicker(assets[assetSelected?.assetHash ?? '']?.ticker || '') ? lbtcUnit : undefined
                 )
-                  .mul(selectedAssetPrice || 0)
+                  //.mul(selectedAssetPrice || 0)
                   .toFixed(2)}{' '}
-                {currency.value.toUpperCase()}
+                {currency.ticker.toUpperCase()}
               </>
             )}
           </span>
@@ -211,9 +197,7 @@ export const TradeRowInput: React.FC<Props> = ({
           ev?.preventDefault();
           setIsSearchOpen(false);
         }}
-        prices={prices}
       />
     </div>
   );
 };
-*/

@@ -36,7 +36,7 @@ export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
   const isFetchingTransactions = useAppStore((state) => state.isFetchingTransactions);
   const assets = useAssetStore((state) => state.assets);
   const currency = useSettingsStore((state) => state.currency);
-  const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
+  const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
   const network = useSettingsStore((state) => state.network);
   const balances = useWalletStore((state) => state.balances);
   const totalLbtc = useWalletStore((state) => state.totalBtc);

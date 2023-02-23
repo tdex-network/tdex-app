@@ -5,7 +5,6 @@ import { IonItem, IonSkeletonText, IonSpinner } from '@ionic/react';
 import { useToastStore } from '../../store/toastStore';
 import { clipboardCopy } from '../../utils/clipboard';
 
-
 interface TransactionLoaderProps {
   txID: string;
 }

@@ -1,11 +1,10 @@
-export {};
-/*
 import './style.scss';
 import { IonRippleEffect, useIonViewDidEnter, useIonViewDidLeave } from '@ionic/react';
 import React, { useEffect } from 'react';
 
 import swap from '../../assets/img/swap.svg';
 import { getTradablesAssets } from '../../services/tdexService';
+import type { TradeOrder } from '../../services/tdexService/tradeCore';
 import { useAssetStore } from '../../store/assetStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import type { TDEXMarket } from '../../store/tdexStore';
@@ -23,7 +22,7 @@ export interface SatsAsset {
 
 export interface AmountAndUnit {
   amount: string; // formatted amount of satoshis (depends on precision)
-  unit: string; // ticker or lbtcDenomination
+  unit: string; // ticker or lbtcUnit
 }
 
 export interface TdexOrderInputResult {
@@ -35,7 +34,7 @@ export interface TdexOrderInputResult {
 type Props = {
   markets: TDEXMarket[];
   onInput: (tdexOrder?: TdexOrderInputResult) => void;
-  bestOrder?: TradeOrder;
+  bestOrder?: any /*TradeOrder*/;
   sendAsset?: string;
   sendSats?: number;
   receiveAsset?: string;
@@ -82,7 +81,7 @@ export const TdexOrderInput: React.FC<Props> = ({
   setReceiveAssetHasChanged,
 }) => {
   const assets = useAssetStore((state) => state.assets);
-  const lbtcUnit = useSettingsStore((state) => state.lbtcDenomination);
+  const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
   const network = useSettingsStore((state) => state.network);
   //
   useIonViewDidEnter(() => {
@@ -174,4 +173,3 @@ export const TdexOrderInput: React.FC<Props> = ({
     </div>
   );
 };
- */

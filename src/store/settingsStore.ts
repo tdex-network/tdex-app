@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
-import type { LbtcDenomination, NetworkString } from '../utils/constants';
-import { CURRENCIES, LBTC_DENOMINATIONS } from '../utils/constants';
+import type { LbtcUnit, NetworkString } from '../utils/constants';
+import { CURRENCIES, LBTC_UNITS } from '../utils/constants';
 
 import { storage } from './capacitorPersistentStorage';
 import { config } from './config';
@@ -16,7 +16,7 @@ export interface Currency {
 export interface SettingsState {
   currency: Currency;
   defaultProvider: string;
-  lbtcDenomination: LbtcDenomination;
+  lbtcUnit: LbtcUnit;
   explorerLiquidAPI: string;
   explorerBitcoinAPI: string;
   explorerBitcoinUI: string;
@@ -35,7 +35,7 @@ interface SettingsActions {
   setExplorerBitcoinAPI: (explorerBitcoinAPI: string) => void;
   setExplorerBitcoinUI: (url: string) => void;
   setExplorerLiquidUI: (url: string) => void;
-  setLbtcDenomination: (lbtcDenomination: LbtcDenomination) => void;
+  setLbtcDenomination: (lbtcUnit: LbtcUnit) => void;
   setNetwork: (network: NetworkString) => void;
   setTorProxy: (url: string) => void;
   setWebsocketExplorerURL: (websocketExplorerURL: string) => void;
@@ -45,7 +45,7 @@ interface SettingsActions {
 const initialState: SettingsState = {
   currency: CURRENCIES[0],
   defaultProvider: config.defaultProvider.endpoint,
-  lbtcDenomination: LBTC_DENOMINATIONS[0],
+  lbtcUnit: LBTC_UNITS[0],
   explorerLiquidAPI: config.explorers.explorerLiquidAPI,
   explorerBitcoinAPI: config.explorers.explorerBitcoinAPI,
   explorerBitcoinUI: config.explorers.explorerBitcoinUI,
@@ -68,7 +68,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
         setExplorerBitcoinAPI: (explorerBitcoinAPI) => set({ explorerBitcoinAPI }, false, 'setExplorerBitcoinAPI'),
         setExplorerBitcoinUI: (explorerBitcoinUI) => set({ explorerBitcoinUI }, false, 'setExplorerBitcoinUI'),
         setExplorerLiquidUI: (explorerLiquidUI) => set({ explorerLiquidUI }, false, 'setExplorerLiquidUI'),
-        setLbtcDenomination: (lbtcDenomination) => set({ lbtcDenomination }, false, 'setLbtcDenomination'),
+        setLbtcDenomination: (lbtcUnit) => set({ lbtcUnit }, false, 'setLbtcDenomination'),
         setNetwork: (network) => set({ network }, false, 'setNetwork'),
         setTorProxy: (torProxy) => set({ torProxy }, false, 'setTorProxy'),
         setWebsocketExplorerURL: (websocketExplorerURL) =>

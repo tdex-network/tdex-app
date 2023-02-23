@@ -15,7 +15,7 @@ import { useToastStore } from '../../store/toastStore';
 import type { TxHeuristic } from '../../store/walletStore';
 import { useWalletStore } from '../../store/walletStore';
 import { clipboardCopy } from '../../utils/clipboard';
-import { fromSatoshiFixed } from '../../utils/helpers';
+import { fromSatoshiFixed } from '../../utils/unitConversion';
 
 export interface PreviewData {
   sent: {
@@ -141,9 +141,7 @@ export const TradeSummary: React.FC<RouteComponentProps<any, any, TradeSummaryLo
                             </span>
                           </div>
                           <p className="trade-price" data-testid="trade-summary-sent-amount">
-                            {preview
-                              ? preview?.sent.amount
-                              : fromSatoshiFixed(sentTxHeuristic?.amount.toString() ?? '0', 8, 8)}
+                            {preview ? preview?.sent.amount : fromSatoshiFixed(sentTxHeuristic?.amount ?? 0, 8, 8)}
                           </p>
                         </div>
 
@@ -169,7 +167,7 @@ export const TradeSummary: React.FC<RouteComponentProps<any, any, TradeSummaryLo
                             +
                             {preview
                               ? preview?.received.amount
-                              : fromSatoshiFixed(receivedTxHeuristic?.amount.toString() ?? '0', 8, 8)}
+                              : fromSatoshiFixed(receivedTxHeuristic?.amount ?? 0, 8, 8)}
                           </p>
                         </div>
                       </div>
@@ -177,7 +175,7 @@ export const TradeSummary: React.FC<RouteComponentProps<any, any, TradeSummaryLo
                         <div className="transaction-info-date">
                           {transaction && <span>{transaction.blockTime?.format('DD MMM YYYY HH:mm:ss')}</span>}
                           {transaction ? (
-                            <span>{fromSatoshiFixed(transaction.fee.toString(), 8, 8)} Fee</span>
+                            <span>{fromSatoshiFixed(transaction.fee, 8, 8)} Fee</span>
                           ) : (
                             <IonSkeletonText animated style={{ width: '100%' }} />
                           )}

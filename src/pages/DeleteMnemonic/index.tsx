@@ -1,5 +1,5 @@
 import { IonButton, IonCol, IonContent, IonGrid, IonPage, IonRow } from '@ionic/react';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import { useLocation } from 'react-router';
 

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 
 import type { Asset } from '../../store/assetStore';
 import type { Currency } from '../../store/settingsStore';
+import { useWalletStore } from '../../store/walletStore';
 import CurrencyIcon from '../CurrencyIcon';
 
 interface ExchangeSearchProps {
@@ -11,11 +12,11 @@ interface ExchangeSearchProps {
   setAsset: (newAsset: Asset) => void;
   isOpen: boolean;
   close: (ev: any) => void;
-  prices: Record<string, number>;
   currency: Currency;
 }
 
-const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsset, isOpen, close, currency }) => {
+const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ assets, setAsset, isOpen, close, currency }) => {
+  const balances = useWalletStore((state) => state.balances);
   const [searchString, setSearchString] = useState('');
 
   return (
@@ -64,7 +65,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsse
                       <p>{asset.ticker}</p>
                     </div>
                     <div className="search-item-amount">
-                      <span className="price">{(asset.coinGeckoID && prices[asset.coinGeckoID]) || '0'}</span>
+                      <span className="price">{balances?.[asset.assetHash].counterValue ?? '0'}</span>
                       <span className="fiat-currency">{currency.symbol}</span>
                     </div>
                   </IonItem>
