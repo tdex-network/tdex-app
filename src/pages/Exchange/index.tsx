@@ -45,6 +45,7 @@ import ExchangeErrorModal from './ExchangeErrorModal';
 export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   const isFetchingMarkets = useAppStore((state) => state.isFetchingMarkets);
   const explorerLiquidAPI = useSettingsStore((state) => state.explorerLiquidAPI);
+  const network = useSettingsStore((state) => state.network);
   const torProxy = useSettingsStore((state) => state.torProxy);
   const markets = useTdexStore((state) => state.markets);
   const providers = useTdexStore((state) => state.providers);
@@ -137,23 +138,6 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
     setReceiveAssetHasChanged,
   ] = useTradeState(getAllMarketsFromNotExcludedProviders());
 
-  /*
-  const getIdentity = async (pin: string) => {
-    try {
-      if (!encryptedMnemonic) throw new Error('No mnemonic found in wallet');
-      const toRestore = await decrypt(encryptedMnemonic, pin);
-      setIsWrongPin(false);
-      setTimeout(() => {
-        setIsWrongPin(null);
-        setNeedReset(true);
-      }, PIN_TIMEOUT_SUCCESS);
-      // return mnemonicRestorerFromState(toRestore)({ nextExternalIndex, nextInternalIndex });
-    } catch {
-      throw IncorrectPINError;
-    }
-  };
-  */
-
   const handleSuccess = (txid: string) => {
     //watchTransaction(txid);
     // Trigger spinner right away
@@ -192,6 +176,7 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
         Object.values(outputHistory) as UnblindedOutput[],
         signer,
         masterBlindingKey,
+        network,
         torProxy
       );
       handleSuccess(txid);
@@ -400,7 +385,7 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
               </IonCol>
             </IonRow>
 
-            {tdexOrderInputResult && sendSats !== 0 && (
+            {tdexOrderInputResult?.order.market && tdexOrderInputResult.order.traderClient && sendSats !== 0 && (
               <IonRow className="market-provider ion-margin-vertical-x2 ion-text-center">
                 <IonCol size="10" offset="1">
                   <IonText className="trade-info" color="light">

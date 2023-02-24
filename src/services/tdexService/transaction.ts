@@ -85,9 +85,11 @@ export class SwapTransaction implements SwapTransactionInterface {
     // get the witness utxos from repository
     const utxosWitnessUtxos = await Promise.all(
       selectedUtxos.map((utxo) => {
-        return useWalletStore().getWitnessUtxo(utxo.txid, utxo.vout);
+        // TODO: avoid coupling
+        return useWalletStore.getState().getWitnessUtxo(utxo.txid, utxo.vout);
       })
     );
+    console.log('utxosWitnessUtxos', utxosWitnessUtxos);
 
     for (const [i, utxo] of selectedUtxos.entries()) {
       ins.push({

@@ -1,15 +1,17 @@
 import axios from 'axios';
 
 import { TradeType } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
-import { useSettingsStore } from '../../store/settingsStore';
 import type { TDEXMarket, TDEXProvider } from '../../store/tdexStore';
 import type { UnblindedOutput } from '../../store/walletStore';
 import type { NetworkString } from '../../utils/constants';
-import { AppError } from '../../utils/errors';
+import { AppError, NoMarketsAvailableForSelectedPairError } from '../../utils/errors';
 // Self import for unit testing
 import type { SignerInterface } from '../signerService';
 
 import { TraderClient } from './client.web';
+import { Discoverer } from './discoverer';
+import type { Discovery } from './discovery';
+import { bestBalanceDiscovery, bestPriceDiscovery, combineDiscovery } from './discovery';
 import * as tdex from './index';
 import { Trade } from './trade.web';
 import type { MarketInterface, TradeOrder } from './tradeCore';
@@ -62,7 +64,6 @@ export function createTraderClient(endpoint: string, proxy = 'https://proxy.tdex
 }
 
 // Create discoverer object for a specific set of trader clients
-/*
 export function createDiscoverer(
   orders: TradeOrder[],
   discovery: Discovery,
@@ -70,7 +71,6 @@ export function createDiscoverer(
 ): Discoverer {
   return new Discoverer(orders, discovery, errorHandler);
 }
-*/
 
 function createTradeFromTradeOrder(
   order: TradeOrder,
@@ -78,9 +78,9 @@ function createTradeFromTradeOrder(
   utxos: UnblindedOutput[],
   signer: SignerInterface,
   masterBlindingKey: string,
+  network: NetworkString,
   torProxy = 'https://proxy.tdex.network'
 ): Trade {
-  const network = useSettingsStore.getState().network;
   return new Trade(
     {
       explorerUrl: explorerLiquidAPI,
@@ -103,6 +103,7 @@ function createTradeFromTradeOrder(
  * @param utxos the user's set of utxos
  * @param torProxy
  * @param signer
+ * @param network
  * @param masterBlindingKey
  */
 export async function makeTrade(
@@ -112,9 +113,18 @@ export async function makeTrade(
   utxos: UnblindedOutput[],
   signer: SignerInterface,
   masterBlindingKey: string, // Only necessary for protos v1
+  network: NetworkString,
   torProxy?: string
 ): Promise<string> {
-  const trader = createTradeFromTradeOrder(order, explorerLiquidAPI, utxos, signer, masterBlindingKey, torProxy);
+  const trader = createTradeFromTradeOrder(
+    order,
+    explorerLiquidAPI,
+    utxos,
+    signer,
+    masterBlindingKey,
+    network,
+    torProxy
+  );
   try {
     const args = { ...known, market: order.market };
     const promise = order.type === TradeType.BUY ? trader.buy(args) : trader.sell(args);
@@ -163,8 +173,6 @@ export function computeOrders(
 }
 
 // discover the best order from a set of markets
-// return an async function
-/*
 export function discoverBestOrder(
   markets: TDEXMarket[],
   sendAsset?: string,
@@ -196,7 +204,6 @@ export function discoverBestOrder(
     }
   };
 }
-*/
 
 export async function marketPriceRequest(
   order: TradeOrder,

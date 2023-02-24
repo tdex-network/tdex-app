@@ -2,7 +2,7 @@ import zkp from '@vulpemventures/secp256k1-zkp';
 import BIP32Factory from 'bip32';
 import { mnemonicToSeedSync } from 'bip39';
 import type { UpdaterInput } from 'liquidjs-lib';
-import { AssetHash, confidential, networks, payments, Transaction } from 'liquidjs-lib';
+import { address, AssetHash, confidential, networks, payments, Transaction } from 'liquidjs-lib';
 import { confidentialValueToSatoshi } from 'liquidjs-lib/src/confidential';
 import type { Output } from 'liquidjs-lib/src/transaction';
 import moment from 'moment';
@@ -221,7 +221,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               script: script.toString('hex'),
               blindingPrivateKey: blindingPrivateKeyBuffer.toString('hex'),
               blindingPublicKey: blindingPublicKeyBuffer.toString('hex'),
-              confidentialAddress: p2wpkhPayment.confidentialAddress,
+              confidentialAddress: address.toConfidential(p2wpkhPayment.address!, blindingPublicKeyBuffer),
             },
           ];
         },

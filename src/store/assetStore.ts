@@ -2,8 +2,7 @@ import axios from 'axios';
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
-import type { NetworkString } from '../utils/constants';
-import { defaultPrecision, LBTC_ASSET, MAIN_ASSETS, USDT_ASSET } from '../utils/constants';
+import { defaultPrecision, LBTC_ASSET, USDT_ASSET } from '../utils/constants';
 import { isLbtc, isUsdt } from '../utils/helpers';
 
 import { storage } from './capacitorPersistentStorage';
@@ -22,23 +21,19 @@ export interface AssetState {
 }
 
 interface AssetActions {
+  addAsset: (asset: Asset) => void;
   fetchAssetData: (assetHash: string) => Promise<void>;
   resetAssetStore: () => void;
 }
-
-const initialAssets = (network?: NetworkString): Record<string, Asset> => {
-  const result: Record<string, Asset> = {};
-  for (const assetConf of MAIN_ASSETS[network as NetworkString]) {
-    result[assetConf.assetHash] = assetConf;
-  }
-  return result;
-};
 
 export const useAssetStore = create<AssetState & AssetActions>()(
   devtools(
     persist(
       (set, get) => ({
         assets: {},
+        addAsset: (asset: Asset) => {
+          set((state) => ({ assets: { ...state.assets, [asset.assetHash]: asset } }), false, 'addAsset');
+        },
         fetchAssetData: async (assetHash: string) => {
           const network = useSettingsStore.getState().network;
           if (get().assets[assetHash]?.assetHash) return;
@@ -78,8 +73,7 @@ export const useAssetStore = create<AssetState & AssetActions>()(
             set((state) => ({ assets: { ...state.assets, [assetHash]: assetData } }), false, 'fetchAssetData');
           }
         },
-        resetAssetStore: () =>
-          set({ assets: initialAssets(useSettingsStore.getState().network) }, false, 'resetAssetStore'),
+        resetAssetStore: () => set({ assets: {} }, false, 'resetAssetStore'),
       }),
       {
         name: 'asset',

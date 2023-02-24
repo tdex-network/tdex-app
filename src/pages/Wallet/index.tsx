@@ -28,7 +28,8 @@ import { useTdexStore } from '../../store/tdexStore';
 import type { Balance } from '../../store/walletStore';
 import { useWalletStore } from '../../store/walletStore';
 import { updateTdexState } from '../../utils/actions';
-import { LBTC_ASSET } from '../../utils/constants';
+import type { NetworkString } from '../../utils/constants';
+import { LBTC_ASSET, MAIN_ASSETS } from '../../utils/constants';
 import { capitalizeFirstLetter, isLbtc, isLbtcTicker } from '../../utils/helpers';
 
 export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
@@ -36,6 +37,7 @@ export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
   const isFetchingUtxos = useAppStore((state) => state.isFetchingUtxos);
   const isFetchingMarkets = useAppStore((state) => state.isFetchingMarkets);
   const isFetchingTransactions = useAppStore((state) => state.isFetchingTransactions);
+  const addAsset = useAssetStore((state) => state.addAsset);
   const assets = useAssetStore((state) => state.assets);
   const fetchAssetData = useAssetStore((state) => state.fetchAssetData);
   const markets = useTdexStore((state) => state.markets);
@@ -51,7 +53,10 @@ export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
   useEffect(() => {
     (async () => {
       await updateTdexState();
+      // Add main assets to store
+      MAIN_ASSETS[network as NetworkString].forEach((asset) => addAsset(asset));
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

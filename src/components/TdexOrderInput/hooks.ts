@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { discoverBestOrder, marketPriceRequest } from '../../services/tdexService';
 import type { Asset } from '../../store/assetStore';
 import type { TDEXMarket } from '../../store/tdexStore';
 import { useWalletStore } from '../../store/walletStore';
@@ -83,10 +84,8 @@ export function useTradeState(markets: TDEXMarket[]) {
     try {
       setReceiveLoader(true);
       if (newSendSats > (sendBalance?.sats ?? 0)) throw new Error(`not enough balance`);
-      //const bestOrder = await discoverBestOrder(markets, sendAsset, receiveAsset)(newSendSats ?? 0, sendAsset);
-      //const assetSats = await marketPriceRequest(bestOrder, newSendSats ?? 0, sendAsset);
-      const bestOrder = {};
-      const assetSats = { sats: '0' };
+      const bestOrder = await discoverBestOrder(markets, sendAsset, receiveAsset)(newSendSats ?? 0, sendAsset);
+      const assetSats = await marketPriceRequest(bestOrder, newSendSats ?? 0, sendAsset);
       setReceiveSats(Number(assetSats.sats));
       setBestOrder(bestOrder);
       resetErrors();
@@ -104,10 +103,8 @@ export function useTradeState(markets: TDEXMarket[]) {
     }
     try {
       setSendLoader(true);
-      //const bestOrder = await discoverBestOrder(markets, sendAsset, receiveAsset)(newReceiveSats ?? 0, receiveAsset);
-      const bestOrder = {};
-      //const assetSats = await marketPriceRequest(bestOrder, newReceiveSats ?? 0, receiveAsset);
-      const assetSats = { sats: '0' };
+      const bestOrder = await discoverBestOrder(markets, sendAsset, receiveAsset)(newReceiveSats ?? 0, receiveAsset);
+      const assetSats = await marketPriceRequest(bestOrder, newReceiveSats ?? 0, receiveAsset);
       if (Number(assetSats.sats) > (sendBalance?.sats ?? 0)) throw new Error(`not enough balance`);
       setSendSats(Number(assetSats.sats));
       setBestOrder(bestOrder);
