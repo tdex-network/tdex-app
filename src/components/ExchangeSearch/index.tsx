@@ -65,7 +65,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ assets, setAsset, isOpe
                       <p>{asset.ticker}</p>
                     </div>
                     <div className="search-item-amount">
-                      <span className="price">{balances?.[asset.assetHash].counterValue ?? '0'}</span>
+                      <span className="price">{balances?.[asset.assetHash]?.counterValue ?? '0'}</span>
                       <span className="fiat-currency">{currency.symbol}</span>
                     </div>
                   </IonItem>

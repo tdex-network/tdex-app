@@ -1,7 +1,11 @@
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
+import { getMarketsFromProvider, getProvidersFromTDexRegistry } from '../services/tdexService';
+
 import { storage } from './capacitorPersistentStorage';
+import { defaultProviderEndpoints } from './config';
+import { useSettingsStore } from './settingsStore';
 
 export interface TDEXProvider {
   name: string;
@@ -22,11 +26,12 @@ interface TdexState {
 }
 
 export interface TdexActions {
-  addMarkets: (markets: TDEXMarket[]) => void;
   addProviders: (providers: TDEXProvider[]) => void;
   clearMarkets: () => void;
   clearProviders: () => void;
   deleteProvider: (provider: TDEXProvider) => void;
+  fetchMarkets: () => Promise<void>;
+  fetchProviders: () => Promise<void>;
   replaceMarketsOfProvider: (providerToUpdate: TDEXProvider, markets: TDEXMarket[]) => void;
   resetTdexStore: () => void;
 }
@@ -39,10 +44,8 @@ const initialState: TdexState = {
 export const useTdexStore = create<TdexState & TdexActions>()(
   devtools(
     persist(
-      (set) => ({
+      (set, get) => ({
         ...initialState,
-        addMarkets: (markets: TDEXMarket[]) =>
-          set((state) => ({ markets: [...state.markets, ...markets] }), false, 'addMarkets'),
         addProviders: (providers: TDEXProvider[]) => {
           set(
             (state) => {
@@ -66,6 +69,24 @@ export const useTdexStore = create<TdexState & TdexActions>()(
             'deleteProvider'
           );
         },
+        fetchMarkets: async () => {
+          const torProxy = useSettingsStore.getState().torProxy;
+          const allMarkets = await Promise.allSettled(get().providers.map((p) => getMarketsFromProvider(p, torProxy)));
+          allMarkets
+            .map((p, i) => (p.status === 'fulfilled' && p.value ? p.value : []))
+            .forEach((markets) => {
+              set((state) => ({ markets: [...state.markets, ...markets] }), false, 'fetchMarkets');
+            });
+        },
+        fetchProviders: async () => {
+          const network = useSettingsStore.getState().network;
+          if (network === 'liquid' || network === 'testnet') {
+            const providersFromRegistry = await getProvidersFromTDexRegistry(network);
+            get().addProviders(providersFromRegistry);
+          } else {
+            get().addProviders([{ endpoint: defaultProviderEndpoints.regtest, name: 'Default provider' }]);
+          }
+        },
         replaceMarketsOfProvider: (providerToUpdate: TDEXProvider, markets: TDEXMarket[]) => {
           set(
             (state) => {
@@ -86,6 +107,6 @@ export const useTdexStore = create<TdexState & TdexActions>()(
         storage: createJSONStorage(() => storage),
       }
     ),
-    { name: 'store', store: 'toast' }
+    { name: 'store', store: 'tdex' }
   )
 );

@@ -3,6 +3,7 @@ import { networks } from 'liquidjs-lib';
 import { SwapAccept as SwapAcceptV1 } from '../../api-spec/protobuf/gen/js/tdex/v1/swap_pb';
 import { SwapAccept as SwapAcceptV2 } from '../../api-spec/protobuf/gen/js/tdex/v2/swap_pb';
 import { TradeType } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
+import type { UnblindedOutput } from '../../store/walletStore';
 import { useWalletStore } from '../../store/walletStore';
 import type { NetworkString } from '../../utils/constants';
 import { decodePset, isRawTransaction, isValidAmount } from '../../utils/transaction';
@@ -13,7 +14,6 @@ import type TraderClientInterface from './clientInterface';
 import Core from './core';
 import type { CoreInterface } from './core';
 import { Swap } from './swap';
-import type { UnblindedOutput } from './transaction';
 import { SwapTransaction } from './transaction';
 
 export interface TDEXProvider {

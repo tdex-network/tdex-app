@@ -101,6 +101,12 @@ export const TradeRowInput: React.FC<Props> = ({
     setInputValue(newAmountFromSats);
   }, [sats, assetSelected, lbtcUnit, network]);
 
+  if (type === 'receive') {
+    console.log('balances', balances);
+    console.log('assetSelected', assetSelected);
+    console.log('balances?.[assetSelected?.assetHash ?? 0]', balances?.[assetSelected?.assetHash ?? 0]);
+  }
+
   return (
     <div className="exchange-coin-container">
       <h2 className="subtitle">{`You ${type}`}</h2>
@@ -164,7 +170,7 @@ export const TradeRowInput: React.FC<Props> = ({
           }}
         >
           <span>Total balance:</span>
-          <span>{`${balances?.[assetSelected?.assetHash ?? 0].value} ${
+          <span>{`${balances?.[assetSelected?.assetHash ?? 0]?.value} ${
             isLbtcTicker(assets[assetSelected?.assetHash ?? '']?.ticker || '') ? lbtcUnit : assetSelected?.ticker
           }`}</span>
         </span>

@@ -6,9 +6,11 @@ import * as messages from '../../api-spec/protobuf/gen/js/tdex/v1/trade_pb';
 import * as services from '../../api-spec/protobuf/gen/js/tdex/v1/trade_pb.client';
 import * as types from '../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
 import type { TradeType } from '../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
-import { DEFAULT_TOR_PROXY, getClearTextTorProxyUrl } from '../../utils/tdex';
 
 import type TraderClientInterface from './clientInterface';
+import { getClearTextTorProxyUrl } from './index';
+
+const DEFAULT_TOR_PROXY = 'https://torproxy.tdex.network';
 
 export class TraderClient implements TraderClientInterface {
   providerUrl: string;

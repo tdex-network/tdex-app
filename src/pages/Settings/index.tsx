@@ -52,7 +52,7 @@ const Settings: React.FC<RouteComponentProps> = ({ history }) => {
                 history.push('/liquidity-provider');
               }}
             >
-              <span>Manage liquidity provider</span>
+              <span>Liquidity providers</span>
               <IonIcon icon={chevronForwardOutline} color="text-color" slot="end" className="ion-no-margin" />
             </IonItem>
 

@@ -22,7 +22,7 @@ export interface AssetState {
 }
 
 interface AssetActions {
-  fetchAndStoreAssetData: (assetHash: string) => Promise<Asset | undefined>;
+  fetchAssetData: (assetHash: string) => Promise<void>;
   resetAssetStore: () => void;
 }
 
@@ -34,19 +34,34 @@ const initialAssets = (network?: NetworkString): Record<string, Asset> => {
   return result;
 };
 
-const network = useSettingsStore.getState().network;
-
 export const useAssetStore = create<AssetState & AssetActions>()(
   devtools(
     persist(
-      (set) => ({
-        assets: initialAssets(network),
-        fetchAndStoreAssetData: async (assetHash: string) => {
+      (set, get) => ({
+        assets: {},
+        fetchAssetData: async (assetHash: string) => {
+          const network = useSettingsStore.getState().network;
+          if (get().assets[assetHash]?.assetHash) return;
+          // Return constants to include coinGeckoID field and name
+          if (isLbtc(assetHash, network)) {
+            set(
+              (state) => ({ assets: { ...state.assets, [assetHash]: LBTC_ASSET[network] } }),
+              false,
+              'fetchAssetData/lbtc'
+            );
+            return;
+          }
+          if (isUsdt(assetHash, network)) {
+            set(
+              (state) => ({ assets: { ...state.assets, [assetHash]: USDT_ASSET[network] } }),
+              false,
+              'fetchAssetData/usdt'
+            );
+            return;
+          }
+          // Fetch data from explorer
           let precision, ticker, name;
           try {
-            // Return constants to include coinGeckoID field
-            if (isLbtc(assetHash, network)) return LBTC_ASSET[network];
-            if (isUsdt(assetHash, network)) return USDT_ASSET[network];
             const res = (await axios.get(`${useSettingsStore.getState().explorerLiquidAPI}/asset/${assetHash}`)).data;
             precision = res.precision;
             ticker = res.ticker;
@@ -60,7 +75,7 @@ export const useAssetStore = create<AssetState & AssetActions>()(
               ticker: ticker || assetHash.slice(0, 4).toUpperCase(),
               name: name ?? 'Unknown',
             };
-            set({ assets: { [assetHash]: assetData } }, false, 'fetchAndStoreAssetData');
+            set((state) => ({ assets: { ...state.assets, [assetHash]: assetData } }), false, 'fetchAssetData');
           }
         },
         resetAssetStore: () =>

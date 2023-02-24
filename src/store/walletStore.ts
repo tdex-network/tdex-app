@@ -1,6 +1,7 @@
 import zkp from '@vulpemventures/secp256k1-zkp';
 import BIP32Factory from 'bip32';
 import { mnemonicToSeedSync } from 'bip39';
+import type { UpdaterInput } from 'liquidjs-lib';
 import { AssetHash, confidential, networks, payments, Transaction } from 'liquidjs-lib';
 import { confidentialValueToSatoshi } from 'liquidjs-lib/src/confidential';
 import type { Output } from 'liquidjs-lib/src/transaction';
@@ -139,6 +140,7 @@ interface WalletActions {
   deriveBlindingKey: (script: Buffer) => { publicKey: Buffer; privateKey: Buffer };
   generateMasterKeys: (mnemonic: string) => void;
   getNextAddress: (isInternal: boolean) => Promise<ScriptDetails>;
+  getWitnessUtxo: (txid: string, vout: number) => Promise<UpdaterInput['witnessUtxo']>;
   lockOutpoint: (outpoint: Outpoint) => string;
   selectUtxos: (targets: Recipient[], lock: boolean) => Promise<CoinSelection>;
   setIsAuthorized: (isAuthorized: boolean) => void;
@@ -487,6 +489,11 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           );
           return scriptDetails[1];
         },
+        getWitnessUtxo: async (txid: string, vout: number) => {
+          const txDetails = await get().txs[txid];
+          if (!txDetails || !txDetails.hex) return undefined;
+          return Transaction.fromHex(txDetails.hex).outs[vout];
+        },
         lockOutpoint: ({ txid, vout }) => {
           const outpointStr = outpointToString({ txid, vout });
           set(() => ({ lockedOutpoints: [outpointStr] }), false, 'lockOutpoint');
@@ -734,7 +741,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             // check if we already have the asset details
             const assets = useAssetStore.getState().assets;
             if (assets[asset]) continue;
-            useAssetStore.getState().fetchAndStoreAssetData(asset);
+            useAssetStore.getState().fetchAssetData(asset);
           }
           return unblindingResults;
         },

@@ -24,8 +24,10 @@ import { routerLinks } from '../../routes';
 import { useAppStore } from '../../store/appStore';
 import { useAssetStore } from '../../store/assetStore';
 import { useSettingsStore } from '../../store/settingsStore';
+import { useTdexStore } from '../../store/tdexStore';
 import type { Balance } from '../../store/walletStore';
 import { useWalletStore } from '../../store/walletStore';
+import { updateTdexState } from '../../utils/actions';
 import { LBTC_ASSET } from '../../utils/constants';
 import { capitalizeFirstLetter, isLbtc, isLbtcTicker } from '../../utils/helpers';
 
@@ -35,6 +37,8 @@ export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
   const isFetchingMarkets = useAppStore((state) => state.isFetchingMarkets);
   const isFetchingTransactions = useAppStore((state) => state.isFetchingTransactions);
   const assets = useAssetStore((state) => state.assets);
+  const fetchAssetData = useAssetStore((state) => state.fetchAssetData);
+  const markets = useTdexStore((state) => state.markets);
   const currency = useSettingsStore((state) => state.currency);
   const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
   const network = useSettingsStore((state) => state.network);
@@ -42,6 +46,22 @@ export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
   const totalLbtc = useWalletStore((state) => state.totalBtc);
   //
   const [balancesSorted, setBalancesSorted] = useState<[string, Balance][]>([]);
+
+  // Init
+  useEffect(() => {
+    (async () => {
+      await updateTdexState();
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      for (const market of markets) {
+        await fetchAssetData(market.baseAsset);
+        await fetchAssetData(market.quoteAsset);
+      }
+    })();
+  }, [fetchAssetData, markets]);
 
   useEffect(() => {
     const balancesToDisplay: [string, Balance][] = [];

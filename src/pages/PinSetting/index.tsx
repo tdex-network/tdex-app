@@ -42,6 +42,8 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
   const setMnemonicEncrypted = useWalletStore((state) => state.setMnemonicEncrypted);
   const setIsAuthorized = useWalletStore((state) => state.setIsAuthorized);
   const generateMasterKeys = useWalletStore((state) => state.generateMasterKeys);
+  const sync = useWalletStore((state) => state.sync);
+  const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
   //
   const { state } = useLocation<LocationState>();
   const [firstPin, setFirstPin] = useState<string>('');
@@ -253,6 +255,8 @@ const PinSetting: React.FC<RouteComponentProps> = ({ history }) => {
                           setLoading(false);
                           setIsAuthorized(true);
                           generateMasterKeys(mnemonic);
+                          await sync();
+                          await subscribeAllScripts();
                         } catch (err) {
                           console.error(err);
                         }

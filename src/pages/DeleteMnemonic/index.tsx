@@ -6,7 +6,7 @@ import { useLocation } from 'react-router';
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
 import { useWalletStore } from '../../store/walletStore';
-import { resetAllStores } from '../../utils/helpers';
+import { resetAllStores } from '../../utils/actions';
 
 interface LocationState {
   pin: string;

@@ -1,5 +1,5 @@
 import secp256k1 from '@vulpemventures/secp256k1-zkp';
-import type { OwnedInput, TxOutput, Pset } from 'liquidjs-lib';
+import type { OwnedInput, TxOutput, Pset, PsetInput } from 'liquidjs-lib';
 import { confidential, Transaction } from 'liquidjs-lib';
 import { Confidential, confidentialValueToSatoshi } from 'liquidjs-lib/src/confidential';
 
@@ -217,13 +217,12 @@ async function compareMessagesAndTransaction(
   msgAccept?: protoV1.SwapAccept | protoV2.SwapAccept,
   protoVersion: 'v1' | 'v2' = 'v2'
 ): Promise<void> {
-  // decode the transaction.
   const decodedFromRequest = decodePset(msgRequest.transaction);
   // nonWitnessUtxo to witnessUtxoutxos
-  decodedFromRequest.inputs.forEach((i: any, inputIndex: number) => {
+  decodedFromRequest.inputs.forEach((i: PsetInput, inputIndex: number) => {
     if (!i.witnessUtxo && i.nonWitnessUtxo) {
       const vout: number = decodedFromRequest.unsignedTx().ins[inputIndex].index;
-      i.witnessUtxo = Transaction.fromHex(i.nonWitnessUtxo).outs[vout];
+      i.witnessUtxo = Transaction.fromHex(i.nonWitnessUtxo.toHex()).outs[vout];
     }
   });
   // check the amount of the transaction
@@ -232,7 +231,7 @@ async function compareMessagesAndTransaction(
     if (totalP < Number(msgRequest.amountP)) {
       throw new Error('Cumulative utxos count is not enough to cover SwapRequest.amount_p');
     }
-    // check if the output if found in the transaction
+    // check if the output is found in the transaction
     const outputRFound: boolean = await outputFoundInTransaction(
       decodedFromRequest.unsignedTx().outs,
       Number(msgRequest.amountR),
@@ -359,7 +358,7 @@ async function outputFoundInTransaction(
  */
 async function countUtxos(pset: Pset, asset: string, inputBlindKeys: BlindKeysMap = {}): Promise<number> {
   const assetBuffer: Buffer = Buffer.from(asset, 'hex').reverse();
-  const filteredByWitness = pset.inputs.filter((i) => i.witnessUtxo != null);
+  const filteredByWitness = pset.inputs.filter((i) => i.witnessUtxo !== null);
 
   // unblind confidential prevouts
   const zkplib = await secp256k1();

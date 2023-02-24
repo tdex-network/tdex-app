@@ -3,6 +3,7 @@ import axios from 'axios';
 import { TradeType } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import { useSettingsStore } from '../../store/settingsStore';
 import type { TDEXMarket, TDEXProvider } from '../../store/tdexStore';
+import type { UnblindedOutput } from '../../store/walletStore';
 import type { NetworkString } from '../../utils/constants';
 import { AppError } from '../../utils/errors';
 // Self import for unit testing
@@ -11,8 +12,7 @@ import type { SignerInterface } from '../signerService';
 import { TraderClient } from './client.web';
 import * as tdex from './index';
 import { Trade } from './trade.web';
-import type { TradeOrder } from './tradeCore';
-import type { UnblindedOutput } from './transaction';
+import type { MarketInterface, TradeOrder } from './tradeCore';
 
 const TDexRegistryMainnet = 'https://raw.githubusercontent.com/TDex-network/tdex-registry/master/registry.json';
 const TDexRegistryTestnet = 'https://raw.githubusercontent.com/tdex-network/tdex-registry/testnet/registry.json';
@@ -22,6 +22,25 @@ export async function getProvidersFromTDexRegistry(network: NetworkString): Prom
     return (await axios.get(TDexRegistryTestnet)).data;
   }
   return (await axios.get(TDexRegistryMainnet)).data;
+}
+
+export async function getMarketsFromProvider(
+  p: TDEXProvider,
+  torProxy = 'https://proxy.tdex.network'
+): Promise<TDEXMarket[]> {
+  const client = new TraderClient(p.endpoint, torProxy);
+  const markets: MarketInterface[] = await client.markets();
+  const results: TDEXMarket[] = [];
+  for (const market of markets) {
+    const balance = (await client.balance(market)).balance;
+    results.push({
+      ...market,
+      provider: p,
+      baseAmount: balance?.baseAmount,
+      quoteAmount: balance?.quoteAmount,
+    });
+  }
+  return results;
 }
 
 // Find all assets in markets tradable with the asset `asset`
@@ -194,4 +213,12 @@ export async function marketPriceRequest(
     asset: response[0].asset,
     sats: response[0].amount,
   };
+}
+
+export function getClearTextTorProxyUrl(torProxyEndpoint: string, url: URL): string {
+  // get just_onion_host_without_dot_onion
+  const splitted = url.hostname.split('.');
+  splitted.pop();
+  const onionPubKey = splitted.join('.');
+  return `${torProxyEndpoint}/${onionPubKey}`;
 }

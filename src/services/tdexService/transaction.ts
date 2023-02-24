@@ -1,8 +1,11 @@
-import type { confidential, networks, Pset, TxOutput, UpdaterInput, UpdaterOutput } from 'liquidjs-lib';
+import type { networks, Pset, UpdaterInput, UpdaterOutput } from 'liquidjs-lib';
 import { address, Creator, Transaction, Updater } from 'liquidjs-lib';
 import type { Slip77Interface } from 'slip77';
 import { SLIP77Factory } from 'slip77';
 import * as ecc from 'tiny-secp256k1';
+
+import type { UnblindedOutput } from '../../store/walletStore';
+import { useWalletStore } from '../../store/walletStore';
 
 let coinSelect = require('coinselect');
 
@@ -14,19 +17,6 @@ interface SwapTransactionInterface {
   outputBlindingKeys: Record<string, Buffer>;
   blindingKeyNode: Slip77Interface;
 }
-
-export interface Outpoint {
-  txid: string;
-  vout: number;
-}
-
-export declare type Output = Outpoint & {
-  prevout: TxOutput;
-};
-
-export declare type UnblindedOutput = Output & {
-  unblindData: confidential.UnblindOutputResult;
-};
 
 const slip77 = SLIP77Factory(ecc);
 
@@ -57,15 +47,15 @@ export class SwapTransaction implements SwapTransactionInterface {
     const outs: UpdaterOutput[] = [];
     const selectedUtxos: UnblindedOutput[] = [];
     const changeOutputs: { asset: string; amount: number }[] = [];
-    const onlyWithUnblindingData = unspents.filter((utxo) => utxo.unblindData);
-    const utxos = onlyWithUnblindingData.filter((utxo) => utxo.unblindData?.asset.toString('hex') === assetToBeSent);
+    const onlyWithUnblindingData = unspents.filter((utxo) => utxo.blindingData);
+    const utxos = onlyWithUnblindingData.filter((utxo) => utxo.blindingData?.asset === assetToBeSent);
 
     // Coin selection
     const { inputs, outputs } = coinSelect(
       utxos.map((utxo) => ({
         txId: utxo.txid,
         vout: utxo.vout,
-        value: utxo.unblindData?.value,
+        value: utxo.blindingData?.value,
       })),
       [{ address: 'fake', value: amountToBeSent }],
       0
@@ -92,14 +82,22 @@ export class SwapTransaction implements SwapTransactionInterface {
     }
 
     // Inputs
-    for (const utxo of selectedUtxos) {
+    // get the witness utxos from repository
+    const utxosWitnessUtxos = await Promise.all(
+      selectedUtxos.map((utxo) => {
+        return useWalletStore().getWitnessUtxo(utxo.txid, utxo.vout);
+      })
+    );
+
+    for (const [i, utxo] of selectedUtxos.entries()) {
       ins.push({
         txid: utxo.txid,
         txIndex: utxo.vout,
         sighashType: Transaction.SIGHASH_ALL,
-        witnessUtxo: utxo.prevout,
+        witnessUtxo: utxosWitnessUtxos[i],
       });
-      const scriptHex = utxo.prevout.script;
+      const scriptHex = utxosWitnessUtxos[i]?.script;
+      if (!scriptHex) continue;
       const { privateKey } = this._deriveBlindingKey(scriptHex);
       this.inputBlindingKeys[scriptHex.toString('hex')] = privateKey;
     }
