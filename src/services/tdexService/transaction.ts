@@ -1,18 +1,18 @@
 import type { networks, Pset, UpdaterInput, UpdaterOutput } from 'liquidjs-lib';
-import { address, Creator, Transaction, Updater } from 'liquidjs-lib';
+import { address, AssetHash, confidential, Creator, Transaction, Updater } from 'liquidjs-lib';
+import type { PsbtTxInput } from 'liquidjs-lib/src/psbt';
+import { Psbt } from 'liquidjs-lib/src/psbt';
 import type { Slip77Interface } from 'slip77';
 import { SLIP77Factory } from 'slip77';
 import * as ecc from 'tiny-secp256k1';
 
-import type { UnblindedOutput } from '../../store/walletStore';
-import { useWalletStore } from '../../store/walletStore';
-
-let coinSelect = require('coinselect');
+import type { CoinSelectionForTrade, ScriptDetails } from '../../store/walletStore';
 
 // SwapTransactionInterface defines the minimum needed for implementation to hold data to construct a valid swap transaction.
 interface SwapTransactionInterface {
   network: networks.Network;
   pset: Pset;
+  psbt: Psbt;
   inputBlindingKeys: Record<string, Buffer>;
   outputBlindingKeys: Record<string, Buffer>;
   blindingKeyNode: Slip77Interface;
@@ -27,78 +27,94 @@ export class SwapTransaction implements SwapTransactionInterface {
   outputBlindingKeys: Record<string, Buffer> = {};
   network: networks.Network;
   pset: Pset;
+  psbt: Psbt;
 
   constructor({ network, masterBlindingKey }: { network: networks.Network; masterBlindingKey: string }) {
     this.network = network;
     this.pset = Creator.newPset();
+    this.psbt = new Psbt({ network: this.network });
     this.blindingKeyNode = slip77.fromMasterBlindingKey(masterBlindingKey);
   }
 
-  async create(
-    unspents: (UnblindedOutput & { redeemScript?: Buffer; witnessScript?: Buffer })[],
+  async createProtoV1(
+    coinSelectionForTrade: CoinSelectionForTrade,
     amountToBeSent: number,
     amountToReceive: number,
     assetToBeSent: string,
     assetToReceive: string,
-    addressForSwapOutput: string,
-    addressForChangeOutput: string
+    addressForChangeOutput: ScriptDetails,
+    addressForSwapOutput: ScriptDetails
+  ): Promise<void> {
+    const { changeOutputs, witnessUtxos } = coinSelectionForTrade;
+
+    for (const [outpointStr, utxo] of Object.entries(witnessUtxos)) {
+      const [txid, vout] = outpointStr.split(':');
+      const inputData: PsbtTxInput = {
+        // if hash is string, txid, if hash is Buffer, is reversed compared to txid
+        hash: txid,
+        index: Number(vout),
+        //We put here the blinded prevout
+        witnessUtxo: utxo,
+        ...utxo,
+      };
+      this.psbt.addInput(inputData);
+      if (!utxo) throw new Error('create tx: missing prevout member for input ' + txid + ':' + vout);
+      // we update the inputBlindingKeys map after we add an input to the transaction
+      const { privateKey } = this._deriveBlindingKey(utxo.script);
+      this.inputBlindingKeys[utxo.script.toString('hex')] = privateKey;
+    }
+
+    // The receiving output
+    this.psbt.addOutput({
+      script: Buffer.from(addressForSwapOutput.script, 'hex'),
+      value: confidential.satoshiToConfidentialValue(amountToReceive),
+      asset: AssetHash.fromHex(assetToReceive).bytes,
+      nonce: Buffer.from('00', 'hex'),
+    });
+
+    // we update the outputBlindingKeys map after we add the receiving output to the transaction
+    this.outputBlindingKeys[addressForSwapOutput.script] = Buffer.from(addressForSwapOutput.blindingPrivateKey, 'hex');
+
+    if (changeOutputs && changeOutputs.length > 0) {
+      for (const changeOutput of changeOutputs) {
+        // Change
+        this.psbt.addOutput({
+          script: Buffer.from(addressForChangeOutput.script, 'hex'),
+          value: confidential.satoshiToConfidentialValue(changeOutput.amount),
+          asset: AssetHash.fromHex(changeOutput.asset).bytes,
+          nonce: Buffer.from('00', 'hex'),
+        });
+        // we update the outputBlindingKeys map after we add the change output to the transaction
+        this.outputBlindingKeys[addressForChangeOutput.script] = Buffer.from(
+          addressForChangeOutput.blindingPrivateKey,
+          'hex'
+        );
+      }
+    }
+  }
+
+  async createProtoV2(
+    coinSelectionForTrade: CoinSelectionForTrade,
+    amountToBeSent: number,
+    amountToReceive: number,
+    assetToBeSent: string,
+    assetToReceive: string,
+    addressForChangeOutput: ScriptDetails,
+    addressForSwapOutput: ScriptDetails
   ): Promise<void> {
     const ins: UpdaterInput[] = [];
     const outs: UpdaterOutput[] = [];
-    const selectedUtxos: UnblindedOutput[] = [];
-    const changeOutputs: { asset: string; amount: number }[] = [];
-    const onlyWithUnblindingData = unspents.filter((utxo) => utxo.blindingData);
-    const utxos = onlyWithUnblindingData.filter((utxo) => utxo.blindingData?.asset === assetToBeSent);
+    const { changeOutputs, witnessUtxos } = coinSelectionForTrade;
 
-    // Coin selection
-    const { inputs, outputs } = coinSelect(
-      utxos.map((utxo) => ({
-        txId: utxo.txid,
-        vout: utxo.vout,
-        value: utxo.blindingData?.value,
-      })),
-      [{ address: 'fake', value: amountToBeSent }],
-      0
-    );
-    if (inputs) {
-      selectedUtxos.push(
-        ...(inputs as { txId: string; vout: number }[]).map(
-          (input) =>
-            onlyWithUnblindingData.find(
-              (utxo) => utxo.txid === input.txId && utxo.vout === input.vout
-            ) as UnblindedOutput
-        )
-      );
-    }
-    if (outputs) {
-      changeOutputs.push(
-        ...outputs
-          .filter((output: any) => output.address === undefined) // only add change outputs
-          .map((output: { value: number }) => ({
-            asset: assetToBeSent,
-            amount: output.value,
-          }))
-      );
-    }
-
-    // Inputs
-    // get the witness utxos from repository
-    const utxosWitnessUtxos = await Promise.all(
-      selectedUtxos.map((utxo) => {
-        // TODO: avoid coupling
-        return useWalletStore.getState().getWitnessUtxo(utxo.txid, utxo.vout);
-      })
-    );
-    console.log('utxosWitnessUtxos', utxosWitnessUtxos);
-
-    for (const [i, utxo] of selectedUtxos.entries()) {
+    for (const [outpointStr, witnessUtxo] of Object.entries(witnessUtxos)) {
+      const [txid, vout] = outpointStr.split(':');
       ins.push({
-        txid: utxo.txid,
-        txIndex: utxo.vout,
+        txid: txid,
+        txIndex: Number(vout),
         sighashType: Transaction.SIGHASH_ALL,
-        witnessUtxo: utxosWitnessUtxos[i],
+        witnessUtxo: witnessUtxo,
       });
-      const scriptHex = utxosWitnessUtxos[i]?.script;
+      const scriptHex = witnessUtxo?.script;
       if (!scriptHex) continue;
       const { privateKey } = this._deriveBlindingKey(scriptHex);
       this.inputBlindingKeys[scriptHex.toString('hex')] = privateKey;
@@ -106,33 +122,35 @@ export class SwapTransaction implements SwapTransactionInterface {
 
     // Outputs
     // add the receiving output
-    const receivingScript = address.toOutputScript(addressForSwapOutput, this.network);
     const updaterOutReceive: UpdaterOutput = {
       asset: assetToReceive,
       amount: amountToReceive,
-      script: receivingScript,
+      script: Buffer.from(addressForSwapOutput.script, 'hex'),
     };
-    if (address.isConfidential(addressForSwapOutput)) {
+    if (address.isConfidential(addressForSwapOutput?.confidentialAddress ?? '')) {
       updaterOutReceive.blinderIndex = 0;
-      updaterOutReceive.blindingPublicKey = address.fromConfidential(addressForSwapOutput).blindingKey;
-      const { privateKey } = this._deriveBlindingKey(receivingScript);
-      this.outputBlindingKeys[receivingScript.toString('hex')] = privateKey;
+      updaterOutReceive.blindingPublicKey = Buffer.from(addressForSwapOutput.blindingPublicKey ?? '', 'hex');
+      this.outputBlindingKeys[addressForSwapOutput.script] = Buffer.from(
+        addressForSwapOutput.blindingPrivateKey,
+        'hex'
+      );
     }
     outs.push(updaterOutReceive);
     // add the changes outputs
-    if (changeOutputs.length > 0) {
-      const changeScript = address.toOutputScript(addressForChangeOutput, this.network);
+    if (changeOutputs && changeOutputs.length > 0) {
       for (const { asset, amount } of changeOutputs) {
         const updaterOutChange: UpdaterOutput = {
           asset: asset,
           amount: amount,
-          script: changeScript,
+          script: Buffer.from(addressForChangeOutput.script, 'hex'),
         };
-        if (address.isConfidential(addressForSwapOutput)) {
+        if (address.isConfidential(addressForChangeOutput?.confidentialAddress ?? '')) {
           updaterOutChange.blinderIndex = 0;
-          updaterOutChange.blindingPublicKey = address.fromConfidential(addressForSwapOutput).blindingKey;
-          const { privateKey } = this._deriveBlindingKey(changeScript);
-          this.outputBlindingKeys[changeScript.toString('hex')] = privateKey;
+          updaterOutChange.blindingPublicKey = Buffer.from(addressForChangeOutput?.blindingPublicKey ?? '', 'hex');
+          this.outputBlindingKeys[addressForChangeOutput.script] = Buffer.from(
+            addressForChangeOutput.blindingPrivateKey,
+            'hex'
+          );
         }
         outs.push(updaterOutChange);
       }

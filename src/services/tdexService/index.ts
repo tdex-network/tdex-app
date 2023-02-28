@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { TradeType } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import type { TDEXMarket, TDEXProvider } from '../../store/tdexStore';
-import type { UnblindedOutput } from '../../store/walletStore';
+import type { CoinSelectionForTrade, ScriptDetails } from '../../store/walletStore';
 import type { NetworkString } from '../../utils/constants';
 import { AppError, NoMarketsAvailableForSelectedPairError } from '../../utils/errors';
 // Self import for unit testing
@@ -75,18 +75,19 @@ export function createDiscoverer(
 function createTradeFromTradeOrder(
   order: TradeOrder,
   explorerLiquidAPI: string,
-  utxos: UnblindedOutput[],
+  coinSelectionForTrade: CoinSelectionForTrade,
   signer: SignerInterface,
   masterBlindingKey: string,
   network: NetworkString,
+  protoVersion: 'v1' | 'v2',
   torProxy = 'https://proxy.tdex.network'
 ): Trade {
   return new Trade(
     {
       explorerUrl: explorerLiquidAPI,
       providerUrl: order.traderClient.providerUrl,
-      utxos,
-      protoVersion: 'v1',
+      coinSelectionForTrade,
+      protoVersion: protoVersion,
       chain: network,
       masterBlindingKey,
       signer: signer,
@@ -100,33 +101,40 @@ function createTradeFromTradeOrder(
  * @param order the selected trade using to swap
  * @param known the data inputs by the user
  * @param explorerLiquidAPI the esplora URL
- * @param utxos the user's set of utxos
+ * @param coinSelectionForTrade
  * @param torProxy
  * @param signer
  * @param network
+ * @param protoVersion
+ * @param addressForChangeOutput
+ * @param addressForSwapOutput
  * @param masterBlindingKey
  */
 export async function makeTrade(
   order: TradeOrder,
   known: { amount: number; asset: string },
   explorerLiquidAPI: string,
-  utxos: UnblindedOutput[],
+  coinSelectionForTrade: CoinSelectionForTrade,
   signer: SignerInterface,
   masterBlindingKey: string, // Only necessary for protos v1
   network: NetworkString,
+  protoVersion: 'v1' | 'v2',
+  addressForChangeOutput: ScriptDetails,
+  addressForSwapOutput: ScriptDetails,
   torProxy?: string
 ): Promise<string> {
   const trader = createTradeFromTradeOrder(
     order,
     explorerLiquidAPI,
-    utxos,
+    coinSelectionForTrade,
     signer,
     masterBlindingKey,
     network,
+    protoVersion,
     torProxy
   );
   try {
-    const args = { ...known, market: order.market };
+    const args = { ...known, market: order.market, addressForSwapOutput, addressForChangeOutput };
     const promise = order.type === TradeType.BUY ? trader.buy(args) : trader.sell(args);
     const txid = await promise;
     if (!txid) {

@@ -24,6 +24,7 @@ export const useRefreshProviders = (): (() => Promise<void>) => {
           clearProviders();
           clearMarkets();
           addProviders(providersFromRegistry);
+          await useTdexStore.getState().fetchMarkets();
         }
         addSuccessToast(`${newProviders.length} new providers from TDEX registry!`);
       } catch {
@@ -33,6 +34,7 @@ export const useRefreshProviders = (): (() => Promise<void>) => {
       clearProviders();
       clearMarkets();
       addProviders([{ endpoint: defaultProviderEndpoints.regtest, name: 'Default provider' }]);
+      await useTdexStore.getState().fetchMarkets();
     }
   };
 };

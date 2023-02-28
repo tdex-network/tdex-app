@@ -2,11 +2,12 @@ import secp256k1 from '@vulpemventures/secp256k1-zkp';
 import type { OwnedInput, TxOutput, Pset, PsetInput } from 'liquidjs-lib';
 import { confidential, Transaction } from 'liquidjs-lib';
 import { Confidential, confidentialValueToSatoshi } from 'liquidjs-lib/src/confidential';
+import type { Psbt } from 'liquidjs-lib/src/psbt';
 
 import * as protoV1 from '../../api-spec/protobuf/gen/js/tdex/v1/swap_pb';
 import * as protoV2 from '../../api-spec/protobuf/gen/js/tdex/v2/swap_pb';
 import { isConfidentialOutput, makeid } from '../../utils/helpers';
-import { decodePset } from '../../utils/transaction';
+import { decodePsbt, decodePset } from '../../utils/transaction';
 
 import Core from './core';
 
@@ -217,23 +218,26 @@ async function compareMessagesAndTransaction(
   msgAccept?: protoV1.SwapAccept | protoV2.SwapAccept,
   protoVersion: 'v1' | 'v2' = 'v2'
 ): Promise<void> {
-  const decodedFromRequest = decodePset(msgRequest.transaction);
-  // nonWitnessUtxo to witnessUtxoutxos
-  decodedFromRequest.inputs.forEach((i: PsetInput, inputIndex: number) => {
-    if (!i.witnessUtxo && i.nonWitnessUtxo) {
-      const vout: number = decodedFromRequest.unsignedTx().ins[inputIndex].index;
-      i.witnessUtxo = Transaction.fromHex(i.nonWitnessUtxo.toHex()).outs[vout];
-    }
-  });
-  // check the amount of the transaction
   if (protoVersion === 'v1' && 'inputBlindingKey' in msgRequest) {
-    const totalP = await countUtxos(decodedFromRequest, msgRequest.assetP, blindKeysMap(msgRequest.inputBlindingKey));
+    const decodedFromRequest = decodePsbt(msgRequest.transaction);
+    decodedFromRequest.psbt.data.inputs.forEach((i: any, inputIndex: number) => {
+      if (!i.witnessUtxo && i.nonWitnessUtxo) {
+        const vout: number = decodedFromRequest.transaction.ins[inputIndex].index;
+        const witnessUtxo: TxOutput = Transaction.fromHex(i.nonWitnessUtxo).outs[vout];
+        i.witnessUtxo = witnessUtxo;
+      }
+    });
+    const totalP = await countUtxosProtoVersionV1(
+      decodedFromRequest.psbt,
+      msgRequest.assetP,
+      blindKeysMap(msgRequest.inputBlindingKey)
+    );
     if (totalP < Number(msgRequest.amountP)) {
       throw new Error('Cumulative utxos count is not enough to cover SwapRequest.amount_p');
     }
     // check if the output is found in the transaction
     const outputRFound: boolean = await outputFoundInTransaction(
-      decodedFromRequest.unsignedTx().outs,
+      decodedFromRequest.transaction.outs,
       Number(msgRequest.amountR),
       msgRequest.assetR,
       blindKeysMap(msgRequest.outputBlindingKey)
@@ -248,17 +252,21 @@ async function compareMessagesAndTransaction(
     // msg accept
     if (msgAccept && 'inputBlindingKey' in msgAccept) {
       // decode the tx and check the msg's ids
-      const decodedFromAccept = decodePset(msgAccept.transaction);
+      const decodedFromAccept = decodePsbt(msgAccept.transaction);
       if (msgRequest.id !== msgAccept.requestId)
         throw new Error('SwapRequest.id and SwapAccept.request_id are not the same');
       // check the amount of utxos.
-      const totalR = await countUtxos(decodedFromAccept, msgRequest.assetR, blindKeysMap(msgAccept.inputBlindingKey));
+      const totalR = await countUtxosProtoVersionV1(
+        decodedFromAccept.psbt,
+        msgRequest.assetR,
+        blindKeysMap(msgAccept.inputBlindingKey)
+      );
       if (totalR < Number(msgRequest.amountR)) {
         throw new Error('Cumulative utxos count is not enough to cover SwapRequest.amount_r');
       }
       // check if there is an output found in the transaction.
       const outputPFound = outputFoundInTransaction(
-        decodedFromAccept.unsignedTx().outs,
+        decodedFromAccept.transaction.outs,
         Number(msgRequest.amountP),
         msgRequest.assetP,
         blindKeysMap(msgAccept.outputBlindingKey)
@@ -269,7 +277,14 @@ async function compareMessagesAndTransaction(
         );
     }
   } else {
-    const totalP = await countUtxos(decodedFromRequest, msgRequest.assetP);
+    const decodedFromRequest = decodePset(msgRequest.transaction);
+    decodedFromRequest.inputs.forEach((i: PsetInput, inputIndex: number) => {
+      if (!i.witnessUtxo && i.nonWitnessUtxo) {
+        const vout: number = decodedFromRequest.unsignedTx().ins[inputIndex].index;
+        i.witnessUtxo = Transaction.fromHex(i.nonWitnessUtxo.toHex()).outs[vout];
+      }
+    });
+    const totalP = await countUtxosProtoVersionV2(decodedFromRequest, msgRequest.assetP);
     if (totalP < Number(msgRequest.amountP)) {
       throw new Error('Cumulative utxos count is not enough to cover SwapRequest.amount_p');
     }
@@ -293,7 +308,7 @@ async function compareMessagesAndTransaction(
       if (msgRequest.id !== msgAccept.requestId)
         throw new Error('SwapRequest.id and SwapAccept.request_id are not the same');
       // check the amount of utxos.
-      const totalR = await countUtxos(decodedFromAccept, msgRequest.assetR);
+      const totalR = await countUtxosProtoVersionV2(decodedFromAccept, msgRequest.assetR);
       if (totalR < Number(msgRequest.amountR)) {
         throw new Error('Cumulative utxos count is not enough to cover SwapRequest.amount_r');
       }
@@ -352,11 +367,58 @@ async function outputFoundInTransaction(
 
 /**
  * Returns the sum of the values of the given inputs' utxos.
+ * @param psbt the psbt to count inputs values
+ * @param asset the asset to fetch value.
+ * @param inputBlindKeys optional, the blinding keys using to unblind witnessUtxo if blinded.
+ */
+async function countUtxosProtoVersionV1(psbt: Psbt, asset: string, inputBlindKeys: BlindKeysMap = {}): Promise<number> {
+  const assetBuffer: Buffer = Buffer.from(asset, 'hex').reverse();
+  const filteredByWitness = psbt.data.inputs.filter((input) => input.witnessUtxo !== null);
+  // unblind confidential prevouts
+  const zkplib = await secp256k1();
+  const confidential = new Confidential(zkplib);
+  const unblindedUtxos = await Promise.all(
+    filteredByWitness.map(async (input) => {
+      if (input.witnessUtxo && isConfidentialOutput(input.witnessUtxo)) {
+        const blindKey = inputBlindKeys[input.witnessUtxo.script.toString('hex')];
+        if (blindKey === undefined) {
+          throw new Error('no blindKey for script: ' + input.witnessUtxo.script.toString('hex'));
+        }
+        const { value: unblindValue, asset: unblindAsset } = confidential.unblindOutputWithKey(
+          input.witnessUtxo,
+          blindKey
+        );
+        return {
+          asset: unblindAsset,
+          value: unblindValue,
+        };
+      }
+      return {
+        asset: input.witnessUtxo?.asset ?? Buffer.from('', 'hex'),
+        value: input.witnessUtxo?.value ?? Buffer.from('00', 'hex'),
+      };
+    })
+  );
+
+  // filter inputs by asset and return the count
+  const filteredByAsset = unblindedUtxos.filter(({ asset }) =>
+    assetBuffer.equals(asset.length === 33 ? asset.slice(1) : asset)
+  );
+  const queryValues = filteredByAsset.map(({ value }) => {
+    return value instanceof Buffer ? confidentialValueToSatoshi(value) : parseInt(value, 10);
+  });
+
+  // apply reducer to values (add the values)
+  return queryValues.reduce((a: number, b: number) => a + b, 0);
+}
+
+/**
+ * Returns the sum of the values of the given inputs' utxos.
  * @param pset the pset to count inputs values.
  * @param asset the asset to fetch value.
  * @param inputBlindKeys optional, the blinding keys using to unblind witnessUtxo if blinded.
  */
-async function countUtxos(pset: Pset, asset: string, inputBlindKeys: BlindKeysMap = {}): Promise<number> {
+async function countUtxosProtoVersionV2(pset: Pset, asset: string, inputBlindKeys: BlindKeysMap = {}): Promise<number> {
   const assetBuffer: Buffer = Buffer.from(asset, 'hex').reverse();
   const filteredByWitness = pset.inputs.filter((i) => i.witnessUtxo !== null);
 

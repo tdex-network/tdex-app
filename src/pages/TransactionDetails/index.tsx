@@ -45,13 +45,17 @@ const TransactionDetails: React.FC<RouteComponentProps<any, any, transactionDeta
 
   useEffect(() => {
     (async () => {
-      const transaction = txs?.[txid];
-      if (transaction) {
-        const heuristicTx = await computeHeuristicFromTx(transaction, 'details');
-        setTransaction(heuristicTx);
+      try {
+        const transaction = txs?.[txid];
+        if (transaction) {
+          const heuristicTx = await computeHeuristicFromTx(transaction, locationState?.asset);
+          heuristicTx && setTransaction(heuristicTx);
+        }
+      } catch (error) {
+        console.error(error);
       }
     })();
-  }, [computeHeuristicFromTx, txid, txs]);
+  }, [computeHeuristicFromTx, locationState?.asset, txid, txs]);
 
   const renderStatusText: any = (isConfirmed: boolean) => {
     if (isConfirmed) {

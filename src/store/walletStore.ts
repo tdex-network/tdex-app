@@ -84,6 +84,11 @@ export interface CoinSelection {
   changeOutputs?: { asset: string; amount: number }[];
 }
 
+export interface CoinSelectionForTrade {
+  witnessUtxos: Record<string, Output>;
+  changeOutputs?: { asset: string; amount: number }[];
+}
+
 export interface ScriptDetails {
   confidentialAddress?: string;
   blindingPrivateKey: string;
@@ -139,8 +144,8 @@ interface WalletActions {
   deriveBatchPublicKeys: (start: number, end: number, isInternal: boolean) => PubKeyWithRelativeDerivationPath[];
   deriveBlindingKey: (script: Buffer) => { publicKey: Buffer; privateKey: Buffer };
   generateMasterKeys: (mnemonic: string) => void;
-  getNextAddress: (isInternal: boolean) => Promise<ScriptDetails>;
-  getWitnessUtxo: (txid: string, vout: number) => Promise<UpdaterInput['witnessUtxo']>;
+  getNextAddress: (isInternal: boolean, dryRun?: boolean) => Promise<ScriptDetails>;
+  getWitnessUtxo: (txid: string, vout: number) => UpdaterInput['witnessUtxo'];
   lockOutpoint: (outpoint: Outpoint) => string;
   selectUtxos: (targets: Recipient[], lock: boolean) => Promise<CoinSelection>;
   setIsAuthorized: (isAuthorized: boolean) => void;
@@ -330,7 +335,11 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             return unblindedOutput;
           });
         },
-        computeHeuristicFromTx: async (txDetails, assetHash = '') => {
+        computeHeuristicFromTx: async (txDetails, assetHash) => {
+          if (!assetHash) {
+            console.debug('assetHash is missing');
+            return;
+          }
           const network = useSettingsStore.getState().network;
           let isSwap = false;
           const txTypeFromAmount = (amount?: number): TxType => {
@@ -467,30 +476,32 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           const masterBlindingKey = slip77.fromSeed(seed).masterKey.toString('hex');
           set({ masterBlindingKey }, false, 'setMasterBlindingKey');
         },
-        getNextAddress: async (isInternal: boolean) => {
+        getNextAddress: async (isInternal: boolean, dryRun = false) => {
           const nextIndex = isInternal ? get().nextInternalIndex ?? 0 : get().nextExternalIndex ?? 0;
           const pubKey = get().deriveBatchPublicKeys(nextIndex, nextIndex + 1, isInternal);
           const scriptDetails = get().createP2PWKHScript({
             publicKey: pubKey[0].publicKey,
             derivationPath: pubKey[0].derivationPath,
           });
-          await get().subscribeScript(Buffer.from(scriptDetails[0], 'hex'));
-          // increment the account details last used index & persist the new script details
-          set({ [isInternal ? 'nextInternalIndex' : 'nextExternalIndex']: nextIndex + 1 }, false, 'setNextIndex');
-          set(
-            (state) => ({
-              scriptDetails: {
-                ...state.scriptDetails,
-                [scriptDetails[0]]: scriptDetails[1],
-              },
-            }),
-            false,
-            'setScriptDetails'
-          );
+          if (!dryRun) {
+            await get().subscribeScript(Buffer.from(scriptDetails[0], 'hex'));
+            // increment the account details last used index & persist the new script details
+            set({ [isInternal ? 'nextInternalIndex' : 'nextExternalIndex']: nextIndex + 1 }, false, 'setNextIndex');
+            set(
+              (state) => ({
+                scriptDetails: {
+                  ...state.scriptDetails,
+                  [scriptDetails[0]]: scriptDetails[1],
+                },
+              }),
+              false,
+              'setScriptDetails'
+            );
+          }
           return scriptDetails[1];
         },
-        getWitnessUtxo: async (txid: string, vout: number) => {
-          const txDetails = await get().txs[txid];
+        getWitnessUtxo: (txid: string, vout: number) => {
+          const txDetails = get().txs[txid];
           if (!txDetails || !txDetails.hex) return undefined;
           return Transaction.fromHex(txDetails.hex).outs[vout];
         },

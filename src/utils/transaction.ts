@@ -2,6 +2,7 @@ import type { UpdaterInput, UpdaterOutput } from 'liquidjs-lib';
 import { Pset, address, Creator, networks, payments, Transaction, Updater } from 'liquidjs-lib';
 import { getScriptType, ScriptType } from 'liquidjs-lib/src/address';
 import { varSliceSize, varuint } from 'liquidjs-lib/src/bufferutils';
+import { Psbt } from 'liquidjs-lib/src/psbt';
 
 import { WsElectrumChainSource } from '../services/chainSource';
 import { ElectrumWS } from '../services/ws/ws-electrs';
@@ -289,6 +290,31 @@ export function decodePset(psetBase64: string): Pset {
     throw new Error('Invalid pset');
   }
   return pset;
+}
+
+export function decodePsbt(psetBase64: string): { psbt: Psbt; transaction: Transaction } {
+  let psbt: Psbt;
+  try {
+    psbt = Psbt.fromBase64(psetBase64);
+  } catch (ignore) {
+    console.log(ignore);
+    throw new Error('Invalid psbt');
+  }
+  const bufferTx = psbt.data.globalMap.unsignedTx.toBuffer();
+  const transaction = Transaction.fromBuffer(bufferTx);
+  return {
+    psbt,
+    transaction,
+  };
+}
+
+export function isPsetV0(tx: string): boolean {
+  try {
+    Psbt.fromBase64(tx);
+    return true;
+  } catch (ignore) {
+    return false;
+  }
 }
 
 export function isRawTransaction(tx: string): boolean {

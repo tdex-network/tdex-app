@@ -83,9 +83,9 @@ export async function makeURLwithBlinders(transaction: Transaction): Promise<str
     const data = await useWalletStore.getState().outputHistory[outpointToString({ txid, vout: i })];
     if (!data || !data.blindingData) continue;
     blinders.push(
-      `${data.blindingData.value},${data.blindingData.asset},${data.blindingData.valueBlindingFactor},${reverseHex(
-        data.blindingData.assetBlindingFactor
-      )}`
+      `${data.blindingData.value},${data.blindingData.asset},${reverseHex(
+        data.blindingData.valueBlindingFactor
+      )},${reverseHex(data.blindingData.assetBlindingFactor)}`
     );
   }
   return `${webExplorerURL}/tx/${txid}#blinded=${blinders.join(',')}`;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { discoverBestOrder, marketPriceRequest } from '../../services/tdexService';
+import type { TradeOrder } from '../../services/tdexService/tradeCore';
 import type { Asset } from '../../store/assetStore';
 import type { TDEXMarket } from '../../store/tdexStore';
 import { useWalletStore } from '../../store/walletStore';
@@ -49,7 +50,7 @@ export function useTradeState(markets: TDEXMarket[]) {
   const [receiveAsset, receiveSats, setReceiveAsset, setReceiveSats] = useAssetSats(
     markets.length > 0 ? markets[0].quoteAsset : undefined
   );
-  const [bestOrder, setBestOrder] = useState<any /*TradeOrder*/>();
+  const [bestOrder, setBestOrder] = useState<TradeOrder>();
   const [sendLoader, setSendLoader] = useState<boolean>(false);
   const [receiveLoader, setReceiveLoader] = useState<boolean>(false);
   const [focus, setFocus] = useState<'send' | 'receive'>();

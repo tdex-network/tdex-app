@@ -1,18 +1,17 @@
-import { networks } from 'liquidjs-lib';
+import { networks, Transaction } from 'liquidjs-lib';
 
 import { SwapAccept as SwapAcceptV1 } from '../../api-spec/protobuf/gen/js/tdex/v1/swap_pb';
 import { SwapAccept as SwapAcceptV2 } from '../../api-spec/protobuf/gen/js/tdex/v2/swap_pb';
 import { TradeType } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
-import type { UnblindedOutput } from '../../store/walletStore';
-import { useWalletStore } from '../../store/walletStore';
+import type { CoinSelectionForTrade, ScriptDetails } from '../../store/walletStore';
 import type { NetworkString } from '../../utils/constants';
-import { decodePset, isRawTransaction, isValidAmount } from '../../utils/transaction';
+import { decodePsbt, decodePset, isRawTransaction, isValidAmount } from '../../utils/transaction';
 import { BlinderService } from '../blinderService';
 import type { SignerInterface } from '../signerService';
 
 import type TraderClientInterface from './clientInterface';
-import Core from './core';
 import type { CoreInterface } from './core';
+import Core from './core';
 import { Swap } from './swap';
 import { SwapTransaction } from './transaction';
 
@@ -42,13 +41,13 @@ export interface TradeOrder {
 }
 
 export interface TradeInterface extends CoreInterface {
-  utxos: UnblindedOutput[];
+  coinSelectionForTrade: CoinSelectionForTrade;
 }
 
 export interface TradeOpts {
   providerUrl: string;
   explorerUrl: string;
-  utxos: UnblindedOutput[];
+  coinSelectionForTrade: CoinSelectionForTrade;
   protoVersion: 'v1' | 'v2';
   chain: NetworkString;
   masterBlindingKey: string;
@@ -59,13 +58,15 @@ export interface BuySellOpts {
   market: MarketInterface;
   amount: number;
   asset: string;
+  addressForChangeOutput: ScriptDetails;
+  addressForSwapOutput: ScriptDetails;
 }
 
 export type TraderClientInterfaceFactory = (providerUrl: string) => TraderClientInterface;
 
 export class TradeCore extends Core implements TradeInterface {
   client: TraderClientInterface;
-  utxos: UnblindedOutput[];
+  coinSelectionForTrade: CoinSelectionForTrade;
   masterBlindingKey: string;
   signer: SignerInterface;
 
@@ -73,7 +74,7 @@ export class TradeCore extends Core implements TradeInterface {
     super(args);
 
     this.validate(args);
-    this.utxos = args.utxos;
+    this.coinSelectionForTrade = args.coinSelectionForTrade;
     this.client = factoryTraderClient(args.providerUrl);
     this.masterBlindingKey = args.masterBlindingKey;
     this.signer = args.signer;
@@ -88,7 +89,7 @@ export class TradeCore extends Core implements TradeInterface {
 
     if (!this.explorerUrl) throw new Error('To be able to trade you need to select an explorer via { explorerUrl }');
 
-    if (args.utxos.length <= 0) {
+    if (Object.keys(args.coinSelectionForTrade.witnessUtxos).length <= 0) {
       throw new Error('You need at least one utxo to trade');
     }
   }
@@ -97,8 +98,15 @@ export class TradeCore extends Core implements TradeInterface {
    * Trade.buy let the trader buy the baseAsset,
    * sending his own quoteAsset using the current market price
    */
-  async buy({ market, amount, asset }: BuySellOpts): Promise<string> {
-    const swapAccept = await this.marketOrderRequest(market, TradeType.BUY, amount, asset);
+  async buy({ market, amount, asset, addressForChangeOutput, addressForSwapOutput }: BuySellOpts): Promise<string> {
+    const swapAccept = await this.marketOrderRequest(
+      market,
+      TradeType.BUY,
+      amount,
+      asset,
+      addressForChangeOutput,
+      addressForSwapOutput
+    );
 
     // Retry in case we are too early and the provider doesn't find any trade
     // matching the swapAccept id
@@ -120,8 +128,21 @@ export class TradeCore extends Core implements TradeInterface {
    * sending his own quoteAsset using the current market price wihtout
    * broadcasting the tx
    */
-  async buyWithoutComplete({ market, amount, asset }: BuySellOpts): Promise<string> {
-    const swapAccept = await this.marketOrderRequest(market, TradeType.BUY, amount, asset);
+  async buyWithoutComplete({
+    market,
+    amount,
+    asset,
+    addressForChangeOutput,
+    addressForSwapOutput,
+  }: BuySellOpts): Promise<string> {
+    const swapAccept = await this.marketOrderRequest(
+      market,
+      TradeType.BUY,
+      amount,
+      asset,
+      addressForChangeOutput,
+      addressForSwapOutput
+    );
     const autoComplete = true;
     return await this.marketOrderComplete(swapAccept, autoComplete);
   }
@@ -130,8 +151,15 @@ export class TradeCore extends Core implements TradeInterface {
    * Trade.sell let the trader sell the baseAsset,
    * receiving the quoteAsset using the current market price
    */
-  async sell({ market, amount, asset }: BuySellOpts): Promise<string> {
-    const swapAccept = await this.marketOrderRequest(market, TradeType.SELL, amount, asset);
+  async sell({ market, amount, asset, addressForChangeOutput, addressForSwapOutput }: BuySellOpts): Promise<string> {
+    const swapAccept = await this.marketOrderRequest(
+      market,
+      TradeType.SELL,
+      amount,
+      asset,
+      addressForChangeOutput,
+      addressForSwapOutput
+    );
 
     // Retry in case we are too early and the provider doesn't find any trade
     // matching the swapAccept id
@@ -153,8 +181,21 @@ export class TradeCore extends Core implements TradeInterface {
    * receiving the quoteAsset using the current market price without
    * broadcasting the tx
    */
-  async sellWithoutComplete({ market, amount, asset }: BuySellOpts): Promise<string> {
-    const swapAccept = await this.marketOrderRequest(market, TradeType.SELL, amount, asset);
+  async sellWithoutComplete({
+    market,
+    amount,
+    asset,
+    addressForChangeOutput,
+    addressForSwapOutput,
+  }: BuySellOpts): Promise<string> {
+    const swapAccept = await this.marketOrderRequest(
+      market,
+      TradeType.SELL,
+      amount,
+      asset,
+      addressForChangeOutput,
+      addressForSwapOutput
+    );
     const autoComplete = true;
     return await this.marketOrderComplete(swapAccept, autoComplete);
   }
@@ -212,7 +253,9 @@ export class TradeCore extends Core implements TradeInterface {
     market: MarketInterface,
     tradeType: TradeType,
     amountInSatoshis: number,
-    assetHash: string
+    assetHash: string,
+    addressForChangeOutput: ScriptDetails,
+    addressForSwapOutput: ScriptDetails
   ): Promise<Uint8Array> {
     const { assetToBeSent, amountToBeSent, assetToReceive, amountToReceive } = await this.preview({
       market,
@@ -220,32 +263,39 @@ export class TradeCore extends Core implements TradeInterface {
       amount: amountInSatoshis,
       asset: assetHash,
     });
-
-    const addressForOutput = await useWalletStore.getState().getNextAddress(false);
-    if (!addressForOutput.confidentialAddress) throw new Error('No address available for output');
-    const addressForChange = await useWalletStore.getState().getNextAddress(true);
-    if (!addressForChange.confidentialAddress) throw new Error('No address available for output');
-
     const swapTx = new SwapTransaction({
       network: networks[this.chain],
       masterBlindingKey: this.masterBlindingKey,
     });
-    await swapTx.create(
-      this.utxos,
-      amountToBeSent,
-      amountToReceive,
+    if (this.protoVersion === 'v1') {
+      await swapTx.createProtoV1(
+        this.coinSelectionForTrade,
+        amountToBeSent,
+        amountToReceive,
+        assetToBeSent,
+        assetToReceive,
+        addressForChangeOutput,
+        addressForSwapOutput
+      );
+    } else {
+      await swapTx.createProtoV2(
+        this.coinSelectionForTrade,
+        amountToBeSent,
+        amountToReceive,
+        assetToBeSent,
+        assetToReceive,
+        addressForChangeOutput,
+        addressForSwapOutput
+      );
+    }
+    const swap = new Swap({ protoVersion: this.protoVersion, chain: this.chain, verbose: false });
+    let swapRequestSerialized: Uint8Array;
+    swapRequestSerialized = await swap.request({
       assetToBeSent,
-      assetToReceive,
-      addressForOutput.confidentialAddress,
-      addressForChange.confidentialAddress
-    );
-    const swap = new Swap();
-    const swapRequestSerialized = await swap.request({
-      assetToBeSent,
       amountToBeSent,
       assetToReceive,
       amountToReceive,
-      psetBase64: swapTx.pset.toBase64(),
+      psetBase64: this.protoVersion === 'v1' ? swapTx.psbt.toBase64() : swapTx.pset.toBase64(),
       inputBlindingKeys: swapTx.inputBlindingKeys,
       outputBlindingKeys: swapTx.outputBlindingKeys,
     });
@@ -265,17 +315,21 @@ export class TradeCore extends Core implements TradeInterface {
     // trader need to check the signed inputs by the provider
     // and add his own inputs if all is correct
     let swapAcceptMessage;
+    let signedHex;
     if (this.protoVersion === 'v1') {
       swapAcceptMessage = SwapAcceptV1.fromBinary(swapAcceptSerialized);
+      const psbtBase64 = swapAcceptMessage.transaction;
+      signedHex = await this.signer.signPsbt(decodePsbt(psbtBase64).psbt);
+      console.log('Transaction.fromHex(signedHex)', Transaction.fromHex(signedHex));
+      console.log('Transaction.fromHex(signedHex).toHex()', Transaction.fromHex(signedHex).toHex());
     } else {
       swapAcceptMessage = SwapAcceptV2.fromBinary(swapAcceptSerialized);
+      const psetBase64 = swapAcceptMessage.transaction;
+      const blinder = new BlinderService();
+      const blindedPset = await blinder.blindPset(decodePset(psetBase64));
+      const signedPset = await this.signer.signPset(blindedPset);
+      signedHex = this.signer.finalizeAndExtract(signedPset);
     }
-    const psetBase64 = swapAcceptMessage.transaction;
-    const blinder = new BlinderService();
-    const blindedPset = await blinder.blindPset(decodePset(psetBase64));
-    const signedPset = await this.signer.signPset(blindedPset);
-    const signedHex = this.signer.finalizeAndExtract(signedPset);
-
     if (autoComplete) {
       if (isRawTransaction(signedHex)) {
         return signedHex;
@@ -283,7 +337,7 @@ export class TradeCore extends Core implements TradeInterface {
     }
 
     // Trader  adds his signed inputs to the transaction
-    const swap = new Swap();
+    const swap = new Swap({ protoVersion: this.protoVersion, chain: this.chain, verbose: false });
     const swapCompleteSerialized = swap.complete({
       message: swapAcceptSerialized,
       psetBase64OrHex: signedHex,

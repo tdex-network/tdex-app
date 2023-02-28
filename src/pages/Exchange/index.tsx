@@ -34,10 +34,11 @@ import { useSettingsStore } from '../../store/settingsStore';
 import type { TDEXMarket, TDEXProvider } from '../../store/tdexStore';
 import { useTdexStore } from '../../store/tdexStore';
 import { useToastStore } from '../../store/toastStore';
-import type { UnblindedOutput } from '../../store/walletStore';
+import type { CoinSelectionForTrade } from '../../store/walletStore';
 import { useWalletStore } from '../../store/walletStore';
 import { PIN_TIMEOUT_FAILURE } from '../../utils/constants';
 import { AppError, NoMarketsAvailableForSelectedPairError, NoOtherProvider } from '../../utils/errors';
+import { outpointToString } from '../../utils/helpers';
 import type { PreviewData } from '../TradeSummary';
 
 import ExchangeErrorModal from './ExchangeErrorModal';
@@ -51,7 +52,6 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   const providers = useTdexStore((state) => state.providers);
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
-  const outputHistory = useWalletStore((state) => state.outputHistory);
   const masterBlindingKey = useWalletStore((state) => state.masterBlindingKey);
   //
   const [tdexOrderInputResult, setTdexOrderInputResult] = useState<TdexOrderInputResult>();
@@ -138,12 +138,10 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
     setReceiveAssetHasChanged,
   ] = useTradeState(getAllMarketsFromNotExcludedProviders());
 
-  const handleSuccess = (txid: string) => {
-    //watchTransaction(txid);
-    // Trigger spinner right away
-    //setIsFetchingUtxos(true);
-    // But update after a few seconds to make sure new utxo is ready to fetch
-    //setTimeout(() => updateUtxos(), 12_000);
+  const handleSuccess = async (txid: string) => {
+    // Persist trade addresses
+    await useWalletStore.getState().getNextAddress(false);
+    await useWalletStore.getState().getNextAddress(true);
     addSuccessToast('Trade successfully computed');
     const preview: PreviewData = {
       sent: {
@@ -163,25 +161,67 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   // make and broadcast trade, then push to trade summary page
   const onPinConfirm = async (pin: string) => {
     setPINModalOpen(false);
-    if (!tdexOrderInputResult) return;
+    if (!tdexOrderInputResult) {
+      console.log('tdexOrderInputResult is missing');
+      return;
+    }
     setIsBusyMakingTrade(true);
     try {
       const signer = await SignerService.fromPassword(pin);
+      if (!tdexOrderInputResult.send.asset) {
+        throw new Error('No send asset');
+      }
+      const { utxos, changeOutputs } = await useWalletStore.getState().selectUtxos(
+        [
+          {
+            address: '',
+            value: Number(tdexOrderInputResult.send.amount),
+            asset: tdexOrderInputResult.send.asset,
+          },
+        ],
+        true
+      );
+      let witnessUtxos: CoinSelectionForTrade['witnessUtxos'] = {};
+      for (const utxo of utxos) {
+        const witnessUtxo = await useWalletStore.getState().getWitnessUtxo(utxo.txid, utxo.vout);
+        if (witnessUtxo) {
+          witnessUtxos[
+            outpointToString({
+              txid: utxo.txid,
+              vout: utxo.vout,
+            })
+          ] = witnessUtxo;
+        }
+      }
+      const coinSelectionForTrade: CoinSelectionForTrade = {
+        witnessUtxos,
+        changeOutputs,
+      };
+
+      // Dry run address generation
+      const addressForChangeOutput = await useWalletStore.getState().getNextAddress(true, true);
+      if (!addressForChangeOutput.confidentialAddress) throw new Error('No address for change');
+      const addressForSwapOutput = await useWalletStore.getState().getNextAddress(false, true);
+      if (!addressForSwapOutput.confidentialAddress) throw new Error('No address for output');
+
       // propose and complete tdex trade
       // broadcast via liquid explorer
       const txid = await makeTrade(
         tdexOrderInputResult.order,
         { amount: tdexOrderInputResult.send.sats ?? 0, asset: tdexOrderInputResult.send.asset ?? '' },
         explorerLiquidAPI,
-        Object.values(outputHistory) as UnblindedOutput[],
+        coinSelectionForTrade,
         signer,
         masterBlindingKey,
         network,
+        'v1',
+        addressForChangeOutput,
+        addressForSwapOutput,
         torProxy
       );
-      handleSuccess(txid);
+      await handleSuccess(txid);
     } catch (err) {
-      // unlockUtxos();
+      console.error(err);
       setIsWrongPin(true);
       setTimeout(() => {
         setIsWrongPin(null);
