@@ -4,6 +4,7 @@ import React from 'react';
 import BtcIcon from '../../assets/img/coins/btc.svg';
 import CurrencyPlaceholderIcon from '../../assets/img/coins/currency-placeholder.svg';
 import DepositIcon from '../../assets/img/deposit.svg';
+import SwapIcon from '../../assets/img/swap-circle-white.svg';
 import { TxType } from '../../store/walletStore';
 
 interface IconInterface {
@@ -125,10 +126,12 @@ export const IconQR = (props: IconInterface): JSX.Element => (
 
 export const TxIcon = ({ type }: any): any => {
   switch (type) {
+    case TxType.Swap:
+      return <img className="swap" src={SwapIcon} alt="swap" />;
     case TxType.Deposit:
       return <img className="deposit" src={DepositIcon} alt="deposit" />;
     case TxType.Withdraw:
-      return <img className="withdraw" src={DepositIcon} alt="withdraw" />;
+      return <img className="withdraw" style={{ transform: 'rotate(180deg)' }} src={DepositIcon} alt="withdraw" />;
     case TxType.DepositBtc:
       return <img className="deposit-btc" src={BtcIcon} alt="DepositBtc" />;
     default:

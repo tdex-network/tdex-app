@@ -1,20 +1,20 @@
 import './style.scss';
 import { IonPage, IonContent, IonItem, IonIcon, IonSkeletonText, IonRow, IonCol, IonGrid, IonText } from '@ionic/react';
 import { ellipsisHorizontal } from 'ionicons/icons';
+import { Transaction } from 'liquidjs-lib';
 import { useEffect, useState } from 'react';
-import type { RouteComponentProps } from 'react-router';
-import { useParams } from 'react-router';
+import { useLocation, useParams } from 'react-router';
 
 import CurrencyIcon from '../../components/CurrencyIcon';
 import Header from '../../components/Header';
 import Refresher from '../../components/Refresher';
 import type { AssetState } from '../../store/assetStore';
 import { useAssetStore } from '../../store/assetStore';
-import { useSettingsStore } from '../../store/settingsStore';
 import { useToastStore } from '../../store/toastStore';
 import type { TxHeuristic } from '../../store/walletStore';
 import { useWalletStore } from '../../store/walletStore';
 import { clipboardCopy } from '../../utils/clipboard';
+import { makeURLwithBlinders } from '../../utils/helpers';
 import { fromSatoshiFixed } from '../../utils/unitConversion';
 
 export interface PreviewData {
@@ -34,64 +34,49 @@ interface TradeSummaryLocationState {
   preview?: PreviewData;
 }
 
-type SentCurrencyIconProps = {
+type CurrencyIconProps = {
   size: number;
   txHeuristic?: TxHeuristic;
   preview?: PreviewData;
   assets: AssetState['assets'];
 };
 
-const SentCurrencyIcon = ({ size, assets, txHeuristic, preview }: SentCurrencyIconProps) => {
+const SentCurrencyIcon = ({ size, assets, txHeuristic, preview }: CurrencyIconProps) => {
   return (
     <CurrencyIcon
-      assetHash={txHeuristic ? assets[txHeuristic.asset]?.assetHash : preview?.sent.asset ?? ''}
+      assetHash={txHeuristic ? assets[txHeuristic.swapSent?.asset ?? '']?.assetHash : preview?.sent.asset ?? ''}
       size={size}
     />
   );
 };
 
-type ReceiveCurrencyIconProps = {
-  size: number;
-  txHeuristic?: TxHeuristic;
-  preview?: PreviewData;
-  assets: AssetState['assets'];
-};
-
-const ReceiveCurrencyIcon: React.FC<ReceiveCurrencyIconProps> = ({ size, txHeuristic, preview, assets }) => {
+const ReceiveCurrencyIcon = ({ size, txHeuristic, preview, assets }: CurrencyIconProps) => {
   return (
     <CurrencyIcon
-      assetHash={txHeuristic ? assets[txHeuristic.asset]?.assetHash : preview?.received.asset ?? ''}
+      assetHash={txHeuristic ? assets[txHeuristic.swapReceived?.asset ?? '']?.assetHash : preview?.received.asset ?? ''}
       size={size}
     />
   );
 };
 
-export const TradeSummary: React.FC<RouteComponentProps<any, any, TradeSummaryLocationState>> = ({ location }) => {
+export const TradeSummary: React.FC = () => {
   const assets = useAssetStore((state) => state.assets);
-  const explorerLiquidUI = useSettingsStore((state) => state.explorerLiquidUI);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const txs = useWalletStore((state) => state.txs);
   const computeHeuristicFromTx = useWalletStore((state) => state.computeHeuristicFromTx);
+  const { state } = useLocation<TradeSummaryLocationState>();
   //
-  const preview = location.state?.preview;
+  const preview = state?.preview;
   const { txid } = useParams<{ txid: string }>();
-  const [sentTxHeuristic, setSentTxHeuristic] = useState<TxHeuristic>();
-  const [receivedTxHeuristic, setReceivedTxHeuristic] = useState<TxHeuristic>();
-  const [transaction, setTransaction] = useState<TxHeuristic | undefined>();
+  const [tx, setTransaction] = useState<TxHeuristic | undefined>();
 
   useEffect(() => {
     (async () => {
       const transaction = txs?.[txid];
-      const sent = transaction ? await computeHeuristicFromTx(transaction, preview?.sent.asset ?? '') : undefined;
-      const received = transaction
-        ? await computeHeuristicFromTx(transaction, preview?.received.asset ?? '')
-        : undefined;
       const tx = transaction ? await computeHeuristicFromTx(transaction) : undefined;
       setTransaction(tx);
-      setSentTxHeuristic(sent);
-      setReceivedTxHeuristic(received);
     })();
-  }, [txid, txs, preview, computeHeuristicFromTx]);
+  }, [txs, txid, computeHeuristicFromTx]);
 
   return (
     <IonPage id="trade-summary">
@@ -99,25 +84,15 @@ export const TradeSummary: React.FC<RouteComponentProps<any, any, TradeSummaryLo
         <Refresher />
         <IonGrid>
           <Header title="TRADE SUMMARY" hasBackButton={true} />
-          {(transaction || preview) && (
+          {tx || preview ? (
             <>
               <IonRow className="ion-margin-bottom ion-text-center">
                 <IonCol>
                   <div className="transaction-icons">
-                    <SentCurrencyIcon size={45} assets={assets} txHeuristic={sentTxHeuristic} preview={preview} />
+                    <SentCurrencyIcon size={45} assets={assets} txHeuristic={tx} preview={preview} />
                     <div className="receive-icon-container">
-                      <ReceiveCurrencyIcon
-                        size={45}
-                        assets={assets}
-                        txHeuristic={receivedTxHeuristic}
-                        preview={preview}
-                      />
-                      <ReceiveCurrencyIcon
-                        size={55}
-                        assets={assets}
-                        txHeuristic={receivedTxHeuristic}
-                        preview={preview}
-                      />
+                      <ReceiveCurrencyIcon size={45} assets={assets} txHeuristic={tx} preview={preview} />
+                      <ReceiveCurrencyIcon size={55} assets={assets} txHeuristic={tx} preview={preview} />
                     </div>
                   </div>
                 </IonCol>
@@ -130,18 +105,13 @@ export const TradeSummary: React.FC<RouteComponentProps<any, any, TradeSummaryLo
                       <div className="trade-items">
                         <div className="trade-item">
                           <div className="name">
-                            <SentCurrencyIcon
-                              size={24}
-                              assets={assets}
-                              txHeuristic={sentTxHeuristic}
-                              preview={preview}
-                            />
+                            <SentCurrencyIcon size={24} assets={assets} txHeuristic={tx} preview={preview} />
                             <span>
-                              {sentTxHeuristic?.asset ? assets[sentTxHeuristic.asset]?.ticker : preview?.sent.ticker}
+                              {tx?.swapSent?.asset ? assets[tx?.swapSent?.asset]?.ticker : preview?.sent.ticker}
                             </span>
                           </div>
                           <p className="trade-price" data-testid="trade-summary-sent-amount">
-                            {preview ? preview?.sent.amount : fromSatoshiFixed(sentTxHeuristic?.amount ?? 0, 8, 8)}
+                            -{preview ? preview?.sent.amount : fromSatoshiFixed(tx?.swapSent?.amount ?? 0, 8, 8)}
                           </p>
                         </div>
 
@@ -151,40 +121,33 @@ export const TradeSummary: React.FC<RouteComponentProps<any, any, TradeSummaryLo
 
                         <div className="trade-item">
                           <div className="name">
-                            <ReceiveCurrencyIcon
-                              size={24}
-                              assets={assets}
-                              txHeuristic={receivedTxHeuristic}
-                              preview={preview}
-                            />
+                            <ReceiveCurrencyIcon size={24} assets={assets} txHeuristic={tx} preview={preview} />
                             <span>
-                              {receivedTxHeuristic?.asset
-                                ? assets[receivedTxHeuristic.asset]?.ticker
+                              {tx?.swapReceived?.asset
+                                ? assets[tx.swapReceived?.asset]?.ticker
                                 : preview?.received.ticker}
                             </span>
                           </div>
                           <p className="trade-price">
                             +
-                            {preview
-                              ? preview?.received.amount
-                              : fromSatoshiFixed(receivedTxHeuristic?.amount ?? 0, 8, 8)}
+                            {preview ? preview?.received.amount : fromSatoshiFixed(tx?.swapReceived?.amount ?? 0, 8, 8)}
                           </p>
                         </div>
                       </div>
                       <div className="transaction-info">
                         <div className="transaction-info-date">
-                          {transaction && <span>{transaction.blockTime?.format('DD MMM YYYY HH:mm:ss')}</span>}
-                          {transaction ? (
-                            <span>{fromSatoshiFixed(transaction.fee, 8, 8)} Fee</span>
+                          {tx && <span>{tx.blockTime?.format('DD MMM YYYY HH:mm:ss')}</span>}
+                          {tx ? (
+                            <span>{fromSatoshiFixed(tx.fee, 8, 8)} Fee</span>
                           ) : (
                             <IonSkeletonText animated style={{ width: '100%' }} />
                           )}
                         </div>
                         <div
                           className="transaction-info-values"
-                          onClick={() => {
-                            clipboardCopy(`${explorerLiquidUI}/tx/${txid}`, () => {
-                              addSuccessToast('TxID copied!');
+                          onClick={async () => {
+                            clipboardCopy(await makeURLwithBlinders(Transaction.fromHex(txs[txid].hex)), () => {
+                              addSuccessToast('Transaction ID copied!');
                             });
                           }}
                         >
@@ -193,7 +156,7 @@ export const TradeSummary: React.FC<RouteComponentProps<any, any, TradeSummaryLo
                         </div>
                         <div className="transaction-info-values">
                           <span className="transaction-col-name">{''}</span>
-                          {transaction?.blockTime ? (
+                          {tx?.blockTime ? (
                             <></>
                           ) : (
                             <span className="transaction-col-value pending">
@@ -208,6 +171,8 @@ export const TradeSummary: React.FC<RouteComponentProps<any, any, TradeSummaryLo
                 </IonCol>
               </IonRow>
             </>
+          ) : (
+            <p>It seems you don't have any swap yet</p>
           )}
         </IonGrid>
       </IonContent>

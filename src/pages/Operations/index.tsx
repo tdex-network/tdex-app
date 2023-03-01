@@ -5,41 +5,32 @@ import {
   IonCol,
   IonContent,
   IonGrid,
-  IonIcon,
-  IonItem,
   IonList,
   IonListHeader,
   IonPage,
   IonRow,
-  IonText,
 } from '@ionic/react';
-import classNames from 'classnames';
-import { checkmarkSharp } from 'ionicons/icons';
 import React, { useEffect, useMemo, useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import { useParams } from 'react-router';
 
 import depositIcon from '../../assets/img/deposit-green.svg';
-import swapIcon from '../../assets/img/swap-circle.svg';
+import swapIcon from '../../assets/img/swap-circle-green.svg';
 import CurrencyIcon from '../../components/CurrencyIcon';
 import Header from '../../components/Header';
+import OperationListItem from '../../components/OperationListItem';
 import Refresher from '../../components/Refresher';
-import { TxStatus } from '../../components/TxStatus';
-import { TxIcon } from '../../components/icons';
 import { useAssetStore } from '../../store/assetStore';
 import { useBitcoinStore } from '../../store/bitcoinStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import type { TxHeuristic } from '../../store/walletStore';
-import { TxType, useWalletStore } from '../../store/walletStore';
-import { LBTC_ASSET, LBTC_TICKER } from '../../utils/constants';
-import { isLbtc, isLbtcTicker } from '../../utils/helpers';
+import { useWalletStore } from '../../store/walletStore';
+import { LBTC_TICKER } from '../../utils/constants';
+import { isLbtcTicker } from '../../utils/helpers';
 import { compareTxDate } from '../../utils/transaction';
-import { fromSatoshi, fromSatoshiFixed } from '../../utils/unitConversion';
 
 export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   const assets = useAssetStore((state) => state.assets);
-  const setModalClaimPegin = useBitcoinStore((state) => state.setModalClaimPegin);
-  const currentBtcBlockHeight = useBitcoinStore((state) => state.currentBtcBlockHeight);
   const getCurrentBtcBlockHeight = useBitcoinStore((state) => state.getCurrentBtcBlockHeight);
   const currency = useSettingsStore((state) => state.currency.ticker);
   const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
@@ -70,35 +61,6 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
       setTxsToDisplay(sortedTxs);
     })();
   }, [asset_id, computeHeuristicFromPegins, computeHeuristicFromTx, getCurrentBtcBlockHeight, txs]);
-
-  const onclickTx = (tx: TxHeuristic) => {
-    if (TxType[tx.type] === 'Swap') {
-      history.push(`/tradesummary/${tx.txid}`);
-    } else if (TxType[tx.type] === 'Withdraw' || TxType[tx.type] === 'Deposit') {
-      history.push(`/transaction/${tx.txid}`, {
-        address: tx.confidentialAddress,
-        amount: fromSatoshiFixed(
-          tx.amount,
-          assets[asset_id]?.precision ?? 8,
-          assets[asset_id]?.precision ?? 8,
-          isLbtc(asset_id, network) ? lbtcUnit : undefined
-        ),
-        asset: asset_id,
-        lbtcUnit,
-      });
-    }
-  };
-
-  const getConfirmationCount = (txBlockHeight?: number) => {
-    if (!txBlockHeight) return 0;
-    // Plus the block that contains the tx
-    return currentBtcBlockHeight - txBlockHeight + 1;
-  };
-
-  const checkIfPeginIsClaimable = (btcTx: TxHeuristic): boolean => {
-    // Check if pegin not already claimed and utxo is mature
-    return !btcTx.claimTxId && getConfirmationCount(btcTx.blockHeight) >= 102;
-  };
 
   // TODO: check if rerendered
   const ActionButtons = useMemo(
@@ -166,31 +128,6 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
     [asset_id, assets, balances, currency, lbtcUnit]
   );
 
-  const OperationAmount = ({ tx }: { tx: TxHeuristic | undefined }) => (
-    <div className="operation-amount">
-      <div className="operation-amount__lbtc">
-        {tx
-          ? fromSatoshiFixed(
-              tx.amount,
-              assets[asset_id].precision,
-              assets[asset_id].precision,
-              isLbtcTicker(assets[asset_id].ticker) ? lbtcUnit : undefined
-            )
-          : 'unknown'}
-        <span className="ticker">
-          {TxType[tx?.type ?? TxType.Unknow] === 'DepositBtc' || isLbtcTicker(assets[asset_id].ticker)
-            ? lbtcUnit
-            : assets[asset_id].ticker}
-        </span>
-      </div>
-      <div className="operation-amount__fiat">
-        <div>
-          {balances?.[asset_id].counterValue ?? 0} {currency.toUpperCase()}
-        </div>
-      </div>
-    </div>
-  );
-
   return (
     <IonPage>
       <IonContent id="operations" scrollEvents={true} onIonScrollStart={(e) => e.preventDefault()}>
@@ -199,11 +136,7 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
           <Header title={`${assets[asset_id]?.name || assets[asset_id]?.ticker}`} hasBackButton={true} />
           <IonRow className="ion-margin-bottom header-info ion-text-center ion-margin-vertical">
             <IonCol>
-              {balances?.[asset_id] ? (
-                <CurrencyIcon assetHash={assets[asset_id]?.assetHash} />
-              ) : (
-                <CurrencyIcon assetHash={LBTC_ASSET[network].assetHash} />
-              )}
+              <CurrencyIcon assetHash={assets[asset_id]?.assetHash} />
               {AssetBalance}
             </IonCol>
           </IonRow>
@@ -213,100 +146,10 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
             <IonCol>
               <IonList>
                 <IonListHeader>Transactions</IonListHeader>
-                {txsToDisplay.length ? (
-                  txsToDisplay.map((tx: TxHeuristic, index) => {
-                    return (
-                      <IonItem
-                        key={`${index}-${tx.txid}`}
-                        button
-                        detail={false}
-                        onClick={() => onclickTx(tx)}
-                        className="operation-item"
-                      >
-                        <IonRow>
-                          <IonCol className="icon" size="1">
-                            <TxIcon type={tx.type} />
-                          </IonCol>
-                          <IonCol className="pl-1" size="5.3">
-                            <div className="asset">
-                              {TxType[tx.type] === 'DepositBtc'
-                                ? 'Receive BTC'
-                                : `${TxType[tx.type]} ${assets[asset_id].ticker}`}
-                            </div>
-                            <div className="time">{tx.blockTime?.format('DD MMM YYYY HH:mm:ss')}</div>
-                          </IonCol>
-                          <IonCol className="ion-text-right" size="5.7">
-                            <OperationAmount tx={tx} />
-                          </IonCol>
-                        </IonRow>
-                        <div className="extra-infos">
-                          {TxType[tx.type] !== 'DepositBtc' && (
-                            <IonRow className="mt-1">
-                              <IonCol className="pl-1" size="6" offset="1">
-                                {`Fee: ${fromSatoshi(tx.fee, 8).toFixed(8)} ${LBTC_TICKER[network]}`}
-                              </IonCol>
-                              <IonCol className="ion-text-right" size="5">
-                                <IonText>
-                                  <TxStatus isConfirmed={tx?.blockHeight !== undefined} />
-                                </IonText>
-                              </IonCol>
-                            </IonRow>
-                          )}
-                          <IonRow className="mt-1">
-                            <IonCol className="pl-1" size="11" offset="1">
-                              TxID: {tx.txid}
-                            </IonCol>
-                          </IonRow>
-                          {TxType[tx.type] === 'DepositBtc' && (
-                            <>
-                              <IonRow className="mt-1">
-                                {getConfirmationCount(tx.blockHeight) < 102 && (
-                                  <IonCol
-                                    className={classNames(
-                                      {
-                                        'confirmations-pending': getConfirmationCount(tx.blockHeight) < 102,
-                                      },
-                                      'pl-1'
-                                    )}
-                                    offset="1"
-                                  >
-                                    {`Confirmations: ${getConfirmationCount(tx.blockHeight)} / 102`}
-                                  </IonCol>
-                                )}
-                                {tx.claimTxId && (
-                                  <IonCol size="11" offset="1" className="pl-1">
-                                    <span className="status-text confirmed claimed">
-                                      <IonIcon icon={checkmarkSharp} />
-                                      <span className="ml-05">Claimed</span>
-                                    </span>
-                                  </IonCol>
-                                )}
-                              </IonRow>
-                              masterBlindingKey
-                              {checkIfPeginIsClaimable(tx) && (
-                                <IonRow className="ion-margin-top">
-                                  <IonCol size="11" offset="0.5">
-                                    <IonButton
-                                      className="main-button claim-button"
-                                      onClick={() => {
-                                        // Trigger global PinModalClaimPegin in App.tsx
-                                        setModalClaimPegin({
-                                          isOpen: true,
-                                          claimScriptToClaim: tx.claimScript,
-                                        });
-                                      }}
-                                    >
-                                      ClAIM NOW
-                                    </IonButton>
-                                  </IonCol>
-                                </IonRow>
-                              )}
-                            </>
-                          )}
-                        </div>
-                      </IonItem>
-                    );
-                  })
+                {txsToDisplay.length > 0 ? (
+                  txsToDisplay.map((tx: TxHeuristic) => (
+                    <OperationListItem tx={tx} key={tx.txid} listType="transaction" />
+                  ))
                 ) : (
                   <p>You don't have any transactions yet</p>
                 )}

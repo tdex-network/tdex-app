@@ -75,6 +75,8 @@ export interface TxHeuristic {
   claimTxId?: string;
   confidentialAddress?: string;
   fee: number;
+  swapReceived?: { asset: string; amount: number };
+  swapSent?: { asset: string; amount: number };
   txid: string;
   type: TxType;
 }
@@ -336,10 +338,6 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           });
         },
         computeHeuristicFromTx: async (txDetails, assetHash) => {
-          if (!assetHash) {
-            console.debug('assetHash is missing');
-            return;
-          }
           const network = useSettingsStore.getState().network;
           let isSwap = false;
           const txTypeFromAmount = (amount?: number): TxType => {
@@ -351,6 +349,8 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           };
           const outputHistory = get().outputHistory;
           let transferAmount = 0;
+          let swapReceived;
+          let swapSent;
           let inputAssets = [];
           let outputAssets = [];
           let script = '';
@@ -368,7 +368,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               transferAmount += blindingData.value;
             }
             script = Buffer.from(output.script).toString('hex');
-            outputAssets.push(blindingData.asset);
+            outputAssets.push({ asset: blindingData.asset, amount: blindingData.value });
           }
           // process inputs
           for (const input of tx.ins) {
@@ -378,14 +378,21 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             if (blindingData.asset === assetHash) {
               transferAmount -= blindingData.value;
             }
-            inputAssets.push(blindingData.asset);
+            inputAssets.push({ asset: blindingData.asset, amount: blindingData.value });
           }
-          // check that one output asset is not present in the inputs to identify swaps
+          // If more than 1 output, check that one output asset is not present in the inputs to identify swaps
           if (outputAssets.length > 1) {
-            for (const asset of outputAssets) {
-              if (inputAssets.includes(asset)) {
+            for (const { asset, amount } of outputAssets) {
+              if (!inputAssets.map((i) => i.asset).includes(asset)) {
+                swapReceived = { asset, amount };
                 isSwap = true;
-                break;
+              } else {
+                const totalInputAmount = inputAssets.reduce((acc, i) => (i.asset === asset ? acc + i.amount : acc), 0);
+                const totalOutputAmount = outputAssets.reduce(
+                  (acc, i) => (i.asset === asset ? acc + i.amount : acc),
+                  0
+                );
+                swapSent = { asset, amount: totalInputAmount - totalOutputAmount };
               }
             }
           }
@@ -408,14 +415,16 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           }).confidentialAddress;
 
           return {
-            txid: tx.getId(),
             amount: transferAmount < 0 ? transferAmount + fee : transferAmount,
-            asset: assetHash,
-            fee,
-            confidentialAddress,
-            type: txTypeFromAmount(transferAmount),
+            asset: assetHash ?? '',
             blockTime: blockTime,
             blockHeight: txDetails.height,
+            confidentialAddress,
+            fee,
+            swapReceived,
+            swapSent,
+            type: txTypeFromAmount(transferAmount),
+            txid: tx.getId(),
           };
         },
         computeHeuristicFromPegins: () => {
