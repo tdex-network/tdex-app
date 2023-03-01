@@ -250,6 +250,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               const assetHash = utxo.blindingData?.asset;
               const assetAmount = utxo.blindingData?.value;
               balances = {
+                ...balances,
                 [assetHash]: {
                   sats: (balances?.[assetHash]?.sats ?? 0) + assetAmount,
                   value: 0,

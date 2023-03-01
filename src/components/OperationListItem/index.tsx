@@ -3,7 +3,6 @@ import { IonButton, IonCol, IonIcon, IonItem, IonRow, IonText } from '@ionic/rea
 import classNames from 'classnames';
 import { checkmarkSharp } from 'ionicons/icons';
 import { Transaction } from 'liquidjs-lib';
-import { useHistory } from 'react-router';
 
 import { useAssetStore } from '../../store/assetStore';
 import { useBitcoinStore } from '../../store/bitcoinStore';
@@ -43,7 +42,6 @@ const OperationListItem: React.FC<SwapProps> = ({ tx, listType }) => {
   const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
   const txs = useWalletStore((state) => state.txs);
   const setModalClaimPegin = useBitcoinStore((state) => state.setModalClaimPegin);
-  const history = useHistory();
 
   const isSwap = tx.type === TxType.Swap;
   const isDeposit = tx.type === TxType.Deposit;
@@ -56,6 +54,11 @@ const OperationListItem: React.FC<SwapProps> = ({ tx, listType }) => {
       className={classNames('list-item transaction-item', {
         open: true,
       })}
+      onClick={async () => {
+        clipboardCopy(await makeURLwithBlinders(Transaction.fromHex(txs[tx.txid].hex)), () => {
+          addSuccessToast('Transaction ID copied');
+        });
+      }}
     >
       <IonRow>
         {isTradeList ? (
@@ -197,14 +200,7 @@ const OperationListItem: React.FC<SwapProps> = ({ tx, listType }) => {
             </IonCol>
           </IonRow>
         )}
-        <IonRow
-          className="mt-1"
-          onClick={async () => {
-            clipboardCopy(await makeURLwithBlinders(Transaction.fromHex(txs[tx.txid].hex)), () => {
-              addSuccessToast('Transaction ID copied');
-            });
-          }}
-        >
+        <IonRow className="mt-1">
           <IonCol offset="1">TxID: {tx.txid}</IonCol>
         </IonRow>
       </div>
