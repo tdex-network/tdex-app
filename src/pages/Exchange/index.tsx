@@ -23,12 +23,14 @@ import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
-import type { TdexOrderInputResult } from '../../components/TdexOrderInput';
+import type { TdexOrderInputResultV1, TdexOrderInputResultV2 } from '../../components/TdexOrderInput';
 import { TdexOrderInput } from '../../components/TdexOrderInput';
 import { useTradeState } from '../../components/TdexOrderInput/hooks';
 import { routerLinks } from '../../routes';
 import { SignerService } from '../../services/signerService';
-import { getTradablesAssets, makeTrade } from '../../services/tdexService';
+import { getTradablesAssets, makeTradeV1, makeTradeV2 } from '../../services/tdexService';
+import type { TradeOrder as TradeOrderV1 } from '../../services/tdexService/v1/tradeCore';
+import type { TradeOrder as TradeOrderV2 } from '../../services/tdexService/v2/tradeCore';
 import { useAppStore } from '../../store/appStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import type { TDEXMarket, TDEXProvider } from '../../store/tdexStore';
@@ -54,7 +56,7 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const masterBlindingKey = useWalletStore((state) => state.masterBlindingKey);
   //
-  const [tdexOrderInputResult, setTdexOrderInputResult] = useState<TdexOrderInputResult>();
+  const [tdexOrderInputResult, setTdexOrderInputResult] = useState<TdexOrderInputResultV1 | TdexOrderInputResultV2>();
   const [excludedProviders, setExcludedProviders] = useState<TDEXProvider[]>([]);
   const [showExcludedProvidersAlert, setShowExcludedProvidersAlert] = useState(false);
   const [tradeError, setTradeError] = useState<AppError>();
@@ -206,19 +208,35 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
 
       // propose and complete tdex trade
       // broadcast via liquid explorer
-      const txid = await makeTrade(
-        tdexOrderInputResult.order,
-        { amount: tdexOrderInputResult.send.sats ?? 0, asset: tdexOrderInputResult.send.asset ?? '' },
-        explorerLiquidAPI,
-        coinSelectionForTrade,
-        signer,
-        masterBlindingKey,
-        network,
-        'v1',
-        addressForChangeOutput,
-        addressForSwapOutput,
-        torProxy
-      );
+      let txid;
+      // TODO: get daemon version
+      if (true) {
+        txid = await makeTradeV1(
+          tdexOrderInputResult.order as TradeOrderV1,
+          { amount: tdexOrderInputResult.send.sats ?? 0, asset: tdexOrderInputResult.send.asset ?? '' },
+          explorerLiquidAPI,
+          coinSelectionForTrade,
+          signer,
+          masterBlindingKey,
+          network,
+          addressForChangeOutput,
+          addressForSwapOutput,
+          torProxy
+        );
+      } else {
+        txid = await makeTradeV2(
+          tdexOrderInputResult?.order as TradeOrderV2,
+          { amount: tdexOrderInputResult?.send.sats ?? 0, asset: tdexOrderInputResult?.send.asset ?? '' },
+          explorerLiquidAPI,
+          coinSelectionForTrade,
+          signer,
+          masterBlindingKey,
+          network,
+          addressForChangeOutput,
+          addressForSwapOutput,
+          torProxy
+        );
+      }
       await handleSuccess(txid);
     } catch (err) {
       console.error(err);

@@ -4,7 +4,8 @@ import React, { useEffect } from 'react';
 
 import swap from '../../assets/img/swap.svg';
 import { getTradablesAssets } from '../../services/tdexService';
-import type { TradeOrder } from '../../services/tdexService/tradeCore';
+import type { TradeOrder as TradeOrderV1 } from '../../services/tdexService/v1/tradeCore';
+import type { TradeOrder as TradeOrderV2 } from '../../services/tdexService/v2/tradeCore';
 import { useAssetStore } from '../../store/assetStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import type { TDEXMarket } from '../../store/tdexStore';
@@ -25,15 +26,21 @@ export interface AmountAndUnit {
   unit: string; // ticker or lbtcUnit
 }
 
-export interface TdexOrderInputResult {
-  order: TradeOrder;
+export interface TdexOrderInputResultV1 {
+  order: TradeOrderV1;
+  send: SatsAsset & AmountAndUnit;
+  receive: SatsAsset & AmountAndUnit;
+}
+
+export interface TdexOrderInputResultV2 {
+  order: TradeOrderV2;
   send: SatsAsset & AmountAndUnit;
   receive: SatsAsset & AmountAndUnit;
 }
 
 type Props = {
   markets: TDEXMarket[];
-  onInput: (tdexOrder?: TdexOrderInputResult) => void;
+  onInput: (tdexOrder?: TdexOrderInputResultV1 | TdexOrderInputResultV2) => void;
   bestOrder?: any /*TradeOrder*/;
   sendAsset?: string;
   sendSats?: number;

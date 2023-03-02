@@ -3,12 +3,12 @@
 // @generated from protobuf file "tdex/v1/transport.proto" (package "tdex.v1", syntax proto3)
 // tslint:disable
 // @ts-nocheck
-import type { RpcTransport } from '@protobuf-ts/runtime-rpc';
-import type { ServiceInfo } from '@protobuf-ts/runtime-rpc';
-import type { SupportedContentTypesResponse } from './transport_pb';
-import type { SupportedContentTypesRequest } from './transport_pb';
-import type { UnaryCall } from '@protobuf-ts/runtime-rpc';
-import type { RpcOptions } from '@protobuf-ts/runtime-rpc';
+import type { RpcTransport } from "@protobuf-ts/runtime-rpc";
+import type { ServiceInfo } from "@protobuf-ts/runtime-rpc";
+import type { SupportedContentTypesResponse } from "./transport_pb";
+import type { SupportedContentTypesRequest } from "./transport_pb";
+import type { UnaryCall } from "@protobuf-ts/runtime-rpc";
+import type { RpcOptions } from "@protobuf-ts/runtime-rpc";
 /**
  * TransportService is used by a Liquidity provider to announce the accepted
  * content types of incoming HTTP request messages.
@@ -16,13 +16,10 @@ import type { RpcOptions } from '@protobuf-ts/runtime-rpc';
  * @generated from protobuf service tdex.v1.TransportService
  */
 export interface ITransportServiceClient {
-  /**
-   * @generated from protobuf rpc: SupportedContentTypes(tdex.v1.SupportedContentTypesRequest) returns (tdex.v1.SupportedContentTypesResponse);
-   */
-  supportedContentTypes(
-    input: SupportedContentTypesRequest,
-    options?: RpcOptions
-  ): UnaryCall<SupportedContentTypesRequest, SupportedContentTypesResponse>;
+    /**
+     * @generated from protobuf rpc: SupportedContentTypes(tdex.v1.SupportedContentTypesRequest) returns (tdex.v1.SupportedContentTypesResponse);
+     */
+    supportedContentTypes(input: SupportedContentTypesRequest, options?: RpcOptions): UnaryCall<SupportedContentTypesRequest, SupportedContentTypesResponse>;
 }
 /**
  * TransportService is used by a Liquidity provider to announce the accepted
@@ -31,16 +28,13 @@ export interface ITransportServiceClient {
  * @generated from protobuf service tdex.v1.TransportService
  */
 export declare class TransportServiceClient implements ITransportServiceClient, ServiceInfo {
-  private readonly _transport;
-  typeName: any;
-  methods: any;
-  options: any;
-  constructor(_transport: RpcTransport);
-  /**
-   * @generated from protobuf rpc: SupportedContentTypes(tdex.v1.SupportedContentTypesRequest) returns (tdex.v1.SupportedContentTypesResponse);
-   */
-  supportedContentTypes(
-    input: SupportedContentTypesRequest,
-    options?: RpcOptions
-  ): UnaryCall<SupportedContentTypesRequest, SupportedContentTypesResponse>;
+    private readonly _transport;
+    typeName: any;
+    methods: any;
+    options: any;
+    constructor(_transport: RpcTransport);
+    /**
+     * @generated from protobuf rpc: SupportedContentTypes(tdex.v1.SupportedContentTypesRequest) returns (tdex.v1.SupportedContentTypesResponse);
+     */
+    supportedContentTypes(input: SupportedContentTypesRequest, options?: RpcOptions): UnaryCall<SupportedContentTypesRequest, SupportedContentTypesResponse>;
 }

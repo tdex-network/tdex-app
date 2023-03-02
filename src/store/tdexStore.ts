@@ -1,7 +1,11 @@
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
-import { getMarketsFromProvider, getProvidersFromTDexRegistry } from '../services/tdexService';
+import {
+  getMarketsFromProviderV1,
+  getMarketsFromProviderV2,
+  getProvidersFromTDexRegistry,
+} from '../services/tdexService';
 
 import { storage } from './capacitorPersistentStorage';
 import { defaultProviderEndpoints } from './config';
@@ -71,7 +75,13 @@ export const useTdexStore = create<TdexState & TdexActions>()(
         },
         fetchMarkets: async () => {
           const torProxy = useSettingsStore.getState().torProxy;
-          const allMarkets = await Promise.allSettled(get().providers.map((p) => getMarketsFromProvider(p, torProxy)));
+          let allMarkets;
+          // TODO: get daemon version
+          if (true) {
+            allMarkets = await Promise.allSettled(get().providers.map((p) => getMarketsFromProviderV1(p, torProxy)));
+          } else {
+            allMarkets = await Promise.allSettled(get().providers.map((p) => getMarketsFromProviderV2(p, torProxy)));
+          }
           allMarkets
             .map((p, i) => (p.status === 'fulfilled' && p.value ? p.value : []))
             .forEach((markets) => {

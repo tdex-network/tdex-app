@@ -1,11 +1,10 @@
-import type { NetworkString } from '../../utils/constants';
+import type { NetworkString } from '../../../utils/constants';
 
 export interface CoreInterface {
   verbose?: Boolean;
   chain: NetworkString;
   providerUrl?: string;
   explorerUrl?: string;
-  protoVersion: 'v1' | 'v2';
 }
 
 export default class Core {
@@ -13,7 +12,6 @@ export default class Core {
   public chain: NetworkString = 'regtest';
   public providerUrl?: string;
   public explorerUrl?: string;
-  public protoVersion: 'v1' | 'v2' = 'v2';
 
   constructor(data?: SafePick<Core>) {
     Object.assign(this, data);

@@ -1,5 +1,5 @@
-import type { BalanceWithFee } from '../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
-import { TradeType } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
+import type { Balance} from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
+import { TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 
 import type { TradeOrder } from './tradeCore';
 
@@ -37,12 +37,12 @@ export const bestBalanceDiscovery: Discovery = async (
 ) => {
   const balancesPromises = orders.map((order) => {
     const { traderClient, market, type } = order;
-    return traderClient.balance(market).then((balance: BalanceWithFee) => {
-      if (!balance.balance)
+    return traderClient.balance(market).then((balance: Balance) => {
+      if (!balance)
         throw new Error(
           `no balances for market ${market.baseAsset}/${market.quoteAsset} using provider: ${traderClient.providerUrl}`
         );
-      const balanceAmount = type === TradeType.BUY ? balance.balance.baseAmount : balance.balance.quoteAmount;
+      const balanceAmount = type === TradeType.BUY ? balance.baseAmount : balance.quoteAmount;
       return {
         balanceAmount,
         order,

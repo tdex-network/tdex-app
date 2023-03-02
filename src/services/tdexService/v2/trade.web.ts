@@ -1,4 +1,4 @@
-import type { Tdexv2ContentType } from '../../api-spec/openapi/swagger/v2/transport/data-contracts';
+import type { Tdexv2ContentType } from '../../../api-spec/openapi/swagger/v2/transport/data-contracts';
 
 import { TraderClient } from './client.web';
 import type TraderClientInterface from './clientInterface';

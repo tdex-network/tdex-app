@@ -9,6 +9,7 @@ import {
   IonListHeader,
   IonPage,
   IonRow,
+  IonSkeletonText,
 } from '@ionic/react';
 import React, { useEffect, useMemo, useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
@@ -24,14 +25,14 @@ import { useAssetStore } from '../../store/assetStore';
 import { useBitcoinStore } from '../../store/bitcoinStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import type { TxHeuristic } from '../../store/walletStore';
-import { useWalletStore } from '../../store/walletStore';
+import { TxType, useWalletStore } from '../../store/walletStore';
 import { LBTC_TICKER } from '../../utils/constants';
 import { isLbtcTicker } from '../../utils/helpers';
 import { compareTxDate } from '../../utils/transaction';
 
 export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   const assets = useAssetStore((state) => state.assets);
-  const getCurrentBtcBlockHeight = useBitcoinStore((state) => state.getCurrentBtcBlockHeight);
+  const fetchCurrentBtcBlockHeight = useBitcoinStore((state) => state.fetchCurrentBtcBlockHeight);
   const currency = useSettingsStore((state) => state.currency.ticker);
   const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
   const network = useSettingsStore((state) => state.network);
@@ -42,25 +43,34 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   //
   const { asset_id } = useParams<{ asset_id: string }>();
   const [txsToDisplay, setTxsToDisplay] = useState<TxHeuristic[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
-      await getCurrentBtcBlockHeight();
+      setIsLoading(true);
+      await fetchCurrentBtcBlockHeight();
       // Compute heuristic for each tx
       const txsHeuristicArray: TxHeuristic[] = [];
       for (const tx of Object.values(txs ?? {})) {
-        const txHeuristic = await computeHeuristicFromTx(tx, asset_id);
+        const txHeuristic = await computeHeuristicFromTx(tx);
         if (txHeuristic) txsHeuristicArray.push(txHeuristic);
       }
       // Compute heuristic for each pegin
       const btcTxs = computeHeuristicFromPegins();
       btcTxs?.forEach((tx) => txsHeuristicArray.push(tx));
       // Filter by asset and sort by date
-      const filteredTxs = txsHeuristicArray.filter((tx) => tx.asset === asset_id);
+      const filteredTxs = txsHeuristicArray.filter((tx) => {
+        if (tx.type === TxType.Swap) {
+          return tx.swapReceived?.asset === asset_id || tx.swapSent?.asset === asset_id;
+        } else {
+          return tx.asset === asset_id;
+        }
+      });
       const sortedTxs = filteredTxs.sort(compareTxDate);
       setTxsToDisplay(sortedTxs);
+      setIsLoading(false);
     })();
-  }, [asset_id, computeHeuristicFromPegins, computeHeuristicFromTx, getCurrentBtcBlockHeight, txs]);
+  }, [asset_id, computeHeuristicFromPegins, computeHeuristicFromTx, fetchCurrentBtcBlockHeight, txs]);
 
   // TODO: check if rerendered
   const ActionButtons = useMemo(
@@ -146,12 +156,18 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
             <IonCol>
               <IonList>
                 <IonListHeader>Transactions</IonListHeader>
-                {txsToDisplay.length > 0 ? (
-                  txsToDisplay.map((tx: TxHeuristic) => (
-                    <OperationListItem tx={tx} key={tx.txid} listType="transaction" />
-                  ))
+                {isLoading ? (
+                  <IonSkeletonText animated style={{ height: '100%', width: '100%' }} />
                 ) : (
-                  <p>You don't have any transactions yet</p>
+                  <>
+                    {txsToDisplay.length > 0 ? (
+                      txsToDisplay.map((tx: TxHeuristic) => (
+                        <OperationListItem tx={tx} key={tx.txid} listType="transaction" />
+                      ))
+                    ) : (
+                      <p>You don't have any transactions yet</p>
+                    )}
+                  </>
                 )}
               </IonList>
             </IonCol>

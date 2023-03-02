@@ -1,13 +1,12 @@
-import { networks, Transaction } from 'liquidjs-lib';
+import { networks } from 'liquidjs-lib';
 
-import { SwapAccept as SwapAcceptV1 } from '../../api-spec/protobuf/gen/js/tdex/v1/swap_pb';
-import { SwapAccept as SwapAcceptV2 } from '../../api-spec/protobuf/gen/js/tdex/v2/swap_pb';
-import { TradeType } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
-import type { CoinSelectionForTrade, ScriptDetails } from '../../store/walletStore';
-import type { NetworkString } from '../../utils/constants';
-import { decodePsbt, decodePset, isRawTransaction, isValidAmount } from '../../utils/transaction';
-import { BlinderService } from '../blinderService';
-import type { SignerInterface } from '../signerService';
+import { SwapAccept } from '../../../api-spec/protobuf/gen/js/tdex/v2/swap_pb';
+import { TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
+import type { CoinSelectionForTrade, ScriptDetails } from '../../../store/walletStore';
+import type { NetworkString } from '../../../utils/constants';
+import { decodePset, isRawTransaction, isValidAmount } from '../../../utils/transaction';
+import { BlinderService } from '../../blinderService';
+import type { SignerInterface } from '../../signerService';
 
 import type TraderClientInterface from './clientInterface';
 import type { CoreInterface } from './core';
@@ -48,7 +47,6 @@ export interface TradeOpts {
   providerUrl: string;
   explorerUrl: string;
   coinSelectionForTrade: CoinSelectionForTrade;
-  protoVersion: 'v1' | 'v2';
   chain: NetworkString;
   masterBlindingKey: string;
   signer: SignerInterface;
@@ -81,9 +79,6 @@ export class TradeCore extends Core implements TradeInterface {
   }
 
   validate(args: TradeOpts): void {
-    if (!this.protoVersion)
-      throw new Error('To be able to trade you need to select a protoVersion via { protoVersion }');
-
     if (!this.providerUrl)
       throw new Error('To be able to trade you need to select a liquidity provider via { providerUrl }');
 
@@ -267,35 +262,23 @@ export class TradeCore extends Core implements TradeInterface {
       network: networks[this.chain],
       masterBlindingKey: this.masterBlindingKey,
     });
-    if (this.protoVersion === 'v1') {
-      await swapTx.createProtoV1(
-        this.coinSelectionForTrade,
-        amountToBeSent,
-        amountToReceive,
-        assetToBeSent,
-        assetToReceive,
-        addressForChangeOutput,
-        addressForSwapOutput
-      );
-    } else {
-      await swapTx.createProtoV2(
-        this.coinSelectionForTrade,
-        amountToBeSent,
-        amountToReceive,
-        assetToBeSent,
-        assetToReceive,
-        addressForChangeOutput,
-        addressForSwapOutput
-      );
-    }
-    const swap = new Swap({ protoVersion: this.protoVersion, chain: this.chain, verbose: false });
+    await swapTx.createProto(
+      this.coinSelectionForTrade,
+      amountToBeSent,
+      amountToReceive,
+      assetToBeSent,
+      assetToReceive,
+      addressForChangeOutput,
+      addressForSwapOutput
+    );
+    const swap = new Swap({ chain: this.chain, verbose: false });
     let swapRequestSerialized: Uint8Array;
     swapRequestSerialized = await swap.request({
       assetToBeSent,
       amountToBeSent,
       assetToReceive,
       amountToReceive,
-      psetBase64: this.protoVersion === 'v1' ? swapTx.psbt.toBase64() : swapTx.pset.toBase64(),
+      psetBase64: swapTx.pset.toBase64(),
       inputBlindingKeys: swapTx.inputBlindingKeys,
       outputBlindingKeys: swapTx.outputBlindingKeys,
     });
@@ -316,20 +299,12 @@ export class TradeCore extends Core implements TradeInterface {
     // and add his own inputs if all is correct
     let swapAcceptMessage;
     let signedHex;
-    if (this.protoVersion === 'v1') {
-      swapAcceptMessage = SwapAcceptV1.fromBinary(swapAcceptSerialized);
-      const psbtBase64 = swapAcceptMessage.transaction;
-      signedHex = await this.signer.signPsbt(decodePsbt(psbtBase64).psbt);
-      console.log('Transaction.fromHex(signedHex)', Transaction.fromHex(signedHex));
-      console.log('Transaction.fromHex(signedHex).toHex()', Transaction.fromHex(signedHex).toHex());
-    } else {
-      swapAcceptMessage = SwapAcceptV2.fromBinary(swapAcceptSerialized);
-      const psetBase64 = swapAcceptMessage.transaction;
-      const blinder = new BlinderService();
-      const blindedPset = await blinder.blindPset(decodePset(psetBase64));
-      const signedPset = await this.signer.signPset(blindedPset);
-      signedHex = this.signer.finalizeAndExtract(signedPset);
-    }
+    swapAcceptMessage = SwapAccept.fromBinary(swapAcceptSerialized);
+    const psetBase64 = swapAcceptMessage.transaction;
+    const blinder = new BlinderService();
+    const blindedPset = await blinder.blindPset(decodePset(psetBase64));
+    const signedPset = await this.signer.signPset(blindedPset);
+    signedHex = this.signer.finalizeAndExtract(signedPset);
     if (autoComplete) {
       if (isRawTransaction(signedHex)) {
         return signedHex;
@@ -337,7 +312,7 @@ export class TradeCore extends Core implements TradeInterface {
     }
 
     // Trader  adds his signed inputs to the transaction
-    const swap = new Swap({ protoVersion: this.protoVersion, chain: this.chain, verbose: false });
+    const swap = new Swap({ chain: this.chain, verbose: false });
     const swapCompleteSerialized = swap.complete({
       message: swapAcceptSerialized,
       psetBase64OrHex: signedHex,

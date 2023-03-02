@@ -26,7 +26,7 @@ import {
   outpointStrToOutpoint,
   outpointToString,
 } from '../utils/helpers';
-import { fromSatoshi } from '../utils/unitConversion';
+import { fromSatoshi, toSatoshi } from '../utils/unitConversion';
 
 import { useAssetStore } from './assetStore';
 import { useBitcoinStore } from './bitcoinStore';
@@ -67,8 +67,8 @@ export enum TxType {
 }
 
 export interface TxHeuristic {
-  amount: number; // amount > 0 = received & amount < 0 = sent
-  asset: string;
+  amount?: number; // amt > 0 = received, amt < 0 = sent, amt == 0 = self, amt == undefined = swap
+  asset?: string; // asset is undefined if it's a swap
   blockTime?: moment.Moment;
   blockHeight?: number;
   claimScript?: string;
@@ -338,18 +338,26 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             return unblindedOutput;
           });
         },
-        computeHeuristicFromTx: async (txDetails, assetHash) => {
+        computeHeuristicFromTx: async (txDetails) => {
           const network = useSettingsStore.getState().network;
           let isSwap = false;
           const txTypeFromAmount = (amount?: number): TxType => {
             if (isSwap) return TxType.Swap;
-            if (amount === undefined) return TxType.Unknow;
-            if (amount === 0) return TxType.SelfTransfer;
-            if (amount > 0) return TxType.Deposit;
-            return TxType.Withdraw;
+            if (inputAssets.length === 0) {
+              return TxType.Deposit;
+            }
+            if (inputAssets.length >= 1 && outputAssets.length >= 1) {
+              if (amount === 0) {
+                return TxType.SelfTransfer;
+              } else {
+                return TxType.Withdraw;
+              }
+            }
+            return TxType.Unknow;
           };
           const outputHistory = get().outputHistory;
-          let transferAmount = 0;
+          let assetHash: string | undefined;
+          let amount: number | undefined;
           let swapReceived;
           let swapSent;
           let inputAssets = [];
@@ -357,6 +365,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           let script = '';
           let fee = 0;
           const tx = Transaction.fromHex(txDetails.hex ?? '');
+
           // process outputs
           for (const [index, output] of tx.outs.entries()) {
             if (output.script.length === 0) {
@@ -365,22 +374,18 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             }
             const blindingData = outputHistory[outpointToString({ txid: tx.getId(), vout: index })]?.blindingData;
             if (!blindingData) continue;
-            if (blindingData.asset === assetHash) {
-              transferAmount += blindingData.value;
-            }
             script = Buffer.from(output.script).toString('hex');
             outputAssets.push({ asset: blindingData.asset, amount: blindingData.value });
           }
+
           // process inputs
           for (const input of tx.ins) {
             const blindingData =
               outputHistory[`${Buffer.from(input.hash).reverse().toString('hex')}:${input.index}`]?.blindingData;
             if (!blindingData) continue;
-            if (blindingData.asset === assetHash) {
-              transferAmount -= blindingData.value;
-            }
             inputAssets.push({ asset: blindingData.asset, amount: blindingData.value });
           }
+
           // If more than 1 output, check that one output asset is not present in the inputs to identify swaps
           if (outputAssets.length > 1) {
             for (const { asset, amount } of outputAssets) {
@@ -397,7 +402,23 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               }
             }
           }
-          //
+
+          // Deposit
+          if (inputAssets.length === 0) {
+            assetHash = outputAssets[0].asset;
+            amount = outputAssets.reduce((acc, i) => (i.asset === assetHash ? acc + i.amount : acc), 0);
+          } else if (!isSwap && inputAssets.length >= 1 && outputAssets.length >= 1) {
+            // Withdraw or SelfTransfer
+            assetHash = inputAssets[0].asset;
+            const totalInputAmount = inputAssets.reduce((acc, i) => (i.asset === assetHash ? acc + i.amount : acc), 0);
+            const totalOutputAmount = outputAssets.reduce(
+              (acc, i) => (i.asset === assetHash ? acc + i.amount : acc),
+              0
+            );
+            amount = totalOutputAmount - totalInputAmount;
+          }
+
+          // fetch block time
           const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
           const client = new ElectrumWS(websocketExplorerURL);
           const chainSource = new WsElectrumChainSource(client);
@@ -406,6 +427,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             const header = await chainSource.fetchBlockHeader(txDetails.height);
             blockTime = moment(header.timestamp * 1000); // TODO: check if * 1000 needed?
           }
+
           // compute deposit or recipient confidential address
           const master = slip77.fromMasterBlindingKey(get().masterBlindingKey);
           const derived = master.derive(script);
@@ -415,16 +437,19 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             network: networks[network],
           }).confidentialAddress;
 
+          // if amount is negative, it's a withdrawal, so we add the fee
+          amount = amount !== undefined ? (amount < 0 ? amount + fee : amount) : undefined;
+
           return {
-            amount: transferAmount < 0 ? transferAmount + fee : transferAmount,
-            asset: assetHash ?? '',
+            amount,
+            asset: assetHash,
             blockTime: blockTime,
             blockHeight: txDetails.height,
             confidentialAddress,
             fee,
             swapReceived,
             swapSent,
-            type: txTypeFromAmount(transferAmount),
+            type: txTypeFromAmount(amount),
             txid: tx.getId(),
           };
         },
@@ -543,6 +568,8 @@ export const useWalletStore = create<WalletState & WalletActions>()(
         },
         // Coin selection
         selectUtxos: async (targets, lock = false) => {
+          const assets = useAssetStore.getState().assets;
+          const lbtcUnit = useSettingsStore.getState().lbtcUnit;
           const availableUtxos = get().computeUtxosFromTxs();
           const onlyWithUnblindingData = availableUtxos.filter((utxo) => utxo.blindingData);
           // accumulate targets with same asset
@@ -566,7 +593,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
                 vout: utxo.vout,
                 value: utxo.blindingData?.value,
               })),
-              [{ address: 'fake', value: target.value }],
+              [{ address: 'fake', value: toSatoshi(target.value, assets[target.asset]?.precision, lbtcUnit) }],
               0
             );
             if (inputs) {

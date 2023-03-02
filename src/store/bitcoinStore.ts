@@ -48,7 +48,7 @@ interface BitcoinState {
 }
 
 interface BitcoinActions {
-  getCurrentBtcBlockHeight: () => Promise<void>;
+  fetchCurrentBtcBlockHeight: () => Promise<void>;
   setDepositPeginUtxo: (utxo: DepositPeginUtxo, depositAddress: Pegin['depositAddress']) => void;
   setModalClaimPegin: (modalClaimPegins: { isOpen?: boolean; claimScriptToClaim?: string }) => void; // TODO: handle multiple pegins?
   upsertPegins: (pegins: Pegins) => void;
@@ -66,10 +66,10 @@ export const useBitcoinStore = create<BitcoinState & BitcoinActions>()(
     persist(
       (set) => ({
         ...initialState,
-        getCurrentBtcBlockHeight: async () => {
+        fetchCurrentBtcBlockHeight: async () => {
           const explorerBitcoinAPI = useSettingsStore.getState().explorerBitcoinAPI;
           const currentBtcBlockHeight = (await axios.get(`${explorerBitcoinAPI}/blocks/tip/height`)).data;
-          set({ currentBtcBlockHeight }, false, 'getCurrentBtcBlockHeight');
+          set({ currentBtcBlockHeight }, false, 'fetchCurrentBtcBlockHeight');
         },
         setDepositPeginUtxo: (utxo: DepositPeginUtxo, depositAddress: Pegin['depositAddress']) => {
           set(

@@ -1,4 +1,4 @@
-import type { BalanceWithFee, Market, Preview, TradeType } from '../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
+import type { Balance, Market, Preview, TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 
 export default interface TraderClientInterface {
   providerUrl: string;
@@ -22,5 +22,5 @@ export default interface TraderClientInterface {
     asset: string
   ): Promise<Preview[]>;
 
-  balance({ baseAsset, quoteAsset }: Market): Promise<BalanceWithFee>;
+  balance({ baseAsset, quoteAsset }: Market): Promise<Balance>;
 }

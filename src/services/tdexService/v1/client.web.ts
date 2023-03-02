@@ -1,21 +1,21 @@
 import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
 
-import { Tdexv2ContentType } from '../../api-spec/openapi/swagger/v2/transport/data-contracts';
-import { SwapAccept, SwapComplete, SwapRequest } from '../../api-spec/protobuf/gen/js/tdex/v1/swap_pb';
-import * as messages from '../../api-spec/protobuf/gen/js/tdex/v1/trade_pb';
-import * as services from '../../api-spec/protobuf/gen/js/tdex/v1/trade_pb.client';
-import * as types from '../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
-import type { TradeType } from '../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
+import { Tdexv1ContentType } from '../../../api-spec/openapi/swagger/v1/transport/data-contracts';
+import { SwapAccept, SwapComplete, SwapRequest } from '../../../api-spec/protobuf/gen/js/tdex/v1/swap_pb';
+import * as messages from '../../../api-spec/protobuf/gen/js/tdex/v1/trade_pb';
+import * as services from '../../../api-spec/protobuf/gen/js/tdex/v1/trade_pb.client';
+import * as types from '../../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
+import type { TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
+import { getClearTextTorProxyUrl } from '../index';
 
 import type TraderClientInterface from './clientInterface';
-import { getClearTextTorProxyUrl } from './index';
 
 const DEFAULT_TOR_PROXY = 'https://torproxy.tdex.network';
 
 export class TraderClient implements TraderClientInterface {
   providerUrl: string;
   client: services.ITradeServiceClient;
-  clientType: string = Tdexv2ContentType.CONTENT_TYPE_GRPCWEBTEXT;
+  clientType: string = Tdexv1ContentType.CONTENT_TYPE_GRPCWEBTEXT;
 
   constructor(providerUrl: string, torProxyEndpoint: string = DEFAULT_TOR_PROXY) {
     this.providerUrl = providerUrl;

@@ -69,12 +69,17 @@ export const TradeSummary: React.FC = () => {
   const preview = state?.preview;
   const { txid } = useParams<{ txid: string }>();
   const [tx, setTransaction] = useState<TxHeuristic | undefined>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
-      const transaction = txs?.[txid];
-      const tx = transaction ? await computeHeuristicFromTx(transaction) : undefined;
-      setTransaction(tx);
+      if (!preview) {
+        setIsLoading(true);
+        const transaction = txs?.[txid];
+        const tx = transaction ? await computeHeuristicFromTx(transaction) : undefined;
+        setTransaction(tx);
+        setIsLoading(false);
+      }
     })();
   }, [txs, txid, computeHeuristicFromTx]);
 
@@ -84,96 +89,106 @@ export const TradeSummary: React.FC = () => {
         <Refresher />
         <IonGrid>
           <Header title="TRADE SUMMARY" hasBackButton={true} />
-          {tx || preview ? (
-            <>
-              <IonRow className="ion-margin-bottom ion-text-center">
-                <IonCol>
-                  <div className="transaction-icons">
-                    <SentCurrencyIcon size={45} assets={assets} txHeuristic={tx} preview={preview} />
-                    <div className="receive-icon-container">
-                      <ReceiveCurrencyIcon size={45} assets={assets} txHeuristic={tx} preview={preview} />
-                      <ReceiveCurrencyIcon size={55} assets={assets} txHeuristic={tx} preview={preview} />
-                    </div>
-                  </div>
-                </IonCol>
-              </IonRow>
-
-              <IonRow className="ion-margin-bottom">
-                <IonCol>
-                  <IonItem>
-                    <div className="trade-summary-item">
-                      <div className="trade-items">
-                        <div className="trade-item">
-                          <div className="name">
-                            <SentCurrencyIcon size={24} assets={assets} txHeuristic={tx} preview={preview} />
-                            <span>
-                              {tx?.swapSent?.asset ? assets[tx?.swapSent?.asset]?.ticker : preview?.sent.ticker}
-                            </span>
+          <>
+            {isLoading ? (
+              <IonSkeletonText animated style={{ width: '100%', height: '200px' }} />
+            ) : (
+              <>
+                {tx || preview ? (
+                  <>
+                    <IonRow className="ion-margin-bottom ion-text-center">
+                      <IonCol>
+                        <div className="transaction-icons">
+                          <SentCurrencyIcon size={45} assets={assets} txHeuristic={tx} preview={preview} />
+                          <div className="receive-icon-container">
+                            <ReceiveCurrencyIcon size={45} assets={assets} txHeuristic={tx} preview={preview} />
+                            <ReceiveCurrencyIcon size={55} assets={assets} txHeuristic={tx} preview={preview} />
                           </div>
-                          <p className="trade-price" data-testid="trade-summary-sent-amount">
-                            -{preview ? preview?.sent.amount : fromSatoshiFixed(tx?.swapSent?.amount ?? 0, 8, 8)}
-                          </p>
                         </div>
+                      </IonCol>
+                    </IonRow>
 
-                        <div className="trade-divider">
-                          <IonIcon color="medium" icon={ellipsisHorizontal} />
-                        </div>
+                    <IonRow className="ion-margin-bottom">
+                      <IonCol>
+                        <IonItem>
+                          <div className="trade-summary-item">
+                            <div className="trade-items">
+                              <div className="trade-item">
+                                <div className="name">
+                                  <SentCurrencyIcon size={24} assets={assets} txHeuristic={tx} preview={preview} />
+                                  <span>
+                                    {tx?.swapSent?.asset ? assets[tx?.swapSent?.asset]?.ticker : preview?.sent.ticker}
+                                  </span>
+                                </div>
+                                <p className="trade-price" data-testid="trade-summary-sent-amount">
+                                  {preview ? preview?.sent.amount : -fromSatoshiFixed(tx?.swapSent?.amount ?? 0, 8, 8)}
+                                </p>
+                              </div>
 
-                        <div className="trade-item">
-                          <div className="name">
-                            <ReceiveCurrencyIcon size={24} assets={assets} txHeuristic={tx} preview={preview} />
-                            <span>
-                              {tx?.swapReceived?.asset
-                                ? assets[tx.swapReceived?.asset]?.ticker
-                                : preview?.received.ticker}
-                            </span>
+                              <div className="trade-divider">
+                                <IonIcon color="medium" icon={ellipsisHorizontal} />
+                              </div>
+
+                              <div className="trade-item">
+                                <div className="name">
+                                  <ReceiveCurrencyIcon size={24} assets={assets} txHeuristic={tx} preview={preview} />
+                                  <span>
+                                    {tx?.swapReceived?.asset
+                                      ? assets[tx.swapReceived?.asset]?.ticker
+                                      : preview?.received.ticker}
+                                  </span>
+                                </div>
+                                <p className="trade-price">
+                                  +
+                                  {preview
+                                    ? preview?.received.amount
+                                    : fromSatoshiFixed(tx?.swapReceived?.amount ?? 0, 8, 8)}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="transaction-info">
+                              <div className="transaction-info-date">
+                                {tx && <span>{tx.blockTime?.format('DD MMM YYYY HH:mm:ss')}</span>}
+                                {tx ? (
+                                  <span>{fromSatoshiFixed(tx.fee, 8, 8)} Fee</span>
+                                ) : (
+                                  <IonSkeletonText animated style={{ width: '100%' }} />
+                                )}
+                              </div>
+                              <div
+                                className="transaction-info-values"
+                                onClick={async () => {
+                                  clipboardCopy(await makeURLwithBlinders(Transaction.fromHex(txs[txid].hex)), () => {
+                                    addSuccessToast('Transaction ID copied!');
+                                  });
+                                }}
+                              >
+                                <span className="transaction-col-name">TxID</span>
+                                <span className="transaction-col-value">{txid}</span>
+                              </div>
+                              <div className="transaction-info-values">
+                                <span className="transaction-col-name">{''}</span>
+                                {tx?.blockTime ? (
+                                  <></>
+                                ) : (
+                                  <span className="transaction-col-value pending">
+                                    <IonText color="warning">PENDING</IonText>
+                                    <IonIcon color="warning" icon={ellipsisHorizontal} />
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                          <p className="trade-price">
-                            +
-                            {preview ? preview?.received.amount : fromSatoshiFixed(tx?.swapReceived?.amount ?? 0, 8, 8)}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="transaction-info">
-                        <div className="transaction-info-date">
-                          {tx && <span>{tx.blockTime?.format('DD MMM YYYY HH:mm:ss')}</span>}
-                          {tx ? (
-                            <span>{fromSatoshiFixed(tx.fee, 8, 8)} Fee</span>
-                          ) : (
-                            <IonSkeletonText animated style={{ width: '100%' }} />
-                          )}
-                        </div>
-                        <div
-                          className="transaction-info-values"
-                          onClick={async () => {
-                            clipboardCopy(await makeURLwithBlinders(Transaction.fromHex(txs[txid].hex)), () => {
-                              addSuccessToast('Transaction ID copied!');
-                            });
-                          }}
-                        >
-                          <span className="transaction-col-name">TxID</span>
-                          <span className="transaction-col-value">{txid}</span>
-                        </div>
-                        <div className="transaction-info-values">
-                          <span className="transaction-col-name">{''}</span>
-                          {tx?.blockTime ? (
-                            <></>
-                          ) : (
-                            <span className="transaction-col-value pending">
-                              <IonText color="warning">PENDING</IonText>
-                              <IonIcon color="warning" icon={ellipsisHorizontal} />
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </IonItem>
-                </IonCol>
-              </IonRow>
-            </>
-          ) : (
-            <p>It seems you don't have any swap yet</p>
-          )}
+                        </IonItem>
+                      </IonCol>
+                    </IonRow>
+                  </>
+                ) : (
+                  <p>It seems you don't have any swap yet</p>
+                )}
+              </>
+            )}
+          </>
         </IonGrid>
       </IonContent>
     </IonPage>
