@@ -94,7 +94,6 @@ const OperationListItem: React.FC<SwapProps> = ({ tx, listType }) => {
         {isSwap ? (
           <IonCol size="6">
             <IonRow>
-              <IonCol></IonCol>
               <IonCol className="justify-end trade-amount d-flex">
                 {`+${fromSatoshiFixed(
                   tx.swapReceived?.amount ?? 0,
@@ -106,7 +105,6 @@ const OperationListItem: React.FC<SwapProps> = ({ tx, listType }) => {
               </IonCol>
             </IonRow>
             <IonRow>
-              <IonCol></IonCol>
               <IonCol className="justify-end trade-amount d-flex">
                 {`-${fromSatoshiFixed(
                   tx.swapSent?.amount ?? 0,
@@ -121,21 +119,16 @@ const OperationListItem: React.FC<SwapProps> = ({ tx, listType }) => {
             </IonRow>
           </IonCol>
         ) : (
-          <IonCol size="6">
-            <IonRow>
-              <IonCol></IonCol>
-              <IonCol className="justify-end trade-amount d-flex">
-                {`${fromSatoshiFixed(
-                  tx.amount ?? 0,
-                  assets[tx.asset ?? '']?.precision ?? 8,
-                  assets[tx.asset ?? '']?.precision ?? 8,
-                  isLbtcTicker(assets[tx.asset ?? '']?.ticker) ? lbtcUnit : undefined
-                )}`}
-                <span className="ticker">
-                  {isLbtc(tx.asset ?? '', network) ? lbtcUnit : assets[tx.asset ?? '']?.ticker}
-                </span>
-              </IonCol>
-            </IonRow>
+          <IonCol size="6" className="justify-end trade-amount d-flex">
+            {`${fromSatoshiFixed(
+              tx.amount ?? 0,
+              assets[tx.asset ?? '']?.precision ?? 8,
+              assets[tx.asset ?? '']?.precision ?? 8,
+              isLbtcTicker(assets[tx.asset ?? '']?.ticker) ? lbtcUnit : undefined
+            )}`}
+            <span className="ticker">
+              {isLbtc(tx.asset ?? '', network) ? lbtcUnit : assets[tx.asset ?? '']?.ticker}
+            </span>
           </IonCol>
         )}
       </IonRow>

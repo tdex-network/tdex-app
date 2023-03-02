@@ -1,4 +1,4 @@
-import { IonCol, IonContent, IonGrid, IonList, IonListHeader, IonPage, IonRow } from '@ionic/react';
+import { IonCol, IonContent, IonGrid, IonList, IonListHeader, IonPage, IonRow, IonSkeletonText } from '@ionic/react';
 import React, { useEffect } from 'react';
 
 import Header from '../../components/Header';
@@ -11,15 +11,19 @@ export const TradeHistory: React.FC = () => {
   //
   const computeHeuristicFromTx = useWalletStore((state) => state.computeHeuristicFromTx);
   const txs = useWalletStore((state) => state.txs);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
 
   useEffect(() => {
     (async () => {
-      // TODO: avoid redoing processing everytime the page is loaded
+      setIsLoading(true);
+      let swapsArr = [];
       for (const txid of Object.keys(txs)) {
         const tx = await computeHeuristicFromTx(txs[txid]);
-        if (!tx || tx.type !== TxType.Swap) return;
-        setSwaps([...swaps, tx]);
+        if (!tx || tx.type !== TxType.Swap) continue;
+        swapsArr.push(tx);
       }
+      setSwaps(swapsArr);
+      setIsLoading(false);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [txs]);
@@ -29,20 +33,31 @@ export const TradeHistory: React.FC = () => {
       <IonContent>
         <IonGrid>
           <Header hasBackButton={true} title="TRADE HISTORY" />
-          {swaps.length > 0 ? (
-            <IonList>
-              <IonListHeader>Swaps</IonListHeader>
-              {swaps.map((tx: TxHeuristic) => (
-                <OperationListItem tx={tx} key={tx.txid} listType="trade" />
-              ))}
-            </IonList>
-          ) : (
-            <IonRow className="ion-text-center ion-margin">
-              <IonCol size="10" offset="1">
-                <p>You don't have any trades transactions. They will appear here.</p>
-              </IonCol>
-            </IonRow>
-          )}
+          <>
+            {isLoading ? (
+              <>
+                <p>Loading...</p>
+                <IonSkeletonText animated style={{ width: '100%', height: '100px' }} />
+              </>
+            ) : (
+              <>
+                {swaps.length > 0 ? (
+                  <IonList>
+                    <IonListHeader>Swaps</IonListHeader>
+                    {swaps.map((tx: TxHeuristic) => (
+                      <OperationListItem tx={tx} key={tx.txid} listType="trade" />
+                    ))}
+                  </IonList>
+                ) : (
+                  <IonRow className="ion-text-center ion-margin">
+                    <IonCol size="10" offset="1">
+                      <p>You don't have any trades transactions. They will appear here.</p>
+                    </IonCol>
+                  </IonRow>
+                )}
+              </>
+            )}
+          </>
         </IonGrid>
       </IonContent>
     </IonPage>

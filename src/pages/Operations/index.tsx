@@ -157,7 +157,7 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
               <IonList>
                 <IonListHeader>Transactions</IonListHeader>
                 {isLoading ? (
-                  <IonSkeletonText animated style={{ height: '100%', width: '100%' }} />
+                  <IonSkeletonText animated style={{ height: '100px', width: '100%' }} />
                 ) : (
                   <>
                     {txsToDisplay.length > 0 ? (

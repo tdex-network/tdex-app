@@ -73,13 +73,11 @@ export const TradeSummary: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      if (!preview) {
-        setIsLoading(true);
-        const transaction = txs?.[txid];
-        const tx = transaction ? await computeHeuristicFromTx(transaction) : undefined;
-        setTransaction(tx);
-        setIsLoading(false);
-      }
+      setIsLoading(true);
+      const transaction = txs?.[txid];
+      const tx = transaction ? await computeHeuristicFromTx(transaction) : undefined;
+      setTransaction(tx);
+      setIsLoading(false);
     })();
   }, [txs, txid, computeHeuristicFromTx]);
 

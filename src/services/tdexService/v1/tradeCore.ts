@@ -83,7 +83,6 @@ export class TradeCore extends Core implements TradeInterface {
 
     if (!this.explorerUrl) throw new Error('To be able to trade you need to select an explorer via { explorerUrl }');
 
-    console.log('args.coinSelectionForTrade', args.coinSelectionForTrade);
     if (Object.keys(args.coinSelectionForTrade.witnessUtxos).length <= 0) {
       throw new Error('You need at least one utxo to trade');
     }

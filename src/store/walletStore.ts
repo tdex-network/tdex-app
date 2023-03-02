@@ -299,9 +299,9 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           set(
             {
               totalBtc: {
-                sats: totalSats,
+                sats: Math.round(totalSats),
                 counterValue: totalCounterValue,
-                value: fromSatoshi(totalSats, 8, lbtcUnit),
+                value: fromSatoshi(Math.round(totalSats), 8, lbtcUnit),
               },
             },
             false,
@@ -425,7 +425,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           let blockTime: moment.Moment | undefined;
           if (txDetails.height) {
             const header = await chainSource.fetchBlockHeader(txDetails.height);
-            blockTime = moment(header.timestamp * 1000); // TODO: check if * 1000 needed?
+            blockTime = moment(header.timestamp * 1000);
           }
 
           // compute deposit or recipient confidential address
