@@ -22,8 +22,7 @@ import React, { useState } from 'react';
 
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Header from '../../components/Header';
-import { useRefreshProviders } from '../../hooks/useRefreshProviders';
-import type { TDEXProvider } from '../../store/tdexStore';
+import type { TDEXProvider } from '../../services/tdexService/v1/tradeCore';
 import { useTdexStore } from '../../store/tdexStore';
 import { useToastStore } from '../../store/toastStore';
 import type { NetworkString } from '../../utils/constants';
@@ -39,9 +38,9 @@ export const LiquidityProviders: React.FC<LiquidityProvidersProps> = () => {
   const clearMarkets = useTdexStore((state) => state.clearMarkets);
   const deleteProvider = useTdexStore((state) => state.deleteProvider);
   const providers = useTdexStore((state) => state.providers);
+  const refetchTdexProvidersAndMarkets = useTdexStore((state) => state.refetchTdexProvidersAndMarkets);
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   //
-  const refreshProviders = useRefreshProviders();
   const [providerToDelete, setProviderToDelete] = useState<TDEXProvider>();
   const [newProvider, setNewProvider] = useState(false);
   const [newProviderName, setNewProviderName] = useState('');
@@ -199,7 +198,7 @@ export const LiquidityProviders: React.FC<LiquidityProvidersProps> = () => {
                 disabled={registryFetching}
                 onClick={async () => {
                   setRegistryFetching(true);
-                  await refreshProviders();
+                  await refetchTdexProvidersAndMarkets();
                   setRegistryFetching(false);
                 }}
               >

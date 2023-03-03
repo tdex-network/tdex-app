@@ -1,5 +1,5 @@
-import type { networks, UpdaterInput, UpdaterOutput } from 'liquidjs-lib';
-import { address, AssetHash, confidential, Transaction, Updater } from 'liquidjs-lib';
+import type { networks } from 'liquidjs-lib';
+import { AssetHash, confidential } from 'liquidjs-lib';
 import type { PsbtTxInput } from 'liquidjs-lib/src/psbt';
 import { Psbt } from 'liquidjs-lib/src/psbt';
 import type { Slip77Interface } from 'slip77';

@@ -6,9 +6,9 @@ import {
   marketPriceRequestV1,
   marketPriceRequestV2,
 } from '../../services/tdexService';
-import type { TradeOrder as TradeOrderV1 } from '../../services/tdexService/v1/tradeCore';
+import type { TDEXMarket, TradeOrder as TradeOrderV1 } from '../../services/tdexService/v1/tradeCore';
+import type { TradeOrder as TradeOrderV2 } from '../../services/tdexService/v2/tradeCore';
 import type { Asset } from '../../store/assetStore';
-import type { TDEXMarket } from '../../store/tdexStore';
 import { useWalletStore } from '../../store/walletStore';
 import type { LbtcUnit } from '../../utils/constants';
 import { defaultPrecision } from '../../utils/constants';
@@ -55,7 +55,8 @@ export function useTradeState(markets: TDEXMarket[]) {
   const [receiveAsset, receiveSats, setReceiveAsset, setReceiveSats] = useAssetSats(
     markets.length > 0 ? markets[0].quoteAsset : undefined
   );
-  const [bestOrder, setBestOrder] = useState<TradeOrderV1>();
+  const [bestOrderV1, setBestOrderV1] = useState<TradeOrderV1>();
+  const [bestOrderV2, setBestOrderV2] = useState<TradeOrderV2>();
   const [sendLoader, setSendLoader] = useState<boolean>(false);
   const [receiveLoader, setReceiveLoader] = useState<boolean>(false);
   const [focus, setFocus] = useState<'send' | 'receive'>();
@@ -92,15 +93,16 @@ export function useTradeState(markets: TDEXMarket[]) {
       if (newSendSats > (sendBalance?.sats ?? 0)) throw new Error(`not enough balance`);
       let bestOrder, assetSats;
       // TODO: get supported version
-      if (true) {
-        bestOrder = await discoverBestOrderV1(markets, sendAsset, receiveAsset)(newSendSats ?? 0, sendAsset);
-        assetSats = await marketPriceRequestV1(bestOrder, newSendSats ?? 0, sendAsset);
+      if (false) {
+        bestOrder = await discoverBestOrderV1(markets, sendAsset, receiveAsset)(newSendSats ?? 0, sendAsset as string);
+        assetSats = await marketPriceRequestV1(bestOrder, newSendSats ?? 0, sendAsset as string);
+        setBestOrderV1(bestOrder);
       } else {
         bestOrder = await discoverBestOrderV2(markets, sendAsset, receiveAsset)(newSendSats ?? 0, sendAsset as string);
         assetSats = await marketPriceRequestV2(bestOrder, newSendSats ?? 0, sendAsset as string);
+        setBestOrderV2(bestOrder);
       }
       setReceiveSats(Number(assetSats.sats));
-      setBestOrder(bestOrder);
       resetErrors();
     } catch (err) {
       console.error(err);
@@ -118,9 +120,15 @@ export function useTradeState(markets: TDEXMarket[]) {
       setSendLoader(true);
       let bestOrder, assetSats;
       // TODO: get supported version
-      if (true) {
-        bestOrder = await discoverBestOrderV1(markets, sendAsset, receiveAsset)(newReceiveSats ?? 0, receiveAsset);
-        assetSats = await marketPriceRequestV1(bestOrder, newReceiveSats ?? 0, receiveAsset);
+      if (false) {
+        bestOrder = await discoverBestOrderV1(
+          markets,
+          sendAsset,
+          receiveAsset
+        )(newReceiveSats ?? 0, receiveAsset as string);
+        assetSats = await marketPriceRequestV1(bestOrder, newReceiveSats ?? 0, receiveAsset as string);
+        if (Number(assetSats.sats) > (sendBalance?.sats ?? 0)) throw new Error(`not enough balance`);
+        setBestOrderV1(bestOrder);
       } else {
         bestOrder = await discoverBestOrderV2(
           markets,
@@ -128,10 +136,10 @@ export function useTradeState(markets: TDEXMarket[]) {
           receiveAsset
         )(newReceiveSats ?? 0, receiveAsset as string);
         assetSats = await marketPriceRequestV2(bestOrder, newReceiveSats ?? 0, receiveAsset as string);
+        if (Number(assetSats.sats) > (sendBalance?.sats ?? 0)) throw new Error(`not enough balance`);
+        setBestOrderV2(bestOrder);
       }
-      if (Number(assetSats.sats) > (sendBalance?.sats ?? 0)) throw new Error(`not enough balance`);
       setSendSats(Number(assetSats.sats));
-      setBestOrder(bestOrder);
       resetErrors();
     } catch (err) {
       console.error(err);
@@ -202,7 +210,8 @@ export function useTradeState(markets: TDEXMarket[]) {
   }, [receiveAssetHasChanged]);
 
   return [
-    bestOrder,
+    // TODO: get supported version
+    false ? bestOrderV1 : bestOrderV2,
     sendAsset,
     sendSats,
     receiveAsset,

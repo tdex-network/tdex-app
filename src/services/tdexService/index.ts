@@ -2,7 +2,6 @@ import axios from 'axios';
 
 import { TradeType as TradeTypeV1 } from '../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
 import { TradeType as TradeTypeV2 } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
-import type { TDEXMarket, TDEXProvider } from '../../store/tdexStore';
 import type { CoinSelectionForTrade, ScriptDetails } from '../../store/walletStore';
 import type { NetworkString } from '../../utils/constants';
 import { AppError, NoMarketsAvailableForSelectedPairError } from '../../utils/errors';
@@ -19,7 +18,12 @@ import {
 } from './v1/discovery';
 import type { Discovery as DiscoveryV1 } from './v1/discovery';
 import { Trade as TradeV1 } from './v1/trade.web';
-import type { MarketInterface as MarketInterfaceV1, TradeOrder as TradeOrderV1 } from './v1/tradeCore';
+import type {
+  MarketInterface as MarketInterfaceV1,
+  TDEXMarket,
+  TDEXProvider,
+  TradeOrder as TradeOrderV1,
+} from './v1/tradeCore';
 //
 import { TraderClient as TraderClientV2 } from './v2/client.web';
 import { Discoverer as DiscovererV2 } from './v2/discoverer';
@@ -435,7 +439,13 @@ export function getClearTextTorProxyUrl(torProxyEndpoint: string, url: URL): str
 
 export async function getProvidersFromTDexRegistry(network: NetworkString): Promise<TDEXProvider[]> {
   if (network === 'testnet') {
-    return (await axios.get(TDexRegistryTestnet)).data;
+    const reg = (await axios.get(TDexRegistryTestnet)).data;
+    // TODO: remove this when the registry will be updated
+    reg.push({
+      name: 'v1.provider.tdex.network',
+      endpoint: 'https://v1.provider.tdex.network/',
+    });
+    return reg;
   }
   return (await axios.get(TDexRegistryMainnet)).data;
 }

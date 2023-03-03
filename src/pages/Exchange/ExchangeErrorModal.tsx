@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 
 import Header from '../../components/Header';
 import type { TdexOrderInputResultV1, TdexOrderInputResultV2 } from '../../components/TdexOrderInput';
-import type { TDEXProvider } from '../../store/tdexStore';
+import type { TDEXProvider } from '../../services/tdexService/v1/tradeCore';
 import type { AppError } from '../../utils/errors';
 
 interface Props {

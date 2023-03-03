@@ -17,8 +17,3 @@ export function resetAllStores(): void {
   useToastStore.getState().resetToastStore();
   useWalletStore.getState().resetWalletStore();
 }
-
-export async function updateTdexState(): Promise<void> {
-  await useTdexStore.getState().fetchProviders();
-  await useTdexStore.getState().fetchMarkets();
-}

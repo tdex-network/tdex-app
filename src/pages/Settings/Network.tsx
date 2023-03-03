@@ -14,7 +14,6 @@ import { useEffect } from 'react';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
-import { useRefreshProviders } from '../../hooks/useRefreshProviders';
 import { useAppStore } from '../../store/appStore';
 import { useAssetStore } from '../../store/assetStore';
 import {
@@ -25,6 +24,7 @@ import {
   mempoolExplorerEndpoints,
 } from '../../store/config';
 import { useSettingsStore } from '../../store/settingsStore';
+import { useTdexStore } from '../../store/tdexStore';
 import { useToastStore } from '../../store/toastStore';
 import { useWalletStore } from '../../store/walletStore';
 import type { NetworkString } from '../../utils/constants';
@@ -44,14 +44,13 @@ const Network = (): JSX.Element => {
   const setDefaultProvider = useSettingsStore((state) => state.setDefaultProvider);
   const setElectrsBatchApi = useSettingsStore((state) => state.setElectrsBatchApi);
   const network = useSettingsStore((state) => state.network);
+  const refetchTdexProvidersAndMarkets = useTdexStore((state) => state.refetchTdexProvidersAndMarkets);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   const resetWalletForRestoration = useWalletStore((state) => state.resetWalletForRestoration);
   const sync = useWalletStore((state) => state.sync);
   const computeBalances = useWalletStore((state) => state.computeBalances);
   const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
-  //
-  const refreshProviders = useRefreshProviders();
 
   const handleNetworkChange = async (ev: CustomEvent<SelectChangeEventDetail<NetworkString>>) => {
     try {
@@ -95,7 +94,7 @@ const Network = (): JSX.Element => {
           setElectrsBatchApi(configRegtest.explorers.electrsBatchAPI);
           setDefaultProvider(defaultProviderEndpoints.regtest);
         }
-        await refreshProviders();
+        await refetchTdexProvidersAndMarkets();
         resetAssetStore();
         resetWalletForRestoration();
         await sync();

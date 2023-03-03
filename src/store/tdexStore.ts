@@ -6,23 +6,13 @@ import {
   getMarketsFromProviderV2,
   getProvidersFromTDexRegistry,
 } from '../services/tdexService';
+import type { TDEXMarket, TDEXProvider } from '../services/tdexService/v1/tradeCore';
+import { TDEXRegistryError } from '../utils/errors';
 
 import { storage } from './capacitorPersistentStorage';
 import { defaultProviderEndpoints } from './config';
 import { useSettingsStore } from './settingsStore';
-
-export interface TDEXProvider {
-  name: string;
-  endpoint: string;
-}
-
-export interface TDEXMarket {
-  baseAsset: string;
-  quoteAsset: string;
-  provider: TDEXProvider;
-  baseAmount?: string;
-  quoteAmount?: string;
-}
+import { useToastStore } from './toastStore';
 
 interface TdexState {
   providers: TDEXProvider[];
@@ -36,6 +26,7 @@ export interface TdexActions {
   deleteProvider: (provider: TDEXProvider) => void;
   fetchMarkets: () => Promise<void>;
   fetchProviders: () => Promise<void>;
+  refetchTdexProvidersAndMarkets: () => Promise<void>;
   replaceMarketsOfProvider: (providerToUpdate: TDEXProvider, markets: TDEXMarket[]) => void;
   resetTdexStore: () => void;
 }
@@ -58,6 +49,7 @@ export const useTdexStore = create<TdexState & TdexActions>()(
                 const isProviderInState = state.providers.some(({ endpoint }) => endpoint === p.endpoint);
                 if (!isProviderInState) newProviders.push(p);
               });
+              useToastStore.getState().addSuccessToast(`Providers updated from TDEX registry!`);
               return { providers: [...state.providers, ...newProviders] };
             },
             false,
@@ -76,16 +68,31 @@ export const useTdexStore = create<TdexState & TdexActions>()(
         fetchMarkets: async () => {
           const torProxy = useSettingsStore.getState().torProxy;
           let allMarkets;
+          let marketsToAdd: TDEXMarket[];
           // TODO: get daemon version
-          if (true) {
+          if (false) {
             allMarkets = await Promise.allSettled(get().providers.map((p) => getMarketsFromProviderV1(p, torProxy)));
           } else {
             allMarkets = await Promise.allSettled(get().providers.map((p) => getMarketsFromProviderV2(p, torProxy)));
           }
+          console.log('allMarkets', allMarkets);
           allMarkets
             .map((p, i) => (p.status === 'fulfilled' && p.value ? p.value : []))
             .forEach((markets) => {
-              set((state) => ({ markets: [...state.markets, ...markets] }), false, 'fetchMarkets');
+              // Check if markets are already in state
+              marketsToAdd = markets.filter((market) => {
+                const isMarketInState = get().markets.some(
+                  (m) =>
+                    m.baseAsset === market.baseAsset &&
+                    m.quoteAsset === market.quoteAsset &&
+                    m.provider.endpoint === market.provider.endpoint &&
+                    m.feeBasisPoint === market.feeBasisPoint
+                );
+                return !isMarketInState;
+              });
+              console.log('state.markets', get().markets);
+              console.log('marketsToAdd', marketsToAdd);
+              set((state) => ({ markets: [...state.markets, ...marketsToAdd] }), false, 'fetchMarkets');
             });
         },
         fetchProviders: async () => {
@@ -109,6 +116,16 @@ export const useTdexStore = create<TdexState & TdexActions>()(
             false,
             'replaceMarketsOfProvider'
           );
+        },
+        refetchTdexProvidersAndMarkets: async () => {
+          try {
+            await get().clearProviders();
+            await get().clearMarkets();
+            await get().fetchProviders();
+            await get().fetchMarkets();
+          } catch {
+            useToastStore.getState().addErrorToast(TDEXRegistryError);
+          }
         },
         resetTdexStore: () => set(initialState, false, 'resetTdexStore'),
       }),

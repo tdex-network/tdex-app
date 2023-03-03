@@ -29,11 +29,10 @@ import { useTradeState } from '../../components/TdexOrderInput/hooks';
 import { routerLinks } from '../../routes';
 import { SignerService } from '../../services/signerService';
 import { getTradablesAssets, makeTradeV1, makeTradeV2 } from '../../services/tdexService';
-import type { TradeOrder as TradeOrderV1 } from '../../services/tdexService/v1/tradeCore';
+import type { TDEXMarket, TDEXProvider, TradeOrder as TradeOrderV1 } from '../../services/tdexService/v1/tradeCore';
 import type { TradeOrder as TradeOrderV2 } from '../../services/tdexService/v2/tradeCore';
 import { useAppStore } from '../../store/appStore';
 import { useSettingsStore } from '../../store/settingsStore';
-import type { TDEXMarket, TDEXProvider } from '../../store/tdexStore';
 import { useTdexStore } from '../../store/tdexStore';
 import { useToastStore } from '../../store/toastStore';
 import type { CoinSelectionForTrade } from '../../store/walletStore';
@@ -61,6 +60,7 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   const [showExcludedProvidersAlert, setShowExcludedProvidersAlert] = useState(false);
   const [tradeError, setTradeError] = useState<AppError>();
 
+  console.log('markets', markets);
   const getPinModalDescription = () =>
     `Enter your secret PIN to send ${tdexOrderInputResult?.send.amount} ${tdexOrderInputResult?.send.unit} and receive ${tdexOrderInputResult?.receive.amount} ${tdexOrderInputResult?.receive.unit}.`;
 
@@ -210,10 +210,10 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
       // broadcast via liquid explorer
       let txid;
       // TODO: get daemon version
-      if (true) {
+      if (false) {
         txid = await makeTradeV1(
-          tdexOrderInputResult.order as TradeOrderV1,
-          { amount: tdexOrderInputResult.send.sats ?? 0, asset: tdexOrderInputResult.send.asset ?? '' },
+          tdexOrderInputResult?.order as TradeOrderV1,
+          { amount: tdexOrderInputResult?.send.sats ?? 0, asset: tdexOrderInputResult?.send.asset ?? '' },
           explorerLiquidAPI,
           coinSelectionForTrade,
           signer,
@@ -337,11 +337,8 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
           },
           {
             text: 'Retry',
-            handler: () => {
-              // updateMarkets();
-              //     yield* fetchMarketsAndUpdateState();
-              //     yield* updateAssetsFromMarkets();
-
+            handler: async () => {
+              // TODO: do retry
               // false then true to trigger rerender if already true
               setShowNoProvidersAvailableAlert(false);
               setShowNoProvidersAvailableAlert(true);

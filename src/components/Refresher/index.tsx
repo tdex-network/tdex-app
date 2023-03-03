@@ -1,6 +1,7 @@
 import { IonRefresher, IonRefresherContent } from '@ionic/react';
 import { chevronDownCircleOutline } from 'ionicons/icons';
 
+import { useTdexStore } from '../../store/tdexStore';
 import { useWalletStore } from '../../store/walletStore';
 
 const Refresher: React.FC<{ onRefresh?: () => void }> = ({ onRefresh }) => {
@@ -13,6 +14,7 @@ const Refresher: React.FC<{ onRefresh?: () => void }> = ({ onRefresh }) => {
       onIonRefresh={async (e) => {
         await sync();
         await subscribeAllScripts();
+        await useTdexStore.getState().fetchMarkets();
         if (onRefresh) onRefresh();
         // Another top-right spinner shows actual update state
         setTimeout(() => e.detail.complete(), 1000);

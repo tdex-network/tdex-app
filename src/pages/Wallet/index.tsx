@@ -27,7 +27,6 @@ import { useSettingsStore } from '../../store/settingsStore';
 import { useTdexStore } from '../../store/tdexStore';
 import type { Balance } from '../../store/walletStore';
 import { useWalletStore } from '../../store/walletStore';
-import { updateTdexState } from '../../utils/actions';
 import type { NetworkString } from '../../utils/constants';
 import { LBTC_ASSET, MAIN_ASSETS } from '../../utils/constants';
 import { capitalizeFirstLetter, isLbtc, isLbtcTicker } from '../../utils/helpers';
@@ -41,6 +40,9 @@ export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
   const assets = useAssetStore((state) => state.assets);
   const fetchAssetData = useAssetStore((state) => state.fetchAssetData);
   const markets = useTdexStore((state) => state.markets);
+  const fetchProviders = useTdexStore((state) => state.fetchProviders);
+  const fetchMarkets = useTdexStore((state) => state.fetchMarkets);
+  const providers = useTdexStore((state) => state.providers);
   const currency = useSettingsStore((state) => state.currency);
   const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
   const network = useSettingsStore((state) => state.network);
@@ -52,9 +54,14 @@ export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
   // Init
   useEffect(() => {
     (async () => {
-      await updateTdexState();
+      if (providers.length === 0 && markets.length === 0) {
+        await fetchProviders();
+        await fetchMarkets();
+      }
       // Add main assets to store
-      MAIN_ASSETS[network as NetworkString].forEach((asset) => addAsset(asset));
+      if (Object.keys(assets).length === 0) {
+        MAIN_ASSETS[network as NetworkString].forEach((asset) => addAsset(asset));
+      }
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

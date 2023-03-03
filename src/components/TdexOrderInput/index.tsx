@@ -4,11 +4,10 @@ import React, { useEffect } from 'react';
 
 import swap from '../../assets/img/swap.svg';
 import { getTradablesAssets } from '../../services/tdexService';
-import type { TradeOrder as TradeOrderV1 } from '../../services/tdexService/v1/tradeCore';
+import type { TDEXMarket, TradeOrder as TradeOrderV1 } from '../../services/tdexService/v1/tradeCore';
 import type { TradeOrder as TradeOrderV2 } from '../../services/tdexService/v2/tradeCore';
 import { useAssetStore } from '../../store/assetStore';
 import { useSettingsStore } from '../../store/settingsStore';
-import type { TDEXMarket } from '../../store/tdexStore';
 import { LBTC_ASSET } from '../../utils/constants';
 import { isLbtc } from '../../utils/helpers';
 import { setAccessoryBar } from '../../utils/keyboard';
