@@ -14,6 +14,7 @@ import Decimal from 'decimal.js';
 import React, { useEffect, useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import { useParams } from 'react-router';
+import { ElectrumWS } from 'ws-electrumx-client';
 
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Header from '../../components/Header';
@@ -24,7 +25,6 @@ import { IconQR } from '../../components/icons';
 import { BlinderService } from '../../services/blinderService';
 import { WsElectrumChainSource } from '../../services/chainSource';
 import { SignerService } from '../../services/signerService';
-import { ElectrumWS } from '../../services/ws/ws-electrs';
 import { useAssetStore } from '../../store/assetStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useToastStore } from '../../store/toastStore';

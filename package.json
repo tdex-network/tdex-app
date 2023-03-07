@@ -153,6 +153,7 @@
     "stream-browserify": "^3.0.0",
     "tiny-secp256k1": "^2.2.1",
     "util": "^0.12.4",
+    "ws-electrumx-client": "^1.0.0",
     "zustand": "^4.3.3"
   },
   "devDependencies": {

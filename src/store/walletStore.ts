@@ -8,11 +8,11 @@ import type { Output } from 'liquidjs-lib/src/transaction';
 import moment from 'moment';
 import { SLIP77Factory } from 'slip77';
 import * as ecc from 'tiny-secp256k1';
+import { ElectrumWS } from 'ws-electrumx-client';
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
 import { WsElectrumChainSource } from '../services/chainSource';
-import { ElectrumWS } from '../services/ws/ws-electrs';
 import { getBaseDerivationPath, LBTC_ASSET, LBTC_COINGECKOID } from '../utils/constants';
 import type { Encrypted } from '../utils/crypto';
 import { decrypt, encrypt } from '../utils/crypto';

@@ -9,6 +9,7 @@ import { confidential, script as bscript, Transaction } from 'liquidjs-lib';
 import { getNetwork } from 'liquidjs-lib/src/address';
 import ElementsPegin from 'pegin';
 import * as ecc from 'tiny-secp256k1';
+import { ElectrumWS } from 'ws-electrumx-client';
 
 import type { DepositPeginUtxo, Pegins } from '../store/bitcoinStore';
 import { useSettingsStore } from '../store/settingsStore';
@@ -18,7 +19,6 @@ import { getFedPegScript, LBTC_ASSET } from '../utils/constants';
 import { decrypt } from '../utils/crypto';
 
 import { WsElectrumChainSource } from './chainSource';
-import { ElectrumWS } from './ws/ws-electrs';
 
 const bip32 = BIP32Factory(ecc);
 

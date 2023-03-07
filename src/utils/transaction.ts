@@ -3,9 +3,9 @@ import { Pset, address, Creator, networks, payments, Transaction, Updater } from
 import { getScriptType, ScriptType } from 'liquidjs-lib/src/address';
 import { varSliceSize, varuint } from 'liquidjs-lib/src/bufferutils';
 import { Psbt } from 'liquidjs-lib/src/psbt';
+import { ElectrumWS } from 'ws-electrumx-client';
 
 import { WsElectrumChainSource } from '../services/chainSource';
-import { ElectrumWS } from '../services/ws/ws-electrs';
 import { useSettingsStore } from '../store/settingsStore';
 import type { Recipient, TxHeuristic } from '../store/walletStore';
 import { useWalletStore } from '../store/walletStore';
