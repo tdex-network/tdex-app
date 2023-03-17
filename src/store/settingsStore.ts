@@ -52,7 +52,7 @@ const initialState: SettingsState = {
   explorerLiquidUI: config.explorers.explorerLiquidUI,
   electrsBatchAPI: config.explorers.electrsBatchAPI,
   network: config.explorers.chain,
-  torProxy: 'https://proxy.tdex.network',
+  torProxy: config.torProxy,
   websocketExplorerURL: config.explorers.websocketExplorerURL,
 };
 

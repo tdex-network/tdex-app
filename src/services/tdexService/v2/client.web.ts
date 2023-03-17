@@ -6,18 +6,17 @@ import * as messages from '../../../api-spec/protobuf/gen/js/tdex/v2/trade_pb';
 import * as services from '../../../api-spec/protobuf/gen/js/tdex/v2/trade_pb.client';
 import * as types from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import type { Balance, TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
+import { config } from '../../../store/config';
 import { getClearTextTorProxyUrl } from '../index';
 
 import type TraderClientInterface from './clientInterface';
-
-const DEFAULT_TOR_PROXY = 'https://torproxy.tdex.network';
 
 export class TraderClient implements TraderClientInterface {
   providerUrl: string;
   client: services.ITradeServiceClient;
   clientType: string = Tdexv2ContentType.CONTENT_TYPE_GRPCWEBTEXT;
 
-  constructor(providerUrl: string, torProxyEndpoint: string = DEFAULT_TOR_PROXY) {
+  constructor(providerUrl: string, torProxyEndpoint: string = config.torProxy) {
     this.providerUrl = providerUrl;
     const url = new URL(providerUrl);
 

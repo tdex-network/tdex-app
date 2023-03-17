@@ -73,7 +73,7 @@ class UnblindedInput$Type extends MessageType {
                 case /* string asset */ 2:
                     message.asset = reader.string();
                     break;
-                case /* uint64 amount */ 3:
+                case /* uint64 amount = 3 [jstype = JS_STRING];*/ 3:
                     message.amount = reader.uint64().toString();
                     break;
                 case /* string asset_blinder */ 4:
@@ -100,7 +100,7 @@ class UnblindedInput$Type extends MessageType {
         /* string asset = 2; */
         if (message.asset !== "")
             writer.tag(2, WireType.LengthDelimited).string(message.asset);
-        /* uint64 amount = 3; */
+        /* uint64 amount = 3 [jstype = JS_STRING]; */
         if (message.amount !== "0")
             writer.tag(3, WireType.Varint).uint64(message.amount);
         /* string asset_blinder = 4; */
@@ -193,10 +193,10 @@ class MarketFee$Type extends MessageType {
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
-                case /* int64 base_asset */ 1:
+                case /* int64 base_asset = 1 [jstype = JS_STRING];*/ 1:
                     message.baseAsset = reader.int64().toString();
                     break;
-                case /* int64 quote_asset */ 2:
+                case /* int64 quote_asset = 2 [jstype = JS_STRING];*/ 2:
                     message.quoteAsset = reader.int64().toString();
                     break;
                 default:
@@ -211,10 +211,10 @@ class MarketFee$Type extends MessageType {
         return message;
     }
     internalBinaryWrite(message, writer, options) {
-        /* int64 base_asset = 1; */
+        /* int64 base_asset = 1 [jstype = JS_STRING]; */
         if (message.baseAsset !== "0")
             writer.tag(1, WireType.Varint).int64(message.baseAsset);
-        /* int64 quote_asset = 2; */
+        /* int64 quote_asset = 2 [jstype = JS_STRING]; */
         if (message.quoteAsset !== "0")
             writer.tag(2, WireType.Varint).int64(message.quoteAsset);
         let u = options.writeUnknownFields;
@@ -247,10 +247,10 @@ class Balance$Type extends MessageType {
         while (reader.pos < end) {
             let [fieldNo, wireType] = reader.tag();
             switch (fieldNo) {
-                case /* uint64 base_amount */ 1:
+                case /* uint64 base_amount = 1 [jstype = JS_STRING];*/ 1:
                     message.baseAmount = reader.uint64().toString();
                     break;
-                case /* uint64 quote_amount */ 2:
+                case /* uint64 quote_amount = 2 [jstype = JS_STRING];*/ 2:
                     message.quoteAmount = reader.uint64().toString();
                     break;
                 default:
@@ -265,10 +265,10 @@ class Balance$Type extends MessageType {
         return message;
     }
     internalBinaryWrite(message, writer, options) {
-        /* uint64 base_amount = 1; */
+        /* uint64 base_amount = 1 [jstype = JS_STRING]; */
         if (message.baseAmount !== "0")
             writer.tag(1, WireType.Varint).uint64(message.baseAmount);
-        /* uint64 quote_amount = 2; */
+        /* uint64 quote_amount = 2 [jstype = JS_STRING]; */
         if (message.quoteAmount !== "0")
             writer.tag(2, WireType.Varint).uint64(message.quoteAmount);
         let u = options.writeUnknownFields;
@@ -473,13 +473,13 @@ class Preview$Type extends MessageType {
                 case /* tdex.v2.Fee fee */ 2:
                     message.fee = Fee.internalBinaryRead(reader, reader.uint32(), options, message.fee);
                     break;
-                case /* uint64 amount */ 3:
+                case /* uint64 amount = 3 [jstype = JS_STRING];*/ 3:
                     message.amount = reader.uint64().toString();
                     break;
                 case /* string asset */ 4:
                     message.asset = reader.string();
                     break;
-                case /* uint64 fee_amount */ 5:
+                case /* uint64 fee_amount = 5 [jstype = JS_STRING];*/ 5:
                     message.feeAmount = reader.uint64().toString();
                     break;
                 case /* string fee_asset */ 6:
@@ -503,13 +503,13 @@ class Preview$Type extends MessageType {
         /* tdex.v2.Fee fee = 2; */
         if (message.fee)
             Fee.internalBinaryWrite(message.fee, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
-        /* uint64 amount = 3; */
+        /* uint64 amount = 3 [jstype = JS_STRING]; */
         if (message.amount !== "0")
             writer.tag(3, WireType.Varint).uint64(message.amount);
         /* string asset = 4; */
         if (message.asset !== "")
             writer.tag(4, WireType.LengthDelimited).string(message.asset);
-        /* uint64 fee_amount = 5; */
+        /* uint64 fee_amount = 5 [jstype = JS_STRING]; */
         if (message.feeAmount !== "0")
             writer.tag(5, WireType.Varint).uint64(message.feeAmount);
         /* string fee_asset = 6; */

@@ -2,6 +2,7 @@ import axios from 'axios';
 
 import { TradeType as TradeTypeV1 } from '../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
 import { TradeType as TradeTypeV2 } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
+import { config } from '../../store/config';
 import type { CoinSelectionForTrade, ScriptDetails } from '../../store/walletStore';
 import type { NetworkString } from '../../utils/constants';
 import { AppError, NoMarketsAvailableForSelectedPairError } from '../../utils/errors';
@@ -41,10 +42,7 @@ const TDexRegistryTestnet = 'https://raw.githubusercontent.com/tdex-network/tdex
 
 // Protos v1
 
-export async function getMarketsFromProviderV1(
-  p: TDEXProvider,
-  torProxy = 'https://proxy.tdex.network'
-): Promise<TDEXMarket[]> {
+export async function getMarketsFromProviderV1(p: TDEXProvider, torProxy = config.torProxy): Promise<TDEXMarket[]> {
   const client = new TraderClientV1(p.endpoint, torProxy);
   const markets: MarketInterfaceV1[] = await client.markets();
   const results: TDEXMarket[] = [];
@@ -80,7 +78,7 @@ function createTradeFromTradeOrderV1(
   signer: SignerInterface,
   masterBlindingKey: string,
   network: NetworkString,
-  torProxy = 'https://proxy.tdex.network'
+  torProxy = config.torProxy
 ): TradeV1 {
   return new TradeV1(
     {
@@ -228,10 +226,7 @@ export async function marketPriceRequestV1(
 
 // Protos v2
 
-export async function getMarketsFromProviderV2(
-  p: TDEXProvider,
-  torProxy = 'https://proxy.tdex.network'
-): Promise<TDEXMarket[]> {
+export async function getMarketsFromProviderV2(p: TDEXProvider, torProxy = config.torProxy): Promise<TDEXMarket[]> {
   const client = new TraderClientV2(p.endpoint, torProxy);
   const markets: MarketInterfaceV2[] = await client.markets();
   const results: TDEXMarket[] = [];
@@ -247,7 +242,7 @@ export async function getMarketsFromProviderV2(
   return results;
 }
 
-export function createTraderClientV2(endpoint: string, proxy = 'https://proxy.tdex.network'): TraderClientV2 {
+export function createTraderClientV2(endpoint: string, proxy = config.torProxy): TraderClientV2 {
   return new TraderClientV2(endpoint, proxy);
 }
 
@@ -267,7 +262,7 @@ function createTradeFromTradeOrderV2(
   signer: SignerInterface,
   masterBlindingKey: string,
   network: NetworkString,
-  torProxy = 'https://proxy.tdex.network'
+  torProxy = config.torProxy
 ): TradeV2 {
   return new TradeV2(
     {

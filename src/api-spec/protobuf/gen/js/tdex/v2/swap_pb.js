@@ -39,13 +39,13 @@ class SwapRequest$Type extends MessageType {
                 case /* string id */ 1:
                     message.id = reader.string();
                     break;
-                case /* uint64 amount_p */ 2:
+                case /* uint64 amount_p = 2 [jstype = JS_STRING];*/ 2:
                     message.amountP = reader.uint64().toString();
                     break;
                 case /* string asset_p */ 3:
                     message.assetP = reader.string();
                     break;
-                case /* uint64 amount_r */ 4:
+                case /* uint64 amount_r = 4 [jstype = JS_STRING];*/ 4:
                     message.amountR = reader.uint64().toString();
                     break;
                 case /* string asset_r */ 5:
@@ -54,7 +54,7 @@ class SwapRequest$Type extends MessageType {
                 case /* string transaction */ 6:
                     message.transaction = reader.string();
                     break;
-                case /* uint64 fee_amount */ 7:
+                case /* uint64 fee_amount = 7 [jstype = JS_STRING];*/ 7:
                     message.feeAmount = reader.uint64().toString();
                     break;
                 case /* string fee_asset */ 8:
@@ -78,13 +78,13 @@ class SwapRequest$Type extends MessageType {
         /* string id = 1; */
         if (message.id !== "")
             writer.tag(1, WireType.LengthDelimited).string(message.id);
-        /* uint64 amount_p = 2; */
+        /* uint64 amount_p = 2 [jstype = JS_STRING]; */
         if (message.amountP !== "0")
             writer.tag(2, WireType.Varint).uint64(message.amountP);
         /* string asset_p = 3; */
         if (message.assetP !== "")
             writer.tag(3, WireType.LengthDelimited).string(message.assetP);
-        /* uint64 amount_r = 4; */
+        /* uint64 amount_r = 4 [jstype = JS_STRING]; */
         if (message.amountR !== "0")
             writer.tag(4, WireType.Varint).uint64(message.amountR);
         /* string asset_r = 5; */
@@ -93,7 +93,7 @@ class SwapRequest$Type extends MessageType {
         /* string transaction = 6; */
         if (message.transaction !== "")
             writer.tag(6, WireType.LengthDelimited).string(message.transaction);
-        /* uint64 fee_amount = 7; */
+        /* uint64 fee_amount = 7 [jstype = JS_STRING]; */
         if (message.feeAmount !== "0")
             writer.tag(7, WireType.Varint).uint64(message.feeAmount);
         /* string fee_asset = 8; */

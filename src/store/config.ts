@@ -18,6 +18,7 @@ let config: {
     name: string;
     endpoint: string;
   };
+  torProxy: string;
 };
 
 const blockstreamExplorerEndpoints = {
@@ -78,6 +79,7 @@ const configProduction: typeof config = {
     name: 'Default provider',
     endpoint: defaultProviderEndpoints.liquid,
   },
+  torProxy: 'https://proxy.tdex.network',
 };
 
 const configTestnet: typeof config = {
@@ -94,6 +96,7 @@ const configTestnet: typeof config = {
     name: 'Default provider',
     endpoint: defaultProviderEndpoints.testnet,
   },
+  torProxy: 'https://proxy.tdex.network',
 };
 
 const configRegtest: typeof config = {
@@ -110,6 +113,7 @@ const configRegtest: typeof config = {
     name: 'Default provider',
     endpoint: defaultProviderEndpoints.regtest,
   },
+  torProxy: 'https://proxy.tdex.network',
 };
 
 if (process.env.NODE_ENV === 'production') {

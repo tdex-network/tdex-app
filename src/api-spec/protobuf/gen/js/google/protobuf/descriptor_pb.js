@@ -253,6 +253,79 @@ export var FieldOptions_JSType;
     FieldOptions_JSType[FieldOptions_JSType["JS_NUMBER"] = 2] = "JS_NUMBER";
 })(FieldOptions_JSType || (FieldOptions_JSType = {}));
 /**
+ * If set to RETENTION_SOURCE, the option will be omitted from the binary.
+ * Note: as of January 2023, support for this is in progress and does not yet
+ * have an effect (b/264593489).
+ *
+ * @generated from protobuf enum google.protobuf.FieldOptions.OptionRetention
+ */
+export var FieldOptions_OptionRetention;
+(function (FieldOptions_OptionRetention) {
+    /**
+     * @generated from protobuf enum value: RETENTION_UNKNOWN = 0;
+     */
+    FieldOptions_OptionRetention[FieldOptions_OptionRetention["RETENTION_UNKNOWN"] = 0] = "RETENTION_UNKNOWN";
+    /**
+     * @generated from protobuf enum value: RETENTION_RUNTIME = 1;
+     */
+    FieldOptions_OptionRetention[FieldOptions_OptionRetention["RETENTION_RUNTIME"] = 1] = "RETENTION_RUNTIME";
+    /**
+     * @generated from protobuf enum value: RETENTION_SOURCE = 2;
+     */
+    FieldOptions_OptionRetention[FieldOptions_OptionRetention["RETENTION_SOURCE"] = 2] = "RETENTION_SOURCE";
+})(FieldOptions_OptionRetention || (FieldOptions_OptionRetention = {}));
+/**
+ * This indicates the types of entities that the field may apply to when used
+ * as an option. If it is unset, then the field may be freely used as an
+ * option on any kind of entity. Note: as of January 2023, support for this is
+ * in progress and does not yet have an effect (b/264593489).
+ *
+ * @generated from protobuf enum google.protobuf.FieldOptions.OptionTargetType
+ */
+export var FieldOptions_OptionTargetType;
+(function (FieldOptions_OptionTargetType) {
+    /**
+     * @generated from protobuf enum value: TARGET_TYPE_UNKNOWN = 0;
+     */
+    FieldOptions_OptionTargetType[FieldOptions_OptionTargetType["TARGET_TYPE_UNKNOWN"] = 0] = "TARGET_TYPE_UNKNOWN";
+    /**
+     * @generated from protobuf enum value: TARGET_TYPE_FILE = 1;
+     */
+    FieldOptions_OptionTargetType[FieldOptions_OptionTargetType["TARGET_TYPE_FILE"] = 1] = "TARGET_TYPE_FILE";
+    /**
+     * @generated from protobuf enum value: TARGET_TYPE_EXTENSION_RANGE = 2;
+     */
+    FieldOptions_OptionTargetType[FieldOptions_OptionTargetType["TARGET_TYPE_EXTENSION_RANGE"] = 2] = "TARGET_TYPE_EXTENSION_RANGE";
+    /**
+     * @generated from protobuf enum value: TARGET_TYPE_MESSAGE = 3;
+     */
+    FieldOptions_OptionTargetType[FieldOptions_OptionTargetType["TARGET_TYPE_MESSAGE"] = 3] = "TARGET_TYPE_MESSAGE";
+    /**
+     * @generated from protobuf enum value: TARGET_TYPE_FIELD = 4;
+     */
+    FieldOptions_OptionTargetType[FieldOptions_OptionTargetType["TARGET_TYPE_FIELD"] = 4] = "TARGET_TYPE_FIELD";
+    /**
+     * @generated from protobuf enum value: TARGET_TYPE_ONEOF = 5;
+     */
+    FieldOptions_OptionTargetType[FieldOptions_OptionTargetType["TARGET_TYPE_ONEOF"] = 5] = "TARGET_TYPE_ONEOF";
+    /**
+     * @generated from protobuf enum value: TARGET_TYPE_ENUM = 6;
+     */
+    FieldOptions_OptionTargetType[FieldOptions_OptionTargetType["TARGET_TYPE_ENUM"] = 6] = "TARGET_TYPE_ENUM";
+    /**
+     * @generated from protobuf enum value: TARGET_TYPE_ENUM_ENTRY = 7;
+     */
+    FieldOptions_OptionTargetType[FieldOptions_OptionTargetType["TARGET_TYPE_ENUM_ENTRY"] = 7] = "TARGET_TYPE_ENUM_ENTRY";
+    /**
+     * @generated from protobuf enum value: TARGET_TYPE_SERVICE = 8;
+     */
+    FieldOptions_OptionTargetType[FieldOptions_OptionTargetType["TARGET_TYPE_SERVICE"] = 8] = "TARGET_TYPE_SERVICE";
+    /**
+     * @generated from protobuf enum value: TARGET_TYPE_METHOD = 9;
+     */
+    FieldOptions_OptionTargetType[FieldOptions_OptionTargetType["TARGET_TYPE_METHOD"] = 9] = "TARGET_TYPE_METHOD";
+})(FieldOptions_OptionTargetType || (FieldOptions_OptionTargetType = {}));
+/**
  * Is this method side-effect-free (or safe in HTTP parlance), or idempotent,
  * or neither? HTTP based RPC implementation may choose GET verb for safe
  * methods, and PUT verb for idempotent methods instead of the default POST.
@@ -278,6 +351,33 @@ export var MethodOptions_IdempotencyLevel;
      */
     MethodOptions_IdempotencyLevel[MethodOptions_IdempotencyLevel["IDEMPOTENT"] = 2] = "IDEMPOTENT";
 })(MethodOptions_IdempotencyLevel || (MethodOptions_IdempotencyLevel = {}));
+/**
+ * Represents the identified object's effect on the element in the original
+ * .proto file.
+ *
+ * @generated from protobuf enum google.protobuf.GeneratedCodeInfo.Annotation.Semantic
+ */
+export var GeneratedCodeInfo_Annotation_Semantic;
+(function (GeneratedCodeInfo_Annotation_Semantic) {
+    /**
+     * There is no effect or the effect is indescribable.
+     *
+     * @generated from protobuf enum value: NONE = 0;
+     */
+    GeneratedCodeInfo_Annotation_Semantic[GeneratedCodeInfo_Annotation_Semantic["NONE"] = 0] = "NONE";
+    /**
+     * The element is set or otherwise mutated.
+     *
+     * @generated from protobuf enum value: SET = 1;
+     */
+    GeneratedCodeInfo_Annotation_Semantic[GeneratedCodeInfo_Annotation_Semantic["SET"] = 1] = "SET";
+    /**
+     * An alias to the element is returned.
+     *
+     * @generated from protobuf enum value: ALIAS = 2;
+     */
+    GeneratedCodeInfo_Annotation_Semantic[GeneratedCodeInfo_Annotation_Semantic["ALIAS"] = 2] = "ALIAS";
+})(GeneratedCodeInfo_Annotation_Semantic || (GeneratedCodeInfo_Annotation_Semantic = {}));
 // @generated message type with reflection information, may provide speed optimized methods
 class FileDescriptorSet$Type extends MessageType {
     constructor() {
@@ -340,7 +440,8 @@ class FileDescriptorProto$Type extends MessageType {
             { no: 7, name: "extension", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => FieldDescriptorProto },
             { no: 8, name: "options", kind: "message", T: () => FileOptions },
             { no: 9, name: "source_code_info", kind: "message", T: () => SourceCodeInfo },
-            { no: 12, name: "syntax", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
+            { no: 12, name: "syntax", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
+            { no: 13, name: "edition", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ }
         ]);
     }
     create(value) {
@@ -399,6 +500,9 @@ class FileDescriptorProto$Type extends MessageType {
                 case /* optional string syntax */ 12:
                     message.syntax = reader.string();
                     break;
+                case /* optional string edition */ 13:
+                    message.edition = reader.string();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -447,6 +551,9 @@ class FileDescriptorProto$Type extends MessageType {
         /* optional string syntax = 12; */
         if (message.syntax !== undefined)
             writer.tag(12, WireType.LengthDelimited).string(message.syntax);
+        /* optional string edition = 13; */
+        if (message.edition !== undefined)
+            writer.tag(13, WireType.LengthDelimited).string(message.edition);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -1428,6 +1535,7 @@ class MessageOptions$Type extends MessageType {
             { no: 2, name: "no_standard_descriptor_accessor", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
             { no: 3, name: "deprecated", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
             { no: 7, name: "map_entry", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
+            { no: 11, name: "deprecated_legacy_json_field_conflicts", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
             { no: 999, name: "uninterpreted_option", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => UninterpretedOption }
         ]);
     }
@@ -1454,6 +1562,9 @@ class MessageOptions$Type extends MessageType {
                     break;
                 case /* optional bool map_entry */ 7:
                     message.mapEntry = reader.bool();
+                    break;
+                case /* optional bool deprecated_legacy_json_field_conflicts = 11 [deprecated = true];*/ 11:
+                    message.deprecatedLegacyJsonFieldConflicts = reader.bool();
                     break;
                 case /* repeated google.protobuf.UninterpretedOption uninterpreted_option */ 999:
                     message.uninterpretedOption.push(UninterpretedOption.internalBinaryRead(reader, reader.uint32(), options));
@@ -1482,6 +1593,9 @@ class MessageOptions$Type extends MessageType {
         /* optional bool map_entry = 7; */
         if (message.mapEntry !== undefined)
             writer.tag(7, WireType.Varint).bool(message.mapEntry);
+        /* optional bool deprecated_legacy_json_field_conflicts = 11 [deprecated = true]; */
+        if (message.deprecatedLegacyJsonFieldConflicts !== undefined)
+            writer.tag(11, WireType.Varint).bool(message.deprecatedLegacyJsonFieldConflicts);
         /* repeated google.protobuf.UninterpretedOption uninterpreted_option = 999; */
         for (let i = 0; i < message.uninterpretedOption.length; i++)
             UninterpretedOption.internalBinaryWrite(message.uninterpretedOption[i], writer.tag(999, WireType.LengthDelimited).fork(), options).join();
@@ -1506,6 +1620,9 @@ class FieldOptions$Type extends MessageType {
             { no: 15, name: "unverified_lazy", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
             { no: 3, name: "deprecated", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
             { no: 10, name: "weak", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
+            { no: 16, name: "debug_redact", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
+            { no: 17, name: "retention", kind: "enum", opt: true, T: () => ["google.protobuf.FieldOptions.OptionRetention", FieldOptions_OptionRetention] },
+            { no: 18, name: "target", kind: "enum", opt: true, T: () => ["google.protobuf.FieldOptions.OptionTargetType", FieldOptions_OptionTargetType] },
             { no: 999, name: "uninterpreted_option", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => UninterpretedOption }
         ]);
     }
@@ -1541,6 +1658,15 @@ class FieldOptions$Type extends MessageType {
                     break;
                 case /* optional bool weak */ 10:
                     message.weak = reader.bool();
+                    break;
+                case /* optional bool debug_redact */ 16:
+                    message.debugRedact = reader.bool();
+                    break;
+                case /* optional google.protobuf.FieldOptions.OptionRetention retention */ 17:
+                    message.retention = reader.int32();
+                    break;
+                case /* optional google.protobuf.FieldOptions.OptionTargetType target */ 18:
+                    message.target = reader.int32();
                     break;
                 case /* repeated google.protobuf.UninterpretedOption uninterpreted_option */ 999:
                     message.uninterpretedOption.push(UninterpretedOption.internalBinaryRead(reader, reader.uint32(), options));
@@ -1578,6 +1704,15 @@ class FieldOptions$Type extends MessageType {
         /* optional bool weak = 10; */
         if (message.weak !== undefined)
             writer.tag(10, WireType.Varint).bool(message.weak);
+        /* optional bool debug_redact = 16; */
+        if (message.debugRedact !== undefined)
+            writer.tag(16, WireType.Varint).bool(message.debugRedact);
+        /* optional google.protobuf.FieldOptions.OptionRetention retention = 17; */
+        if (message.retention !== undefined)
+            writer.tag(17, WireType.Varint).int32(message.retention);
+        /* optional google.protobuf.FieldOptions.OptionTargetType target = 18; */
+        if (message.target !== undefined)
+            writer.tag(18, WireType.Varint).int32(message.target);
         /* repeated google.protobuf.UninterpretedOption uninterpreted_option = 999; */
         for (let i = 0; i < message.uninterpretedOption.length; i++)
             UninterpretedOption.internalBinaryWrite(message.uninterpretedOption[i], writer.tag(999, WireType.LengthDelimited).fork(), options).join();
@@ -1644,6 +1779,7 @@ class EnumOptions$Type extends MessageType {
         super("google.protobuf.EnumOptions", [
             { no: 2, name: "allow_alias", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
             { no: 3, name: "deprecated", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
+            { no: 6, name: "deprecated_legacy_json_field_conflicts", kind: "scalar", opt: true, T: 8 /*ScalarType.BOOL*/ },
             { no: 999, name: "uninterpreted_option", kind: "message", repeat: 2 /*RepeatType.UNPACKED*/, T: () => UninterpretedOption }
         ]);
     }
@@ -1664,6 +1800,9 @@ class EnumOptions$Type extends MessageType {
                     break;
                 case /* optional bool deprecated */ 3:
                     message.deprecated = reader.bool();
+                    break;
+                case /* optional bool deprecated_legacy_json_field_conflicts = 6 [deprecated = true];*/ 6:
+                    message.deprecatedLegacyJsonFieldConflicts = reader.bool();
                     break;
                 case /* repeated google.protobuf.UninterpretedOption uninterpreted_option */ 999:
                     message.uninterpretedOption.push(UninterpretedOption.internalBinaryRead(reader, reader.uint32(), options));
@@ -1686,6 +1825,9 @@ class EnumOptions$Type extends MessageType {
         /* optional bool deprecated = 3; */
         if (message.deprecated !== undefined)
             writer.tag(3, WireType.Varint).bool(message.deprecated);
+        /* optional bool deprecated_legacy_json_field_conflicts = 6 [deprecated = true]; */
+        if (message.deprecatedLegacyJsonFieldConflicts !== undefined)
+            writer.tag(6, WireType.Varint).bool(message.deprecatedLegacyJsonFieldConflicts);
         /* repeated google.protobuf.UninterpretedOption uninterpreted_option = 999; */
         for (let i = 0; i < message.uninterpretedOption.length; i++)
             UninterpretedOption.internalBinaryWrite(message.uninterpretedOption[i], writer.tag(999, WireType.LengthDelimited).fork(), options).join();
@@ -2203,7 +2345,8 @@ class GeneratedCodeInfo_Annotation$Type extends MessageType {
             { no: 1, name: "path", kind: "scalar", repeat: 1 /*RepeatType.PACKED*/, T: 5 /*ScalarType.INT32*/ },
             { no: 2, name: "source_file", kind: "scalar", opt: true, T: 9 /*ScalarType.STRING*/ },
             { no: 3, name: "begin", kind: "scalar", opt: true, T: 5 /*ScalarType.INT32*/ },
-            { no: 4, name: "end", kind: "scalar", opt: true, T: 5 /*ScalarType.INT32*/ }
+            { no: 4, name: "end", kind: "scalar", opt: true, T: 5 /*ScalarType.INT32*/ },
+            { no: 5, name: "semantic", kind: "enum", opt: true, T: () => ["google.protobuf.GeneratedCodeInfo.Annotation.Semantic", GeneratedCodeInfo_Annotation_Semantic] }
         ]);
     }
     create(value) {
@@ -2234,6 +2377,9 @@ class GeneratedCodeInfo_Annotation$Type extends MessageType {
                 case /* optional int32 end */ 4:
                     message.end = reader.int32();
                     break;
+                case /* optional google.protobuf.GeneratedCodeInfo.Annotation.Semantic semantic */ 5:
+                    message.semantic = reader.int32();
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -2262,6 +2408,9 @@ class GeneratedCodeInfo_Annotation$Type extends MessageType {
         /* optional int32 end = 4; */
         if (message.end !== undefined)
             writer.tag(4, WireType.Varint).int32(message.end);
+        /* optional google.protobuf.GeneratedCodeInfo.Annotation.Semantic semantic = 5; */
+        if (message.semantic !== undefined)
+            writer.tag(5, WireType.Varint).int32(message.semantic);
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
