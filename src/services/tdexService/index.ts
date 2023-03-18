@@ -44,15 +44,16 @@ const TDexRegistryTestnet = 'https://raw.githubusercontent.com/tdex-network/tdex
 
 export async function getMarketsFromProviderV1(p: TDEXProvider, torProxy = config.torProxy): Promise<TDEXMarket[]> {
   const client = new TraderClientV1(p.endpoint, torProxy);
-  const markets: MarketInterfaceV1[] = await client.markets();
+  const markets = await client.markets();
   const results: TDEXMarket[] = [];
-  for (const market of markets) {
-    const balance = (await client.balance(market)).balance;
+  for (const { market, fee } of markets) {
+    if (!market) continue;
+    const balance = (await client.balance(market))?.balance;
     results.push({
-      ...market,
       provider: p,
-      baseAmount: balance?.baseAmount,
-      quoteAmount: balance?.quoteAmount,
+      ...market,
+      ...balance,
+      ...fee,
     });
   }
   return results;
@@ -228,15 +229,16 @@ export async function marketPriceRequestV1(
 
 export async function getMarketsFromProviderV2(p: TDEXProvider, torProxy = config.torProxy): Promise<TDEXMarket[]> {
   const client = new TraderClientV2(p.endpoint, torProxy);
-  const markets: MarketInterfaceV2[] = await client.markets();
+  const markets = await client.markets();
   const results: TDEXMarket[] = [];
-  for (const market of markets) {
+  for (const { market, fee } of markets) {
+    if (!market) continue;
     const balance = await client.balance(market);
     results.push({
-      ...market,
       provider: p,
-      baseAmount: balance?.baseAmount,
-      quoteAmount: balance?.quoteAmount,
+      ...market,
+      ...balance,
+      ...fee,
     });
   }
   return results;

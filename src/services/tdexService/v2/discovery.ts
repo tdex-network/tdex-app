@@ -37,7 +37,7 @@ export const bestBalanceDiscovery: Discovery = async (
 ) => {
   const balancesPromises = orders.map((order) => {
     const { traderClient, market, type } = order;
-    return traderClient.balance(market).then((balance: Balance) => {
+    return traderClient.balance(market).then((balance) => {
       if (!balance)
         throw new Error(
           `no balances for market ${market.baseAsset}/${market.quoteAsset} using provider: ${traderClient.providerUrl}`

@@ -3,6 +3,7 @@ import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
 import { Tdexv1ContentType } from '../../../api-spec/openapi/swagger/v1/transport/data-contracts';
 import { SwapAccept, SwapComplete, SwapRequest } from '../../../api-spec/protobuf/gen/js/tdex/v1/swap_pb';
 import * as messages from '../../../api-spec/protobuf/gen/js/tdex/v1/trade_pb';
+import type { GetMarketBalanceResponse, ListMarketsResponse } from '../../../api-spec/protobuf/gen/js/tdex/v1/trade_pb';
 import * as services from '../../../api-spec/protobuf/gen/js/tdex/v1/trade_pb.client';
 import * as types from '../../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
 import type { TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
@@ -80,13 +81,9 @@ export class TraderClient implements TraderClientInterface {
     return call.response.txid;
   }
 
-  async markets(): Promise<{ baseAsset: string; quoteAsset: string; feeBasisPoint: number }[]> {
+  async markets(): Promise<ListMarketsResponse['markets']> {
     const call = await this.client.listMarkets(messages.ListMarketsRequest.create());
-    return call.response!.markets.map((mktWithFee: types.MarketWithFee) => ({
-      baseAsset: mktWithFee!.market!.baseAsset,
-      quoteAsset: mktWithFee!.market!.quoteAsset,
-      feeBasisPoint: Number(mktWithFee!.fee!.basisPoint),
-    }));
+    return call.response.markets;
   }
 
   async marketPrice(
@@ -106,10 +103,10 @@ export class TraderClient implements TraderClientInterface {
     return call.response!.previews.map((preview: types.Preview) => preview);
   }
 
-  async balance({ baseAsset, quoteAsset }: types.Market): Promise<types.BalanceWithFee> {
+  async balance({ baseAsset, quoteAsset }: types.Market): Promise<GetMarketBalanceResponse['balance']> {
     const market = types.Market.create({ baseAsset, quoteAsset });
     const request = messages.GetMarketBalanceRequest.create({ market });
     const call = await this.client.getMarketBalance(request);
-    return call.response.balance!;
+    return call.response.balance;
   }
 }
