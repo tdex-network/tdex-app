@@ -15,6 +15,7 @@ import PinSetting from './pages/PinSetting';
 import { RestoreWallet } from './pages/RestoreWallet';
 import { ShowMnemonicOnboarding } from './pages/ShowMnemonic/ShowMnemonicOnboarding';
 import Tabs from './pages/Tabs';
+import { ReflectionService } from './services/reflection/reflection';
 import { useAppStore } from './store/appStore';
 import { useWalletStore } from './store/walletStore';
 
@@ -28,6 +29,14 @@ export const App: React.FC = () => {
   const unlockOutpoints = useWalletStore((state) => state.unlockOutpoints);
   //
   const appState = useAppState();
+
+  // TODO: wip
+  useEffect(() => {
+    const reflectionClient = new ReflectionService('https://v1.provider.tdex.network');
+    reflectionClient.getInfo().then((res: any) => {
+      console.log(res);
+    });
+  }, []);
 
   useEffect(() => {
     if (!appState.state) {
