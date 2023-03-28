@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
@@ -24,6 +25,7 @@ export interface TdexActions {
   clearMarkets: () => void;
   clearProviders: () => void;
   deleteProvider: (provider: TDEXProvider) => void;
+  getProtoVersion: (providerEndpoint: string) => Promise<'v1' | 'v2'>;
   fetchMarkets: () => Promise<void>;
   fetchProviders: () => Promise<void>;
   refetchTdexProvidersAndMarkets: () => Promise<void>;
@@ -65,12 +67,19 @@ export const useTdexStore = create<TdexState & TdexActions>()(
             'deleteProvider'
           );
         },
+        getProtoVersion: async (providerEndpoint) => {
+          const res = await axios.post(providerEndpoint, { list_services: '' });
+          const isVersion2 = res.data.result.listServicesResponse.service
+            .map((s: any) => s.name)
+            .includes('tdex.v2.TransportService');
+          return isVersion2 ? 'v2' : 'v1';
+        },
         fetchMarkets: async () => {
           const torProxy = useSettingsStore.getState().torProxy;
           let allMarkets;
           let marketsToAdd: TDEXMarket[];
-          // TODO: get daemon version
-          if (false) {
+          const version = await get().getProtoVersion('https://v1.provider.tdex.network/v1/info');
+          if (version === 'v1') {
             allMarkets = await Promise.allSettled(get().providers.map((p) => getMarketsFromProviderV1(p, torProxy)));
           } else {
             allMarkets = await Promise.allSettled(get().providers.map((p) => getMarketsFromProviderV2(p, torProxy)));

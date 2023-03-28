@@ -49,6 +49,7 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   const explorerLiquidAPI = useSettingsStore((state) => state.explorerLiquidAPI);
   const network = useSettingsStore((state) => state.network);
   const torProxy = useSettingsStore((state) => state.torProxy);
+  const getProtoVersion = useTdexStore((state) => state.getProtoVersion);
   const markets = useTdexStore((state) => state.markets);
   const providers = useTdexStore((state) => state.providers);
   const addErrorToast = useToastStore((state) => state.addErrorToast);
@@ -209,8 +210,13 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
       // propose and complete tdex trade
       // broadcast via liquid explorer
       let txid;
-      // TODO: get daemon version
-      if (false) {
+      // TODO: check
+      console.log(
+        'tdexOrderInputResult.order.traderClient.providerUrl',
+        tdexOrderInputResult.order.traderClient.providerUrl
+      );
+      const version = await getProtoVersion(tdexOrderInputResult.order.traderClient.providerUrl);
+      if (version === 'v1') {
         txid = await makeTradeV1(
           tdexOrderInputResult?.order as TradeOrderV1,
           { amount: tdexOrderInputResult?.send.sats ?? 0, asset: tdexOrderInputResult?.send.asset ?? '' },
