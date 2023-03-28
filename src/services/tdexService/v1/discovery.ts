@@ -1,4 +1,3 @@
-import type { BalanceWithFee } from '../../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
 import { TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
 
 import type { TradeOrder } from './tradeCore';

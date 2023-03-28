@@ -19,12 +19,7 @@ import {
 } from './v1/discovery';
 import type { Discovery as DiscoveryV1 } from './v1/discovery';
 import { Trade as TradeV1 } from './v1/trade.web';
-import type {
-  MarketInterface as MarketInterfaceV1,
-  TDEXMarket,
-  TDEXProvider,
-  TradeOrder as TradeOrderV1,
-} from './v1/tradeCore';
+import type { TDEXMarket, TDEXProvider, TradeOrder as TradeOrderV1 } from './v1/tradeCore';
 //
 import { TraderClient as TraderClientV2 } from './v2/client.web';
 import { Discoverer as DiscovererV2 } from './v2/discoverer';
@@ -35,7 +30,7 @@ import {
 } from './v2/discovery';
 import type { Discovery as DiscoveryV2 } from './v2/discovery';
 import { Trade as TradeV2 } from './v2/trade.web';
-import type { MarketInterface as MarketInterfaceV2, TradeOrder as TradeOrderV2 } from './v2/tradeCore';
+import type { TradeOrder as TradeOrderV2 } from './v2/tradeCore';
 //
 const TDexRegistryMainnet = 'https://raw.githubusercontent.com/TDex-network/tdex-registry/master/registry.json';
 const TDexRegistryTestnet = 'https://raw.githubusercontent.com/tdex-network/tdex-registry/testnet/registry.json';

@@ -75,7 +75,7 @@ export interface GetMarketPriceResponse {
      */
     spotPrice: number;
     /**
-     * @generated from protobuf field: uint64 min_tradable_amount = 2;
+     * @generated from protobuf field: uint64 min_tradable_amount = 2 [jstype = JS_STRING];
      */
     minTradableAmount: string;
 }
@@ -92,7 +92,7 @@ export interface PreviewTradeRequest {
      */
     type: TradeType;
     /**
-     * @generated from protobuf field: uint64 amount = 3;
+     * @generated from protobuf field: uint64 amount = 3 [jstype = JS_STRING];
      */
     amount: string;
     /**
@@ -129,6 +129,14 @@ export interface ProposeTradeRequest {
      * @generated from protobuf field: tdex.v2.SwapRequest swap_request = 3;
      */
     swapRequest?: SwapRequest;
+    /**
+     * @generated from protobuf field: uint64 fee_amount = 4 [jstype = JS_STRING];
+     */
+    feeAmount: string;
+    /**
+     * @generated from protobuf field: string fee_asset = 5;
+     */
+    feeAsset: string;
 }
 /**
  * @generated from protobuf message tdex.v2.ProposeTradeResponse

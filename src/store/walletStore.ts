@@ -405,7 +405,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
 
           // Deposit
           if (inputAssets.length === 0) {
-            assetHash = outputAssets[0].asset;
+            assetHash = outputAssets[0]?.asset;
             amount = outputAssets.reduce((acc, i) => (i.asset === assetHash ? acc + i.amount : acc), 0);
           } else if (!isSwap && inputAssets.length >= 1 && outputAssets.length >= 1) {
             // Withdraw or SelfTransfer
@@ -429,13 +429,16 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           }
 
           // compute deposit or recipient confidential address
-          const master = slip77.fromMasterBlindingKey(get().masterBlindingKey);
-          const derived = master.derive(script);
-          const confidentialAddress = payments.p2wpkh({
-            output: Buffer.from(script, 'hex'),
-            blindkey: derived.publicKey,
-            network: networks[network],
-          }).confidentialAddress;
+          let confidentialAddress;
+          if (script.length > 0) {
+            const master = slip77.fromMasterBlindingKey(get().masterBlindingKey);
+            const derived = master.derive(script);
+            confidentialAddress = payments.p2wpkh({
+              output: Buffer.from(script, 'hex'),
+              blindkey: derived.publicKey,
+              network: networks[network],
+            }).confidentialAddress;
+          }
 
           // if amount is negative, it's a withdrawal, so we add the fee
           amount = amount !== undefined ? (amount < 0 ? amount + fee : amount) : undefined;

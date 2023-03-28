@@ -19,13 +19,11 @@ class SwapRequest$Type extends MessageType {
             { no: 4, name: "amount_r", kind: "scalar", T: 4 /*ScalarType.UINT64*/ },
             { no: 5, name: "asset_r", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
             { no: 6, name: "transaction", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 7, name: "fee_amount", kind: "scalar", T: 4 /*ScalarType.UINT64*/ },
-            { no: 8, name: "fee_asset", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 9, name: "unblinded_inputs", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => UnblindedInput }
+            { no: 7, name: "unblinded_inputs", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => UnblindedInput }
         ]);
     }
     create(value) {
-        const message = { id: "", amountP: "0", assetP: "", amountR: "0", assetR: "", transaction: "", feeAmount: "0", feeAsset: "", unblindedInputs: [] };
+        const message = { id: "", amountP: "0", assetP: "", amountR: "0", assetR: "", transaction: "", unblindedInputs: [] };
         globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
         if (value !== undefined)
             reflectionMergePartial(this, message, value);
@@ -54,13 +52,7 @@ class SwapRequest$Type extends MessageType {
                 case /* string transaction */ 6:
                     message.transaction = reader.string();
                     break;
-                case /* uint64 fee_amount = 7 [jstype = JS_STRING];*/ 7:
-                    message.feeAmount = reader.uint64().toString();
-                    break;
-                case /* string fee_asset */ 8:
-                    message.feeAsset = reader.string();
-                    break;
-                case /* repeated tdex.v2.UnblindedInput unblinded_inputs */ 9:
+                case /* repeated tdex.v2.UnblindedInput unblinded_inputs */ 7:
                     message.unblindedInputs.push(UnblindedInput.internalBinaryRead(reader, reader.uint32(), options));
                     break;
                 default:
@@ -93,15 +85,9 @@ class SwapRequest$Type extends MessageType {
         /* string transaction = 6; */
         if (message.transaction !== "")
             writer.tag(6, WireType.LengthDelimited).string(message.transaction);
-        /* uint64 fee_amount = 7 [jstype = JS_STRING]; */
-        if (message.feeAmount !== "0")
-            writer.tag(7, WireType.Varint).uint64(message.feeAmount);
-        /* string fee_asset = 8; */
-        if (message.feeAsset !== "")
-            writer.tag(8, WireType.LengthDelimited).string(message.feeAsset);
-        /* repeated tdex.v2.UnblindedInput unblinded_inputs = 9; */
+        /* repeated tdex.v2.UnblindedInput unblinded_inputs = 7; */
         for (let i = 0; i < message.unblindedInputs.length; i++)
-            UnblindedInput.internalBinaryWrite(message.unblindedInputs[i], writer.tag(9, WireType.LengthDelimited).fork(), options).join();
+            UnblindedInput.internalBinaryWrite(message.unblindedInputs[i], writer.tag(7, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);

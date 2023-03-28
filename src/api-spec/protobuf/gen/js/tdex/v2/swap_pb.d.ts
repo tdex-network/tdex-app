@@ -51,22 +51,10 @@ export interface SwapRequest {
      */
     transaction: string;
     /**
-     * The fee amount charged to the proposer by the provider.
-     *
-     * @generated from protobuf field: uint64 fee_amount = 7 [jstype = JS_STRING];
-     */
-    feeAmount: string;
-    /**
-     * The asset hash of the fee charged to the proposer.
-     *
-     * @generated from protobuf field: string fee_asset = 8;
-     */
-    feeAsset: string;
-    /**
      * The list of trader's unblinded inputs data, even in case they are
      * unconfidential.
      *
-     * @generated from protobuf field: repeated tdex.v2.UnblindedInput unblinded_inputs = 9;
+     * @generated from protobuf field: repeated tdex.v2.UnblindedInput unblinded_inputs = 7;
      */
     unblindedInputs: UnblindedInput[];
 }
