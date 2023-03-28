@@ -75,7 +75,6 @@ export const useTdexStore = create<TdexState & TdexActions>()(
           } else {
             allMarkets = await Promise.allSettled(get().providers.map((p) => getMarketsFromProviderV2(p, torProxy)));
           }
-          console.log('allMarkets', allMarkets);
           allMarkets
             .map((p, i) => (p.status === 'fulfilled' && p.value ? p.value : []))
             .forEach((markets) => {
@@ -90,8 +89,6 @@ export const useTdexStore = create<TdexState & TdexActions>()(
                 );
                 return !isMarketInState;
               });
-              console.log('state.markets', get().markets);
-              console.log('marketsToAdd', marketsToAdd);
               set((state) => ({ markets: [...state.markets, ...marketsToAdd] }), false, 'fetchMarkets');
             });
         },

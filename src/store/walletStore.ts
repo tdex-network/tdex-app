@@ -571,8 +571,6 @@ export const useWalletStore = create<WalletState & WalletActions>()(
         },
         // Coin selection
         selectUtxos: async (targets, lock = false) => {
-          const assets = useAssetStore.getState().assets;
-          const lbtcUnit = useSettingsStore.getState().lbtcUnit;
           const availableUtxos = get().computeUtxosFromTxs();
           const onlyWithUnblindingData = availableUtxos.filter((utxo) => utxo.blindingData);
           // accumulate targets with same asset
@@ -596,7 +594,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
                 vout: utxo.vout,
                 value: utxo.blindingData?.value,
               })),
-              [{ address: 'fake', value: toSatoshi(target.value, assets[target.asset]?.precision, lbtcUnit) }],
+              [{ address: 'fake', value: target.value }],
               0
             );
             if (inputs) {
