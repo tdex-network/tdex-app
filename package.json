@@ -68,7 +68,7 @@
     "build": "ionic build",
     "build:android": "ionic capacitor build android --no-open",
     "build:ios": "ionic capacitor build ios --no-open",
-    "build:proto": "buf generate buf.build/tdex-network/tdex-protobuf && cd src/services/reflection && buf generate buf.build/tdex-network/reflection && mv reflection ../../../src/api-spec/protobuf/gen/js",
+    "build:proto": "buf generate buf.build/tdex-network/tdex-protobuf && cd src/api-spec/protobuf/reflection && buf generate buf.build/tdex-network/reflection && mv reflection ../gen/js",
     "build:trade-swagger-v1": "npx swagger-typescript-api -p https://raw.githubusercontent.com/tdex-network/tdex-protobuf/v1/api-spec/openapi/swagger/tdex/v1/trade.swagger.json -o src/api-spec/openapi/swagger/v1/trade --axios --modular",
     "build:transport-swagger-v1": "npx swagger-typescript-api -p https://raw.githubusercontent.com/tdex-network/tdex-protobuf/v1/api-spec/openapi/swagger/tdex/v1/transport.swagger.json -o src/api-spec/openapi/swagger/v1/transport --axios --modular",
     "build:trade-swagger-v2": "npx swagger-typescript-api -p https://raw.githubusercontent.com/tdex-network/tdex-protobuf/v1/api-spec/openapi/swagger/tdex/v2/trade.swagger.json -o src/api-spec/openapi/swagger/v2/trade --axios --modular",

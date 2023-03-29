@@ -10,4 +10,4 @@ plugins:
       - esModuleInterop=true
       - env=browser
     strategy: all
-    path: ../../../node_modules/ts-proto/protoc-gen-ts_proto
+    path: ../../../../node_modules/ts-proto/protoc-gen-ts_proto
