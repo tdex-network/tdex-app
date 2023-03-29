@@ -26,7 +26,7 @@ import {
   outpointStrToOutpoint,
   outpointToString,
 } from '../utils/helpers';
-import { fromSatoshi, toSatoshi } from '../utils/unitConversion';
+import { fromSatoshi } from '../utils/unitConversion';
 
 import { useAssetStore } from './assetStore';
 import { useBitcoinStore } from './bitcoinStore';
@@ -267,31 +267,35 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           }
           let totalSats = 0;
           let totalCounterValue = '0';
-          await useRateStore.getState().fetchFiatRates();
-          const rates = await useRateStore.getState().rates;
-          if (rates) {
-            for (const [assetHash, balance] of Object.entries(balances)) {
-              // compute fiat counter-value for lbtc
-              if (isLbtc(assetHash, network)) {
-                const val = fromSatoshi(balance.sats) * rates[LBTC_COINGECKOID][currency.ticker];
-                balance.counterValue = val.toFixed(2);
-                totalSats += balance.sats;
+          try {
+            await useRateStore.getState().fetchFiatRates();
+            const rates = await useRateStore.getState().rates;
+            if (rates) {
+              for (const [assetHash, balance] of Object.entries(balances)) {
+                // compute fiat counter-value for lbtc
+                if (isLbtc(assetHash, network)) {
+                  const val = fromSatoshi(balance.sats) * rates[LBTC_COINGECKOID][currency.ticker];
+                  balance.counterValue = val.toFixed(2);
+                  totalSats += balance.sats;
+                }
+                // compute lbtc counter-value for available fiat currencies (usd, cad)
+                if (isUsdt(assetHash, network)) {
+                  const val = fromSatoshi(balance.sats) / rates[LBTC_COINGECKOID]['usd'];
+                  balance.counterValue = val.toFixed(2);
+                  totalSats += val;
+                }
+                if (isLcad(assetHash, network)) {
+                  const val = fromSatoshi(balance.sats) / rates[LBTC_COINGECKOID]['cad'];
+                  balance.counterValue = val.toFixed(2);
+                  totalSats += val;
+                }
               }
-              // compute lbtc counter-value for available fiat currencies (usd, cad)
-              if (isUsdt(assetHash, network)) {
-                const val = fromSatoshi(balance.sats) / rates[LBTC_COINGECKOID]['usd'];
-                balance.counterValue = val.toFixed(2);
-                totalSats += val;
-              }
-              if (isLcad(assetHash, network)) {
-                const val = fromSatoshi(balance.sats) / rates[LBTC_COINGECKOID]['cad'];
-                balance.counterValue = val.toFixed(2);
-                totalSats += val;
-              }
+              //
+              const val = fromSatoshi(totalSats) * (rates[LBTC_COINGECKOID]?.[currency.ticker] ?? 0);
+              totalCounterValue = val.toFixed(2);
             }
-            //
-            const val = fromSatoshi(totalSats) * (rates[LBTC_COINGECKOID]?.[currency.ticker] ?? 0);
-            totalCounterValue = val.toFixed(2);
+          } catch (err) {
+            console.error(err);
           }
           // If no balances, return LBTC balance of 0
           if (Object.keys(balances).length === 0) balances = zeroLbtcBalance;

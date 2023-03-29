@@ -54,7 +54,7 @@ export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
   // Init
   useEffect(() => {
     (async () => {
-      if (providers.length === 0 && markets.length === 0) {
+      if (providers.length === 0 && markets.v1.length === 0 && markets.v2.length === 0) {
         await fetchProviders();
         await fetchMarkets();
       }
@@ -68,7 +68,11 @@ export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
 
   useEffect(() => {
     (async () => {
-      for (const market of markets) {
+      for (const market of markets.v1) {
+        await fetchAssetData(market.baseAsset);
+        await fetchAssetData(market.quoteAsset);
+      }
+      for (const market of markets.v2) {
         await fetchAssetData(market.baseAsset);
         await fetchAssetData(market.quoteAsset);
       }

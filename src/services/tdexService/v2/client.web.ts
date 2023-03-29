@@ -3,7 +3,12 @@ import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
 import { Tdexv2ContentType } from '../../../api-spec/openapi/swagger/v2/transport/data-contracts';
 import { SwapAccept, SwapComplete, SwapRequest } from '../../../api-spec/protobuf/gen/js/tdex/v2/swap_pb';
 import * as messages from '../../../api-spec/protobuf/gen/js/tdex/v2/trade_pb';
-import type { GetMarketBalanceResponse, ListMarketsResponse } from '../../../api-spec/protobuf/gen/js/tdex/v2/trade_pb';
+import type {
+  GetMarketBalanceResponse,
+  ListMarketsResponse,
+  PreviewTradeResponse,
+  PreviewTradeRequest,
+} from '../../../api-spec/protobuf/gen/js/tdex/v2/trade_pb';
 import * as services from '../../../api-spec/protobuf/gen/js/tdex/v2/trade_pb.client';
 import * as types from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import type { TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
@@ -86,21 +91,23 @@ export class TraderClient implements TraderClientInterface {
     return call.response.markets;
   }
 
-  async marketPrice(
-    { baseAsset, quoteAsset }: types.Market,
-    tradeType: TradeType,
-    amount: number,
-    asset: string
-  ): Promise<types.Preview[]> {
-    const market = types.Market.create({ baseAsset, quoteAsset });
+  async marketPrice({
+    market,
+    type,
+    amount,
+    asset,
+    feeAsset,
+  }: PreviewTradeRequest): Promise<PreviewTradeResponse['previews']> {
+    const marketObj = types.Market.create({ baseAsset: market?.baseAsset, quoteAsset: market?.quoteAsset });
     const request = messages.PreviewTradeRequest.create({
-      market: market,
-      type: tradeType,
+      market: marketObj,
+      type,
       amount: String(amount),
-      asset: asset,
+      asset,
+      feeAsset,
     });
     const call = await this.client.previewTrade(request);
-    return call.response!.previews.map((preview: types.Preview) => preview);
+    return call.response.previews;
   }
 
   async balance({ baseAsset, quoteAsset }: types.Market): Promise<GetMarketBalanceResponse['balance']> {

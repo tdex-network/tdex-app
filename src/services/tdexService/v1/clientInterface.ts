@@ -1,5 +1,10 @@
-import type { GetMarketBalanceResponse, ListMarketsResponse } from '../../../api-spec/protobuf/gen/js/tdex/v1/trade_pb';
-import type { Market, Preview, TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
+import type {
+  GetMarketBalanceResponse,
+  ListMarketsResponse,
+  PreviewTradeRequest,
+  PreviewTradeResponse,
+} from '../../../api-spec/protobuf/gen/js/tdex/v1/trade_pb';
+import type { Market, TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
 
 export default interface TraderClientInterface {
   providerUrl: string;
@@ -16,12 +21,7 @@ export default interface TraderClientInterface {
 
   markets(): Promise<ListMarketsResponse['markets']>;
 
-  marketPrice(
-    { baseAsset, quoteAsset }: Market,
-    tradeType: TradeType,
-    amount: number,
-    asset: string
-  ): Promise<Preview[]>;
+  marketPrice(arg: PreviewTradeRequest): Promise<PreviewTradeResponse['previews']>;
 
   balance({ baseAsset, quoteAsset }: Market): Promise<GetMarketBalanceResponse['balance']>;
 }

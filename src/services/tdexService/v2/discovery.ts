@@ -1,4 +1,6 @@
 import { TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
+import { useSettingsStore } from '../../../store/settingsStore';
+import { LBTC_ASSET } from '../../../utils/constants';
 
 import type { TradeOrder } from './tradeCore';
 
@@ -84,9 +86,16 @@ export const bestPriceDiscovery: Discovery = async (
   opts: DiscoveryOpts,
   errorHandler?: (err: any) => Promise<void>
 ) => {
+  const network = useSettingsStore.getState().network;
   const pricesPromises = orders.map((order) =>
     order.traderClient
-      .marketPrice(order.market, order.type, opts.amount, opts.asset)
+      .marketPrice({
+        market: order.market,
+        type: order.type,
+        amount: opts.amount.toString(),
+        asset: opts.asset,
+        feeAsset: LBTC_ASSET[network].assetHash,
+      })
       .then((response) => ({ order, amount: response[0].amount }))
   );
   const pricesResults = await Promise.allSettled(pricesPromises);

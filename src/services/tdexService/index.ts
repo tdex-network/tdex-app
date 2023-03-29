@@ -3,8 +3,10 @@ import axios from 'axios';
 import { TradeType as TradeTypeV1 } from '../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
 import { TradeType as TradeTypeV2 } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import { config } from '../../store/config';
+import { useSettingsStore } from '../../store/settingsStore';
 import type { CoinSelectionForTrade, ScriptDetails } from '../../store/walletStore';
 import type { NetworkString } from '../../utils/constants';
+import { LBTC_ASSET } from '../../utils/constants';
 import { AppError, NoMarketsAvailableForSelectedPairError } from '../../utils/errors';
 // Self import for unit testing
 import type { SignerInterface } from '../signerService';
@@ -19,7 +21,12 @@ import {
 } from './v1/discovery';
 import type { Discovery as DiscoveryV1 } from './v1/discovery';
 import { Trade as TradeV1 } from './v1/trade.web';
-import type { TDEXMarket, TDEXProvider, TradeOrder as TradeOrderV1 } from './v1/tradeCore';
+import type {
+  TDEXMarket as TDEXMarketV1,
+  TDEXProvider,
+  TDEXProviderWithVersion,
+  TradeOrder as TradeOrderV1,
+} from './v1/tradeCore';
 //
 import { TraderClient as TraderClientV2 } from './v2/client.web';
 import { Discoverer as DiscovererV2 } from './v2/discoverer';
@@ -30,17 +37,20 @@ import {
 } from './v2/discovery';
 import type { Discovery as DiscoveryV2 } from './v2/discovery';
 import { Trade as TradeV2 } from './v2/trade.web';
-import type { TradeOrder as TradeOrderV2 } from './v2/tradeCore';
+import type { TDEXMarket as TDEXMarketV2, TradeOrder as TradeOrderV2 } from './v2/tradeCore';
 //
-const TDexRegistryMainnet = 'https://raw.githubusercontent.com/TDex-network/tdex-registry/master/registry.json';
+const TDexRegistryMainnet = 'https://raw.githubusercontent.com/tdex-network/tdex-registry/master/registry.json';
 const TDexRegistryTestnet = 'https://raw.githubusercontent.com/tdex-network/tdex-registry/testnet/registry.json';
 
 // Protos v1
 
-export async function getMarketsFromProviderV1(p: TDEXProvider, torProxy = config.torProxy): Promise<TDEXMarket[]> {
+export async function getMarketsFromProviderV1(
+  p: TDEXProviderWithVersion,
+  torProxy = config.torProxy
+): Promise<TDEXMarketV1[]> {
   const client = new TraderClientV1(p.endpoint, torProxy);
   const markets = await client.markets();
-  const results: TDEXMarket[] = [];
+  const results: TDEXMarketV1[] = [];
   for (const { market, fee } of markets) {
     if (!market) continue;
     const balance = (await client.balance(market))?.balance;
@@ -145,7 +155,7 @@ export async function makeTradeV1(
  * @param torProxy
  */
 export function computeOrdersV1(
-  markets: TDEXMarket[],
+  markets: TDEXMarketV1[],
   sentAsset: string,
   receivedAsset: string,
   torProxy?: string
@@ -170,39 +180,6 @@ export function computeOrdersV1(
   return trades;
 }
 
-// discover the best order from a set of markets
-export function discoverBestOrderV1(
-  markets: TDEXMarket[],
-  sendAsset?: string,
-  receiveAsset?: string
-): (sats: number, asset: string) => Promise<TradeOrderV1> {
-  if (!sendAsset || !receiveAsset) throw new Error('unable to compute orders for selected market');
-  const allPossibleOrders = tdex.computeOrdersV1(markets, sendAsset, receiveAsset);
-  if (allPossibleOrders.length === 0) {
-    console.error(`markets not found for pair ${sendAsset}-${receiveAsset}`);
-    throw NoMarketsAvailableForSelectedPairError;
-  }
-  return async (sats: number, asset: string): Promise<TradeOrderV1> => {
-    if (sats <= 0) {
-      // return a random order to avoid calling discoverer
-      return allPossibleOrders[0];
-    }
-    try {
-      const discoverer = tdex.createDiscovererV1(
-        allPossibleOrders,
-        combineDiscoveryV1(bestPriceDiscoveryV1, bestBalanceDiscoveryV1),
-        async (err) => console.debug(err)
-      );
-      const bestOrders = await discoverer.discover({ asset, amount: sats });
-      if (bestOrders.length === 0) throw new Error('zero best orders found by discoverer');
-      return bestOrders[0];
-    } catch (err) {
-      console.error(err);
-      return allPossibleOrders[0];
-    }
-  };
-}
-
 export async function marketPriceRequestV1(
   order: TradeOrderV1,
   sats: number,
@@ -213,7 +190,12 @@ export async function marketPriceRequestV1(
 }> {
   const otherAsset = asset === order.market.baseAsset ? order.market.quoteAsset : order.market.baseAsset;
   if (sats <= 0) return { asset: otherAsset, sats: String(0) };
-  const response = await order.traderClient.marketPrice(order.market, order.type, sats, asset);
+  const response = await order.traderClient.marketPrice({
+    market: order.market,
+    type: order.type,
+    amount: sats.toString(),
+    asset: asset,
+  });
   return {
     asset: response[0].asset,
     sats: response[0].amount,
@@ -222,10 +204,13 @@ export async function marketPriceRequestV1(
 
 // Protos v2
 
-export async function getMarketsFromProviderV2(p: TDEXProvider, torProxy = config.torProxy): Promise<TDEXMarket[]> {
+export async function getMarketsFromProviderV2(
+  p: TDEXProviderWithVersion,
+  torProxy = config.torProxy
+): Promise<TDEXMarketV2[]> {
   const client = new TraderClientV2(p.endpoint, torProxy);
   const markets = await client.markets();
-  const results: TDEXMarket[] = [];
+  const results: TDEXMarketV2[] = [];
   for (const { market, fee } of markets) {
     if (!market) continue;
     const balance = await client.balance(market);
@@ -330,7 +315,7 @@ export async function makeTradeV2(
  * @param torProxy
  */
 export function computeOrdersV2(
-  markets: TDEXMarket[],
+  markets: TDEXMarketV2[],
   sentAsset: string,
   receivedAsset: string,
   torProxy?: string
@@ -355,39 +340,6 @@ export function computeOrdersV2(
   return trades;
 }
 
-// discover the best order from a set of markets
-export function discoverBestOrderV2(
-  markets: TDEXMarket[],
-  sendAsset?: string,
-  receiveAsset?: string
-): (sats: number, asset: string) => Promise<TradeOrderV2> {
-  if (!sendAsset || !receiveAsset) throw new Error('unable to compute orders for selected market');
-  const allPossibleOrders = tdex.computeOrdersV2(markets, sendAsset, receiveAsset);
-  if (allPossibleOrders.length === 0) {
-    console.error(`markets not found for pair ${sendAsset}-${receiveAsset}`);
-    throw NoMarketsAvailableForSelectedPairError;
-  }
-  return async (sats: number, asset: string): Promise<TradeOrderV2> => {
-    if (sats <= 0) {
-      // return a random order to avoid calling discoverer
-      return allPossibleOrders[0];
-    }
-    try {
-      const discoverer = tdex.createDiscovererV2(
-        allPossibleOrders,
-        combineDiscoveryV2(bestPriceDiscoveryV2, bestBalanceDiscoveryV2),
-        async (err) => console.debug(err)
-      );
-      const bestOrders = await discoverer.discover({ asset, amount: sats });
-      if (bestOrders.length === 0) throw new Error('zero best orders found by discoverer');
-      return bestOrders[0];
-    } catch (err) {
-      console.error(err);
-      return allPossibleOrders[0];
-    }
-  };
-}
-
 export async function marketPriceRequestV2(
   order: TradeOrderV2,
   sats: number,
@@ -396,9 +348,16 @@ export async function marketPriceRequestV2(
   asset: string;
   sats: string;
 }> {
+  const network = useSettingsStore.getState().network;
   const otherAsset = asset === order.market.baseAsset ? order.market.quoteAsset : order.market.baseAsset;
   if (sats <= 0) return { asset: otherAsset, sats: String(0) };
-  const response = await order.traderClient.marketPrice(order.market, order.type, sats, asset);
+  const response = await order.traderClient.marketPrice({
+    market: order.market,
+    type: order.type,
+    amount: sats.toString(),
+    asset: asset,
+    feeAsset: LBTC_ASSET[network].assetHash,
+  });
   return {
     asset: response[0].asset,
     sats: response[0].amount,
@@ -408,9 +367,17 @@ export async function marketPriceRequestV2(
 //
 
 // Find all assets in markets tradable with the asset `asset`
-export function getTradablesAssets(markets: TDEXMarket[], asset: string): string[] {
+export function getTradablesAssets(markets: { v1: TDEXMarketV1[]; v2: TDEXMarketV2[] }, asset: string): string[] {
   const tradable: string[] = [];
-  for (const market of markets) {
+  for (const market of markets.v1) {
+    if (asset === market.baseAsset && !tradable.includes(market.quoteAsset)) {
+      tradable.push(market.quoteAsset);
+    }
+    if (asset === market.quoteAsset && !tradable.includes(market.baseAsset)) {
+      tradable.push(market.baseAsset);
+    }
+  }
+  for (const market of markets.v2) {
     if (asset === market.baseAsset && !tradable.includes(market.quoteAsset)) {
       tradable.push(market.quoteAsset);
     }
@@ -435,9 +402,54 @@ export async function getProvidersFromTDexRegistry(network: NetworkString): Prom
     // TODO: remove this when the registry will be updated
     reg.push({
       name: 'v1.provider.tdex.network',
-      endpoint: 'https://v1.provider.tdex.network/',
+      endpoint: 'https://v1.provider.tdex.network',
     });
     return reg;
   }
   return (await axios.get(TDexRegistryMainnet)).data;
+}
+
+// TODO: discover bestOrder v2
+export function discoverBestOrder(
+  markets: { v1: TDEXMarketV1[]; v2: TDEXMarketV2[] },
+  sendAsset?: string,
+  receiveAsset?: string
+): (sats: number, asset: string) => Promise<TradeOrderV1 | TradeOrderV2> {
+  if (!sendAsset || !receiveAsset) throw new Error('unable to compute orders for selected market');
+  const allPossibleOrdersV1 = tdex.computeOrdersV1(markets.v1, sendAsset, receiveAsset);
+  const allPossibleOrdersV2 = tdex.computeOrdersV2(markets.v2, sendAsset, receiveAsset);
+  if (allPossibleOrdersV1.length === 0 && allPossibleOrdersV2.length === 0) {
+    console.error(`markets not found for pair ${sendAsset}-${receiveAsset}`);
+    throw NoMarketsAvailableForSelectedPairError;
+  }
+  return async (sats: number, asset: string): Promise<TradeOrderV1 | TradeOrderV2> => {
+    if (sats <= 0) {
+      // return a random order to avoid calling discoverer
+      return allPossibleOrdersV1[0] ?? allPossibleOrdersV2[0];
+    }
+    try {
+      const discovererV1 = tdex.createDiscovererV1(
+        allPossibleOrdersV1,
+        combineDiscoveryV1(bestPriceDiscoveryV1, bestBalanceDiscoveryV1),
+        async (err) => console.debug(err)
+      );
+      const discovererV2 = tdex.createDiscovererV2(
+        allPossibleOrdersV2,
+        combineDiscoveryV2(bestPriceDiscoveryV2, bestBalanceDiscoveryV2),
+        async (err) => console.debug(err)
+      );
+      const bestOrdersV1 = await discovererV1.discover({ asset, amount: sats });
+      const bestOrdersV2 = await discovererV2.discover({ asset, amount: sats });
+      if (bestOrdersV1.length === 0 && bestOrdersV2.length === 0)
+        throw new Error('zero best orders found by discoverer');
+      return bestOrdersV2[0] ?? bestOrdersV1[0];
+    } catch (err) {
+      console.error(err);
+      return allPossibleOrdersV1[0];
+    }
+  };
+}
+
+export function isTradeOrderV2(tradeOrder: any): tradeOrder is TradeOrderV2 {
+  return tradeOrder.market?.percentageFee !== undefined;
 }

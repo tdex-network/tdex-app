@@ -2,8 +2,10 @@ import { networks } from 'liquidjs-lib';
 
 import { SwapAccept } from '../../../api-spec/protobuf/gen/js/tdex/v2/swap_pb';
 import { TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
+import { useSettingsStore } from '../../../store/settingsStore';
 import type { CoinSelectionForTrade, ScriptDetails } from '../../../store/walletStore';
 import type { NetworkString } from '../../../utils/constants';
+import { LBTC_ASSET } from '../../../utils/constants';
 import { decodePset, isRawTransaction, isValidAmount } from '../../../utils/transaction';
 import { BlinderService } from '../../blinderService';
 import type { SignerInterface } from '../../signerService';
@@ -19,18 +21,23 @@ export interface TDEXProvider {
   endpoint: string;
 }
 
+export interface TDEXProviderWithVersion extends TDEXProvider {
+  version: 'v1' | 'v2';
+}
+
 export interface MarketInterface {
   baseAsset: string;
   quoteAsset: string;
 }
 
 export interface TDEXMarket {
+  provider: TDEXProviderWithVersion;
   baseAsset: string;
-  quoteAsset: string;
-  provider: TDEXProvider;
   baseAmount?: string;
+  quoteAsset: string;
   quoteAmount?: string;
-  feeBasisPoint?: number;
+  percentageFee?: { baseAsset: string; quoteAsset: string };
+  fixedFee?: { baseAsset: string; quoteAsset: string };
 }
 
 export interface TradeOrder {
@@ -214,18 +221,15 @@ export class TradeCore extends Core implements TradeInterface {
     if (!isValidAmount(amount)) {
       throw new Error('Amount is not valid');
     }
+    const network = useSettingsStore.getState().network;
     const { baseAsset, quoteAsset } = market;
-
-    const prices = await this.client.marketPrice(
-      {
-        baseAsset,
-        quoteAsset,
-      },
-      tradeType,
-      amount,
-      asset
-    );
-
+    const prices = await this.client.marketPrice({
+      market,
+      type: tradeType,
+      amount: amount.toString(),
+      asset,
+      feeAsset: LBTC_ASSET[network].assetHash,
+    });
     const previewedAmount = prices[0].amount;
     if (tradeType === TradeType.BUY) {
       return {

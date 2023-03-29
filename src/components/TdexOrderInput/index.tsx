@@ -4,8 +4,8 @@ import React, { useEffect } from 'react';
 
 import swap from '../../assets/img/swap.svg';
 import { getTradablesAssets } from '../../services/tdexService';
-import type { TDEXMarket, TradeOrder as TradeOrderV1 } from '../../services/tdexService/v1/tradeCore';
-import type { TradeOrder as TradeOrderV2 } from '../../services/tdexService/v2/tradeCore';
+import type { TDEXMarket as TDEXMarketV1, TradeOrder as TradeOrderV1 } from '../../services/tdexService/v1/tradeCore';
+import type { TDEXMarket as TDEXMarketV2, TradeOrder as TradeOrderV2 } from '../../services/tdexService/v2/tradeCore';
 import { useAssetStore } from '../../store/assetStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { LBTC_ASSET } from '../../utils/constants';
@@ -38,7 +38,7 @@ export interface TdexOrderInputResultV2 {
 }
 
 type Props = {
-  markets: TDEXMarket[];
+  markets: { v1: TDEXMarketV1[]; v2: TDEXMarketV2[] };
   onInput: (tdexOrder?: TdexOrderInputResultV1 | TdexOrderInputResultV2) => void;
   bestOrder?: any /*TradeOrder*/;
   sendAsset?: string;
@@ -93,7 +93,9 @@ export const TdexOrderInput: React.FC<Props> = ({
   useIonViewDidEnter(() => {
     setAccessoryBar(true).catch(console.error);
     // Set send asset default to LBTC if available in markets, or first asset in balances
-    const lbtcInMarkets = markets.find((m) => isLbtc(m.baseAsset, network) || isLbtc(m.quoteAsset, network));
+    const lbtcInMarkets =
+      markets.v1.find((m) => isLbtc(m.baseAsset, network) || isLbtc(m.quoteAsset, network)) ||
+      markets.v2.find((m) => isLbtc(m.baseAsset, network) || isLbtc(m.quoteAsset, network));
     const sendAsset = lbtcInMarkets !== undefined ? LBTC_ASSET[network].assetHash : assets[0]?.assetHash;
     setSendAsset(sendAsset);
     // Set receive asset to first tradable asset

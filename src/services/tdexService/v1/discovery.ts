@@ -87,7 +87,7 @@ export const bestPriceDiscovery: Discovery = async (
 ) => {
   const pricesPromises = orders.map((order) =>
     order.traderClient
-      .marketPrice(order.market, order.type, opts.amount, opts.asset)
+      .marketPrice({ market: order.market, type: order.type, amount: opts.amount.toString(), asset: opts.asset })
       .then((response) => ({ order, amount: response[0].amount }))
   );
   const pricesResults = await Promise.allSettled(pricesPromises);

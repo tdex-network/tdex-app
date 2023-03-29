@@ -18,18 +18,26 @@ export interface TDEXProvider {
   endpoint: string;
 }
 
+export interface TDEXProviderWithVersion extends TDEXProvider {
+  version: 'v1' | 'v2';
+}
+
 export interface MarketInterface {
   baseAsset: string;
   quoteAsset: string;
 }
 
 export interface TDEXMarket {
+  provider: TDEXProviderWithVersion;
   baseAsset: string;
-  quoteAsset: string;
-  provider: TDEXProvider;
   baseAmount?: string;
+  quoteAsset: string;
   quoteAmount?: string;
-  feeBasisPoint?: number;
+  basisPoint?: string;
+  fixed?: {
+    baseFee: string;
+    quoteFee: string;
+  };
 }
 
 export interface TradeOrder {
@@ -214,17 +222,7 @@ export class TradeCore extends Core implements TradeInterface {
       throw new Error('Amount is not valid');
     }
     const { baseAsset, quoteAsset } = market;
-
-    const prices = await this.client.marketPrice(
-      {
-        baseAsset,
-        quoteAsset,
-      },
-      tradeType,
-      amount,
-      asset
-    );
-
+    const prices = await this.client.marketPrice({ market, type: tradeType, amount: amount.toString(), asset });
     const previewedAmount = prices[0].amount;
     if (tradeType === TradeType.BUY) {
       return {

@@ -10,6 +10,7 @@ export const mockMarketsLbtcUsdt: TDEXMarket[] = [
     provider: {
       name: 'provider1',
       endpoint: 'http://provider1',
+      version: 'v1',
     },
   },
   {
@@ -18,6 +19,7 @@ export const mockMarketsLbtcUsdt: TDEXMarket[] = [
     provider: {
       name: 'provider2',
       endpoint: 'http://provider2',
+      version: 'v1',
     },
   },
   {
@@ -26,6 +28,7 @@ export const mockMarketsLbtcUsdt: TDEXMarket[] = [
     provider: {
       name: 'provider3',
       endpoint: 'http://provider3',
+      version: 'v2',
     },
   },
   {
@@ -34,6 +37,7 @@ export const mockMarketsLbtcUsdt: TDEXMarket[] = [
     provider: {
       name: 'provider4',
       endpoint: 'http://provider4',
+      version: 'v2',
     },
   },
 ];

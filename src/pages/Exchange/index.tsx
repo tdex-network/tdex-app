@@ -29,8 +29,12 @@ import { useTradeState } from '../../components/TdexOrderInput/hooks';
 import { routerLinks } from '../../routes';
 import { SignerService } from '../../services/signerService';
 import { getTradablesAssets, makeTradeV1, makeTradeV2 } from '../../services/tdexService';
-import type { TDEXMarket, TDEXProvider, TradeOrder as TradeOrderV1 } from '../../services/tdexService/v1/tradeCore';
-import type { TradeOrder as TradeOrderV2 } from '../../services/tdexService/v2/tradeCore';
+import type {
+  TDEXMarket as TDEXMarketV1,
+  TDEXProvider,
+  TradeOrder as TradeOrderV1,
+} from '../../services/tdexService/v1/tradeCore';
+import type { TDEXMarket as TDEXMarketV2, TradeOrder as TradeOrderV2 } from '../../services/tdexService/v2/tradeCore';
 import { useAppStore } from '../../store/appStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useTdexStore } from '../../store/tdexStore';
@@ -61,11 +65,15 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   const [showExcludedProvidersAlert, setShowExcludedProvidersAlert] = useState(false);
   const [tradeError, setTradeError] = useState<AppError>();
 
-  console.log('markets', markets);
   const getPinModalDescription = () =>
     `Enter your secret PIN to send ${tdexOrderInputResult?.send.amount} ${tdexOrderInputResult?.send.unit} and receive ${tdexOrderInputResult?.receive.amount} ${tdexOrderInputResult?.receive.unit}.`;
 
-  const getProviderName = (endpoint: string) => markets.find((m) => m.provider.endpoint === endpoint)?.provider.name;
+  const getProviderName = (endpoint: string) => {
+    return (
+      markets.v1.find((m) => m.provider.endpoint === endpoint)?.provider.name ||
+      markets.v2.find((m) => m.provider.endpoint === endpoint)?.provider.name
+    );
+  };
 
   // confirm flow
   const [needReset, setNeedReset] = useState<boolean>(false);
@@ -74,12 +82,12 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
 
   const isSameProviderEndpoint = (provider: TDEXProvider) =>
-    function (market: TDEXMarket) {
+    function (market: TDEXMarketV1 | TDEXMarketV2) {
       return market.provider.endpoint === provider.endpoint;
     };
 
   const withoutProviders = (...providers: TDEXProvider[]) =>
-    function (market: TDEXMarket) {
+    function (market: TDEXMarketV1 | TDEXMarketV2) {
       const isSameProviderFns = providers.map(isSameProviderEndpoint);
       for (const fn of isSameProviderFns) {
         if (fn(market)) return false;
@@ -88,30 +96,47 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
     };
 
   const getAllMarketsFromNotExcludedProviders = useCallback(
-    () => markets.filter(withoutProviders(...excludedProviders)),
+    () => ({
+      v1: markets.v1.filter(withoutProviders(...excludedProviders)),
+      v2: markets.v2.filter(withoutProviders(...excludedProviders)),
+    }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [markets]
   );
 
-  const getAllMarketsFromNotExcludedProvidersAndOnlySelectedPair = (providerToBan: TDEXProvider) => {
-    return markets
-      .filter(withoutProviders(...[...excludedProviders, providerToBan]))
-      .filter(
-        (m) =>
-          (m.baseAsset === sendAsset || m.baseAsset === receiveAsset) &&
-          (m.quoteAsset === sendAsset || m.quoteAsset === receiveAsset)
-      );
+  const getAllMarketsFromNotExcludedProvidersAndOnlySelectedPair = (
+    providerToBan: TDEXProvider
+  ): (TDEXMarketV1 | TDEXMarketV2)[] => {
+    return [
+      ...markets.v1
+        .filter(withoutProviders(...[...excludedProviders, providerToBan]))
+        .filter(
+          (m) =>
+            (m.baseAsset === sendAsset || m.baseAsset === receiveAsset) &&
+            (m.quoteAsset === sendAsset || m.quoteAsset === receiveAsset)
+        ),
+      ...markets.v2
+        .filter(withoutProviders(...[...excludedProviders, providerToBan]))
+        .filter(
+          (m) =>
+            (m.baseAsset === sendAsset || m.baseAsset === receiveAsset) &&
+            (m.quoteAsset === sendAsset || m.quoteAsset === receiveAsset)
+        ),
+    ];
   };
 
   const getAllProvidersExceptExcluded = () =>
     providers.filter((p) => !excludedProviders.map((p) => p.endpoint).includes(p.endpoint));
 
   const [showNoProvidersAvailableAlert, setShowNoProvidersAvailableAlert] = useState<boolean>(
-    !!getAllMarketsFromNotExcludedProviders().length
+    !!getAllMarketsFromNotExcludedProviders().v1.length && !!getAllMarketsFromNotExcludedProviders().v2.length
   );
 
   useEffect(() => {
-    if (getAllMarketsFromNotExcludedProviders().length > 0) {
+    if (
+      getAllMarketsFromNotExcludedProviders().v1.length > 0 ||
+      getAllMarketsFromNotExcludedProviders().v2.length > 0
+    ) {
       setShowNoProvidersAvailableAlert(false);
     } else {
       setShowNoProvidersAvailableAlert(true);
@@ -210,11 +235,6 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
       // propose and complete tdex trade
       // broadcast via liquid explorer
       let txid;
-      // TODO: check
-      console.log(
-        'tdexOrderInputResult.order.traderClient.providerUrl',
-        tdexOrderInputResult.order.traderClient.providerUrl
-      );
       const version = await getProtoVersion(tdexOrderInputResult.order.traderClient.providerUrl);
       if (version === 'v1') {
         txid = await makeTradeV1(
@@ -298,14 +318,18 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
           !tradeError &&
           getAllProvidersExceptExcluded().length > 0 &&
           // At least one market is available, otherwise we display NoProvidersAvailableAlert
-          markets.length > 0
+          (markets.v1.length > 0 || markets.v2.length > 0)
         }
         message="Discovering TDEX providers with best liquidity..."
         delay={0}
         backdropDismiss={true}
         duration={15000}
         onDidDismiss={() => {
-          if (providers.length === 0 || getAllMarketsFromNotExcludedProviders().length === 0)
+          if (
+            providers.length === 0 ||
+            (getAllMarketsFromNotExcludedProviders().v1.length === 0 &&
+              getAllMarketsFromNotExcludedProviders().v2.length === 0)
+          )
             setShowNoProvidersAvailableAlert(true);
         }}
       />
@@ -353,7 +377,8 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
         ]}
       />
 
-      {getAllMarketsFromNotExcludedProviders().length > 0 && (
+      {(getAllMarketsFromNotExcludedProviders().v1.length > 0 ||
+        getAllMarketsFromNotExcludedProviders().v2.length > 0) && (
         <IonContent className="exchange-content">
           <Refresher />
           <IonGrid className="ion-no-padding">

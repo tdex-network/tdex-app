@@ -146,6 +146,7 @@ export const LiquidityProviders: React.FC<LiquidityProvidersProps> = () => {
                           {
                             endpoint: newProviderEndpoint.trim(),
                             name: newProviderName.trim(),
+                            version: 'v2', // TODO: we consider new daemons are always v2
                           },
                         ]);
                       } else {

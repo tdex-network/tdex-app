@@ -7,7 +7,12 @@ import {
   getMarketsFromProviderV2,
   getProvidersFromTDexRegistry,
 } from '../services/tdexService';
-import type { TDEXMarket, TDEXProvider } from '../services/tdexService/v1/tradeCore';
+import type {
+  TDEXProvider,
+  TDEXProviderWithVersion,
+  TDEXMarket as TDEXMarketV1,
+} from '../services/tdexService/v1/tradeCore';
+import type { TDEXMarket as TDEXMarketV2 } from '../services/tdexService/v2/tradeCore';
 import { TDEXRegistryError } from '../utils/errors';
 
 import { storage } from './capacitorPersistentStorage';
@@ -16,12 +21,12 @@ import { useSettingsStore } from './settingsStore';
 import { useToastStore } from './toastStore';
 
 interface TdexState {
-  providers: TDEXProvider[];
-  markets: TDEXMarket[];
+  providers: TDEXProviderWithVersion[];
+  markets: { v1: TDEXMarketV1[]; v2: TDEXMarketV2[] };
 }
 
 export interface TdexActions {
-  addProviders: (providers: TDEXProvider[]) => void;
+  addProviders: (providers: TDEXProviderWithVersion[]) => void;
   clearMarkets: () => void;
   clearProviders: () => void;
   deleteProvider: (provider: TDEXProvider) => void;
@@ -29,13 +34,13 @@ export interface TdexActions {
   fetchMarkets: () => Promise<void>;
   fetchProviders: () => Promise<void>;
   refetchTdexProvidersAndMarkets: () => Promise<void>;
-  replaceMarketsOfProvider: (providerToUpdate: TDEXProvider, markets: TDEXMarket[]) => void;
+  replaceMarketsOfProvider: (providerToUpdate: TDEXProvider, markets: TDEXMarketV1[]) => void;
   resetTdexStore: () => void;
 }
 
 const initialState: TdexState = {
   providers: [],
-  markets: [],
+  markets: { v1: [], v2: [] },
 };
 
 export const useTdexStore = create<TdexState & TdexActions>()(
@@ -43,11 +48,11 @@ export const useTdexStore = create<TdexState & TdexActions>()(
     persist(
       (set, get) => ({
         ...initialState,
-        addProviders: (providers: TDEXProvider[]) => {
+        addProviders: (providers) => {
           set(
             (state) => {
-              const newProviders: TDEXProvider[] = [];
-              providers.forEach((p: TDEXProvider) => {
+              const newProviders: TDEXProviderWithVersion[] = [];
+              providers.forEach((p) => {
                 const isProviderInState = state.providers.some(({ endpoint }) => endpoint === p.endpoint);
                 if (!isProviderInState) newProviders.push(p);
               });
@@ -58,7 +63,7 @@ export const useTdexStore = create<TdexState & TdexActions>()(
             'addProviders'
           );
         },
-        clearMarkets: () => set({ markets: [] }, false, 'clearMarkets'),
+        clearMarkets: () => set({ markets: { v1: [], v2: [] } }, false, 'clearMarkets'),
         clearProviders: () => set({ providers: [] }, false, 'clearProviders'),
         deleteProvider: (provider: TDEXProvider) => {
           set(
@@ -67,57 +72,86 @@ export const useTdexStore = create<TdexState & TdexActions>()(
             'deleteProvider'
           );
         },
-        getProtoVersion: async (providerEndpoint) => {
-          const res = await axios.post(providerEndpoint, { list_services: '' });
-          const isVersion2 = res.data.result.listServicesResponse.service
-            .map((s: any) => s.name)
-            .includes('tdex.v2.TransportService');
-          return isVersion2 ? 'v2' : 'v1';
-        },
         fetchMarkets: async () => {
           const torProxy = useSettingsStore.getState().torProxy;
-          let allMarkets;
-          let marketsToAdd: TDEXMarket[];
-          const version = await get().getProtoVersion('https://v1.provider.tdex.network/v1/info');
-          if (version === 'v1') {
-            allMarkets = await Promise.allSettled(get().providers.map((p) => getMarketsFromProviderV1(p, torProxy)));
-          } else {
-            allMarkets = await Promise.allSettled(get().providers.map((p) => getMarketsFromProviderV2(p, torProxy)));
-          }
+          const marketsV1ToAdd: TDEXMarketV1[] = [];
+          const marketsV2ToAdd: TDEXMarketV2[] = [];
+          const allMarkets = await Promise.allSettled(
+            get().providers.map((p) => {
+              if (p.version === 'v1') {
+                return getMarketsFromProviderV1(p, torProxy);
+              } else {
+                return getMarketsFromProviderV2(p, torProxy);
+              }
+            })
+          );
           allMarkets
-            .map((p, i) => (p.status === 'fulfilled' && p.value ? p.value : []))
+            .map((promise) => (promise.status === 'fulfilled' && promise.value ? promise.value : []))
             .forEach((markets) => {
-              // Check if markets are already in state
-              marketsToAdd = markets.filter((market) => {
-                const isMarketInState = get().markets.some(
-                  (m) =>
-                    m.baseAsset === market.baseAsset &&
-                    m.quoteAsset === market.quoteAsset &&
-                    m.provider.endpoint === market.provider.endpoint &&
-                    m.feeBasisPoint === market.feeBasisPoint
-                );
-                return !isMarketInState;
-              });
-              set((state) => ({ markets: [...state.markets, ...marketsToAdd] }), false, 'fetchMarkets');
+              if (markets.length > 0) {
+                // Check if markets are already in state
+                if (markets[0].provider.version === 'v1') {
+                  marketsV1ToAdd.push(...(markets as TDEXMarketV1[]));
+                } else {
+                  marketsV2ToAdd.push(...(markets as TDEXMarketV2[]));
+                }
+              }
             });
+          set(
+            (state) => ({
+              markets: {
+                v1: marketsV1ToAdd,
+                v2: marketsV2ToAdd,
+              },
+            }),
+            false,
+            'fetchMarkets'
+          );
         },
         fetchProviders: async () => {
           const network = useSettingsStore.getState().network;
+          const providers: TDEXProviderWithVersion[] = [];
           if (network === 'liquid' || network === 'testnet') {
             const providersFromRegistry = await getProvidersFromTDexRegistry(network);
-            get().addProviders(providersFromRegistry);
+            for (const provider of providersFromRegistry) {
+              const version = await get().getProtoVersion(provider.endpoint);
+              providers.push({ ...provider, version });
+            }
+            get().addProviders(providers);
           } else {
-            get().addProviders([{ endpoint: defaultProviderEndpoints.regtest, name: 'Default provider' }]);
+            get().addProviders([
+              { endpoint: defaultProviderEndpoints.regtest, name: 'Default provider', version: 'v1' },
+            ]);
           }
         },
-        replaceMarketsOfProvider: (providerToUpdate: TDEXProvider, markets: TDEXMarket[]) => {
+        getProtoVersion: async (providerEndpoint) => {
+          try {
+            const res = await axios.post(`${providerEndpoint}/v1/info`, { list_services: '' });
+            const isVersion2 = res.data.result.listServicesResponse.service
+              .map((s: any) => s.name)
+              .includes('tdex.v2.TransportService');
+            return isVersion2 ? 'v2' : 'v1';
+          } catch (err) {
+            return 'v1';
+          }
+        },
+        replaceMarketsOfProvider: (providerToUpdate, markets) => {
           set(
             (state) => {
               // Remove markets of provider received in arg
-              const marketsWithoutProviderToUpdate = state.markets.filter(
+              const marketsWithoutProviderToUpdateV1 = state.markets.v1.filter(
                 (market) => market.provider.endpoint !== (providerToUpdate as TDEXProvider).endpoint
               );
-              return { ...state, markets: [...marketsWithoutProviderToUpdate, ...markets] };
+              const marketsWithoutProviderToUpdateV2 = state.markets.v2.filter(
+                (market) => market.provider.endpoint !== (providerToUpdate as TDEXProvider).endpoint
+              );
+              return {
+                ...state,
+                markets: {
+                  v1: marketsWithoutProviderToUpdateV1,
+                  v2: marketsWithoutProviderToUpdateV2,
+                },
+              };
             },
             false,
             'replaceMarketsOfProvider'
