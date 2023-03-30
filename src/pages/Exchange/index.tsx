@@ -191,7 +191,7 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   const onPinConfirm = async (pin: string) => {
     setPINModalOpen(false);
     if (!tdexOrderInputResult) {
-      console.log('tdexOrderInputResult is missing');
+      console.error('tdexOrderInputResult is missing');
       return;
     }
     setIsBusyMakingTrade(true);

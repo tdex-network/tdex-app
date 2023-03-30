@@ -1,9 +1,10 @@
 import secp256k1 from '@vulpemventures/secp256k1-zkp';
 import type { OwnedInput, TxOutput, Pset, PsetInput } from 'liquidjs-lib';
-import { confidential, Transaction } from 'liquidjs-lib';
+import { confidential, ElementsValue, Transaction } from 'liquidjs-lib';
 import { Confidential, confidentialValueToSatoshi } from 'liquidjs-lib/src/confidential';
 
 import * as swapMessages from '../../../api-spec/protobuf/gen/js/tdex/v2/swap_pb';
+import type { UnblindedInput } from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import { isConfidentialOutput, makeid } from '../../../utils/helpers';
 import { decodePset } from '../../../utils/transaction';
 
@@ -79,7 +80,6 @@ export class Swap extends Core {
       }),
     });
     // check the message content and transaction.
-    console.log('msg', msg, swapMessages.SwapRequest.toJsonString(msg));
     await compareMessagesAndTransaction(msg);
     if (this.verbose) console.log(swapMessages.SwapRequest.toJsonString(msg));
     return swapMessages.SwapRequest.toBinary(msg);
@@ -147,18 +147,14 @@ async function compareMessagesAndTransaction(
   msgRequest: swapMessages.SwapRequest,
   msgAccept?: swapMessages.SwapAccept
 ): Promise<void> {
-  console.log('msgRequest.transaction', msgRequest);
   const decodedFromRequest = decodePset(msgRequest.transaction);
-  console.log('decodedFromRequest', decodedFromRequest);
   decodedFromRequest.inputs.forEach((i: PsetInput, inputIndex: number) => {
     if (!i.witnessUtxo && i.nonWitnessUtxo) {
       const vout: number = decodedFromRequest.unsignedTx().ins[inputIndex].index;
       i.witnessUtxo = Transaction.fromHex(i.nonWitnessUtxo.toHex()).outs[vout];
     }
   });
-  const totalP = await countUtxosProtoVersion(decodedFromRequest, msgRequest.assetP);
-  console.log('totalP', totalP);
-  console.log('Number(msgRequest.amountP)', Number(msgRequest.amountP));
+  const totalP = await countUtxosProtoVersion(decodedFromRequest, msgRequest.assetP, msgRequest.unblindedInputs);
   if (totalP < Number(msgRequest.amountP)) {
     throw new Error('Cumulative utxos count is not enough to cover SwapRequest.amount_p');
   }
@@ -182,7 +178,7 @@ async function compareMessagesAndTransaction(
     if (msgRequest.id !== msgAccept.requestId)
       throw new Error('SwapRequest.id and SwapAccept.request_id are not the same');
     // check the amount of utxos.
-    const totalR = await countUtxosProtoVersion(decodedFromAccept, msgRequest.assetR);
+    const totalR = await countUtxosProtoVersion(decodedFromAccept, msgRequest.assetR, []);
     if (totalR < Number(msgRequest.amountR)) {
       throw new Error('Cumulative utxos count is not enough to cover SwapRequest.amount_r');
     }
@@ -242,37 +238,24 @@ async function outputFoundInTransaction(
  * Returns the sum of the values of the given inputs' utxos.
  * @param pset the pset to count inputs values.
  * @param asset the asset to fetch value.
- * @param inputBlindKeys optional, the blinding keys using to unblind witnessUtxo if blinded.
  */
-async function countUtxosProtoVersion(pset: Pset, asset: string, inputBlindKeys: BlindKeysMap = {}): Promise<number> {
+async function countUtxosProtoVersion(pset: Pset, asset: string, unblindedInputs: UnblindedInput[]): Promise<number> {
   const assetBuffer: Buffer = Buffer.from(asset, 'hex').reverse();
   const filteredByWitness = pset.inputs.filter((i) => i.witnessUtxo !== null);
 
   // unblind confidential prevouts
-  const zkplib = await secp256k1();
-  const confidential = new Confidential(zkplib);
   const unblindedUtxos = await Promise.all(
-    filteredByWitness.map(async (i) => {
-      // TODO: isConfidentialOutput should be true (surjectionProof missing)
-      console.log('i.witnessUtxo', i.witnessUtxo);
-      console.log('isConfidentialOutput(i.witnessUtxo)', isConfidentialOutput(i.witnessUtxo));
-      if (i.witnessUtxo && isConfidentialOutput(i.witnessUtxo)) {
-        const blindKey = inputBlindKeys[i.witnessUtxo.script.toString('hex')];
-        if (blindKey === undefined) {
-          throw new Error('no blindKey for script: ' + i.witnessUtxo.script.toString('hex'));
-        }
-        const { value: unblindValue, asset: unblindAsset } = await confidential.unblindOutputWithKey(
-          i.witnessUtxo,
-          blindKey
-        );
+    filteredByWitness.map(async (input, index) => {
+      const utxo = input.getUtxo();
+      if (utxo && ElementsValue.fromBytes(utxo.value).isConfidential) {
         return {
-          asset: unblindAsset,
-          value: unblindValue,
+          asset: Buffer.from(unblindedInputs[index].asset, 'hex'),
+          value: unblindedInputs[index].amount,
         };
       }
       return {
-        asset: i.witnessUtxo!.asset,
-        value: i.witnessUtxo!.value,
+        asset: input.witnessUtxo!.asset,
+        value: input.witnessUtxo!.value,
       };
     })
   );

@@ -101,6 +101,7 @@ export class TradeCore extends Core implements TradeInterface {
    * sending his own quoteAsset using the current market price
    */
   async buy({ market, amount, asset, addressForChangeOutput, addressForSwapOutput }: BuySellOpts): Promise<string> {
+    console.log('buy');
     const swapAccept = await this.marketOrderRequest(
       market,
       TradeType.BUY,
@@ -109,6 +110,7 @@ export class TradeCore extends Core implements TradeInterface {
       addressForChangeOutput,
       addressForSwapOutput
     );
+    console.log('buy swapAccept', swapAccept);
 
     // Retry in case we are too early and the provider doesn't find any trade
     // matching the swapAccept id
@@ -154,6 +156,7 @@ export class TradeCore extends Core implements TradeInterface {
    * receiving the quoteAsset using the current market price
    */
   async sell({ market, amount, asset, addressForChangeOutput, addressForSwapOutput }: BuySellOpts): Promise<string> {
+    console.log('sell');
     const swapAccept = await this.marketOrderRequest(
       market,
       TradeType.SELL,
@@ -162,6 +165,7 @@ export class TradeCore extends Core implements TradeInterface {
       addressForChangeOutput,
       addressForSwapOutput
     );
+    console.log('sell swapAccept', swapAccept);
 
     // Retry in case we are too early and the provider doesn't find any trade
     // matching the swapAccept id
@@ -277,7 +281,6 @@ export class TradeCore extends Core implements TradeInterface {
     );
     const swap = new Swap({ chain: this.chain, verbose: false });
     let swapRequestSerialized: Uint8Array;
-    console.log('swapTx', swapTx);
     const { ownedInputs } = psetToOwnedInputs(swapTx.pset);
     swapRequestSerialized = await swap.request({
       assetToBeSent,
@@ -290,7 +293,6 @@ export class TradeCore extends Core implements TradeInterface {
       unblindedInputs: ownedInputs,
     });
 
-    // 0 === Buy === receiving base_asset; 1 === sell === receiving base_asset
     let swapAcceptSerialized: Uint8Array;
     try {
       swapAcceptSerialized = await this.client.proposeTrade(market, tradeType, swapRequestSerialized);

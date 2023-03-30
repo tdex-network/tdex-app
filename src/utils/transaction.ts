@@ -288,7 +288,6 @@ export function decodePset(psetBase64: string): Pset {
   let pset: Pset;
   try {
     pset = Pset.fromBase64(psetBase64);
-    console.log('decodePset', pset);
   } catch (ignore) {
     throw new Error('Invalid pset');
   }
