@@ -44,6 +44,7 @@ import { useWalletStore } from '../../store/walletStore';
 import { PIN_TIMEOUT_FAILURE } from '../../utils/constants';
 import { AppError, NoMarketsAvailableForSelectedPairError, NoOtherProvider } from '../../utils/errors';
 import { outpointToString } from '../../utils/helpers';
+import { toSatoshi } from '../../utils/unitConversion';
 import type { PreviewData } from '../TradeSummary';
 
 import ExchangeErrorModal from './ExchangeErrorModal';
@@ -203,7 +204,7 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
         [
           {
             address: '',
-            value: Number(tdexOrderInputResult.send.amount),
+            value: toSatoshi(Number(tdexOrderInputResult.send.amount)),
             asset: tdexOrderInputResult.send.asset,
           },
         ],

@@ -275,7 +275,7 @@ export class TradeCore extends Core implements TradeInterface {
       amountToBeSent,
       assetToReceive,
       amountToReceive,
-      psetBase64: swapTx.psbt.toBase64(),
+      psbtBase64: swapTx.psbt.toBase64(),
       inputBlindingKeys: swapTx.inputBlindingKeys,
       outputBlindingKeys: swapTx.outputBlindingKeys,
     });

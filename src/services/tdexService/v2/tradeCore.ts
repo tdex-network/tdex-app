@@ -6,7 +6,7 @@ import { useSettingsStore } from '../../../store/settingsStore';
 import type { CoinSelectionForTrade, ScriptDetails } from '../../../store/walletStore';
 import type { NetworkString } from '../../../utils/constants';
 import { LBTC_ASSET } from '../../../utils/constants';
-import { decodePset, isRawTransaction, isValidAmount } from '../../../utils/transaction';
+import { decodePset, isRawTransaction, isValidAmount, psetToOwnedInputs } from '../../../utils/transaction';
 import { BlinderService } from '../../blinderService';
 import type { SignerInterface } from '../../signerService';
 
@@ -277,6 +277,8 @@ export class TradeCore extends Core implements TradeInterface {
     );
     const swap = new Swap({ chain: this.chain, verbose: false });
     let swapRequestSerialized: Uint8Array;
+    console.log('swapTx', swapTx);
+    const { ownedInputs } = psetToOwnedInputs(swapTx.pset);
     swapRequestSerialized = await swap.request({
       assetToBeSent,
       amountToBeSent,
@@ -285,6 +287,7 @@ export class TradeCore extends Core implements TradeInterface {
       psetBase64: swapTx.pset.toBase64(),
       inputBlindingKeys: swapTx.inputBlindingKeys,
       outputBlindingKeys: swapTx.outputBlindingKeys,
+      unblindedInputs: ownedInputs,
     });
 
     // 0 === Buy === receiving base_asset; 1 === sell === receiving base_asset

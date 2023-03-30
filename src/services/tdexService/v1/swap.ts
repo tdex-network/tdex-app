@@ -4,7 +4,7 @@ import { confidential, Transaction } from 'liquidjs-lib';
 import { Confidential, confidentialValueToSatoshi } from 'liquidjs-lib/src/confidential';
 import type { Psbt } from 'liquidjs-lib/src/psbt';
 
-import * as protoV1 from '../../../api-spec/protobuf/gen/js/tdex/v1/swap_pb';
+import * as swapMessages from '../../../api-spec/protobuf/gen/js/tdex/v1/swap_pb';
 import { isConfidentialOutput, makeid } from '../../../utils/helpers';
 import { decodePsbt } from '../../../utils/transaction';
 
@@ -19,10 +19,9 @@ interface requestOpts {
   amountToBeSent: number;
   assetToReceive: string;
   amountToReceive: number;
-  psetBase64: string;
+  psbtBase64: string;
   inputBlindingKeys?: BlindKeysMap;
   outputBlindingKeys?: BlindKeysMap;
-  unblindedInputs?: OwnedInput[];
 }
 
 // define the Swap.accept arguments.
@@ -50,26 +49,24 @@ export class Swap extends Core {
    * @param psetBase64 the pset base64 string.
    * @param inputBlindingKeys the input blinding keys.
    * @param outputBlindingKeys the output blinding keys.
-   * @param unblindedInputs
    */
   async request({
     amountToBeSent,
     assetToBeSent,
     amountToReceive,
     assetToReceive,
-    psetBase64,
+    psbtBase64,
     inputBlindingKeys,
     outputBlindingKeys,
-    unblindedInputs,
   }: requestOpts): Promise<Uint8Array> {
     // Check amounts
-    const msg = protoV1.SwapRequest.create({
+    const msg = swapMessages.SwapRequest.create({
       id: makeid(8),
       amountP: String(amountToBeSent),
       assetP: assetToBeSent,
       amountR: String(amountToReceive),
       assetR: assetToReceive,
-      transaction: psetBase64,
+      transaction: psbtBase64,
     });
     if (inputBlindingKeys) {
       // set the input blinding keys
@@ -85,8 +82,8 @@ export class Swap extends Core {
     }
     // check the message content and transaction.
     await compareMessagesAndTransaction(msg);
-    if (this.verbose) console.log(protoV1.SwapRequest.toJsonString(msg));
-    return protoV1.SwapRequest.toBinary(msg);
+    if (this.verbose) console.log(swapMessages.SwapRequest.toJsonString(msg));
+    return swapMessages.SwapRequest.toBinary(msg);
   }
 
   /**
@@ -100,9 +97,9 @@ export class Swap extends Core {
     unblindedInputs,
   }: acceptOpts): Promise<Uint8Array> {
     // deserialize message parameter to get the SwapRequest message.
-    const msgRequest = protoV1.SwapRequest.fromBinary(message);
+    const msgRequest = swapMessages.SwapRequest.fromBinary(message);
     // Build Swap Accept message
-    const msgAccept = protoV1.SwapAccept.create({
+    const msgAccept = swapMessages.SwapAccept.create({
       id: makeid(8),
       requestId: msgRequest.id,
       transaction: psetBase64,
@@ -121,9 +118,9 @@ export class Swap extends Core {
     }
     // compare messages and transaction data
     await compareMessagesAndTransaction(msgRequest, msgAccept);
-    if (this.verbose) console.log(protoV1.SwapAccept.toJsonString(msgAccept));
+    if (this.verbose) console.log(swapMessages.SwapAccept.toJsonString(msgAccept));
     // serialize the SwapAccept message.
-    return protoV1.SwapAccept.toBinary(msgAccept);
+    return swapMessages.SwapAccept.toBinary(msgAccept);
   }
 
   /**
@@ -131,15 +128,15 @@ export class Swap extends Core {
    * @param args contains the SwapAccept message + the base64 encoded transaction.
    */
   complete({ message, psetBase64OrHex }: { message: Uint8Array; psetBase64OrHex: string }): Uint8Array {
-    const msgAccept = protoV1.SwapAccept.fromBinary(message);
+    const msgAccept = swapMessages.SwapAccept.fromBinary(message);
     //Build SwapComplete
-    const msgComplete = protoV1.SwapComplete.create({
+    const msgComplete = swapMessages.SwapComplete.create({
       id: makeid(8),
       acceptId: msgAccept.id,
       transaction: psetBase64OrHex,
     });
-    if (this.verbose) console.log(protoV1.SwapAccept.toJsonString(msgAccept));
-    return protoV1.SwapComplete.toBinary(msgComplete);
+    if (this.verbose) console.log(swapMessages.SwapAccept.toJsonString(msgAccept));
+    return swapMessages.SwapComplete.toBinary(msgComplete);
   }
 }
 
@@ -149,15 +146,14 @@ export class Swap extends Core {
  * @param msgAccept the swap accept message.
  */
 async function compareMessagesAndTransaction(
-  msgRequest: protoV1.SwapRequest,
-  msgAccept?: protoV1.SwapAccept
+  msgRequest: swapMessages.SwapRequest,
+  msgAccept?: swapMessages.SwapAccept
 ): Promise<void> {
   const decodedFromRequest = decodePsbt(msgRequest.transaction);
   decodedFromRequest.psbt.data.inputs.forEach((i: any, inputIndex: number) => {
     if (!i.witnessUtxo && i.nonWitnessUtxo) {
       const vout: number = decodedFromRequest.transaction.ins[inputIndex].index;
-      const witnessUtxo: TxOutput = Transaction.fromHex(i.nonWitnessUtxo).outs[vout];
-      i.witnessUtxo = witnessUtxo;
+      i.witnessUtxo = Transaction.fromHex(i.nonWitnessUtxo).outs[vout];
     }
   });
   const totalP = await countUtxosProtoVersion(
@@ -308,7 +304,7 @@ function parse({
 }): string {
   let msg: any;
   try {
-    msg = protoV1 as any;
+    msg = swapMessages as any;
   } catch (e) {
     throw new Error(`Not valid message of expected type ${type}`);
   }

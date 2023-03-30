@@ -79,6 +79,7 @@ export class Swap extends Core {
       }),
     });
     // check the message content and transaction.
+    console.log('msg', msg, swapMessages.SwapRequest.toJsonString(msg));
     await compareMessagesAndTransaction(msg);
     if (this.verbose) console.log(swapMessages.SwapRequest.toJsonString(msg));
     return swapMessages.SwapRequest.toBinary(msg);
@@ -146,7 +147,9 @@ async function compareMessagesAndTransaction(
   msgRequest: swapMessages.SwapRequest,
   msgAccept?: swapMessages.SwapAccept
 ): Promise<void> {
+  console.log('msgRequest.transaction', msgRequest);
   const decodedFromRequest = decodePset(msgRequest.transaction);
+  console.log('decodedFromRequest', decodedFromRequest);
   decodedFromRequest.inputs.forEach((i: PsetInput, inputIndex: number) => {
     if (!i.witnessUtxo && i.nonWitnessUtxo) {
       const vout: number = decodedFromRequest.unsignedTx().ins[inputIndex].index;
@@ -154,6 +157,8 @@ async function compareMessagesAndTransaction(
     }
   });
   const totalP = await countUtxosProtoVersion(decodedFromRequest, msgRequest.assetP);
+  console.log('totalP', totalP);
+  console.log('Number(msgRequest.amountP)', Number(msgRequest.amountP));
   if (totalP < Number(msgRequest.amountP)) {
     throw new Error('Cumulative utxos count is not enough to cover SwapRequest.amount_p');
   }
@@ -248,6 +253,9 @@ async function countUtxosProtoVersion(pset: Pset, asset: string, inputBlindKeys:
   const confidential = new Confidential(zkplib);
   const unblindedUtxos = await Promise.all(
     filteredByWitness.map(async (i) => {
+      // TODO: isConfidentialOutput should be true (surjectionProof missing)
+      console.log('i.witnessUtxo', i.witnessUtxo);
+      console.log('isConfidentialOutput(i.witnessUtxo)', isConfidentialOutput(i.witnessUtxo));
       if (i.witnessUtxo && isConfidentialOutput(i.witnessUtxo)) {
         const blindKey = inputBlindKeys[i.witnessUtxo.script.toString('hex')];
         if (blindKey === undefined) {
