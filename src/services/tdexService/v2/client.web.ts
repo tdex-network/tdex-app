@@ -57,12 +57,15 @@ export class TraderClient implements TraderClientInterface {
   ): Promise<Uint8Array> {
     const network = useSettingsStore.getState().network;
     const market = types.Market.create({ baseAsset, quoteAsset });
+    console.log(
+      'SwapRequest.toJson(SwapRequest.fromBinary(swapRequestSerialized))',
+      SwapRequest.toJson(SwapRequest.fromBinary(swapRequestSerialized))
+    );
     const request = messages.ProposeTradeRequest.create({
       market: market,
       type: tradeType,
       swapRequest: SwapRequest.fromBinary(swapRequestSerialized),
       feeAsset: LBTC_ASSET[network].assetHash, // TODO: make it dynamic
-      feeAmount: '200', // TODO: make it dynamic
     });
     const call = await this.client.proposeTrade(request);
     if (call.response.swapFail) {

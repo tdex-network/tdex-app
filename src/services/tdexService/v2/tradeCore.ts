@@ -282,6 +282,7 @@ export class TradeCore extends Core implements TradeInterface {
     const swap = new Swap({ chain: this.chain, verbose: false });
     let swapRequestSerialized: Uint8Array;
     const { ownedInputs } = psetToOwnedInputs(swapTx.pset);
+    console.log('ownedInputs', ownedInputs);
     swapRequestSerialized = await swap.request({
       assetToBeSent,
       amountToBeSent,
