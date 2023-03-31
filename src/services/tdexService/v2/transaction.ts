@@ -31,14 +31,15 @@ export class SwapTransaction implements SwapTransactionInterface {
     this.blindingKeyNode = slip77.fromMasterBlindingKey(masterBlindingKey);
   }
 
-  async createProto(
+  async createPset(
     coinSelectionForTrade: CoinSelectionForTrade,
     amountToBeSent: number,
     amountToReceive: number,
     assetToBeSent: string,
     assetToReceive: string,
     addressForChangeOutput: ScriptDetails,
-    addressForSwapOutput: ScriptDetails
+    addressForSwapOutput: ScriptDetails,
+    tradeFeeAmount: number
   ): Promise<void> {
     const ins: UpdaterInput[] = [];
     const outs: UpdaterOutput[] = [];
@@ -79,7 +80,7 @@ export class SwapTransaction implements SwapTransactionInterface {
       for (const { asset, amount } of changeOutputs) {
         const updaterOutChange: UpdaterOutput = {
           asset: asset,
-          amount: amount,
+          amount: amount - tradeFeeAmount,
           script: Buffer.from(addressForChangeOutput.script, 'hex'),
         };
         if (address.isConfidential(addressForChangeOutput?.confidentialAddress ?? '')) {

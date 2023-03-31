@@ -60,11 +60,11 @@ export const LiquidityProviders: React.FC<LiquidityProvidersProps> = () => {
     },
     {
       text: 'Delete',
-      handler: async () => {
+      handler: () => {
         if (providerToDelete) {
           deleteProvider(providerToDelete);
           clearMarkets();
-          await useTdexStore.getState().fetchMarkets();
+          useTdexStore.getState().fetchMarkets();
         }
       },
     },

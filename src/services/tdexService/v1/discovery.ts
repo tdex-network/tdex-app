@@ -36,7 +36,7 @@ export const bestBalanceDiscovery: Discovery = async (
 ) => {
   const balancesPromises = orders.map((order) => {
     const { traderClient, market, type } = order;
-    return traderClient.balance(market).then((balanceWithFee) => {
+    return traderClient.getMarketBalance(market).then((balanceWithFee) => {
       if (!balanceWithFee?.balance)
         throw new Error(
           `no balances for market ${market.baseAsset}/${market.quoteAsset} using provider: ${traderClient.providerUrl}`
@@ -87,7 +87,7 @@ export const bestPriceDiscovery: Discovery = async (
 ) => {
   const pricesPromises = orders.map((order) =>
     order.traderClient
-      .marketPrice({ market: order.market, type: order.type, amount: opts.amount.toString(), asset: opts.asset })
+      .previewTrade({ market: order.market, type: order.type, amount: opts.amount.toString(), asset: opts.asset })
       .then((response) => ({ order, amount: response[0].amount }))
   );
   const pricesResults = await Promise.allSettled(pricesPromises);

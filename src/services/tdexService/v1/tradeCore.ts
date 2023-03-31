@@ -222,7 +222,7 @@ export class TradeCore extends Core implements TradeInterface {
       throw new Error('Amount is not valid');
     }
     const { baseAsset, quoteAsset } = market;
-    const prices = await this.client.marketPrice({ market, type: tradeType, amount: amount.toString(), asset });
+    const prices = await this.client.previewTrade({ market, type: tradeType, amount: amount.toString(), asset });
     const previewedAmount = prices[0].amount;
     if (tradeType === TradeType.BUY) {
       return {

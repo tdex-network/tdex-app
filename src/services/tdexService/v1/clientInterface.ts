@@ -19,9 +19,9 @@ export default interface TraderClientInterface {
 
   completeTrade(swapCompleteSerialized: Uint8Array): Promise<string>;
 
-  markets(): Promise<ListMarketsResponse['markets']>;
+  listMarkets(): Promise<ListMarketsResponse['markets']>;
 
-  marketPrice(arg: PreviewTradeRequest): Promise<PreviewTradeResponse['previews']>;
+  previewTrade(arg: PreviewTradeRequest): Promise<PreviewTradeResponse['previews']>;
 
-  balance({ baseAsset, quoteAsset }: Market): Promise<GetMarketBalanceResponse['balance']>;
+  getMarketBalance({ baseAsset, quoteAsset }: Market): Promise<GetMarketBalanceResponse['balance']>;
 }

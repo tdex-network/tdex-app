@@ -49,11 +49,11 @@ export async function getMarketsFromProviderV1(
   torProxy = config.torProxy
 ): Promise<TDEXMarketV1[]> {
   const client = new TraderClientV1(p.endpoint, torProxy);
-  const markets = await client.markets();
+  const markets = await client.listMarkets();
   const results: TDEXMarketV1[] = [];
   for (const { market, fee } of markets) {
     if (!market) continue;
-    const balance = (await client.balance(market))?.balance;
+    const balance = (await client.getMarketBalance(market))?.balance;
     results.push({
       provider: p,
       ...market,
@@ -190,7 +190,7 @@ export async function marketPriceRequestV1(
 }> {
   const otherAsset = asset === order.market.baseAsset ? order.market.quoteAsset : order.market.baseAsset;
   if (sats <= 0) return { asset: otherAsset, sats: String(0) };
-  const response = await order.traderClient.marketPrice({
+  const response = await order.traderClient.previewTrade({
     market: order.market,
     type: order.type,
     amount: sats.toString(),
@@ -209,11 +209,11 @@ export async function getMarketsFromProviderV2(
   torProxy = config.torProxy
 ): Promise<TDEXMarketV2[]> {
   const client = new TraderClientV2(p.endpoint, torProxy);
-  const markets = await client.markets();
+  const markets = await client.listMarkets();
   const results: TDEXMarketV2[] = [];
   for (const { market, fee } of markets) {
     if (!market) continue;
-    const balance = await client.balance(market);
+    const balance = await client.getMarketBalance(market);
     results.push({
       provider: p,
       ...market,
@@ -351,7 +351,7 @@ export async function marketPriceRequestV2(
   const network = useSettingsStore.getState().network;
   const otherAsset = asset === order.market.baseAsset ? order.market.quoteAsset : order.market.baseAsset;
   if (sats <= 0) return { asset: otherAsset, sats: String(0) };
-  const response = await order.traderClient.marketPrice({
+  const response = await order.traderClient.previewTrade({
     market: order.market,
     type: order.type,
     amount: sats.toString(),

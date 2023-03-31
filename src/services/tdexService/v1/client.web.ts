@@ -3,7 +3,12 @@ import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
 import { Tdexv1ContentType } from '../../../api-spec/openapi/swagger/v1/transport/data-contracts';
 import { SwapAccept, SwapComplete, SwapRequest } from '../../../api-spec/protobuf/gen/js/tdex/v1/swap_pb';
 import * as messages from '../../../api-spec/protobuf/gen/js/tdex/v1/trade_pb';
-import type { GetMarketBalanceResponse, ListMarketsResponse , PreviewTradeRequest, PreviewTradeResponse } from '../../../api-spec/protobuf/gen/js/tdex/v1/trade_pb';
+import type {
+  GetMarketBalanceResponse,
+  ListMarketsResponse,
+  PreviewTradeRequest,
+  PreviewTradeResponse,
+} from '../../../api-spec/protobuf/gen/js/tdex/v1/trade_pb';
 import * as services from '../../../api-spec/protobuf/gen/js/tdex/v1/trade_pb.client';
 import * as types from '../../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
 import type { TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
@@ -81,12 +86,12 @@ export class TraderClient implements TraderClientInterface {
     return call.response.txid;
   }
 
-  async markets(): Promise<ListMarketsResponse['markets']> {
+  async listMarkets(): Promise<ListMarketsResponse['markets']> {
     const call = await this.client.listMarkets(messages.ListMarketsRequest.create());
     return call.response.markets;
   }
 
-  async marketPrice({ market, type, amount, asset }: PreviewTradeRequest): Promise<PreviewTradeResponse['previews']> {
+  async previewTrade({ market, type, amount, asset }: PreviewTradeRequest): Promise<PreviewTradeResponse['previews']> {
     const marketObj = types.Market.create({ baseAsset: market?.baseAsset, quoteAsset: market?.quoteAsset });
     const request = messages.PreviewTradeRequest.create({
       market: marketObj,
@@ -98,7 +103,7 @@ export class TraderClient implements TraderClientInterface {
     return call.response.previews;
   }
 
-  async balance({ baseAsset, quoteAsset }: types.Market): Promise<GetMarketBalanceResponse['balance']> {
+  async getMarketBalance({ baseAsset, quoteAsset }: types.Market): Promise<GetMarketBalanceResponse['balance']> {
     const market = types.Market.create({ baseAsset, quoteAsset });
     const request = messages.GetMarketBalanceRequest.create({ market });
     const call = await this.client.getMarketBalance(request);

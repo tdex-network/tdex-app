@@ -1,6 +1,6 @@
 import secp256k1 from '@vulpemventures/secp256k1-zkp';
-import type { OwnedInput, TxOutput, PsetInput } from 'liquidjs-lib';
-import { Pset, confidential, ElementsValue, Transaction } from 'liquidjs-lib';
+import type { OwnedInput, TxOutput, PsetInput , Pset} from 'liquidjs-lib';
+import { confidential, ElementsValue, Transaction } from 'liquidjs-lib';
 import { Confidential, confidentialValueToSatoshi } from 'liquidjs-lib/src/confidential';
 
 import * as swapMessages from '../../../api-spec/protobuf/gen/js/tdex/v2/swap_pb';
@@ -62,7 +62,6 @@ export class Swap extends Core {
     outputBlindingKeys,
     unblindedInputs,
   }: requestOpts): Promise<Uint8Array> {
-    console.log('Pset.fromBase64(psetBase64).unsignedTx().toHex()', Pset.fromBase64(psetBase64).unsignedTx().toHex());
     const msg = swapMessages.SwapRequest.create({
       id: makeid(8),
       amountP: String(amountToBeSent),

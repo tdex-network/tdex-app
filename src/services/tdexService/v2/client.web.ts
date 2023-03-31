@@ -57,10 +57,6 @@ export class TraderClient implements TraderClientInterface {
   ): Promise<Uint8Array> {
     const network = useSettingsStore.getState().network;
     const market = types.Market.create({ baseAsset, quoteAsset });
-    console.log(
-      'SwapRequest.toJson(SwapRequest.fromBinary(swapRequestSerialized))',
-      SwapRequest.toJson(SwapRequest.fromBinary(swapRequestSerialized))
-    );
     const request = messages.ProposeTradeRequest.create({
       market: market,
       type: tradeType,
@@ -94,12 +90,12 @@ export class TraderClient implements TraderClientInterface {
     return call.response.txid;
   }
 
-  async markets(): Promise<ListMarketsResponse['markets']> {
+  async listMarkets(): Promise<ListMarketsResponse['markets']> {
     const call = await this.client.listMarkets(messages.ListMarketsRequest.create());
     return call.response.markets;
   }
 
-  async marketPrice({
+  async previewTrade({
     market,
     type,
     amount,
@@ -118,7 +114,7 @@ export class TraderClient implements TraderClientInterface {
     return call.response.previews;
   }
 
-  async balance({ baseAsset, quoteAsset }: types.Market): Promise<GetMarketBalanceResponse['balance']> {
+  async getMarketBalance({ baseAsset, quoteAsset }: types.Market): Promise<GetMarketBalanceResponse['balance']> {
     const market = types.Market.create({ baseAsset, quoteAsset });
     const request = messages.GetMarketBalanceRequest.create({ market });
     const call = await this.client.getMarketBalance(request);

@@ -101,7 +101,6 @@ export class TradeCore extends Core implements TradeInterface {
    * sending his own quoteAsset using the current market price
    */
   async buy({ market, amount, asset, addressForChangeOutput, addressForSwapOutput }: BuySellOpts): Promise<string> {
-    console.log('buy');
     const swapAccept = await this.marketOrderRequest(
       market,
       TradeType.BUY,
@@ -110,7 +109,6 @@ export class TradeCore extends Core implements TradeInterface {
       addressForChangeOutput,
       addressForSwapOutput
     );
-    console.log('buy swapAccept', swapAccept);
 
     // Retry in case we are too early and the provider doesn't find any trade
     // matching the swapAccept id
@@ -156,7 +154,6 @@ export class TradeCore extends Core implements TradeInterface {
    * receiving the quoteAsset using the current market price
    */
   async sell({ market, amount, asset, addressForChangeOutput, addressForSwapOutput }: BuySellOpts): Promise<string> {
-    console.log('sell');
     const swapAccept = await this.marketOrderRequest(
       market,
       TradeType.SELL,
@@ -165,7 +162,6 @@ export class TradeCore extends Core implements TradeInterface {
       addressForChangeOutput,
       addressForSwapOutput
     );
-    console.log('sell swapAccept', swapAccept);
 
     // Retry in case we are too early and the provider doesn't find any trade
     // matching the swapAccept id
@@ -221,34 +217,44 @@ export class TradeCore extends Core implements TradeInterface {
     amountToBeSent: number;
     assetToReceive: string;
     amountToReceive: number;
+    tradeFeeAmount: number;
   }> {
     if (!isValidAmount(amount)) {
       throw new Error('Amount is not valid');
     }
     const network = useSettingsStore.getState().network;
     const { baseAsset, quoteAsset } = market;
-    const prices = await this.client.marketPrice({
+    const tradePreviews = await this.client.previewTrade({
       market,
       type: tradeType,
       amount: amount.toString(),
       asset,
       feeAsset: LBTC_ASSET[network].assetHash,
     });
-    const previewedAmount = prices[0].amount;
+    const previewedAmount = tradePreviews[0].amount;
+    const previewedFeeAmount = tradePreviews[0].feeAmount;
     if (tradeType === TradeType.BUY) {
       return {
         assetToBeSent: quoteAsset,
-        amountToBeSent: asset === baseAsset ? Number(previewedAmount) : Number(amount),
+        amountToBeSent:
+          asset === baseAsset
+            ? Number(previewedAmount) - Number(previewedFeeAmount)
+            : Number(amount) + Number(previewedFeeAmount),
         assetToReceive: baseAsset,
         amountToReceive: asset === baseAsset ? Number(amount) : Number(previewedAmount),
+        tradeFeeAmount: Number(previewedFeeAmount),
       };
     }
 
     return {
       assetToBeSent: baseAsset,
-      amountToBeSent: asset === quoteAsset ? Number(previewedAmount) : Number(amount),
+      amountToBeSent:
+        asset === baseAsset
+          ? Number(amount) + Number(previewedFeeAmount)
+          : Number(previewedAmount) - Number(previewedFeeAmount),
       assetToReceive: quoteAsset,
-      amountToReceive: asset === quoteAsset ? Number(amount) : Number(previewedAmount),
+      amountToReceive: asset === baseAsset ? Number(previewedAmount) : Number(amount),
+      tradeFeeAmount: Number(previewedFeeAmount),
     };
   }
 
@@ -260,7 +266,7 @@ export class TradeCore extends Core implements TradeInterface {
     addressForChangeOutput: ScriptDetails,
     addressForSwapOutput: ScriptDetails
   ): Promise<Uint8Array> {
-    const { assetToBeSent, amountToBeSent, assetToReceive, amountToReceive } = await this.preview({
+    const { assetToBeSent, amountToBeSent, assetToReceive, amountToReceive, tradeFeeAmount } = await this.preview({
       market,
       tradeType,
       amount: amountInSatoshis,
@@ -270,19 +276,19 @@ export class TradeCore extends Core implements TradeInterface {
       network: networks[this.chain],
       masterBlindingKey: this.masterBlindingKey,
     });
-    await swapTx.createProto(
+    await swapTx.createPset(
       this.coinSelectionForTrade,
       amountToBeSent,
       amountToReceive,
       assetToBeSent,
       assetToReceive,
       addressForChangeOutput,
-      addressForSwapOutput
+      addressForSwapOutput,
+      tradeFeeAmount
     );
     const swap = new Swap({ chain: this.chain, verbose: false });
     let swapRequestSerialized: Uint8Array;
     const { ownedInputs } = psetToOwnedInputs(swapTx.pset);
-    console.log('ownedInputs', ownedInputs);
     swapRequestSerialized = await swap.request({
       assetToBeSent,
       amountToBeSent,
