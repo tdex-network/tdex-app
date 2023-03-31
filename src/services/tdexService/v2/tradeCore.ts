@@ -287,9 +287,8 @@ export class TradeCore extends Core implements TradeInterface {
       tradeFeeAmount
     );
     const swap = new Swap({ chain: this.chain, verbose: false });
-    let swapRequestSerialized: Uint8Array;
     const { ownedInputs } = psetToOwnedInputs(swapTx.pset);
-    swapRequestSerialized = await swap.request({
+    const swapRequestSerialized = await swap.request({
       assetToBeSent,
       amountToBeSent,
       assetToReceive,
@@ -299,34 +298,24 @@ export class TradeCore extends Core implements TradeInterface {
       outputBlindingKeys: swapTx.outputBlindingKeys,
       unblindedInputs: ownedInputs,
     });
-
-    let swapAcceptSerialized: Uint8Array;
-    try {
-      swapAcceptSerialized = await this.client.proposeTrade(market, tradeType, swapRequestSerialized);
-    } catch (e) {
-      throw e;
-    }
-
-    return swapAcceptSerialized;
+    // return the serialized swap request
+    return await this.client.proposeTrade(market, tradeType, swapRequestSerialized);
   }
 
   private async marketOrderComplete(swapAcceptSerialized: Uint8Array, autoComplete?: boolean): Promise<string> {
     // trader need to check the signed inputs by the provider
     // and add his own inputs if all is correct
-    let swapAcceptMessage;
-    let signedHex;
-    swapAcceptMessage = SwapAccept.fromBinary(swapAcceptSerialized);
+    const swapAcceptMessage = SwapAccept.fromBinary(swapAcceptSerialized);
     const psetBase64 = swapAcceptMessage.transaction;
     const blinder = new BlinderService();
     const blindedPset = await blinder.blindPset(decodePset(psetBase64));
     const signedPset = await this.signer.signPset(blindedPset);
-    signedHex = this.signer.finalizeAndExtract(signedPset);
+    const signedHex = this.signer.finalizeAndExtract(signedPset);
     if (autoComplete) {
       if (isRawTransaction(signedHex)) {
         return signedHex;
       }
     }
-
     // Trader  adds his signed inputs to the transaction
     const swap = new Swap({ chain: this.chain, verbose: false });
     const swapCompleteSerialized = swap.complete({
@@ -334,12 +323,7 @@ export class TradeCore extends Core implements TradeInterface {
       psetBase64OrHex: signedHex,
     });
     // Trader call the completeTrade endpoint to finalize the swap
-    let txid: string;
-    try {
-      txid = await this.client.completeTrade(swapCompleteSerialized);
-    } catch (e) {
-      throw e;
-    }
-    return txid;
+    // return txid
+    return await this.client.completeTrade(swapCompleteSerialized);
   }
 }
