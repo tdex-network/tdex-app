@@ -1,5 +1,5 @@
 import secp256k1 from '@vulpemventures/secp256k1-zkp';
-import type { OwnedInput, TxOutput, PsetInput , Pset} from 'liquidjs-lib';
+import type { OwnedInput, TxOutput, PsetInput, Pset } from 'liquidjs-lib';
 import { confidential, ElementsValue, Transaction } from 'liquidjs-lib';
 import { Confidential, confidentialValueToSatoshi } from 'liquidjs-lib/src/confidential';
 
@@ -10,10 +10,8 @@ import { decodePset } from '../../../utils/transaction';
 
 import Core from './core';
 
-// type for BlindingKeys
 type BlindKeysMap = Record<string, Buffer>;
 
-// define the Swap.request arguments.
 interface requestOpts {
   assetToBeSent: string;
   amountToBeSent: number;
@@ -25,7 +23,6 @@ interface requestOpts {
   unblindedInputs?: OwnedInput[];
 }
 
-// define the Swap.accept arguments.
 interface acceptOpts {
   message: Uint8Array;
   psetBase64: string;
@@ -82,6 +79,7 @@ export class Swap extends Core {
     // check the message content and transaction.
     await compareMessagesAndTransaction(msg);
     if (this.verbose) console.log(swapMessages.SwapRequest.toJsonString(msg));
+    console.log('swapMessages.SwapRequest.toJson(msg)', swapMessages.SwapRequest.toJson(msg));
     return swapMessages.SwapRequest.toBinary(msg);
   }
 
@@ -95,9 +93,7 @@ export class Swap extends Core {
     outputBlindingKeys,
     unblindedInputs,
   }: acceptOpts): Promise<Uint8Array> {
-    // deserialize message parameter to get the SwapRequest message.
     const msgRequest = swapMessages.SwapRequest.fromBinary(message);
-    // Build Swap Accept message
     const msgAccept = swapMessages.SwapAccept.create({
       id: makeid(8),
       requestId: msgRequest.id,
@@ -154,7 +150,7 @@ async function compareMessagesAndTransaction(
       i.witnessUtxo = Transaction.fromHex(i.nonWitnessUtxo.toHex()).outs[vout];
     }
   });
-  const totalP = await countUtxosProtoVersion(decodedFromRequest, msgRequest.assetP, msgRequest.unblindedInputs);
+  const totalP = await countUtxos(decodedFromRequest, msgRequest.assetP, msgRequest.unblindedInputs);
   if (totalP < Number(msgRequest.amountP)) {
     throw new Error('Cumulative utxos count is not enough to cover SwapRequest.amount_p');
   }
@@ -178,7 +174,7 @@ async function compareMessagesAndTransaction(
     if (msgRequest.id !== msgAccept.requestId)
       throw new Error('SwapRequest.id and SwapAccept.request_id are not the same');
     // check the amount of utxos.
-    const totalR = await countUtxosProtoVersion(decodedFromAccept, msgRequest.assetR, []);
+    const totalR = await countUtxos(decodedFromAccept, msgRequest.assetR, []);
     if (totalR < Number(msgRequest.amountR)) {
       throw new Error('Cumulative utxos count is not enough to cover SwapRequest.amount_r');
     }
@@ -238,9 +234,10 @@ async function outputFoundInTransaction(
  * Returns the sum of the values of the given inputs' utxos.
  * @param pset the pset to count inputs values.
  * @param asset the asset to fetch value.
+ * @param unblindedInputs
  */
-async function countUtxosProtoVersion(pset: Pset, asset: string, unblindedInputs: UnblindedInput[]): Promise<number> {
-  const assetBuffer: Buffer = Buffer.from(asset, 'hex').reverse();
+async function countUtxos(pset: Pset, asset: string, unblindedInputs: UnblindedInput[]): Promise<number> {
+  const assetBuffer: Buffer = Buffer.from(asset, 'hex');
   const filteredByWitness = pset.inputs.filter((i) => i.witnessUtxo !== null);
 
   // unblind confidential prevouts

@@ -63,7 +63,7 @@ export class SwapTransaction implements SwapTransactionInterface {
     // add the receiving output
     const updaterOutReceive: UpdaterOutput = {
       asset: assetToReceive,
-      amount: amountToReceive,
+      amount: amountToReceive - tradeFeeAmount,
       script: Buffer.from(addressForSwapOutput.script, 'hex'),
     };
     if (address.isConfidential(addressForSwapOutput?.confidentialAddress ?? '')) {
@@ -80,7 +80,7 @@ export class SwapTransaction implements SwapTransactionInterface {
       for (const { asset, amount } of changeOutputs) {
         const updaterOutChange: UpdaterOutput = {
           asset: asset,
-          amount: amount - tradeFeeAmount,
+          amount: amount,
           script: Buffer.from(addressForChangeOutput.script, 'hex'),
         };
         if (address.isConfidential(addressForChangeOutput?.confidentialAddress ?? '')) {

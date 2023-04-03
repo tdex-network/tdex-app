@@ -13,8 +13,6 @@ import * as services from '../../../api-spec/protobuf/gen/js/tdex/v2/trade_pb.cl
 import * as types from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import type { TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import { config } from '../../../store/config';
-import { useSettingsStore } from '../../../store/settingsStore';
-import { LBTC_ASSET } from '../../../utils/constants';
 import { getClearTextTorProxyUrl } from '../index';
 
 import type TraderClientInterface from './clientInterface';
@@ -55,13 +53,12 @@ export class TraderClient implements TraderClientInterface {
     tradeType: TradeType,
     swapRequestSerialized: Uint8Array
   ): Promise<Uint8Array> {
-    const network = useSettingsStore.getState().network;
     const market = types.Market.create({ baseAsset, quoteAsset });
     const request = messages.ProposeTradeRequest.create({
       market: market,
       type: tradeType,
       swapRequest: SwapRequest.fromBinary(swapRequestSerialized),
-      feeAsset: LBTC_ASSET[network].assetHash, // TODO: make it dynamic
+      feeAsset: quoteAsset,
     });
     const call = await this.client.proposeTrade(request);
     if (call.response.swapFail) {
@@ -70,6 +67,9 @@ export class TraderClient implements TraderClientInterface {
       );
     }
     const swapAcceptMsg = call.response.swapAccept;
+    if (swapAcceptMsg) {
+      console.log('swapAcceptMsg', SwapAccept.toJson(swapAcceptMsg));
+    }
     return SwapAccept.toBinary(swapAcceptMsg!);
   }
 

@@ -3,10 +3,8 @@ import axios from 'axios';
 import { TradeType as TradeTypeV1 } from '../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
 import { TradeType as TradeTypeV2 } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import { config } from '../../store/config';
-import { useSettingsStore } from '../../store/settingsStore';
 import type { CoinSelectionForTrade, ScriptDetails } from '../../store/walletStore';
 import type { NetworkString } from '../../utils/constants';
-import { LBTC_ASSET } from '../../utils/constants';
 import { AppError, NoMarketsAvailableForSelectedPairError } from '../../utils/errors';
 // Self import for unit testing
 import type { SignerInterface } from '../signerService';
@@ -348,7 +346,6 @@ export async function marketPriceRequestV2(
   asset: string;
   sats: string;
 }> {
-  const network = useSettingsStore.getState().network;
   const otherAsset = asset === order.market.baseAsset ? order.market.quoteAsset : order.market.baseAsset;
   if (sats <= 0) return { asset: otherAsset, sats: String(0) };
   const response = await order.traderClient.previewTrade({
@@ -356,7 +353,7 @@ export async function marketPriceRequestV2(
     type: order.type,
     amount: sats.toString(),
     asset: asset,
-    feeAsset: LBTC_ASSET[network].assetHash,
+    feeAsset: order.market.quoteAsset,
   });
   return {
     asset: response[0].asset,

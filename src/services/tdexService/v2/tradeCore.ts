@@ -2,10 +2,8 @@ import { networks } from 'liquidjs-lib';
 
 import { SwapAccept } from '../../../api-spec/protobuf/gen/js/tdex/v2/swap_pb';
 import { TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
-import { useSettingsStore } from '../../../store/settingsStore';
 import type { CoinSelectionForTrade, ScriptDetails } from '../../../store/walletStore';
 import type { NetworkString } from '../../../utils/constants';
-import { LBTC_ASSET } from '../../../utils/constants';
 import { decodePset, isRawTransaction, isValidAmount, psetToOwnedInputs } from '../../../utils/transaction';
 import { BlinderService } from '../../blinderService';
 import type { SignerInterface } from '../../signerService';
@@ -222,24 +220,20 @@ export class TradeCore extends Core implements TradeInterface {
     if (!isValidAmount(amount)) {
       throw new Error('Amount is not valid');
     }
-    const network = useSettingsStore.getState().network;
     const { baseAsset, quoteAsset } = market;
     const tradePreviews = await this.client.previewTrade({
       market,
       type: tradeType,
       amount: amount.toString(),
       asset,
-      feeAsset: LBTC_ASSET[network].assetHash,
+      feeAsset: quoteAsset,
     });
     const previewedAmount = tradePreviews[0].amount;
     const previewedFeeAmount = tradePreviews[0].feeAmount;
     if (tradeType === TradeType.BUY) {
       return {
         assetToBeSent: quoteAsset,
-        amountToBeSent:
-          asset === baseAsset
-            ? Number(previewedAmount) - Number(previewedFeeAmount)
-            : Number(amount) + Number(previewedFeeAmount),
+        amountToBeSent: asset === baseAsset ? Number(previewedAmount) : Number(amount),
         assetToReceive: baseAsset,
         amountToReceive: asset === baseAsset ? Number(amount) : Number(previewedAmount),
         tradeFeeAmount: Number(previewedFeeAmount),
@@ -248,10 +242,7 @@ export class TradeCore extends Core implements TradeInterface {
 
     return {
       assetToBeSent: baseAsset,
-      amountToBeSent:
-        asset === baseAsset
-          ? Number(amount) + Number(previewedFeeAmount)
-          : Number(previewedAmount) - Number(previewedFeeAmount),
+      amountToBeSent: asset === baseAsset ? Number(amount) : Number(previewedAmount),
       assetToReceive: quoteAsset,
       amountToReceive: asset === baseAsset ? Number(previewedAmount) : Number(amount),
       tradeFeeAmount: Number(previewedFeeAmount),

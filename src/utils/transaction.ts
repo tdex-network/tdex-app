@@ -364,7 +364,7 @@ export function psetToOwnedInputs(pset: Pset): { ownedInputs: OwnedInput[]; inpu
       ];
     if (!unblindOutput || !unblindOutput.blindingData) continue;
     ownedInputs.push({
-      asset: AssetHash.fromHex(unblindOutput.blindingData.asset).bytesWithoutPrefix,
+      asset: AssetHash.fromHex(unblindOutput.blindingData.asset).bytesWithoutPrefix.reverse(),
       assetBlindingFactor: Buffer.from(unblindOutput.blindingData.assetBlindingFactor, 'hex'),
       valueBlindingFactor: Buffer.from(unblindOutput.blindingData.valueBlindingFactor, 'hex'),
       value: unblindOutput.blindingData.value.toString(),
