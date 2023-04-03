@@ -1,7 +1,12 @@
 import { Decimal } from 'decimal.js';
 
+import type { AmountAndUnit, SatsAsset } from '../components/TdexOrderInput';
+import { useAssetStore } from '../store/assetStore';
+import { useSettingsStore } from '../store/settingsStore';
+
 import type { LbtcUnit } from './constants';
 import { defaultPrecision } from './constants';
+import { isLbtcTicker } from './helpers';
 
 export function toSatoshi(val: number, precision = defaultPrecision, unit: LbtcUnit = 'L-BTC'): number {
   return new Decimal(val).mul(Decimal.pow(10, new Decimal(precision).minus(unitToExponent(unit)))).toNumber();
@@ -79,4 +84,25 @@ export function unitToExponent(unit: LbtcUnit): number {
     default:
       return 0;
   }
+}
+
+export function createAmountAndUnit(satsAsset: SatsAsset): AmountAndUnit {
+  const assets = useAssetStore.getState().assets;
+  const lbtcUnit = useSettingsStore.getState().lbtcUnit;
+  if (!satsAsset.asset || !satsAsset.sats || !assets[satsAsset.asset]) {
+    return {
+      amount: '0',
+      unit: 'unknown',
+    };
+  }
+  const asset = assets[satsAsset.asset];
+  return {
+    amount: fromSatoshiFixed(
+      satsAsset.sats ?? 0,
+      asset.precision ?? defaultPrecision,
+      asset.precision ?? defaultPrecision,
+      isLbtcTicker(asset.ticker) ? lbtcUnit : undefined
+    ),
+    unit: isLbtcTicker(asset.ticker) ? lbtcUnit : asset.ticker,
+  };
 }

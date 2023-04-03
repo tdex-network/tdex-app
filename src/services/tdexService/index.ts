@@ -1,6 +1,8 @@
 import axios from 'axios';
 
 import { TradeType as TradeTypeV1 } from '../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
+import type { Preview as PreviewV1 } from '../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
+import type { Preview as PreviewV2 } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import { TradeType as TradeTypeV2 } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import { config } from '../../store/config';
 import type { CoinSelectionForTrade, ScriptDetails } from '../../store/walletStore';
@@ -75,28 +77,6 @@ export function createDiscovererV1(
   return new DiscovererV1(orders, discovery, errorHandler);
 }
 
-function createTradeFromTradeOrderV1(
-  order: TradeOrderV1,
-  explorerLiquidAPI: string,
-  coinSelectionForTrade: CoinSelectionForTrade,
-  signer: SignerInterface,
-  masterBlindingKey: string,
-  network: NetworkString,
-  torProxy = config.torProxy
-): TradeV1 {
-  return new TradeV1(
-    {
-      explorerUrl: explorerLiquidAPI,
-      providerUrl: order.traderClient.providerUrl,
-      coinSelectionForTrade,
-      chain: network,
-      masterBlindingKey,
-      signer: signer,
-    },
-    torProxy
-  );
-}
-
 /**
  * make and broadcast the swap transaction
  * @param order the selected trade using to swap
@@ -122,13 +102,15 @@ export async function makeTradeV1(
   addressForSwapOutput: ScriptDetails,
   torProxy?: string
 ): Promise<string> {
-  const trader = createTradeFromTradeOrderV1(
-    order,
-    explorerLiquidAPI,
-    coinSelectionForTrade,
-    signer,
-    masterBlindingKey,
-    network,
+  const trader = new TradeV1(
+    {
+      explorerUrl: explorerLiquidAPI,
+      providerUrl: order.traderClient.providerUrl,
+      coinSelectionForTrade,
+      chain: network,
+      masterBlindingKey,
+      signer: signer,
+    },
     torProxy
   );
   try {
@@ -178,26 +160,15 @@ export function computeOrdersV1(
   return trades;
 }
 
-export async function marketPriceRequestV1(
-  order: TradeOrderV1,
-  sats: number,
-  asset: string
-): Promise<{
-  asset: string;
-  sats: string;
-}> {
-  const otherAsset = asset === order.market.baseAsset ? order.market.quoteAsset : order.market.baseAsset;
-  if (sats <= 0) return { asset: otherAsset, sats: String(0) };
+export async function previewTradeV1(order: TradeOrderV1, sats: number, asset: string): Promise<PreviewV1 | undefined> {
+  if (sats <= 0) return undefined;
   const response = await order.traderClient.previewTrade({
     market: order.market,
     type: order.type,
     amount: sats.toString(),
     asset: asset,
   });
-  return {
-    asset: response[0].asset,
-    sats: response[0].amount,
-  };
+  return response[0];
 }
 
 // Protos v2
@@ -235,28 +206,6 @@ export function createDiscovererV2(
   return new DiscovererV2(orders, discovery, errorHandler);
 }
 
-function createTradeFromTradeOrderV2(
-  order: TradeOrderV2,
-  explorerLiquidAPI: string,
-  coinSelectionForTrade: CoinSelectionForTrade,
-  signer: SignerInterface,
-  masterBlindingKey: string,
-  network: NetworkString,
-  torProxy = config.torProxy
-): TradeV2 {
-  return new TradeV2(
-    {
-      explorerUrl: explorerLiquidAPI,
-      providerUrl: order.traderClient.providerUrl,
-      coinSelectionForTrade,
-      chain: network,
-      masterBlindingKey,
-      signer: signer,
-    },
-    torProxy
-  );
-}
-
 /**
  * make and broadcast the swap transaction
  * @param order the selected trade using to swap
@@ -282,13 +231,15 @@ export async function makeTradeV2(
   addressForSwapOutput: ScriptDetails,
   torProxy?: string
 ): Promise<string> {
-  const trader = createTradeFromTradeOrderV2(
-    order,
-    explorerLiquidAPI,
-    coinSelectionForTrade,
-    signer,
-    masterBlindingKey,
-    network,
+  const trader = new TradeV2(
+    {
+      explorerUrl: explorerLiquidAPI,
+      providerUrl: order.traderClient.providerUrl,
+      coinSelectionForTrade,
+      chain: network,
+      masterBlindingKey,
+      signer: signer,
+    },
     torProxy
   );
   try {
@@ -338,16 +289,8 @@ export function computeOrdersV2(
   return trades;
 }
 
-export async function marketPriceRequestV2(
-  order: TradeOrderV2,
-  sats: number,
-  asset: string
-): Promise<{
-  asset: string;
-  sats: string;
-}> {
-  const otherAsset = asset === order.market.baseAsset ? order.market.quoteAsset : order.market.baseAsset;
-  if (sats <= 0) return { asset: otherAsset, sats: String(0) };
+export async function previewTradeV2(order: TradeOrderV2, sats: number, asset: string): Promise<PreviewV2 | undefined> {
+  if (sats <= 0) return undefined;
   const response = await order.traderClient.previewTrade({
     market: order.market,
     type: order.type,
@@ -355,10 +298,7 @@ export async function marketPriceRequestV2(
     asset: asset,
     feeAsset: order.market.quoteAsset,
   });
-  return {
-    asset: response[0].asset,
-    sats: response[0].amount,
-  };
+  return response[0];
 }
 
 //
@@ -406,7 +346,6 @@ export async function getProvidersFromTDexRegistry(network: NetworkString): Prom
   return (await axios.get(TDexRegistryMainnet)).data;
 }
 
-// TODO: discover bestOrder v2
 export function discoverBestOrder(
   markets: { v1: TDEXMarketV1[]; v2: TDEXMarketV2[] },
   sendAsset?: string,

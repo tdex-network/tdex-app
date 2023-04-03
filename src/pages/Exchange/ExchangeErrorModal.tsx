@@ -3,12 +3,12 @@ import { IonButton, IonCol, IonContent, IonGrid, IonModal, IonRow, IonText } fro
 import React, { useEffect } from 'react';
 
 import Header from '../../components/Header';
-import type { TdexOrderInputResultV1, TdexOrderInputResultV2 } from '../../components/TdexOrderInput';
+import type { TdexOrderInputResult } from '../../components/TdexOrderInput';
 import type { TDEXProvider } from '../../services/tdexService/v1/tradeCore';
 import type { AppError } from '../../utils/errors';
 
 interface Props {
-  result?: TdexOrderInputResultV1 | TdexOrderInputResultV2;
+  result?: TdexOrderInputResult;
   error?: AppError;
   onClose: () => void;
   onClickRetry: () => void;

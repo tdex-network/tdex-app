@@ -72,7 +72,6 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
     })();
   }, [asset_id, computeHeuristicFromPegins, computeHeuristicFromTx, fetchCurrentBtcBlockHeight, txs]);
 
-  // TODO: check if rerendered
   const ActionButtons = useMemo(
     () => (
       <IonRow className="ion-margin-top">
@@ -131,7 +130,7 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
           <span>{isLbtcTicker(assets[asset_id]?.ticker || '') ? lbtcUnit : assets[asset_id]?.ticker}</span>
         </p>
         <span className="info-amount-converted">
-          {balances?.[asset_id].counterValue ?? 0} {currency.toUpperCase()}
+          {balances?.[asset_id]?.counterValue ?? 0} {currency.toUpperCase()}
         </span>
       </div>
     ),

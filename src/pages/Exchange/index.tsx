@@ -23,7 +23,7 @@ import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
-import type { TdexOrderInputResultV1, TdexOrderInputResultV2 } from '../../components/TdexOrderInput';
+import type { TdexOrderInputResult } from '../../components/TdexOrderInput';
 import { TdexOrderInput } from '../../components/TdexOrderInput';
 import { useTradeState } from '../../components/TdexOrderInput/hooks';
 import { routerLinks } from '../../routes';
@@ -36,15 +36,16 @@ import type {
 } from '../../services/tdexService/v1/tradeCore';
 import type { TDEXMarket as TDEXMarketV2, TradeOrder as TradeOrderV2 } from '../../services/tdexService/v2/tradeCore';
 import { useAppStore } from '../../store/appStore';
+import { useAssetStore } from '../../store/assetStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useTdexStore } from '../../store/tdexStore';
 import { useToastStore } from '../../store/toastStore';
 import type { CoinSelectionForTrade } from '../../store/walletStore';
 import { useWalletStore } from '../../store/walletStore';
-import { PIN_TIMEOUT_FAILURE } from '../../utils/constants';
+import { defaultPrecision, PIN_TIMEOUT_FAILURE } from '../../utils/constants';
 import { AppError, NoMarketsAvailableForSelectedPairError, NoOtherProvider } from '../../utils/errors';
-import { outpointToString } from '../../utils/helpers';
-import { toSatoshi } from '../../utils/unitConversion';
+import { isLbtcTicker, outpointToString } from '../../utils/helpers';
+import { createAmountAndUnit, fromSatoshi, toSatoshi } from '../../utils/unitConversion';
 import type { PreviewData } from '../TradeSummary';
 
 import ExchangeErrorModal from './ExchangeErrorModal';
@@ -61,13 +62,30 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const masterBlindingKey = useWalletStore((state) => state.masterBlindingKey);
   //
-  const [tdexOrderInputResult, setTdexOrderInputResult] = useState<TdexOrderInputResultV1 | TdexOrderInputResultV2>();
+  const [tdexOrderInputResult, setTdexOrderInputResult] = useState<TdexOrderInputResult>();
   const [excludedProviders, setExcludedProviders] = useState<TDEXProvider[]>([]);
   const [showExcludedProvidersAlert, setShowExcludedProvidersAlert] = useState(false);
   const [tradeError, setTradeError] = useState<AppError>();
 
-  const getPinModalDescription = () =>
-    `Enter your secret PIN to send ${tdexOrderInputResult?.send.amount} ${tdexOrderInputResult?.send.unit} and receive ${tdexOrderInputResult?.receive.amount} ${tdexOrderInputResult?.receive.unit}.`;
+  const getPinModalDescription = () => {
+    if (!tdexOrderInputResult) return 'Trade preview error';
+    const assets = useAssetStore.getState().assets;
+    const lbtcUnit = useSettingsStore.getState().lbtcUnit;
+    const tradeFeeAmount = fromSatoshi(
+      tradeFeeSats ?? 0,
+      assets[tdexOrderInputResult?.order.market.quoteAsset].precision ?? defaultPrecision,
+      isLbtcTicker(assets[tdexOrderInputResult?.order.market.quoteAsset].ticker) ? lbtcUnit : undefined
+    );
+    return `Enter your secret PIN to send ${tdexOrderInputResult?.send.amount} ${tdexOrderInputResult?.send.unit} and
+          receive ${Number(tdexOrderInputResult?.receive.amount ?? 0) - tradeFeeAmount} ${
+      tdexOrderInputResult?.receive.unit
+    }
+    ${
+      tdexOrderInputResult.providerVersion === 'v2'
+        ? `(${tdexOrderInputResult?.receive.amount} ${tdexOrderInputResult?.receive.unit} minus ${tradeFeeAmount} ${tdexOrderInputResult?.receive.unit} of trading fees)`
+        : null
+    }`;
+  };
 
   const getProviderName = (endpoint: string) => {
     return (
@@ -165,23 +183,33 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
     setHasBeenSwapped,
     setSendAssetHasChanged,
     setReceiveAssetHasChanged,
+    tradeFeeSats,
   ] = useTradeState(getAllMarketsFromNotExcludedProviders());
 
   const handleSuccess = async (txid: string) => {
+    if (!tdexOrderInputResult) return;
     // Persist trade addresses
     await useWalletStore.getState().getNextAddress(false);
     await useWalletStore.getState().getNextAddress(true);
     addSuccessToast('Trade successfully computed');
+    const sendAmountAndUnit = createAmountAndUnit({
+      sats: tdexOrderInputResult.send.sats,
+      asset: tdexOrderInputResult.send.asset,
+    });
+    const receiveAmountAndUnit = createAmountAndUnit({
+      sats: (tdexOrderInputResult.receive.sats ?? 0) - (tradeFeeSats ?? 0),
+      asset: tdexOrderInputResult.receive.asset,
+    });
     const preview: PreviewData = {
       sent: {
-        asset: tdexOrderInputResult?.send.asset ?? '',
-        ticker: tdexOrderInputResult?.send.unit || 'unknown',
-        amount: `-${tdexOrderInputResult?.send.amount || '??'}`,
+        asset: tdexOrderInputResult.send.asset ?? '',
+        ticker: sendAmountAndUnit.unit || 'unknown',
+        amount: `-${sendAmountAndUnit.amount || '??'}`,
       },
       received: {
-        asset: tdexOrderInputResult?.receive.asset ?? '',
-        ticker: tdexOrderInputResult?.receive.unit || 'unknown',
-        amount: tdexOrderInputResult?.receive.amount || '??',
+        asset: tdexOrderInputResult.receive.asset ?? '',
+        ticker: receiveAmountAndUnit.unit || 'unknown',
+        amount: receiveAmountAndUnit.amount || '??',
       },
     };
     history.replace(`/tradesummary/${txid}`, { preview });
@@ -463,7 +491,7 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
                     sendLoader ||
                     receiveLoader
                   }
-                  onClick={() => {
+                  onClick={async () => {
                     setPINModalOpen(true);
                   }}
                 >

@@ -47,11 +47,13 @@ export class TraderClient implements TraderClientInterface {
    * @param market
    * @param tradeType
    * @param swapRequestSerialized
+   * @param tradeFeeAmount
    */
   async proposeTrade(
     { baseAsset, quoteAsset }: types.Market,
     tradeType: TradeType,
-    swapRequestSerialized: Uint8Array
+    swapRequestSerialized: Uint8Array,
+    tradeFeeAmount: string
   ): Promise<Uint8Array> {
     const market = types.Market.create({ baseAsset, quoteAsset });
     const request = messages.ProposeTradeRequest.create({
@@ -59,6 +61,7 @@ export class TraderClient implements TraderClientInterface {
       type: tradeType,
       swapRequest: SwapRequest.fromBinary(swapRequestSerialized),
       feeAsset: quoteAsset,
+      feeAmount: tradeFeeAmount,
     });
     const call = await this.client.proposeTrade(request);
     if (call.response.swapFail) {
@@ -67,9 +70,6 @@ export class TraderClient implements TraderClientInterface {
       );
     }
     const swapAcceptMsg = call.response.swapAccept;
-    if (swapAcceptMsg) {
-      console.log('swapAcceptMsg', SwapAccept.toJson(swapAcceptMsg));
-    }
     return SwapAccept.toBinary(swapAcceptMsg!);
   }
 

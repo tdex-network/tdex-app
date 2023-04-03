@@ -1,43 +1,10 @@
 import { useEffect, useState } from 'react';
 
-import {
-  discoverBestOrder,
-  isTradeOrderV2,
-  marketPriceRequestV1,
-  marketPriceRequestV2,
-} from '../../services/tdexService';
+import { discoverBestOrder, isTradeOrderV2, previewTradeV1, previewTradeV2 } from '../../services/tdexService';
 import type { TDEXMarket as TDEXMarketV1, TradeOrder as TradeOrderV1 } from '../../services/tdexService/v1/tradeCore';
 import type { TDEXMarket as TDEXMarketV2, TradeOrder as TradeOrderV2 } from '../../services/tdexService/v2/tradeCore';
-import type { Asset } from '../../store/assetStore';
 import { useWalletStore } from '../../store/walletStore';
-import type { LbtcUnit } from '../../utils/constants';
-import { defaultPrecision } from '../../utils/constants';
 import { NoMarketsAvailableForAllPairsError } from '../../utils/errors';
-import { isLbtcTicker } from '../../utils/helpers';
-import { fromSatoshiFixed } from '../../utils/unitConversion';
-
-import type { SatsAsset, AmountAndUnit } from '.';
-
-export function createAmountAndUnit(assetRegistry: Record<string, Asset>, lbtcUnit: LbtcUnit) {
-  return (satsAsset: SatsAsset): AmountAndUnit => {
-    if (!satsAsset.asset || !satsAsset.sats || !assetRegistry[satsAsset.asset]) {
-      return {
-        amount: '0',
-        unit: 'unknown',
-      };
-    }
-    const asset = assetRegistry[satsAsset.asset];
-    return {
-      amount: fromSatoshiFixed(
-        satsAsset.sats ?? 0,
-        asset.precision ?? defaultPrecision,
-        asset.precision ?? defaultPrecision,
-        isLbtcTicker(asset.ticker) ? lbtcUnit : undefined
-      ),
-      unit: isLbtcTicker(asset.ticker) ? lbtcUnit : asset.ticker,
-    };
-  };
-}
 
 // custom state hook using to represent an asset/sats pair
 function useAssetSats(initialAssetHash?: string) {
@@ -49,6 +16,7 @@ function useAssetSats(initialAssetHash?: string) {
 // eslint-disable-next-line
 export function useTradeState(markets: { v1: TDEXMarketV1[]; v2: TDEXMarketV2[] }) {
   const balances = useWalletStore((s) => s.balances);
+  //
   const [sendAsset, sendSats, setSendAsset, setSendSats] = useAssetSats(
     markets.v1.length > 0 ? markets.v1[0].baseAsset : markets.v2.length > 0 ? markets.v2[0].baseAsset : undefined
   );
@@ -65,6 +33,8 @@ export function useTradeState(markets: { v1: TDEXMarketV1[]; v2: TDEXMarketV2[] 
   const [assetSendBeforeSwap, setAssetSendBeforeSwap] = useState<string | undefined>(sendAsset);
   const [sendAssetHasChanged, setSendAssetHasChanged] = useState<boolean>(false);
   const [receiveAssetHasChanged, setReceiveAssetHasChanged] = useState<boolean>(false);
+  const [tradeFeeSats, setTradeFeeSats] = useState<number | undefined>();
+  //
   const sendBalance = balances?.[sendAsset ?? ''];
 
   const resetErrors = () => {
@@ -90,19 +60,21 @@ export function useTradeState(markets: { v1: TDEXMarketV1[]; v2: TDEXMarketV2[] 
     try {
       setReceiveLoader(true);
       if (newSendSats > (sendBalance?.sats ?? 0)) throw new Error(`not enough balance`);
-      let assetSats;
+      let preview;
       const bestOrder = await discoverBestOrder(
         markets,
         sendAsset,
         receiveAsset
       )(newSendSats ?? 0, sendAsset as string);
       if (isTradeOrderV2(bestOrder)) {
-        assetSats = await marketPriceRequestV2(bestOrder, newSendSats ?? 0, sendAsset as string);
+        preview = await previewTradeV2(bestOrder, newSendSats ?? 0, sendAsset as string);
+        // fee amount only available in v2
+        setTradeFeeSats(Number(preview?.feeAmount));
       } else {
-        assetSats = await marketPriceRequestV1(bestOrder, newSendSats ?? 0, sendAsset as string);
+        preview = await previewTradeV1(bestOrder, newSendSats ?? 0, sendAsset as string);
       }
       setBestOrder(bestOrder);
-      setReceiveSats(Number(assetSats.sats));
+      setReceiveSats(Number(preview?.amount ?? 0));
       resetErrors();
     } catch (err) {
       console.error(err);
@@ -118,20 +90,20 @@ export function useTradeState(markets: { v1: TDEXMarketV1[]; v2: TDEXMarketV2[] 
     }
     try {
       setSendLoader(true);
-      let bestOrder, assetSats;
+      let bestOrder, preview;
       bestOrder = await discoverBestOrder(
         markets,
         sendAsset,
         receiveAsset
       )(newReceiveSats ?? 0, receiveAsset as string);
       if (isTradeOrderV2(bestOrder)) {
-        assetSats = await marketPriceRequestV2(bestOrder, newReceiveSats ?? 0, receiveAsset as string);
+        preview = await previewTradeV2(bestOrder, newReceiveSats ?? 0, receiveAsset as string);
       } else {
-        assetSats = await marketPriceRequestV1(bestOrder, newReceiveSats ?? 0, receiveAsset as string);
+        preview = await previewTradeV1(bestOrder, newReceiveSats ?? 0, receiveAsset as string);
       }
-      if (Number(assetSats.sats) > (sendBalance?.sats ?? 0)) throw new Error(`not enough balance`);
+      if (Number(preview?.amount ?? 0) > (sendBalance?.sats ?? 0)) throw new Error(`not enough balance`);
       setBestOrder(bestOrder);
-      setSendSats(Number(assetSats.sats));
+      setSendSats(Number(preview?.amount ?? 0));
       resetErrors();
     } catch (err) {
       console.error(err);
@@ -222,5 +194,6 @@ export function useTradeState(markets: { v1: TDEXMarketV1[]; v2: TDEXMarketV2[] 
     setHasBeenSwapped,
     setSendAssetHasChanged,
     setReceiveAssetHasChanged,
+    tradeFeeSats,
   ] as const;
 }

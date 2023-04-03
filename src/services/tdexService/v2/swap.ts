@@ -79,7 +79,6 @@ export class Swap extends Core {
     // check the message content and transaction.
     await compareMessagesAndTransaction(msg);
     if (this.verbose) console.log(swapMessages.SwapRequest.toJsonString(msg));
-    console.log('swapMessages.SwapRequest.toJson(msg)', swapMessages.SwapRequest.toJson(msg));
     return swapMessages.SwapRequest.toBinary(msg);
   }
 

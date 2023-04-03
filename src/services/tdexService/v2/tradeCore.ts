@@ -5,7 +5,6 @@ import { TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import type { CoinSelectionForTrade, ScriptDetails } from '../../../store/walletStore';
 import type { NetworkString } from '../../../utils/constants';
 import { decodePset, isRawTransaction, isValidAmount, psetToOwnedInputs } from '../../../utils/transaction';
-import { BlinderService } from '../../blinderService';
 import type { SignerInterface } from '../../signerService';
 
 import type TraderClientInterface from './clientInterface';
@@ -289,8 +288,13 @@ export class TradeCore extends Core implements TradeInterface {
       outputBlindingKeys: swapTx.outputBlindingKeys,
       unblindedInputs: ownedInputs,
     });
-    // return the serialized swap request
-    return await this.client.proposeTrade(market, tradeType, swapRequestSerialized);
+    const swapAccept = await this.client.proposeTrade(
+      market,
+      tradeType,
+      swapRequestSerialized,
+      tradeFeeAmount.toString()
+    );
+    return swapAccept;
   }
 
   private async marketOrderComplete(swapAcceptSerialized: Uint8Array, autoComplete?: boolean): Promise<string> {
@@ -298,9 +302,7 @@ export class TradeCore extends Core implements TradeInterface {
     // and add his own inputs if all is correct
     const swapAcceptMessage = SwapAccept.fromBinary(swapAcceptSerialized);
     const psetBase64 = swapAcceptMessage.transaction;
-    const blinder = new BlinderService();
-    const blindedPset = await blinder.blindPset(decodePset(psetBase64));
-    const signedPset = await this.signer.signPset(blindedPset);
+    const signedPset = await this.signer.signPset(decodePset(psetBase64));
     const signedHex = this.signer.finalizeAndExtract(signedPset);
     if (autoComplete) {
       if (isRawTransaction(signedHex)) {

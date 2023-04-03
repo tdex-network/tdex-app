@@ -1,5 +1,6 @@
 import './style.scss';
 import { IonRippleEffect, useIonViewDidEnter, useIonViewDidLeave } from '@ionic/react';
+import type { Dispatch, SetStateAction } from 'react';
 import React, { useEffect } from 'react';
 
 import swap from '../../assets/img/swap.svg';
@@ -8,12 +9,13 @@ import type { TDEXMarket as TDEXMarketV1, TradeOrder as TradeOrderV1 } from '../
 import type { TDEXMarket as TDEXMarketV2, TradeOrder as TradeOrderV2 } from '../../services/tdexService/v2/tradeCore';
 import { useAssetStore } from '../../store/assetStore';
 import { useSettingsStore } from '../../store/settingsStore';
+import { useTdexStore } from '../../store/tdexStore';
 import { LBTC_ASSET } from '../../utils/constants';
 import { isLbtc } from '../../utils/helpers';
 import { setAccessoryBar } from '../../utils/keyboard';
+import { createAmountAndUnit } from '../../utils/unitConversion';
 
 import { TradeRowInput } from './TradeRowInput';
-import { createAmountAndUnit } from './hooks';
 
 export interface SatsAsset {
   sats?: number;
@@ -25,22 +27,17 @@ export interface AmountAndUnit {
   unit: string; // ticker or lbtcUnit
 }
 
-export interface TdexOrderInputResultV1 {
-  order: TradeOrderV1;
+export interface TdexOrderInputResult {
+  order: TradeOrderV1 | TradeOrderV2;
   send: SatsAsset & AmountAndUnit;
   receive: SatsAsset & AmountAndUnit;
-}
-
-export interface TdexOrderInputResultV2 {
-  order: TradeOrderV2;
-  send: SatsAsset & AmountAndUnit;
-  receive: SatsAsset & AmountAndUnit;
+  providerVersion: 'v1' | 'v2';
 }
 
 type Props = {
   markets: { v1: TDEXMarketV1[]; v2: TDEXMarketV2[] };
-  onInput: (tdexOrder?: TdexOrderInputResultV1 | TdexOrderInputResultV2) => void;
-  bestOrder?: any /*TradeOrder*/;
+  onInput: Dispatch<SetStateAction<TdexOrderInputResult | undefined>>;
+  bestOrder?: TradeOrderV1 | TradeOrderV2;
   sendAsset?: string;
   sendSats?: number;
   receiveAsset?: string;
@@ -87,8 +84,8 @@ export const TdexOrderInput: React.FC<Props> = ({
   setReceiveAssetHasChanged,
 }) => {
   const assets = useAssetStore((state) => state.assets);
-  const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
   const network = useSettingsStore((state) => state.network);
+  const getProtoVersion = useTdexStore((state) => state.getProtoVersion);
   //
   useIonViewDidEnter(() => {
     setAccessoryBar(true).catch(console.error);
@@ -118,23 +115,26 @@ export const TdexOrderInput: React.FC<Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sendError, receiveError]);
 
-  const createAmountAndUnitFn = createAmountAndUnit(assets, lbtcUnit);
-
   useEffect(() => {
-    const sendValues = {
-      sats: sendSats,
-      asset: sendAsset,
-    };
-    const receiveValues = {
-      sats: receiveSats,
-      asset: receiveAsset,
-    };
-    if (bestOrder)
-      onInput({
-        order: bestOrder,
-        send: { ...sendValues, ...createAmountAndUnitFn(sendValues) },
-        receive: { ...receiveValues, ...createAmountAndUnitFn(receiveValues) },
-      });
+    (async () => {
+      const sendValues = {
+        sats: sendSats,
+        asset: sendAsset,
+      };
+      const receiveValues = {
+        sats: receiveSats,
+        asset: receiveAsset,
+      };
+      if (bestOrder) {
+        const version = await getProtoVersion(bestOrder.traderClient.providerUrl);
+        onInput({
+          order: bestOrder,
+          send: { ...sendValues, ...createAmountAndUnit(sendValues) },
+          receive: { ...receiveValues, ...createAmountAndUnit(receiveValues) },
+          providerVersion: version,
+        });
+      }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bestOrder]);
 
