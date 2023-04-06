@@ -83,7 +83,7 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
     ${
       tdexOrderInputResult.providerVersion === 'v2'
         ? `(${tdexOrderInputResult?.receive.amount} ${tdexOrderInputResult?.receive.unit} minus ${tradeFeeAmount} ${tdexOrderInputResult?.receive.unit} of trading fees)`
-        : null
+        : ''
     }`;
   };
 

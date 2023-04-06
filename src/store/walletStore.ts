@@ -694,21 +694,17 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
           const client = new ElectrumWS(websocketExplorerURL);
           const chainSource = new WsElectrumChainSource(client);
-          //
           const txidHeight: Map<string, number | undefined> = new Map();
           let restoredScripts: Record<string, ScriptDetails> = {};
           let tempRestoredScripts: Record<string, ScriptDetails> = {};
-
           let nextExternalIndex = get().nextExternalIndex ?? 0;
           let nextInternalIndex = get().nextInternalIndex ?? 0;
-
           const walletChains = [0, 1];
           for (const i of walletChains) {
             tempRestoredScripts = {};
             const isInternal = i === 1;
             let batchCount = isInternal ? nextInternalIndex : nextExternalIndex;
             let unusedScriptCounter = 0;
-
             while (unusedScriptCounter <= gapLimit) {
               const publicKeys = get().deriveBatchPublicKeys(batchCount, batchCount + gapLimit, isInternal);
               const scriptsWithDetails = publicKeys.map((publicKey) => get().createP2PWKHScript(publicKey));
@@ -724,7 +720,6 @@ export const useWalletStore = create<WalletState & WalletActions>()(
                   const newMaxIndex = index + batchCount + 1;
                   if (isInternal) nextInternalIndex = newMaxIndex;
                   else nextExternalIndex = newMaxIndex;
-
                   // update the history set
                   for (const { tx_hash, height } of history) {
                     txidHeight.set(tx_hash, height);
@@ -736,7 +731,6 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               batchCount += gapLimit;
             }
           }
-
           set({ nextInternalIndex, nextExternalIndex }, false, 'sync/nextIndexes');
           set(
             (state) => ({ scriptDetails: { ...state.scriptDetails, ...restoredScripts } }),
@@ -764,7 +758,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               // if output is confidential, we need to unblind it
               const script = output.script.toString('hex');
               const blindingPrivateKey = scriptDetails[script]?.blindingPrivateKey;
-              if (!scriptDetails[script]?.blindingPrivateKey) throw new Error('No blinding private key');
+              if (!blindingPrivateKey) throw new Error('No blinding private key');
               const zkpLib = await zkp();
               const lib = new confidential.Confidential(zkpLib);
               const unblinded = lib.unblindOutputWithKey(output, Buffer.from(blindingPrivateKey, 'hex'));
