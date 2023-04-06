@@ -337,9 +337,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           //
           return utxosOutpoints.map((outpoint) => {
             const outpointStr = outpointToString(outpoint);
-            const unblindedOutput = get().outputHistory[outpointStr];
-            if (!unblindedOutput) console.error(`Output ${outpointStr} is missing`);
-            return unblindedOutput;
+            return get().outputHistory[outpointStr];
           });
         },
         computeHeuristicFromTx: async (txDetails) => {
@@ -645,10 +643,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             const tx = Transaction.fromHex(hex);
             const unblindedResults = await get().unblindUtxos(tx.outs);
             for (const [vout, unblinded] of unblindedResults.entries()) {
-              if (unblinded instanceof Error) {
-                console.debug('Error while unblinding utxos', unblinded);
-                continue;
-              }
+              if (unblinded instanceof Error) continue;
               outputHistory = {
                 ...outputHistory,
                 [outpointToString({ txid, vout })]: {

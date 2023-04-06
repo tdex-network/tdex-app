@@ -13,13 +13,13 @@ import { UnblindedInput } from "./types_pb";
 class SwapRequest$Type extends MessageType {
     constructor() {
         super("tdex.v2.SwapRequest", [
-            { no: 1, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "amount_p", kind: "scalar", T: 4 /*ScalarType.UINT64*/ },
-            { no: 3, name: "asset_p", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 4, name: "amount_r", kind: "scalar", T: 4 /*ScalarType.UINT64*/ },
-            { no: 5, name: "asset_r", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 6, name: "transaction", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 7, name: "unblinded_inputs", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => UnblindedInput }
+            { no: 1, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 2, name: "amount_p", kind: "scalar", T: 4 /*ScalarType.UINT64*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 3, name: "asset_p", kind: "scalar", T: 9 /*ScalarType.STRING*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 4, name: "amount_r", kind: "scalar", T: 4 /*ScalarType.UINT64*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 5, name: "asset_r", kind: "scalar", T: 9 /*ScalarType.STRING*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 6, name: "transaction", kind: "scalar", T: 9 /*ScalarType.STRING*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 7, name: "unblinded_inputs", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => UnblindedInput, options: { "google.api.field_behavior": ["REQUIRED"] } }
         ]);
     }
     create(value) {
@@ -102,10 +102,10 @@ export const SwapRequest = new SwapRequest$Type();
 class SwapAccept$Type extends MessageType {
     constructor() {
         super("tdex.v2.SwapAccept", [
-            { no: 1, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "request_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 3, name: "transaction", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 4, name: "unblinded_inputs", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => UnblindedInput }
+            { no: 1, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 2, name: "request_id", kind: "scalar", T: 9 /*ScalarType.STRING*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 3, name: "transaction", kind: "scalar", T: 9 /*ScalarType.STRING*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 4, name: "unblinded_inputs", kind: "message", repeat: 1 /*RepeatType.PACKED*/, T: () => UnblindedInput, options: { "google.api.field_behavior": ["REQUIRED"] } }
         ]);
     }
     create(value) {
@@ -170,9 +170,9 @@ export const SwapAccept = new SwapAccept$Type();
 class SwapComplete$Type extends MessageType {
     constructor() {
         super("tdex.v2.SwapComplete", [
-            { no: 1, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "accept_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 3, name: "transaction", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 1, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 2, name: "accept_id", kind: "scalar", T: 9 /*ScalarType.STRING*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 3, name: "transaction", kind: "scalar", T: 9 /*ScalarType.STRING*/, options: { "google.api.field_behavior": ["REQUIRED"] } }
         ]);
     }
     create(value) {
@@ -231,10 +231,10 @@ export const SwapComplete = new SwapComplete$Type();
 class SwapFail$Type extends MessageType {
     constructor() {
         super("tdex.v2.SwapFail", [
-            { no: 1, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 2, name: "message_id", kind: "scalar", T: 9 /*ScalarType.STRING*/ },
-            { no: 3, name: "failure_code", kind: "scalar", T: 13 /*ScalarType.UINT32*/ },
-            { no: 4, name: "failure_message", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+            { no: 1, name: "id", kind: "scalar", T: 9 /*ScalarType.STRING*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 2, name: "message_id", kind: "scalar", T: 9 /*ScalarType.STRING*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 3, name: "failure_code", kind: "scalar", T: 13 /*ScalarType.UINT32*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 4, name: "failure_message", kind: "scalar", T: 9 /*ScalarType.STRING*/, options: { "google.api.field_behavior": ["REQUIRED"] } }
         ]);
     }
     create(value) {

@@ -11,6 +11,8 @@ export class BlinderService {
     const zkpLib = await zkp();
     const zkpValidator = new ZKPValidator(zkpLib);
     const { ownedInputs, inputIndexes } = psetToOwnedInputs(pset);
+    console.log('ownedInputs', ownedInputs);
+    console.log('inputIndexes', inputIndexes);
     const zkpGenerator = new ZKPGenerator(zkpLib, ZKPGenerator.WithOwnedInputs(ownedInputs));
     const outputBlindingArgs = zkpGenerator.blindOutputs(pset, keysGenerator);
     let isLast = true;

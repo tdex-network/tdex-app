@@ -57,6 +57,9 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const balances = useWalletStore((state) => state.balances);
   const encryptedMnemonic = useWalletStore((state) => state.encryptedMnemonic);
+  const unlockOutpoints = useWalletStore((state) => state.unlockOutpoints);
+  const sync = useWalletStore((state) => state.sync);
+  const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
   //
   const { asset_id } = useParams<{ asset_id: string }>();
   const [amount, setAmount] = useState<string>('');
@@ -112,7 +115,7 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
 
   const isValid = (): boolean => {
     if (error) return false;
-    if (!balances?.[asset_id].value || new Decimal(amount || '0').lessThanOrEqualTo(0)) return false;
+    if (!balances?.[asset_id]?.value || new Decimal(amount || '0').lessThanOrEqualTo(0)) return false;
     return recipientAddress !== '';
   };
 
@@ -133,6 +136,7 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
         throw IncorrectPINError;
       }
       const { pset, feeAmount } = await makeSendPset([getRecipient()], LBTC_ASSET[network].assetHash, isMaxSend);
+      console.log('pset', pset.unsignedTx().toHex());
       const blinder = new BlinderService();
       const blindedPset = await blinder.blindPset(pset);
       const signer = await SignerService.fromPassword(pin);
@@ -161,6 +165,10 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
         setNeedReset(true);
       }, PIN_TIMEOUT_FAILURE);
       addErrorToast(WithdrawTxError);
+      // Revert to previous state
+      await unlockOutpoints();
+      await sync();
+      await subscribeAllScripts();
     } finally {
       setModalOpen(false);
       setLoading(false);

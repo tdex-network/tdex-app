@@ -148,8 +148,8 @@ export const GetMarketBalanceRequest = new GetMarketBalanceRequest$Type();
 class GetMarketBalanceResponse$Type extends MessageType {
     constructor() {
         super("tdex.v2.GetMarketBalanceResponse", [
-            { no: 1, name: "balance", kind: "message", T: () => Balance },
-            { no: 2, name: "fee", kind: "message", T: () => Fee }
+            { no: 1, name: "balance", kind: "message", T: () => Balance, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 2, name: "fee", kind: "message", T: () => Fee, options: { "google.api.field_behavior": ["REQUIRED"] } }
         ]);
     }
     create(value) {
@@ -249,8 +249,8 @@ export const GetMarketPriceRequest = new GetMarketPriceRequest$Type();
 class GetMarketPriceResponse$Type extends MessageType {
     constructor() {
         super("tdex.v2.GetMarketPriceResponse", [
-            { no: 1, name: "spot_price", kind: "scalar", T: 1 /*ScalarType.DOUBLE*/ },
-            { no: 2, name: "min_tradable_amount", kind: "scalar", T: 4 /*ScalarType.UINT64*/ }
+            { no: 1, name: "spot_price", kind: "scalar", T: 1 /*ScalarType.DOUBLE*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 2, name: "min_tradable_amount", kind: "scalar", T: 4 /*ScalarType.UINT64*/, options: { "google.api.field_behavior": ["REQUIRED"] } }
         ]);
     }
     create(value) {
