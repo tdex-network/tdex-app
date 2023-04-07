@@ -6,7 +6,6 @@ import type { CoinSelectionForTrade, ScriptDetails } from '../../../store/wallet
 import type { NetworkString } from '../../../utils/constants';
 import { decodePset, isRawTransaction, isValidAmount } from '../../../utils/transaction';
 import type { SignerInterface } from '../../signerService';
-import { psetToUnblindedInputs } from '../index';
 
 import type TraderClientInterface from './clientInterface';
 import type { CoreInterface } from './core';
@@ -278,8 +277,6 @@ export class TradeCore extends Core implements TradeInterface {
       tradeFeeAmount
     );
     const swap = new Swap({ chain: this.chain, verbose: false });
-    // TODO: find an other way to provide unblindedInputs
-    const unblindedInputs = psetToUnblindedInputs(swapTx.pset);
     const swapRequestSerialized = await swap.request({
       assetToBeSent,
       amountToBeSent,
@@ -288,7 +285,7 @@ export class TradeCore extends Core implements TradeInterface {
       psetBase64: swapTx.pset.toBase64(),
       inputBlindingKeys: swapTx.inputBlindingKeys,
       outputBlindingKeys: swapTx.outputBlindingKeys,
-      unblindedInputs: unblindedInputs,
+      unblindedInputs: this.coinSelectionForTrade.unblindedInputs,
     });
     const swapAccept = await this.client.proposeTrade(
       market,

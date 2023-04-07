@@ -12,6 +12,7 @@ import { ElectrumWS } from 'ws-electrumx-client';
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
+import type { UnblindedInput } from '../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import { WsElectrumChainSource } from '../services/chainSource';
 import { getBaseDerivationPath, LBTC_ASSET, LBTC_COINGECKOID } from '../utils/constants';
 import type { Encrypted } from '../utils/crypto';
@@ -89,6 +90,7 @@ export interface CoinSelection {
 export interface CoinSelectionForTrade {
   witnessUtxos: Record<string, Output>;
   changeOutputs?: { asset: string; amount: number }[];
+  unblindedInputs: UnblindedInput[];
 }
 
 export interface ScriptDetails {

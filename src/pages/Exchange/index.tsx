@@ -13,11 +13,13 @@ import {
   IonAlert,
   IonSpinner,
 } from '@ionic/react';
+import { Buffer } from 'buffer';
 import classNames from 'classnames';
 import { closeOutline } from 'ionicons/icons';
 import React, { useCallback, useEffect, useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
 
+import type { UnblindedInput } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import tradeHistory from '../../assets/img/trade-history.svg';
 import Header from '../../components/Header';
 import Loader from '../../components/Loader';
@@ -250,9 +252,25 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
           ] = witnessUtxo;
         }
       }
+      const unblindedWitnessUtxos = await useWalletStore.getState().unblindUtxos(Object.values(witnessUtxos));
+      const unblindedInputs = unblindedWitnessUtxos
+        .map((input, index) => {
+          if (!(input instanceof Error)) {
+            return {
+              index: index,
+              asset: input.asset,
+              amount: input.value.toString(),
+              assetBlinder: Buffer.from(input.assetBlindingFactor, 'hex').reverse().toString('hex'),
+              amountBlinder: Buffer.from(input.valueBlindingFactor, 'hex').reverse().toString('hex'),
+            };
+          }
+          return undefined;
+        })
+        .filter((input): input is UnblindedInput => !!input);
       const coinSelectionForTrade: CoinSelectionForTrade = {
         witnessUtxos,
         changeOutputs,
+        unblindedInputs,
       };
 
       // Dry run address generation
