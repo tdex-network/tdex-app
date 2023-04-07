@@ -11,7 +11,7 @@ import type TraderClientInterface from './clientInterface';
 import type { CoreInterface } from './core';
 import Core from './core';
 import { Swap } from './swap';
-import { SwapTransaction } from './transaction';
+import { SwapTransaction } from './swapTransaction';
 
 export interface TDEXProvider {
   name: string;
@@ -259,7 +259,7 @@ export class TradeCore extends Core implements TradeInterface {
       network: networks[this.chain],
       masterBlindingKey: this.masterBlindingKey,
     });
-    await swapTx.createProto(
+    await swapTx.createPset(
       this.coinSelectionForTrade,
       amountToBeSent,
       amountToReceive,

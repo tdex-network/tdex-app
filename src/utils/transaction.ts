@@ -1,5 +1,6 @@
-import type { OwnedInput, UpdaterInput, UpdaterOutput } from 'liquidjs-lib';
-import { Pset, address, Creator, networks, payments, Transaction, Updater, AssetHash } from 'liquidjs-lib';
+import { Buffer } from 'buffer';
+import type { UpdaterInput, UpdaterOutput } from 'liquidjs-lib';
+import { Pset, address, Creator, networks, payments, Transaction, Updater } from 'liquidjs-lib';
 import { getScriptType, ScriptType } from 'liquidjs-lib/src/address';
 import { varSliceSize, varuint } from 'liquidjs-lib/src/bufferutils';
 import { Psbt } from 'liquidjs-lib/src/psbt';
@@ -7,10 +8,8 @@ import { ElectrumWS } from 'ws-electrumx-client';
 
 import { WsElectrumChainSource } from '../services/chainSource';
 import { useSettingsStore } from '../store/settingsStore';
-import type { Recipient, TxHeuristic, ScriptDetails } from '../store/walletStore';
+import type { Recipient, TxHeuristic } from '../store/walletStore';
 import { useWalletStore } from '../store/walletStore';
-
-import { outpointToString } from './helpers';
 
 const FEE_OUTPUT_SIZE = 33 + 9 + 1 + 1; // unconf fee output size
 const INPUT_BASE_SIZE = 40; // 32 bytes for outpoint, 4 bytes for sequence, 4 for index
@@ -328,48 +327,17 @@ export function isRawTransaction(tx: string): boolean {
   }
 }
 
-export function psetToOwnedInputs(pset: Pset): { ownedInputs: OwnedInput[]; inputIndexes: number[] } {
-  // find input index belonging to this account
+export function psetToBlindingPrivateKeys(pset: Pset): Buffer[] {
+  const scriptDetails = useWalletStore.getState().scriptDetails;
+  const blindingPrivateKeys: Buffer[] = [];
   const inputsScripts = pset.inputs
     .map((input) => input.witnessUtxo?.script)
     .filter((script): script is Buffer => !!script)
     .map((script) => script.toString('hex'));
-  // Get scriptDetails from inputScripts
-  let scriptsDetails: Record<string, ScriptDetails> = {};
   for (const script of inputsScripts) {
-    const scriptDetails = useWalletStore.getState().scriptDetails[script];
-    if (scriptDetails) {
-      scriptsDetails[script] = scriptDetails;
+    if (scriptDetails[script]?.blindingPrivateKey) {
+      blindingPrivateKeys.push(Buffer.from(scriptDetails[script]?.blindingPrivateKey, 'hex'));
     }
   }
-  const inputIndexes = [];
-  for (let i = 0; i < pset.inputs.length; i++) {
-    const input = pset.inputs[i];
-    const script = input.witnessUtxo?.script;
-    if (!script) continue;
-    const scriptDetails = scriptsDetails[script.toString('hex')];
-    if (scriptDetails) {
-      inputIndexes.push(i);
-    }
-  }
-  const ownedInputs: OwnedInput[] = [];
-  for (const inputIndex of inputIndexes) {
-    const input = pset.inputs[inputIndex];
-    const unblindOutput =
-      useWalletStore.getState().outputHistory[
-        outpointToString({
-          txid: Buffer.from(input.previousTxid).reverse().toString('hex'),
-          vout: input.previousTxIndex,
-        })
-      ];
-    if (!unblindOutput || !unblindOutput.blindingData) continue;
-    ownedInputs.push({
-      asset: AssetHash.fromHex(unblindOutput.blindingData.asset).bytesWithoutPrefix.reverse(),
-      assetBlindingFactor: Buffer.from(unblindOutput.blindingData.assetBlindingFactor, 'hex').reverse(),
-      valueBlindingFactor: Buffer.from(unblindOutput.blindingData.valueBlindingFactor, 'hex').reverse(),
-      value: unblindOutput.blindingData.value.toString(),
-      index: inputIndex,
-    });
-  }
-  return { ownedInputs, inputIndexes };
+  return blindingPrivateKeys;
 }

@@ -33,7 +33,7 @@ export class SwapTransaction implements SwapTransactionInterface {
     this.blindingKeyNode = slip77.fromMasterBlindingKey(masterBlindingKey);
   }
 
-  async createProto(
+  async createPset(
     coinSelectionForTrade: CoinSelectionForTrade,
     amountToBeSent: number,
     amountToReceive: number,
@@ -43,7 +43,6 @@ export class SwapTransaction implements SwapTransactionInterface {
     addressForSwapOutput: ScriptDetails
   ): Promise<void> {
     const { changeOutputs, witnessUtxos } = coinSelectionForTrade;
-
     for (const [outpointStr, utxo] of Object.entries(witnessUtxos)) {
       const [txid, vout] = outpointStr.split(':');
       const inputData: PsbtTxInput = {
@@ -60,7 +59,6 @@ export class SwapTransaction implements SwapTransactionInterface {
       const { privateKey } = this._deriveBlindingKey(utxo.script);
       this.inputBlindingKeys[utxo.script.toString('hex')] = privateKey;
     }
-
     // The receiving output
     this.psbt.addOutput({
       script: Buffer.from(addressForSwapOutput.script, 'hex'),
@@ -68,10 +66,8 @@ export class SwapTransaction implements SwapTransactionInterface {
       asset: AssetHash.fromHex(assetToReceive).bytes,
       nonce: Buffer.from('00', 'hex'),
     });
-
     // we update the outputBlindingKeys map after we add the receiving output to the transaction
     this.outputBlindingKeys[addressForSwapOutput.script] = Buffer.from(addressForSwapOutput.blindingPrivateKey, 'hex');
-
     if (changeOutputs && changeOutputs.length > 0) {
       for (const changeOutput of changeOutputs) {
         // Change

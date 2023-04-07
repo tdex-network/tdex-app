@@ -4,14 +4,15 @@ import { SwapAccept } from '../../../api-spec/protobuf/gen/js/tdex/v2/swap_pb';
 import { TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import type { CoinSelectionForTrade, ScriptDetails } from '../../../store/walletStore';
 import type { NetworkString } from '../../../utils/constants';
-import { decodePset, isRawTransaction, isValidAmount, psetToOwnedInputs } from '../../../utils/transaction';
+import { decodePset, isRawTransaction, isValidAmount } from '../../../utils/transaction';
 import type { SignerInterface } from '../../signerService';
+import { psetToUnblindedInputs } from '../index';
 
 import type TraderClientInterface from './clientInterface';
 import type { CoreInterface } from './core';
 import Core from './core';
 import { Swap } from './swap';
-import { SwapTransaction } from './transaction';
+import { SwapTransaction } from './swapTransaction';
 
 export interface TDEXProvider {
   name: string;
@@ -277,7 +278,8 @@ export class TradeCore extends Core implements TradeInterface {
       tradeFeeAmount
     );
     const swap = new Swap({ chain: this.chain, verbose: false });
-    const { ownedInputs } = psetToOwnedInputs(swapTx.pset);
+    // TODO: find an other way to provide unblindedInputs
+    const unblindedInputs = psetToUnblindedInputs(swapTx.pset);
     const swapRequestSerialized = await swap.request({
       assetToBeSent,
       amountToBeSent,
@@ -286,7 +288,7 @@ export class TradeCore extends Core implements TradeInterface {
       psetBase64: swapTx.pset.toBase64(),
       inputBlindingKeys: swapTx.inputBlindingKeys,
       outputBlindingKeys: swapTx.outputBlindingKeys,
-      unblindedInputs: ownedInputs,
+      unblindedInputs: unblindedInputs,
     });
     const swapAccept = await this.client.proposeTrade(
       market,

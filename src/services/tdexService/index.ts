@@ -1,14 +1,18 @@
 import axios from 'axios';
+import { Buffer } from 'buffer';
+import type { Pset } from 'liquidjs-lib';
 
 import { TradeType as TradeTypeV1 } from '../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
 import type { Preview as PreviewV1 } from '../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
-import type { Preview as PreviewV2 } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
+import type { Preview as PreviewV2, UnblindedInput } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import { TradeType as TradeTypeV2 } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import { config } from '../../store/config';
 import type { CoinSelectionForTrade, ScriptDetails } from '../../store/walletStore';
+import { useWalletStore } from '../../store/walletStore';
 import type { NetworkString } from '../../utils/constants';
 import { AppError, NoMarketsAvailableForSelectedPairError } from '../../utils/errors';
 // Self import for unit testing
+import { outpointToString } from '../../utils/helpers';
 import type { SignerInterface } from '../signerService';
 
 import * as tdex from './index';
@@ -38,6 +42,7 @@ import {
 import type { Discovery as DiscoveryV2 } from './v2/discovery';
 import { Trade as TradeV2 } from './v2/trade.web';
 import type { TDEXMarket as TDEXMarketV2, TradeOrder as TradeOrderV2 } from './v2/tradeCore';
+
 //
 const TDexRegistryMainnet = 'https://raw.githubusercontent.com/tdex-network/tdex-registry/master/registry.json';
 const TDexRegistryTestnet = 'https://raw.githubusercontent.com/tdex-network/tdex-registry/testnet/registry.json';
@@ -388,4 +393,50 @@ export function discoverBestOrder(
 
 export function isTradeOrderV2(tradeOrder: any): tradeOrder is TradeOrderV2 {
   return tradeOrder.market?.percentageFee !== undefined;
+}
+
+export function psetToUnblindedInputs(pset: Pset): UnblindedInput[] {
+  // find input index belonging to this account
+  const inputsScripts = pset.inputs
+    .map((input) => input.witnessUtxo?.script)
+    .filter((script): script is Buffer => !!script)
+    .map((script) => script.toString('hex'));
+  // Get scriptDetails from inputScripts
+  let scriptsDetails: Record<string, ScriptDetails> = {};
+  for (const script of inputsScripts) {
+    const scriptDetails = useWalletStore.getState().scriptDetails[script];
+    if (scriptDetails) {
+      scriptsDetails[script] = scriptDetails;
+    }
+  }
+  const inputIndexes = [];
+  for (let i = 0; i < pset.inputs.length; i++) {
+    const input = pset.inputs[i];
+    const script = input.witnessUtxo?.script;
+    if (!script) continue;
+    const scriptDetails = scriptsDetails[script.toString('hex')];
+    if (scriptDetails) {
+      inputIndexes.push(i);
+    }
+  }
+  const unblindedInputs: UnblindedInput[] = [];
+  for (const inputIndex of inputIndexes) {
+    const input = pset.inputs[inputIndex];
+    const unblindOutput =
+      useWalletStore.getState().outputHistory[
+        outpointToString({
+          txid: Buffer.from(input.previousTxid).reverse().toString('hex'),
+          vout: input.previousTxIndex,
+        })
+      ];
+    if (!unblindOutput || !unblindOutput.blindingData) continue;
+    unblindedInputs.push({
+      asset: unblindOutput.blindingData.asset,
+      assetBlinder: Buffer.from(unblindOutput.blindingData.assetBlindingFactor, 'hex').reverse().toString('hex'),
+      amountBlinder: Buffer.from(unblindOutput.blindingData.valueBlindingFactor, 'hex').reverse().toString('hex'),
+      amount: unblindOutput.blindingData.value.toString(),
+      index: inputIndex,
+    });
+  }
+  return unblindedInputs;
 }

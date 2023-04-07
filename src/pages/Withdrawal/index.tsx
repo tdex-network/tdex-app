@@ -91,7 +91,7 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
         return;
       }
       //
-      const LBTCBalance = balances[LBTC_ASSET[network].assetHash].value;
+      const LBTCBalance = balances[LBTC_ASSET[network].assetHash]?.value ?? 0;
       if (!LBTCBalance || LBTCBalance === 0) {
         setError('You need LBTC to pay fees');
         return;
@@ -136,7 +136,6 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
         throw IncorrectPINError;
       }
       const { pset, feeAmount } = await makeSendPset([getRecipient()], LBTC_ASSET[network].assetHash, isMaxSend);
-      console.log('pset', pset.unsignedTx().toHex());
       const blinder = new BlinderService();
       const blindedPset = await blinder.blindPset(pset);
       const signer = await SignerService.fromPassword(pin);

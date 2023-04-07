@@ -20,7 +20,7 @@ interface requestOpts {
   psetBase64: string;
   inputBlindingKeys?: BlindKeysMap;
   outputBlindingKeys?: BlindKeysMap;
-  unblindedInputs?: OwnedInput[];
+  unblindedInputs?: UnblindedInput[];
 }
 
 interface acceptOpts {
@@ -66,15 +66,7 @@ export class Swap extends Core {
       amountR: String(amountToReceive),
       assetR: assetToReceive,
       transaction: psetBase64,
-      unblindedInputs: unblindedInputs?.map((input) => {
-        return {
-          index: input.index,
-          asset: input.asset.toString('hex'),
-          assetBlinder: input.assetBlindingFactor.toString('hex'),
-          amount: input.value,
-          amountBlinder: input.valueBlindingFactor.toString('hex'),
-        };
-      }),
+      unblindedInputs: unblindedInputs,
     });
     // check the message content and transaction.
     await compareMessagesAndTransaction(msg);
