@@ -10,28 +10,11 @@ export class BlinderService {
   async blindPset(pset: Pset): Promise<Pset> {
     const zkpLib = await zkp();
     const zkpValidator = new ZKPValidator(zkpLib);
-    const { ownedInputs, inputIndexes } = psetToOwnedInputs(pset);
-    console.log('ownedInputs', ownedInputs);
-    console.log('inputIndexes', inputIndexes);
+    const { ownedInputs } = psetToOwnedInputs(pset);
     const zkpGenerator = new ZKPGenerator(zkpLib, ZKPGenerator.WithOwnedInputs(ownedInputs));
     const outputBlindingArgs = zkpGenerator.blindOutputs(pset, keysGenerator);
-    let isLast = true;
-    for (const out of pset.outputs) {
-      if (out.isFullyBlinded()) continue;
-      if (out.needsBlinding() && out.blinderIndex) {
-        if (!inputIndexes.includes(out.blinderIndex)) {
-          isLast = false;
-          break;
-          // if it remains an output to blind, it means that we are not the last blinder
-        }
-      }
-    }
     const blinder = new Blinder(pset, ownedInputs, zkpValidator, zkpGenerator);
-    if (isLast) {
-      blinder.blindLast({ outputBlindingArgs });
-    } else {
-      blinder.blindNonLast({ outputBlindingArgs });
-    }
+    blinder.blindLast({ outputBlindingArgs });
     return blinder.pset;
   }
 }

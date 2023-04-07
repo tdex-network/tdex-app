@@ -40,7 +40,6 @@ export class SignerService implements SignerInterface {
       .map((input) => input.witnessUtxo?.script)
       .filter((script): script is Buffer => !!script)
       .map((script) => script.toString('hex'));
-
     let scriptsDetailsInputs: Record<string, ScriptDetails> = {};
     for (const script of inputsScripts) {
       // TODO: avoid coupling
@@ -49,9 +48,7 @@ export class SignerService implements SignerInterface {
         scriptsDetailsInputs[script] = scriptDetails;
       }
     }
-
     const signer = new Signer(pset);
-
     for (const [index, input] of signer.pset.inputs.entries()) {
       const script = input.witnessUtxo?.script;
       if (!script) continue;
