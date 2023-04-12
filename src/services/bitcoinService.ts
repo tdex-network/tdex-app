@@ -9,16 +9,14 @@ import { confidential, script as bscript, Transaction } from 'liquidjs-lib';
 import { getNetwork } from 'liquidjs-lib/src/address';
 import ElementsPegin from 'pegin';
 import * as ecc from 'tiny-secp256k1';
-import { ElectrumWS } from 'ws-electrumx-client';
 
 import type { DepositPeginUtxo, Pegins } from '../store/bitcoinStore';
-import { useSettingsStore } from '../store/settingsStore';
 import { useWalletStore } from '../store/walletStore';
 import type { NetworkString } from '../utils/constants';
 import { getFedPegScript, LBTC_ASSET } from '../utils/constants';
 import { decrypt } from '../utils/crypto';
 
-import { WsElectrumChainSource } from './chainSource';
+import { chainSource } from './chainSource';
 
 const bip32 = BIP32Factory(ecc);
 
@@ -77,9 +75,6 @@ export class BitcoinService {
               .data;
             const claimTxHex = await peginModule.claimTx(btcPeginTxHex, btcBlockProof, claimScript);
             const signedClaimTxHex = this.signClaimTx(claimTxHex, btcPeginTxHex, claimScript, ecPair);
-            const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
-            const client = new ElectrumWS(websocketExplorerURL);
-            const chainSource = new WsElectrumChainSource(client);
             const claimTxId = await chainSource.broadcastTransaction(signedClaimTxHex);
             pegin.depositUtxos[outpoint] = {
               ...depositUtxo,

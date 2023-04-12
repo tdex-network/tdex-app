@@ -1,5 +1,7 @@
 import { crypto } from 'liquidjs-lib';
-import type { ElectrumWS } from 'ws-electrumx-client';
+import { ElectrumWS } from 'ws-electrumx-client';
+
+import { useSettingsStore } from '../store/settingsStore';
 
 export interface ChainSource {
   subscribeScriptStatus(script: Buffer, callback: (scripthash: string, status: string | null) => void): Promise<void>;
@@ -78,13 +80,17 @@ const SubscribeStatusMethod = 'blockchain.scripthash'; // ElectrumWS automatical
 const GetRelayFeeMethod = 'blockchain.relayfee';
 
 export class WsElectrumChainSource implements ChainSource {
-  private ws: ElectrumWS;
+  private readonly ws?: ElectrumWS;
 
-  constructor(ws: ElectrumWS) {
-    this.ws = ws;
+  constructor() {
+    if (!this.ws) {
+      const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
+      this.ws = new ElectrumWS(websocketExplorerURL);
+    }
   }
 
   async fetchTransactions(txids: string[]): Promise<{ txid: string; hex: string }[]> {
+    if (!this.ws) return [];
     const responses = await this.ws.batchRequest<string[]>(
       ...txids.map((txid) => ({ method: GetTransactionMethod, params: [txid] }))
     );
@@ -92,6 +98,7 @@ export class WsElectrumChainSource implements ChainSource {
   }
 
   async unsubscribeScriptStatus(script: Buffer): Promise<void> {
+    if (!this.ws) return;
     await this.ws.unsubscribe(SubscribeStatusMethod, toScriptHash(script)).catch();
   }
 
@@ -99,6 +106,7 @@ export class WsElectrumChainSource implements ChainSource {
     script: Buffer,
     callback: (scripthash: string, status: string | null) => void
   ): Promise<void> {
+    if (!this.ws) return;
     const scriptHash = toScriptHash(script);
     await this.ws.subscribe(
       SubscribeStatusMethod,
@@ -112,6 +120,7 @@ export class WsElectrumChainSource implements ChainSource {
   }
 
   async fetchHistories(scripts: Buffer[]): Promise<GetHistoryResponse[]> {
+    if (!this.ws) return [];
     const scriptsHashes = scripts.map((s) => toScriptHash(s));
     return await this.ws.batchRequest<GetHistoryResponse[]>(
       ...scriptsHashes.map((s) => ({ method: GetHistoryMethod, params: [s] }))
@@ -119,22 +128,28 @@ export class WsElectrumChainSource implements ChainSource {
   }
 
   async fetchBlockHeader(height: number): Promise<BlockHeader> {
+    if (!this.ws) return {} as BlockHeader;
     const hex = await this.ws.request<string>(GetBlockHeader, height);
     return deserializeBlockHeader(hex);
   }
 
   async estimateFees(targetNumberBlocks: number): Promise<number> {
+    if (!this.ws) return 0;
     return await this.ws.request<number>(EstimateFee, targetNumberBlocks);
   }
 
   async broadcastTransaction(hex: string): Promise<string> {
+    if (!this.ws) return '';
     return this.ws.request<string>(BroadcastTransaction, hex);
   }
 
   async getRelayFee(): Promise<number> {
+    if (!this.ws) return 0;
     return this.ws.request<number>(GetRelayFeeMethod);
   }
 }
+
+export const chainSource = new WsElectrumChainSource();
 
 function toScriptHash(script: Buffer): string {
   return crypto.sha256(script).reverse().toString('hex');

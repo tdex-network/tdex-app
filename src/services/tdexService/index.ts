@@ -1,18 +1,13 @@
 import axios from 'axios';
-import { Buffer } from 'buffer';
-import type { Pset } from 'liquidjs-lib';
 
 import { TradeType as TradeTypeV1 } from '../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
 import type { Preview as PreviewV1 } from '../../api-spec/protobuf/gen/js/tdex/v1/types_pb';
-import type { Preview as PreviewV2, UnblindedInput } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
+import type { Preview as PreviewV2 } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import { TradeType as TradeTypeV2 } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import { config } from '../../store/config';
 import type { CoinSelectionForTrade, ScriptDetails } from '../../store/walletStore';
-import { useWalletStore } from '../../store/walletStore';
 import type { NetworkString } from '../../utils/constants';
 import { AppError, NoMarketsAvailableForSelectedPairError } from '../../utils/errors';
-// Self import for unit testing
-import { outpointToString } from '../../utils/helpers';
 import type { SignerInterface } from '../signerService';
 
 import * as tdex from './index';

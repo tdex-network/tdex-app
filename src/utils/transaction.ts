@@ -4,9 +4,8 @@ import { Pset, address, Creator, networks, payments, Transaction, Updater } from
 import { getScriptType, ScriptType } from 'liquidjs-lib/src/address';
 import { varSliceSize, varuint } from 'liquidjs-lib/src/bufferutils';
 import { Psbt } from 'liquidjs-lib/src/psbt';
-import { ElectrumWS } from 'ws-electrumx-client';
 
-import { WsElectrumChainSource } from '../services/chainSource';
+import { chainSource } from '../services/chainSource';
 import { useSettingsStore } from '../store/settingsStore';
 import type { Recipient, TxHeuristic } from '../store/walletStore';
 import { useWalletStore } from '../store/walletStore';
@@ -155,9 +154,6 @@ export async function makeSendPset(
       });
     }
   }
-  const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
-  const client = new ElectrumWS(websocketExplorerURL);
-  const chainSource = new WsElectrumChainSource(client);
   if (!chainSource) throw new Error('chain source not found, cannot estimate fee');
   // create the updater
   const updater = new Updater(pset).addInputs(ins).addOutputs(outs);

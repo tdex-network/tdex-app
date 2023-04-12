@@ -14,7 +14,6 @@ import Decimal from 'decimal.js';
 import React, { useEffect, useState } from 'react';
 import type { RouteComponentProps } from 'react-router';
 import { useParams } from 'react-router';
-import { ElectrumWS } from 'ws-electrumx-client';
 
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Header from '../../components/Header';
@@ -23,7 +22,7 @@ import PinModal from '../../components/PinModal';
 import WithdrawRow from '../../components/WithdrawRow';
 import { IconQR } from '../../components/icons';
 import { BlinderService } from '../../services/blinderService';
-import { WsElectrumChainSource } from '../../services/chainSource';
+import { chainSource } from '../../services/chainSource';
 import { SignerService } from '../../services/signerService';
 import { useAssetStore } from '../../store/assetStore';
 import { useSettingsStore } from '../../store/settingsStore';
@@ -142,9 +141,6 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
       const signedPset = await signer.signPset(blindedPset);
       const toBroadcast = signer.finalizeAndExtract(signedPset);
       // Broadcast tx
-      const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
-      const client = new ElectrumWS(websocketExplorerURL);
-      const chainSource = new WsElectrumChainSource(client);
       const txid = await chainSource.broadcastTransaction(toBroadcast);
       const actualAmount =
         isMaxSend && isLbtc(asset_id, network) ? `-${Number(amount) - fromSatoshi(feeAmount)}` : `-${amount}`;

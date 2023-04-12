@@ -8,12 +8,11 @@ import type { Output } from 'liquidjs-lib/src/transaction';
 import moment from 'moment';
 import { SLIP77Factory } from 'slip77';
 import * as ecc from 'tiny-secp256k1';
-import { ElectrumWS } from 'ws-electrumx-client';
 import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
 import type { UnblindedInput } from '../api-spec/protobuf/gen/js/tdex/v2/types_pb';
-import { WsElectrumChainSource } from '../services/chainSource';
+import { chainSource } from '../services/chainSource';
 import { getBaseDerivationPath, LBTC_ASSET, LBTC_COINGECKOID } from '../utils/constants';
 import type { Encrypted } from '../utils/crypto';
 import { decrypt, encrypt } from '../utils/crypto';
@@ -29,6 +28,7 @@ import {
 } from '../utils/helpers';
 import { fromSatoshi } from '../utils/unitConversion';
 
+import { useAppStore } from './appStore';
 import { useAssetStore } from './assetStore';
 import { useBitcoinStore } from './bitcoinStore';
 import { storage } from './capacitorPersistentStorage';
@@ -128,6 +128,7 @@ interface WalletState {
   nextInternalIndex?: number;
   lockedOutpoints: string[];
   masterPublicKey: string;
+  masterPublicKeyLegacy: string;
   masterBlindingKey: string;
   outputHistory: Record<string, UnblindedOutput>; // outpointStr, utxo
   scriptDetails: Record<string, ScriptDetails>; // script, scriptDetails
@@ -145,7 +146,12 @@ interface WalletActions {
   computeHeuristicFromPegins: () => TxHeuristic[] | undefined;
   createP2PWKHScript: ({ publicKey, derivationPath }: PubKeyWithRelativeDerivationPath) => [string, ScriptDetails];
   decryptMnemonic: (pin: string) => Promise<string>;
-  deriveBatchPublicKeys: (start: number, end: number, isInternal: boolean) => PubKeyWithRelativeDerivationPath[];
+  deriveBatchPublicKeys: (
+    start: number,
+    end: number,
+    isInternal: boolean,
+    supportLegacy?: boolean
+  ) => PubKeyWithRelativeDerivationPath[];
   deriveBlindingKey: (script: Buffer) => { publicKey: Buffer; privateKey: Buffer };
   generateMasterKeys: (mnemonic: string) => void;
   getNextAddress: (isInternal: boolean, dryRun?: boolean) => Promise<ScriptDetails>;
@@ -173,6 +179,7 @@ const initialState: WalletState = {
   nextInternalIndex: undefined,
   nextExternalIndex: undefined,
   masterPublicKey: '',
+  masterPublicKeyLegacy: '',
   masterBlindingKey: '',
   outputHistory: {},
   scriptDetails: {},
@@ -181,7 +188,7 @@ const initialState: WalletState = {
   txsHeuristic: undefined,
 };
 
-const GAP_LIMIT = 10;
+const GAP_LIMIT = 20;
 
 const bip32 = BIP32Factory(ecc);
 const slip77 = SLIP77Factory(ecc);
@@ -316,6 +323,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
         },
         computeUtxosFromTxs: () => {
           const txs = get().txs;
+          console.log('txs', Object.keys(txs).length);
           const outpointsInInputs = new Set<string>();
           const walletOutputs = new Set<string>();
           const transactionsFromHex = Object.values(txs).map((tx) => Transaction.fromHex(tx.hex));
@@ -423,9 +431,6 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           }
 
           // fetch block time
-          const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
-          const client = new ElectrumWS(websocketExplorerURL);
-          const chainSource = new WsElectrumChainSource(client);
           let blockTime: moment.Moment | undefined;
           if (txDetails.height) {
             const header = await chainSource.fetchBlockHeader(txDetails.height);
@@ -488,17 +493,28 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           if (!encryptedMnemonic) throw new Error('No mnemonic found in wallet');
           return decrypt(encryptedMnemonic, pin);
         },
-        deriveBatchPublicKeys: (start, end, isInternal) => {
+        deriveBatchPublicKeys: (start, end, isInternal, supportLegacy = false) => {
           const network = useSettingsStore.getState().network;
-          const node = bip32.fromBase58(get().masterPublicKey);
           const chain = isInternal ? 1 : 0;
           const results: PubKeyWithRelativeDerivationPath[] = [];
+          if (supportLegacy) {
+            const nodeLegacy = bip32.fromBase58(get().masterPublicKeyLegacy);
+            for (let i = start; i < end; i++) {
+              const child = nodeLegacy.derive(chain).derive(i);
+              if (!child.publicKey) throw new Error('Could not derive public key');
+              results.push({
+                publicKey: child.publicKey,
+                derivationPath: `${getBaseDerivationPath(network).legacy}/${chain}/${i}`,
+              });
+            }
+          }
+          const node = bip32.fromBase58(get().masterPublicKey);
           for (let i = start; i < end; i++) {
             const child = node.derive(chain).derive(i);
             if (!child.publicKey) throw new Error('Could not derive public key');
             results.push({
               publicKey: child.publicKey,
-              derivationPath: `${getBaseDerivationPath(network)}/${chain}/${i}`,
+              derivationPath: `${getBaseDerivationPath(network).new}/${chain}/${i}`,
             });
           }
           return results;
@@ -512,18 +528,34 @@ export const useWalletStore = create<WalletState & WalletActions>()(
         generateMasterKeys: (mnemonic: string) => {
           const network = useSettingsStore.getState().network;
           const seed = mnemonicToSeedSync(mnemonic);
-          const masterPublicKey = bip32.fromSeed(seed).derivePath(getBaseDerivationPath(network)).neutered().toBase58();
+          const masterPublicKeyLegacy = bip32
+            .fromSeed(seed)
+            .derivePath(getBaseDerivationPath(network).legacy)
+            .neutered()
+            .toBase58();
+          const masterPublicKeyNew = bip32
+            .fromSeed(seed)
+            .derivePath(getBaseDerivationPath(network).new)
+            .neutered()
+            .toBase58();
           // use xpub format for all networks to be more compatible with all other wallets that only uses xpub in Liquid (specter)
-          set({ masterPublicKey: toXpub(masterPublicKey) }, false, 'setMasterPublicKey');
+          set(
+            {
+              masterPublicKey: toXpub(masterPublicKeyNew),
+              masterPublicKeyLegacy: toXpub(masterPublicKeyLegacy),
+            },
+            false,
+            'setMasterPublicKey'
+          );
           const masterBlindingKey = slip77.fromSeed(seed).masterKey.toString('hex');
           set({ masterBlindingKey }, false, 'setMasterBlindingKey');
         },
         getNextAddress: async (isInternal: boolean, dryRun = false) => {
           const nextIndex = isInternal ? get().nextInternalIndex ?? 0 : get().nextExternalIndex ?? 0;
-          const pubKey = get().deriveBatchPublicKeys(nextIndex, nextIndex + 1, isInternal);
+          const pubKeys = get().deriveBatchPublicKeys(nextIndex, nextIndex + 1, isInternal);
           const scriptDetails = get().createP2PWKHScript({
-            publicKey: pubKey[0].publicKey,
-            derivationPath: pubKey[0].derivationPath,
+            publicKey: pubKeys[0].publicKey,
+            derivationPath: pubKeys[0].derivationPath,
           });
           if (!dryRun) {
             await get().subscribeScript(Buffer.from(scriptDetails[0], 'hex'));
@@ -668,34 +700,41 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           );
         },
         subscribeScript: async (script) => {
-          const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
-          const client = new ElectrumWS(websocketExplorerURL);
-          const chainSource = new WsElectrumChainSource(client);
           await chainSource.subscribeScriptStatus(script, async (_: string, __: string | null) => {
-            const history = await chainSource.fetchHistories([script]);
-            const historyTxId = history[0].map(({ tx_hash }) => tx_hash);
+            const history = (await chainSource.fetchHistories([script]))[0];
+            if (history.length === 0) return;
+            const historyTxId = history.map(({ tx_hash }) => tx_hash);
+            const hasBeenProcessed = historyTxId
+              .map((txid) => Object.keys(get().txs[txid] ?? {}).length > 0)
+              .every((hasTxInStore) => hasTxInStore);
+            if (hasBeenProcessed) return;
             const txs = await chainSource.fetchTransactions(historyTxId);
             const txsObj = Object.fromEntries(txs.map(({ txid, hex }) => [txid, { hex }]));
-            const historyObj = Object.fromEntries(history[0].map(({ tx_hash, height }) => [tx_hash, { height }]));
+            const historyObj = Object.fromEntries(history.map(({ tx_hash, height }) => [tx_hash, { height }]));
             const txsAndHistory = Object.fromEntries(
               Object.entries(txsObj).map(([txid, tx]) => [txid, { ...tx, ...historyObj[txid] }])
             );
             set((state) => ({ txs: { ...state.txs, ...txsAndHistory } }), false, 'subscribeScript/txs');
             await get().setOutputs();
-            await get().computeBalances();
+            // do not compute balances at first sync
+            if (get().balances) {
+              await get().computeBalances();
+            }
           });
         },
         subscribeAllScripts: async () => {
+          useAppStore.getState().setIsFetchingUtxos(true);
+          useAppStore.getState().setIsFetchingTransactions(true);
           const scripts = Object.keys(get().scriptDetails).map((s) => Buffer.from(s, 'hex'));
           console.warn(`subscribing to ${scripts.length} scripts`);
           for (const script of scripts) {
             await get().subscribeScript(script);
           }
+          await get().computeBalances();
+          useAppStore.getState().setIsFetchingUtxos(false);
+          useAppStore.getState().setIsFetchingTransactions(false);
         },
         sync: async (gapLimit = GAP_LIMIT) => {
-          const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
-          const client = new ElectrumWS(websocketExplorerURL);
-          const chainSource = new WsElectrumChainSource(client);
           const txidHeight: Map<string, number | undefined> = new Map();
           let restoredScripts: Record<string, ScriptDetails> = {};
           let tempRestoredScripts: Record<string, ScriptDetails> = {};
@@ -708,7 +747,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             let batchCount = isInternal ? nextInternalIndex : nextExternalIndex;
             let unusedScriptCounter = 0;
             while (unusedScriptCounter <= gapLimit) {
-              const publicKeys = get().deriveBatchPublicKeys(batchCount, batchCount + gapLimit, isInternal);
+              const publicKeys = get().deriveBatchPublicKeys(batchCount, batchCount + gapLimit, isInternal, true);
               const scriptsWithDetails = publicKeys.map((publicKey) => get().createP2PWKHScript(publicKey));
               const scripts = scriptsWithDetails.map(([script]) => Buffer.from(script, 'hex'));
               const histories = await chainSource.fetchHistories(scripts);
@@ -734,11 +773,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             }
           }
           set({ nextInternalIndex, nextExternalIndex }, false, 'sync/nextIndexes');
-          set(
-            (state) => ({ scriptDetails: { ...state.scriptDetails, ...restoredScripts } }),
-            false,
-            'sync/scriptDetails'
-          );
+          set({ scriptDetails: restoredScripts }, false, 'sync/scriptDetails');
           // We set txs, outputHistory and balances only in subscribeScript to avoid doing it twice
           return { nextInternalIndex, nextExternalIndex };
         },
