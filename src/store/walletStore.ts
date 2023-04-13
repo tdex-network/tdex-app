@@ -120,15 +120,21 @@ export interface TxDetails {
   hex: string;
 }
 
+interface Account {
+  derivationPath?: string;
+  masterPublicKey?: string;
+  nextExternalIndex?: number;
+  nextInternalIndex?: number;
+}
+
+type AccountName = 'main' | 'legacy';
+
 interface WalletState {
+  accounts?: Partial<Record<AccountName, Account>>;
   balances?: Balances;
   encryptedMnemonic?: Encrypted;
   isAuthorized: boolean;
-  nextExternalIndex?: number;
-  nextInternalIndex?: number;
   lockedOutpoints: string[];
-  masterPublicKey: string;
-  masterPublicKeyLegacy: string;
   masterBlindingKey: string;
   outputHistory: Record<string, UnblindedOutput>; // outpointStr, utxo
   scriptDetails: Record<string, ScriptDetails>; // script, scriptDetails
@@ -142,7 +148,7 @@ interface WalletActions {
   changePin: (currentPIN: string, newPIN: string) => Promise<void>;
   computeBalances: () => Promise<void>;
   computeUtxosFromTxs: () => UnblindedOutput[];
-  computeHeuristicFromTx: (txDetails: TxDetails, assetHash?: string) => Promise<TxHeuristic | undefined>;
+  computeHeuristicFromTx: (txDetails: TxDetails, assetHash?: string) => Promise<TxHeuristic>;
   computeHeuristicFromPegins: () => TxHeuristic[] | undefined;
   createP2PWKHScript: ({ publicKey, derivationPath }: PubKeyWithRelativeDerivationPath) => [string, ScriptDetails];
   decryptMnemonic: (pin: string) => Promise<string>;
@@ -150,11 +156,11 @@ interface WalletActions {
     start: number,
     end: number,
     isInternal: boolean,
-    supportLegacy?: boolean
+    accountName?: AccountName
   ) => PubKeyWithRelativeDerivationPath[];
   deriveBlindingKey: (script: Buffer) => { publicKey: Buffer; privateKey: Buffer };
-  generateMasterKeys: (mnemonic: string) => void;
-  getNextAddress: (isInternal: boolean, dryRun?: boolean) => Promise<ScriptDetails>;
+  generateMasterKeys: (mnemonic: string, accountName?: AccountName) => void;
+  getNextAddress: (isInternal: boolean, dryRun?: boolean, accountName?: AccountName) => Promise<ScriptDetails>;
   getWitnessUtxo: (txid: string, vout: number) => UpdaterInput['witnessUtxo'];
   lockOutpoint: (outpoint: Outpoint) => string;
   selectUtxos: (targets: Recipient[], lock: boolean) => Promise<CoinSelection>;
@@ -163,7 +169,7 @@ interface WalletActions {
   setOutputs: () => void;
   subscribeScript: (script: Buffer) => Promise<void>;
   subscribeAllScripts: () => Promise<void>;
-  sync: (gapLimit?: number) => Promise<{ nextInternalIndex: number; nextExternalIndex: number }>;
+  sync: (gapLimit?: number) => Promise<void>;
   resetWalletStore: () => void;
   resetWalletForRestoration: () => void;
   unblindUtxos: (outputs: Output[]) => Promise<(UnblindingData | Error)[]>;
@@ -172,14 +178,11 @@ interface WalletActions {
 }
 
 const initialState: WalletState = {
+  accounts: undefined,
   balances: undefined,
   encryptedMnemonic: undefined,
   isAuthorized: false,
   lockedOutpoints: [],
-  nextInternalIndex: undefined,
-  nextExternalIndex: undefined,
-  masterPublicKey: '',
-  masterPublicKeyLegacy: '',
   masterBlindingKey: '',
   outputHistory: {},
   scriptDetails: {},
@@ -206,8 +209,16 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               const { isChange, index } = getIndexAndIsChangeFromAddress(scriptDetails);
               return {
                 scriptDetails: { [scriptDetails.script]: scriptDetails },
-                nextInternalIndex: isChange ? index : state.nextInternalIndex,
-                nextExternalIndex: isChange ? state.nextExternalIndex : index,
+                // addScriptDetails only used when creating new address for reception
+                // Default to main account
+                accounts: {
+                  ...state.accounts,
+                  main: {
+                    ...state.accounts?.main,
+                    nextInternalIndex: isChange ? index : state.accounts?.main?.nextInternalIndex,
+                    nextExternalIndex: isChange ? state.accounts?.main?.nextExternalIndex : index,
+                  },
+                },
               };
             },
             false,
@@ -278,7 +289,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           let totalCounterValue = '0';
           try {
             await useRateStore.getState().fetchFiatRates();
-            const rates = await useRateStore.getState().rates;
+            const rates = useRateStore.getState().rates;
             if (rates) {
               for (const [assetHash, balance] of Object.entries(balances)) {
                 // compute fiat counter-value for lbtc
@@ -323,10 +334,11 @@ export const useWalletStore = create<WalletState & WalletActions>()(
         },
         computeUtxosFromTxs: () => {
           const txs = get().txs;
-          console.log('txs', Object.keys(txs).length);
           const outpointsInInputs = new Set<string>();
           const walletOutputs = new Set<string>();
-          const transactionsFromHex = Object.values(txs).map((tx) => Transaction.fromHex(tx.hex));
+          const transactionsFromHex = Object.values(txs)
+            .sort(({ height: aHeight }, { height: bHeight }) => aHeight - bHeight)
+            .map((tx) => Transaction.fromHex(tx.hex));
           for (const tx of transactionsFromHex) {
             for (const input of tx.ins) {
               outpointsInInputs.add(`${Buffer.from(input.hash).reverse().toString('hex')}:${input.index}`);
@@ -493,28 +505,17 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           if (!encryptedMnemonic) throw new Error('No mnemonic found in wallet');
           return decrypt(encryptedMnemonic, pin);
         },
-        deriveBatchPublicKeys: (start, end, isInternal, supportLegacy = false) => {
+        deriveBatchPublicKeys: (start, end, isInternal, accountName = 'main') => {
           const network = useSettingsStore.getState().network;
           const chain = isInternal ? 1 : 0;
           const results: PubKeyWithRelativeDerivationPath[] = [];
-          if (supportLegacy) {
-            const nodeLegacy = bip32.fromBase58(get().masterPublicKeyLegacy);
-            for (let i = start; i < end; i++) {
-              const child = nodeLegacy.derive(chain).derive(i);
-              if (!child.publicKey) throw new Error('Could not derive public key');
-              results.push({
-                publicKey: child.publicKey,
-                derivationPath: `${getBaseDerivationPath(network).legacy}/${chain}/${i}`,
-              });
-            }
-          }
-          const node = bip32.fromBase58(get().masterPublicKey);
+          const node = bip32.fromBase58(get().accounts?.[accountName]?.masterPublicKey ?? '');
           for (let i = start; i < end; i++) {
             const child = node.derive(chain).derive(i);
             if (!child.publicKey) throw new Error('Could not derive public key');
             results.push({
               publicKey: child.publicKey,
-              derivationPath: `${getBaseDerivationPath(network).new}/${chain}/${i}`,
+              derivationPath: `${getBaseDerivationPath(network)[accountName]}/${chain}/${i}`,
             });
           }
           return results;
@@ -528,30 +529,33 @@ export const useWalletStore = create<WalletState & WalletActions>()(
         generateMasterKeys: (mnemonic: string) => {
           const network = useSettingsStore.getState().network;
           const seed = mnemonicToSeedSync(mnemonic);
-          const masterPublicKeyLegacy = bip32
-            .fromSeed(seed)
-            .derivePath(getBaseDerivationPath(network).legacy)
-            .neutered()
-            .toBase58();
-          const masterPublicKeyNew = bip32
-            .fromSeed(seed)
-            .derivePath(getBaseDerivationPath(network).new)
-            .neutered()
-            .toBase58();
-          // use xpub format for all networks to be more compatible with all other wallets that only uses xpub in Liquid (specter)
-          set(
-            {
-              masterPublicKey: toXpub(masterPublicKeyNew),
-              masterPublicKeyLegacy: toXpub(masterPublicKeyLegacy),
-            },
-            false,
-            'setMasterPublicKey'
-          );
+          // Generate both main and legacy accounts
+          // Necessary for testing legacy restoration
+          for (const account of ['legacy', 'main'] as const) {
+            const masterPublicKey = bip32
+              .fromSeed(seed)
+              .derivePath(getBaseDerivationPath(network)[account])
+              .neutered()
+              .toBase58();
+            // use xpub format for all networks to be more compatible with all other wallets that only uses xpub in Liquid (specter)
+            set(
+              (state) => ({
+                accounts: {
+                  ...state.accounts,
+                  [account]: { masterPublicKey: toXpub(masterPublicKey) },
+                },
+              }),
+              false,
+              'setMasterPublicKey'
+            );
+          }
           const masterBlindingKey = slip77.fromSeed(seed).masterKey.toString('hex');
           set({ masterBlindingKey }, false, 'setMasterBlindingKey');
         },
-        getNextAddress: async (isInternal: boolean, dryRun = false) => {
-          const nextIndex = isInternal ? get().nextInternalIndex ?? 0 : get().nextExternalIndex ?? 0;
+        getNextAddress: async (isInternal: boolean, dryRun = false, accountName = 'main') => {
+          const nextIndex = isInternal
+            ? get().accounts?.[accountName]?.nextInternalIndex ?? 0
+            : get().accounts?.[accountName]?.nextExternalIndex ?? 0;
           const pubKeys = get().deriveBatchPublicKeys(nextIndex, nextIndex + 1, isInternal);
           const scriptDetails = get().createP2PWKHScript({
             publicKey: pubKeys[0].publicKey,
@@ -587,16 +591,34 @@ export const useWalletStore = create<WalletState & WalletActions>()(
         // Reset all except mnemonic / master keys
         resetWalletForRestoration: () => {
           set(
-            {
-              scriptDetails: {},
-              balances: undefined,
-              nextInternalIndex: undefined,
-              nextExternalIndex: undefined,
-              lockedOutpoints: [],
-              totalBtc: undefined,
-              txs: {},
-              txsHeuristic: undefined,
-              outputHistory: {},
+            (state) => {
+              let accounts;
+              const main = state.accounts?.main
+                ? {
+                    ...state.accounts?.main,
+                    nextExternalIndex: undefined,
+                    nextInternalIndex: undefined,
+                  }
+                : undefined;
+              if (main) accounts = { main };
+              const legacy = state.accounts?.legacy
+                ? {
+                    ...state.accounts?.legacy,
+                    nextExternalIndex: undefined,
+                    nextInternalIndex: undefined,
+                  }
+                : undefined;
+              if (legacy) accounts = { ...accounts, legacy };
+              return {
+                accounts,
+                scriptDetails: {},
+                balances: undefined,
+                lockedOutpoints: [],
+                totalBtc: undefined,
+                txs: {},
+                txsHeuristic: undefined,
+                outputHistory: {},
+              };
             },
             false,
             'resetWalletForRestoration'
@@ -715,7 +737,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               Object.entries(txsObj).map(([txid, tx]) => [txid, { ...tx, ...historyObj[txid] }])
             );
             set((state) => ({ txs: { ...state.txs, ...txsAndHistory } }), false, 'subscribeScript/txs');
-            await get().setOutputs();
+            get().setOutputs();
             // do not compute balances at first sync
             if (get().balances) {
               await get().computeBalances();
@@ -735,47 +757,66 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           useAppStore.getState().setIsFetchingTransactions(false);
         },
         sync: async (gapLimit = GAP_LIMIT) => {
+          const network = useSettingsStore.getState().network;
           const txidHeight: Map<string, number | undefined> = new Map();
           let restoredScripts: Record<string, ScriptDetails> = {};
           let tempRestoredScripts: Record<string, ScriptDetails> = {};
-          let nextExternalIndex = get().nextExternalIndex ?? 0;
-          let nextInternalIndex = get().nextInternalIndex ?? 0;
           const walletChains = [0, 1];
-          for (const i of walletChains) {
-            tempRestoredScripts = {};
-            const isInternal = i === 1;
-            let batchCount = isInternal ? nextInternalIndex : nextExternalIndex;
-            let unusedScriptCounter = 0;
-            while (unusedScriptCounter <= gapLimit) {
-              const publicKeys = get().deriveBatchPublicKeys(batchCount, batchCount + gapLimit, isInternal, true);
-              const scriptsWithDetails = publicKeys.map((publicKey) => get().createP2PWKHScript(publicKey));
-              const scripts = scriptsWithDetails.map(([script]) => Buffer.from(script, 'hex'));
-              const histories = await chainSource.fetchHistories(scripts);
-              for (const [index, history] of histories.entries()) {
-                tempRestoredScripts[scriptsWithDetails[index][0]] = scriptsWithDetails[index][1];
-                if (history.length > 0) {
-                  unusedScriptCounter = 0; // reset counter
-                  // update the restored scripts with all the script details until now
-                  restoredScripts = { ...restoredScripts, ...tempRestoredScripts };
-                  tempRestoredScripts = {};
-                  const newMaxIndex = index + batchCount + 1;
-                  if (isInternal) nextInternalIndex = newMaxIndex;
-                  else nextExternalIndex = newMaxIndex;
-                  // update the history set
-                  for (const { tx_hash, height } of history) {
-                    txidHeight.set(tx_hash, height);
+          const accounts = ['legacy', 'main'] as const;
+          for (const account of accounts) {
+            let nextExternalIndex = 0;
+            let nextInternalIndex = 0;
+            for (const i of walletChains) {
+              tempRestoredScripts = {};
+              const isInternal = i === 1;
+              let batchCount = isInternal ? nextInternalIndex : nextExternalIndex;
+              let unusedScriptCounter = 0;
+              while (unusedScriptCounter <= gapLimit) {
+                const publicKeys = get().deriveBatchPublicKeys(batchCount, batchCount + gapLimit, isInternal, account);
+                const scriptsWithDetails = publicKeys.map((publicKey) => get().createP2PWKHScript(publicKey));
+                const scripts = scriptsWithDetails.map(([script]) => Buffer.from(script, 'hex'));
+                const histories = await chainSource.fetchHistories(scripts);
+                for (const [index, history] of histories.entries()) {
+                  tempRestoredScripts[scriptsWithDetails[index][0]] = scriptsWithDetails[index][1];
+                  if (history.length > 0) {
+                    unusedScriptCounter = 0; // reset counter
+                    // update the restored scripts with all the script details until now
+                    restoredScripts = { ...restoredScripts, ...tempRestoredScripts };
+                    tempRestoredScripts = {};
+                    const newMaxIndex = index + batchCount + 1;
+                    if (isInternal) nextInternalIndex = newMaxIndex;
+                    else nextExternalIndex = newMaxIndex;
+                    // update the history set
+                    for (const { tx_hash, height } of history) {
+                      txidHeight.set(tx_hash, height);
+                    }
+                  } else {
+                    unusedScriptCounter += 1;
                   }
-                } else {
-                  unusedScriptCounter += 1;
                 }
+                batchCount += gapLimit;
               }
-              batchCount += gapLimit;
+            }
+            if (account === 'main' || (account === 'legacy' && (nextInternalIndex > 0 || nextExternalIndex > 0))) {
+              set(
+                (state) => ({
+                  accounts: {
+                    ...state.accounts,
+                    [account]: {
+                      ...state.accounts?.[account],
+                      derivationPath: getBaseDerivationPath(network)[account],
+                      nextInternalIndex,
+                      nextExternalIndex,
+                    },
+                  },
+                }),
+                false,
+                'sync/nextIndexesAndPath'
+              );
+              set({ scriptDetails: restoredScripts }, false, 'sync/scriptDetails');
             }
           }
-          set({ nextInternalIndex, nextExternalIndex }, false, 'sync/nextIndexes');
-          set({ scriptDetails: restoredScripts }, false, 'sync/scriptDetails');
           // We set txs, outputHistory and balances only in subscribeScript to avoid doing it twice
-          return { nextInternalIndex, nextExternalIndex };
         },
         unblindUtxos: async (outputs) => {
           const scriptDetails = get().scriptDetails;

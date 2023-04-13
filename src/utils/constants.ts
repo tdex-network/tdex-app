@@ -202,8 +202,8 @@ export const BASE_DERIVATION_PATH_MAINNET_LEGACY = "m/84'/0'/0'";
 export const BASE_DERIVATION_PATH_TESTNET = "m/84'/1'/0'";
 export const BASE_DERIVATION_PATH_TESTNET_LEGACY = "m/84'/0'/0'";
 
-export function getBaseDerivationPath(network: NetworkString): { legacy: string; new: string } {
+export function getBaseDerivationPath(network: NetworkString): { legacy: string; main: string } {
   return network === 'liquid'
-    ? { legacy: BASE_DERIVATION_PATH_MAINNET_LEGACY, new: BASE_DERIVATION_PATH_MAINNET }
-    : { legacy: BASE_DERIVATION_PATH_TESTNET_LEGACY, new: BASE_DERIVATION_PATH_TESTNET };
+    ? { legacy: BASE_DERIVATION_PATH_MAINNET_LEGACY, main: BASE_DERIVATION_PATH_MAINNET }
+    : { legacy: BASE_DERIVATION_PATH_TESTNET_LEGACY, main: BASE_DERIVATION_PATH_TESTNET };
 }

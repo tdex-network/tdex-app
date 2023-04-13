@@ -53,7 +53,7 @@ const DeepRestoration: React.FC = () => {
       resetWalletForRestoration();
       resetRateStore();
       await sync(Number(rangeValue));
-      //await subscribeAllScripts();
+      await subscribeAllScripts();
       addSuccessToast('Account discovery successful');
     } catch (err) {
       console.error(err);
