@@ -85,12 +85,12 @@ export const Withdrawal: React.FC<RouteComponentProps<any, any, LocationState>> 
   useEffect(() => {
     try {
       if (!balances?.[asset_id]) return;
-      if (balances[asset_id].value < Number(amount)) {
+      if (+balances[asset_id].value < Number(amount)) {
         setError('Amount is greater than your balance');
         return;
       }
       //
-      const LBTCBalance = balances[LBTC_ASSET[network].assetHash]?.value ?? 0;
+      const LBTCBalance = +balances[LBTC_ASSET[network].assetHash]?.value ?? 0;
       if (!LBTCBalance || LBTCBalance === 0) {
         setError('You need LBTC to pay fees');
         return;

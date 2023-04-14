@@ -112,7 +112,7 @@ export interface Recipient {
 // satoshi amount computed from utxos,
 // value is formatted value, either in fiat for fiat, or in favorite bitcoin unit for bitcoin
 // counterValue determined by chosen favorite currency}
-export type Balance = { sats: number; value: number; counterValue?: string };
+export type Balance = { sats: number; value: string; counterValue?: string };
 export type Balances = Record<string, Balance>;
 
 export interface TxDetails {
@@ -253,13 +253,14 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           ];
         },
         computeBalances: async () => {
+          const assets = useAssetStore.getState().assets;
           const network = useSettingsStore.getState().network;
           const currency = useSettingsStore.getState().currency;
           const lbtcUnit = useSettingsStore.getState().lbtcUnit;
           const zeroLbtcBalance = {
             [LBTC_ASSET[network].assetHash]: {
               sats: 0,
-              value: 0,
+              value: '0',
               counterValue: '0',
             },
           };
@@ -273,15 +274,19 @@ export const useWalletStore = create<WalletState & WalletActions>()(
                 ...balances,
                 [assetHash]: {
                   sats: (balances?.[assetHash]?.sats ?? 0) + assetAmount,
-                  value: 0,
+                  value: '0',
                   counterValue: '0',
                 },
               };
               // Format amounts
               if (isLbtc(assetHash, network)) {
-                balances[assetHash].value = fromSatoshi(balances[assetHash].sats, 8, lbtcUnit);
+                balances[assetHash].value = fromSatoshi(balances[assetHash].sats, 8, lbtcUnit)
+                  .toFixed(8)
+                  .replace(/\.?0+$/, '');
               } else {
-                balances[assetHash].value = fromSatoshi(balances[assetHash].sats);
+                balances[assetHash].value = fromSatoshi(balances[assetHash].sats, assets[assetHash].precision ?? 8)
+                  .toFixed(assets[assetHash].precision ?? 8)
+                  .replace(/\.?0+$/, '');
               }
             }
           }

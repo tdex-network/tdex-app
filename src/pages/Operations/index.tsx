@@ -78,7 +78,7 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
       setTxsToDisplay(sortedTxs);
       setIsLoading(false);
     })();
-  }, [asset_id, computeHeuristicFromPegins, computeHeuristicFromTx, fetchCurrentBtcBlockHeight, txs]);
+  }, [addErrorToast, asset_id, computeHeuristicFromPegins, computeHeuristicFromTx, fetchCurrentBtcBlockHeight, txs]);
 
   const ActionButtons = useMemo(
     () => (

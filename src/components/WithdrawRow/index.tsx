@@ -40,7 +40,7 @@ const WithdrawRow: React.FC<WithdrawRowProps> = ({
   const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
   const fetchFiatRates = useRateStore((state) => state.fetchFiatRates);
   const rates = useRateStore((state) => state.rates);
-  const [residualBalance, setResidualBalance] = useState<number>(balance.value);
+  const [residualBalance, setResidualBalance] = useState<string>(balance.value);
   const [fiat, setFiat] = useState<string>('0.00');
 
   const reset = useCallback(() => {
@@ -67,9 +67,9 @@ const WithdrawRow: React.FC<WithdrawRowProps> = ({
     const sanitizedValue = sanitizeInputAmount(e.detail.value, setAmount, unit);
     // Set values
     setAmount(sanitizedValue);
-    const residualAmount = balance.value - +sanitizedValue;
+    const residualAmount = +balance.value - +sanitizedValue;
     setResidualBalance(
-      +residualAmount.toLocaleString('en-US', {
+      residualAmount.toLocaleString('en-US', {
         maximumFractionDigits: asset.precision,
         useGrouping: false,
       })
