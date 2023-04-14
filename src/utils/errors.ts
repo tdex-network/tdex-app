@@ -46,3 +46,8 @@ export const AppIsBusy = new AppError(23, 'App is busy. Please try in a moment')
 export const InvalidUrl = new AppError(24, 'Invalid URL');
 // When all providers are excluded except one
 export const NoOtherProvider = new AppError(25, 'No other provider to choose from');
+//
+export const ExplorerError = new AppError(
+  26,
+  'Cannot fetch data from blockchain explorer. Consider switching to an other one if the problem persists'
+);

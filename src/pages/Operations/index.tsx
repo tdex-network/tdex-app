@@ -24,9 +24,11 @@ import Refresher from '../../components/Refresher';
 import { useAssetStore } from '../../store/assetStore';
 import { useBitcoinStore } from '../../store/bitcoinStore';
 import { useSettingsStore } from '../../store/settingsStore';
+import { useToastStore } from '../../store/toastStore';
 import type { TxHeuristic } from '../../store/walletStore';
 import { TxType, useWalletStore } from '../../store/walletStore';
 import { LBTC_TICKER } from '../../utils/constants';
+import { ExplorerError } from '../../utils/errors';
 import { isLbtcTicker } from '../../utils/helpers';
 import { compareTxDate } from '../../utils/transaction';
 
@@ -36,6 +38,7 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   const currency = useSettingsStore((state) => state.currency.ticker);
   const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
   const network = useSettingsStore((state) => state.network);
+  const addErrorToast = useToastStore((state) => state.addErrorToast);
   const balances = useWalletStore((state) => state.balances);
   const computeHeuristicFromTx = useWalletStore((state) => state.computeHeuristicFromTx);
   const computeHeuristicFromPegins = useWalletStore((state) => state.computeHeuristicFromPegins);
@@ -48,7 +51,12 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   useEffect(() => {
     (async () => {
       setIsLoading(true);
-      await fetchCurrentBtcBlockHeight();
+      try {
+        await fetchCurrentBtcBlockHeight();
+      } catch (err) {
+        console.error('fetchCurrentBtcBlockHeight failure', err);
+        addErrorToast(ExplorerError, 4000);
+      }
       // Compute heuristic for each tx
       const txsHeuristicArray: TxHeuristic[] = [];
       for (const tx of Object.values(txs ?? {})) {
