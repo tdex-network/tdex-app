@@ -65,6 +65,7 @@
   "scripts": {
     "android": "ionic capacitor run android",
     "android:serve": "ionic capacitor run android -l --external",
+    "android:serve-prod": "NODE_ENV=production ionic capacitor run android --external --prod --debug",
     "build": "ionic build",
     "build:android": "ionic capacitor build android --no-open",
     "build:ios": "ionic capacitor build ios --no-open",
