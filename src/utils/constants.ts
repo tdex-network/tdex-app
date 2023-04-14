@@ -6,6 +6,7 @@ import LcadIcon from '../assets/img/coins/lcad.svg';
 import UsdtIcon from '../assets/img/coins/usdt.svg';
 import type { Asset } from '../store/assetStore';
 import type { Currency } from '../store/settingsStore';
+import type { AccountName } from '../store/walletStore';
 
 export const defaultPrecision = 8;
 
@@ -198,12 +199,19 @@ export function getAssetImagePath(assetHash: string): string {
 }
 
 export const BASE_DERIVATION_PATH_MAINNET = "m/84'/1776'/0'";
-export const BASE_DERIVATION_PATH_MAINNET_LEGACY = "m/84'/0'/0'";
 export const BASE_DERIVATION_PATH_TESTNET = "m/84'/1'/0'";
-export const BASE_DERIVATION_PATH_TESTNET_LEGACY = "m/84'/0'/0'";
+export const BASE_DERIVATION_PATH_LEGACY = "m/84'/0'/0'";
 
-export function getBaseDerivationPath(network: NetworkString): { legacy: string; main: string } {
-  return network === 'liquid'
-    ? { legacy: BASE_DERIVATION_PATH_MAINNET_LEGACY, main: BASE_DERIVATION_PATH_MAINNET }
-    : { legacy: BASE_DERIVATION_PATH_TESTNET_LEGACY, main: BASE_DERIVATION_PATH_TESTNET };
+export function getBaseDerivationPath(account: AccountName, network: NetworkString): string {
+  let derivationPath = '';
+  if (account === 'legacy') {
+    derivationPath = BASE_DERIVATION_PATH_LEGACY;
+  } else {
+    if (network === 'liquid') {
+      derivationPath = BASE_DERIVATION_PATH_MAINNET;
+    } else {
+      derivationPath = BASE_DERIVATION_PATH_TESTNET;
+    }
+  }
+  return derivationPath;
 }

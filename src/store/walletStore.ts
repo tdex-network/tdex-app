@@ -128,7 +128,11 @@ interface Account {
   nextInternalIndex?: number;
 }
 
-type AccountName = 'main' | 'legacy';
+// main: "m/84'/1776'/0'"
+// test: "m/84'/1'/0'"
+// legacy: "m/84'/0'/0'" (both testnet and mainnet)
+const accountNames = ['main', 'test', 'legacy'] as const;
+export type AccountName = (typeof accountNames)[number];
 
 interface WalletState {
   accounts?: Partial<Record<AccountName, Account>>;
@@ -157,11 +161,11 @@ interface WalletActions {
     start: number,
     end: number,
     isInternal: boolean,
-    accountName?: AccountName
+    accountName: AccountName
   ) => PubKeyWithRelativeDerivationPath[];
   deriveBlindingKey: (script: Buffer) => { publicKey: Buffer; privateKey: Buffer };
-  generateMasterKeys: (mnemonic: string, accountName?: AccountName) => void;
-  getNextAddress: (isInternal: boolean, dryRun?: boolean, accountName?: AccountName) => Promise<ScriptDetails>;
+  generateMasterKeysAndPaths: (mnemonic: string) => void;
+  getNextAddress: (isInternal: boolean, dryRun?: boolean) => Promise<ScriptDetails>;
   getWitnessUtxo: (txid: string, vout: number) => UpdaterInput['witnessUtxo'];
   lockOutpoint: (outpoint: Outpoint) => string;
   selectUtxos: (targets: Recipient[], lock: boolean) => Promise<CoinSelection>;
@@ -512,7 +516,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           if (!encryptedMnemonic) throw new Error('No mnemonic found in wallet');
           return decrypt(encryptedMnemonic, pin);
         },
-        deriveBatchPublicKeys: (start, end, isInternal, accountName = 'main') => {
+        deriveBatchPublicKeys: (start, end, isInternal, accountName) => {
           const network = useSettingsStore.getState().network;
           const chain = isInternal ? 1 : 0;
           const results: PubKeyWithRelativeDerivationPath[] = [];
@@ -522,7 +526,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             if (!child.publicKey) throw new Error('Could not derive public key');
             results.push({
               publicKey: child.publicKey,
-              derivationPath: `${getBaseDerivationPath(network)[accountName]}/${chain}/${i}`,
+              derivationPath: `${getBaseDerivationPath(accountName, network)}/${chain}/${i}`,
             });
           }
           return results;
@@ -533,37 +537,56 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           if (!derived.publicKey || !derived.privateKey) throw new Error('Could not derive blinding key');
           return { publicKey: derived.publicKey, privateKey: derived.privateKey };
         },
-        generateMasterKeys: (mnemonic: string) => {
-          const network = useSettingsStore.getState().network;
+        generateMasterKeysAndPaths: (mnemonic: string) => {
           const seed = mnemonicToSeedSync(mnemonic);
-          // Generate both main and legacy accounts
-          // Necessary for testing legacy restoration
-          for (const account of ['legacy', 'main'] as const) {
-            const masterPublicKey = bip32
-              .fromSeed(seed)
-              .derivePath(getBaseDerivationPath(network)[account])
-              .neutered()
-              .toBase58();
-            // use xpub format for all networks to be more compatible with all other wallets that only uses xpub in Liquid (specter)
-            set(
-              (state) => ({
-                accounts: {
-                  ...state.accounts,
-                  [account]: { masterPublicKey: toXpub(masterPublicKey) },
+          // Generate all main, test and legacy accounts
+          // Necessary for restoration and switching network without asking pin
+          const masterPublicKeyMain = bip32
+            .fromSeed(seed)
+            .derivePath(getBaseDerivationPath('main', 'liquid'))
+            .neutered()
+            .toBase58();
+          const masterPublicKeyTest = bip32
+            .fromSeed(seed)
+            .derivePath(getBaseDerivationPath('test', 'testnet'))
+            .neutered()
+            .toBase58();
+          const masterPublicKeyLegacy = bip32
+            .fromSeed(seed)
+            .derivePath(getBaseDerivationPath('legacy', 'liquid'))
+            .neutered()
+            .toBase58();
+          set(
+            {
+              accounts: {
+                // use xpub format for all networks to be more compatible with all other wallets that only uses xpub in Liquid (specter)
+                main: {
+                  masterPublicKey: toXpub(masterPublicKeyMain),
+                  derivationPath: getBaseDerivationPath('main', 'liquid'),
                 },
-              }),
-              false,
-              'setMasterPublicKey'
-            );
-          }
+                test: {
+                  masterPublicKey: toXpub(masterPublicKeyTest),
+                  derivationPath: getBaseDerivationPath('test', 'testnet'),
+                },
+                legacy: {
+                  masterPublicKey: toXpub(masterPublicKeyLegacy),
+                  derivationPath: getBaseDerivationPath('legacy', 'liquid'),
+                },
+              },
+            },
+            false,
+            'setMasterPublicKey'
+          );
           const masterBlindingKey = slip77.fromSeed(seed).masterKey.toString('hex');
           set({ masterBlindingKey }, false, 'setMasterBlindingKey');
         },
-        getNextAddress: async (isInternal: boolean, dryRun = false, accountName = 'main') => {
+        getNextAddress: async (isInternal: boolean, dryRun = false) => {
+          const network = useSettingsStore.getState().network;
+          const accountName = network === 'liquid' ? 'main' : 'test';
           const nextIndex = isInternal
             ? get().accounts?.[accountName]?.nextInternalIndex ?? 0
             : get().accounts?.[accountName]?.nextExternalIndex ?? 0;
-          const pubKeys = get().deriveBatchPublicKeys(nextIndex, nextIndex + 1, isInternal);
+          const pubKeys = get().deriveBatchPublicKeys(nextIndex, nextIndex + 1, isInternal, accountName);
           const scriptDetails = get().createP2PWKHScript({
             publicKey: pubKeys[0].publicKey,
             derivationPath: pubKeys[0].derivationPath,
@@ -575,7 +598,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               (state) => ({
                 accounts: {
                   ...state.accounts,
-                  main: {
+                  [accountName]: {
                     ...state.accounts?.main,
                     [isInternal ? 'nextInternalIndex' : 'nextExternalIndex']: nextIndex + 1,
                   },
@@ -759,7 +782,10 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             const hasBeenProcessed = historyTxId
               .map((txid) => Object.keys(get().txs[txid] ?? {}).length > 0)
               .every((hasTxInStore) => hasTxInStore);
-            if (hasBeenProcessed) {
+            // We cannot return without finalizing in case missing it
+            // But we can't make sure the last script is the last processed
+            // So we can't finalize here, need to wait for remaining callbacks
+            if (hasBeenProcessed && !isLastScript) {
               if (isLastScript) await finalize();
               return;
             }
@@ -799,7 +825,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           let restoredScripts: Record<string, ScriptDetails> = {};
           let tempRestoredScripts: Record<string, ScriptDetails> = {};
           const walletChains = [0, 1];
-          const accounts = ['legacy', 'main'] as const;
+          const accounts = ['legacy', network === 'liquid' ? 'main' : 'test'] as const;
           for (const account of accounts) {
             let nextExternalIndex = 0;
             let nextInternalIndex = 0;
@@ -834,25 +860,42 @@ export const useWalletStore = create<WalletState & WalletActions>()(
                 batchCount += gapLimit;
               }
             }
-            if (account === 'main' || (account === 'legacy' && (nextInternalIndex > 0 || nextExternalIndex > 0))) {
+            // Create main and test accounts
+            if (account === 'main' || account === 'test') {
               set(
                 (state) => ({
                   accounts: {
                     ...state.accounts,
                     [account]: {
                       ...state.accounts?.[account],
-                      derivationPath: getBaseDerivationPath(network)[account],
                       nextInternalIndex,
                       nextExternalIndex,
                     },
                   },
                 }),
                 false,
-                'sync/nextIndexesAndPath'
+                'sync/nextIndexes'
               );
-              set({ scriptDetails: restoredScripts }, false, 'sync/scriptDetails');
+            }
+            // Create legacy account only if necessary
+            if (account === 'legacy' && (nextInternalIndex > 0 || nextExternalIndex > 0)) {
+              set(
+                (state) => ({
+                  accounts: {
+                    ...state.accounts,
+                    legacy: {
+                      ...state.accounts?.legacy,
+                      nextInternalIndex,
+                      nextExternalIndex,
+                    },
+                  },
+                }),
+                false,
+                'sync/nextIndexes'
+              );
             }
           }
+          set({ scriptDetails: restoredScripts }, false, 'sync/scriptDetails');
           // We set txs, outputHistory and balances only in subscribeScript to avoid doing it twice
         },
         unblindUtxos: async (outputs) => {

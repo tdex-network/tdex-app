@@ -25,7 +25,7 @@ export const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const setMnemonicEncrypted = useWalletStore((state) => state.setMnemonicEncrypted);
   const setIsAuthorized = useWalletStore((state) => state.setIsAuthorized);
-  const generateMasterKeys = useWalletStore((state) => state.generateMasterKeys);
+  const generateMasterKeysAndPaths = useWalletStore((state) => state.generateMasterKeysAndPaths);
   const sync = useWalletStore((state) => state.sync);
   const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
   //
@@ -66,7 +66,7 @@ export const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
       setIsWrongPin(false);
       setIsBackupDone(true);
       setIsAuthorized(true);
-      generateMasterKeys(mnemonicStr);
+      generateMasterKeysAndPaths(mnemonicStr);
       await sync();
       await subscribeAllScripts();
       setTimeout(() => {
