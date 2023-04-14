@@ -23,6 +23,29 @@ export async function sleep(ms: number): Promise<any> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+export async function retryWithDelay(
+  fn: () => Promise<any>,
+  retries = 3,
+  interval = 1000,
+  finalErr = 'Retry failed'
+): Promise<void> {
+  try {
+    await fn();
+  } catch (err) {
+    console.debug(err);
+    console.debug(`${retries - 1} retries left`);
+    // if no retries left
+    // throw error
+    if (retries <= 0) {
+      return Promise.reject(finalErr);
+    }
+    //delay the next call
+    await sleep(interval);
+    //recursively call the same func
+    return retryWithDelay(fn, retries - 1, interval * 2, finalErr);
+  }
+}
+
 export function isLbtc(asset: string, network: NetworkString): boolean {
   return asset === LBTC_ASSET[network]?.assetHash;
 }

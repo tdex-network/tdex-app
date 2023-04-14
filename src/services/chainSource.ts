@@ -4,7 +4,10 @@ import { ElectrumWS } from 'ws-electrumx-client';
 import { useSettingsStore } from '../store/settingsStore';
 
 export interface ChainSource {
-  subscribeScriptStatus(script: Buffer, callback: (scripthash: string, status: string | null) => void): Promise<void>;
+  subscribeScriptStatus(
+    script: Buffer,
+    callback: (scripthash: string, status: string | null) => Promise<void>
+  ): Promise<void>;
 
   unsubscribeScriptStatus(script: Buffer): Promise<void>;
 
@@ -104,7 +107,7 @@ export class WsElectrumChainSource implements ChainSource {
 
   async subscribeScriptStatus(
     script: Buffer,
-    callback: (scripthash: string, status: string | null) => void
+    callback: (scripthash: string, status: string | null) => Promise<void>
   ): Promise<void> {
     if (!this.ws) return;
     const scriptHash = toScriptHash(script);

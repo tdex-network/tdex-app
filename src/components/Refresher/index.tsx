@@ -13,8 +13,9 @@ const Refresher: React.FC<{ onRefresh?: () => void }> = ({ onRefresh }) => {
       slot="fixed"
       onIonRefresh={async (e) => {
         await sync();
-        await subscribeAllScripts();
-        await useTdexStore.getState().fetchMarkets();
+        // Do not await so that it doesn't block
+        subscribeAllScripts();
+        useTdexStore.getState().fetchMarkets();
         if (onRefresh) onRefresh();
         // Another top-right spinner shows actual update state
         setTimeout(() => e.detail.complete(), 1000);

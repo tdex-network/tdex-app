@@ -25,6 +25,7 @@ import {
   isUsdt,
   outpointStrToOutpoint,
   outpointToString,
+  retryWithDelay,
 } from '../utils/helpers';
 import { fromSatoshi } from '../utils/unitConversion';
 
@@ -166,8 +167,8 @@ interface WalletActions {
   selectUtxos: (targets: Recipient[], lock: boolean) => Promise<CoinSelection>;
   setIsAuthorized: (isAuthorized: boolean) => void;
   setMnemonicEncrypted: (mnemonic: string, pin: string) => Promise<void>;
-  setOutputs: () => void;
-  subscribeScript: (script: Buffer) => Promise<void>;
+  setOutputs: () => Promise<void>;
+  subscribeScript: (script: Buffer, isLastScript?: boolean) => Promise<void>;
   subscribeAllScripts: () => Promise<void>;
   sync: (gapLimit?: number) => Promise<void>;
   resetWalletStore: () => void;
@@ -253,6 +254,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           ];
         },
         computeBalances: async () => {
+          console.debug('compute balances');
           const assets = useAssetStore.getState().assets;
           const network = useSettingsStore.getState().network;
           const currency = useSettingsStore.getState().currency;
@@ -569,7 +571,19 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           if (!dryRun) {
             await get().subscribeScript(Buffer.from(scriptDetails[0], 'hex'));
             // increment the account details last used index & persist the new script details
-            set({ [isInternal ? 'nextInternalIndex' : 'nextExternalIndex']: nextIndex + 1 }, false, 'setNextIndex');
+            set(
+              (state) => ({
+                accounts: {
+                  ...state.accounts,
+                  main: {
+                    ...state.accounts?.main,
+                    [isInternal ? 'nextInternalIndex' : 'nextExternalIndex']: nextIndex + 1,
+                  },
+                },
+              }),
+              false,
+              'setNextIndex'
+            );
             set(
               (state) => ({
                 scriptDetails: {
@@ -726,15 +740,29 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             'setOutputs'
           );
         },
-        subscribeScript: async (script) => {
+        subscribeScript: async (script, isLastScript = true) => {
+          // Run after all wallet state is ok (txs, outputs, scripts)
+          const finalize = async () => {
+            await get().computeBalances();
+            useAppStore.getState().setIsFetchingUtxos(false);
+            useAppStore.getState().setIsFetchingTransactions(false);
+          };
+          // subscribeScriptStatus
           await chainSource.subscribeScriptStatus(script, async (_: string, __: string | null) => {
             const history = (await chainSource.fetchHistories([script]))[0];
-            if (history.length === 0) return;
+            if (history.length === 0) {
+              if (isLastScript) await finalize();
+              return;
+            }
             const historyTxId = history.map(({ tx_hash }) => tx_hash);
+            // If all txs associated with this script have been processed then return
             const hasBeenProcessed = historyTxId
               .map((txid) => Object.keys(get().txs[txid] ?? {}).length > 0)
               .every((hasTxInStore) => hasTxInStore);
-            if (hasBeenProcessed) return;
+            if (hasBeenProcessed) {
+              if (isLastScript) await finalize();
+              return;
+            }
             const txs = await chainSource.fetchTransactions(historyTxId);
             const txsObj = Object.fromEntries(txs.map(({ txid, hex }) => [txid, { hex }]));
             const historyObj = Object.fromEntries(history.map(({ tx_hash, height }) => [tx_hash, { height }]));
@@ -742,11 +770,8 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               Object.entries(txsObj).map(([txid, tx]) => [txid, { ...tx, ...historyObj[txid] }])
             );
             set((state) => ({ txs: { ...state.txs, ...txsAndHistory } }), false, 'subscribeScript/txs');
-            get().setOutputs();
-            // do not compute balances at first sync
-            if (get().balances) {
-              await get().computeBalances();
-            }
+            await get().setOutputs();
+            if (isLastScript) await finalize();
           });
         },
         subscribeAllScripts: async () => {
@@ -754,12 +779,19 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           useAppStore.getState().setIsFetchingTransactions(true);
           const scripts = Object.keys(get().scriptDetails).map((s) => Buffer.from(s, 'hex'));
           console.warn(`subscribing to ${scripts.length} scripts`);
-          for (const script of scripts) {
-            await get().subscribeScript(script);
-          }
-          await get().computeBalances();
-          useAppStore.getState().setIsFetchingUtxos(false);
-          useAppStore.getState().setIsFetchingTransactions(false);
+          // If retries of single script doesn't work then start over
+          const subscribeAllScriptsFn = async () => {
+            for (const [index, script] of scripts.entries()) {
+              console.debug(`${index + 1} script out of ${scripts.length} subscribed`);
+              const isLastScript = index === scripts.length - 1;
+              try {
+                await retryWithDelay(() => get().subscribeScript(script, isLastScript));
+              } catch (err) {
+                await subscribeAllScriptsFn();
+              }
+            }
+          };
+          await subscribeAllScriptsFn();
         },
         sync: async (gapLimit = GAP_LIMIT) => {
           const network = useSettingsStore.getState().network;
