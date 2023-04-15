@@ -22,6 +22,8 @@ export interface ChainSource {
   broadcastTransaction(hex: string): Promise<string>;
 
   getRelayFee(): Promise<number>;
+
+  renewInstance(): void;
 }
 
 export type GetHistoryResponse = {
@@ -83,7 +85,7 @@ const SubscribeStatusMethod = 'blockchain.scripthash'; // ElectrumWS automatical
 const GetRelayFeeMethod = 'blockchain.relayfee';
 
 export class WsElectrumChainSource implements ChainSource {
-  private readonly ws?: ElectrumWS;
+  private ws?: ElectrumWS;
 
   constructor() {
     if (!this.ws) {
@@ -149,6 +151,11 @@ export class WsElectrumChainSource implements ChainSource {
   async getRelayFee(): Promise<number> {
     if (!this.ws) return 0;
     return this.ws.request<number>(GetRelayFeeMethod);
+  }
+
+  renewInstance(): void {
+    const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
+    this.ws = new ElectrumWS(websocketExplorerURL);
   }
 }
 

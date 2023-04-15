@@ -14,6 +14,7 @@ import {
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
 import useDidMountEffect from '../../hooks/useDidMountEffect';
+import { chainSource } from '../../services/chainSource';
 import { useAppStore } from '../../store/appStore';
 import { useAssetStore } from '../../store/assetStore';
 import {
@@ -96,6 +97,7 @@ const Network = (): JSX.Element => {
           setElectrsBatchApi(configRegtest.explorers.electrsBatchAPI);
           setDefaultProvider(defaultProviderEndpoints.regtest);
         }
+        chainSource.renewInstance();
         await refetchTdexProvidersAndMarkets();
         resetAssetStore();
         resetWalletForRestoration();
