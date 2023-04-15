@@ -75,8 +75,8 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
     const lbtcUnit = useSettingsStore.getState().lbtcUnit;
     const tradeFeeAmount = fromSatoshi(
       tradeFeeSats ?? 0,
-      assets[tdexOrderInputResult?.order.market.quoteAsset].precision ?? defaultPrecision,
-      isLbtcTicker(assets[tdexOrderInputResult?.order.market.quoteAsset].ticker) ? lbtcUnit : undefined
+      assets[tdexOrderInputResult?.order.market.quoteAsset]?.precision ?? defaultPrecision,
+      isLbtcTicker(assets[tdexOrderInputResult?.order.market.quoteAsset]?.ticker) ? lbtcUnit : undefined
     );
     return `Enter your secret PIN to send ${tdexOrderInputResult?.send.amount} ${tdexOrderInputResult?.send.unit} and
           receive ${Number(tdexOrderInputResult?.receive.amount ?? 0) - tradeFeeAmount} ${

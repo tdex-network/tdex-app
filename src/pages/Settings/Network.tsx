@@ -10,10 +10,10 @@ import {
   IonSelect,
   IonSelectOption,
 } from '@ionic/react';
-import { useEffect } from 'react';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
+import useDidMountEffect from '../../hooks/useDidMountEffect';
 import { useAppStore } from '../../store/appStore';
 import { useAssetStore } from '../../store/assetStore';
 import {
@@ -65,7 +65,9 @@ const Network = (): JSX.Element => {
     }
   };
 
-  useEffect(() => {
+  // Stuff to do after network change
+  // Avoid running on initial render
+  useDidMountEffect(() => {
     (async () => {
       try {
         // We set explorer endpoints to Mempool. User can then adjust favorite endpoints in Explorer setting screen.
@@ -108,25 +110,7 @@ const Network = (): JSX.Element => {
         }
       }
     })();
-    // Do not include refreshProviders to prevent rerender
-    // eslint-disable-next-line
-  }, [
-    addErrorToast,
-    addSuccessToast,
-    computeBalances,
-    network,
-    resetAssetStore,
-    resetWalletForRestoration,
-    setDefaultProvider,
-    setElectrsBatchApi,
-    setExplorerBitcoinAPI,
-    setExplorerBitcoinUI,
-    setExplorerLiquidAPI,
-    setExplorerLiquidUI,
-    setWebsocketExplorerURL,
-    subscribeAllScripts,
-    sync,
-  ]);
+  }, [network]);
 
   return (
     <IonPage id="settings-network">

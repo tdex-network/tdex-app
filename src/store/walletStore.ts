@@ -634,25 +634,24 @@ export const useWalletStore = create<WalletState & WalletActions>()(
         resetWalletForRestoration: () => {
           set(
             (state) => {
-              let accounts;
-              const main = state.accounts?.main
-                ? {
+              return {
+                accounts: {
+                  main: {
                     ...state.accounts?.main,
                     nextExternalIndex: undefined,
                     nextInternalIndex: undefined,
-                  }
-                : undefined;
-              if (main) accounts = { main };
-              const legacy = state.accounts?.legacy
-                ? {
+                  },
+                  test: {
+                    ...state.accounts?.test,
+                    nextExternalIndex: undefined,
+                    nextInternalIndex: undefined,
+                  },
+                  legacy: {
                     ...state.accounts?.legacy,
                     nextExternalIndex: undefined,
                     nextInternalIndex: undefined,
-                  }
-                : undefined;
-              if (legacy) accounts = { ...accounts, legacy };
-              return {
-                accounts,
+                  },
+                },
                 scriptDetails: {},
                 balances: undefined,
                 lockedOutpoints: [],
@@ -783,10 +782,9 @@ export const useWalletStore = create<WalletState & WalletActions>()(
               .map((txid) => Object.keys(get().txs[txid] ?? {}).length > 0)
               .every((hasTxInStore) => hasTxInStore);
             // We cannot return without finalizing in case missing it
-            // But we can't make sure the last script is the last processed
-            // So we can't finalize here, need to wait for remaining callbacks
+            // But we can't make sure the last script is the last being processed
+            // So we can't finalize here, need to wait for remaining running callbacks
             if (hasBeenProcessed && !isLastScript) {
-              if (isLastScript) await finalize();
               return;
             }
             const txs = await chainSource.fetchTransactions(historyTxId);
@@ -805,6 +803,10 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           useAppStore.getState().setIsFetchingTransactions(true);
           const scripts = Object.keys(get().scriptDetails).map((s) => Buffer.from(s, 'hex'));
           console.warn(`subscribing to ${scripts.length} scripts`);
+          if (scripts.length === 0) {
+            useAppStore.getState().setIsFetchingUtxos(false);
+            useAppStore.getState().setIsFetchingTransactions(false);
+          }
           // If retries of single script doesn't work then start over
           const subscribeAllScriptsFn = async () => {
             for (const [index, script] of scripts.entries()) {
