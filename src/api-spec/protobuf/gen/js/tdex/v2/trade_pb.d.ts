@@ -3,378 +3,299 @@
 // @generated from protobuf file "tdex/v2/trade.proto" (package "tdex.v2", syntax proto3)
 // tslint:disable
 // @ts-nocheck
-import type { BinaryWriteOptions } from '@protobuf-ts/runtime';
-import type { IBinaryWriter } from '@protobuf-ts/runtime';
-import type { BinaryReadOptions } from '@protobuf-ts/runtime';
-import type { IBinaryReader } from '@protobuf-ts/runtime';
-import type { PartialMessage } from '@protobuf-ts/runtime';
-import { MessageType } from '@protobuf-ts/runtime';
-import { SwapComplete } from './swap_pb';
-import { SwapFail } from './swap_pb';
-import { SwapAccept } from './swap_pb';
-import { SwapRequest } from './swap_pb';
-import { Preview } from './types_pb';
-import { TradeType } from './types_pb';
-import { Fee } from './types_pb';
-import { Balance } from './types_pb';
-import { Market } from './types_pb';
-import { MarketWithFee } from './types_pb';
+import type { BinaryWriteOptions } from "@protobuf-ts/runtime";
+import type { IBinaryWriter } from "@protobuf-ts/runtime";
+import type { BinaryReadOptions } from "@protobuf-ts/runtime";
+import type { IBinaryReader } from "@protobuf-ts/runtime";
+import type { PartialMessage } from "@protobuf-ts/runtime";
+import { MessageType } from "@protobuf-ts/runtime";
+import { SwapComplete } from "./swap_pb";
+import { SwapFail } from "./swap_pb";
+import { SwapAccept } from "./swap_pb";
+import { SwapRequest } from "./swap_pb";
+import { Preview } from "./types_pb";
+import { TradeType } from "./types_pb";
+import { Fee } from "./types_pb";
+import { Balance } from "./types_pb";
+import { Market } from "./types_pb";
+import { MarketWithFee } from "./types_pb";
 /**
  * BOTD#4 Service's messages
  *
  * @generated from protobuf message tdex.v2.ListMarketsRequest
  */
-export interface ListMarketsRequest {}
+export interface ListMarketsRequest {
+}
 /**
  * @generated from protobuf message tdex.v2.ListMarketsResponse
  */
 export interface ListMarketsResponse {
-  /**
-   * @generated from protobuf field: repeated tdex.v2.MarketWithFee markets = 1;
-   */
-  markets: MarketWithFee[];
+    /**
+     * @generated from protobuf field: repeated tdex.v2.MarketWithFee markets = 1;
+     */
+    markets: MarketWithFee[];
 }
 /**
  * @generated from protobuf message tdex.v2.GetMarketBalanceRequest
  */
 export interface GetMarketBalanceRequest {
-  /**
-   * @generated from protobuf field: tdex.v2.Market market = 1;
-   */
-  market?: Market;
+    /**
+     * @generated from protobuf field: tdex.v2.Market market = 1;
+     */
+    market?: Market;
 }
 /**
  * @generated from protobuf message tdex.v2.GetMarketBalanceResponse
  */
 export interface GetMarketBalanceResponse {
-  /**
-   * @generated from protobuf field: tdex.v2.Balance balance = 1;
-   */
-  balance?: Balance;
-  /**
-   * @generated from protobuf field: tdex.v2.Fee fee = 2;
-   */
-  fee?: Fee;
+    /**
+     * @generated from protobuf field: tdex.v2.Balance balance = 1;
+     */
+    balance?: Balance;
+    /**
+     * @generated from protobuf field: tdex.v2.Fee fee = 2;
+     */
+    fee?: Fee;
 }
 /**
  * @generated from protobuf message tdex.v2.GetMarketPriceRequest
  */
 export interface GetMarketPriceRequest {
-  /**
-   * @generated from protobuf field: tdex.v2.Market market = 1;
-   */
-  market?: Market;
+    /**
+     * @generated from protobuf field: tdex.v2.Market market = 1;
+     */
+    market?: Market;
 }
 /**
  * @generated from protobuf message tdex.v2.GetMarketPriceResponse
  */
 export interface GetMarketPriceResponse {
-  /**
-   * @generated from protobuf field: double spot_price = 1;
-   */
-  spotPrice: number;
-  /**
-   * @generated from protobuf field: uint64 min_tradable_amount = 2 [jstype = JS_STRING];
-   */
-  minTradableAmount: string;
+    /**
+     * @generated from protobuf field: double spot_price = 1;
+     */
+    spotPrice: number;
+    /**
+     * @generated from protobuf field: uint64 min_tradable_amount = 2 [jstype = JS_STRING];
+     */
+    minTradableAmount: string;
 }
 /**
  * @generated from protobuf message tdex.v2.PreviewTradeRequest
  */
 export interface PreviewTradeRequest {
-  /**
-   * @generated from protobuf field: tdex.v2.Market market = 1;
-   */
-  market?: Market;
-  /**
-   * @generated from protobuf field: tdex.v2.TradeType type = 2;
-   */
-  type: TradeType;
-  /**
-   * @generated from protobuf field: uint64 amount = 3 [jstype = JS_STRING];
-   */
-  amount: string;
-  /**
-   * @generated from protobuf field: string asset = 4;
-   */
-  asset: string;
-  /**
-   * @generated from protobuf field: string fee_asset = 5;
-   */
-  feeAsset: string;
+    /**
+     * @generated from protobuf field: tdex.v2.Market market = 1;
+     */
+    market?: Market;
+    /**
+     * @generated from protobuf field: tdex.v2.TradeType type = 2;
+     */
+    type: TradeType;
+    /**
+     * @generated from protobuf field: uint64 amount = 3 [jstype = JS_STRING];
+     */
+    amount: string;
+    /**
+     * @generated from protobuf field: string asset = 4;
+     */
+    asset: string;
+    /**
+     * @generated from protobuf field: string fee_asset = 5;
+     */
+    feeAsset: string;
 }
 /**
  * @generated from protobuf message tdex.v2.PreviewTradeResponse
  */
 export interface PreviewTradeResponse {
-  /**
-   * @generated from protobuf field: repeated tdex.v2.Preview previews = 1;
-   */
-  previews: Preview[];
+    /**
+     * @generated from protobuf field: repeated tdex.v2.Preview previews = 1;
+     */
+    previews: Preview[];
 }
 /**
  * @generated from protobuf message tdex.v2.ProposeTradeRequest
  */
 export interface ProposeTradeRequest {
-  /**
-   * @generated from protobuf field: tdex.v2.Market market = 1;
-   */
-  market?: Market;
-  /**
-   * @generated from protobuf field: tdex.v2.TradeType type = 2;
-   */
-  type: TradeType;
-  /**
-   * @generated from protobuf field: tdex.v2.SwapRequest swap_request = 3;
-   */
-  swapRequest?: SwapRequest;
-  /**
-   * @generated from protobuf field: uint64 fee_amount = 4 [jstype = JS_STRING];
-   */
-  feeAmount: string;
-  /**
-   * @generated from protobuf field: string fee_asset = 5;
-   */
-  feeAsset: string;
+    /**
+     * @generated from protobuf field: tdex.v2.Market market = 1;
+     */
+    market?: Market;
+    /**
+     * @generated from protobuf field: tdex.v2.TradeType type = 2;
+     */
+    type: TradeType;
+    /**
+     * @generated from protobuf field: tdex.v2.SwapRequest swap_request = 3;
+     */
+    swapRequest?: SwapRequest;
+    /**
+     * @generated from protobuf field: uint64 fee_amount = 4 [jstype = JS_STRING];
+     */
+    feeAmount: string;
+    /**
+     * @generated from protobuf field: string fee_asset = 5;
+     */
+    feeAsset: string;
 }
 /**
  * @generated from protobuf message tdex.v2.ProposeTradeResponse
  */
 export interface ProposeTradeResponse {
-  /**
-   * @generated from protobuf field: tdex.v2.SwapAccept swap_accept = 1;
-   */
-  swapAccept?: SwapAccept;
-  /**
-   * @generated from protobuf field: tdex.v2.SwapFail swap_fail = 2;
-   */
-  swapFail?: SwapFail;
-  /**
-   * @generated from protobuf field: uint64 expiry_time_unix = 3;
-   */
-  expiryTimeUnix: string;
+    /**
+     * @generated from protobuf field: tdex.v2.SwapAccept swap_accept = 1;
+     */
+    swapAccept?: SwapAccept;
+    /**
+     * @generated from protobuf field: tdex.v2.SwapFail swap_fail = 2;
+     */
+    swapFail?: SwapFail;
+    /**
+     * @generated from protobuf field: uint64 expiry_time_unix = 3;
+     */
+    expiryTimeUnix: string;
 }
 /**
  * @generated from protobuf message tdex.v2.CompleteTradeRequest
  */
 export interface CompleteTradeRequest {
-  /**
-   * @generated from protobuf field: tdex.v2.SwapComplete swap_complete = 1;
-   */
-  swapComplete?: SwapComplete;
-  /**
-   * @generated from protobuf field: tdex.v2.SwapFail swap_fail = 2;
-   */
-  swapFail?: SwapFail;
+    /**
+     * @generated from protobuf field: tdex.v2.SwapComplete swap_complete = 1;
+     */
+    swapComplete?: SwapComplete;
+    /**
+     * @generated from protobuf field: tdex.v2.SwapFail swap_fail = 2;
+     */
+    swapFail?: SwapFail;
 }
 /**
  * @generated from protobuf message tdex.v2.CompleteTradeResponse
  */
 export interface CompleteTradeResponse {
-  /**
-   * @generated from protobuf field: string txid = 1;
-   */
-  txid: string;
-  /**
-   * @generated from protobuf field: tdex.v2.SwapFail swap_fail = 2;
-   */
-  swapFail?: SwapFail;
+    /**
+     * @generated from protobuf field: string txid = 1;
+     */
+    txid: string;
+    /**
+     * @generated from protobuf field: tdex.v2.SwapFail swap_fail = 2;
+     */
+    swapFail?: SwapFail;
 }
 declare class ListMarketsRequest$Type extends MessageType<ListMarketsRequest> {
-  constructor();
-  create(value?: PartialMessage<ListMarketsRequest>): ListMarketsRequest;
-  internalBinaryRead(
-    reader: IBinaryReader,
-    length: number,
-    options: BinaryReadOptions,
-    target?: ListMarketsRequest
-  ): ListMarketsRequest;
-  internalBinaryWrite(message: ListMarketsRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
+    constructor();
+    create(value?: PartialMessage<ListMarketsRequest>): ListMarketsRequest;
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ListMarketsRequest): ListMarketsRequest;
+    internalBinaryWrite(message: ListMarketsRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
 }
 /**
  * @generated MessageType for protobuf message tdex.v2.ListMarketsRequest
  */
 export declare const ListMarketsRequest: ListMarketsRequest$Type;
 declare class ListMarketsResponse$Type extends MessageType<ListMarketsResponse> {
-  constructor();
-  create(value?: PartialMessage<ListMarketsResponse>): ListMarketsResponse;
-  internalBinaryRead(
-    reader: IBinaryReader,
-    length: number,
-    options: BinaryReadOptions,
-    target?: ListMarketsResponse
-  ): ListMarketsResponse;
-  internalBinaryWrite(message: ListMarketsResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
+    constructor();
+    create(value?: PartialMessage<ListMarketsResponse>): ListMarketsResponse;
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ListMarketsResponse): ListMarketsResponse;
+    internalBinaryWrite(message: ListMarketsResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
 }
 /**
  * @generated MessageType for protobuf message tdex.v2.ListMarketsResponse
  */
 export declare const ListMarketsResponse: ListMarketsResponse$Type;
 declare class GetMarketBalanceRequest$Type extends MessageType<GetMarketBalanceRequest> {
-  constructor();
-  create(value?: PartialMessage<GetMarketBalanceRequest>): GetMarketBalanceRequest;
-  internalBinaryRead(
-    reader: IBinaryReader,
-    length: number,
-    options: BinaryReadOptions,
-    target?: GetMarketBalanceRequest
-  ): GetMarketBalanceRequest;
-  internalBinaryWrite(
-    message: GetMarketBalanceRequest,
-    writer: IBinaryWriter,
-    options: BinaryWriteOptions
-  ): IBinaryWriter;
+    constructor();
+    create(value?: PartialMessage<GetMarketBalanceRequest>): GetMarketBalanceRequest;
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetMarketBalanceRequest): GetMarketBalanceRequest;
+    internalBinaryWrite(message: GetMarketBalanceRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
 }
 /**
  * @generated MessageType for protobuf message tdex.v2.GetMarketBalanceRequest
  */
 export declare const GetMarketBalanceRequest: GetMarketBalanceRequest$Type;
 declare class GetMarketBalanceResponse$Type extends MessageType<GetMarketBalanceResponse> {
-  constructor();
-  create(value?: PartialMessage<GetMarketBalanceResponse>): GetMarketBalanceResponse;
-  internalBinaryRead(
-    reader: IBinaryReader,
-    length: number,
-    options: BinaryReadOptions,
-    target?: GetMarketBalanceResponse
-  ): GetMarketBalanceResponse;
-  internalBinaryWrite(
-    message: GetMarketBalanceResponse,
-    writer: IBinaryWriter,
-    options: BinaryWriteOptions
-  ): IBinaryWriter;
+    constructor();
+    create(value?: PartialMessage<GetMarketBalanceResponse>): GetMarketBalanceResponse;
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetMarketBalanceResponse): GetMarketBalanceResponse;
+    internalBinaryWrite(message: GetMarketBalanceResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
 }
 /**
  * @generated MessageType for protobuf message tdex.v2.GetMarketBalanceResponse
  */
 export declare const GetMarketBalanceResponse: GetMarketBalanceResponse$Type;
 declare class GetMarketPriceRequest$Type extends MessageType<GetMarketPriceRequest> {
-  constructor();
-  create(value?: PartialMessage<GetMarketPriceRequest>): GetMarketPriceRequest;
-  internalBinaryRead(
-    reader: IBinaryReader,
-    length: number,
-    options: BinaryReadOptions,
-    target?: GetMarketPriceRequest
-  ): GetMarketPriceRequest;
-  internalBinaryWrite(
-    message: GetMarketPriceRequest,
-    writer: IBinaryWriter,
-    options: BinaryWriteOptions
-  ): IBinaryWriter;
+    constructor();
+    create(value?: PartialMessage<GetMarketPriceRequest>): GetMarketPriceRequest;
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetMarketPriceRequest): GetMarketPriceRequest;
+    internalBinaryWrite(message: GetMarketPriceRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
 }
 /**
  * @generated MessageType for protobuf message tdex.v2.GetMarketPriceRequest
  */
 export declare const GetMarketPriceRequest: GetMarketPriceRequest$Type;
 declare class GetMarketPriceResponse$Type extends MessageType<GetMarketPriceResponse> {
-  constructor();
-  create(value?: PartialMessage<GetMarketPriceResponse>): GetMarketPriceResponse;
-  internalBinaryRead(
-    reader: IBinaryReader,
-    length: number,
-    options: BinaryReadOptions,
-    target?: GetMarketPriceResponse
-  ): GetMarketPriceResponse;
-  internalBinaryWrite(
-    message: GetMarketPriceResponse,
-    writer: IBinaryWriter,
-    options: BinaryWriteOptions
-  ): IBinaryWriter;
+    constructor();
+    create(value?: PartialMessage<GetMarketPriceResponse>): GetMarketPriceResponse;
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: GetMarketPriceResponse): GetMarketPriceResponse;
+    internalBinaryWrite(message: GetMarketPriceResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
 }
 /**
  * @generated MessageType for protobuf message tdex.v2.GetMarketPriceResponse
  */
 export declare const GetMarketPriceResponse: GetMarketPriceResponse$Type;
 declare class PreviewTradeRequest$Type extends MessageType<PreviewTradeRequest> {
-  constructor();
-  create(value?: PartialMessage<PreviewTradeRequest>): PreviewTradeRequest;
-  internalBinaryRead(
-    reader: IBinaryReader,
-    length: number,
-    options: BinaryReadOptions,
-    target?: PreviewTradeRequest
-  ): PreviewTradeRequest;
-  internalBinaryWrite(message: PreviewTradeRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
+    constructor();
+    create(value?: PartialMessage<PreviewTradeRequest>): PreviewTradeRequest;
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: PreviewTradeRequest): PreviewTradeRequest;
+    internalBinaryWrite(message: PreviewTradeRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
 }
 /**
  * @generated MessageType for protobuf message tdex.v2.PreviewTradeRequest
  */
 export declare const PreviewTradeRequest: PreviewTradeRequest$Type;
 declare class PreviewTradeResponse$Type extends MessageType<PreviewTradeResponse> {
-  constructor();
-  create(value?: PartialMessage<PreviewTradeResponse>): PreviewTradeResponse;
-  internalBinaryRead(
-    reader: IBinaryReader,
-    length: number,
-    options: BinaryReadOptions,
-    target?: PreviewTradeResponse
-  ): PreviewTradeResponse;
-  internalBinaryWrite(message: PreviewTradeResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
+    constructor();
+    create(value?: PartialMessage<PreviewTradeResponse>): PreviewTradeResponse;
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: PreviewTradeResponse): PreviewTradeResponse;
+    internalBinaryWrite(message: PreviewTradeResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
 }
 /**
  * @generated MessageType for protobuf message tdex.v2.PreviewTradeResponse
  */
 export declare const PreviewTradeResponse: PreviewTradeResponse$Type;
 declare class ProposeTradeRequest$Type extends MessageType<ProposeTradeRequest> {
-  constructor();
-  create(value?: PartialMessage<ProposeTradeRequest>): ProposeTradeRequest;
-  internalBinaryRead(
-    reader: IBinaryReader,
-    length: number,
-    options: BinaryReadOptions,
-    target?: ProposeTradeRequest
-  ): ProposeTradeRequest;
-  internalBinaryWrite(message: ProposeTradeRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
+    constructor();
+    create(value?: PartialMessage<ProposeTradeRequest>): ProposeTradeRequest;
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ProposeTradeRequest): ProposeTradeRequest;
+    internalBinaryWrite(message: ProposeTradeRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
 }
 /**
  * @generated MessageType for protobuf message tdex.v2.ProposeTradeRequest
  */
 export declare const ProposeTradeRequest: ProposeTradeRequest$Type;
 declare class ProposeTradeResponse$Type extends MessageType<ProposeTradeResponse> {
-  constructor();
-  create(value?: PartialMessage<ProposeTradeResponse>): ProposeTradeResponse;
-  internalBinaryRead(
-    reader: IBinaryReader,
-    length: number,
-    options: BinaryReadOptions,
-    target?: ProposeTradeResponse
-  ): ProposeTradeResponse;
-  internalBinaryWrite(message: ProposeTradeResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
+    constructor();
+    create(value?: PartialMessage<ProposeTradeResponse>): ProposeTradeResponse;
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ProposeTradeResponse): ProposeTradeResponse;
+    internalBinaryWrite(message: ProposeTradeResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
 }
 /**
  * @generated MessageType for protobuf message tdex.v2.ProposeTradeResponse
  */
 export declare const ProposeTradeResponse: ProposeTradeResponse$Type;
 declare class CompleteTradeRequest$Type extends MessageType<CompleteTradeRequest> {
-  constructor();
-  create(value?: PartialMessage<CompleteTradeRequest>): CompleteTradeRequest;
-  internalBinaryRead(
-    reader: IBinaryReader,
-    length: number,
-    options: BinaryReadOptions,
-    target?: CompleteTradeRequest
-  ): CompleteTradeRequest;
-  internalBinaryWrite(message: CompleteTradeRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
+    constructor();
+    create(value?: PartialMessage<CompleteTradeRequest>): CompleteTradeRequest;
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: CompleteTradeRequest): CompleteTradeRequest;
+    internalBinaryWrite(message: CompleteTradeRequest, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
 }
 /**
  * @generated MessageType for protobuf message tdex.v2.CompleteTradeRequest
  */
 export declare const CompleteTradeRequest: CompleteTradeRequest$Type;
 declare class CompleteTradeResponse$Type extends MessageType<CompleteTradeResponse> {
-  constructor();
-  create(value?: PartialMessage<CompleteTradeResponse>): CompleteTradeResponse;
-  internalBinaryRead(
-    reader: IBinaryReader,
-    length: number,
-    options: BinaryReadOptions,
-    target?: CompleteTradeResponse
-  ): CompleteTradeResponse;
-  internalBinaryWrite(
-    message: CompleteTradeResponse,
-    writer: IBinaryWriter,
-    options: BinaryWriteOptions
-  ): IBinaryWriter;
+    constructor();
+    create(value?: PartialMessage<CompleteTradeResponse>): CompleteTradeResponse;
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: CompleteTradeResponse): CompleteTradeResponse;
+    internalBinaryWrite(message: CompleteTradeResponse, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter;
 }
 /**
  * @generated MessageType for protobuf message tdex.v2.CompleteTradeResponse

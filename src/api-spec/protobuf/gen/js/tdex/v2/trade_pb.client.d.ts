@@ -3,158 +3,140 @@
 // @generated from protobuf file "tdex/v2/trade.proto" (package "tdex.v2", syntax proto3)
 // tslint:disable
 // @ts-nocheck
-import type { RpcTransport } from '@protobuf-ts/runtime-rpc';
-import type { ServiceInfo } from '@protobuf-ts/runtime-rpc';
-import type { CompleteTradeResponse } from './trade_pb';
-import type { CompleteTradeRequest } from './trade_pb';
-import type { ProposeTradeResponse } from './trade_pb';
-import type { ProposeTradeRequest } from './trade_pb';
-import type { PreviewTradeResponse } from './trade_pb';
-import type { PreviewTradeRequest } from './trade_pb';
-import type { GetMarketPriceResponse } from './trade_pb';
-import type { GetMarketPriceRequest } from './trade_pb';
-import type { GetMarketBalanceResponse } from './trade_pb';
-import type { GetMarketBalanceRequest } from './trade_pb';
-import type { ListMarketsResponse } from './trade_pb';
-import type { ListMarketsRequest } from './trade_pb';
-import type { UnaryCall } from '@protobuf-ts/runtime-rpc';
-import type { RpcOptions } from '@protobuf-ts/runtime-rpc';
+import type { RpcTransport } from "@protobuf-ts/runtime-rpc";
+import type { ServiceInfo } from "@protobuf-ts/runtime-rpc";
+import type { CompleteTradeResponse } from "./trade_pb";
+import type { CompleteTradeRequest } from "./trade_pb";
+import type { ProposeTradeResponse } from "./trade_pb";
+import type { ProposeTradeRequest } from "./trade_pb";
+import type { PreviewTradeResponse } from "./trade_pb";
+import type { PreviewTradeRequest } from "./trade_pb";
+import type { GetMarketPriceResponse } from "./trade_pb";
+import type { GetMarketPriceRequest } from "./trade_pb";
+import type { GetMarketBalanceResponse } from "./trade_pb";
+import type { GetMarketBalanceRequest } from "./trade_pb";
+import type { ListMarketsResponse } from "./trade_pb";
+import type { ListMarketsRequest } from "./trade_pb";
+import type { UnaryCall } from "@protobuf-ts/runtime-rpc";
+import type { RpcOptions } from "@protobuf-ts/runtime-rpc";
 /**
  * @generated from protobuf service tdex.v2.TradeService
  */
 export interface ITradeServiceClient {
-  /**
-   * ListMarkets lists all the markets open for trading.
-   *
-   * @generated from protobuf rpc: ListMarkets(tdex.v2.ListMarketsRequest) returns (tdex.v2.ListMarketsResponse);
-   */
-  listMarkets(input: ListMarketsRequest, options?: RpcOptions): UnaryCall<ListMarketsRequest, ListMarketsResponse>;
-  /**
-   * GetMarketBalance retutns the balance of the two current reserves of the
-   * given market.
-   *
-   * @generated from protobuf rpc: GetMarketBalance(tdex.v2.GetMarketBalanceRequest) returns (tdex.v2.GetMarketBalanceResponse);
-   */
-  getMarketBalance(
-    input: GetMarketBalanceRequest,
-    options?: RpcOptions
-  ): UnaryCall<GetMarketBalanceRequest, GetMarketBalanceResponse>;
-  /**
-   * GetMarketPrice retutns the spot price for the requested market and its
-   * minimum tradable amount of base asset.
-   *
-   * @generated from protobuf rpc: GetMarketPrice(tdex.v2.GetMarketPriceRequest) returns (tdex.v2.GetMarketPriceResponse);
-   */
-  getMarketPrice(
-    input: GetMarketPriceRequest,
-    options?: RpcOptions
-  ): UnaryCall<GetMarketPriceRequest, GetMarketPriceResponse>;
-  /**
-   * PreviewTrade returns a counter amount and asset in response to the
-   * provided ones and a trade type for a market.
-   *
-   * The trade type can assume values BUY or SELL and it always refer to the
-   * fixed base asset.
-   * For example:
-   *  * if trade type is BUY, it means the trader wants to buy base asset funds.
-   *  * if trade type is SELL, it means the trader wants to sell base asset funds.
-   *
-   * @generated from protobuf rpc: PreviewTrade(tdex.v2.PreviewTradeRequest) returns (tdex.v2.PreviewTradeResponse);
-   */
-  previewTrade(input: PreviewTradeRequest, options?: RpcOptions): UnaryCall<PreviewTradeRequest, PreviewTradeResponse>;
-  /**
-   * ProposeTrade allows a trader to present a SwapRequest. The service answers
-   * with a SwapAccept, filling the request's partial transaction, + an
-   * expiration time to complete the swap when accepting the swap, or,
-   * otherwise, with a SwapFail containg the reason for the rejection of the
-   * proposal.
-   *
-   * @generated from protobuf rpc: ProposeTrade(tdex.v2.ProposeTradeRequest) returns (tdex.v2.ProposeTradeResponse);
-   */
-  proposeTrade(input: ProposeTradeRequest, options?: RpcOptions): UnaryCall<ProposeTradeRequest, ProposeTradeResponse>;
-  /**
-   * CompleteTrade can be used by the trader to let the daemon finalizing,
-   * extracting, and broadcasting the swap transaction, once he's signed his
-   * inputs.
-   * This is not mandatory, the trader can do the steps above on his own
-   * alternatively.
-   *
-   * @generated from protobuf rpc: CompleteTrade(tdex.v2.CompleteTradeRequest) returns (tdex.v2.CompleteTradeResponse);
-   */
-  completeTrade(
-    input: CompleteTradeRequest,
-    options?: RpcOptions
-  ): UnaryCall<CompleteTradeRequest, CompleteTradeResponse>;
+    /**
+     * ListMarkets lists all the markets open for trading.
+     *
+     * @generated from protobuf rpc: ListMarkets(tdex.v2.ListMarketsRequest) returns (tdex.v2.ListMarketsResponse);
+     */
+    listMarkets(input: ListMarketsRequest, options?: RpcOptions): UnaryCall<ListMarketsRequest, ListMarketsResponse>;
+    /**
+     * GetMarketBalance retutns the balance of the two current reserves of the
+     * given market.
+     *
+     * @generated from protobuf rpc: GetMarketBalance(tdex.v2.GetMarketBalanceRequest) returns (tdex.v2.GetMarketBalanceResponse);
+     */
+    getMarketBalance(input: GetMarketBalanceRequest, options?: RpcOptions): UnaryCall<GetMarketBalanceRequest, GetMarketBalanceResponse>;
+    /**
+     * GetMarketPrice retutns the spot price for the requested market and its
+     * minimum tradable amount of base asset.
+     *
+     * @generated from protobuf rpc: GetMarketPrice(tdex.v2.GetMarketPriceRequest) returns (tdex.v2.GetMarketPriceResponse);
+     */
+    getMarketPrice(input: GetMarketPriceRequest, options?: RpcOptions): UnaryCall<GetMarketPriceRequest, GetMarketPriceResponse>;
+    /**
+     * PreviewTrade returns a counter amount and asset in response to the
+     * provided ones and a trade type for a market.
+     *
+     * The trade type can assume values BUY or SELL and it always refer to the
+     * fixed base asset.
+     * For example:
+     *  * if trade type is BUY, it means the trader wants to buy base asset funds.
+     *  * if trade type is SELL, it means the trader wants to sell base asset funds.
+     *
+     * @generated from protobuf rpc: PreviewTrade(tdex.v2.PreviewTradeRequest) returns (tdex.v2.PreviewTradeResponse);
+     */
+    previewTrade(input: PreviewTradeRequest, options?: RpcOptions): UnaryCall<PreviewTradeRequest, PreviewTradeResponse>;
+    /**
+     * ProposeTrade allows a trader to present a SwapRequest. The service answers
+     * with a SwapAccept, filling the request's partial transaction, + an
+     * expiration time to complete the swap when accepting the swap, or,
+     * otherwise, with a SwapFail containg the reason for the rejection of the
+     * proposal.
+     *
+     * @generated from protobuf rpc: ProposeTrade(tdex.v2.ProposeTradeRequest) returns (tdex.v2.ProposeTradeResponse);
+     */
+    proposeTrade(input: ProposeTradeRequest, options?: RpcOptions): UnaryCall<ProposeTradeRequest, ProposeTradeResponse>;
+    /**
+     * CompleteTrade can be used by the trader to let the daemon finalizing,
+     * extracting, and broadcasting the swap transaction, once he's signed his
+     * inputs.
+     * This is not mandatory, the trader can do the steps above on his own
+     * alternatively.
+     *
+     * @generated from protobuf rpc: CompleteTrade(tdex.v2.CompleteTradeRequest) returns (tdex.v2.CompleteTradeResponse);
+     */
+    completeTrade(input: CompleteTradeRequest, options?: RpcOptions): UnaryCall<CompleteTradeRequest, CompleteTradeResponse>;
 }
 /**
  * @generated from protobuf service tdex.v2.TradeService
  */
 export declare class TradeServiceClient implements ITradeServiceClient, ServiceInfo {
-  private readonly _transport;
-  typeName: any;
-  methods: any;
-  options: any;
-  constructor(_transport: RpcTransport);
-  /**
-   * ListMarkets lists all the markets open for trading.
-   *
-   * @generated from protobuf rpc: ListMarkets(tdex.v2.ListMarketsRequest) returns (tdex.v2.ListMarketsResponse);
-   */
-  listMarkets(input: ListMarketsRequest, options?: RpcOptions): UnaryCall<ListMarketsRequest, ListMarketsResponse>;
-  /**
-   * GetMarketBalance retutns the balance of the two current reserves of the
-   * given market.
-   *
-   * @generated from protobuf rpc: GetMarketBalance(tdex.v2.GetMarketBalanceRequest) returns (tdex.v2.GetMarketBalanceResponse);
-   */
-  getMarketBalance(
-    input: GetMarketBalanceRequest,
-    options?: RpcOptions
-  ): UnaryCall<GetMarketBalanceRequest, GetMarketBalanceResponse>;
-  /**
-   * GetMarketPrice retutns the spot price for the requested market and its
-   * minimum tradable amount of base asset.
-   *
-   * @generated from protobuf rpc: GetMarketPrice(tdex.v2.GetMarketPriceRequest) returns (tdex.v2.GetMarketPriceResponse);
-   */
-  getMarketPrice(
-    input: GetMarketPriceRequest,
-    options?: RpcOptions
-  ): UnaryCall<GetMarketPriceRequest, GetMarketPriceResponse>;
-  /**
-   * PreviewTrade returns a counter amount and asset in response to the
-   * provided ones and a trade type for a market.
-   *
-   * The trade type can assume values BUY or SELL and it always refer to the
-   * fixed base asset.
-   * For example:
-   *  * if trade type is BUY, it means the trader wants to buy base asset funds.
-   *  * if trade type is SELL, it means the trader wants to sell base asset funds.
-   *
-   * @generated from protobuf rpc: PreviewTrade(tdex.v2.PreviewTradeRequest) returns (tdex.v2.PreviewTradeResponse);
-   */
-  previewTrade(input: PreviewTradeRequest, options?: RpcOptions): UnaryCall<PreviewTradeRequest, PreviewTradeResponse>;
-  /**
-   * ProposeTrade allows a trader to present a SwapRequest. The service answers
-   * with a SwapAccept, filling the request's partial transaction, + an
-   * expiration time to complete the swap when accepting the swap, or,
-   * otherwise, with a SwapFail containg the reason for the rejection of the
-   * proposal.
-   *
-   * @generated from protobuf rpc: ProposeTrade(tdex.v2.ProposeTradeRequest) returns (tdex.v2.ProposeTradeResponse);
-   */
-  proposeTrade(input: ProposeTradeRequest, options?: RpcOptions): UnaryCall<ProposeTradeRequest, ProposeTradeResponse>;
-  /**
-   * CompleteTrade can be used by the trader to let the daemon finalizing,
-   * extracting, and broadcasting the swap transaction, once he's signed his
-   * inputs.
-   * This is not mandatory, the trader can do the steps above on his own
-   * alternatively.
-   *
-   * @generated from protobuf rpc: CompleteTrade(tdex.v2.CompleteTradeRequest) returns (tdex.v2.CompleteTradeResponse);
-   */
-  completeTrade(
-    input: CompleteTradeRequest,
-    options?: RpcOptions
-  ): UnaryCall<CompleteTradeRequest, CompleteTradeResponse>;
+    private readonly _transport;
+    typeName: any;
+    methods: any;
+    options: any;
+    constructor(_transport: RpcTransport);
+    /**
+     * ListMarkets lists all the markets open for trading.
+     *
+     * @generated from protobuf rpc: ListMarkets(tdex.v2.ListMarketsRequest) returns (tdex.v2.ListMarketsResponse);
+     */
+    listMarkets(input: ListMarketsRequest, options?: RpcOptions): UnaryCall<ListMarketsRequest, ListMarketsResponse>;
+    /**
+     * GetMarketBalance retutns the balance of the two current reserves of the
+     * given market.
+     *
+     * @generated from protobuf rpc: GetMarketBalance(tdex.v2.GetMarketBalanceRequest) returns (tdex.v2.GetMarketBalanceResponse);
+     */
+    getMarketBalance(input: GetMarketBalanceRequest, options?: RpcOptions): UnaryCall<GetMarketBalanceRequest, GetMarketBalanceResponse>;
+    /**
+     * GetMarketPrice retutns the spot price for the requested market and its
+     * minimum tradable amount of base asset.
+     *
+     * @generated from protobuf rpc: GetMarketPrice(tdex.v2.GetMarketPriceRequest) returns (tdex.v2.GetMarketPriceResponse);
+     */
+    getMarketPrice(input: GetMarketPriceRequest, options?: RpcOptions): UnaryCall<GetMarketPriceRequest, GetMarketPriceResponse>;
+    /**
+     * PreviewTrade returns a counter amount and asset in response to the
+     * provided ones and a trade type for a market.
+     *
+     * The trade type can assume values BUY or SELL and it always refer to the
+     * fixed base asset.
+     * For example:
+     *  * if trade type is BUY, it means the trader wants to buy base asset funds.
+     *  * if trade type is SELL, it means the trader wants to sell base asset funds.
+     *
+     * @generated from protobuf rpc: PreviewTrade(tdex.v2.PreviewTradeRequest) returns (tdex.v2.PreviewTradeResponse);
+     */
+    previewTrade(input: PreviewTradeRequest, options?: RpcOptions): UnaryCall<PreviewTradeRequest, PreviewTradeResponse>;
+    /**
+     * ProposeTrade allows a trader to present a SwapRequest. The service answers
+     * with a SwapAccept, filling the request's partial transaction, + an
+     * expiration time to complete the swap when accepting the swap, or,
+     * otherwise, with a SwapFail containg the reason for the rejection of the
+     * proposal.
+     *
+     * @generated from protobuf rpc: ProposeTrade(tdex.v2.ProposeTradeRequest) returns (tdex.v2.ProposeTradeResponse);
+     */
+    proposeTrade(input: ProposeTradeRequest, options?: RpcOptions): UnaryCall<ProposeTradeRequest, ProposeTradeResponse>;
+    /**
+     * CompleteTrade can be used by the trader to let the daemon finalizing,
+     * extracting, and broadcasting the swap transaction, once he's signed his
+     * inputs.
+     * This is not mandatory, the trader can do the steps above on his own
+     * alternatively.
+     *
+     * @generated from protobuf rpc: CompleteTrade(tdex.v2.CompleteTradeRequest) returns (tdex.v2.CompleteTradeResponse);
+     */
+    completeTrade(input: CompleteTradeRequest, options?: RpcOptions): UnaryCall<CompleteTradeRequest, CompleteTradeResponse>;
 }
