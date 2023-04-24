@@ -46,7 +46,7 @@ import type { CoinSelectionForTrade } from '../../store/walletStore';
 import { useWalletStore } from '../../store/walletStore';
 import { defaultPrecision, PIN_TIMEOUT_FAILURE } from '../../utils/constants';
 import { AppError, NoMarketsAvailableForSelectedPairError, NoOtherProvider } from '../../utils/errors';
-import { isLbtcTicker, outpointToString } from '../../utils/helpers';
+import { isLbtc, isLbtcTicker, outpointToString } from '../../utils/helpers';
 import { createAmountAndUnit, fromSatoshi, toSatoshi } from '../../utils/unitConversion';
 import type { PreviewData } from '../TradeSummary';
 
@@ -226,6 +226,8 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
     }
     setIsBusyMakingTrade(true);
     try {
+      const assets = useAssetStore.getState().assets;
+      const lbtcUnit = useSettingsStore.getState().lbtcUnit;
       const signer = await SignerService.fromPassword(pin);
       if (!tdexOrderInputResult.send.asset) {
         throw new Error('No send asset');
@@ -234,7 +236,11 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
         [
           {
             address: '',
-            value: toSatoshi(Number(tdexOrderInputResult.send.amount)),
+            value: toSatoshi(
+              Number(tdexOrderInputResult.send.amount),
+              assets[tdexOrderInputResult.send.asset].precision ?? 8,
+              isLbtc(tdexOrderInputResult.send.asset, network) ? lbtcUnit : undefined
+            ),
             asset: tdexOrderInputResult.send.asset,
           },
         ],
