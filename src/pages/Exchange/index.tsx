@@ -60,14 +60,16 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   const getProtoVersion = useTdexStore((state) => state.getProtoVersion);
   const markets = useTdexStore((state) => state.markets);
   const providers = useTdexStore((state) => state.providers);
+  const refetchTdexProvidersAndMarkets = useTdexStore((state) => state.refetchTdexProvidersAndMarkets);
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const masterBlindingKey = useWalletStore((state) => state.masterBlindingKey);
+  const unlockOutpoints = useWalletStore((state) => state.unlockOutpoints);
   //
   const [tdexOrderInputResult, setTdexOrderInputResult] = useState<TdexOrderInputResult>();
   const [excludedProviders, setExcludedProviders] = useState<TDEXProvider[]>([]);
   const [showExcludedProvidersAlert, setShowExcludedProvidersAlert] = useState(false);
-  const [tradeError, setTradeError] = useState<AppError>();
+  const [tradeError, setTradeError] = useState<AppError | Error>();
 
   const getPinModalDescription = () => {
     if (!tdexOrderInputResult) return 'Trade preview error';
@@ -107,22 +109,24 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
       return market.provider.endpoint === provider.endpoint;
     };
 
-  const withoutProviders = (...providers: TDEXProvider[]) =>
-    function (market: TDEXMarketV1 | TDEXMarketV2) {
-      const isSameProviderFns = providers.map(isSameProviderEndpoint);
-      for (const fn of isSameProviderFns) {
-        if (fn(market)) return false;
-      }
-      return true;
-    };
+  const withoutProviders = useCallback(
+    (...providers: TDEXProvider[]) =>
+      (market: TDEXMarketV1 | TDEXMarketV2) => {
+        const isSameProviderFns = providers.map(isSameProviderEndpoint);
+        for (const fn of isSameProviderFns) {
+          if (fn(market)) return false;
+        }
+        return true;
+      },
+    []
+  );
 
   const getAllMarketsFromNotExcludedProviders = useCallback(
     () => ({
       v1: markets.v1.filter(withoutProviders(...excludedProviders)),
       v2: markets.v2.filter(withoutProviders(...excludedProviders)),
     }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [markets]
+    [excludedProviders, markets.v1, markets.v2, withoutProviders]
   );
 
   const getAllMarketsFromNotExcludedProvidersAndOnlySelectedPair = (
@@ -324,9 +328,10 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
         setIsWrongPin(null);
         setNeedReset(true);
       }, PIN_TIMEOUT_FAILURE);
-      if (err instanceof AppError) {
+      if (err instanceof AppError || err instanceof Error) {
         setTradeError(err);
       }
+      await unlockOutpoints();
     } finally {
       setIsBusyMakingTrade(false);
     }
@@ -421,7 +426,7 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
           {
             text: 'Retry',
             handler: async () => {
-              // TODO: do retry
+              await refetchTdexProvidersAndMarkets();
               // false then true to trigger rerender if already true
               setShowNoProvidersAvailableAlert(false);
               setShowNoProvidersAvailableAlert(true);

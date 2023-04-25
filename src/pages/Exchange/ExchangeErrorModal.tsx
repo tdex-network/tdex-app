@@ -9,7 +9,7 @@ import type { AppError } from '../../utils/errors';
 
 interface Props {
   result?: TdexOrderInputResult;
-  error?: AppError;
+  error?: AppError | Error;
   onClose: () => void;
   onClickRetry: () => void;
   onClickTryNext: (provider: TDEXProvider) => void;

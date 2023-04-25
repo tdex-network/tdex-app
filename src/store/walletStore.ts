@@ -290,7 +290,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
                   .toFixed(8)
                   .replace(/\.?0+$/, '');
               } else {
-                balances[assetHash].value = fromSatoshi(balances[assetHash].sats, assets[assetHash].precision ?? 8)
+                balances[assetHash].value = fromSatoshi(balances[assetHash]?.sats, assets[assetHash]?.precision ?? 8)
                   .toFixed(assets[assetHash].precision ?? 8)
                   .replace(/\.?0+$/, '');
               }
