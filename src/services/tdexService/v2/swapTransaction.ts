@@ -1,4 +1,4 @@
-import type { networks, Pset, UpdaterInput, UpdaterOutput } from 'liquidjs-lib';
+import type { networks, UpdaterInput, UpdaterOutput, Pset } from 'liquidjs-lib';
 import { address, Creator, Transaction, Updater } from 'liquidjs-lib';
 import type { Slip77Interface } from 'slip77';
 import { SLIP77Factory } from 'slip77';
@@ -33,18 +33,14 @@ export class SwapTransaction implements SwapTransactionInterface {
 
   async createPset(
     coinSelectionForTrade: CoinSelectionForTrade,
-    amountToBeSent: number,
     amountToReceive: number,
-    assetToBeSent: string,
     assetToReceive: string,
     addressForChangeOutput: ScriptDetails,
-    addressForSwapOutput: ScriptDetails,
-    tradeFeeAmount: number
+    addressForSwapOutput: ScriptDetails
   ): Promise<void> {
     const ins: UpdaterInput[] = [];
     const outs: UpdaterOutput[] = [];
     const { changeOutputs, witnessUtxos } = coinSelectionForTrade;
-
     for (const [outpointStr, witnessUtxo] of Object.entries(witnessUtxos)) {
       const [txid, vout] = outpointStr.split(':');
       ins.push({
@@ -63,7 +59,7 @@ export class SwapTransaction implements SwapTransactionInterface {
     // add the receiving output
     const updaterOutReceive: UpdaterOutput = {
       asset: assetToReceive,
-      amount: amountToReceive - tradeFeeAmount,
+      amount: amountToReceive,
       script: Buffer.from(addressForSwapOutput.script, 'hex'),
     };
     if (address.isConfidential(addressForSwapOutput?.confidentialAddress ?? '')) {

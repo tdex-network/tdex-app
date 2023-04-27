@@ -2,16 +2,16 @@ import { GrpcWebFetchTransport } from '@protobuf-ts/grpcweb-transport';
 
 import { Tdexv2ContentType } from '../../../api-spec/openapi/swagger/v2/transport/data-contracts';
 import { SwapAccept, SwapComplete, SwapRequest } from '../../../api-spec/protobuf/gen/js/tdex/v2/swap_pb';
-import * as messages from '../../../api-spec/protobuf/gen/js/tdex/v2/trade_pb';
 import type {
   GetMarketBalanceResponse,
   ListMarketsResponse,
-  PreviewTradeResponse,
   PreviewTradeRequest,
+  PreviewTradeResponse,
 } from '../../../api-spec/protobuf/gen/js/tdex/v2/trade_pb';
+import * as messages from '../../../api-spec/protobuf/gen/js/tdex/v2/trade_pb';
 import * as services from '../../../api-spec/protobuf/gen/js/tdex/v2/trade_pb.client';
 import * as types from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
-import type { TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
+import { TradeType } from '../../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import { config } from '../../../store/config';
 import { getClearTextTorProxyUrl } from '../index';
 
@@ -60,7 +60,8 @@ export class TraderClient implements TraderClientInterface {
       market: market,
       type: tradeType,
       swapRequest: SwapRequest.fromBinary(swapRequestSerialized),
-      feeAsset: quoteAsset,
+      // That way we always substract from receiving amount
+      feeAsset: tradeType === TradeType.BUY ? baseAsset : quoteAsset,
       feeAmount: tradeFeeAmount,
     });
     const call = await this.client.proposeTrade(request);

@@ -225,7 +225,8 @@ export class TradeCore extends Core implements TradeInterface {
       type: tradeType,
       amount: amount.toString(),
       asset,
-      feeAsset: quoteAsset,
+      // That way we always substract from receiving amount
+      feeAsset: tradeType === TradeType.BUY ? baseAsset : quoteAsset,
     });
     const previewedAmount = tradePreviews[0].amount;
     const previewedFeeAmount = tradePreviews[0].feeAmount;
@@ -238,7 +239,6 @@ export class TradeCore extends Core implements TradeInterface {
         tradeFeeAmount: Number(previewedFeeAmount),
       };
     }
-
     return {
       assetToBeSent: baseAsset,
       amountToBeSent: asset === baseAsset ? Number(amount) : Number(previewedAmount),
@@ -266,15 +266,13 @@ export class TradeCore extends Core implements TradeInterface {
       network: networks[this.chain],
       masterBlindingKey: this.masterBlindingKey,
     });
+    const amountToReceiveMinusFee = amountToReceive - tradeFeeAmount;
     await swapTx.createPset(
       this.coinSelectionForTrade,
-      amountToBeSent,
-      amountToReceive,
-      assetToBeSent,
+      amountToReceiveMinusFee,
       assetToReceive,
       addressForChangeOutput,
-      addressForSwapOutput,
-      tradeFeeAmount
+      addressForSwapOutput
     );
     const swap = new Swap({ chain: this.chain, verbose: false });
     const swapRequestSerialized = await swap.request({

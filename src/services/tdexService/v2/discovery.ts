@@ -91,7 +91,8 @@ export const bestPriceDiscovery: Discovery = async (
         type: order.type,
         amount: opts.amount.toString(),
         asset: opts.asset,
-        feeAsset: order.market.quoteAsset,
+        // That way we always substract from receiving amount
+        feeAsset: order.type === TradeType.BUY ? order.market.baseAsset : order.market.quoteAsset,
       })
       .then((response) => ({ order, amount: response[0].amount }))
   );

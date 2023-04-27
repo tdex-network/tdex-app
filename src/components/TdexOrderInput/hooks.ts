@@ -33,7 +33,8 @@ export function useTradeState(markets: { v1: TDEXMarketV1[]; v2: TDEXMarketV2[] 
   const [assetSendBeforeSwap, setAssetSendBeforeSwap] = useState<string | undefined>(sendAsset);
   const [sendAssetHasChanged, setSendAssetHasChanged] = useState<boolean>(false);
   const [receiveAssetHasChanged, setReceiveAssetHasChanged] = useState<boolean>(false);
-  const [tradeFeeSats, setTradeFeeSats] = useState<number | undefined>();
+  const [tradeFeeSats, setTradeFeeSats] = useState<number>();
+  const [tradeFeeAsset, setTradeFeeAsset] = useState<string>('');
   //
   const sendBalance = balances?.[sendAsset ?? ''];
 
@@ -68,8 +69,10 @@ export function useTradeState(markets: { v1: TDEXMarketV1[]; v2: TDEXMarketV2[] 
       )(newSendSats ?? 0, sendAsset as string);
       if (isTradeOrderV2(bestOrder)) {
         preview = await previewTradeV2(bestOrder, newSendSats ?? 0, sendAsset as string);
+        if (!preview) throw new Error('no preview available');
         // fee amount only available in v2
-        setTradeFeeSats(Number(preview?.feeAmount));
+        setTradeFeeSats(Number(preview.feeAmount));
+        setTradeFeeAsset(preview.feeAsset);
       } else {
         preview = await previewTradeV1(bestOrder, newSendSats ?? 0, sendAsset as string);
       }
@@ -195,5 +198,6 @@ export function useTradeState(markets: { v1: TDEXMarketV1[]; v2: TDEXMarketV2[] 
     setSendAssetHasChanged,
     setReceiveAssetHasChanged,
     tradeFeeSats,
+    tradeFeeAsset,
   ] as const;
 }

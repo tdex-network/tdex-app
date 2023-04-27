@@ -296,7 +296,8 @@ export async function previewTradeV2(order: TradeOrderV2, sats: number, asset: s
     type: order.type,
     amount: sats.toString(),
     asset: asset,
-    feeAsset: order.market.quoteAsset,
+    // That way we always substract from receiving amount
+    feeAsset: order.type === TradeTypeV2.BUY ? order.market.baseAsset : order.market.quoteAsset,
   });
   return response[0];
 }

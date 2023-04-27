@@ -46,8 +46,8 @@ import type { CoinSelectionForTrade } from '../../store/walletStore';
 import { useWalletStore } from '../../store/walletStore';
 import { defaultPrecision, PIN_TIMEOUT_FAILURE } from '../../utils/constants';
 import { AppError, NoMarketsAvailableForSelectedPairError, NoOtherProvider } from '../../utils/errors';
-import { isLbtc, isLbtcTicker, outpointToString } from '../../utils/helpers';
-import { createAmountAndUnit, fromSatoshi, toSatoshi } from '../../utils/unitConversion';
+import { isLbtc, outpointToString } from '../../utils/helpers';
+import { createAmountAndUnit, fromSatoshi } from '../../utils/unitConversion';
 import type { PreviewData } from '../TradeSummary';
 
 import ExchangeErrorModal from './ExchangeErrorModal';
@@ -77,13 +77,12 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
     const lbtcUnit = useSettingsStore.getState().lbtcUnit;
     const tradeFeeAmount = fromSatoshi(
       tradeFeeSats ?? 0,
-      assets[tdexOrderInputResult?.order.market.quoteAsset]?.precision ?? defaultPrecision,
-      isLbtcTicker(assets[tdexOrderInputResult?.order.market.quoteAsset]?.ticker) ? lbtcUnit : undefined
+      assets[tradeFeeAsset]?.precision ?? defaultPrecision,
+      isLbtc(tradeFeeAsset, network) ? lbtcUnit : undefined
     );
+    const receiveAmountMinusFees = Number(tdexOrderInputResult?.receive.amount ?? 0) - tradeFeeAmount;
     return `Enter your secret PIN to send ${tdexOrderInputResult?.send.amount} ${tdexOrderInputResult?.send.unit} and
-          receive ${Number(tdexOrderInputResult?.receive.amount ?? 0) - tradeFeeAmount} ${
-      tdexOrderInputResult?.receive.unit
-    }
+          receive ${receiveAmountMinusFees.toFixed(8)} ${tdexOrderInputResult?.receive.unit}
     ${
       tdexOrderInputResult.providerVersion === 'v2'
         ? `(${tdexOrderInputResult?.receive.amount} ${tdexOrderInputResult?.receive.unit} minus ${tradeFeeAmount} ${tdexOrderInputResult?.receive.unit} of trading fees)`
@@ -190,6 +189,7 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
     setSendAssetHasChanged,
     setReceiveAssetHasChanged,
     tradeFeeSats,
+    tradeFeeAsset,
   ] = useTradeState(getAllMarketsFromNotExcludedProviders());
 
   const handleSuccess = async (txid: string) => {
@@ -230,8 +230,6 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
     }
     setIsBusyMakingTrade(true);
     try {
-      const assets = useAssetStore.getState().assets;
-      const lbtcUnit = useSettingsStore.getState().lbtcUnit;
       const signer = await SignerService.fromPassword(pin);
       if (!tdexOrderInputResult.send.asset) {
         throw new Error('No send asset');
@@ -240,11 +238,7 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
         [
           {
             address: '',
-            value: toSatoshi(
-              Number(tdexOrderInputResult.send.amount),
-              assets[tdexOrderInputResult.send.asset].precision ?? 8,
-              isLbtc(tdexOrderInputResult.send.asset, network) ? lbtcUnit : undefined
-            ),
+            value: tdexOrderInputResult?.send.sats ?? 0,
             asset: tdexOrderInputResult.send.asset,
           },
         ],
