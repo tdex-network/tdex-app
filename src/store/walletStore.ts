@@ -594,12 +594,13 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           if (!dryRun) {
             await get().subscribeScript(Buffer.from(scriptDetails[0], 'hex'));
             // increment the account details last used index & persist the new script details
+            // we don't create new addresses on legacy accounts
             set(
               (state) => ({
                 accounts: {
                   ...state.accounts,
                   [accountName]: {
-                    ...state.accounts?.main,
+                    ...(network === 'liquid' ? state.accounts?.main : state.accounts?.test),
                     [isInternal ? 'nextInternalIndex' : 'nextExternalIndex']: nextIndex + 1,
                   },
                 },

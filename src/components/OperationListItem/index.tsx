@@ -68,9 +68,9 @@ const OperationListItem: React.FC<SwapProps> = ({ tx, listType }) => {
               <CurrencyIcon assetHash={tx.swapReceived?.asset ?? ''} />
             </IonCol>
             <IonCol size="5">
-              <div className="asset">{`${assets[tx.swapSent?.asset ?? '']?.ticker}/${
-                assets[tx.swapReceived?.asset ?? ''].ticker
-              }`}</div>
+              <div className="asset">
+                {`${assets[tx.swapSent?.asset ?? '']?.ticker}/${assets[tx.swapReceived?.asset ?? '']?.ticker}`}
+              </div>
             </IonCol>
           </>
         ) : (
