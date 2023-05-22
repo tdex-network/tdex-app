@@ -381,7 +381,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             if (inputAssets.length === 0) {
               return TxType.Deposit;
             }
-            if (inputAssets.length >= 1 && outputAssets.length >= 1) {
+            if (inputAssets.length >= 1) {
               if (amount === 0) {
                 return TxType.SelfTransfer;
               } else {
@@ -438,11 +438,24 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             }
           }
 
+          // If 1 output with asset different from the one in input, we swapped all funds to another asset
+          if (outputAssets.length === 1 && inputAssets.length === 1) {
+            for (const { asset, amount } of outputAssets) {
+              if (!inputAssets.map((i) => i.asset).includes(asset)) {
+                swapReceived = { asset, amount };
+                swapSent = { asset: inputAssets[0].asset, amount: inputAssets[0].amount };
+                isSwap = true;
+              }
+            }
+          }
+
           // Deposit
           if (inputAssets.length === 0) {
             assetHash = outputAssets[0]?.asset;
             amount = outputAssets.reduce((acc, i) => (i.asset === assetHash ? acc + i.amount : acc), 0);
-          } else if (!isSwap && inputAssets.length >= 1 && outputAssets.length >= 1) {
+            // At least 1 input
+            // Zero or more outputs. If no output it's a send all
+          } else if (!isSwap && inputAssets.length >= 1) {
             // Withdraw or SelfTransfer
             assetHash = inputAssets[0].asset;
             const totalInputAmount = inputAssets.reduce((acc, i) => (i.asset === assetHash ? acc + i.amount : acc), 0);

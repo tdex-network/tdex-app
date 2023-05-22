@@ -172,7 +172,7 @@ export const TradeRowInput: React.FC<Props> = ({
           onClick={() => {
             if (!inputRef.current) return;
             inputRef.current.setFocus().catch(console.error);
-            onInputAmount(Number(balances?.[assetSelected?.assetHash ?? ''].value ?? 0));
+            onInputAmount(Number(balances?.[assetSelected?.assetHash ?? '']?.value ?? 0));
           }}
         >
           <span>Total balance:</span>
