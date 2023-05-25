@@ -1,6 +1,6 @@
 version: v1
 plugins:
-  - remote: buf.build/timostamm/plugins/protobuf-ts
+  - plugin: buf.build/community/timostamm-protobuf-ts
     out: src/api-spec/protobuf/gen/js
     opt:
       - add_pb_suffix

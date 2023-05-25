@@ -1,16 +1,14 @@
+import zkp from '@vulpemventures/secp256k1-zkp';
 import type { BIP32Interface } from 'bip32';
 import { BIP32Factory } from 'bip32';
 import { mnemonicToSeed } from 'bip39';
 import ECPairFactory from 'ecpair';
 import { Extractor, Finalizer, Pset, script as bscript, Signer, Transaction } from 'liquidjs-lib';
 import { Psbt } from 'liquidjs-lib/src/psbt';
-import * as ecc from 'tiny-secp256k1';
 
 import type { ScriptDetails } from '../store/walletStore';
 import { useWalletStore } from '../store/walletStore';
 import { decrypt } from '../utils/crypto';
-
-const bip32 = BIP32Factory(ecc);
 
 export interface SignerInterface {
   signPset(pset: Pset): Promise<string>;
@@ -28,9 +26,12 @@ export class SignerService implements SignerInterface {
   }
 
   static async fromPassword(password: string): Promise<SignerService> {
+    const zkpLib = await zkp();
+    const { ecc } = zkpLib;
     const encryptedMnemonic = useWalletStore.getState().encryptedMnemonic;
     if (!encryptedMnemonic) throw new Error('No mnemonic found in wallet');
     const decryptedMnemonic = await decrypt(encryptedMnemonic, password);
+    const bip32 = BIP32Factory(ecc);
     const masterNode = bip32.fromSeed(await mnemonicToSeed(decryptedMnemonic));
     return new SignerService(masterNode);
   }
@@ -57,6 +58,8 @@ export class SignerService implements SignerInterface {
       const key = this.masterNode.derivePath(scriptDetailsInput.derivationPath.replace('m/', ''));
       const sighash = input.sighashType || Transaction.SIGHASH_ALL; // '||' lets to overwrite SIGHASH_DEFAULT (0x00)
       const signature = key.sign(pset.getInputPreimage(index, sighash));
+      const zkpLib = await zkp();
+      const { ecc } = zkpLib;
       signer.addSignature(
         index,
         {
@@ -79,6 +82,8 @@ export class SignerService implements SignerInterface {
   }
 
   async signPsbt(psbt: Psbt): Promise<string> {
+    const zkpLib = await zkp();
+    const { ecc } = zkpLib;
     const signInputPromises: Promise<void>[] = [];
     for (let index = 0; index < psbt.data.inputs.length; index++) {
       const input = psbt.data.inputs[index];
