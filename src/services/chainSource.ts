@@ -1,6 +1,8 @@
 import { crypto } from 'liquidjs-lib';
+import { sleep } from 'src/utils/helpers';
 import { ElectrumWS } from 'ws-electrumx-client';
 
+import { useAppStore } from '../store/appStore';
 import { useSettingsStore } from '../store/settingsStore';
 
 export interface ChainSource {
@@ -88,9 +90,13 @@ export class WsElectrumChainSource implements ChainSource {
   private ws?: ElectrumWS;
 
   constructor() {
-    if (!this.ws) {
+    const isAppInitialized = useAppStore.getState().isAppInitialized;
+    const isSignedUp = useAppStore.getState().isSignedUp;
+    if (!this.ws && isAppInitialized && isSignedUp) {
       const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
       this.ws = new ElectrumWS(websocketExplorerURL);
+    } else {
+      console.error('WsElectrumChainSource: ws not initialized');
     }
   }
 
@@ -159,6 +165,7 @@ export class WsElectrumChainSource implements ChainSource {
   }
 }
 
+await sleep(1500); // wait for the app to be initialized
 export const chainSource = new WsElectrumChainSource();
 
 function toScriptHash(script: Buffer): string {

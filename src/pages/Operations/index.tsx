@@ -59,9 +59,13 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
       }
       // Compute heuristic for each tx
       const txsHeuristicArray: TxHeuristic[] = [];
-      for (const tx of Object.values(txs ?? {})) {
-        const txHeuristic = await computeHeuristicFromTx(tx);
-        if (txHeuristic) txsHeuristicArray.push(txHeuristic);
+      try {
+        for (const tx of Object.values(txs ?? {})) {
+          const txHeuristic = await computeHeuristicFromTx(tx);
+          if (txHeuristic) txsHeuristicArray.push(txHeuristic);
+        }
+      } catch (err) {
+        console.error('computeHeuristicFromTx failure', err);
       }
       // Compute heuristic for each pegin
       const btcTxs = computeHeuristicFromPegins();
