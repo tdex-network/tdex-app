@@ -337,14 +337,20 @@ export function getClearTextTorProxyUrl(torProxyEndpoint: string, url: URL): str
 export async function getProvidersFromTDexRegistry(network: NetworkString): Promise<TDEXProvider[]> {
   if (network === 'testnet') {
     const reg = (await axios.get(TDexRegistryTestnet)).data;
-    // TODO: remove this when the registry will be updated
+    // TODO: remove this when the testnet registry will be updated
     reg.push({
       name: 'v1.provider.tdex.network',
       endpoint: 'https://v1.provider.tdex.network',
     });
     return reg;
   }
-  return (await axios.get(TDexRegistryMainnet)).data;
+  // TODO: remove this when the mainnet registry will be updated
+  const reg = (await axios.get(TDexRegistryMainnet)).data;
+  reg.push({
+    name: 'provider.vulpem.com',
+    endpoint: 'https://provider.vulpem.com',
+  });
+  return reg;
 }
 
 export function discoverBestOrder(

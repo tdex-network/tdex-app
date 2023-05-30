@@ -157,10 +157,10 @@ export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
   );
 
   useEffect(() => {
-    if (
-      getAllMarketsFromNotExcludedProviders().v1.length > 0 ||
-      getAllMarketsFromNotExcludedProviders().v2.length > 0
-    ) {
+    const hasAtLeastOneMarket =
+      getAllMarketsFromNotExcludedProviders().v1.length > 0 || getAllMarketsFromNotExcludedProviders().v2.length > 0;
+
+    if (hasAtLeastOneMarket) {
       setShowNoProvidersAvailableAlert(false);
     } else {
       setShowNoProvidersAvailableAlert(true);

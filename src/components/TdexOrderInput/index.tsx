@@ -89,12 +89,30 @@ export const TdexOrderInput: React.FC<Props> = ({
   //
   useIonViewDidEnter(() => {
     setAccessoryBar(true).catch(console.error);
+    let sendAsset;
     // Set send asset default to LBTC if available in markets, or first asset in balances
     const lbtcInMarkets =
       markets.v1.find((m) => isLbtc(m.baseAsset, network) || isLbtc(m.quoteAsset, network)) ||
       markets.v2.find((m) => isLbtc(m.baseAsset, network) || isLbtc(m.quoteAsset, network));
-    const sendAsset = lbtcInMarkets !== undefined ? LBTC_ASSET[network].assetHash : assets[0]?.assetHash;
-    setSendAsset(sendAsset);
+    if (lbtcInMarkets !== undefined) {
+      sendAsset = LBTC_ASSET[network].assetHash;
+      setSendAsset(sendAsset);
+    } else {
+      for (let asset in assets) {
+        const isBalanceAssetInMarkets =
+          markets.v1.find((m) => m.baseAsset === asset || m.quoteAsset === asset) ||
+          markets.v2.find((m) => m.baseAsset === asset || m.quoteAsset === asset);
+        if (isBalanceAssetInMarkets) {
+          sendAsset = asset;
+          setSendAsset(sendAsset);
+          break;
+        }
+      }
+    }
+    if (!sendAsset) {
+      console.error('No tradable asset found');
+      return;
+    }
     // Set receive asset to first tradable asset
     const tradableAssets = getTradablesAssets(markets, sendAsset);
     setReceiveAsset(tradableAssets[0]);
