@@ -37,12 +37,16 @@ export class BitcoinService {
   static async getPeginModule(network: NetworkString): Promise<ElementsPegin> {
     let peginModule: ElementsPegin;
     if (network === 'liquid') {
-      peginModule = new ElementsPegin(await ElementsPegin.withGoElements(), await ElementsPegin.withLibwally());
+      peginModule = new ElementsPegin(
+        await ElementsPegin.withGoElements(),
+        await ElementsPegin.withLibwally(),
+        ElementsPegin.withDynamicFederation(true)
+      );
     } else {
       peginModule = new ElementsPegin(
         await ElementsPegin.withGoElements(),
         await ElementsPegin.withLibwally(),
-        ElementsPegin.withDynamicFederation(false),
+        ElementsPegin.withDynamicFederation(true),
         ElementsPegin.withTestnet(LBTC_ASSET[network].assetHash),
         ElementsPegin.withFederationScript(getFedPegScript(network))
       );
