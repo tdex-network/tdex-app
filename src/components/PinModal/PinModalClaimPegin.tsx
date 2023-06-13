@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 
 import { BitcoinService } from '../../services/bitcoinService';
 import { useBitcoinStore } from '../../store/bitcoinStore';
-import type { Pegin } from '../../store/bitcoinStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useToastStore } from '../../store/toastStore';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
@@ -72,20 +71,11 @@ export const PinModalClaimPegin: React.FC = () => {
         .claimPegins(explorerBitcoinAPI, explorerLiquidAPI, pendingPegins, currentBtcBlockHeight, network)
         .then(async (successPegins) => {
           if (Object.keys(successPegins).length) {
-            Object.values(successPegins).forEach((p: Pegin) => {
-              const utxos = Object.values(p.depositUtxos ?? []);
-              utxos.forEach((utxo) => {
-                if (utxo.claimTxId) {
-                  //watchTransaction(utxo.claimTxId);
-                }
-              });
-            });
             upsertPegins(successPegins);
             addSuccessToast(`Claim transaction successful`);
             await managePinSuccess();
             setModalClaimPegin({ claimScriptToClaim: undefined });
             removeToastByType('claim-pegin');
-            //updateState();
           } else {
             addErrorToast(NoClaimFoundError);
             managePinError(true).catch(console.log);

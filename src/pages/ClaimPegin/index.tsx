@@ -8,7 +8,7 @@ import Loader from '../../components/Loader';
 import PageDescription from '../../components/PageDescription';
 import PinModal from '../../components/PinModal';
 import { BitcoinService } from '../../services/bitcoinService';
-import type { DepositPeginUtxo, Pegin, Pegins } from '../../store/bitcoinStore';
+import type { Pegins } from '../../store/bitcoinStore';
 import { useBitcoinStore } from '../../store/bitcoinStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useToastStore } from '../../store/toastStore';
@@ -68,22 +68,11 @@ export const ClaimPegin: React.FC = () => {
             .then((successPegins) => {
               if (Object.keys(successPegins).length) {
                 setClaimedPegins(successPegins);
-                Object.values(successPegins).forEach((p: Pegin) => {
-                  const utxos = Object.values(p.depositUtxos ?? []);
-                  utxos.forEach((utxo: DepositPeginUtxo) => {
-                    if (utxo.claimTxId) {
-                      console.error('watch utxo.claimTxId missing', utxo.claimTxId);
-                      //watchTransaction(utxo.claimTxId);
-                    }
-                  });
-                });
                 upsertPegins(successPegins);
                 addSuccessToast(`Claim transaction successful`);
                 managePinSuccess().catch(console.error);
                 setInputBtcPeginAddress(undefined);
                 checkIfClaimablePeginUtxo();
-                console.error('updateState missing');
-                // updateState();
               } else {
                 addErrorToast(NoClaimFoundError);
                 managePinError(true).catch(console.error);

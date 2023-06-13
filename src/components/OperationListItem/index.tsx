@@ -161,7 +161,7 @@ const OperationListItem: React.FC<SwapProps> = ({ tx, listType }) => {
                 </IonCol>
               )}
               {tx.claimTxId && (
-                <IonCol size="11" offset="1" className="pl-1">
+                <IonCol size="11" offset="1">
                   <span className="status-text confirmed claimed">
                     <IonIcon icon={checkmarkSharp} />
                     <span className="ml-05">Claimed</span>

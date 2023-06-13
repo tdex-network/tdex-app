@@ -13,7 +13,6 @@ import { useToastStore } from './toastStore';
 import { useWalletStore } from './walletStore';
 
 export interface DepositPeginUtxo {
-  txHash: Buffer;
   txid: string;
   vout: number;
   status: {

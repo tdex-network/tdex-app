@@ -75,6 +75,7 @@ export class BitcoinService {
             const claimTxHex = await peginModule.claimTx(btcPeginTxHex, btcBlockProof, claimScript);
             const signedClaimTxHex = this.signClaimTx(claimTxHex, btcPeginTxHex, claimScript, ecPair);
             const claimTxId = await chainSource.broadcastTransaction(signedClaimTxHex);
+            // Add claimTxId so that UI can show that the utxo has been claimed
             pegin.depositUtxos[outpoint] = {
               ...depositUtxo,
               claimTxId: claimTxId,
