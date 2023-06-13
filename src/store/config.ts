@@ -28,7 +28,7 @@ const blockstreamExplorerEndpoints = {
     explorerBitcoinAPI: 'https://blockstream.info/api',
     explorerBitcoinUI: 'https://blockstream.info',
     electrsBatchAPI: 'https://electrs-batch-blockstream.sevenlabs.io',
-    websocketExplorerURL: 'wss://esplora.blockstream.com/liquid/electrum-websocket/api',
+    websocketExplorerURL: 'wss://blockstream.info/liquid/electrum-websocket/api',
   },
   testnet: {
     explorerLiquidAPI: 'https://blockstream.info/liquidtestnet/api',
@@ -47,7 +47,7 @@ const mempoolExplorerEndpoints = {
     explorerBitcoinAPI: 'https://mempool.space/api',
     explorerBitcoinUI: 'https://mempool.space',
     electrsBatchAPI: 'https://electrs-batch-mempool.sevenlabs.io',
-    websocketExplorerURL: 'wss://esplora.blockstream.com/liquid/electrum-websocket/api',
+    websocketExplorerURL: 'wss://blockstream.info/liquid/electrum-websocket/api',
   },
   testnet: {
     explorerLiquidAPI: 'https://liquid.network/liquidtestnet/api',

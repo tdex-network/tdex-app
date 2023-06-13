@@ -2,7 +2,6 @@ import { crypto } from 'liquidjs-lib';
 import { sleep } from 'src/utils/helpers';
 import { ElectrumWS } from 'ws-electrumx-client';
 
-import { useAppStore } from '../store/appStore';
 import { useSettingsStore } from '../store/settingsStore';
 
 export interface ChainSource {
@@ -25,7 +24,7 @@ export interface ChainSource {
 
   getRelayFee(): Promise<number>;
 
-  renewInstance(): void;
+  createWebsocketInstance(): void;
 }
 
 export type GetHistoryResponse = {
@@ -89,17 +88,6 @@ const GetRelayFeeMethod = 'blockchain.relayfee';
 export class WsElectrumChainSource implements ChainSource {
   private ws?: ElectrumWS;
 
-  constructor() {
-    const isAppInitialized = useAppStore.getState().isAppInitialized;
-    const isSignedUp = useAppStore.getState().isSignedUp;
-    if (!this.ws && isAppInitialized && isSignedUp) {
-      const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
-      this.ws = new ElectrumWS(websocketExplorerURL);
-    } else {
-      console.error('WsElectrumChainSource: ws not initialized');
-    }
-  }
-
   async fetchTransactions(txids: string[]): Promise<{ txid: string; hex: string }[]> {
     if (!this.ws) return [];
     const responses = await this.ws.batchRequest<string[]>(
@@ -159,9 +147,10 @@ export class WsElectrumChainSource implements ChainSource {
     return this.ws.request<number>(GetRelayFeeMethod);
   }
 
-  renewInstance(): void {
+  createWebsocketInstance(): void {
     const websocketExplorerURL = useSettingsStore.getState().websocketExplorerURL;
     this.ws = new ElectrumWS(websocketExplorerURL);
+    console.debug('websocket instance created');
   }
 }
 

@@ -97,7 +97,7 @@ const Network = (): JSX.Element => {
           setElectrsBatchApi(configRegtest.explorers.electrsBatchAPI);
           setDefaultProvider(defaultProviderEndpoints.regtest);
         }
-        chainSource.renewInstance();
+        chainSource.createWebsocketInstance(); // We need to recreate websocket instance to use new websocketExplorerURL
         await refetchTdexProvidersAndMarkets();
         resetAssetStore();
         resetWalletForRestoration();

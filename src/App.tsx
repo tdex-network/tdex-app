@@ -15,6 +15,7 @@ import PinSetting from './pages/PinSetting';
 import { RestoreWallet } from './pages/RestoreWallet';
 import { ShowMnemonicOnboarding } from './pages/ShowMnemonic/ShowMnemonicOnboarding';
 import Tabs from './pages/Tabs';
+import { chainSource } from './services/chainSource';
 import { useAppStore } from './store/appStore';
 import { useWalletStore } from './store/walletStore';
 
@@ -22,6 +23,7 @@ setupIonicReact();
 
 export const App: React.FC = () => {
   const isAppInitialized = useAppStore((state) => state.isAppInitialized);
+  const isSignedUp = useAppStore.getState().isSignedUp;
   const setIsSignedUp = useAppStore((state) => state.setIsSignedUp);
   const setIsAppInitialized = useAppStore((state) => state.setIsAppInitialized);
   const isAuthorized = useWalletStore((state) => state.isAuthorized);
@@ -67,6 +69,13 @@ export const App: React.FC = () => {
       if (!isAppInitialized) setIsAppInitialized(true);
     })();
   }, [isAppInitialized, setIsAppInitialized, setIsSignedUp]);
+
+  useEffect(() => {
+    if (isAppInitialized && isSignedUp) {
+      // We instantiate ws here because we need to wait for websocketExplorerURL to be set
+      chainSource.createWebsocketInstance();
+    }
+  }, [isAppInitialized, isSignedUp]);
 
   return (
     <IonApp>
