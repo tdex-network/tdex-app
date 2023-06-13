@@ -37,6 +37,7 @@ const checkIfPeginIsClaimable = (btcTx: TxHeuristic): boolean => {
 
 const OperationListItem: React.FC<SwapProps> = ({ tx, listType }) => {
   const network = useSettingsStore((state) => state.network);
+  const explorerBitcoinUI = useSettingsStore.getState().explorerBitcoinUI;
   const assets = useAssetStore((state) => state.assets);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
@@ -55,9 +56,16 @@ const OperationListItem: React.FC<SwapProps> = ({ tx, listType }) => {
         open: true,
       })}
       onClick={async () => {
-        clipboardCopy(await makeURLwithBlinders(Transaction.fromHex(txs[tx.txid].hex)), () => {
-          addSuccessToast('Transaction ID copied');
-        });
+        if (txs[tx.txid]?.hex) {
+          clipboardCopy(await makeURLwithBlinders(Transaction.fromHex(txs[tx.txid].hex)), () => {
+            addSuccessToast('Transaction ID copied');
+          });
+        }
+        if (isDepositBtc && !checkIfPeginIsClaimable(tx)) {
+          clipboardCopy(`${explorerBitcoinUI}/tx/${tx.txid}`, () => {
+            addSuccessToast('Transaction ID copied');
+          });
+        }
       }}
     >
       <IonRow>
@@ -144,12 +152,9 @@ const OperationListItem: React.FC<SwapProps> = ({ tx, listType }) => {
             <IonRow className="mt-1">
               {getConfirmationCount(tx.blockHeight) < 102 && (
                 <IonCol
-                  className={classNames(
-                    {
-                      'confirmations-pending': getConfirmationCount(tx.blockHeight) < 102,
-                    },
-                    'pl-1'
-                  )}
+                  className={classNames({
+                    'confirmations-pending': getConfirmationCount(tx.blockHeight) < 102,
+                  })}
                   offset="1"
                 >
                   {`Confirmations: ${getConfirmationCount(tx.blockHeight)} / 102`}

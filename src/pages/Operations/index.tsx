@@ -28,13 +28,14 @@ import { useToastStore } from '../../store/toastStore';
 import type { TxHeuristic } from '../../store/walletStore';
 import { TxType, useWalletStore } from '../../store/walletStore';
 import { LBTC_TICKER } from '../../utils/constants';
-import { ExplorerError } from '../../utils/errors';
+import { ExplorerError, UpdateDepositPeginUtxosError } from '../../utils/errors';
 import { isLbtcTicker } from '../../utils/helpers';
 import { compareTxDate } from '../../utils/transaction';
 
 export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
   const assets = useAssetStore((state) => state.assets);
   const fetchCurrentBtcBlockHeight = useBitcoinStore((state) => state.fetchCurrentBtcBlockHeight);
+  const fetchAndUpdateDepositPeginUtxos = useBitcoinStore((state) => state.fetchAndUpdateDepositPeginUtxos);
   const currency = useSettingsStore((state) => state.currency.ticker);
   const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
   const network = useSettingsStore((state) => state.network);
@@ -56,6 +57,12 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
       } catch (err) {
         console.error('fetchCurrentBtcBlockHeight failure', err);
         addErrorToast(ExplorerError, 4000);
+      }
+      try {
+        await fetchAndUpdateDepositPeginUtxos();
+      } catch (err) {
+        console.error('fetchAndUpdateDepositPeginUtxos failure', err);
+        addErrorToast(UpdateDepositPeginUtxosError, 4000);
       }
       // Compute heuristic for each tx
       const txsHeuristicArray: TxHeuristic[] = [];
@@ -82,7 +89,15 @@ export const Operations: React.FC<RouteComponentProps> = ({ history }) => {
       setTxsToDisplay(sortedTxs);
       setIsLoading(false);
     })();
-  }, [addErrorToast, asset_id, computeHeuristicFromPegins, computeHeuristicFromTx, fetchCurrentBtcBlockHeight, txs]);
+  }, [
+    addErrorToast,
+    asset_id,
+    computeHeuristicFromPegins,
+    computeHeuristicFromTx,
+    fetchAndUpdateDepositPeginUtxos,
+    fetchCurrentBtcBlockHeight,
+    txs,
+  ]);
 
   const ActionButtons = useMemo(
     () => (

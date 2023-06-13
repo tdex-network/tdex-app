@@ -98,6 +98,7 @@ $ yarn tdex:clean
 * Change elements configuration by
   adding `fedpegscript=51210269e0180bc9e0be7648d6e9c17f3664bc3ebcee40f3a46cf4b42e583e96b911b951ae` and
   commenting `initialfreecoins=2100000000000000`
+  Otherwise you should get error `{"code":-26,"message":"pegin-no-witness,nopeg-inwitnessattached"}`
 
 * Change LBTC_ASSET[network].assetHash in `./src/utils/constants.ts`
   to `056293ee681516f2d61bb7ce63030351d5e02d61aef9fb00d30f27f55d935b18`

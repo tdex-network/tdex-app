@@ -6,7 +6,6 @@ import * as btclib from 'bitcoinjs-lib';
 import type { ECPairInterface } from 'ecpair';
 import ECPairFactory from 'ecpair';
 import { confidential, script as bscript, Transaction } from 'liquidjs-lib';
-import { getNetwork } from 'liquidjs-lib/src/address';
 import ElementsPegin from 'pegin';
 import * as ecc from 'tiny-secp256k1';
 
@@ -89,10 +88,12 @@ export class BitcoinService {
           } catch (err: any) {
             // Prevent propagating error to caller to allow failure of claims but still return the claimTxs that succeeded
             console.error(err);
-            const open = err.response.data.indexOf('{');
-            const close = err.response.data.lastIndexOf('}');
-            const errJson = JSON.parse(err.response.data.substring(open, close + 1));
-            console.error(errJson.message);
+            if (err.response?.data) {
+              const open = err.response.data.indexOf('{');
+              const close = err.response.data.lastIndexOf('}');
+              const errJson = JSON.parse(err.response.data.substring(open, close + 1));
+              console.error(errJson.message);
+            }
           }
         }
       }
@@ -118,10 +119,10 @@ export class BitcoinService {
 
   generateSigningPrivKey(derivationPath: string, network: NetworkString): ECPairInterface {
     const child: BIP32Interface = this.masterNode.derivePath(derivationPath);
-    return ECPairFactory(ecc).fromWIF(child.toWIF(), getNetwork(network));
+    return ECPairFactory(ecc).fromWIF(child.toWIF());
   }
+}
 
-  async fetchBitcoinUtxos(address: string, explorerBitcoinAPI: string): Promise<DepositPeginUtxo[]> {
-    return (await axios.get(`${explorerBitcoinAPI}/address/${address}/utxo`)).data;
-  }
+export async function fetchBitcoinUtxos(address: string, explorerBitcoinAPI: string): Promise<DepositPeginUtxo[]> {
+  return (await axios.get(`${explorerBitcoinAPI}/address/${address}/utxo`)).data;
 }

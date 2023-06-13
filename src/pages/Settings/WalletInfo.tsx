@@ -7,6 +7,7 @@ import type { RouteComponentProps } from 'react-router';
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
 import { IconCopy } from '../../components/icons';
+import { useSettingsStore } from '../../store/settingsStore';
 import { useToastStore } from '../../store/toastStore';
 import { useWalletStore } from '../../store/walletStore';
 import { clipboardCopy } from '../../utils/clipboard';
@@ -17,9 +18,12 @@ interface WalletInfoProps extends RouteComponentProps {
 }
 
 export const WalletInfo: FC<WalletInfoProps> = () => {
+  const network = useSettingsStore((state) => state.network);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const masterPublicKeyMain = useWalletStore((state) => state.accounts?.main?.masterPublicKey);
   const derivationPathMain = useWalletStore((state) => state.accounts?.main?.derivationPath);
+  const masterPublicKeyTest = useWalletStore((state) => state.accounts?.test?.masterPublicKey);
+  const derivationPathTest = useWalletStore((state) => state.accounts?.test?.derivationPath);
   const derivationPathLegacy = useWalletStore((state) => state.accounts?.legacy?.derivationPath);
   const nextExternalIndexLegacy = useWalletStore((state) => state.accounts?.legacy?.nextExternalIndex);
   const nextInternalIndexLegacy = useWalletStore((state) => state.accounts?.legacy?.nextInternalIndex);
@@ -86,10 +90,21 @@ export const WalletInfo: FC<WalletInfoProps> = () => {
             description="Additional wallet information useful for view-only wallet restoration."
             title="Wallet Information"
           />
-          <h6 className="ion-text-left mt-8">Extended Public Key</h6>
-          <PubKeyComponent masterPublicKey={masterPublicKeyMain} />
-          <h6 className="ion-text-left mt-8">Base Derivation Path</h6>
-          <DerivationComponent derivationPath={derivationPathMain} />
+          {network === 'liquid' ? (
+            <>
+              <h6 className="ion-text-left mt-8">Extended Public Key</h6>
+              <PubKeyComponent masterPublicKey={masterPublicKeyMain} />
+              <h6 className="ion-text-left mt-8">Base Derivation Path</h6>
+              <DerivationComponent derivationPath={derivationPathMain} />
+            </>
+          ) : (
+            <>
+              <h6 className="ion-text-left mt-8">Extended Public Key</h6>
+              <PubKeyComponent masterPublicKey={masterPublicKeyTest} />
+              <h6 className="ion-text-left mt-8">Base Derivation Path</h6>
+              <DerivationComponent derivationPath={derivationPathTest} />
+            </>
+          )}
 
           {legacyAccountHasBeenUsed ? (
             <>

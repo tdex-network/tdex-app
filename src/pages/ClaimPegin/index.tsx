@@ -25,7 +25,9 @@ import { sleep } from '../../utils/helpers';
 
 // Claim Pegin Settings Page
 export const ClaimPegin: React.FC = () => {
-  const currentBtcBlockHeight = useBitcoinStore((state) => state.currentBtcBlockHeight);
+  const currentBtcBlockHeight = useBitcoinStore.getState().currentBtcBlockHeight;
+  const checkIfClaimablePeginUtxo = useBitcoinStore.getState().checkIfClaimablePeginUtxo;
+  const restorePeginsFromDepositAddress = useBitcoinStore.getState().restorePeginsFromDepositAddress;
   const pegins = useBitcoinStore((state) => state.pegins);
   const upsertPegins = useBitcoinStore((state) => state.upsertPegins);
   const explorerLiquidAPI = useSettingsStore((state) => state.explorerLiquidAPI);
@@ -70,6 +72,7 @@ export const ClaimPegin: React.FC = () => {
                   const utxos = Object.values(p.depositUtxos ?? []);
                   utxos.forEach((utxo: DepositPeginUtxo) => {
                     if (utxo.claimTxId) {
+                      console.error('watch utxo.claimTxId missing', utxo.claimTxId);
                       //watchTransaction(utxo.claimTxId);
                     }
                   });
@@ -78,10 +81,12 @@ export const ClaimPegin: React.FC = () => {
                 addSuccessToast(`Claim transaction successful`);
                 managePinSuccess().catch(console.error);
                 setInputBtcPeginAddress(undefined);
-                // checkIfClaimablePeginUtxo();
+                checkIfClaimablePeginUtxo();
+                console.error('updateState missing');
                 // updateState();
               } else {
                 addErrorToast(NoClaimFoundError);
+                managePinError(true).catch(console.error);
               }
             })
             .catch((err) => {
@@ -90,6 +95,7 @@ export const ClaimPegin: React.FC = () => {
               managePinError(true).catch(console.error);
             });
         } else {
+          setIsLoading(false);
           addErrorToast(NoClaimFoundError);
           managePinError(true).catch(console.error);
         }
@@ -131,8 +137,9 @@ export const ClaimPegin: React.FC = () => {
       addErrorToast(PinDigitsError);
       await managePinError();
     }
+    let decryptedMnemonic;
     try {
-      await decryptMnemonic(pin);
+      decryptedMnemonic = await decryptMnemonic(pin);
       setPin(pin);
     } catch (err) {
       console.error(err);
@@ -143,8 +150,8 @@ export const ClaimPegin: React.FC = () => {
       const addrTrimmed = inputBtcPeginAddress?.trim();
       if (addrTrimmed && bitcoinJS.address.toOutputScript(addrTrimmed, getBitcoinJSNetwork(network))) {
         setIsLoading(true);
-        setMnemonic(mnemonic);
-        // restorePeginFromDepositAddress(addrTrimmed);
+        setMnemonic(decryptedMnemonic);
+        restorePeginsFromDepositAddress(addrTrimmed);
       }
     } catch (err) {
       console.error(err);

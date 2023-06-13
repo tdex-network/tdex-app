@@ -39,15 +39,17 @@ export const NoMnemonicError = new AppError(17, 'No mnemonic found in wallet');
 export const ClaimPeginError = new AppError(18, 'Claim pegin bitcoin has failed');
 export const NoClaimFoundError = new AppError(19, 'No claims have been found');
 export const PeginRestorationError = new AppError(20, 'Pegin restoration has failed');
+export const UpdateDepositPeginUtxosError = new AppError(21, 'Deposit pegin utxo update error');
+
 //
-export const InvalidBitcoinAddress = new AppError(21, 'Invalid Bitcoin address');
-export const FailedToRestoreProvidersError = new AppError(22, 'Failed to restore providers');
-export const AppIsBusy = new AppError(23, 'App is busy. Please try in a moment');
-export const InvalidUrl = new AppError(24, 'Invalid URL');
+export const InvalidBitcoinAddress = new AppError(22, 'Invalid Bitcoin address');
+export const FailedToRestoreProvidersError = new AppError(23, 'Failed to restore providers');
+export const AppIsBusy = new AppError(24, 'App is busy. Please try in a moment');
+export const InvalidUrl = new AppError(25, 'Invalid URL');
 // When all providers are excluded except one
-export const NoOtherProvider = new AppError(25, 'No other provider to choose from');
+export const NoOtherProvider = new AppError(26, 'No other provider to choose from');
 //
 export const ExplorerError = new AppError(
-  26,
+  27,
   'Cannot fetch data from blockchain explorer. Consider switching to an other one if the problem persists'
 );
