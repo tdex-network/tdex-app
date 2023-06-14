@@ -12,6 +12,7 @@ import { create } from 'zustand';
 import { createJSONStorage, devtools, persist } from 'zustand/middleware';
 
 import type { UnblindedInput } from '../api-spec/protobuf/gen/js/tdex/v2/types_pb';
+import type { GetHistoryResponse } from '../services/chainSource';
 import { chainSource } from '../services/chainSource';
 import { getBaseDerivationPath, LBTC_ASSET, LBTC_COINGECKOID } from '../utils/constants';
 import type { Encrypted } from '../utils/crypto';
@@ -781,38 +782,41 @@ export const useWalletStore = create<WalletState & WalletActions>()(
         subscribeScript: async (script, isLastScript = true) => {
           // Run after all wallet state is ok (txs, outputs, scripts)
           const finalize = async () => {
-            console.log('finalize');
             await get().computeBalances();
             useAppStore.getState().setIsFetchingUtxos(false);
             useAppStore.getState().setIsFetchingTransactions(false);
           };
           // subscribeScriptStatus
           await chainSource.subscribeScriptStatus(script, async (_: string, __: string | null) => {
-            const history = (await chainSource.fetchHistories([script]))[0];
-            if (history.length === 0) {
+            try {
+              const history = (await chainSource.fetchHistories([script]))[0];
+              if (history.length === 0) {
+                if (isLastScript) await finalize();
+                return;
+              }
+              const historyTxId = history.map(({ tx_hash }) => tx_hash);
+              // If all txs associated with this script have been processed then return
+              const hasBeenProcessed = historyTxId
+                .map((txid) => Object.keys(get().txs[txid] ?? {}).length > 0)
+                .every((hasTxInStore) => hasTxInStore);
+              // We cannot return without finalizing in case missing it
+              // But we can't make sure the last script is the last being processed
+              // So we can't finalize here, need to wait for remaining running callbacks
+              if (hasBeenProcessed && !isLastScript) {
+                return;
+              }
+              const txs = await chainSource.fetchTransactions(historyTxId);
+              const txsObj = Object.fromEntries(txs.map(({ txid, hex }) => [txid, { hex }]));
+              const historyObj = Object.fromEntries(history.map(({ tx_hash, height }) => [tx_hash, { height }]));
+              const txsAndHistory = Object.fromEntries(
+                Object.entries(txsObj).map(([txid, tx]) => [txid, { ...tx, ...historyObj[txid] }])
+              );
+              set((state) => ({ txs: { ...state.txs, ...txsAndHistory } }), false, 'subscribeScript/txs');
+              await get().setOutputs();
               if (isLastScript) await finalize();
-              return;
+            } catch (err) {
+              console.error((err as Error).message);
             }
-            const historyTxId = history.map(({ tx_hash }) => tx_hash);
-            // If all txs associated with this script have been processed then return
-            const hasBeenProcessed = historyTxId
-              .map((txid) => Object.keys(get().txs[txid] ?? {}).length > 0)
-              .every((hasTxInStore) => hasTxInStore);
-            // We cannot return without finalizing in case missing it
-            // But we can't make sure the last script is the last being processed
-            // So we can't finalize here, need to wait for remaining running callbacks
-            if (hasBeenProcessed && !isLastScript) {
-              return;
-            }
-            const txs = await chainSource.fetchTransactions(historyTxId);
-            const txsObj = Object.fromEntries(txs.map(({ txid, hex }) => [txid, { hex }]));
-            const historyObj = Object.fromEntries(history.map(({ tx_hash, height }) => [tx_hash, { height }]));
-            const txsAndHistory = Object.fromEntries(
-              Object.entries(txsObj).map(([txid, tx]) => [txid, { ...tx, ...historyObj[txid] }])
-            );
-            set((state) => ({ txs: { ...state.txs, ...txsAndHistory } }), false, 'subscribeScript/txs');
-            await get().setOutputs();
-            if (isLastScript) await finalize();
           });
         },
         subscribeAllScripts: async () => {
@@ -824,7 +828,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
             useAppStore.getState().setIsFetchingUtxos(false);
             useAppStore.getState().setIsFetchingTransactions(false);
           }
-          // If retries of single script doesn't work then start over
+          // If all retries of single script fail then start over
           const subscribeAllScriptsFn = async () => {
             for (const [index, script] of scripts.entries()) {
               const isLastScript = index === scripts.length - 1;
@@ -860,7 +864,12 @@ export const useWalletStore = create<WalletState & WalletActions>()(
                 const publicKeys = get().deriveBatchPublicKeys(batchCount, batchCount + gapLimit, isInternal, account);
                 const scriptsWithDetails = publicKeys.map((publicKey) => get().createP2PWKHScript(publicKey));
                 const scripts = scriptsWithDetails.map(([script]) => Buffer.from(script, 'hex'));
-                const histories = await chainSource.fetchHistories(scripts);
+                let histories: GetHistoryResponse[] = [];
+                try {
+                  histories = await chainSource.fetchHistories(scripts);
+                } catch (err) {
+                  console.error((err as Error).message);
+                }
                 for (const [index, history] of histories.entries()) {
                   tempRestoredScripts[scriptsWithDetails[index][0]] = scriptsWithDetails[index][1];
                   if (history.length > 0) {

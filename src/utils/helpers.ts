@@ -26,17 +26,18 @@ export async function sleep(ms: number): Promise<any> {
 export async function retryWithDelay(
   fn: () => Promise<any>,
   retries = 3,
-  interval = 1000,
+  interval = 2000,
   finalErr = 'Retry failed'
 ): Promise<void> {
   try {
     await fn();
   } catch (err) {
-    console.debug(err);
-    console.debug(`${retries - 1} retries left`);
+    console.error((err as Error).message);
+    console.debug(`${retries} retries left`);
     // if no retries left
     // throw error
-    if (retries <= 0) {
+    if (retries === 0) {
+      console.error(finalErr);
       return Promise.reject(finalErr);
     }
     //delay the next call
