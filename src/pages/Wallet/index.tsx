@@ -11,6 +11,7 @@ import {
   IonRow,
   IonCol,
   IonSpinner,
+  useIonLoading,
 } from '@ionic/react';
 import { addCircleOutline } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
@@ -36,6 +37,7 @@ export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
   const isFetchingUtxos = useAppStore((state) => state.isFetchingUtxos);
   const isFetchingMarkets = useAppStore((state) => state.isFetchingMarkets);
   const isFetchingTransactions = useAppStore((state) => state.isFetchingTransactions);
+  const restorationProgress = useAppStore((state) => state.restorationProgress);
   const addAsset = useAssetStore((state) => state.addAsset);
   const assets = useAssetStore((state) => state.assets);
   const fetchAssetData = useAssetStore((state) => state.fetchAssetData);
@@ -50,6 +52,7 @@ export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
   const totalLbtc = useWalletStore((state) => state.totalBtc);
   //
   const [balancesSorted, setBalancesSorted] = useState<[string, Balance][]>([]);
+  const [presentRestorationLoader, dismissRestorationLoader] = useIonLoading();
 
   // Init
   useEffect(() => {
@@ -65,6 +68,38 @@ export const Wallet: React.FC<RouteComponentProps> = ({ history }) => {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Restoration progress
+  useEffect(() => {
+    (async () => {
+      if (isFetchingUtxos || isFetchingTransactions) {
+        if (restorationProgress?.nProcessingScript === restorationProgress?.nTotalScripts) {
+          await dismissRestorationLoader(); // trick to refresh text content
+          await presentRestorationLoader({
+            message: 'Hang on, we are almost there!',
+            animated: false,
+            spinner: null,
+          });
+        } else {
+          await dismissRestorationLoader(); // trick to refresh text content
+          await presentRestorationLoader({
+            message: `${restorationProgress?.nProcessingScript} scripts out of ${restorationProgress?.nTotalScripts} processed`,
+            animated: false,
+            spinner: null,
+          });
+        }
+      } else {
+        await dismissRestorationLoader();
+      }
+    })();
+  }, [
+    dismissRestorationLoader,
+    presentRestorationLoader,
+    isFetchingTransactions,
+    isFetchingUtxos,
+    restorationProgress?.nProcessingScript,
+    restorationProgress?.nTotalScripts,
+  ]);
 
   useEffect(() => {
     (async () => {

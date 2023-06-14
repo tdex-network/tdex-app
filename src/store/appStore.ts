@@ -10,6 +10,10 @@ interface AppState {
   isFetchingMarkets: boolean;
   isFetchingTransactions: boolean;
   isSignedUp: boolean;
+  restorationProgress?: {
+    nProcessingScript: number;
+    nTotalScripts: number;
+  };
 }
 
 interface AppActions {
@@ -19,6 +23,7 @@ interface AppActions {
   setIsFetchingMarkets: (isFetchingMarkets: boolean) => void;
   setIsFetchingTransactions: (isFetchingTransactions: boolean) => void;
   setIsSignedUp: (isSignedUp: boolean) => void;
+  setRestorationProgress: (nProcessingScript: number, nTotalScripts: number) => void;
   resetAppStore: () => void;
 }
 
@@ -43,6 +48,17 @@ export const useAppStore = create<AppState & AppActions>()(
         setIsFetchingTransactions: (isFetchingTransactions) =>
           set({ isFetchingTransactions }, false, 'setIsFetchingTransactions'),
         setIsSignedUp: (isSignedUp) => set({ isSignedUp }, false, 'setIsSignedUp'),
+        setRestorationProgress: (nProcessingScript, nTotalScripts) =>
+          set(
+            {
+              restorationProgress: {
+                nProcessingScript,
+                nTotalScripts,
+              },
+            },
+            false,
+            'setRestorationProgress'
+          ),
         resetAppStore: () => set(initialState, false, 'resetAppStore'),
       }),
       {

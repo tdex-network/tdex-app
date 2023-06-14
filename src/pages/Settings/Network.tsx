@@ -50,7 +50,6 @@ const Network = (): JSX.Element => {
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   const resetWalletForRestoration = useWalletStore((state) => state.resetWalletForRestoration);
   const sync = useWalletStore((state) => state.sync);
-  const computeBalances = useWalletStore((state) => state.computeBalances);
   const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
 
   const handleNetworkChange = async (ev: CustomEvent<SelectChangeEventDetail<NetworkString>>) => {
@@ -102,8 +101,7 @@ const Network = (): JSX.Element => {
         resetAssetStore();
         resetWalletForRestoration();
         await sync();
-        await subscribeAllScripts();
-        await computeBalances();
+        await subscribeAllScripts(); // balance is computed at the last script subscription
         addSuccessToast(`Network and explorer endpoints successfully updated`);
       } catch (err) {
         console.error(err);

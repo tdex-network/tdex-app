@@ -272,7 +272,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           };
           const utxos = get().computeUtxosFromTxs();
           let balances: Balances = {};
-          for (const utxo of utxos) {
+          for (const [index, utxo] of utxos.entries()) {
             if (utxo?.blindingData) {
               const assetHash = utxo.blindingData?.asset;
               const assetAmount = utxo.blindingData?.value;
@@ -295,7 +295,9 @@ export const useWalletStore = create<WalletState & WalletActions>()(
                   .replace(/\.?0+$/, '');
               }
             }
+            console.debug(`${index + 1} outputs out of ${utxos.length} processed`);
           }
+          // Compute counter-value and total balance
           let totalSats = 0;
           let totalCounterValue = '0';
           try {
@@ -779,6 +781,7 @@ export const useWalletStore = create<WalletState & WalletActions>()(
         subscribeScript: async (script, isLastScript = true) => {
           // Run after all wallet state is ok (txs, outputs, scripts)
           const finalize = async () => {
+            console.log('finalize');
             await get().computeBalances();
             useAppStore.getState().setIsFetchingUtxos(false);
             useAppStore.getState().setIsFetchingTransactions(false);
@@ -824,11 +827,14 @@ export const useWalletStore = create<WalletState & WalletActions>()(
           // If retries of single script doesn't work then start over
           const subscribeAllScriptsFn = async () => {
             for (const [index, script] of scripts.entries()) {
-              console.debug(`${index + 1} script out of ${scripts.length} subscribed`);
               const isLastScript = index === scripts.length - 1;
               try {
                 await retryWithDelay(() => get().subscribeScript(script, isLastScript));
+                console.debug(`${index + 1} script out of ${scripts.length} subscribed`);
+                useAppStore.getState().setRestorationProgress(index + 1, scripts.length);
               } catch (err) {
+                console.debug('One script subscription failed, starting over');
+                console.error(err);
                 await subscribeAllScriptsFn();
               }
             }
