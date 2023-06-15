@@ -17,6 +17,7 @@ import useDidMountEffect from '../../hooks/useDidMountEffect';
 import { chainSource } from '../../services/chainSource';
 import { useAppStore } from '../../store/appStore';
 import { useAssetStore } from '../../store/assetStore';
+import { useBitcoinStore } from '../../store/bitcoinStore';
 import {
   configProduction,
   configRegtest,
@@ -36,6 +37,7 @@ const Network = (): JSX.Element => {
   const isFetchingMarkets = useAppStore((state) => state.isFetchingMarkets);
   const isFetchingTransactions = useAppStore((state) => state.isFetchingTransactions);
   const resetAssetStore = useAssetStore((state) => state.resetAssetStore);
+  const resetBitcoinStore = useBitcoinStore((state) => state.resetBitcoinStore);
   const setExplorerLiquidAPI = useSettingsStore((state) => state.setExplorerLiquidAPI);
   const setExplorerLiquidUI = useSettingsStore((state) => state.setExplorerLiquidUI);
   const setExplorerBitcoinAPI = useSettingsStore((state) => state.setExplorerBitcoinAPI);
@@ -100,6 +102,7 @@ const Network = (): JSX.Element => {
         await refetchTdexProvidersAndMarkets();
         resetAssetStore();
         resetWalletForRestoration();
+        resetBitcoinStore();
         await sync();
         await subscribeAllScripts(); // balance is computed at the last script subscription
         addSuccessToast(`Network and explorer endpoints successfully updated`);

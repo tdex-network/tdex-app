@@ -89,10 +89,10 @@ const OperationListItem: React.FC<SwapProps> = ({ tx, listType }) => {
             <IonCol size="5">
               <div className="asset">
                 {isDepositBtc && 'Receive BTC'}
-                {(isDeposit || isWithdraw) && `${TxType[tx.type]} ${assets[tx?.asset ?? ''].ticker}`}
+                {(isDeposit || isWithdraw) && `${TxType[tx.type]} ${assets[tx?.asset ?? '']?.ticker}`}
                 {isSwap &&
                   `${TxType[tx.type]} ${assets[tx.swapSent?.asset ?? '']?.ticker}/${
-                    assets[tx.swapReceived?.asset ?? ''].ticker
+                    assets[tx.swapReceived?.asset ?? '']?.ticker
                   }`}
               </div>
             </IonCol>

@@ -160,8 +160,8 @@ export const CURRENCIES: Currency[] = [
 export const LBTC_UNITS = ['L-BTC', 'L-mBTC', 'L-bits', 'L-sats'] as const;
 export type LbtcUnit = (typeof LBTC_UNITS)[number];
 
-export const TOAST_TIMEOUT_SUCCESS = 3000;
-export const TOAST_TIMEOUT_FAILURE = 3000;
+export const TOAST_TIMEOUT_SUCCESS = 4000;
+export const TOAST_TIMEOUT_FAILURE = 4000;
 export const PIN_TIMEOUT_SUCCESS = 800;
 export const PIN_TIMEOUT_FAILURE = 2000;
 
