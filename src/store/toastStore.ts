@@ -7,7 +7,7 @@ import type { AppError } from '../utils/errors';
 export type ToastType = 'success' | 'error' | 'warning' | 'claim-pegin';
 
 export interface Toast {
-  ID: number;
+  id: number;
   message: string;
   type: ToastType;
   buttons?: ToastButton[];
@@ -33,9 +33,9 @@ interface ToastActions {
 // using to increment toast ID
 let nextID = 0;
 
-function createToast({ message, type, errorCode, duration, cssClass, position }: Omit<Toast, 'ID'>): Toast {
+function createToast({ message, type, errorCode, duration, cssClass, position }: Omit<Toast, 'id'>): Toast {
   return {
-    ID: nextID++,
+    id: nextID++,
     message,
     type,
     errorCode,
@@ -47,9 +47,11 @@ function createToast({ message, type, errorCode, duration, cssClass, position }:
 
 export const useToastStore = create<ToastState & ToastActions>()(
   devtools(
-    (set) => ({
+    (set, get) => ({
       toasts: [],
       addSuccessToast: (message, duration) => {
+        const isMsgInState = get().toasts.some((t) => t.message === message);
+        if (isMsgInState) return;
         set(
           (state) => ({
             toasts: [
@@ -66,6 +68,8 @@ export const useToastStore = create<ToastState & ToastActions>()(
         );
       },
       addErrorToast: (error, duration) => {
+        const isMsgInState = get().toasts.some((t) => t.message === error.toToastMessage());
+        if (isMsgInState) return;
         set(
           (state) => ({
             toasts: [
@@ -83,12 +87,15 @@ export const useToastStore = create<ToastState & ToastActions>()(
         );
       },
       addClaimPeginToast: () => {
+        const message = 'You have some bitcoins ready to be claimed!';
+        const isMsgInState = get().toasts.some((t) => t.message === message);
+        if (isMsgInState) return;
         set(
           (state) => ({
             toasts: [
               ...state.toasts,
               createToast({
-                message: 'You have some bitcoins ready to be claimed!',
+                message: message,
                 type: 'claim-pegin',
                 duration: 0,
                 cssClass: 'claim',
@@ -101,7 +108,7 @@ export const useToastStore = create<ToastState & ToastActions>()(
         );
       },
       removeToast: (toastID) => {
-        set((state) => ({ toasts: state.toasts.filter(({ ID }) => ID !== toastID) }), false, 'removeToast');
+        set((state) => ({ toasts: state.toasts.filter(({ id }) => id !== toastID) }), false, 'removeToast');
       },
       removeToastByType: (toastType) => {
         set((state) => ({ toasts: state.toasts.filter(({ type }) => type !== toastType) }), false, 'removeToastByType');

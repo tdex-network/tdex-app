@@ -96,7 +96,7 @@ export const Toasts: React.FC = () => {
     <div>
       {toasts.map((toast: Toast, index) => (
         <CreateAnimation
-          key={toast.ID}
+          key={toast.id}
           ref={toast.type === 'claim-pegin' ? animationRef : undefined}
           play={true}
           progressStart={progressStart}
@@ -108,7 +108,7 @@ export const Toasts: React.FC = () => {
             color={toastColor(toast.type)}
             duration={toast?.duration ?? toastDuration(toast.type)}
             message={toast.message}
-            onDidDismiss={() => removeToast(toast.ID)}
+            onDidDismiss={() => removeToast(toast.id)}
             position={toast?.position ?? 'top'}
             cssClass={`${toast?.cssClass} ion-toast-${index + 1}`}
             buttons={buttons(toast)}
