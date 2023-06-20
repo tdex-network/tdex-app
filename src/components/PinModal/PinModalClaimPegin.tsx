@@ -4,6 +4,7 @@ import { BitcoinService } from '../../services/bitcoinService';
 import { useBitcoinStore } from '../../store/bitcoinStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { useToastStore } from '../../store/toastStore';
+import { useWalletStore } from '../../store/walletStore';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
 import { ClaimPeginError, IncorrectPINError, NoClaimFoundError, PinDigitsError } from '../../utils/errors';
 import { sleep } from '../../utils/helpers';
@@ -13,6 +14,7 @@ import PinModal from './index';
 
 export const PinModalClaimPegin: React.FC = () => {
   const pegins = useBitcoinStore((state) => state.pegins);
+  const checkIfClaimablePeginUtxo = useBitcoinStore((state) => state.checkIfClaimablePeginUtxo);
   const modalClaimPegin = useBitcoinStore((state) => state.modalClaimPegin);
   const currentBtcBlockHeight = useBitcoinStore((state) => state.currentBtcBlockHeight);
   const setModalClaimPegin = useBitcoinStore((state) => state.setModalClaimPegin);
@@ -23,6 +25,7 @@ export const PinModalClaimPegin: React.FC = () => {
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const removeToastByType = useToastStore((state) => state.removeToastByType);
+  const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
   //
   const [needReset, setNeedReset] = useState<boolean>(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
@@ -76,6 +79,7 @@ export const PinModalClaimPegin: React.FC = () => {
             await managePinSuccess();
             setModalClaimPegin({ claimScriptToClaim: undefined });
             removeToastByType('claim-pegin');
+            subscribeAllScripts();
           } else {
             addErrorToast(NoClaimFoundError);
             managePinError(true).catch(console.log);
@@ -105,7 +109,7 @@ export const PinModalClaimPegin: React.FC = () => {
           setModalClaimPegin({ isOpen: false });
           // Recreate toast (needs rerender)
           removeToastByType('claim-pegin');
-          // checkIfClaimablePeginUtxo();
+          checkIfClaimablePeginUtxo();
         }}
         isWrongPin={isWrongPin}
         needReset={needReset}

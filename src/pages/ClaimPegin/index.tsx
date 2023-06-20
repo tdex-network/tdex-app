@@ -25,9 +25,9 @@ import { sleep } from '../../utils/helpers';
 
 // Claim Pegin Settings Page
 export const ClaimPegin: React.FC = () => {
-  const currentBtcBlockHeight = useBitcoinStore.getState().currentBtcBlockHeight;
-  const checkIfClaimablePeginUtxo = useBitcoinStore.getState().checkIfClaimablePeginUtxo;
-  const restorePeginsFromDepositAddress = useBitcoinStore.getState().restorePeginsFromDepositAddress;
+  const currentBtcBlockHeight = useBitcoinStore((state) => state.currentBtcBlockHeight);
+  const checkIfClaimablePeginUtxo = useBitcoinStore((state) => state.checkIfClaimablePeginUtxo);
+  const restorePeginsFromDepositAddress = useBitcoinStore((state) => state.restorePeginsFromDepositAddress);
   const pegins = useBitcoinStore((state) => state.pegins);
   const upsertPegins = useBitcoinStore((state) => state.upsertPegins);
   const explorerLiquidAPI = useSettingsStore((state) => state.explorerLiquidAPI);
@@ -38,6 +38,7 @@ export const ClaimPegin: React.FC = () => {
   const addErrorToast = useToastStore((state) => state.addErrorToast);
   const addSuccessToast = useToastStore((state) => state.addSuccessToast);
   const decryptMnemonic = useWalletStore((state) => state.decryptMnemonic);
+  const subscribeAllScripts = useWalletStore((state) => state.subscribeAllScripts);
   // Pin Modal
   const [pin, setPin] = useState<string>('');
   const [needReset, setNeedReset] = useState<boolean>(false);
@@ -73,6 +74,7 @@ export const ClaimPegin: React.FC = () => {
                 managePinSuccess().catch(console.error);
                 setInputBtcPeginAddress(undefined);
                 checkIfClaimablePeginUtxo();
+                subscribeAllScripts();
               } else {
                 addErrorToast(NoClaimFoundError);
                 managePinError(true).catch(console.error);
