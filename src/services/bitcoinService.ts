@@ -71,13 +71,14 @@ export class BitcoinService {
           depositUtxo.status.block_height && currentBtcBlockHeight - depositUtxo.status.block_height + 1;
         // Continue if utxo not claimed and claimable
         if (!depositUtxo.claimTxId && confirmations && confirmations >= 102) {
+          let signedClaimTxHex;
           try {
             const ecPair = this.generateSigningPrivKey(pegin.depositAddress.derivationPath, network);
             const btcPeginTxHex = (await axios.get(`${explorerBitcoinAPI}/tx/${depositUtxo.txid}/hex`)).data;
             const btcBlockProof = (await axios.get(`${explorerBitcoinAPI}/tx/${depositUtxo.txid}/merkleblock-proof`))
               .data;
             const claimTxHex = await peginModule.claimTx(btcPeginTxHex, btcBlockProof, claimScript);
-            const signedClaimTxHex = this.signClaimTx(claimTxHex, btcPeginTxHex, claimScript, ecPair);
+            signedClaimTxHex = this.signClaimTx(claimTxHex, btcPeginTxHex, claimScript, ecPair);
             const claimTxId = await chainSource.broadcastTransaction(signedClaimTxHex);
             // Add claimTxId so that UI can show that the utxo has been claimed
             pegin.depositUtxos[outpoint] = {
@@ -91,6 +92,22 @@ export class BitcoinService {
               },
             });
           } catch (err: any) {
+            // If claimTxId is already in blockchain, add updated depositUtxo to store so that UI can show it
+            if (
+              signedClaimTxHex &&
+              err.message === 'sendrawtransactionRPCerror:{"code":-27,"message":"Transactionalreadyinblockchain"}'
+            ) {
+              pegin.depositUtxos[outpoint] = {
+                ...depositUtxo,
+                claimTxId: Transaction.fromHex(signedClaimTxHex).getId(),
+              };
+              claimedPegins = Object.assign({}, claimedPegins, {
+                [claimScript]: {
+                  depositAddress: pegin.depositAddress,
+                  depositUtxos: pegin.depositUtxos,
+                },
+              });
+            }
             // Prevent propagating error to caller to allow failure of claims but still return the claimTxs that succeeded
             console.error(err);
             if (err.response?.data) {

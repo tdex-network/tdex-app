@@ -81,8 +81,6 @@ export const RestoreWallet: React.FC<RouteComponentProps> = ({ history }) => {
 
   const onError = (e: AppError) => {
     console.error(e);
-    //clearStorage().catch(console.error);
-    // TODO: remove specific wrong state
     addErrorToast(e);
     setIsWrongPin(true);
     setLoading(false);
