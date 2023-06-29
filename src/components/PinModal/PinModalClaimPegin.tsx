@@ -79,7 +79,7 @@ export const PinModalClaimPegin: React.FC = () => {
             await managePinSuccess();
             setModalClaimPegin({ claimScriptToClaim: undefined });
             removeToastByType('claim-pegin');
-            subscribeAllScripts();
+            await subscribeAllScripts();
           } else {
             addErrorToast(NoClaimFoundError);
             managePinError(true).catch(console.log);

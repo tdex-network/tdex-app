@@ -66,15 +66,15 @@ export const ClaimPegin: React.FC = () => {
           const bitcoinService = await BitcoinService.fromPin(pin);
           bitcoinService
             .claimPegins(explorerBitcoinAPI, explorerLiquidAPI, pegins, currentBtcBlockHeight, network)
-            .then((successPegins) => {
+            .then(async (successPegins) => {
               if (Object.keys(successPegins).length) {
                 setClaimedPegins(successPegins);
                 upsertPegins(successPegins);
                 addSuccessToast(`Claim transaction successful`);
-                managePinSuccess().catch(console.error);
+                await managePinSuccess().catch(console.error);
                 setInputBtcPeginAddress(undefined);
-                checkIfClaimablePeginUtxo();
-                subscribeAllScripts();
+                await checkIfClaimablePeginUtxo();
+                await subscribeAllScripts();
               } else {
                 addErrorToast(NoClaimFoundError);
                 managePinError(true).catch(console.error);
