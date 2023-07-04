@@ -78,6 +78,10 @@ export interface GetMarketPriceResponse {
      * @generated from protobuf field: uint64 min_tradable_amount = 2 [jstype = JS_STRING];
      */
     minTradableAmount: string;
+    /**
+     * @generated from protobuf field: tdex.v2.Balance balance = 3;
+     */
+    balance?: Balance;
 }
 /**
  * @generated from protobuf message tdex.v2.PreviewTradeRequest

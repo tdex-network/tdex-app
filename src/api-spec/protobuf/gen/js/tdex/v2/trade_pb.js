@@ -250,7 +250,8 @@ class GetMarketPriceResponse$Type extends MessageType {
     constructor() {
         super("tdex.v2.GetMarketPriceResponse", [
             { no: 1, name: "spot_price", kind: "scalar", T: 1 /*ScalarType.DOUBLE*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
-            { no: 2, name: "min_tradable_amount", kind: "scalar", T: 4 /*ScalarType.UINT64*/, options: { "google.api.field_behavior": ["REQUIRED"] } }
+            { no: 2, name: "min_tradable_amount", kind: "scalar", T: 4 /*ScalarType.UINT64*/, options: { "google.api.field_behavior": ["REQUIRED"] } },
+            { no: 3, name: "balance", kind: "message", T: () => Balance, options: { "google.api.field_behavior": ["REQUIRED"] } }
         ]);
     }
     create(value) {
@@ -271,6 +272,9 @@ class GetMarketPriceResponse$Type extends MessageType {
                 case /* uint64 min_tradable_amount = 2 [jstype = JS_STRING];*/ 2:
                     message.minTradableAmount = reader.uint64().toString();
                     break;
+                case /* tdex.v2.Balance balance */ 3:
+                    message.balance = Balance.internalBinaryRead(reader, reader.uint32(), options, message.balance);
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -289,6 +293,9 @@ class GetMarketPriceResponse$Type extends MessageType {
         /* uint64 min_tradable_amount = 2 [jstype = JS_STRING]; */
         if (message.minTradableAmount !== "0")
             writer.tag(2, WireType.Varint).uint64(message.minTradableAmount);
+        /* tdex.v2.Balance balance = 3; */
+        if (message.balance)
+            Balance.internalBinaryWrite(message.balance, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
