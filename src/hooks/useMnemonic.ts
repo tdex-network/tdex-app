@@ -7,7 +7,7 @@ export const useMnemonic = (
   const setMnemonicWord = (word: string, index: number) => {
     const mnemonicCopy = [...mnemonic];
     // Check if string has multiple words
-    const wordsArray = word.split(' ').slice(0, 12);
+    const wordsArray = word.trim().split(' ').slice(0, 12);
     if (wordsArray.length > 1) {
       wordsArray.forEach((w, i) => {
         mnemonicCopy[i] = w.trim().toLowerCase();
