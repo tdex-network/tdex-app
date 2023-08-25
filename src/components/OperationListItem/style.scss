@@ -1,0 +1,63 @@
+.transaction-item {
+  &::part(native) {
+    width: 100%;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  ion-row {
+    align-items: start;
+    width: 100%;
+  }
+
+  .icon {
+    padding-right: 10px;
+    display: flex;
+
+    img {
+      height: 16px;
+      width: 16px;
+
+      &:nth-child(2) {
+        transform: translateX(-8px);
+      }
+    }
+  }
+
+  .asset {
+    font-family: var(--ion-font-main);
+    font-size: var(--ion-font-size-sub);
+  }
+
+  .time {
+    font-family: var(--ion-font-sub-heading);
+    font-size: var(--ion-font-size-sub-xs);
+    color: var(--ion-color-tertiary);
+    line-height: 18px;
+  }
+
+  .trade-amount {
+    font-family: var(--ion-font-sub-heading);
+    font-size: var(--ion-font-size-sub);
+
+    span.ticker {
+      font-family: var(--ion-font-sub);
+      font-size: var(--ion-font-size-sub-s);
+      margin-left: 1vw;
+      align-items: center;
+      display: inline-flex;
+    }
+  }
+
+  .extra-infos {
+    width: 100%;
+    font-family: var(--ion-font-sub-heading);
+    font-size: var(--ion-font-size-sub-xs);
+    color: var(--ion-color-tertiary);
+    line-break: anywhere;
+
+    .confirmations-pending {
+      color: rgba(var(--ion-color-warning-rgb), 0.6);
+    }
+  }
+}

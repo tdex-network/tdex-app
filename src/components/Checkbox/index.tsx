@@ -1,3 +1,5 @@
+import './style.scss';
+
 import { Capacitor } from '@capacitor/core';
 import { Keyboard } from '@capacitor/keyboard';
 import { IonCol, IonRow } from '@ionic/react';
@@ -5,8 +7,6 @@ import type { ChangeEvent, HTMLAttributes, PropsWithChildren } from 'react';
 import React, { useEffect } from 'react';
 
 import { IconCheck } from '../icons';
-
-import './style.scss';
 
 interface CheckboxProps extends PropsWithChildren<HTMLAttributes<any>> {
   handleChange: (checked: boolean) => void;

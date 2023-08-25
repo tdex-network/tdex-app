@@ -13,84 +13,89 @@ import {
   IonAlert,
   IonSpinner,
 } from '@ionic/react';
+import { Buffer } from 'buffer';
 import classNames from 'classnames';
 import { closeOutline } from 'ionicons/icons';
-import type { StateRestorerOpts } from 'ldk';
-import { mnemonicRestorerFromState } from 'ldk';
 import React, { useCallback, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
-import type { NetworkString, UnblindedOutput } from 'tdex-sdk';
 
+import type { UnblindedInput } from '../../api-spec/protobuf/gen/js/tdex/v2/types_pb';
 import tradeHistory from '../../assets/img/trade-history.svg';
 import Header from '../../components/Header';
 import Loader from '../../components/Loader';
 import PinModal from '../../components/PinModal';
 import Refresher from '../../components/Refresher';
 import type { TdexOrderInputResult } from '../../components/TdexOrderInput';
-import TdexOrderInput from '../../components/TdexOrderInput';
+import { TdexOrderInput } from '../../components/TdexOrderInput';
 import { useTradeState } from '../../components/TdexOrderInput/hooks';
-import type { TDEXMarket, TDEXProvider } from '../../redux/actionTypes/tdexActionTypes';
-import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import { setIsFetchingUtxos } from '../../redux/actions/appActions';
-import { updateMarkets } from '../../redux/actions/tdexActions';
-import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
-import { watchTransaction } from '../../redux/actions/transactionsActions';
-import { unlockUtxos, updateUtxos } from '../../redux/actions/walletActions';
-import { useTypedDispatch } from '../../redux/hooks';
-import { balancesSelector, lastUsedIndexesSelector, unlockedUtxosSelector } from '../../redux/reducers/walletReducer';
-import type { RootState } from '../../redux/types';
 import { routerLinks } from '../../routes';
-import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
-import {
-  AppError,
-  IncorrectPINError,
-  NoMarketsAvailableForSelectedPairError,
-  NoOtherProvider,
-} from '../../utils/errors';
-import { customCoinSelector } from '../../utils/helpers';
-import { getConnectedTDexMnemonic } from '../../utils/storage-helper';
-import { getTradablesAssets, makeTrade } from '../../utils/tdex';
+import { SignerService } from '../../services/signerService';
+import { getTradablesAssets, makeTradeV1, makeTradeV2 } from '../../services/tdexService';
+import type {
+  TDEXMarket as TDEXMarketV1,
+  TDEXProvider,
+  TradeOrder as TradeOrderV1,
+} from '../../services/tdexService/v1/tradeCore';
+import type { TDEXMarket as TDEXMarketV2, TradeOrder as TradeOrderV2 } from '../../services/tdexService/v2/tradeCore';
+import { useAppStore } from '../../store/appStore';
+import { useAssetStore } from '../../store/assetStore';
+import { useSettingsStore } from '../../store/settingsStore';
+import { useTdexStore } from '../../store/tdexStore';
+import { useToastStore } from '../../store/toastStore';
+import type { CoinSelectionForTrade } from '../../store/walletStore';
+import { useWalletStore } from '../../store/walletStore';
+import { defaultPrecision, PIN_TIMEOUT_FAILURE } from '../../utils/constants';
+import { AppError, NoMarketsAvailableForSelectedPairError, NoOtherProvider } from '../../utils/errors';
+import { isLbtc, outpointToString } from '../../utils/helpers';
+import { createAmountAndUnit, fromSatoshi } from '../../utils/unitConversion';
 import type { PreviewData } from '../TradeSummary';
 
 import ExchangeErrorModal from './ExchangeErrorModal';
 
-export interface ExchangeConnectedProps {
-  balances: BalanceInterface[];
-  explorerLiquidAPI: string;
-  isFetchingMarkets: boolean;
-  lastUsedIndexes: StateRestorerOpts;
-  markets: TDEXMarket[];
-  network: NetworkString;
-  providers: TDEXProvider[];
-  torProxy: string;
-  utxos: UnblindedOutput[];
-}
-
-type Props = RouteComponentProps & ExchangeConnectedProps;
-
-const Exchange: React.FC<Props> = ({
-  balances,
-  explorerLiquidAPI,
-  history,
-  isFetchingMarkets,
-  lastUsedIndexes,
-  markets,
-  network,
-  providers,
-  torProxy,
-  utxos,
-}) => {
-  const dispatch = useTypedDispatch();
+export const Exchange: React.FC<RouteComponentProps> = ({ history }) => {
+  const isFetchingMarkets = useAppStore((state) => state.isFetchingMarkets);
+  const explorerLiquidAPI = useSettingsStore((state) => state.explorerLiquidAPI);
+  const network = useSettingsStore((state) => state.network);
+  const torProxy = useSettingsStore((state) => state.torProxy);
+  const getProtoVersion = useTdexStore((state) => state.getProtoVersion);
+  const markets = useTdexStore((state) => state.markets);
+  const providers = useTdexStore((state) => state.providers);
+  const refetchTdexProvidersAndMarkets = useTdexStore((state) => state.refetchTdexProvidersAndMarkets);
+  const addErrorToast = useToastStore((state) => state.addErrorToast);
+  const addSuccessToast = useToastStore((state) => state.addSuccessToast);
+  const masterBlindingKey = useWalletStore((state) => state.masterBlindingKey);
+  const unlockOutpoints = useWalletStore((state) => state.unlockOutpoints);
+  //
   const [tdexOrderInputResult, setTdexOrderInputResult] = useState<TdexOrderInputResult>();
   const [excludedProviders, setExcludedProviders] = useState<TDEXProvider[]>([]);
   const [showExcludedProvidersAlert, setShowExcludedProvidersAlert] = useState(false);
-  const [tradeError, setTradeError] = useState<AppError>();
+  const [tradeError, setTradeError] = useState<AppError | Error>();
 
-  const getPinModalDescription = () =>
-    `Enter your secret PIN to send ${tdexOrderInputResult?.send.amount} ${tdexOrderInputResult?.send.unit} and receive ${tdexOrderInputResult?.receive.amount} ${tdexOrderInputResult?.receive.unit}.`;
+  const getPinModalDescription = () => {
+    if (!tdexOrderInputResult) return 'Trade preview error';
+    const assets = useAssetStore.getState().assets;
+    const lbtcUnit = useSettingsStore.getState().lbtcUnit;
+    const tradeFeeAmount = fromSatoshi(
+      tradeFeeSats ?? 0,
+      assets[tradeFeeAsset]?.precision ?? defaultPrecision,
+      isLbtc(tradeFeeAsset, network) ? lbtcUnit : undefined
+    );
+    const receiveAmountMinusFees = Number(tdexOrderInputResult?.receive.amount ?? 0) - tradeFeeAmount;
+    return `Enter your secret PIN to send ${tdexOrderInputResult?.send.amount} ${tdexOrderInputResult?.send.unit} and
+          receive ${receiveAmountMinusFees.toFixed(8)} ${tdexOrderInputResult?.receive.unit}
+    ${
+      tdexOrderInputResult.providerVersion === 'v2'
+        ? `(${tdexOrderInputResult?.receive.amount} ${tdexOrderInputResult?.receive.unit} minus ${tradeFeeAmount} ${tdexOrderInputResult?.receive.unit} of trading fees)`
+        : ''
+    }`;
+  };
 
-  const getProviderName = (endpoint: string) => markets.find((m) => m.provider.endpoint === endpoint)?.provider.name;
+  const getProviderName = (endpoint: string) => {
+    return (
+      markets.v1.find((m) => m.provider.endpoint === endpoint)?.provider.name ||
+      markets.v2.find((m) => m.provider.endpoint === endpoint)?.provider.name
+    );
+  };
 
   // confirm flow
   const [needReset, setNeedReset] = useState<boolean>(false);
@@ -99,44 +104,63 @@ const Exchange: React.FC<Props> = ({
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
 
   const isSameProviderEndpoint = (provider: TDEXProvider) =>
-    function (market: TDEXMarket) {
+    function (market: TDEXMarketV1 | TDEXMarketV2) {
       return market.provider.endpoint === provider.endpoint;
     };
 
-  const withoutProviders = (...providers: TDEXProvider[]) =>
-    function (market: TDEXMarket) {
-      const isSameProviderFns = providers.map(isSameProviderEndpoint);
-      for (const fn of isSameProviderFns) {
-        if (fn(market)) return false;
-      }
-      return true;
-    };
-
-  const getAllMarketsFromNotExcludedProviders = useCallback(
-    () => markets.filter(withoutProviders(...excludedProviders)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [markets]
+  const withoutProviders = useCallback(
+    (...providers: TDEXProvider[]) =>
+      (market: TDEXMarketV1 | TDEXMarketV2) => {
+        const isSameProviderFns = providers.map(isSameProviderEndpoint);
+        for (const fn of isSameProviderFns) {
+          if (fn(market)) return false;
+        }
+        return true;
+      },
+    []
   );
 
-  const getAllMarketsFromNotExcludedProvidersAndOnlySelectedPair = (providerToBan: TDEXProvider) => {
-    return markets
-      .filter(withoutProviders(...[...excludedProviders, providerToBan]))
-      .filter(
-        (m) =>
-          (m.baseAsset === sendAsset || m.baseAsset === receiveAsset) &&
-          (m.quoteAsset === sendAsset || m.quoteAsset === receiveAsset)
-      );
+  const getAllMarketsFromNotExcludedProviders = useCallback(
+    () => ({
+      v1: markets.v1.filter(withoutProviders(...excludedProviders)),
+      v2: markets.v2.filter(withoutProviders(...excludedProviders)),
+    }),
+    [excludedProviders, markets.v1, markets.v2, withoutProviders]
+  );
+
+  const getAllMarketsFromNotExcludedProvidersAndOnlySelectedPair = (
+    providerToBan: TDEXProvider
+  ): (TDEXMarketV1 | TDEXMarketV2)[] => {
+    return [
+      ...markets.v1
+        .filter(withoutProviders(...[...excludedProviders, providerToBan]))
+        .filter(
+          (m) =>
+            (m.baseAsset === sendAsset || m.baseAsset === receiveAsset) &&
+            (m.quoteAsset === sendAsset || m.quoteAsset === receiveAsset)
+        ),
+      ...markets.v2
+        .filter(withoutProviders(...[...excludedProviders, providerToBan]))
+        .filter(
+          (m) =>
+            (m.baseAsset === sendAsset || m.baseAsset === receiveAsset) &&
+            (m.quoteAsset === sendAsset || m.quoteAsset === receiveAsset)
+        ),
+    ];
   };
 
   const getAllProvidersExceptExcluded = () =>
     providers.filter((p) => !excludedProviders.map((p) => p.endpoint).includes(p.endpoint));
 
   const [showNoProvidersAvailableAlert, setShowNoProvidersAvailableAlert] = useState<boolean>(
-    !!getAllMarketsFromNotExcludedProviders().length
+    !!getAllMarketsFromNotExcludedProviders().v1.length && !!getAllMarketsFromNotExcludedProviders().v2.length
   );
 
   useEffect(() => {
-    if (getAllMarketsFromNotExcludedProviders().length > 0) {
+    const hasAtLeastOneMarket =
+      getAllMarketsFromNotExcludedProviders().v1.length > 0 || getAllMarketsFromNotExcludedProviders().v2.length > 0;
+
+    if (hasAtLeastOneMarket) {
       setShowNoProvidersAvailableAlert(false);
     } else {
       setShowNoProvidersAvailableAlert(true);
@@ -164,39 +188,34 @@ const Exchange: React.FC<Props> = ({
     setHasBeenSwapped,
     setSendAssetHasChanged,
     setReceiveAssetHasChanged,
-  ] = useTradeState(getAllMarketsFromNotExcludedProviders(), balances);
+    tradeFeeSats,
+    tradeFeeAsset,
+  ] = useTradeState(getAllMarketsFromNotExcludedProviders());
 
-  const getIdentity = async (pin: string) => {
-    try {
-      const toRestore = await getConnectedTDexMnemonic(pin, dispatch, network);
-      setIsWrongPin(false);
-      setTimeout(() => {
-        setIsWrongPin(null);
-        setNeedReset(true);
-      }, PIN_TIMEOUT_SUCCESS);
-      return mnemonicRestorerFromState(toRestore)(lastUsedIndexes);
-    } catch {
-      throw IncorrectPINError;
-    }
-  };
-
-  const handleSuccess = (txid: string) => {
-    dispatch(watchTransaction(txid));
-    // Trigger spinner right away
-    dispatch(setIsFetchingUtxos(true));
-    // But update after a few seconds to make sure new utxo is ready to fetch
-    setTimeout(() => dispatch(updateUtxos()), 12_000);
+  const handleSuccess = async (txid: string) => {
+    if (!tdexOrderInputResult) return;
+    // Persist trade addresses
+    await useWalletStore.getState().getNextAddress(false);
+    await useWalletStore.getState().getNextAddress(true);
     addSuccessToast('Trade successfully computed');
+    const sendAmountAndUnit = createAmountAndUnit({
+      sats: tdexOrderInputResult.send.sats,
+      asset: tdexOrderInputResult.send.asset,
+    });
+    const receiveAmountAndUnit = createAmountAndUnit({
+      sats: (tdexOrderInputResult.receive.sats ?? 0) - (tradeFeeSats ?? 0),
+      asset: tdexOrderInputResult.receive.asset,
+    });
     const preview: PreviewData = {
       sent: {
-        asset: tdexOrderInputResult?.send.asset ?? '',
-        ticker: tdexOrderInputResult?.send.unit || 'unknown',
-        amount: `-${tdexOrderInputResult?.send.amount || '??'}`,
+        asset: tdexOrderInputResult.send.asset ?? '',
+        ticker: sendAmountAndUnit.unit || 'unknown',
+        amount: `-${sendAmountAndUnit.amount || '??'}`,
       },
       received: {
-        asset: tdexOrderInputResult?.receive.asset ?? '',
-        ticker: tdexOrderInputResult?.receive.unit || 'unknown',
-        amount: tdexOrderInputResult?.receive.amount || '??',
+        asset: tdexOrderInputResult.receive.asset ?? '',
+        ticker: receiveAmountAndUnit.unit || 'unknown',
+        amount: receiveAmountAndUnit.amount || '??',
       },
     };
     history.replace(`/tradesummary/${txid}`, { preview });
@@ -205,32 +224,108 @@ const Exchange: React.FC<Props> = ({
   // make and broadcast trade, then push to trade summary page
   const onPinConfirm = async (pin: string) => {
     setPINModalOpen(false);
-    if (!tdexOrderInputResult) return;
+    if (!tdexOrderInputResult) {
+      console.error('tdexOrderInputResult is missing');
+      return;
+    }
     setIsBusyMakingTrade(true);
     try {
-      const identity = await getIdentity(pin);
+      const signer = await SignerService.fromPassword(pin);
+      if (!tdexOrderInputResult.send.asset) {
+        throw new Error('No send asset');
+      }
+      const { utxos, changeOutputs } = await useWalletStore.getState().selectUtxos(
+        [
+          {
+            address: '',
+            value: tdexOrderInputResult?.send.sats ?? 0,
+            asset: tdexOrderInputResult.send.asset,
+          },
+        ],
+        true
+      );
+      let witnessUtxos: CoinSelectionForTrade['witnessUtxos'] = {};
+      for (const utxo of utxos) {
+        const witnessUtxo = await useWalletStore.getState().getWitnessUtxo(utxo.txid, utxo.vout);
+        if (witnessUtxo) {
+          witnessUtxos[
+            outpointToString({
+              txid: utxo.txid,
+              vout: utxo.vout,
+            })
+          ] = witnessUtxo;
+        }
+      }
+      const unblindedWitnessUtxos = await useWalletStore.getState().unblindUtxos(Object.values(witnessUtxos));
+      const unblindedInputs = unblindedWitnessUtxos
+        .map((input, index) => {
+          if (!(input instanceof Error)) {
+            return {
+              index: index,
+              asset: input.asset,
+              amount: input.value.toString(),
+              assetBlinder: Buffer.from(input.assetBlindingFactor, 'hex').reverse().toString('hex'),
+              amountBlinder: Buffer.from(input.valueBlindingFactor, 'hex').reverse().toString('hex'),
+            };
+          }
+          return undefined;
+        })
+        .filter((input): input is UnblindedInput => !!input);
+      const coinSelectionForTrade: CoinSelectionForTrade = {
+        witnessUtxos,
+        changeOutputs,
+        unblindedInputs,
+      };
+
+      // Dry run address generation
+      const addressForChangeOutput = await useWalletStore.getState().getNextAddress(true, true);
+      if (!addressForChangeOutput.confidentialAddress) throw new Error('No address for change');
+      const addressForSwapOutput = await useWalletStore.getState().getNextAddress(false, true);
+      if (!addressForSwapOutput.confidentialAddress) throw new Error('No address for output');
+
       // propose and complete tdex trade
       // broadcast via liquid explorer
-      const txid = await makeTrade(
-        tdexOrderInputResult.order,
-        { amount: tdexOrderInputResult.send.sats ?? 0, asset: tdexOrderInputResult.send.asset ?? '' },
-        identity,
-        explorerLiquidAPI,
-        utxos,
-        customCoinSelector(dispatch),
-        torProxy
-      );
-      handleSuccess(txid);
+      let txid;
+      const version = await getProtoVersion(tdexOrderInputResult.order.traderClient.providerUrl);
+      if (version === 'v1') {
+        txid = await makeTradeV1(
+          tdexOrderInputResult?.order as TradeOrderV1,
+          { amount: tdexOrderInputResult?.send.sats ?? 0, asset: tdexOrderInputResult?.send.asset ?? '' },
+          explorerLiquidAPI,
+          coinSelectionForTrade,
+          signer,
+          masterBlindingKey,
+          network,
+          addressForChangeOutput,
+          addressForSwapOutput,
+          torProxy
+        );
+      } else {
+        txid = await makeTradeV2(
+          tdexOrderInputResult?.order as TradeOrderV2,
+          { amount: tdexOrderInputResult?.send.sats ?? 0, asset: tdexOrderInputResult?.send.asset ?? '' },
+          explorerLiquidAPI,
+          coinSelectionForTrade,
+          signer,
+          masterBlindingKey,
+          network,
+          addressForChangeOutput,
+          addressForSwapOutput,
+          torProxy
+        );
+      }
+      await handleSuccess(txid);
     } catch (err) {
-      dispatch(unlockUtxos());
+      console.error(err);
       setIsWrongPin(true);
       setTimeout(() => {
         setIsWrongPin(null);
         setNeedReset(true);
       }, PIN_TIMEOUT_FAILURE);
-      if (err instanceof AppError) {
+      if (err instanceof AppError || err instanceof Error) {
         setTradeError(err);
       }
+      await unlockOutpoints();
     } finally {
       setIsBusyMakingTrade(false);
     }
@@ -243,7 +338,7 @@ const Exchange: React.FC<Props> = ({
         setTdexOrderInputResult(undefined);
       }
       if (getAllMarketsFromNotExcludedProvidersAndOnlySelectedPair(providerToBan).length === 0) {
-        dispatch(addErrorToast(NoMarketsAvailableForSelectedPairError));
+        addErrorToast(NoMarketsAvailableForSelectedPairError);
         // Set next possible trading pair
         setSendLoader(false);
         setReceiveLoader(false);
@@ -260,7 +355,7 @@ const Exchange: React.FC<Props> = ({
         }
       }
     } else {
-      dispatch(addErrorToast(NoOtherProvider));
+      addErrorToast(NoOtherProvider);
     }
   };
 
@@ -275,14 +370,18 @@ const Exchange: React.FC<Props> = ({
           !tradeError &&
           getAllProvidersExceptExcluded().length > 0 &&
           // At least one market is available, otherwise we display NoProvidersAvailableAlert
-          markets.length > 0
+          (markets.v1.length > 0 || markets.v2.length > 0)
         }
         message="Discovering TDEX providers with best liquidity..."
         delay={0}
         backdropDismiss={true}
         duration={15000}
         onDidDismiss={() => {
-          if (providers.length === 0 || getAllMarketsFromNotExcludedProviders().length === 0)
+          if (
+            providers.length === 0 ||
+            (getAllMarketsFromNotExcludedProviders().v1.length === 0 &&
+              getAllMarketsFromNotExcludedProviders().v2.length === 0)
+          )
             setShowNoProvidersAvailableAlert(true);
         }}
       />
@@ -320,8 +419,8 @@ const Exchange: React.FC<Props> = ({
           },
           {
             text: 'Retry',
-            handler: () => {
-              dispatch(updateMarkets());
+            handler: async () => {
+              await refetchTdexProvidersAndMarkets();
               // false then true to trigger rerender if already true
               setShowNoProvidersAvailableAlert(false);
               setShowNoProvidersAvailableAlert(true);
@@ -330,7 +429,8 @@ const Exchange: React.FC<Props> = ({
         ]}
       />
 
-      {getAllMarketsFromNotExcludedProviders().length > 0 && (
+      {(getAllMarketsFromNotExcludedProviders().v1.length > 0 ||
+        getAllMarketsFromNotExcludedProviders().v2.length > 0) && (
         <IonContent className="exchange-content">
           <Refresher />
           <IonGrid className="ion-no-padding">
@@ -414,7 +514,7 @@ const Exchange: React.FC<Props> = ({
                     sendLoader ||
                     receiveLoader
                   }
-                  onClick={() => {
+                  onClick={async () => {
                     setPINModalOpen(true);
                   }}
                 >
@@ -423,7 +523,7 @@ const Exchange: React.FC<Props> = ({
               </IonCol>
             </IonRow>
 
-            {tdexOrderInputResult && sendSats !== 0 && (
+            {tdexOrderInputResult?.order.market && tdexOrderInputResult.order.traderClient && sendSats !== 0 && (
               <IonRow className="market-provider ion-margin-vertical-x2 ion-text-center">
                 <IonCol size="10" offset="1">
                   <IonText className="trade-info" color="light">
@@ -447,19 +547,3 @@ const Exchange: React.FC<Props> = ({
     </IonPage>
   );
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    balances: balancesSelector(state),
-    explorerLiquidAPI: state.settings.explorerLiquidAPI,
-    isFetchingMarkets: state.app.isFetchingMarkets,
-    lastUsedIndexes: lastUsedIndexesSelector(state),
-    markets: state.tdex.markets,
-    network: state.settings.network,
-    providers: state.tdex.providers,
-    torProxy: state.settings.torProxy,
-    utxos: unlockedUtxosSelector(state),
-  };
-};
-
-export default connect(mapStateToProps)(Exchange);

@@ -108,7 +108,7 @@ end
 
 desc 'Various checks for git branch'
 lane :git_check do
-  ensure_git_branch
+  ensure_git_branch(branch: 'master')
   ensure_git_status_clean
   git_pull
 end

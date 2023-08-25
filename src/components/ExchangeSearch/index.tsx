@@ -2,20 +2,21 @@ import { IonContent, IonList, IonModal, IonHeader, IonItem, IonInput, IonIcon } 
 import { closeSharp, searchSharp } from 'ionicons/icons';
 import React, { useState } from 'react';
 
-import type { CurrencyInterface } from '../../redux/reducers/settingsReducer';
-import type { AssetConfig } from '../../utils/constants';
+import type { Asset } from '../../store/assetStore';
+import type { Currency } from '../../store/settingsStore';
+import { useWalletStore } from '../../store/walletStore';
 import CurrencyIcon from '../CurrencyIcon';
 
 interface ExchangeSearchProps {
-  assets: AssetConfig[];
-  setAsset: (newAsset: AssetConfig) => void;
+  assets: Asset[];
+  setAsset: (newAsset: Asset) => void;
   isOpen: boolean;
   close: (ev: any) => void;
-  prices: Record<string, number>;
-  currency: CurrencyInterface;
+  currency: Currency;
 }
 
-const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsset, isOpen, close, currency }) => {
+const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ assets, setAsset, isOpen, close, currency }) => {
+  const balances = useWalletStore((state) => state.balances);
   const [searchString, setSearchString] = useState('');
 
   return (
@@ -39,14 +40,14 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsse
         {assets.length > 0 ? (
           <IonList>
             {assets
-              .filter((asset?: AssetConfig) =>
+              .filter((asset?: Asset) =>
                 asset
                   ? asset.assetHash.toLowerCase().includes(searchString) ||
                     asset.ticker.toLowerCase().includes(searchString) ||
                     asset.coinGeckoID?.toLowerCase().includes(searchString)
                   : false
               )
-              .map((asset: AssetConfig, index: number) => {
+              .map((asset: Asset, index: number) => {
                 return (
                   <IonItem
                     className="ion-no-margin"
@@ -64,7 +65,7 @@ const ExchangeSearch: React.FC<ExchangeSearchProps> = ({ prices, assets, setAsse
                       <p>{asset.ticker}</p>
                     </div>
                     <div className="search-item-amount">
-                      <span className="price">{(asset.coinGeckoID && prices[asset.coinGeckoID]) || '0'}</span>
+                      <span className="price">{balances?.[asset.assetHash]?.counterValue ?? '0'}</span>
                       <span className="fiat-currency">{currency.symbol}</span>
                     </div>
                   </IonItem>

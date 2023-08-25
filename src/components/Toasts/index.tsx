@@ -2,25 +2,18 @@ import type { Gesture, ToastButton, GestureDetail } from '@ionic/react';
 import { createGesture, IonToast, CreateAnimation } from '@ionic/react';
 import type { CreateAnimationProps } from '@ionic/react/dist/types/components/CreateAnimation';
 import React, { useCallback, useRef, useState } from 'react';
-import { connect } from 'react-redux';
-import type { Dispatch } from 'redux';
 
-import { setModalClaimPegin } from '../../redux/actions/btcActions';
-import { removeAllToast, removeToast, removeToastByType } from '../../redux/actions/toastActions';
-import { useTypedDispatch } from '../../redux/hooks';
-import type { ToastOpts, ToastType } from '../../redux/reducers/toastReducer';
-import type { RootState } from '../../redux/types';
+import { useBitcoinStore } from '../../store/bitcoinStore';
+import type { Toast, ToastType } from '../../store/toastStore';
+import { useToastStore } from '../../store/toastStore';
 import { TOAST_TIMEOUT_FAILURE, TOAST_TIMEOUT_SUCCESS } from '../../utils/constants';
 
-interface ToastsProps {
-  toasts: ToastOpts[];
-  removeToast: (ID: number) => any;
-  removeAllToast: () => void;
-  removeToastByType: (type: ToastType) => void;
-}
-
-const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast, removeToastByType }) => {
-  const dispatch = useTypedDispatch();
+export const Toasts: React.FC = () => {
+  const setModalClaimPegin = useBitcoinStore((state) => state.setModalClaimPegin);
+  const toasts = useToastStore((state) => state.toasts);
+  const removeToast = useToastStore((state) => state.removeToast);
+  const removeToastByType = useToastStore((state) => state.removeToastByType);
+  //
   const [progressStart, setProgressStart] = useState<CreateAnimationProps['progressStart']>();
   const [progressEnd, setProgressEnd] = useState<CreateAnimationProps['progressEnd']>();
   const [onFinish, setOnFinish] = useState<CreateAnimationProps['onFinish']>();
@@ -84,16 +77,14 @@ const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast, removeToastByType 
     [INITIAL_CLAIM_TOAST_POSITION, onEnd, onMove]
   );
 
-  const buttons = (toast: ToastOpts): (string | ToastButton)[] | undefined => {
+  const buttons = (toast: Toast): (string | ToastButton)[] | undefined => {
     if (toast.type === 'claim-pegin') {
       return [
         {
           side: 'end',
           role: 'claim',
           text: 'CLAIM NOW',
-          handler: () => {
-            dispatch(setModalClaimPegin({ isOpen: true }));
-          },
+          handler: () => setModalClaimPegin({ isOpen: true }),
         },
       ];
     } else {
@@ -103,9 +94,9 @@ const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast, removeToastByType 
 
   return (
     <div>
-      {toasts.map((toast: ToastOpts) => (
+      {toasts.map((toast: Toast, index) => (
         <CreateAnimation
-          key={toast.ID}
+          key={toast.id}
           ref={toast.type === 'claim-pegin' ? animationRef : undefined}
           play={true}
           progressStart={progressStart}
@@ -117,9 +108,9 @@ const Toasts: React.FC<ToastsProps> = ({ toasts, removeToast, removeToastByType 
             color={toastColor(toast.type)}
             duration={toast?.duration ?? toastDuration(toast.type)}
             message={toast.message}
-            onDidDismiss={() => removeToast(toast.ID)}
+            onDidDismiss={() => removeToast(toast.id)}
             position={toast?.position ?? 'top'}
-            cssClass={toast?.cssClass}
+            cssClass={`${toast?.cssClass} ion-toast-${index + 1}`}
             buttons={buttons(toast)}
           />
         </CreateAnimation>
@@ -149,19 +140,3 @@ function toastColor(toastType: ToastType): string {
       return toastColor('success');
   }
 }
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    toasts: state.toasts,
-  };
-};
-
-const mapDispatchToProps = (dispatch: Dispatch) => {
-  return {
-    removeToast: (ID: number) => dispatch(removeToast(ID)),
-    removeAllToast: () => dispatch(removeAllToast()),
-    removeToastByType: (type: ToastType) => dispatch(removeToastByType(type)),
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Toasts);

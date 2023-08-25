@@ -1,6 +1,6 @@
 import './style.scss';
-import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 import { Capacitor } from '@capacitor/core';
+import { BarcodeScanner } from '@capacitor-community/barcode-scanner';
 import {
   IonButton,
   IonCol,
@@ -11,30 +11,29 @@ import {
   useIonViewDidEnter,
   useIonViewWillLeave,
 } from '@ionic/react';
-import Decimal from 'decimal.js';
-import React from 'react';
-import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useLocation, useParams, withRouter } from 'react-router';
-import type { NetworkString } from 'tdex-sdk';
 
 import Header from '../../components/Header';
-import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
+import { useToastStore } from '../../store/toastStore';
 import { decodeBip21 } from '../../utils/bip21';
-import type { LbtcDenomination } from '../../utils/constants';
+import type { LbtcUnit, NetworkString } from '../../utils/constants';
 import { QRCodeScanError } from '../../utils/errors';
-import { isLbtc, fromLbtcToUnit } from '../../utils/helpers';
+import { isLbtc } from '../../utils/helpers';
+import { fromLbtcToUnit } from '../../utils/unitConversion';
 
 interface LocationState {
   address: string;
   amount: string;
-  lbtcUnit: LbtcDenomination;
+  lbtcUnit: LbtcUnit;
   precision: number;
   network: NetworkString;
 }
 
 const QRCodeScanner = ({ history }: RouteComponentProps): JSX.Element => {
-  const dispatch = useDispatch();
+  const addErrorToast = useToastStore((state) => state.addErrorToast);
+  const addSuccessToast = useToastStore((state) => state.addSuccessToast);
+  //
   const { state } = useLocation<LocationState>();
   const { asset_id } = useParams<{ asset_id: string }>();
 
@@ -66,7 +65,7 @@ const QRCodeScanner = ({ history }: RouteComponentProps): JSX.Element => {
             const unit = isLbtc((options?.assetid ?? asset_id) as string, state.network) ? state.lbtcUnit : undefined;
             // If no amount in URI return amount from input field
             const amtConverted = options?.amount
-              ? fromLbtcToUnit(new Decimal(options?.amount as string), unit, state?.precision).toString()
+              ? fromLbtcToUnit(Number(options?.amount ?? 0), unit, state?.precision).toString()
               : state.amount;
             history.replace(`/withdraw/${options?.assetid ?? asset_id}`, {
               address,
@@ -78,12 +77,12 @@ const QRCodeScanner = ({ history }: RouteComponentProps): JSX.Element => {
               amount: state.amount,
             });
           }
-          dispatch(addSuccessToast('Address scanned!'));
+          addSuccessToast('Address scanned!');
         }
         await stopScan();
       } catch (err) {
         console.error(err);
-        dispatch(addErrorToast(QRCodeScanError));
+        addErrorToast(QRCodeScanError);
       }
     }
   });

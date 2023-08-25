@@ -1,34 +1,36 @@
 import './style.scss';
 
 import {
-  IonContent,
-  IonList,
-  IonItem,
-  IonPage,
-  IonListHeader,
-  IonText,
-  IonIcon,
-  IonGrid,
-  IonRow,
   IonCol,
+  IonContent,
+  IonGrid,
+  IonIcon,
+  IonItem,
+  IonList,
+  IonListHeader,
+  IonPage,
+  IonRow,
+  IonText,
 } from '@ionic/react';
 import { chevronForwardOutline, eye, lockOpen, trashOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { withRouter } from 'react-router';
 
 import ChangePinModals from '../../../components/ChangePinModals';
 import Header from '../../../components/Header';
 import PinModal from '../../../components/PinModal';
-import { addErrorToast } from '../../../redux/actions/toastActions';
 import { routerLinks } from '../../../routes';
+import { useToastStore } from '../../../store/toastStore';
+import { useWalletStore } from '../../../store/walletStore';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../../utils/constants';
-import { IncorrectPINError } from '../../../utils/errors';
-import { getMnemonicFromStorage } from '../../../utils/storage-helper';
+import { decrypt } from '../../../utils/crypto';
+import { IncorrectPINError, NoMnemonicError } from '../../../utils/errors';
 
 const Account: React.FC<RouteComponentProps> = ({ history }) => {
-  const dispatch = useDispatch();
+  const addErrorToast = useToastStore((state) => state.addErrorToast);
+  const encryptedMnemonic = useWalletStore((state) => state.encryptedMnemonic);
+  //
   const [routeToGo, setRouteToGo] = useState<string>();
   const [showChangePinModal, setShowChangePinModal] = useState(false);
 
@@ -37,37 +39,40 @@ const Account: React.FC<RouteComponentProps> = ({ history }) => {
   const [needPinReset, setPinNeedReset] = useState<boolean>(false);
   const [pinModalOpen, setPinModalOpen] = useState(false);
 
-  const handlePinConfirm = (pin: string) => {
-    getMnemonicFromStorage(pin)
-      .then((mnemonic) => {
-        setIsWrongPin(false);
+  const handlePinConfirm = async (pin: string) => {
+    if (!encryptedMnemonic) {
+      addErrorToast(NoMnemonicError);
+      return;
+    }
+    try {
+      const decryptedMnemonic = await decrypt(encryptedMnemonic, pin);
+      setIsWrongPin(false);
+      setPinNeedReset(true);
+      setTimeout(() => {
+        setPinModalOpen(false);
+        setIsWrongPin(null);
+        if (routeToGo === '/settings/show-mnemonic') {
+          history.replace({
+            pathname: routeToGo,
+            state: { mnemonic: decryptedMnemonic },
+          });
+        }
+        if (routeToGo === '/settings/delete-mnemonic') {
+          history.replace({
+            pathname: routeToGo,
+            state: { pin },
+          });
+        }
+      }, PIN_TIMEOUT_SUCCESS);
+    } catch (err) {
+      setIsWrongPin(true);
+      setTimeout(() => {
+        setIsWrongPin(null);
         setPinNeedReset(true);
-        setTimeout(() => {
-          setPinModalOpen(false);
-          setIsWrongPin(null);
-          if (routeToGo === '/settings/show-mnemonic') {
-            history.replace({
-              pathname: routeToGo,
-              state: { mnemonic },
-            });
-          }
-          if (routeToGo === '/settings/delete-mnemonic') {
-            history.replace({
-              pathname: routeToGo,
-              state: { pin },
-            });
-          }
-        }, PIN_TIMEOUT_SUCCESS);
-      })
-      .catch((e) => {
-        setIsWrongPin(true);
-        setTimeout(() => {
-          setIsWrongPin(null);
-          setPinNeedReset(true);
-        }, PIN_TIMEOUT_FAILURE);
-        dispatch(addErrorToast(IncorrectPINError));
-        console.error(e);
-      });
+      }, PIN_TIMEOUT_FAILURE);
+      addErrorToast(IncorrectPINError);
+      console.error(err);
+    }
   };
 
   return (

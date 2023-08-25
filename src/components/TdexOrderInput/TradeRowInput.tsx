@@ -1,89 +1,80 @@
 import './style.scss';
 import { IonIcon, IonInput, IonSpinner, IonText } from '@ionic/react';
 import classNames from 'classnames';
-import Decimal from 'decimal.js';
 import { chevronDownOutline } from 'ionicons/icons';
 import React, { useEffect, useRef, useState } from 'react';
-import { connect } from 'react-redux';
-import type { NetworkString } from 'tdex-sdk';
+import type { Asset } from 'src/store/assetStore';
+import { useAssetStore } from 'src/store/assetStore';
 
 import ExchangeSearch from '../../components/ExchangeSearch';
 import { useDelayedRender } from '../../hooks/useDelayedRender';
-import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import type { CurrencyInterface } from '../../redux/reducers/settingsReducer';
-import { balanceByAssetSelector } from '../../redux/reducers/walletReducer';
-import type { RootState } from '../../redux/types';
-import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
-import { defaultPrecision } from '../../utils/constants';
-import { fromSatoshiFixed, fromUnitToLbtc, isLbtc, isLbtcTicker, toSatoshi } from '../../utils/helpers';
+import { useAppStore } from '../../store/appStore';
+import { useRateStore } from '../../store/rateStore';
+import { useSettingsStore } from '../../store/settingsStore';
+import { useWalletStore } from '../../store/walletStore';
+import { defaultPrecision, LBTC_COINGECKOID } from '../../utils/constants';
+import { isLbtc, isLbtcTicker } from '../../utils/helpers';
 import { sanitizeInputAmount } from '../../utils/input';
 import { onPressEnterKeyCloseKeyboard } from '../../utils/keyboard';
+import { fromSatoshiFixed, fromUnitToLbtc, toSatoshi } from '../../utils/unitConversion';
 import CurrencyIcon from '../CurrencyIcon';
 
 export type ExchangeRowValue = {
   amount: string;
-  asset: AssetConfig;
+  asset: Asset;
 };
-
-interface ConnectedProps {
-  lbtcUnit: LbtcDenomination;
-  balance?: BalanceInterface;
-  prices: Record<string, number>;
-  selectedAssetPrice: number;
-  currency: CurrencyInterface;
-  network: NetworkString;
-  isFetchingTransactions: boolean;
-}
 
 interface ComponentProps {
   type: 'send' | 'receive';
   isLoading: boolean;
-  assetSelected?: AssetConfig;
+  assetSelected?: Asset;
   sats?: number;
   onChangeAsset: (asset: string) => void;
   onChangeSats: (sats: number) => void;
   error?: Error;
-  searchableAssets: AssetConfig[];
+  searchableAssets: Asset[];
   onFocus: () => void;
 }
 
-type Props = ConnectedProps & ComponentProps;
+type Props = ComponentProps;
 
 const DelayedSpinner: React.FC<{ isLoading: boolean }> = ({ isLoading }) => {
   return useDelayedRender(400, isLoading)(() => <IonSpinner name="dots" />);
 };
 
-const TradeRowInput: React.FC<Props> = ({
+export const TradeRowInput: React.FC<Props> = ({
   type,
   assetSelected,
   sats,
   isLoading,
-  lbtcUnit,
   onChangeAsset,
   onChangeSats,
-  balance,
-  prices,
-  selectedAssetPrice,
   error,
-  currency,
   searchableAssets,
   onFocus,
-  network,
-  isFetchingTransactions,
 }) => {
+  const isFetchingTransactions = useAppStore((state) => state.isFetchingTransactions);
+  const assets = useAssetStore((state) => state.assets);
+  const rates = useRateStore((state) => state.rates);
+  const currency = useSettingsStore((state) => state.currency);
+  const lbtcUnit = useSettingsStore((state) => state.lbtcUnit);
+  const network = useSettingsStore((state) => state.network);
+  const balances = useWalletStore((state) => state.balances);
+  //
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const inputRef = useRef<HTMLIonInputElement>(null);
   const [inputValue, setInputValue] = useState('');
   const [localError, setLocalError] = useState<Error>();
-  const onSelectAsset = (asset: AssetConfig) => onChangeAsset(asset.assetHash);
+  const [tradeCounterValue, setTradeCounterValue] = useState<string>('0');
+  const onSelectAsset = (asset: Asset) => onChangeAsset(asset.assetHash);
 
-  const onInputAmount = (amount: string) => {
+  const onInputAmount = (amount: number) => {
     if (!assetSelected) return;
     const unitLBTC = isLbtc(assetSelected.assetHash, network) ? lbtcUnit : undefined;
-    const stringAmount = sanitizeInputAmount(amount, setInputValue, unitLBTC);
+    const stringAmount = sanitizeInputAmount(amount.toString(), setInputValue, unitLBTC);
     // If value is 0, use placeholder value
     setInputValue(stringAmount === '0' ? '' : stringAmount);
-    const satoshis = toSatoshi(stringAmount, assetSelected.precision, unitLBTC).toNumber();
+    const satoshis = toSatoshi(Number(stringAmount), assetSelected.precision, unitLBTC);
     onChangeSats(satoshis);
   };
 
@@ -105,13 +96,22 @@ const TradeRowInput: React.FC<Props> = ({
       return;
     }
     const newAmountFromSats = fromSatoshiFixed(
-      sats.toString(10),
+      sats,
       assetSelected?.precision || defaultPrecision,
       assetSelected?.precision || defaultPrecision,
       isLbtc(assetSelected?.assetHash ?? '', network) ? lbtcUnit : undefined
     );
     setInputValue(newAmountFromSats);
-  }, [sats, assetSelected, lbtcUnit, network]);
+    // TODO: add counter value for fiat
+    if (rates && isLbtc(assetSelected?.assetHash ?? '', network)) {
+      const cv =
+        fromUnitToLbtc(
+          Number(inputValue),
+          isLbtcTicker(assets[assetSelected?.assetHash ?? '']?.ticker || '') ? lbtcUnit : undefined
+        ) * rates[LBTC_COINGECKOID][currency.ticker];
+      setTradeCounterValue(cv.toFixed(2));
+    }
+  }, [sats, assetSelected, lbtcUnit, network, rates, inputValue, assets, currency.ticker]);
 
   return (
     <div className="exchange-coin-container">
@@ -172,23 +172,13 @@ const TradeRowInput: React.FC<Props> = ({
           onClick={() => {
             if (!inputRef.current) return;
             inputRef.current.setFocus().catch(console.error);
-            onInputAmount(
-              fromSatoshiFixed(
-                balance?.amount.toString() || '0',
-                balance?.precision ?? defaultPrecision,
-                balance?.precision ?? defaultPrecision,
-                isLbtcTicker(balance?.ticker || '') ? lbtcUnit : undefined
-              )
-            );
+            onInputAmount(Number(balances?.[assetSelected?.assetHash ?? '']?.value ?? 0));
           }}
         >
           <span>Total balance:</span>
-          <span>{`${fromSatoshiFixed(
-            balance?.amount.toString() || '0',
-            balance?.precision ?? defaultPrecision,
-            balance?.precision ?? defaultPrecision,
-            isLbtcTicker(balance?.ticker || '') ? lbtcUnit : undefined
-          )} ${isLbtcTicker(balance?.ticker || '') ? lbtcUnit : assetSelected?.ticker}`}</span>
+          <span>{`${balances?.[assetSelected?.assetHash ?? 0]?.value ?? 0} ${
+            isLbtcTicker(assets[assetSelected?.assetHash ?? '']?.ticker || '') ? lbtcUnit : assetSelected?.ticker
+          }`}</span>
         </span>
 
         {isLoading ? null : (
@@ -196,15 +186,7 @@ const TradeRowInput: React.FC<Props> = ({
             {error || localError ? (
               <IonText color="danger">{(error || localError)?.message || 'unknown error'}</IonText>
             ) : (
-              <>
-                {fromUnitToLbtc(
-                  new Decimal(inputValue || 0),
-                  isLbtcTicker(balance?.ticker || '') ? lbtcUnit : undefined
-                )
-                  .mul(selectedAssetPrice || 0)
-                  .toFixed(2)}{' '}
-                {currency.value.toUpperCase()}
-              </>
+              <>{`${tradeCounterValue} ${currency.ticker.toUpperCase()}`}</>
             )}
           </span>
         )}
@@ -219,24 +201,7 @@ const TradeRowInput: React.FC<Props> = ({
           ev?.preventDefault();
           setIsSearchOpen(false);
         }}
-        prices={prices}
       />
     </div>
   );
 };
-
-const mapStateToProps = (state: RootState, ownProps: ComponentProps) => {
-  return {
-    isFetchingTransactions: state.app.isFetchingTransactions,
-    balance: ownProps.assetSelected ? balanceByAssetSelector(ownProps.assetSelected.assetHash)(state) : undefined,
-    currency: state.settings.currency,
-    lbtcUnit: state.settings.denominationLBTC,
-    network: state.settings.network,
-    selectedAssetPrice: ownProps.assetSelected?.coinGeckoID
-      ? state.rates.prices[ownProps.assetSelected.coinGeckoID]
-      : 0,
-    prices: state.rates.prices,
-  };
-};
-
-export default connect(mapStateToProps)(TradeRowInput);

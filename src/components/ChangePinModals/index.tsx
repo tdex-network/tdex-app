@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
 
 import PinModal from '../../components/PinModal';
-import { addErrorToast, addSuccessToast } from '../../redux/actions/toastActions';
+import { useToastStore } from '../../store/toastStore';
+import { useWalletStore } from '../../store/walletStore';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
+import { decrypt } from '../../utils/crypto';
 import type { AppError } from '../../utils/errors';
 import { IncorrectPINError } from '../../utils/errors';
-import { changePin, getMnemonicFromStorage } from '../../utils/storage-helper';
 import Loader from '../Loader';
 
 interface ChangePinModalsProps {
@@ -16,16 +16,20 @@ interface ChangePinModalsProps {
 }
 
 const ChangePinModals: React.FC<ChangePinModalsProps> = ({ open, onDeleted, onClose }) => {
+  const addErrorToast = useToastStore((state) => state.addErrorToast);
+  const addSuccessToast = useToastStore((state) => state.addSuccessToast);
+  const changePin = useWalletStore((state) => state.changePin);
+  const encryptedMnemonic = useWalletStore((state) => state.encryptedMnemonic);
+  //
   const [modalOpen, setModalOpen] = useState<'first' | 'second'>();
   const [loading, setLoading] = useState(false);
   const [currentPin, setCurrentPin] = useState('');
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [needReset, setNeedReset] = useState<boolean>(false);
-  const dispatch = useDispatch();
 
   const onError = (e: AppError) => {
     console.error(e);
-    dispatch(addErrorToast(e));
+    addErrorToast(e);
     setIsWrongPin(true);
     setTimeout(() => {
       setIsWrongPin(null);
@@ -44,31 +48,30 @@ const ChangePinModals: React.FC<ChangePinModalsProps> = ({ open, onDeleted, onCl
     }
   }, [modalOpen, open]);
 
-  const onFirstPinConfirm = (firstPin: string) => {
+  const onFirstPinConfirm = async (firstPin: string) => {
     setLoading(true);
-    getMnemonicFromStorage(firstPin)
-      .then(() => {
-        setCurrentPin(firstPin);
-        setIsWrongPin(false);
-        setTimeout(() => {
-          setModalOpen('second');
-          setIsWrongPin(null);
-        }, PIN_TIMEOUT_SUCCESS);
-      })
-      .catch(() => {
-        onError(IncorrectPINError);
-      })
-      .finally(() => {
-        setLoading(false);
-        setNeedReset(true);
-      });
+    if (!encryptedMnemonic) throw new Error('No mnemonic found in wallet');
+    try {
+      await decrypt(encryptedMnemonic, firstPin);
+      setCurrentPin(firstPin);
+      setIsWrongPin(false);
+      setTimeout(() => {
+        setModalOpen('second');
+        setIsWrongPin(null);
+      }, PIN_TIMEOUT_SUCCESS);
+    } catch (_) {
+      onError(IncorrectPINError);
+    } finally {
+      setLoading(false);
+      setNeedReset(true);
+    }
   };
 
   const onSecondPinConfirm = (secondPin: string) => {
     setLoading(true);
     changePin(currentPin, secondPin)
       .then(() => {
-        dispatch(addSuccessToast('PIN has been changed.'));
+        addSuccessToast('PIN has been changed.');
         onDeleted();
       })
       .catch(() => {

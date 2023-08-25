@@ -2,8 +2,8 @@
 
 📱 Mobile app for making trades on TDEX
 
-
 # Table of Contents
+
 1. [Install](#install)
 2. [Development](#development)
 3. [Release](#release)
@@ -14,10 +14,17 @@
 * Download Android from [Play Store](https://play.google.com/store/apps/details?id=io.sevenlabs.app) or install
   the [APK from Github Releases](https://github.com/tdex-network/tdex-app/releases)
 
-
 ## Development
 
 Below is a list of commands you will probably find useful for development.
+
+### Expose ElectrumX endpoints through websocket
+
+For now Nigiri doesn't support websocket connections to ElectrumX. But you can use
+
+```sh
+$ docker run --net=nigiri -d -p 1234:1234 ghcr.io/vi/websocat:0.11.0 -b ws-l:0.0.0.0:1234 tcp:electrs-liquid:50001
+```
 
 ### `yarn serve`
 
@@ -91,6 +98,7 @@ $ yarn tdex:clean
 * Change elements configuration by
   adding `fedpegscript=51210269e0180bc9e0be7648d6e9c17f3664bc3ebcee40f3a46cf4b42e583e96b911b951ae` and
   commenting `initialfreecoins=2100000000000000`
+  Otherwise you should get error `{"code":-26,"message":"pegin-no-witness,nopeg-inwitnessattached"}`
 
 * Change LBTC_ASSET[network].assetHash in `./src/utils/constants.ts`
   to `056293ee681516f2d61bb7ce63030351d5e02d61aef9fb00d30f27f55d935b18`
@@ -116,21 +124,23 @@ $ ./script/pegin.sh
 ### Internal testing
 
 For internal releases (Testflight or debug APK):
+
 - iOS: build on local machine with fastlane and upload to TestFlight
-  - `yarn build:ios`
-  - `fastlane ios beta` (this will increment build number only)
+    - `yarn build:ios`
+    - `fastlane ios beta` (this will increment build number only)
 - Android: APK build on local machine with fastlane
-  - `yarn build:android`
-  - `fastlane android apk`
+    - `yarn build:android`
+    - `fastlane android apk`
 
 ### Stores
 
 To release to stores:
+
 - run [tag.sh](./scripts/tag.sh) to make a new git tag, increments iOS & Android projects and push it to master
 - iOS: build on local machine with fastlane and upload to AppStore
-  - `yarn build:ios`
-  - `fastlane ios prod`
+    - `yarn build:ios`
+    - `fastlane ios prod`
 - Android: APK build on local machine with fastlane
-  - `yarn build:android`
-  - `fastlane android prod`
+    - `yarn build:android`
+    - `fastlane android prod`
 - The git tag will trigger `release.yml` to create a Github Release.

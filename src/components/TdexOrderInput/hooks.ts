@@ -1,36 +1,10 @@
 import { useEffect, useState } from 'react';
-import type { TradeOrder } from 'tdex-sdk';
 
-import type { TDEXMarket } from '../../redux/actionTypes/tdexActionTypes';
-import type { BalanceInterface } from '../../redux/actionTypes/walletActionTypes';
-import type { AssetConfig, LbtcDenomination } from '../../utils/constants';
-import { defaultPrecision } from '../../utils/constants';
+import { discoverBestOrder, isTradeOrderV2, previewTradeV1, previewTradeV2 } from '../../services/tdexService';
+import type { TDEXMarket as TDEXMarketV1, TradeOrder as TradeOrderV1 } from '../../services/tdexService/v1/tradeCore';
+import type { TDEXMarket as TDEXMarketV2, TradeOrder as TradeOrderV2 } from '../../services/tdexService/v2/tradeCore';
+import { useWalletStore } from '../../store/walletStore';
 import { NoMarketsAvailableForAllPairsError } from '../../utils/errors';
-import { fromSatoshiFixed, isLbtcTicker } from '../../utils/helpers';
-import { discoverBestOrder, marketPriceRequest } from '../../utils/tdex';
-
-import type { SatsAsset, AmountAndUnit } from '.';
-
-export function createAmountAndUnit(assetsRegistry: Record<string, AssetConfig>, lbtcUnit: LbtcDenomination) {
-  return (satsAsset: SatsAsset): AmountAndUnit => {
-    if (!satsAsset.asset || !satsAsset.sats || !assetsRegistry[satsAsset.asset]) {
-      return {
-        amount: '0',
-        unit: 'unknown',
-      };
-    }
-    const assetConfig = assetsRegistry[satsAsset.asset];
-    return {
-      amount: fromSatoshiFixed(
-        satsAsset.sats.toString() || '0',
-        assetConfig.precision ?? defaultPrecision,
-        assetConfig.precision ?? defaultPrecision,
-        isLbtcTicker(assetConfig.ticker) ? lbtcUnit : undefined
-      ),
-      unit: isLbtcTicker(assetConfig.ticker) ? lbtcUnit : assetConfig.ticker,
-    };
-  };
-}
 
 // custom state hook using to represent an asset/sats pair
 function useAssetSats(initialAssetHash?: string) {
@@ -40,14 +14,16 @@ function useAssetSats(initialAssetHash?: string) {
 }
 
 // eslint-disable-next-line
-export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[]) {
+export function useTradeState(markets: { v1: TDEXMarketV1[]; v2: TDEXMarketV2[] }) {
+  const balances = useWalletStore((s) => s.balances);
+  //
   const [sendAsset, sendSats, setSendAsset, setSendSats] = useAssetSats(
-    markets.length > 0 ? markets[0].baseAsset : undefined
+    markets.v1.length > 0 ? markets.v1[0].baseAsset : markets.v2.length > 0 ? markets.v2[0].baseAsset : undefined
   );
   const [receiveAsset, receiveSats, setReceiveAsset, setReceiveSats] = useAssetSats(
-    markets.length > 0 ? markets[0].quoteAsset : undefined
+    markets.v1.length > 0 ? markets.v1[0].quoteAsset : markets.v2.length > 0 ? markets.v2[0].quoteAsset : undefined
   );
-  const [bestOrder, setBestOrder] = useState<TradeOrder>();
+  const [bestOrder, setBestOrder] = useState<TradeOrderV1 | TradeOrderV2>();
   const [sendLoader, setSendLoader] = useState<boolean>(false);
   const [receiveLoader, setReceiveLoader] = useState<boolean>(false);
   const [focus, setFocus] = useState<'send' | 'receive'>();
@@ -57,6 +33,10 @@ export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[
   const [assetSendBeforeSwap, setAssetSendBeforeSwap] = useState<string | undefined>(sendAsset);
   const [sendAssetHasChanged, setSendAssetHasChanged] = useState<boolean>(false);
   const [receiveAssetHasChanged, setReceiveAssetHasChanged] = useState<boolean>(false);
+  const [tradeFeeSats, setTradeFeeSats] = useState<number>();
+  const [tradeFeeAsset, setTradeFeeAsset] = useState<string>('');
+  //
+  const sendBalance = balances?.[sendAsset ?? ''];
 
   const resetErrors = () => {
     setSendError(undefined);
@@ -73,6 +53,7 @@ export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[
   };
 
   const updateReceiveSats = async (newSendSats: number) => {
+    if (newSendSats === 0) return;
     if (receiveAssetHasChanged) {
       setReceiveAssetHasChanged(false);
       return;
@@ -80,12 +61,24 @@ export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[
     if (receiveLoader || !sendAsset || (focus === 'receive' && !hasBeenSwapped && !sendAssetHasChanged)) return;
     try {
       setReceiveLoader(true);
-      const sendBalance = balances.find((b) => b.assetHash === sendAsset)?.amount;
-      if (newSendSats > (sendBalance ?? 0)) throw new Error(`not enough balance`);
-      const bestOrder = await discoverBestOrder(markets, sendAsset, receiveAsset)(newSendSats ?? 0, sendAsset);
-      const assetSats = await marketPriceRequest(bestOrder, newSendSats ?? 0, sendAsset);
-      setReceiveSats(Number(assetSats.sats));
+      if (newSendSats > (sendBalance?.sats ?? 0)) throw new Error(`not enough balance`);
+      let preview;
+      const bestOrder = await discoverBestOrder(
+        markets,
+        sendAsset,
+        receiveAsset
+      )(newSendSats ?? 0, sendAsset as string);
+      if (isTradeOrderV2(bestOrder)) {
+        preview = await previewTradeV2(bestOrder, newSendSats, sendAsset as string);
+        if (!preview) throw new Error('no preview available');
+        // fee amount only available in v2
+        setTradeFeeSats(Number(preview.feeAmount));
+        setTradeFeeAsset(preview.feeAsset);
+      } else {
+        preview = await previewTradeV1(bestOrder, newSendSats, sendAsset as string);
+      }
       setBestOrder(bestOrder);
+      setReceiveSats(Number(preview?.amount ?? 0));
       resetErrors();
     } catch (err) {
       console.error(err);
@@ -101,12 +94,20 @@ export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[
     }
     try {
       setSendLoader(true);
-      const bestOrder = await discoverBestOrder(markets, sendAsset, receiveAsset)(newReceiveSats ?? 0, receiveAsset);
-      const assetSats = await marketPriceRequest(bestOrder, newReceiveSats ?? 0, receiveAsset);
-      const sendBalance = balances.find((b) => b.assetHash === sendAsset)?.amount;
-      if (Number(assetSats.sats) > (sendBalance ?? 0)) throw new Error(`not enough balance`);
-      setSendSats(Number(assetSats.sats));
+      let bestOrder, preview;
+      bestOrder = await discoverBestOrder(
+        markets,
+        sendAsset,
+        receiveAsset
+      )(newReceiveSats ?? 0, receiveAsset as string);
+      if (isTradeOrderV2(bestOrder)) {
+        preview = await previewTradeV2(bestOrder, newReceiveSats ?? 0, receiveAsset as string);
+      } else {
+        preview = await previewTradeV1(bestOrder, newReceiveSats ?? 0, receiveAsset as string);
+      }
+      if (Number(preview?.amount ?? 0) > (sendBalance?.sats ?? 0)) throw new Error(`not enough balance`);
       setBestOrder(bestOrder);
+      setSendSats(Number(preview?.amount ?? 0));
       resetErrors();
     } catch (err) {
       console.error(err);
@@ -133,7 +134,7 @@ export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[
   };
 
   useEffect(() => {
-    if (markets.length === 0) {
+    if (markets.v1.length === 0 && markets.v2.length === 0) {
       setSendError(NoMarketsAvailableForAllPairsError);
       setReceiveError(NoMarketsAvailableForAllPairsError);
     } else {
@@ -141,7 +142,7 @@ export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[
       setSendAmount(sendSats ?? 0).catch(console.error);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [markets.length, sendSats]);
+  }, [markets.v1.length, markets.v2.length, sendSats]);
 
   // After assets have been actually swapped, setHasBeenSwapped true
   useEffect(() => {
@@ -197,5 +198,7 @@ export function useTradeState(markets: TDEXMarket[], balances: BalanceInterface[
     setHasBeenSwapped,
     setSendAssetHasChanged,
     setReceiveAssetHasChanged,
+    tradeFeeSats,
+    tradeFeeAsset,
   ] as const;
 }

@@ -1,6 +1,5 @@
 import { IonButton, IonCol, IonRow } from '@ionic/react';
 import type { HTMLAttributes, PropsWithChildren } from 'react';
-import React from 'react';
 
 interface ButtonsMainSubProps extends PropsWithChildren<HTMLAttributes<any>> {
   mainTitle: string;

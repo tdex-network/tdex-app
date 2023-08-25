@@ -1,0 +1,10 @@
+version: v1
+plugins:
+  - plugin: buf.build/community/timostamm-protobuf-ts
+    out: src/api-spec/protobuf/gen/js
+    opt:
+      - add_pb_suffix
+      - eslint_disable
+      - ts_nocheck
+      - long_type_string
+      - output_javascript

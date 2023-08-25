@@ -2,41 +2,32 @@ import './style.scss';
 import { IonContent, IonIcon, IonPage, IonGrid, IonRow, IonCol } from '@ionic/react';
 import { warningOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
-import { connect } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
-import type { Dispatch } from 'redux';
 
 import ButtonsMainSub from '../../components/ButtonsMainSub';
 import Checkbox from '../../components/Checkbox';
 import Header from '../../components/Header';
 import PinModal from '../../components/PinModal';
-import { setIsBackupDone } from '../../redux/actions/appActions';
-import { addErrorToast } from '../../redux/actions/toastActions';
-import { useTypedDispatch } from '../../redux/hooks';
-import type { RootState } from '../../redux/types';
 import { routerLinks } from '../../routes';
+import { useAppStore } from '../../store/appStore';
+import { useToastStore } from '../../store/toastStore';
+import { useWalletStore } from '../../store/walletStore';
 import { PIN_TIMEOUT_FAILURE, PIN_TIMEOUT_SUCCESS } from '../../utils/constants';
-import type { AppError } from '../../utils/errors';
 import { IncorrectPINError } from '../../utils/errors';
-import { getMnemonicFromStorage, setSeedBackupFlag } from '../../utils/storage-helper';
 
-interface BackupProps extends RouteComponentProps {
-  // connected redux props
-  backupDone: boolean;
-  setIsBackupDone: (done: boolean) => void;
-  onError: (err: AppError) => void;
-}
-
-const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
+export const Backup: React.FC<RouteComponentProps> = ({ history }) => {
+  const setIsBackupDone = useAppStore((state) => state.setIsBackupDone);
+  const addErrorToast = useToastStore((state) => state.addErrorToast);
+  const decryptMnemonic = useWalletStore((state) => state.decryptMnemonic);
+  //
   const [isSeedSaved, setIsSeedSaved] = useState<boolean>(false);
   const [isPinModalOpen, setIsPinModalOpen] = useState<boolean>(false);
   const [isWrongPin, setIsWrongPin] = useState<boolean | null>(null);
   const [needReset, setNeedReset] = useState<boolean>(false);
-  const dispatch = useTypedDispatch();
 
   const handlePinConfirm = async (pin: string) => {
     try {
-      const mnemonic = await getMnemonicFromStorage(pin);
+      const mnemonic = await decryptMnemonic(pin);
       setIsWrongPin(false);
       setTimeout(() => {
         history.push({
@@ -52,7 +43,7 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
         setIsWrongPin(null);
         setNeedReset(true);
       }, PIN_TIMEOUT_FAILURE);
-      dispatch(addErrorToast(IncorrectPINError));
+      addErrorToast(IncorrectPINError);
       console.error(err);
     }
   };
@@ -120,21 +111,3 @@ const Backup: React.FC<BackupProps> = ({ history, setIsBackupDone }) => {
     </IonPage>
   );
 };
-
-const mapStateToProps = (state: RootState) => {
-  return {
-    backupDone: state.app.backupDone,
-  };
-};
-
-const mapDispatchToProps = (dispatch: Dispatch) => {
-  return {
-    setIsBackupDone: (done: boolean) => {
-      setSeedBackupFlag(done);
-      dispatch(setIsBackupDone(done));
-    },
-    onError: (err: AppError) => dispatch(addErrorToast(err)),
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Backup);

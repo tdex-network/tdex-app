@@ -1,0 +1,23 @@
+{
+  "00140710df2380740dae7499567ec5d291d8e74d81f9": {
+    "depositAddress": {
+      "claimScript": "00140710df2380740dae7499567ec5d291d8e74d81f9",
+      "address": "2N3i4C56DiqfpdcAJsAdZd2xYpCQMRAroye",
+      "derivationPath": "m/84'/1'/0'/0/0"
+    },
+    "depositUtxos": {
+      "2a0ba71fe250453324cb3c06f3340610c829e207e030042b2c207bc8ef973d13:0": {
+        "txid": "2a0ba71fe250453324cb3c06f3340610c829e207e030042b2c207bc8ef973d13",
+        "vout": 0,
+        "status": {
+          "confirmed": true,
+          "block_height": 102,
+          "block_hash": "202eba3f305cb574656a1368c107e0cc21606b6b583dbe41a168adfe92faa78a",
+          "block_time": 1686662114
+        },
+        "value": 100000000,
+        "claimTxId": "90a418b036ee239b1b5dcc275925ca7c0413d6fdaaabe8a0a480b6b75adba040"
+      }
+    }
+  }
+}

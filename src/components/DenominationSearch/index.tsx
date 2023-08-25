@@ -1,11 +1,11 @@
-import { IonContent, IonList, IonModal, IonHeader, IonItem, IonInput, IonIcon } from '@ionic/react';
+import { IonContent, IonHeader, IonIcon, IonInput, IonItem, IonList, IonModal } from '@ionic/react';
 import { closeSharp, searchSharp } from 'ionicons/icons';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
 
-import { updatePrices } from '../../redux/actions/ratesActions';
-import { setLBTCDenomination } from '../../redux/actions/settingsActions';
-import { LBTC_DENOMINATIONS } from '../../utils/constants';
+import { useSettingsStore } from '../../store/settingsStore';
+import { useWalletStore } from '../../store/walletStore';
+import type { LbtcUnit } from '../../utils/constants';
+import { LBTC_UNITS } from '../../utils/constants';
 
 interface DenominationSearchProps {
   isOpen: boolean;
@@ -13,12 +13,21 @@ interface DenominationSearchProps {
 }
 
 const DenominationSearch: React.FC<DenominationSearchProps> = ({ isOpen, close }) => {
+  const setLbtcDenomination = useSettingsStore((state) => state.setLbtcDenomination);
+  const computeBalances = useWalletStore((state) => state.computeBalances);
+  //
   const [searchString, setSearchString] = useState('');
-  const dispatch = useDispatch();
 
   return (
     <div className="search">
-      <IonModal className="modal-small" isOpen={isOpen} onDidDismiss={close}>
+      <IonModal
+        className="modal-small"
+        isOpen={isOpen}
+        onDidDismiss={(ev) => {
+          setSearchString('');
+          close(ev);
+        }}
+      >
         <IonHeader className="ion-no-border">
           <div>
             <label className="search-bar">
@@ -26,7 +35,7 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({ isOpen, close }
               <IonInput
                 inputMode="search"
                 color="light-contrast"
-                placeholder="Search currency"
+                placeholder="Search denomination"
                 value={searchString}
                 onIonChange={(e) => setSearchString(e.detail.value || '')}
               />
@@ -36,17 +45,22 @@ const DenominationSearch: React.FC<DenominationSearchProps> = ({ isOpen, close }
         </IonHeader>
         <IonContent className="search-content">
           <IonList>
-            {LBTC_DENOMINATIONS.filter((denomination: string) => denomination.includes(searchString)).map(
-              (denomination: string, index: number) => {
+            {LBTC_UNITS.filter((denomination: string) => denomination.includes(searchString)).map(
+              (denomination: LbtcUnit, index: number) => {
                 return (
                   <IonItem
                     className="ion-no-margin"
                     key={index}
                     data-asset={index}
-                    onClick={(ev) => {
-                      dispatch(setLBTCDenomination(denomination));
-                      dispatch(updatePrices());
-                      close(ev);
+                    onClick={async (ev) => {
+                      try {
+                        setLbtcDenomination(denomination);
+                        await computeBalances();
+                      } catch (e) {
+                        console.error('Error computing balances');
+                      } finally {
+                        close(ev);
+                      }
                     }}
                   >
                     <div className="search-item-name">

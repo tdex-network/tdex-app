@@ -1,5 +1,6 @@
 import b58 from 'bs58check';
-import type { NetworkString } from 'tdex-sdk';
+
+import type { NetworkString } from './constants';
 
 // This has been taken from https://github.com/Casa/xpub-converter/blob/master/js/xpubConvert.js
 /*
@@ -41,4 +42,8 @@ function changeVersionBytes(xpub: string, targetFormat: string) {
 export function fromXpub(xpub: string, chain: NetworkString): string {
   const format = chain === 'liquid' ? 'zpub' : 'vpub';
   return changeVersionBytes(xpub, format);
+}
+
+export function toXpub(anyPub: string): string {
+  return changeVersionBytes(anyPub, 'xpub');
 }

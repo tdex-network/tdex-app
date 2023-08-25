@@ -13,7 +13,7 @@ git add .
 git commit -m "Bump $version"
 git push origin master
 
-echo "Push new tag..."
+#echo "Push new tag..."
 #git tag -a v$version -m "Release v$version"
-git push origin v$version
+#git push origin v$version
 

@@ -1,34 +1,35 @@
 import { IonButton, IonCol, IonContent, IonGrid, IonPage, IonRow } from '@ionic/react';
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
 import type { RouteComponentProps } from 'react-router';
 import { useLocation } from 'react-router';
 
 import Header from '../../components/Header';
 import PageDescription from '../../components/PageDescription';
-import { resetAll } from '../../redux/actions/rootActions';
-import { removeMnemonicFromStorage } from '../../utils/storage-helper';
+import { useWalletStore } from '../../store/walletStore';
+import { resetAllStores } from '../../utils/actions';
 
 interface LocationState {
   pin: string;
 }
 
 const DeleteMnemonic: React.FC<RouteComponentProps> = ({ history }) => {
+  const decryptMnemonic = useWalletStore((state) => state.decryptMnemonic);
+  //
   const { state } = useLocation<LocationState>();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
-  const dispatch = useDispatch();
 
   const deleteMnemonic = async () => {
     setIsLoading(true);
-    const success = await removeMnemonicFromStorage(state?.pin);
-    if (!success) {
+    try {
+      await decryptMnemonic(state?.pin);
+    } catch (err) {
       setErrorMsg('Error: your key has not been deleted. Please contact support.');
       setIsLoading(false);
       return;
     }
     setIsLoading(false);
-    dispatch(resetAll());
+    resetAllStores();
     history.replace('/homescreen');
   };
 
