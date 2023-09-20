@@ -21,7 +21,7 @@ echo ""
 
 mkdir -p oceand
 
-docker run -it -d --name oceand \
+docker run -it -u 0:0 -d --name oceand \
   -p 18000:18000 \
   -v "$(pwd)/oceand:/home/ocean/.oceand" \
   -e OCEAN_LOG_LEVEL=5 \
@@ -40,7 +40,7 @@ echo ""
 mkdir -p tdexd
 
 
-docker run -it -d --name tdexd \
+docker run -it -u 0:0 -d --name tdexd \
   -p 9945:9945 -p 9000:9000 \
   -v "$(pwd)/tdexd:/home/tdex/.tdex-daemon" \
   -e TDEX_BASE_ASSET="$TDEX_BASE_ASSET" \
