@@ -30,6 +30,8 @@ yarn-error.log*
 
 # tdex daemon
 /tdexd
+# ocean wallet
+/oceand
 
 #android
 android/app/debug/output-metadata.json
