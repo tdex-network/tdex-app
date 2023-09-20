@@ -16,6 +16,8 @@ done
 echo "TDEX_BASE_ASSET: $TDEX_BASE_ASSET";
 echo ""
 
+sleep 10
+
 echo "starting oceand"
 echo ""
 
@@ -34,8 +36,6 @@ docker run -it -u 0:0 -d --name oceand \
   --network="nigiri" \
   ghcr.io/vulpemventures/oceand:v0.1.17
 
-docker logs oceand
-
 echo "starting tdexd"
 echo ""
 
@@ -50,8 +50,6 @@ docker run -it -u 0:0 -d --name tdexd \
   -e TDEX_WALLET_ADDR=oceand:18000 \
   --network="nigiri" \
   ghcr.io/tdex-network/tdexd:v1.0.1
-
-docker logs tdexd
 
 echo ""
 echo "init wallet"
