@@ -95,7 +95,6 @@
     "tdex:connect": "docker exec -it tdexd tdexdconnect --out url",
     "tdex:run": "bash scripts/tdexd-run",
     "tdex:run-init": "bash scripts/tdexd-run-initialized.sh",
-    "tdex:run-initialized": "curl https://raw.githubusercontent.com/TDex-network/tdex-sdk/master/scripts/tdexd-run -o tdex-run && bash tdex-run && rm tdex-run",
     "test": "craco test"
   },
   "dependencies": {
