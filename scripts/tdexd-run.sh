@@ -34,6 +34,8 @@ docker run -it -u 0:0 -d --name oceand \
   --network="nigiri" \
   ghcr.io/vulpemventures/oceand:v0.1.17
 
+docker logs oceand
+
 echo "starting tdexd"
 echo ""
 
@@ -49,6 +51,7 @@ docker run -it -u 0:0 -d --name tdexd \
   --network="nigiri" \
   ghcr.io/tdex-network/tdexd:v1.0.1
 
+docker logs tdexd
 
 echo ""
 echo "init wallet"
