@@ -16,7 +16,7 @@ done
 echo "TDEX_BASE_ASSET: $TDEX_BASE_ASSET";
 echo ""
 
-sleep 10
+sleep 7
 
 echo "starting oceand"
 echo ""
@@ -53,6 +53,8 @@ docker run -it -u 0:0 -d --name tdexd \
 
 echo ""
 echo "init wallet"
+
+sleep 7
 
 tdex='docker exec -it tdexd tdex '
 $tdex config init
