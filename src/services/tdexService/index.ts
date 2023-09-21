@@ -368,7 +368,7 @@ export function discoverBestOrder(
   return async (sats: number, asset: string): Promise<TradeOrderV1 | TradeOrderV2> => {
     if (sats <= 0) {
       // return a random order to avoid calling discoverer
-      return allPossibleOrdersV1[0] ?? allPossibleOrdersV2[0];
+      return allPossibleOrdersV2[0] ?? allPossibleOrdersV1[0];
     }
     try {
       const discovererV1 = tdex.createDiscovererV1(
@@ -388,7 +388,7 @@ export function discoverBestOrder(
       return bestOrdersV2[0] ?? bestOrdersV1[0];
     } catch (err) {
       console.error(err);
-      return allPossibleOrdersV1[0];
+      return allPossibleOrdersV2[0] ?? allPossibleOrdersV1[0];
     }
   };
 }
