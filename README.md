@@ -144,3 +144,7 @@ To release to stores:
     - `yarn build:android`
     - `fastlane android prod`
 - The git tag will trigger `release.yml` to create a Github Release.
+
+## Links
+
+[![Hypercommit](https://img.shields.io/badge/Hypercommit-DB2475)](https://hypercommit.com/tdex-app)
