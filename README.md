@@ -1,5 +1,7 @@
 # tdex-app
 
+> NOT MAINTAINED: Please do not use in production
+
 📱 Mobile app for making trades on TDEX
 
 # Table of Contents
